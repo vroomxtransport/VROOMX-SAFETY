@@ -423,36 +423,97 @@ const Landing = () => {
 
           <div className="relative group">
             <div className="absolute inset-0 bg-gradient-to-tr from-primary-500/20 to-primary-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-500" />
-            <div className="glass-card rounded-2xl p-8 relative overflow-hidden border-t border-white/10">
-              {/* Code/File mockup */}
-              <div className="flex items-center gap-3 mb-6 opacity-60">
-                <div className="flex gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-red-500/50" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
-                  <div className="w-3 h-3 rounded-full bg-green-500/50" />
+
+            {/* Excel-Style Spreadsheet Mockup */}
+            <div className="glass-card rounded-2xl overflow-hidden relative border border-white/10 shadow-2xl">
+              {/* Excel Title Bar */}
+              <div className="bg-[#217346] px-3 py-2 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="flex gap-1.5">
+                    <div className="w-3 h-3 rounded-full bg-[#ff5f57]" />
+                    <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
+                    <div className="w-3 h-3 rounded-full bg-[#28ca42]" />
+                  </div>
+                  <span className="text-white/90 text-xs font-medium ml-2">compliance_tracking_FINAL_v3.xlsx</span>
                 </div>
-                <div className="h-2 w-32 bg-white/10 rounded-full" />
+                <div className="text-white/60 text-[10px]">⚠️ Not saved</div>
               </div>
 
-              <div className="space-y-3 font-mono text-sm">
-                {['driver_files_v3.xlsx', 'maintenance_logs_old.pdf', 'inspection_reports_24.docx', 'fuel_receipts_scan.jpg'].map((file, i) => (
-                  <div key={i} className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/5" style={{ opacity: 1 - i * 0.15 }}>
-                    <div className="flex items-center gap-3 text-gray-400">
-                      <FiFileText className="w-4 h-4" />
-                      <span>{file}</span>
-                    </div>
-                    <span className="text-red-400 text-xs">Deleted</span>
+              {/* Excel Ribbon (simplified) */}
+              <div className="bg-[#1e1e1e] border-b border-white/10 px-2 py-1.5 flex items-center gap-4">
+                <span className="text-[10px] text-white/40 px-2 py-0.5 bg-white/5 rounded">File</span>
+                <span className="text-[10px] text-white/40 px-2 py-0.5">Home</span>
+                <span className="text-[10px] text-white/40 px-2 py-0.5">Insert</span>
+                <span className="text-[10px] text-white/40 px-2 py-0.5">Data</span>
+              </div>
+
+              {/* Formula Bar */}
+              <div className="bg-[#252526] border-b border-white/10 px-2 py-1.5 flex items-center gap-2">
+                <span className="text-[10px] text-white/60 bg-white/5 px-2 py-0.5 rounded font-mono">fx</span>
+                <span className="text-[10px] text-red-400 font-mono">=COUNTIF(C:C,"EXPIRED") → 3 ⚠️</span>
+              </div>
+
+              {/* Sheet Tabs */}
+              <div className="bg-[#1e1e1e] px-2 py-1 flex items-center gap-1 border-b border-white/10">
+                <div className="px-3 py-1 bg-[#252526] text-white/90 text-[10px] font-medium rounded-t border-t border-x border-white/10">
+                  Compliance
+                </div>
+                <div className="px-3 py-1 text-white/40 text-[10px]">Drivers</div>
+                <div className="px-3 py-1 text-white/40 text-[10px]">Vehicles</div>
+              </div>
+
+              {/* Spreadsheet Content */}
+              <div className="bg-[#1e1e1e] p-0 overflow-hidden">
+                {/* Column Headers */}
+                <div className="grid grid-cols-[40px_100px_110px_90px_60px] text-[10px] font-bold bg-[#252526] border-b border-white/10">
+                  <div className="p-2 text-white/40 border-r border-white/10"></div>
+                  <div className="p-2 text-white/60 border-r border-white/10 text-center">A</div>
+                  <div className="p-2 text-white/60 border-r border-white/10 text-center">B</div>
+                  <div className="p-2 text-white/60 border-r border-white/10 text-center">C</div>
+                  <div className="p-2 text-white/60 text-center">D</div>
+                </div>
+                <div className="grid grid-cols-[40px_100px_110px_90px_60px] text-[10px] font-semibold bg-[#2d2d2d] border-b border-white/10">
+                  <div className="p-2 text-white/40 border-r border-white/10 text-center">1</div>
+                  <div className="p-2 text-white/80 border-r border-white/10">Name</div>
+                  <div className="p-2 text-white/80 border-r border-white/10">Item</div>
+                  <div className="p-2 text-white/80 border-r border-white/10">Status</div>
+                  <div className="p-2 text-white/80">Days</div>
+                </div>
+
+                {/* Data Rows */}
+                {[
+                  { row: 2, name: 'J. Smith', item: 'Medical Card', status: 'EXPIRED', days: '-45', statusBg: 'bg-red-500/30', statusText: 'text-red-400' },
+                  { row: 3, name: 'M. Garcia', item: 'CDL License', status: 'EXPIRING', days: '12', statusBg: 'bg-amber-500/20', statusText: 'text-amber-400' },
+                  { row: 4, name: 'R. Johnson', item: 'MVR Review', status: 'MISSING', days: '—', statusBg: 'bg-gray-500/20', statusText: 'text-gray-400', selected: true },
+                  { row: 5, name: 'T-101', item: 'Annual Insp.', status: 'OVERDUE', days: '-23', statusBg: 'bg-red-500/30', statusText: 'text-red-400' },
+                  { row: 6, name: 'T-102', item: 'Drug Test', status: 'DUE SOON', days: '3', statusBg: 'bg-amber-500/20', statusText: 'text-amber-400' },
+                  { row: 7, name: 'S. Williams', item: 'Clearinghouse', status: 'NOT QUERIED', days: '365+', statusBg: 'bg-red-500/30', statusText: 'text-red-400' },
+                ].map((row, i) => (
+                  <div
+                    key={i}
+                    className={`grid grid-cols-[40px_100px_110px_90px_60px] text-[10px] border-b border-white/5 ${i % 2 === 0 ? 'bg-[#1e1e1e]' : 'bg-[#252526]'} ${row.selected ? 'ring-2 ring-blue-500 ring-inset' : ''}`}
+                  >
+                    <div className="p-2 text-white/40 border-r border-white/10 text-center bg-[#252526]">{row.row}</div>
+                    <div className="p-2 text-white/70 border-r border-white/10 font-mono truncate">{row.name}</div>
+                    <div className="p-2 text-white/70 border-r border-white/10 font-mono truncate">{row.item}</div>
+                    <div className={`p-2 border-r border-white/10 font-mono font-bold ${row.statusBg} ${row.statusText}`}>{row.status}</div>
+                    <div className={`p-2 font-mono text-center ${row.days.startsWith('-') ? 'text-red-400' : row.days === '—' ? 'text-gray-500' : 'text-amber-400'}`}>{row.days}</div>
                   </div>
                 ))}
 
-                <div className="my-6 border-b border-white/10" />
-
-                <div className="flex items-center gap-3 text-green-400 animate-pulse">
-                  <FiCheckCircle className="w-5 h-5" />
-                  <span>Migrating to VroomX Safety...</span>
+                {/* Partial row to show scrolling */}
+                <div className="grid grid-cols-[40px_100px_110px_90px_60px] text-[10px] bg-[#1e1e1e] opacity-40">
+                  <div className="p-2 text-white/40 border-r border-white/10 text-center bg-[#252526]">8</div>
+                  <div className="p-2 text-white/70 border-r border-white/10 font-mono">D. Brown</div>
+                  <div className="p-2 text-white/70 border-r border-white/10 font-mono">Road Test</div>
+                  <div className="p-2 border-r border-white/10 font-mono">...</div>
+                  <div className="p-2 font-mono text-center">...</div>
                 </div>
-                <div className="h-1.5 w-full bg-gray-800 rounded-full overflow-hidden mt-2">
-                  <div className="h-full bg-primary-500 w-3/4 shadow-glow-sm" />
+
+                {/* Status Bar */}
+                <div className="bg-[#007acc] px-3 py-1 flex items-center justify-between mt-1">
+                  <span className="text-[9px] text-white/80">⚠️ 3 EXPIRED • 2 EXPIRING SOON • 1 MISSING</span>
+                  <span className="text-[9px] text-white/60">Ready</span>
                 </div>
               </div>
             </div>
