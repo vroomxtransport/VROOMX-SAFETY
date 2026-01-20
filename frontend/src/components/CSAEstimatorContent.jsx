@@ -1,0 +1,485 @@
+import { useState, useEffect } from 'react';
+import { csaAPI } from '../utils/api';
+import {
+  FiShield, FiAlertTriangle, FiAlertCircle, FiCheckCircle, FiTrendingDown,
+  FiClock, FiRefreshCw, FiInfo, FiChevronRight, FiActivity, FiTarget
+} from 'react-icons/fi';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
+import LoadingSpinner from './LoadingSpinner';
+
+const CSAEstimatorContent = () => {
+  const [scores, setScores] = useState(null);
+  const [summary, setSummary] = useState(null);
+  const [timeDecay, setTimeDecay] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedBasic, setSelectedBasic] = useState(null);
+
+  // What-if calculator state
+  const [whatIfOpen, setWhatIfOpen] = useState(false);
+  const [whatIfData, setWhatIfData] = useState({
+    basic: 'vehicle_maintenance',
+    severityWeight: 5,
+    outOfService: false
+  });
+  const [whatIfResult, setWhatIfResult] = useState(null);
+  const [projecting, setProjecting] = useState(false);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [scoresRes, summaryRes, decayRes] = await Promise.all([
+        csaAPI.getCurrent(),
+        csaAPI.getSummary(),
+        csaAPI.getTimeDecay(24)
+      ]);
+
+      setScores(scoresRes.data.basics);
+      setSummary(summaryRes.data);
+      setTimeDecay(decayRes.data);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to load CSA scores');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleProjectImpact = async () => {
+    setProjecting(true);
+    try {
+      const response = await csaAPI.projectImpact(whatIfData);
+      setWhatIfResult(response.data);
+    } catch (err) {
+      console.error('Failed to project impact:', err);
+    } finally {
+      setProjecting(false);
+    }
+  };
+
+  const getScoreColor = (percentile, threshold) => {
+    if (percentile >= 80) return 'text-danger-600';
+    if (percentile >= threshold) return 'text-warning-600';
+    return 'text-success-600';
+  };
+
+  const getScoreBgColor = (percentile, threshold) => {
+    if (percentile >= 80) return 'bg-danger-100';
+    if (percentile >= threshold) return 'bg-warning-100';
+    return 'bg-success-100';
+  };
+
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case 'critical':
+        return <span className="px-2 py-1 text-xs font-semibold bg-danger-100 text-danger-700 rounded-full">Critical</span>;
+      case 'alert':
+        return <span className="px-2 py-1 text-xs font-semibold bg-warning-100 text-warning-700 rounded-full">Alert</span>;
+      default:
+        return <span className="px-2 py-1 text-xs font-semibold bg-success-100 text-success-700 rounded-full">OK</span>;
+    }
+  };
+
+  const basicDescriptions = {
+    unsafe_driving: 'Speeding, reckless driving, improper lane changes, inattention',
+    hours_of_service: 'HOS violations, log falsification, driving beyond limits',
+    vehicle_maintenance: 'Brake defects, lighting, tires, load securement issues',
+    controlled_substances: 'Drug/alcohol violations, positive tests, refusals',
+    driver_fitness: 'CDL issues, medical certification, training deficiencies',
+    crash_indicator: 'DOT-recordable crash history and patterns'
+  };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64">
+        <LoadingSpinner size="lg" variant="truck" />
+        <p className="mt-4 text-sm text-primary-500">Loading CSA scores...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64">
+        <div className="w-16 h-16 rounded-full bg-danger-100 flex items-center justify-center mb-4">
+          <FiAlertCircle className="w-8 h-8 text-danger-500" />
+        </div>
+        <p className="text-danger-600 font-medium mb-2">{error}</p>
+        <button onClick={fetchData} className="btn btn-primary">
+          Try Again
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header Actions */}
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={() => setWhatIfOpen(!whatIfOpen)}
+          className={`btn ${whatIfOpen ? 'btn-primary' : 'btn-secondary'}`}
+        >
+          <FiTarget className="w-4 h-4" />
+          What-If Calculator
+        </button>
+        <button onClick={fetchData} className="btn btn-secondary">
+          <FiRefreshCw className="w-4 h-4" />
+          Refresh
+        </button>
+      </div>
+
+      {/* Disclaimer Banner */}
+      <div
+        className="bg-info-50 border border-info-200 rounded-xl p-4 flex items-start gap-3"
+      >
+        <FiInfo className="w-5 h-5 text-info-600 flex-shrink-0 mt-0.5" />
+        <div>
+          <p className="text-sm font-medium text-info-800">These are ESTIMATED scores</p>
+          <p className="text-xs text-info-700 mt-1">
+            Actual SMS percentiles require peer group comparisons using national data from FMCSA.
+            These estimates are based on your recorded violations and standard severity weights.
+          </p>
+        </div>
+      </div>
+
+      {/* Summary Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div
+          className="bg-white rounded-xl border border-primary-200/60 p-5"
+          style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}
+        >
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-lg bg-danger-100 flex items-center justify-center">
+              <FiAlertCircle className="w-5 h-5 text-danger-600" />
+            </div>
+            <span className="text-sm font-medium text-primary-600">Critical BASICs</span>
+          </div>
+          <p className="text-3xl font-bold text-danger-600">{summary?.criticalCount || 0}</p>
+        </div>
+
+        <div
+          className="bg-white rounded-xl border border-primary-200/60 p-5"
+          style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}
+        >
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-lg bg-warning-100 flex items-center justify-center">
+              <FiAlertTriangle className="w-5 h-5 text-warning-600" />
+            </div>
+            <span className="text-sm font-medium text-primary-600">Alert BASICs</span>
+          </div>
+          <p className="text-3xl font-bold text-warning-600">{summary?.alertCount || 0}</p>
+        </div>
+
+        <div
+          className="bg-white rounded-xl border border-primary-200/60 p-5"
+          style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}
+        >
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-lg bg-success-100 flex items-center justify-center">
+              <FiCheckCircle className="w-5 h-5 text-success-600" />
+            </div>
+            <span className="text-sm font-medium text-primary-600">OK BASICs</span>
+          </div>
+          <p className="text-3xl font-bold text-success-600">{summary?.okCount || 0}</p>
+        </div>
+
+        <div
+          className="bg-white rounded-xl border border-primary-200/60 p-5"
+          style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}
+        >
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center">
+              <FiActivity className="w-5 h-5 text-primary-600" />
+            </div>
+            <span className="text-sm font-medium text-primary-600">Avg Percentile</span>
+          </div>
+          <p className="text-3xl font-bold text-primary-700">{summary?.averagePercentile || 0}%</p>
+        </div>
+      </div>
+
+      {/* What-If Calculator (collapsible) */}
+      {whatIfOpen && (
+        <div
+          className="bg-white rounded-xl border border-accent-200/60 overflow-hidden"
+          style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}
+        >
+          <div
+            className="px-5 py-4 border-b border-accent-100"
+            style={{ background: 'linear-gradient(to bottom, #fff7ed, #ffedd5)' }}
+          >
+            <div className="flex items-center gap-3">
+              <FiTarget className="w-5 h-5 text-accent-600" />
+              <h2 className="text-base font-semibold text-primary-900">What-If Calculator</h2>
+            </div>
+            <p className="text-xs text-primary-500 mt-1">Project how a new violation would impact your scores</p>
+          </div>
+          <div className="p-5">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+              <div>
+                <label className="block text-sm font-medium text-primary-700 mb-1">BASIC Category</label>
+                <select
+                  value={whatIfData.basic}
+                  onChange={(e) => setWhatIfData({ ...whatIfData, basic: e.target.value })}
+                  className="w-full px-3 py-2 border border-primary-200 rounded-lg focus:ring-2 focus:ring-primary-500"
+                >
+                  <option value="unsafe_driving">Unsafe Driving</option>
+                  <option value="hours_of_service">Hours of Service</option>
+                  <option value="vehicle_maintenance">Vehicle Maintenance</option>
+                  <option value="controlled_substances">Controlled Substances</option>
+                  <option value="driver_fitness">Driver Fitness</option>
+                  <option value="crash_indicator">Crash Indicator</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-primary-700 mb-1">Severity Weight</label>
+                <select
+                  value={whatIfData.severityWeight}
+                  onChange={(e) => setWhatIfData({ ...whatIfData, severityWeight: parseInt(e.target.value) })}
+                  className="w-full px-3 py-2 border border-primary-200 rounded-lg focus:ring-2 focus:ring-primary-500"
+                >
+                  <option value="1">1 - Minor</option>
+                  <option value="3">3 - Low</option>
+                  <option value="5">5 - Medium</option>
+                  <option value="7">7 - High</option>
+                  <option value="10">10 - Critical</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-primary-700 mb-1">Out of Service?</label>
+                <select
+                  value={whatIfData.outOfService ? 'yes' : 'no'}
+                  onChange={(e) => setWhatIfData({ ...whatIfData, outOfService: e.target.value === 'yes' })}
+                  className="w-full px-3 py-2 border border-primary-200 rounded-lg focus:ring-2 focus:ring-primary-500"
+                >
+                  <option value="no">No</option>
+                  <option value="yes">Yes</option>
+                </select>
+              </div>
+              <div className="flex items-end">
+                <button
+                  onClick={handleProjectImpact}
+                  disabled={projecting}
+                  className="btn btn-accent w-full"
+                >
+                  {projecting ? <LoadingSpinner size="sm" /> : <FiTrendingDown className="w-4 h-4" />}
+                  Project Impact
+                </button>
+              </div>
+            </div>
+
+            {/* What-If Results */}
+            {whatIfResult && (
+              <div className="mt-4 p-4 bg-primary-50 rounded-lg border border-primary-200">
+                <h3 className="text-sm font-semibold text-primary-800 mb-3">Projected Impact: {whatIfResult.impact.basicName}</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="text-center p-3 bg-white rounded-lg">
+                    <p className="text-xs text-primary-500 mb-1">Before</p>
+                    <p className="text-2xl font-bold text-primary-700">{whatIfResult.impact.before.estimatedPercentile}%</p>
+                    <p className="text-xs text-primary-500">{whatIfResult.impact.before.rawPoints} pts</p>
+                  </div>
+                  <div className="text-center p-3 bg-white rounded-lg flex flex-col items-center justify-center">
+                    <FiChevronRight className="w-6 h-6 text-accent-500" />
+                    <p className={`text-sm font-bold ${whatIfResult.impact.change.percentileChange > 0 ? 'text-danger-600' : 'text-success-600'}`}>
+                      {whatIfResult.impact.change.percentileChange > 0 ? '+' : ''}{whatIfResult.impact.change.percentileChange}%
+                    </p>
+                  </div>
+                  <div className="text-center p-3 bg-white rounded-lg">
+                    <p className="text-xs text-primary-500 mb-1">After</p>
+                    <p className={`text-2xl font-bold ${
+                      whatIfResult.impact.exceedsCriticalThreshold ? 'text-danger-600' :
+                      whatIfResult.impact.exceedsAlertThreshold ? 'text-warning-600' :
+                      'text-success-600'
+                    }`}>
+                      {whatIfResult.impact.after.estimatedPercentile}%
+                    </p>
+                    <p className="text-xs text-primary-500">{whatIfResult.impact.after.rawPoints} pts</p>
+                  </div>
+                </div>
+                {whatIfResult.impact.exceedsAlertThreshold && whatIfResult.impact.previouslyUnderThreshold && (
+                  <div className="mt-3 p-2 bg-warning-100 rounded text-center">
+                    <p className="text-sm font-medium text-warning-800">
+                      This would push you over the alert threshold!
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* BASIC Score Cards */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {scores && Object.entries(scores).map(([key, basic]) => (
+          <div
+            key={key}
+            className={`bg-white rounded-xl border border-primary-200/60 overflow-hidden cursor-pointer transition-all hover:shadow-card ${
+              selectedBasic === key ? 'ring-2 ring-primary-500' : ''
+            }`}
+            style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}
+            onClick={() => setSelectedBasic(selectedBasic === key ? null : key)}
+          >
+            <div className="p-5">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h3 className="text-lg font-semibold text-primary-900">{basic.name}</h3>
+                  <p className="text-xs text-primary-500 mt-1">{basicDescriptions[key]}</p>
+                </div>
+                {getStatusBadge(basic.status)}
+              </div>
+
+              {/* Score Gauge */}
+              <div className="flex items-center gap-4">
+                <div className={`w-20 h-20 rounded-full flex items-center justify-center ${getScoreBgColor(basic.estimatedPercentile, basic.threshold)}`}>
+                  <span className={`text-2xl font-bold ${getScoreColor(basic.estimatedPercentile, basic.threshold)}`}>
+                    {basic.estimatedPercentile}%
+                  </span>
+                </div>
+                <div className="flex-1">
+                  {/* Progress bar */}
+                  <div className="h-3 bg-primary-100 rounded-full overflow-hidden mb-2">
+                    <div
+                      className={`h-full transition-all ${
+                        basic.status === 'critical' ? 'bg-danger-500' :
+                        basic.status === 'alert' ? 'bg-warning-500' :
+                        'bg-success-500'
+                      }`}
+                      style={{ width: `${Math.min(basic.estimatedPercentile, 100)}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-xs text-primary-500">
+                    <span>0%</span>
+                    <span className="text-warning-600">Alert: {basic.threshold}%</span>
+                    <span className="text-danger-600">Critical: {basic.criticalThreshold}%</span>
+                    <span>100%</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Stats */}
+              <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-primary-100">
+                <div className="text-center">
+                  <p className="text-xs text-primary-500">Raw Points</p>
+                  <p className="text-sm font-semibold text-primary-700">{basic.rawPoints}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-xs text-primary-500">Violations</p>
+                  <p className="text-sm font-semibold text-primary-700">{basic.violationCount}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-xs text-primary-500">OOS Count</p>
+                  <p className="text-sm font-semibold text-danger-600">{basic.oosCount}</p>
+                </div>
+              </div>
+
+              {/* Expanded violation details */}
+              {selectedBasic === key && basic.violations?.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-primary-100">
+                  <h4 className="text-sm font-semibold text-primary-700 mb-2">Recent Violations</h4>
+                  <div className="space-y-2 max-h-40 overflow-y-auto">
+                    {basic.violations.map((v, i) => (
+                      <div key={i} className="flex items-center justify-between text-xs p-2 bg-primary-50 rounded">
+                        <div>
+                          <span className="font-mono font-medium text-primary-700">{v.code}</span>
+                          {v.isOOS && <span className="ml-2 px-1 py-0.5 bg-danger-100 text-danger-700 rounded text-[10px]">OOS</span>}
+                        </div>
+                        <div className="text-right">
+                          <span className="text-primary-600">{v.weightedPoints} pts</span>
+                          <span className="text-primary-400 ml-2">(x{v.timeWeight})</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Time Decay Chart */}
+      {timeDecay && (
+        <div
+          className="bg-white rounded-xl border border-primary-200/60 overflow-hidden"
+          style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}
+        >
+          <div
+            className="px-5 py-4 border-b border-primary-100"
+            style={{ background: 'linear-gradient(to bottom, #fafbfc, #f8fafc)' }}
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-primary-100 flex items-center justify-center">
+                <FiClock className="w-5 h-5 text-primary-600" />
+              </div>
+              <div>
+                <h2 className="text-base font-semibold text-primary-900">24-Month Score Projection</h2>
+                <p className="text-xs text-primary-500">How your scores will improve as violations age out</p>
+              </div>
+            </div>
+          </div>
+          <div className="p-5">
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart
+                data={timeDecay.projections?.map(p => ({
+                  month: p.month,
+                  date: p.date,
+                  unsafeDriving: p.scores.unsafe_driving?.estimatedPercentile || 0,
+                  hoursOfService: p.scores.hours_of_service?.estimatedPercentile || 0,
+                  vehicleMaintenance: p.scores.vehicle_maintenance?.estimatedPercentile || 0
+                })) || []}
+                margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis
+                  dataKey="month"
+                  tick={{ fontSize: 11, fill: '#64748b' }}
+                  tickFormatter={(v) => `+${v}mo`}
+                />
+                <YAxis
+                  domain={[0, 100]}
+                  tick={{ fontSize: 11, fill: '#64748b' }}
+                  tickFormatter={(v) => `${v}%`}
+                />
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: '8px',
+                    border: '1px solid #e2e8f0',
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                  }}
+                />
+                <ReferenceLine y={65} stroke="#f59e0b" strokeDasharray="5 5" label={{ value: 'Alert', fill: '#f59e0b', fontSize: 10 }} />
+                <ReferenceLine y={80} stroke="#ef4444" strokeDasharray="5 5" label={{ value: 'Critical', fill: '#ef4444', fontSize: 10 }} />
+                <Line type="monotone" dataKey="unsafeDriving" stroke="#ef4444" name="Unsafe Driving" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="hoursOfService" stroke="#f59e0b" name="Hours of Service" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="vehicleMaintenance" stroke="#3b82f6" name="Vehicle Maintenance" strokeWidth={2} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+
+            {/* Improvement Summary */}
+            {timeDecay.insights?.improvements && (
+              <div className="mt-4 pt-4 border-t border-primary-100">
+                <h4 className="text-sm font-semibold text-primary-700 mb-3">Projected Improvements (24 months)</h4>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+                  {Object.entries(timeDecay.insights.improvements).map(([key, data]) => (
+                    <div key={key} className="text-center p-2 bg-primary-50 rounded-lg">
+                      <p className="text-xs text-primary-500 truncate">{key.replace(/_/g, ' ')}</p>
+                      <p className={`text-sm font-bold ${data.change < 0 ? 'text-success-600' : 'text-primary-600'}`}>
+                        {data.change < 0 ? '' : '+'}{data.change}%
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CSAEstimatorContent;

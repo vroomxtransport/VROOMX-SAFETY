@@ -1,0 +1,446 @@
+import { useState, useEffect } from 'react';
+import { drugAlcoholAPI, driversAPI } from '../utils/api';
+import { formatDate } from '../utils/helpers';
+import toast from 'react-hot-toast';
+import { FiPlus, FiDroplet, FiCheck, FiX, FiAlertCircle } from 'react-icons/fi';
+import DataTable from '../components/DataTable';
+import StatusBadge from '../components/StatusBadge';
+import Modal from '../components/Modal';
+import LoadingSpinner from '../components/LoadingSpinner';
+
+const DrugAlcohol = () => {
+  const [tests, setTests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [stats, setStats] = useState(null);
+  const [drivers, setDrivers] = useState([]);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [typeFilter, setTypeFilter] = useState('');
+  const [resultFilter, setResultFilter] = useState('');
+
+  const [formData, setFormData] = useState({
+    driverId: '',
+    testType: 'random',
+    testDate: new Date().toISOString().split('T')[0],
+    overallResult: 'pending',
+    drugTest: { performed: true, result: 'pending' },
+    alcoholTest: { performed: false },
+    status: 'completed'
+  });
+
+  useEffect(() => {
+    fetchTests();
+    fetchStats();
+    fetchDrivers();
+  }, [page, typeFilter, resultFilter]);
+
+  const fetchTests = async () => {
+    setLoading(true);
+    try {
+      const params = {
+        page,
+        limit: 15,
+        ...(typeFilter && { testType: typeFilter }),
+        ...(resultFilter && { result: resultFilter })
+      };
+      const response = await drugAlcoholAPI.getAll(params);
+      setTests(response.data.tests);
+      setTotalPages(response.data.pages);
+    } catch (error) {
+      toast.error('Failed to fetch test records');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      const response = await drugAlcoholAPI.getStats();
+      setStats(response.data.stats);
+    } catch (error) {
+      console.error('Failed to fetch stats');
+    }
+  };
+
+  const fetchDrivers = async () => {
+    try {
+      const response = await driversAPI.getAll({ status: 'active', limit: 100 });
+      setDrivers(response.data.drivers);
+    } catch (error) {
+      console.error('Failed to fetch drivers');
+    }
+  };
+
+  const handleAddTest = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      await drugAlcoholAPI.create(formData);
+      toast.success('Test record added');
+      setShowAddModal(false);
+      setFormData({
+        driverId: '',
+        testType: 'random',
+        testDate: new Date().toISOString().split('T')[0],
+        overallResult: 'pending',
+        drugTest: { performed: true, result: 'pending' },
+        alcoholTest: { performed: false },
+        status: 'completed'
+      });
+      fetchTests();
+      fetchStats();
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to add test');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const testTypeLabels = {
+    pre_employment: 'Pre-Employment',
+    random: 'Random',
+    post_accident: 'Post-Accident',
+    reasonable_suspicion: 'Reasonable Suspicion',
+    return_to_duty: 'Return to Duty',
+    follow_up: 'Follow-Up'
+  };
+
+  const columns = [
+    {
+      header: 'Date',
+      render: (row) => formatDate(row.testDate)
+    },
+    {
+      header: 'Driver',
+      render: (row) => row.driverId ? `${row.driverId.firstName} ${row.driverId.lastName}` : 'N/A'
+    },
+    {
+      header: 'Test Type',
+      render: (row) => testTypeLabels[row.testType] || row.testType
+    },
+    {
+      header: 'Drug Test',
+      render: (row) => (
+        row.drugTest?.performed ? (
+          <StatusBadge status={row.drugTest.result} />
+        ) : <span className="text-gray-400">N/A</span>
+      )
+    },
+    {
+      header: 'Alcohol Test',
+      render: (row) => (
+        row.alcoholTest?.performed ? (
+          <StatusBadge status={row.alcoholTest.result} />
+        ) : <span className="text-gray-400">N/A</span>
+      )
+    },
+    {
+      header: 'Result',
+      render: (row) => <StatusBadge status={row.overallResult} />
+    },
+    {
+      header: 'Clearinghouse',
+      render: (row) => (
+        row.clearinghouse?.reported ? (
+          <span className="badge badge-success">Reported</span>
+        ) : row.overallResult === 'positive' || row.overallResult === 'refused' ? (
+          <span className="badge badge-warning">Pending</span>
+        ) : <span className="text-gray-400">-</span>
+      )
+    }
+  ];
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">Drug & Alcohol Program</h1>
+          <p className="text-gray-500">DOT testing and Clearinghouse compliance per 49 CFR 382</p>
+        </div>
+        <button
+          onClick={() => setShowAddModal(true)}
+          className="btn btn-primary flex items-center"
+        >
+          <FiPlus className="w-5 h-5 mr-2" />
+          Add Test Record
+        </button>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="card p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-500 text-sm">Drivers in Pool</p>
+              <p className="text-2xl font-bold">{stats?.activeDriversInPool || 0}</p>
+            </div>
+            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+              <FiDroplet className="w-6 h-6 text-blue-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="card p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-500 text-sm">Random Tests (YTD)</p>
+              <p className="text-2xl font-bold">
+                {stats?.testsByType?.find(t => t._id === 'random')?.total || 0}
+              </p>
+            </div>
+            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+              <FiCheck className="w-6 h-6 text-green-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="card p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-500 text-sm">Compliance Rate</p>
+              <p className="text-2xl font-bold">
+                {stats?.randomTestingCompliance?.complianceRate || 0}%
+              </p>
+            </div>
+            <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+              (stats?.randomTestingCompliance?.complianceRate || 0) >= 100 ? 'bg-green-100' : 'bg-yellow-100'
+            }`}>
+              {(stats?.randomTestingCompliance?.complianceRate || 0) >= 100 ? (
+                <FiCheck className="w-6 h-6 text-green-600" />
+              ) : (
+                <FiAlertCircle className="w-6 h-6 text-yellow-600" />
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="card p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-500 text-sm">Pending Queries</p>
+              <p className="text-2xl font-bold text-orange-600">
+                {stats?.driversNeedingClearinghouseQuery || 0}
+              </p>
+            </div>
+            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+              <FiAlertCircle className="w-6 h-6 text-orange-600" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Compliance Info */}
+      <div className="card p-4">
+        <h3 className="font-semibold mb-3">Random Testing Requirements</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="text-sm">
+            <span className="text-gray-500">Drug Tests Required (50%): </span>
+            <span className="font-medium">{stats?.randomTestingCompliance?.drugTestsRequired || 0}</span>
+          </div>
+          <div className="text-sm">
+            <span className="text-gray-500">Completed: </span>
+            <span className="font-medium">{stats?.randomTestingCompliance?.drugTestsCompleted || 0}</span>
+          </div>
+          <div className="text-sm">
+            <span className="text-gray-500">Status: </span>
+            {(stats?.randomTestingCompliance?.complianceRate || 0) >= 100 ? (
+              <span className="badge badge-success">On Track</span>
+            ) : (
+              <span className="badge badge-warning">Behind Schedule</span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="card p-4">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <select
+            className="form-select w-full sm:w-48"
+            value={typeFilter}
+            onChange={(e) => {
+              setTypeFilter(e.target.value);
+              setPage(1);
+            }}
+          >
+            <option value="">All Test Types</option>
+            {Object.entries(testTypeLabels).map(([key, label]) => (
+              <option key={key} value={key}>{label}</option>
+            ))}
+          </select>
+          <select
+            className="form-select w-full sm:w-48"
+            value={resultFilter}
+            onChange={(e) => {
+              setResultFilter(e.target.value);
+              setPage(1);
+            }}
+          >
+            <option value="">All Results</option>
+            <option value="negative">Negative</option>
+            <option value="positive">Positive</option>
+            <option value="refused">Refused</option>
+            <option value="pending">Pending</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Data Table */}
+      <div className="card">
+        <DataTable
+          columns={columns}
+          data={tests}
+          loading={loading}
+          page={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+          emptyMessage="No test records found"
+        />
+      </div>
+
+      {/* Add Test Modal */}
+      <Modal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        title="Add Test Record"
+        size="lg"
+      >
+        <form onSubmit={handleAddTest} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="form-label">Driver *</label>
+              <select
+                className="form-select"
+                required
+                value={formData.driverId}
+                onChange={(e) => setFormData({ ...formData, driverId: e.target.value })}
+              >
+                <option value="">Select Driver</option>
+                {drivers.map((driver) => (
+                  <option key={driver._id} value={driver._id}>
+                    {driver.firstName} {driver.lastName}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="form-label">Test Type *</label>
+              <select
+                className="form-select"
+                required
+                value={formData.testType}
+                onChange={(e) => setFormData({ ...formData, testType: e.target.value })}
+              >
+                {Object.entries(testTypeLabels).map(([key, label]) => (
+                  <option key={key} value={key}>{label}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="form-label">Test Date *</label>
+              <input
+                type="date"
+                className="form-input"
+                required
+                value={formData.testDate}
+                onChange={(e) => setFormData({ ...formData, testDate: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="form-label">Overall Result *</label>
+              <select
+                className="form-select"
+                required
+                value={formData.overallResult}
+                onChange={(e) => setFormData({ ...formData, overallResult: e.target.value })}
+              >
+                <option value="pending">Pending</option>
+                <option value="negative">Negative</option>
+                <option value="positive">Positive</option>
+                <option value="refused">Refused</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="p-4 border border-gray-200 rounded-lg">
+              <div className="flex items-center justify-between mb-3">
+                <label className="font-medium">Drug Test</label>
+                <input
+                  type="checkbox"
+                  checked={formData.drugTest.performed}
+                  onChange={(e) => setFormData({
+                    ...formData,
+                    drugTest: { ...formData.drugTest, performed: e.target.checked }
+                  })}
+                />
+              </div>
+              {formData.drugTest.performed && (
+                <select
+                  className="form-select"
+                  value={formData.drugTest.result}
+                  onChange={(e) => setFormData({
+                    ...formData,
+                    drugTest: { ...formData.drugTest, result: e.target.value }
+                  })}
+                >
+                  <option value="pending">Pending</option>
+                  <option value="negative">Negative</option>
+                  <option value="positive">Positive</option>
+                  <option value="refused">Refused</option>
+                </select>
+              )}
+            </div>
+
+            <div className="p-4 border border-gray-200 rounded-lg">
+              <div className="flex items-center justify-between mb-3">
+                <label className="font-medium">Alcohol Test</label>
+                <input
+                  type="checkbox"
+                  checked={formData.alcoholTest.performed}
+                  onChange={(e) => setFormData({
+                    ...formData,
+                    alcoholTest: { ...formData.alcoholTest, performed: e.target.checked }
+                  })}
+                />
+              </div>
+              {formData.alcoholTest.performed && (
+                <select
+                  className="form-select"
+                  value={formData.alcoholTest.result || 'pending'}
+                  onChange={(e) => setFormData({
+                    ...formData,
+                    alcoholTest: { ...formData.alcoholTest, result: e.target.value }
+                  })}
+                >
+                  <option value="pending">Pending</option>
+                  <option value="negative">Negative</option>
+                  <option value="positive">Positive</option>
+                  <option value="refused">Refused</option>
+                </select>
+              )}
+            </div>
+          </div>
+
+          <div className="flex justify-end space-x-3 pt-4">
+            <button type="button" onClick={() => setShowAddModal(false)} className="btn btn-secondary">
+              Cancel
+            </button>
+            <button type="submit" className="btn btn-primary" disabled={submitting}>
+              {submitting ? <LoadingSpinner size="sm" /> : 'Add Test Record'}
+            </button>
+          </div>
+        </form>
+      </Modal>
+    </div>
+  );
+};
+
+export default DrugAlcohol;

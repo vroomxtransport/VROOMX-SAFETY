@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="FMCSA Compliance Management Platform for Trucking Companies" />
+  <title>VroomX Safety - Blog</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            heading: ['Outfit', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            background: '#000000', // Zinc 950
+            surface: '#171717',    // Zinc 900
+            primary: {
+              DEFAULT: '#e11d48',
+              50: '#fff7ed',
+              100: '#ffedd5',
+              200: '#fed7aa',
+              300: '#fdba74',
+              400: '#fb7185',
+              500: '#e11d48',
+              600: '#be123c',
+              700: '#c2410c',
+              800: '#9a3412',
+              900: '#7c2d12',
+              950: '#431407',
+            },
+            accent: {
+              DEFAULT: '#be123c', // Violet
+              500: '#be123c',
+              400: '#e11d48',
+            }
+          },
+          animation: {
+            'blob': 'blob 7s infinite',
+            'float': 'float 6s ease-in-out infinite',
+            'shine': 'shine 1.5s linear infinite',
+            'spin-slow': 'spin 12s linear infinite',
+            'pulse-glow': 'pulseGlow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          },
+          keyframes: {
+            blob: {
+              '0%': { transform: 'translate(0px, 0px) scale(1)' },
+              '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+              '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+              '100%': { transform: 'translate(0px, 0px) scale(1)' },
+            },
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-20px)' },
+            },
+            shine: {
+              'from': { backgroundPosition: '0 0' },
+              'to': { backgroundPosition: '-200% 0' },
+            },
+            pulseGlow: {
+              '0%, 100%': { opacity: 1, boxShadow: '0 0 20px theme("colors.primary.500")' },
+              '50%': { opacity: .5, boxShadow: '0 0 10px theme("colors.primary.500")' },
+            }
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    :root {
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --glass-surface: rgba(255, 255, 255, 0.03);
+      --neon-orange: #e11d48;
+      --neon-blue: #3b82f6;
+    }
+
+    body {
+      background-color: #050505;
+      color: #fafafa;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Headings with gradient */
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .text-gradient {
+      background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .text-gradient-primary {
+      background: linear-gradient(135deg, #fb7185 0%, #be123c 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Modern Glassmorphism Utilities */
+    .glass {
+      background: var(--glass-surface);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    .glass-card {
+      background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .glass-card-hover {
+      transition: all 0.3s ease;
+    }
+
+    .glass-card-hover:hover {
+      border-color: rgba(249, 115, 22, 0.3);
+      box-shadow: 0 0 30px rgba(249, 115, 22, 0.15);
+      transform: translateY(-5px);
+    }
+
+    /* Spotlight Effect */
+    .spotlight {
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .group:hover .spotlight {
+      opacity: 1;
+    }
+
+    /* Premium Button */
+    .btn-glow {
+      position: relative;
+      background: linear-gradient(90deg, #be123c, #e11d48);
+      overflow: hidden;
+      transition: all 0.3s ease;
+      z-index: 1;
+    }
+
+    .btn-glow::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, #e11d48, #fb7185, #e11d48);
+      background-size: 200% 100%;
+      animation: shine 3s linear infinite;
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .btn-glow:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 20px rgba(249, 115, 22, 0.4);
+    }
+
+    .btn-glow:hover::before {
+      opacity: 1;
+    }
+
+    /* Animated Grid Background */
+    .bg-grid-slate {
+      background-size: 40px 40px;
+      background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+      mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #000000;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #27272a;
+      border-radius: 5px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #3f3f46;
+    }
+  </style>
+</head>
+
+<body class="antialiased font-sans text-gray-200">
+  <div class="relative overflow-hidden w-full min-h-screen">
+
+    <!-- Background Elements -->
+    <div class="fixed inset-0 z-0">
+      <div class="absolute inset-0 bg-background"></div>
+      <div class="absolute inset-0 bg-grid-slate opacity-[0.1]"></div>
+      <!-- Blobs -->
+      <div class="absolute top-0 left-0 w-[500px] h-[500px] bg-primary-500/20 blur-[100px] rounded-full animate-blob">
+      </div>
+      <div
+        class="absolute top-1/2 right-0 w-[500px] h-[500px] bg-accent-500/10 blur-[100px] rounded-full animate-blob animation-delay-300">
+      </div>
+      <div
+        class="absolute bottom-0 left-1/3 w-[500px] h-[500px] bg-primary-900/20 blur-[100px] rounded-full animate-blob animation-delay-200">
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-7xl">
+      <div
+        class="glass rounded-2xl px-6 py-4 flex justify-between items-center transition-all duration-300 shadow-2xl shadow-black/50">
+        <a href="#" class="flex items-center gap-3 group">
+          <div class="relative w-10 h-10 flex items-center justify-center">
+            <svg class="w-10 h-10 absolute text-primary-500 animate-spin-slow" viewBox="0 0 100 100" fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <path d="M50 10 L50 20 M50 80 L50 90 M10 50 L20 50 M80 50 L90 50" stroke="currentColor" stroke-width="4"
+                stroke-linecap="round" />
+              <circle cx="50" cy="50" r="35" stroke="currentColor" stroke-width="2" stroke-dasharray="4 6" />
+            </svg>
+            <div class="w-6 h-6 bg-primary-500 rounded-full flex items-center justify-center shadow-[0_0_15px_#e11d48]">
+              <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+          </div>
+          <div class="text-xl font-bold tracking-tight text-white font-heading">
+            VroomX <span class="text-primary-500">Safety</span>
+          </div>
+        </a>
+
+        <div
+          class="hidden md:flex items-center gap-8 bg-surface/50 px-8 py-2 rounded-full border border-white/5 backdrop-blur-sm">
+          <a href="landing-standalone.html#features"
+            class="text-gray-400 text-sm font-medium hover:text-primary-400 transition-colors">Features</a>
+          <a href="landing-standalone.html#pricing"
+            class="text-gray-400 text-sm font-medium hover:text-primary-400 transition-colors">Pricing</a>
+          <a href="#" class="text-primary-500 text-sm font-bold transition-colors">Blog</a>
+          <a href="#" class="text-gray-400 text-sm font-medium hover:text-primary-400 transition-colors">Login</a>
+        </div>
+
+        <a href="#" class="btn-glow px-6 py-2.5 rounded-lg font-bold text-white text-sm tracking-wide shadow-lg">
+          Start Free Trial
+        </a>
+      </div>
+    </nav>
+
+    <!-- Blog Hero -->
+    <section class="relative z-10 pt-48 pb-12 px-6 md:px-16 text-center">
+      <div class="max-w-4xl mx-auto">
+        <div
+          class="inline-flex items-center gap-2 mb-6 px-3 py-1 rounded-full border border-primary-500/30 bg-primary-500/10 text-primary-500 font-mono text-xs uppercase tracking-widest">
+          <span class="w-1.5 h-1.5 rounded-full bg-primary-500 animate-pulse"></span>
+          VroomX Safety Blog
+        </div>
+        <h1 class="text-4xl md:text-6xl lg:text-7xl font-black text-white mb-6">
+          Compliance <span class="text-gradient-primary">Insights.</span>
+        </h1>
+        <p class="text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
+          Expert advice on FMCSA regulations, audit preparation, and fleet safety trends.
+        </p>
+      </div>
+    </section>
+
+    <!-- Blog Content -->
+    <section class="relative z-10 py-12 px-6 md:px-16">
+      <div class="max-w-7xl mx-auto">
+
+        <!-- Categories -->
+        <div class="flex flex-wrap justify-center gap-4 mb-16 border-b border-white/5 pb-8">
+          <a href="#"
+            class="px-4 py-2 rounded-full bg-primary-500 text-white text-sm font-bold shadow-[0_0_15px_rgba(249,115,22,0.4)]">All
+            Posts</a>
+          <a href="#"
+            class="px-4 py-2 rounded-full glass hover:bg-white/5 text-gray-400 hover:text-white text-sm transition-colors">Regulations</a>
+          <a href="#"
+            class="px-4 py-2 rounded-full glass hover:bg-white/5 text-gray-400 hover:text-white text-sm transition-colors">Safety
+            Tips</a>
+          <a href="#"
+            class="px-4 py-2 rounded-full glass hover:bg-white/5 text-gray-400 hover:text-white text-sm transition-colors">Case
+            Studies</a>
+          <a href="#"
+            class="px-4 py-2 rounded-full glass hover:bg-white/5 text-gray-400 hover:text-white text-sm transition-colors">Product
+            Updates</a>
+        </div>
+
+        <!-- Featured Article -->
+        <div class="mb-16">
+          <div class="glass-card rounded-3xl overflow-hidden glass-card-hover group relative">
+            <div class="grid md:grid-cols-2 gap-0">
+              <div class="h-64 md:h-auto bg-gray-800 relative overflow-hidden">
+                <div
+                  class="absolute inset-0 bg-gradient-to-tr from-primary-900/40 to-gray-900/40 group-hover:scale-105 transition-transform duration-700">
+                </div>
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <svg class="w-24 h-24 text-white/10" fill="currentColor" viewBox="0 0 24 24">
+                    <path
+                      d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                  </svg>
+                </div>
+              </div>
+              <div class="p-8 md:p-12 flex flex-col justify-center">
+                <div class="flex items-center gap-4 mb-4">
+                  <span
+                    class="px-3 py-1 rounded-full border border-primary-500/30 bg-primary-500/10 text-primary-400 font-mono text-[10px] uppercase tracking-wide">Featured</span>
+                  <span class="text-gray-500 text-xs font-mono">Oct 24, 2025</span>
+                </div>
+                <h2
+                  class="text-3xl md:text-4xl font-bold text-white mb-4 leading-tight group-hover:text-primary-500 transition-colors">
+                  Navigating the 2026 ELD Mandate Updates</h2>
+                <p class="text-gray-400 mb-8 leading-relaxed">The FMCSA has proposed new technical specifications for
+                  Electronic Logging Devices. Here is what every safety director needs to know to stay compliant.</p>
+                <a href="#"
+                  class="inline-flex items-center gap-2 text-primary-500 font-bold hover:gap-3 transition-all">
+                  Read Full Article
+                  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Article Grid -->
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <!-- Card 1 -->
+          <div class="glass-card rounded-2xl overflow-hidden flex flex-col glass-card-hover group">
+            <div class="h-48 bg-gray-800 relative">
+              <div
+                class="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-[10px] text-white font-mono uppercase">
+                Regulation</div>
+            </div>
+            <div class="p-6 flex-1 flex flex-col">
+              <div class="text-xs text-gray-500 mb-3 font-mono">Oct 12, 2025</div>
+              <h3 class="text-xl font-bold text-white mb-3 group-hover:text-primary-500 transition-colors">Exemptions
+                Explained: 100 vs 150 Air-Mile Radius</h3>
+              <p class="text-sm text-gray-400 mb-4 flex-1">Clarifying the confusion around short-haul exemptions and
+                time records.</p>
+              <a href="#" class="text-sm text-primary-500 font-medium">Read Article →</a>
+            </div>
+          </div>
+          <!-- Card 2 -->
+          <div class="glass-card rounded-2xl overflow-hidden flex flex-col glass-card-hover group">
+            <div class="h-48 bg-gray-800 relative">
+              <div
+                class="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-[10px] text-white font-mono uppercase">
+                Safety</div>
+            </div>
+            <div class="p-6 flex-1 flex flex-col">
+              <div class="text-xs text-gray-500 mb-3 font-mono">Sep 28, 2025</div>
+              <h3 class="text-xl font-bold text-white mb-3 group-hover:text-primary-500 transition-colors">The Real Cost
+                of a "Conditional" Rating</h3>
+              <p class="text-sm text-gray-400 mb-4 flex-1">How your safety rating impacts insurance premiums and broker
+                relationships.</p>
+              <a href="#" class="text-sm text-primary-500 font-medium">Read Article →</a>
+            </div>
+          </div>
+          <!-- Card 3 -->
+          <div class="glass-card rounded-2xl overflow-hidden flex flex-col glass-card-hover group">
+            <div class="h-48 bg-gray-800 relative">
+              <div
+                class="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-[10px] text-white font-mono uppercase">
+                Tech</div>
+            </div>
+            <div class="p-6 flex-1 flex flex-col">
+              <div class="text-xs text-gray-500 mb-3 font-mono">Sep 15, 2025</div>
+              <h3 class="text-xl font-bold text-white mb-3 group-hover:text-primary-500 transition-colors">Digitizing
+                Driver Qualification Files</h3>
+              <p class="text-sm text-gray-400 mb-4 flex-1">Why sticking to paper filings is costing you more than just
+                storage space.</p>
+              <a href="#" class="text-sm text-primary-500 font-medium">Read Article →</a>
+            </div>
+          </div>
+          <!-- Card 4 -->
+          <div class="glass-card rounded-2xl overflow-hidden flex flex-col glass-card-hover group">
+            <div class="h-48 bg-gray-800 relative">
+              <div
+                class="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-[10px] text-white font-mono uppercase">
+                Audit</div>
+            </div>
+            <div class="p-6 flex-1 flex flex-col">
+              <div class="text-xs text-gray-500 mb-3 font-mono">Aug 30, 2025</div>
+              <h3 class="text-xl font-bold text-white mb-3 group-hover:text-primary-500 transition-colors">Preparing for
+                a Remote Audit</h3>
+              <p class="text-sm text-gray-400 mb-4 flex-1">Step-by-step checklist to ensure your digital records pass
+                inspection.</p>
+              <a href="#" class="text-sm text-primary-500 font-medium">Read Article →</a>
+            </div>
+          </div>
+          <!-- Card 5 -->
+          <div class="glass-card rounded-2xl overflow-hidden flex flex-col glass-card-hover group">
+            <div class="h-48 bg-gray-800 relative">
+              <div
+                class="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-[10px] text-white font-mono uppercase">
+                Career</div>
+            </div>
+            <div class="p-6 flex-1 flex flex-col">
+              <div class="text-xs text-gray-500 mb-3 font-mono">Aug 12, 2025</div>
+              <h3 class="text-xl font-bold text-white mb-3 group-hover:text-primary-500 transition-colors">Retaining Top
+                Talent in tough times</h3>
+              <p class="text-sm text-gray-400 mb-4 flex-1">Strategies for keeping your best drivers happy and compliant.
+              </p>
+              <a href="#" class="text-sm text-primary-500 font-medium">Read Article →</a>
+            </div>
+          </div>
+          <!-- Card 6 -->
+          <div class="glass-card rounded-2xl overflow-hidden flex flex-col glass-card-hover group">
+            <div class="h-48 bg-gray-800 relative">
+              <div
+                class="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-[10px] text-white font-mono uppercase">
+                Tech</div>
+            </div>
+            <div class="p-6 flex-1 flex flex-col">
+              <div class="text-xs text-gray-500 mb-3 font-mono">Jul 22, 2025</div>
+              <h3 class="text-xl font-bold text-white mb-3 group-hover:text-primary-500 transition-colors">AI in Fleet
+                Management</h3>
+              <p class="text-sm text-gray-400 mb-4 flex-1">How artificial intelligence is changing the way we handle
+                compliance and routing.</p>
+              <a href="#" class="text-sm text-primary-500 font-medium">Read Article →</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+
+    <!-- Final CTA Section -->
+    <section class="py-32 px-6 md:px-16 text-center relative overflow-hidden z-10">
+      <div class="absolute inset-0 bg-gradient-to-t from-primary-900/20 to-transparent pointer-events-none"></div>
+      <div class="max-w-3xl mx-auto relative z-10">
+        <h2 class="text-4xl md:text-6xl font-black text-white mb-8 tracking-tight">
+          Ready to <span class="text-gradient-primary">Simplify?</span>
+        </h2>
+        <p class="text-xl text-gray-400 mb-10 max-w-xl mx-auto">
+          Join trucking companies who stopped worrying about audits and started focusing on the road.
+        </p>
+        <a href="#"
+          class="btn-glow px-12 py-5 rounded-full font-bold text-white text-lg inline-flex items-center gap-2">
+          Get Started Now
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          </svg>
+        </a>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 px-6 md:px-16 border-t border-white/5 bg-[#030303] relative z-10">
+      <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+        <div class="flex items-center gap-2">
+          <div
+            class="w-8 h-8 rounded-full bg-gradient-to-tr from-primary-500 to-accent-500 grid place-items-center text-white font-bold text-xs">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <div class="text-lg font-heading font-bold text-white tracking-tight">
+            VroomX <span class="text-primary-500">Safety</span>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap justify-center gap-8">
+          <a href="#" class="text-sm text-gray-500 hover:text-white transition-colors">Platform</a>
+          <a href="#" class="text-sm text-gray-500 hover:text-white transition-colors">Pricing</a>
+          <a href="#" class="text-sm text-gray-500 hover:text-white transition-colors">Login</a>
+          <a href="#" class="text-sm text-gray-500 hover:text-white transition-colors">Contact</a>
+        </div>
+
+        <div class="text-gray-600 text-xs text-center md:text-right">
+          &copy; 2025 VroomX Safety.<br>All rights reserved.
+        </div>
+      </div>
+    </footer>
+  </div>
+</body>
+
+</html>

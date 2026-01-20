@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VROOMX Safety Compliance | DOT/FMCSA Compliance Management</title>
+  <meta name="description" content="Streamline DOT compliance. Track driver qualifications, vehicle inspections, and company documents. Never miss an expiration again.">
+  <meta name="keywords" content="DOT compliance, FMCSA, driver qualification files, DQF, trucking compliance, fleet compliance, safety compliance">
+  <meta property="og:title" content="VROOMX Safety Compliance">
+  <meta property="og:description" content="Stay compliant. Stay ahead. DOT/FMCSA compliance management made simple.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "VROOMX Safety Compliance",
+    "applicationCategory": "BusinessApplication",
+    "description": "DOT/FMCSA compliance management platform for trucking companies",
+    "offers": {
+      "@type": "Offer",
+      "price": "49",
+      "priceCurrency": "USD"
+    }
+  }
+  </script>
+  <style>
+    :root {
+      --black: #000000;
+      --white: #ffffff;
+      --crimson: #e11d48;
+      --crimson-dark: #be123c;
+      --gray-50: #fafafa;
+      --gray-100: #f5f5f5;
+      --gray-200: #e5e5e5;
+      --gray-400: #a3a3a3;
+      --gray-600: #525252;
+      --gray-800: #262626;
+      --gray-900: #171717;
+      --success: #22c55e;
+      --warning: #f59e0b;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--white);
+      color: var(--black);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Navigation */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      padding: 16px 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+    .logo-icon {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, var(--crimson) 0%, #f43f5e 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 18px;
+      color: var(--white);
+      transform: skewX(-6deg);
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(225,29,72,0.3);
+    }
+    .logo-icon span { transform: skewX(6deg); display: block; }
+    .logo-text {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--black);
+    }
+    .logo-text span { color: var(--crimson); }
+    .nav-links {
+      display: flex;
+      gap: 40px;
+      align-items: center;
+    }
+    .nav-links a {
+      color: var(--gray-600);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover { color: var(--crimson); }
+    .nav-cta {
+      background: var(--black);
+      color: var(--white);
+      padding: 14px 28px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-radius: 10px;
+      transition: all 0.3s;
+    }
+    .nav-cta:hover {
+      background: var(--crimson);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(225,29,72,0.3);
+    }
+
+    /* Hero Section */
+    .hero {
+      min-height: 100vh;
+      background: var(--black);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 140px 60px 100px;
+    }
+
+    /* Animated Background */
+    .hero-bg { position: absolute; inset: 0; overflow: hidden; }
+    .hero-grid {
+      position: absolute;
+      inset: -100%;
+      background-image:
+        linear-gradient(rgba(225,29,72,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(225,29,72,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      animation: gridMove 20s linear infinite;
+    }
+    @keyframes gridMove { 0% { transform: translate(0, 0); } 100% { transform: translate(60px, 60px); } }
+    .hero-glow {
+      position: absolute;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 800px;
+      background: radial-gradient(circle, rgba(225,29,72,0.15) 0%, transparent 60%);
+      animation: glowPulse 4s ease-in-out infinite;
+    }
+    @keyframes glowPulse { 0%, 100% { opacity: 0.5; transform: translateX(-50%) scale(1); } 50% { opacity: 0.8; transform: translateX(-50%) scale(1.1); } }
+    .hero-glow-2 {
+      position: absolute;
+      bottom: 10%;
+      right: 10%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(34,197,94,0.1) 0%, transparent 60%);
+      animation: glowPulse2 5s ease-in-out infinite;
+    }
+    @keyframes glowPulse2 { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.6; } }
+
+    /* Particles */
+    .particles { position: absolute; inset: 0; overflow: hidden; }
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: var(--crimson);
+      border-radius: 50%;
+      opacity: 0.3;
+      animation: float 15s infinite;
+    }
+    .particle:nth-child(1) { left: 10%; top: 20%; animation-delay: 0s; animation-duration: 12s; }
+    .particle:nth-child(2) { left: 20%; top: 60%; animation-delay: 2s; animation-duration: 18s; }
+    .particle:nth-child(3) { left: 35%; top: 30%; animation-delay: 4s; animation-duration: 14s; }
+    .particle:nth-child(4) { left: 50%; top: 70%; animation-delay: 1s; animation-duration: 16s; }
+    .particle:nth-child(5) { left: 65%; top: 25%; animation-delay: 3s; animation-duration: 13s; }
+    .particle:nth-child(6) { left: 80%; top: 55%; animation-delay: 5s; animation-duration: 17s; }
+    .particle:nth-child(7) { left: 90%; top: 40%; animation-delay: 2.5s; animation-duration: 15s; }
+    .particle:nth-child(8) { left: 15%; top: 80%; animation-delay: 1.5s; animation-duration: 19s; }
+    @keyframes float { 0%, 100% { transform: translateY(0) translateX(0); opacity: 0.3; } 25% { transform: translateY(-30px) translateX(10px); opacity: 0.6; } 50% { transform: translateY(-10px) translateX(-10px); opacity: 0.4; } 75% { transform: translateY(-40px) translateX(5px); opacity: 0.5; } }
+
+    /* Scan Lines */
+    .scan-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--crimson), transparent);
+      animation: scanDown 4s linear infinite;
+      opacity: 0.4;
+    }
+    @keyframes scanDown { 0% { top: -2px; } 100% { top: 100%; } }
+
+    /* Hero Content */
+    .hero-content {
+      position: relative;
+      z-index: 10;
+      max-width: 1400px;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .hero-text { color: var(--white); }
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+      animation: fadeInUp 0.8s ease forwards;
+    }
+    .hero-tag-badge {
+      background: var(--crimson);
+      color: var(--white);
+      padding: 10px 20px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      border-radius: 6px;
+    }
+    .hero-tag-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--crimson);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .hero h1 {
+      font-size: clamp(48px, 5.5vw, 80px);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      margin-bottom: 32px;
+      animation: fadeInUp 0.8s ease forwards;
+      animation-delay: 0.1s;
+      opacity: 0;
+    }
+    .hero h1 .highlight {
+      color: var(--crimson);
+      text-shadow: 0 0 60px rgba(225,29,72,0.5);
+    }
+    .hero-subtitle {
+      font-size: 20px;
+      color: var(--gray-400);
+      max-width: 520px;
+      margin-bottom: 48px;
+      line-height: 1.8;
+      animation: fadeInUp 0.8s ease forwards;
+      animation-delay: 0.3s;
+      opacity: 0;
+    }
+    .hero-ctas {
+      display: flex;
+      gap: 16px;
+      animation: fadeInUp 0.8s ease forwards;
+      animation-delay: 0.4s;
+      opacity: 0;
+    }
+    .btn-primary {
+      background: var(--crimson);
+      color: var(--white);
+      padding: 20px 40px;
+      font-weight: 700;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      text-decoration: none;
+      border-radius: 12px;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.5s;
+    }
+    .btn-primary:hover::before { transform: translateX(100%); }
+    .btn-primary:hover {
+      box-shadow: 0 0 40px rgba(225,29,72,0.5);
+      transform: translateY(-2px);
+    }
+    .btn-secondary {
+      background: transparent;
+      color: var(--white);
+      padding: 20px 40px;
+      font-weight: 700;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      text-decoration: none;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 12px;
+      transition: all 0.3s;
+    }
+    .btn-secondary:hover {
+      border-color: var(--white);
+      background: rgba(255,255,255,0.05);
+    }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Dashboard Preview */
+    .hero-visual { position: relative; perspective: 1000px; }
+    .dashboard-container {
+      position: relative;
+      transform: rotateY(-5deg) rotateX(5deg);
+      transform-style: preserve-3d;
+      animation: dashboardFloat 6s ease-in-out infinite;
+    }
+    @keyframes dashboardFloat { 0%, 100% { transform: rotateY(-5deg) rotateX(5deg) translateY(0); } 50% { transform: rotateY(-5deg) rotateX(5deg) translateY(-15px); } }
+    .dashboard-window {
+      background: rgba(17,17,17,0.9);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 50px 100px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05) inset;
+    }
+    .dashboard-header {
+      padding: 16px 20px;
+      background: rgba(0,0,0,0.3);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .dashboard-dots { display: flex; gap: 8px; }
+    .dashboard-dots span { width: 12px; height: 12px; border-radius: 50%; }
+    .dashboard-dots span:nth-child(1) { background: #ff5f57; }
+    .dashboard-dots span:nth-child(2) { background: #ffbd2e; }
+    .dashboard-dots span:nth-child(3) { background: #28ca42; }
+    .dashboard-title {
+      flex: 1;
+      text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--gray-400);
+    }
+    .dashboard-body { padding: 24px; }
+
+    /* Dashboard Stats */
+    .dash-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .dash-stat {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 20px;
+      animation: cardFadeIn 0.6s ease forwards;
+      opacity: 0;
+    }
+    .dash-stat:nth-child(1) { animation-delay: 0.8s; }
+    .dash-stat:nth-child(2) { animation-delay: 0.9s; }
+    .dash-stat:nth-child(3) { animation-delay: 1s; }
+    @keyframes cardFadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    .dash-stat-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 8px;
+    }
+    .dash-stat-value {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--white);
+      letter-spacing: -0.02em;
+    }
+    .dash-stat-value.green { color: #22c55e; }
+    .dash-stat-value.crimson { color: var(--crimson); }
+    .dash-stat-change { font-size: 12px; color: #22c55e; margin-top: 4px; }
+
+    /* Dashboard Items */
+    .dash-items {
+      animation: cardFadeIn 0.6s ease forwards;
+      animation-delay: 1.1s;
+      opacity: 0;
+    }
+    .dash-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+    .dash-item:last-child { margin-bottom: 0; }
+    .item-pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    .item-pulse.green { background: #22c55e; box-shadow: 0 0 8px #22c55e; }
+    .item-pulse.orange { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
+    .item-pulse.red { background: var(--crimson); box-shadow: 0 0 8px var(--crimson); }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .item-info { flex: 1; }
+    .item-title { font-size: 13px; font-weight: 600; color: var(--white); }
+    .item-meta { font-size: 11px; color: var(--gray-400); }
+    .item-status {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+    .item-status.compliant { background: rgba(34,197,94,0.15); color: #22c55e; }
+    .item-status.expiring { background: rgba(245,158,11,0.15); color: #f59e0b; }
+    .item-status.expired { background: rgba(225,29,72,0.15); color: var(--crimson); }
+
+    /* Floating Cards */
+    .float-card {
+      position: absolute;
+      background: rgba(17,17,17,0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 16px 20px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      animation: floatCard 4s ease-in-out infinite;
+    }
+    .float-card-1 { top: -20px; right: -40px; animation-delay: 0s; }
+    .float-card-2 { bottom: 40px; left: -60px; animation-delay: 1s; }
+    @keyframes floatCard { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    .float-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: var(--crimson);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 4px;
+    }
+    .float-value { font-size: 20px; font-weight: 800; color: var(--white); }
+    .float-value.green { color: #22c55e; }
+
+    /* Stats Bar */
+    .stats-bar {
+      background: var(--gray-100);
+      padding: 60px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 40px;
+    }
+    .stat-item { text-align: center; }
+    .stat-value {
+      font-size: 48px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      color: var(--black);
+    }
+    .stat-value span { color: var(--crimson); }
+    .stat-label {
+      font-size: 14px;
+      color: var(--gray-600);
+      margin-top: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    /* Section Styles */
+    .section { padding: 120px 60px; }
+    .section-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--crimson);
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      margin-bottom: 16px;
+      display: block;
+    }
+    .section-title {
+      font-size: clamp(36px, 4vw, 56px);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 24px;
+    }
+    .section-title .highlight { color: var(--crimson); }
+    .section-subtitle {
+      font-size: 18px;
+      color: var(--gray-600);
+      max-width: 600px;
+      line-height: 1.8;
+    }
+
+    /* Problem Section */
+    .problem-section { background: var(--white); }
+    .problem-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      max-width: 1200px;
+      margin: 0 auto;
+      align-items: center;
+    }
+    .problem-list { list-style: none; margin-top: 32px; }
+    .problem-list li {
+      padding: 16px 0;
+      border-bottom: 1px solid var(--gray-200);
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .problem-list li::before {
+      content: '✗';
+      color: var(--crimson);
+      font-weight: 700;
+      font-size: 18px;
+    }
+    .folder-visual {
+      background: var(--gray-100);
+      border-radius: 20px;
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .folder-mockup {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 24px;
+    }
+    .folder-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      color: var(--gray-600);
+      font-size: 14px;
+    }
+    .folder-icon { font-size: 24px; }
+    .folder-files {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .folder-file {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: var(--gray-50);
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--gray-600);
+    }
+    .folder-file.expired { background: rgba(225,29,72,0.1); color: var(--crimson); }
+    .folder-chaos {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(225,29,72,0.1) 0%, transparent 50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .chaos-text {
+      background: var(--crimson);
+      color: white;
+      padding: 16px 32px;
+      font-weight: 800;
+      font-size: 18px;
+      transform: rotate(-5deg);
+      border-radius: 8px;
+    }
+
+    /* Features Section */
+    .features-section {
+      background: var(--black);
+      color: var(--white);
+      position: relative;
+      overflow: hidden;
+    }
+    .features-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(ellipse at 30% 0%, rgba(225,29,72,0.15) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .features-header {
+      text-align: center;
+      margin-bottom: 80px;
+      position: relative;
+      z-index: 1;
+    }
+    .features-header .section-subtitle { margin: 0 auto; color: var(--gray-400); }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      max-width: 1400px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+    .feature-card {
+      background: linear-gradient(145deg, #151515 0%, #0a0a0a 100%);
+      border: 1px solid #222;
+      border-radius: 24px;
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s ease;
+    }
+    .feature-card:hover {
+      transform: translateY(-8px);
+      border-color: var(--crimson);
+      box-shadow: 0 30px 60px rgba(225,29,72,0.2);
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--crimson), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-icon {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, var(--crimson), #ff6b6b);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+      position: relative;
+    }
+    .feature-icon svg { width: 28px; height: 28px; stroke: var(--white); fill: none; }
+    .feature-icon::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      background: linear-gradient(135deg, var(--crimson), transparent);
+      border-radius: 20px;
+      opacity: 0.3;
+      filter: blur(10px);
+    }
+    .feature-card h3 {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+    .feature-card p {
+      color: var(--gray-400);
+      line-height: 1.7;
+      margin-bottom: 24px;
+      font-size: 15px;
+    }
+    .feature-highlights { list-style: none; }
+    .feature-highlights li {
+      padding: 8px 0;
+      color: var(--gray-400);
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .feature-highlights li::before { content: '→'; color: var(--crimson); font-weight: 700; }
+
+    /* Testimonial */
+    .testimonial-section {
+      background: var(--gray-100);
+      text-align: center;
+    }
+    .testimonial-quote {
+      font-size: clamp(24px, 3.5vw, 42px);
+      font-weight: 700;
+      color: var(--black);
+      line-height: 1.3;
+      letter-spacing: -0.02em;
+      max-width: 900px;
+      margin: 0 auto 32px;
+    }
+    .testimonial-quote .highlight { color: var(--crimson); }
+    .testimonial-author { font-size: 16px; color: var(--gray-600); }
+    .testimonial-author strong { color: var(--black); }
+
+    /* Pricing */
+    .pricing-section { background: var(--white); text-align: center; }
+    .pricing-card {
+      max-width: 600px;
+      margin: 60px auto 0;
+      background: var(--white);
+      border: 3px solid var(--black);
+      border-radius: 24px;
+      padding: 60px;
+      position: relative;
+    }
+    .pricing-card::before {
+      content: 'BEST VALUE';
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--crimson);
+      color: var(--white);
+      padding: 8px 24px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border-radius: 6px;
+    }
+    .pricing-badge {
+      display: inline-block;
+      background: var(--black);
+      color: var(--white);
+      padding: 8px 20px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 32px;
+      border-radius: 6px;
+    }
+    .pricing-amount {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .pricing-currency { font-size: 32px; font-weight: 700; }
+    .pricing-value {
+      font-size: 80px;
+      font-weight: 900;
+      letter-spacing: -0.05em;
+      line-height: 1;
+    }
+    .pricing-period { font-size: 20px; color: var(--gray-600); }
+    .pricing-trial {
+      font-size: 16px;
+      color: var(--gray-600);
+      margin-bottom: 40px;
+    }
+    .pricing-trial strong { color: var(--crimson); }
+    .pricing-features {
+      list-style: none;
+      text-align: left;
+      margin-bottom: 40px;
+    }
+    .pricing-features li {
+      padding: 14px 0;
+      border-bottom: 1px solid var(--gray-200);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 16px;
+    }
+    .pricing-features li::before { content: '✓'; color: var(--crimson); font-weight: 700; font-size: 18px; }
+    .pricing-cta {
+      display: block;
+      width: 100%;
+      background: var(--black);
+      color: var(--white);
+      padding: 20px;
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      text-decoration: none;
+      border-radius: 12px;
+      transition: all 0.3s;
+    }
+    .pricing-cta:hover {
+      background: var(--crimson);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(225,29,72,0.3);
+    }
+
+    /* CTA Section */
+    .cta-section {
+      background: var(--black);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(225,29,72,0.2) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .cta-title {
+      font-size: clamp(32px, 4.5vw, 60px);
+      font-weight: 900;
+      color: var(--white);
+      margin-bottom: 24px;
+      letter-spacing: -0.03em;
+      position: relative;
+      z-index: 1;
+    }
+    .cta-title span { color: var(--crimson); }
+    .cta-subtitle {
+      font-size: 18px;
+      color: var(--gray-400);
+      margin-bottom: 48px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      position: relative;
+      z-index: 1;
+    }
+    .cta-btn {
+      display: inline-block;
+      background: var(--white);
+      color: var(--black);
+      padding: 20px 48px;
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      text-decoration: none;
+      border-radius: 12px;
+      transition: all 0.3s;
+      position: relative;
+      z-index: 1;
+    }
+    .cta-btn:hover {
+      background: var(--crimson);
+      color: var(--white);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(225,29,72,0.4);
+    }
+
+    /* Footer */
+    .footer {
+      padding: 60px;
+      background: var(--black);
+      border-top: 1px solid #222;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-logo { display: flex; align-items: center; gap: 10px; }
+    .footer-logo .logo-text { color: var(--white); font-size: 20px; }
+    .footer-links { display: flex; gap: 32px; }
+    .footer-links a {
+      color: var(--gray-400);
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.3s;
+    }
+    .footer-links a:hover { color: var(--white); }
+    .footer-copy { color: var(--gray-600); font-size: 13px; }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .hero { padding: 120px 40px 80px; }
+      .hero-content { grid-template-columns: 1fr; text-align: center; gap: 60px; }
+      .hero-text { order: 1; }
+      .hero-visual { order: 2; }
+      .hero-subtitle { margin-left: auto; margin-right: auto; }
+      .hero-ctas { justify-content: center; flex-wrap: wrap; }
+      .dashboard-container { transform: none; animation: none; }
+      .float-card { display: none; }
+      .stats-bar { grid-template-columns: repeat(2, 1fr); }
+      .features-grid { grid-template-columns: 1fr; max-width: 500px; }
+      .problem-grid { grid-template-columns: 1fr; }
+      .section { padding: 80px 40px; }
+    }
+    @media (max-width: 768px) {
+      .nav { padding: 16px 24px; }
+      .nav-links { display: none; }
+      .hero { padding: 100px 24px 60px; }
+      .hero h1 { font-size: 38px; }
+      .hero-subtitle { font-size: 16px; }
+      .hero-ctas { flex-direction: column; }
+      .btn-primary, .btn-secondary { width: 100%; justify-content: center; text-align: center; }
+      .stats-bar { padding: 40px 24px; gap: 24px; }
+      .stat-value { font-size: 36px; }
+      .section { padding: 60px 24px; }
+      .section-title { font-size: 32px; }
+      .pricing-card { padding: 40px 24px; }
+      .footer { flex-direction: column; gap: 24px; text-align: center; }
+      .dash-stats { grid-template-columns: 1fr; }
+      .dash-stat-value { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="nav">
+    <a href="/" class="logo">
+      <div class="logo-icon"><span>V</span></div>
+      <div class="logo-text">VROOM<span>X</span></div>
+    </a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="frontend/index.html">Login</a>
+    </div>
+    <a href="frontend/index.html#/register" class="nav-cta">Start Free Trial</a>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-bg">
+      <div class="hero-grid"></div>
+      <div class="hero-glow"></div>
+      <div class="hero-glow-2"></div>
+      <div class="particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+      </div>
+      <div class="scan-line"></div>
+    </div>
+
+    <div class="hero-content">
+      <div class="hero-text">
+        <div class="hero-tag">
+          <span class="hero-tag-badge">DOT/FMCSA Compliance</span>
+          <span class="hero-tag-text">Made Simple</span>
+        </div>
+        <h1>
+          STAY COMPLIANT.<br>
+          <span class="highlight">STAY AHEAD.</span>
+        </h1>
+        <p class="hero-subtitle">Track driver qualifications, vehicle inspections, and company documents. Automated alerts ensure you never miss an expiration. Multi-company management from one dashboard.</p>
+        <div class="hero-ctas">
+          <a href="frontend/index.html#/register" class="btn-primary">Start Free Trial <span>→</span></a>
+          <a href="#features" class="btn-secondary">See Features</a>
+        </div>
+      </div>
+
+      <!-- Dashboard Preview -->
+      <div class="hero-visual">
+        <div class="dashboard-container">
+          <div class="dashboard-window">
+            <div class="dashboard-header">
+              <div class="dashboard-dots">
+                <span></span><span></span><span></span>
+              </div>
+              <div class="dashboard-title">VROOMX Dashboard — Live</div>
+            </div>
+            <div class="dashboard-body">
+              <div class="dash-stats">
+                <div class="dash-stat">
+                  <div class="dash-stat-label">Drivers</div>
+                  <div class="dash-stat-value">24</div>
+                  <div class="dash-stat-change">All Compliant</div>
+                </div>
+                <div class="dash-stat">
+                  <div class="dash-stat-label">Vehicles</div>
+                  <div class="dash-stat-value green">18</div>
+                  <div class="dash-stat-change">Active Fleet</div>
+                </div>
+                <div class="dash-stat">
+                  <div class="dash-stat-label">Expiring</div>
+                  <div class="dash-stat-value crimson">3</div>
+                </div>
+              </div>
+
+              <div class="dash-items">
+                <div class="dash-item">
+                  <div class="item-pulse green"></div>
+                  <div class="item-info">
+                    <div class="item-title">John Smith - CDL</div>
+                    <div class="item-meta">Expires Dec 2025</div>
+                  </div>
+                  <div class="item-status compliant">Compliant</div>
+                </div>
+                <div class="dash-item">
+                  <div class="item-pulse orange"></div>
+                  <div class="item-info">
+                    <div class="item-title">Mike Johnson - Medical Card</div>
+                    <div class="item-meta">Expires in 30 days</div>
+                  </div>
+                  <div class="item-status expiring">Expiring</div>
+                </div>
+                <div class="dash-item">
+                  <div class="item-pulse red"></div>
+                  <div class="item-info">
+                    <div class="item-title">Truck #105 - Annual Inspection</div>
+                    <div class="item-meta">Expired 5 days ago</div>
+                  </div>
+                  <div class="item-status expired">Expired</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="float-card float-card-1">
+            <div class="float-label">Compliance Rate</div>
+            <div class="float-value green">94%</div>
+          </div>
+          <div class="float-card float-card-2">
+            <div class="float-label">Documents</div>
+            <div class="float-value">247</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Bar -->
+  <section class="stats-bar">
+    <div class="stat-item"><div class="stat-value">90<span>%</span></div><div class="stat-label">Less Manual Tracking</div></div>
+    <div class="stat-item"><div class="stat-value">100<span>%</span></div><div class="stat-label">Document Visibility</div></div>
+    <div class="stat-item"><div class="stat-value">24<span>/7</span></div><div class="stat-label">Expiration Monitoring</div></div>
+    <div class="stat-item"><div class="stat-value">$49<span>/mo</span></div><div class="stat-label">Flat Rate Pricing</div></div>
+  </section>
+
+  <!-- Problem Section -->
+  <section class="section problem-section">
+    <div class="problem-grid">
+      <div class="problem-content">
+        <span class="section-tag">// The Problem</span>
+        <h2 class="section-title">Your Compliance Is A <span class="highlight">Mess</span></h2>
+        <p class="section-subtitle">You're running a trucking business, not a filing cabinet. But DOT compliance requires tracking dozens of expiration dates across drivers, vehicles, and company documents.</p>
+        <ul class="problem-list">
+          <li>Medical cards expiring without notice</li>
+          <li>CDL renewals slipping through the cracks</li>
+          <li>Vehicle inspections past due</li>
+          <li>Hours spent preparing for audits</li>
+          <li>Spreadsheets that are always outdated</li>
+          <li>No visibility into compliance status</li>
+        </ul>
+      </div>
+      <div class="folder-visual">
+        <div class="folder-mockup">
+          <div class="folder-header">
+            <span class="folder-icon">📁</span>
+            <span>Driver_Files_2024_FINAL_v3.xlsx</span>
+          </div>
+          <div class="folder-files">
+            <div class="folder-file">📄 John_CDL_copy.pdf</div>
+            <div class="folder-file">📄 Medical_Card_Mike_maybe.jpg</div>
+            <div class="folder-file expired">⚠️ Annual_Inspection_EXPIRED.pdf</div>
+            <div class="folder-file">📄 Insurance_cert_old.pdf</div>
+            <div class="folder-file expired">⚠️ MVR_2023_need_new.pdf</div>
+          </div>
+        </div>
+        <div class="folder-chaos">
+          <div class="chaos-text">VIOLATION WAITING TO HAPPEN</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="section features-section" id="features">
+    <div class="features-header">
+      <span class="section-tag">// Built for Compliance</span>
+      <h2 class="section-title">Everything You Need to <span class="highlight">Stay Compliant</span></h2>
+      <p class="section-subtitle">Complete DOT/FMCSA compliance management. Track drivers, vehicles, and company documents in one place.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </div>
+        <h3>Driver Qualification Files</h3>
+        <p>Complete DQF management per FMCSA 391 requirements. Track every document for every driver.</p>
+        <ul class="feature-highlights">
+          <li>CDL & endorsements tracking</li>
+          <li>Medical card expiration alerts</li>
+          <li>MVR monitoring</li>
+          <li>Drug & alcohol test records</li>
+        </ul>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="1" y="3" width="15" height="13"></rect>
+            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+            <circle cx="5.5" cy="18.5" r="2.5"></circle>
+            <circle cx="18.5" cy="18.5" r="2.5"></circle>
+          </svg>
+        </div>
+        <h3>Vehicle Compliance</h3>
+        <p>Never miss an inspection or registration. Track every vehicle in your fleet.</p>
+        <ul class="feature-highlights">
+          <li>Annual inspection tracking</li>
+          <li>Registration renewals</li>
+          <li>IFTA/IRP monitoring</li>
+          <li>Permit expiration alerts</li>
+        </ul>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+        </div>
+        <h3>Smart Alerts</h3>
+        <p>Automated notifications before anything expires. Email, SMS, and dashboard alerts.</p>
+        <ul class="feature-highlights">
+          <li>30/60/90 day warnings</li>
+          <li>Email notifications</li>
+          <li>Dashboard alerts</li>
+          <li>Custom alert schedules</li>
+        </ul>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+          </svg>
+        </div>
+        <h3>Document Storage</h3>
+        <p>Secure cloud storage for all compliance documents. Access from anywhere, anytime.</p>
+        <ul class="feature-highlights">
+          <li>Unlimited storage</li>
+          <li>Secure cloud backup</li>
+          <li>Easy document upload</li>
+          <li>Quick search & retrieval</li>
+        </ul>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+        </div>
+        <h3>Multi-Company Management</h3>
+        <p>Safety consultants and multi-carrier operators can manage unlimited companies from one account.</p>
+        <ul class="feature-highlights">
+          <li>Unlimited companies</li>
+          <li>Easy company switching</li>
+          <li>Separate compliance tracking</li>
+          <li>Consolidated dashboard</li>
+        </ul>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+        </div>
+        <h3>Audit Ready Reports</h3>
+        <p>Generate compliance reports instantly. Be prepared for any DOT audit.</p>
+        <ul class="feature-highlights">
+          <li>One-click reports</li>
+          <li>Compliance summaries</li>
+          <li>Expiration calendars</li>
+          <li>Audit history tracking</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonial -->
+  <section class="section testimonial-section">
+    <p class="testimonial-quote">"We went from missing expirations every month to <span class="highlight">zero compliance violations</span> in the past year. VROOMX pays for itself with the first avoided fine."</p>
+    <p class="testimonial-author">— <strong>Sarah M.</strong>, Safety Director, Regional Trucking Company (45 trucks)</p>
+  </section>
+
+  <!-- Pricing -->
+  <section class="section pricing-section" id="pricing">
+    <span class="section-tag">// Simple Pricing</span>
+    <h2 class="section-title">One Price. <span class="highlight">Unlimited</span> Everything.</h2>
+    <p class="section-subtitle" style="margin: 16px auto 0; text-align: center;">No per-driver fees. No per-vehicle charges. Just straightforward pricing.</p>
+    <div class="pricing-card">
+      <div class="pricing-badge">Flat Rate</div>
+      <div class="pricing-amount">
+        <span class="pricing-currency">$</span>
+        <span class="pricing-value">49</span>
+        <span class="pricing-period">/month</span>
+      </div>
+      <p class="pricing-trial"><strong>14-day free trial.</strong> No credit card required.</p>
+      <ul class="pricing-features">
+        <li>Unlimited Companies</li>
+        <li>Unlimited Drivers</li>
+        <li>Unlimited Vehicles</li>
+        <li>Unlimited Document Storage</li>
+        <li>Driver Qualification Files (DQF)</li>
+        <li>Vehicle Compliance Tracking</li>
+        <li>Automated Expiration Alerts</li>
+        <li>Multi-Company Management</li>
+        <li>Audit-Ready Reports</li>
+        <li>Email & Dashboard Notifications</li>
+        <li>Priority Support</li>
+      </ul>
+      <a href="frontend/index.html#/register" class="pricing-cta">Start Your Free Trial →</a>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section cta-section">
+    <h2 class="cta-title">Ready to <span>Simplify Compliance?</span></h2>
+    <p class="cta-subtitle">Join trucking companies who stopped worrying about missed expirations. Your 14-day free trial starts now.</p>
+    <a href="frontend/index.html#/register" class="cta-btn">Start Free Trial →</a>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-logo">
+      <div class="logo-icon"><span>V</span></div>
+      <div class="logo-text">VROOM<span>X</span></div>
+    </div>
+    <div class="footer-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+      <a href="#">Support</a>
+      <a href="#">Contact</a>
+    </div>
+    <div class="footer-copy">© 2025 VROOMX Safety Compliance. All rights reserved.</div>
+  </footer>
+</body>
+</html>
