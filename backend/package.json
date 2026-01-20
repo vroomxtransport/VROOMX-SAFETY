@@ -26,13 +26,13 @@
     "node-cron": "^3.0.3",
     "nodemailer": "^6.9.7",
     "openai": "^6.16.0",
-    "puppeteer": "^21.11.0",
     "stripe": "^20.2.0",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "jest": "^29.7.0",
-    "mongodb-memory-server": "^11.0.1",
     "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
