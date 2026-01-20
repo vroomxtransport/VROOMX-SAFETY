@@ -7,23 +7,87 @@ import {
 } from 'react-icons/fi';
 
 const Landing = () => {
-  const [showAiResponse, setShowAiResponse] = useState(false);
-  const [showTyping, setShowTyping] = useState(false);
+  // Chat Q&A cycling state
+  const [currentQAIndex, setCurrentQAIndex] = useState(0);
+  const [chatPhase, setChatPhase] = useState('question'); // 'question', 'typing', 'answer', 'pause'
 
+  // Q&A data for the live chat demo
+  const chatQA = [
+    {
+      question: "Do I need an ELD under 100 miles?",
+      answer: {
+        intro: "If you meet the <span class='text-white font-semibold'>short-haul exemption</span> under <span class='text-primary-400 font-mono text-xs bg-primary-500/10 px-1 py-0.5 rounded border border-primary-500/20'>49 CFR §395.1(e)</span>, you are exempt from ELD use as long as:",
+        bullets: [
+          "You operate within a 150 air-mile radius",
+          "You return to the work reporting location each day",
+          "You drive no more than 11 hours"
+        ],
+        source: "FMCSA Rules & Regulations"
+      }
+    },
+    {
+      question: "When does my medical card expire?",
+      answer: {
+        intro: "Medical certificates are valid for <span class='text-white font-semibold'>up to 24 months</span>. However, certain conditions may require more frequent certification:",
+        bullets: [
+          "High blood pressure may require annual recertification",
+          "Diabetes requiring insulin requires annual exams",
+          "Vision waivers must be renewed annually"
+        ],
+        source: "49 CFR §391.45"
+      }
+    },
+    {
+      question: "How long are violations on my CSA score?",
+      answer: {
+        intro: "Roadside inspection results and violations remain in your <span class='text-white font-semibold'>SMS BASICs</span> for:",
+        bullets: [
+          "24 months from the inspection date",
+          "Older violations carry less weight (time-weighting)",
+          "Crash results stay for 24 months as well"
+        ],
+        source: "FMCSA SMS Methodology"
+      }
+    },
+    {
+      question: "What triggers a DOT audit?",
+      answer: {
+        intro: "FMCSA may schedule an <span class='text-white font-semibold'>intervention</span> based on:",
+        bullets: [
+          "High BASIC percentiles (above thresholds)",
+          "Complaints filed against your carrier",
+          "Serious crashes or fatalities",
+          "Random New Entrant Safety Audits"
+        ],
+        source: "FMCSA Compliance & Enforcement"
+      }
+    }
+  ];
+
+  // Cycle through chat phases
   useEffect(() => {
-    // Show typing indicator after user message
-    const typingTimer = setTimeout(() => setShowTyping(true), 600);
-    // Show AI response and hide typing
-    const responseTimer = setTimeout(() => {
-      setShowTyping(false);
-      setShowAiResponse(true);
-    }, 2500);
-
-    return () => {
-      clearTimeout(typingTimer);
-      clearTimeout(responseTimer);
+    const phases = {
+      question: 1000,    // Show question for 1s
+      typing: 1800,      // Show typing indicator for 1.8s
+      answer: 5500,      // Show answer for 5.5s
+      pause: 600         // Brief pause before next Q&A
     };
-  }, []);
+
+    const timer = setTimeout(() => {
+      if (chatPhase === 'question') {
+        setChatPhase('typing');
+      } else if (chatPhase === 'typing') {
+        setChatPhase('answer');
+      } else if (chatPhase === 'answer') {
+        setChatPhase('pause');
+      } else if (chatPhase === 'pause') {
+        setCurrentQAIndex((prev) => (prev + 1) % chatQA.length);
+        setChatPhase('question');
+      }
+    }, phases[chatPhase]);
+
+    return () => clearTimeout(timer);
+  }, [chatPhase, chatQA.length]);
 
   const testimonials = [
     {
@@ -143,7 +207,12 @@ const Landing = () => {
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.1] tracking-tight mb-8 font-heading animate-fade-in-up">
               TOTAL<br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-400">COMPLIANCE.</span><br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-b from-gray-200 to-gray-500">ZERO STRESS.</span>
+              <span className="inline-grid text-left">
+                <span className="invisible col-start-1 row-start-1">ZERO STRESS.</span>
+                <span className="typewriter-text col-start-1 row-start-1 text-transparent bg-clip-text bg-gradient-to-b from-gray-200 to-gray-500">
+                  ZERO STRESS.
+                </span>
+              </span>
             </h1>
 
             <p className="text-gray-300 text-lg md:text-xl max-w-xl mb-12 leading-relaxed animate-fade-in-up mx-auto lg:mx-0" style={{ animationDelay: '0.1s' }}>
@@ -202,15 +271,15 @@ const Landing = () => {
                   {/* Grid background pattern */}
                   <div className="absolute inset-0 bg-grid-pattern opacity-5" />
 
-                  {/* User Message */}
-                  <div className="flex justify-end relative z-10">
-                    <div className="animate-message-pop bg-white/10 text-white px-4 py-3 rounded-2xl rounded-tr-sm border border-white/5 backdrop-blur-sm shadow-lg max-w-[85%]">
-                      <p className="text-sm font-medium">Do I need an ELD under 100 miles?</p>
+                  {/* User Message - Dynamic */}
+                  <div key={`q-${currentQAIndex}`} className="flex justify-end relative z-10 animate-fade-in">
+                    <div className="bg-white/10 text-white px-4 py-3 rounded-2xl rounded-tr-sm border border-white/5 backdrop-blur-sm shadow-lg max-w-[85%]">
+                      <p className="text-sm font-medium">{chatQA[currentQAIndex].question}</p>
                     </div>
                   </div>
 
                   {/* AI Typing Indicator */}
-                  {showTyping && (
+                  {chatPhase === 'typing' && (
                     <div className="flex justify-start relative z-10 animate-fade-in">
                       <div className="flex gap-3 items-center">
                         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex-shrink-0 flex items-center justify-center text-white text-[10px] font-bold shadow-lg shadow-primary-500/20">
@@ -227,24 +296,22 @@ const Landing = () => {
                     </div>
                   )}
 
-                  {/* AI Response */}
-                  {showAiResponse && (
-                    <div className="flex justify-start relative z-10 animate-message-pop">
+                  {/* AI Response - Dynamic */}
+                  {chatPhase === 'answer' && (
+                    <div key={`a-${currentQAIndex}`} className="flex justify-start relative z-10 animate-message-pop">
                       <div className="flex gap-3 max-w-[90%]">
                         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex-shrink-0 flex items-center justify-center text-white text-[10px] font-bold mt-1 shadow-lg shadow-primary-500/20">
                           VX
                         </div>
                         <div className="bg-primary-900/40 text-gray-200 px-5 py-4 rounded-2xl rounded-tl-sm border border-primary-500/20 backdrop-blur-sm shadow-lg">
-                          <p className="text-sm leading-relaxed">
-                            If you meet the <span className="text-white font-semibold">short-haul exemption</span> under <span className="text-primary-400 font-mono text-xs bg-primary-500/10 px-1 py-0.5 rounded border border-primary-500/20">49 CFR &sect;395.1(e)</span>, you are exempt from ELD use as long as:
-                          </p>
+                          <p className="text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: chatQA[currentQAIndex].answer.intro }} />
                           <ul className="mt-3 space-y-2 text-xs text-gray-400 list-disc pl-4">
-                            <li>You operate within a 150 air-mile radius</li>
-                            <li>You return to the work reporting location each day</li>
-                            <li>You drive no more than 11 hours</li>
+                            {chatQA[currentQAIndex].answer.bullets.map((bullet, i) => (
+                              <li key={i}>{bullet}</li>
+                            ))}
                           </ul>
                           <div className="mt-4 flex items-center gap-2">
-                            <span className="text-[10px] text-gray-500">Source: FMCSA Rules & Regulations</span>
+                            <span className="text-[10px] text-gray-500">Source: {chatQA[currentQAIndex].answer.source}</span>
                             <div className="h-px flex-1 bg-white/5" />
                           </div>
                         </div>
