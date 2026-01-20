@@ -25,6 +25,64 @@ const Landing = () => {
     };
   }, []);
 
+  const testimonials = [
+    {
+      quote: 'We went from missing expirations every month to <span class="text-primary-500 font-bold">zero compliance violations</span> in the past year. The SMS BASICs tracking alone has saved us from an intervention.',
+      name: 'Sarah Jenkins',
+      role: 'Safety Director',
+      fleet: '45 Trucks',
+      featured: true
+    },
+    {
+      quote: 'The DQF management is a lifesaver. I used to spend hours auditing files manually. Now I just check the dashboard once a week.',
+      name: 'Mike Ross',
+      role: 'Owner Operator',
+      fleet: '3 Trucks'
+    },
+    {
+      quote: "Finally, software that feels modern. It's fast, looks great, and actually makes sense. My drivers even use the portal without complaining.",
+      name: 'David Chen',
+      role: 'Fleet Mgr',
+      fleet: '120 Trucks'
+    },
+    {
+      quote: 'Audit readiness reports are worth the subscription alone. We passed our New Entrant Audit with zero issues thanks to the checklists.',
+      name: 'Elena Rodriguez',
+      role: 'Compliance Officer',
+      fleet: ''
+    },
+    {
+      quote: 'I was skeptical about the AI alerts, but they actually predicted a maintenance issue before it became a violation. Impressive tech.',
+      name: 'Marcus Johnson',
+      role: 'Ops Director',
+      fleet: '85 Trucks'
+    }
+  ];
+
+  const blogPosts = [
+    {
+      category: 'Regulation',
+      date: 'Oct 12, 2025',
+      title: '2026 FMCSA Proposed Rule Changes',
+      excerpt: "New proposals for electronic IDs on CMVs and what it means for your fleet's privacy.",
+      gradient: 'from-primary-900/50'
+    },
+    {
+      category: 'Tech',
+      date: 'Sep 28, 2025',
+      title: 'Digitizing Driver Qualification Files',
+      excerpt: 'Why sticking to paper filings is costing you more than just storage space.',
+      gradient: 'from-rose-900/50'
+    },
+    {
+      category: 'Safety',
+      date: 'Sep 15, 2025',
+      title: 'Preparing for a Remote Audit',
+      excerpt: 'Step-by-step checklist to ensure your digital records pass inspection.',
+      gradient: 'from-green-900/50'
+    }
+  ];
+
   return (
     <div className="relative overflow-hidden w-full min-h-screen bg-black text-zinc-200">
       {/* Fixed Background Elements */}
@@ -279,7 +337,12 @@ const Landing = () => {
                 { icon: FiClipboard, title: 'Unfiled DataQs', desc: 'Wrong violations staying on your record because challenges are hard.', color: 'purple' }
               ].map((item, i) => (
                 <div key={i} className="glass p-4 rounded-xl flex items-start gap-4 hover:bg-white/5 transition-colors">
-                  <div className={`p-2 bg-${item.color}-500/10 rounded-lg text-${item.color}-500 mt-1`}>
+                  <div className={`p-2 rounded-lg mt-1 ${
+                    item.color === 'red' ? 'bg-red-500/10 text-red-500' :
+                    item.color === 'amber' ? 'bg-amber-500/10 text-amber-500' :
+                    item.color === 'primary' ? 'bg-primary-500/10 text-primary-500' :
+                    'bg-purple-500/10 text-purple-500'
+                  }`}>
                     <item.icon className="w-5 h-5" />
                   </div>
                   <div>
@@ -413,118 +476,278 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Testimonial Section */}
-      <section className="py-24 px-6 md:px-16 relative z-10 border-y border-white/5 bg-white/[0.02]">
-        <div className="max-w-4xl mx-auto text-center">
-          <p className="text-2xl md:text-3xl lg:text-4xl font-bold text-white leading-snug mb-8">
-            "We went from missing expirations every month to <span className="text-primary-500">zero compliance violations</span> in the past year. The SMS BASICs tracking alone has saved us from an intervention."
-          </p>
-          <p className="text-gray-400">
-            — <strong className="text-white">Sarah M.</strong>, Safety Director, Regional Trucking Company (45 trucks)
-          </p>
+      {/* Testimonials Slider Section */}
+      <section className="py-24 relative z-10 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 mb-12 text-center">
+          <h2 className="text-3xl md:text-5xl font-heading font-bold text-white">
+            Trusted by <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-400">Fleets Everywhere.</span>
+          </h2>
+        </div>
+
+        <div className="relative w-full overflow-hidden">
+          {/* Mask for fading edges */}
+          <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-black to-transparent z-20 pointer-events-none" />
+          <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-black to-transparent z-20 pointer-events-none" />
+
+          <div className="flex w-max animate-scroll hover:[animation-play-state:paused] gap-8">
+            {/* First set of testimonials */}
+            {testimonials.map((t, i) => (
+              <div key={i} className="w-[400px] glass p-8 rounded-2xl flex-shrink-0 relative group hover:border-primary-500/30 transition-colors">
+                <div className={`absolute -top-4 left-8 w-8 h-8 ${t.featured ? 'bg-primary-500 shadow-lg shadow-primary-500/30' : 'bg-primary-500/50'} rounded-full flex items-center justify-center text-xl font-black text-white`}>
+                  "
+                </div>
+                <p className="text-gray-300 text-lg mb-6 leading-relaxed relative z-10 pt-2" dangerouslySetInnerHTML={{ __html: t.quote }} />
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 border border-white/10 shrink-0" />
+                  <div>
+                    <div className="text-white font-bold text-sm">{t.name}</div>
+                    <div className="text-primary-500 text-xs uppercase tracking-wider font-bold">
+                      {t.role}{t.fleet && ` • ${t.fleet}`}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {/* Duplicate set for infinite scroll */}
+            {testimonials.map((t, i) => (
+              <div key={`dup-${i}`} className="w-[400px] glass p-8 rounded-2xl flex-shrink-0 relative group hover:border-primary-500/30 transition-colors">
+                <div className={`absolute -top-4 left-8 w-8 h-8 ${t.featured ? 'bg-primary-500 shadow-lg shadow-primary-500/30' : 'bg-primary-500/50'} rounded-full flex items-center justify-center text-xl font-black text-white`}>
+                  "
+                </div>
+                <p className="text-gray-300 text-lg mb-6 leading-relaxed relative z-10 pt-2" dangerouslySetInnerHTML={{ __html: t.quote }} />
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 border border-white/10 shrink-0" />
+                  <div>
+                    <div className="text-white font-bold text-sm">{t.name}</div>
+                    <div className="text-primary-500 text-xs uppercase tracking-wider font-bold">
+                      {t.role}{t.fleet && ` • ${t.fleet}`}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Pricing Section */}
+      {/* Pricing Section - 3 Tiers */}
       <section id="pricing" className="py-24 px-6 md:px-16 relative z-10">
-        <div className="text-center">
-          <span className="font-mono text-xs text-primary-500 uppercase tracking-widest">// Simple Pricing</span>
-          <h2 className="text-3xl md:text-5xl font-heading font-bold text-white mt-4 mb-4">
-            One Price. <span className="text-primary-500">Unlimited</span> Everything.
-          </h2>
-          <p className="text-lg text-gray-400 mb-12">No per-driver fees. No per-vehicle charges. Just straightforward pricing.</p>
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-3xl md:text-5xl font-heading font-bold text-white mb-6">
+              Simple, Transparent <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-400">Pricing.</span>
+            </h2>
+            <p className="text-lg text-gray-300">
+              Start your compliance journey today. No hidden fees.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-7xl mx-auto">
+            {/* Starter Tier */}
+            <div className="glass-card p-8 rounded-3xl relative overflow-hidden group hover:border-primary-500/30 transition-all">
+              <div className="absolute top-0 right-0 bg-white/10 px-4 py-1 rounded-bl-xl text-xs font-bold text-white uppercase tracking-wider backdrop-blur-md">
+                Starter
+              </div>
+
+              <div className="mb-8">
+                <div className="text-sm text-gray-300 font-mono mb-2 uppercase tracking-wider">Small Fleets</div>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-5xl font-black text-white tracking-tight">$29</span>
+                  <span className="text-gray-500 font-medium">/month</span>
+                </div>
+                <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-500/10 border border-primary-500/20 text-primary-500 text-xs font-bold uppercase tracking-wide">
+                  <span className="w-2 h-2 rounded-full bg-primary-500 animate-pulse" />
+                  3-Day Free Trial
+                </div>
+              </div>
+
+              <ul className="space-y-4 mb-8">
+                {[
+                  { text: 'Up to', highlight: '3 Trucks' },
+                  { text: 'Up to', highlight: '3 Drivers' },
+                  { text: 'Full DQ File Management' },
+                  { text: 'Maintenance Scheduling' }
+                ].map((item, i) => (
+                  <li key={i} className="flex items-center gap-3 text-gray-300">
+                    <FiCheckCircle className="w-5 h-5 text-primary-500 flex-shrink-0" />
+                    {item.highlight ? <>{item.text} <strong className="text-white">{item.highlight}</strong></> : item.text}
+                  </li>
+                ))}
+              </ul>
+
+              <Link to="/register" className="w-full btn-glow py-4 rounded-xl font-bold text-white text-center block transition-transform group-hover:scale-[1.02]">
+                Start 3-Day Trial
+              </Link>
+            </div>
+
+            {/* Growth Tier - Most Popular */}
+            <div className="glass-card p-8 rounded-3xl relative overflow-hidden group hover:border-primary-500/30 transition-all border-primary-500/30">
+              <div className="absolute top-0 right-0 bg-gradient-to-r from-primary-600 to-primary-500 px-4 py-1 rounded-bl-xl text-xs font-bold text-white uppercase tracking-wider shadow-lg shadow-primary-500/20">
+                Most Popular
+              </div>
+
+              <div className="mb-8 relative z-10">
+                <div className="text-sm text-primary-400 font-mono mb-2 uppercase tracking-wider">Unlimited</div>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-5xl font-black text-white tracking-tight">$49</span>
+                  <span className="text-gray-500 font-medium">/month</span>
+                </div>
+                <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-500/10 border border-primary-500/20 text-primary-500 text-xs font-bold uppercase tracking-wide">
+                  <span className="w-2 h-2 rounded-full bg-primary-500 animate-pulse" />
+                  3-Day Free Trial
+                </div>
+              </div>
+
+              <ul className="space-y-4 mb-8 relative z-10">
+                {[
+                  { highlight: 'Unlimited', text: 'Trucks & Drivers' },
+                  { text: 'Advanced SMS Alerts' },
+                  { text: 'Audit Readiness Reports' },
+                  { text: 'Priority Support' }
+                ].map((item, i) => (
+                  <li key={i} className="flex items-center gap-3 text-gray-300">
+                    <FiCheckCircle className="w-5 h-5 text-primary-500 flex-shrink-0" />
+                    {item.highlight ? <><strong className="text-white">{item.highlight}</strong> {item.text}</> : item.text}
+                  </li>
+                ))}
+              </ul>
+
+              <Link to="/register" className="relative z-10 w-full btn-glow py-4 rounded-xl font-bold text-white text-center block transition-transform group-hover:scale-[1.02] shadow-lg shadow-primary-500/20">
+                Start 3-Day Trial
+              </Link>
+            </div>
+
+            {/* Annual Tier */}
+            <div className="glass-card p-8 rounded-3xl relative overflow-hidden group hover:border-yellow-500/30 transition-all border-white/10 ring-1 ring-yellow-500/20">
+              <div className="absolute top-0 right-0 bg-gradient-to-r from-yellow-600 to-yellow-500 px-4 py-1 rounded-bl-xl text-xs font-bold text-black uppercase tracking-wider shadow-lg shadow-yellow-500/20">
+                Save $109
+              </div>
+
+              <div className="mb-8 relative z-10">
+                <div className="text-sm text-yellow-500 font-mono mb-2 uppercase tracking-wider">Unlimited Annual</div>
+                <div className="flex items-baseline gap-2">
+                  <span className="line-through text-gray-500 text-xl decoration-red-500/50 decoration-2">$588</span>
+                  <span className="text-5xl font-black text-white tracking-tight">$479</span>
+                  <span className="text-gray-500 font-medium">/year</span>
+                </div>
+                <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-xs font-bold uppercase tracking-wide">
+                  <span className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse" />
+                  Best Value
+                </div>
+              </div>
+
+              <ul className="space-y-4 mb-8 relative z-10">
+                {[
+                  { highlight: 'Everything', text: 'in Monthly' },
+                  { highlight: '2 Months Free', text: '(approx)' },
+                  { text: 'Locked-in Rate' },
+                  { text: 'Priority Onboarding' }
+                ].map((item, i) => (
+                  <li key={i} className="flex items-center gap-3 text-gray-300">
+                    <FiCheckCircle className="w-5 h-5 text-yellow-500 flex-shrink-0" />
+                    {item.highlight ? <><strong className="text-white">{item.highlight}</strong> {item.text}</> : item.text}
+                  </li>
+                ))}
+              </ul>
+
+              <Link to="/register" className="relative z-10 w-full bg-gradient-to-r from-yellow-600 to-yellow-500 py-4 rounded-xl font-bold text-black text-center block transition-transform group-hover:scale-[1.02] shadow-lg shadow-yellow-500/20">
+                Go Annual
+              </Link>
+            </div>
+          </div>
         </div>
+      </section>
 
-        <div className="max-w-lg mx-auto glass-card rounded-3xl p-10 md:p-14 relative border border-white/10">
-          <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-primary-500 text-white px-6 py-2 text-xs font-bold uppercase tracking-wider rounded-md shadow-glow">
-            Best Value
+      {/* Latest News Section */}
+      <section className="py-24 px-6 md:px-16 relative z-10">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex justify-between items-end mb-12">
+            <div>
+              <span className="font-mono text-xs text-primary-500 uppercase tracking-widest">// Stay Informed</span>
+              <h2 className="text-3xl md:text-5xl font-heading font-bold text-white mt-4">
+                Latest <span className="text-gray-500">Updates</span>
+              </h2>
+            </div>
+            <a href="#" className="hidden md:flex items-center gap-2 text-sm font-bold text-primary-500 hover:text-primary-400 transition-colors">
+              View All Articles
+              <FiArrowRight className="w-4 h-4" />
+            </a>
           </div>
 
-          <div className="inline-block bg-white/10 text-white px-5 py-2 text-xs font-bold uppercase tracking-wider rounded-md mb-8">
-            Flat Rate
-          </div>
-
-          <div className="flex items-baseline justify-center gap-2 mb-4">
-            <span className="text-3xl font-bold text-gray-400">$</span>
-            <span className="text-7xl font-black tracking-tight leading-none text-white">49</span>
-            <span className="text-xl text-gray-500">/month</span>
-          </div>
-
-          <p className="text-gray-400 mb-10">
-            <strong className="text-primary-500">14-day free trial.</strong> No credit card required.
-          </p>
-
-          <ul className="text-left space-y-4 mb-10">
-            {[
-              'Unlimited Drivers & Vehicles',
-              'Driver Qualification File (DQF) Management',
-              'Vehicle Inspection & Maintenance Tracking',
-              'SMS BASICs Percentile Monitoring',
-              'Violation & DataQ Challenge Tracking',
-              'Drug & Alcohol Testing Records',
-              'Clearinghouse Query Tracking',
-              '30/60/90 Day Expiration Alerts',
-              'Audit Readiness Checker',
-              'PDF Report Generation',
-              'Document Storage & Management'
-            ].map((item, i) => (
-              <li key={i} className="flex items-center gap-3 py-3 border-b border-white/5 text-gray-300">
-                <FiCheckCircle className="w-5 h-5 text-primary-500 flex-shrink-0" />
-                {item}
-              </li>
+          <div className="grid md:grid-cols-3 gap-8">
+            {blogPosts.map((post, i) => (
+              <a key={i} href="#" className="group block">
+                <div className="glass-card rounded-2xl overflow-hidden h-full flex flex-col hover:-translate-y-2 hover:border-primary-500/30 hover:shadow-glow transition-all duration-300">
+                  <div className="h-48 bg-gray-800 relative overflow-hidden">
+                    <div className={`absolute inset-0 bg-gradient-to-tr ${post.gradient} to-gray-900/50 group-hover:scale-105 transition-transform duration-500`} />
+                    <div className="absolute top-4 left-4 bg-black/50 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-[10px] text-white font-mono uppercase tracking-wide">
+                      {post.category}
+                    </div>
+                  </div>
+                  <div className="p-6 flex-1 flex flex-col">
+                    <div className="text-xs text-gray-500 mb-3 font-mono">{post.date}</div>
+                    <h3 className="text-xl font-bold text-white mb-3 group-hover:text-primary-500 transition-colors">{post.title}</h3>
+                    <p className="text-sm text-gray-300 mb-4 flex-1">{post.excerpt}</p>
+                    <div className="flex items-center gap-2 text-sm text-primary-500 font-medium">
+                      Read Article
+                      <FiArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                    </div>
+                  </div>
+                </div>
+              </a>
             ))}
-          </ul>
+          </div>
 
-          <Link
-            to="/register"
-            className="block w-full btn-glow py-5 text-center font-bold text-white text-sm uppercase tracking-wider rounded-xl"
-          >
-            Start Your Free Trial <FiArrowRight className="inline w-4 h-4 ml-2" />
-          </Link>
+          <div className="mt-8 text-center md:hidden">
+            <a href="#" className="btn-glow inline-flex items-center gap-2 px-6 py-3 rounded-lg font-bold text-white text-sm">
+              View All Articles
+              <FiArrowRight className="w-4 h-4" />
+            </a>
+          </div>
         </div>
       </section>
 
       {/* Final CTA Section */}
-      <section className="py-24 px-6 md:px-16 relative z-10 text-center overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary-500/20 rounded-full blur-[120px] -z-10" />
-
-        <div className="relative z-10">
-          <h2 className="text-3xl md:text-5xl font-heading font-bold text-white mb-6 tracking-tight">
-            Ready to <span className="text-primary-500">Simplify Compliance?</span>
+      <section className="py-32 px-6 md:px-16 text-center relative overflow-hidden z-10">
+        <div className="absolute inset-0 bg-gradient-to-t from-primary-900/20 to-transparent pointer-events-none" />
+        <div className="max-w-3xl mx-auto relative z-10">
+          <h2 className="text-4xl md:text-6xl font-black text-white mb-8 tracking-tight font-heading">
+            Ready to <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-400">Simplify?</span>
           </h2>
-          <p className="text-lg text-gray-400 max-w-2xl mx-auto mb-10">
-            Join trucking companies who stopped worrying about BASICs percentiles and missed expirations. Your 14-day free trial starts now.
+          <p className="text-xl text-gray-200 mb-10 max-w-xl mx-auto">
+            Join trucking companies who stopped worrying about audits and started focusing on the road.
           </p>
           <Link
             to="/register"
-            className="inline-block bg-white text-black px-12 py-5 font-bold text-sm uppercase tracking-wider rounded-xl hover:bg-primary-500 hover:text-white hover:-translate-y-1 hover:shadow-glow transition-all duration-300"
+            className="btn-glow px-12 py-5 rounded-full font-bold text-white text-lg inline-flex items-center gap-2"
           >
-            Start Free Trial <FiArrowRight className="inline w-4 h-4 ml-2" />
+            Get Started Now
+            <FiArrowRight className="w-5 h-5" />
           </Link>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-16 px-6 md:px-16 relative z-10 border-t border-white/5">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-          <Link to="/" className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center shadow-glow-sm">
-              <FiCheckCircle className="w-4 h-4 text-white" />
+      <footer className="py-12 px-6 md:px-16 border-t border-white/5 bg-[#030303] relative z-10">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+          <Link to="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-primary-500 to-primary-600 grid place-items-center text-white font-bold text-xs shadow-glow-sm">
+              <FiCheckCircle className="w-5 h-5" />
             </div>
-            <div className="text-lg font-bold text-white font-heading">
+            <div className="text-lg font-heading font-bold text-white tracking-tight">
               VroomX <span className="text-primary-500">Safety</span>
             </div>
           </Link>
 
           <div className="flex flex-wrap justify-center gap-8">
-            <a href="#" className="text-gray-400 text-sm hover:text-white transition-colors">Privacy Policy</a>
-            <a href="#" className="text-gray-400 text-sm hover:text-white transition-colors">Terms of Service</a>
-            <a href="#" className="text-gray-400 text-sm hover:text-white transition-colors">Support</a>
-            <a href="#" className="text-gray-400 text-sm hover:text-white transition-colors">Contact</a>
+            <a href="#features" className="text-sm text-gray-500 hover:text-white transition-colors">Platform</a>
+            <a href="#pricing" className="text-sm text-gray-500 hover:text-white transition-colors">Pricing</a>
+            <Link to="/login" className="text-sm text-gray-500 hover:text-white transition-colors">Login</Link>
+            <a href="mailto:support@vroomxsafety.com" className="text-sm text-gray-500 hover:text-white transition-colors">Contact</a>
           </div>
 
-          <div className="text-gray-500 text-sm">
-            &copy; 2025 VroomX Safety. All rights reserved.
+          <div className="text-gray-600 text-xs text-center md:text-right">
+            &copy; 2025 VroomX Safety.<br />All rights reserved.
           </div>
         </div>
       </footer>
