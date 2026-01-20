@@ -1,31 +1,17 @@
 const mongoose = require('mongoose');
-const { MongoMemoryServer } = require('mongodb-memory-server');
-
-let mongod = null;
 
 const connectDB = async () => {
   try {
-    let uri = process.env.MONGODB_URI;
+    const uri = process.env.MONGODB_URI;
 
-    // Use in-memory MongoDB for development if no MongoDB is available
-    if (process.env.USE_MEMORY_DB === 'true' || !uri || uri.includes('localhost')) {
-      try {
-        // Try connecting to the provided URI first
-        await mongoose.connect(uri, { serverSelectionTimeoutMS: 3000 });
-        console.log(`MongoDB Connected: ${mongoose.connection.host}`);
-        return;
-      } catch (localError) {
-        console.log('Local MongoDB not available, starting in-memory database...');
-        mongod = await MongoMemoryServer.create();
-        uri = mongod.getUri();
-      }
+    if (!uri) {
+      console.error('MONGODB_URI environment variable is not set');
+      process.exit(1);
     }
 
-    const conn = await mongoose.connect(uri, {
-      // MongoDB connection options
-    });
+    const conn = await mongoose.connect(uri);
 
-    console.log(`MongoDB Connected: ${conn.connection.host}${mongod ? ' (in-memory)' : ''}`);
+    console.log(`MongoDB Connected: ${conn.connection.host}`);
 
     // Handle connection events
     mongoose.connection.on('error', (err) => {
@@ -39,9 +25,6 @@ const connectDB = async () => {
     // Graceful shutdown
     process.on('SIGINT', async () => {
       await mongoose.connection.close();
-      if (mongod) {
-        await mongod.stop();
-      }
       console.log('MongoDB connection closed through app termination');
       process.exit(0);
     });
