@@ -1,7 +1,6 @@
 const ejs = require('ejs');
 const path = require('path');
 const fs = require('fs').promises;
-const puppeteer = require('puppeteer');
 
 const TEMPLATES_DIR = path.join(__dirname, '../templates');
 
@@ -177,40 +176,20 @@ const templateGeneratorService = {
   },
 
   /**
-   * Generate PDF from template
+   * Generate PDF from template (disabled - returns HTML instead)
    */
   async generatePDF(templateKey, data, company) {
+    // PDF generation via puppeteer is disabled in this deployment
+    // Return HTML that can be printed to PDF via browser
     const { html } = await this.generatePreview(templateKey, data, company);
 
-    // Use Puppeteer to generate PDF
-    const browser = await puppeteer.launch({
-      headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-
-    try {
-      const page = await browser.newPage();
-      await page.setContent(html, { waitUntil: 'networkidle0' });
-
-      const pdfBuffer = await page.pdf({
-        format: 'Letter',
-        margin: {
-          top: '0.75in',
-          right: '0.75in',
-          bottom: '0.75in',
-          left: '0.75in'
-        },
-        printBackground: true
-      });
-
-      return {
-        buffer: pdfBuffer,
-        filename: `${templateKey}_${Date.now()}.pdf`,
-        contentType: 'application/pdf'
-      };
-    } finally {
-      await browser.close();
-    }
+    return {
+      html,
+      message: 'PDF generation is not available. Use browser print (Ctrl+P) to save as PDF.',
+      templateKey,
+      filename: `${templateKey}_${Date.now()}.html`,
+      contentType: 'text/html'
+    };
   },
 
   /**
