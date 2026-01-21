@@ -8,6 +8,7 @@ const DrugAlcoholTest = require('./DrugAlcoholTest');
 const Document = require('./Document');
 const Accident = require('./Accident');
 const DamageClaim = require('./DamageClaim');
+const Lead = require('./Lead');
 
 module.exports = {
   User,
@@ -19,5 +20,6 @@ module.exports = {
   DrugAlcoholTest,
   Document,
   Accident,
-  DamageClaim
+  DamageClaim,
+  Lead
 };

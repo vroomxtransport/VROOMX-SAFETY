@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import Layout from './components/Layout';
 import Landing from './pages/Landing';
+import Blog from './pages/Blog';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
@@ -91,6 +92,9 @@ function App() {
           </PublicRoute>
         }
       />
+
+      {/* Blog - public, accessible to everyone */}
+      <Route path="/blog" element={<Blog />} />
 
       {/* Protected routes */}
       <Route

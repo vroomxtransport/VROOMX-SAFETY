@@ -20,6 +20,7 @@ const invitationRoutes = require('./invitations');
 const inspectionRoutes = require('./inspections');
 const csaRoutes = require('./csa');
 const templateRoutes = require('./templates');
+const csaCheckerRoutes = require('./csaChecker');
 
 // Mount routes
 router.use('/auth', authRoutes);
@@ -41,5 +42,6 @@ router.use('/invitations', invitationRoutes);
 router.use('/inspections', inspectionRoutes);
 router.use('/csa', csaRoutes);
 router.use('/templates', templateRoutes);
+router.use('/csa-checker', csaCheckerRoutes);
 
 module.exports = router;

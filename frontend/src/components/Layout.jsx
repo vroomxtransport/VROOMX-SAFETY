@@ -3,6 +3,7 @@ import { Outlet, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import CompanySwitcher from './CompanySwitcher';
+import VroomXLogo from './VroomXLogo';
 import {
   FiHome, FiUsers, FiTruck, FiAlertTriangle, FiDroplet,
   FiFolder, FiBarChart2, FiFileText, FiSettings, FiMenu,
@@ -107,19 +108,12 @@ const Layout = () => {
       >
         {/* Logo Header */}
         <div className={`flex items-center justify-between py-5 border-b border-zinc-200 dark:border-white/5 ${sidebarCollapsed ? 'px-3' : 'px-5'}`}>
-          <div className={`flex items-center ${sidebarCollapsed ? 'justify-center w-full' : 'gap-3'}`}>
-            <div className="relative w-10 h-10 flex items-center justify-center flex-shrink-0">
-              <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center shadow-glow-sm">
-                <FiShield className="w-5 h-5 text-white" />
-              </div>
-            </div>
-            {!sidebarCollapsed && (
-              <div>
-                <span className="text-zinc-900 dark:text-white font-bold text-lg tracking-tight font-heading">VroomX Safety</span>
-                <span className="block text-primary-500 text-xs font-medium">FMCSA Management</span>
-              </div>
-            )}
-          </div>
+          <VroomXLogo
+            size="sm"
+            showText={!sidebarCollapsed}
+            linkToHome={true}
+            animate={true}
+          />
           <button
             className="lg:hidden p-2 text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/10 rounded-lg transition-colors"
             onClick={() => setSidebarOpen(false)}
