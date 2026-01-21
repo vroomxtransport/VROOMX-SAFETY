@@ -195,10 +195,10 @@ const Landing = () => {
         <div className="absolute inset-0 z-0">
           <img
             src="https://images.pexels.com/photos/2199293/pexels-photo-2199293.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
-            className="w-full h-full object-cover opacity-40"
+            className="w-full h-full object-cover opacity-55"
             alt="American Truck Background"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black via-black/60 to-black" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/40 to-black" />
         </div>
 
         <div className="max-w-7xl w-full grid lg:grid-cols-2 gap-16 items-center relative z-10">
