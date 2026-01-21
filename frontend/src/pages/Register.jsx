@@ -1,13 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import {
   FiMail, FiLock, FiUser, FiHash, FiEye, FiEyeOff,
-  FiShield, FiCheckCircle, FiArrowRight, FiBriefcase, FiClock, FiAward
+  FiShield, FiCheckCircle, FiArrowRight, FiBriefcase, FiClock, FiAward,
+  FiAlertCircle, FiLoader
 } from 'react-icons/fi';
 import LoadingSpinner from '../components/LoadingSpinner';
 import VroomXLogo from '../components/VroomXLogo';
+import api from '../utils/api';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -25,6 +27,70 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
+
+  // FMCSA lookup state
+  const [dotLookupStatus, setDotLookupStatus] = useState('idle'); // idle, loading, verified, not_found, error
+  const [fmcsaData, setFmcsaData] = useState(null);
+
+  // Debounced DOT lookup
+  const lookupDOT = useCallback(async (dotNumber) => {
+    const cleaned = dotNumber.replace(/[^0-9]/g, '');
+
+    if (!cleaned || cleaned.length < 5) {
+      setDotLookupStatus('idle');
+      setFmcsaData(null);
+      return;
+    }
+
+    setDotLookupStatus('loading');
+
+    try {
+      const response = await api.get(`/fmcsa/lookup/${cleaned}`);
+
+      if (response.data.success && response.data.carrier) {
+        setFmcsaData(response.data.carrier);
+        setDotLookupStatus('verified');
+
+        // Auto-fill company name if empty or different
+        if (!formData.companyName || formData.companyName !== response.data.carrier.legalName) {
+          setFormData(prev => ({
+            ...prev,
+            companyName: response.data.carrier.legalName || prev.companyName,
+            mcNumber: response.data.carrier.mcNumber ? `MC-${response.data.carrier.mcNumber}` : prev.mcNumber
+          }));
+        }
+
+        toast.success(`Verified: ${response.data.carrier.legalName}`, { duration: 3000 });
+      } else {
+        setDotLookupStatus('not_found');
+        setFmcsaData(null);
+      }
+    } catch (error) {
+      console.error('DOT lookup error:', error);
+      if (error.response?.status === 404) {
+        setDotLookupStatus('not_found');
+      } else {
+        setDotLookupStatus('error');
+      }
+      setFmcsaData(null);
+    }
+  }, [formData.companyName]);
+
+  // Debounce DOT lookup (500ms after typing stops)
+  useEffect(() => {
+    const cleaned = formData.dotNumber.replace(/[^0-9]/g, '');
+
+    if (cleaned.length >= 5 && cleaned.length <= 8) {
+      const timer = setTimeout(() => {
+        lookupDOT(formData.dotNumber);
+      }, 500);
+
+      return () => clearTimeout(timer);
+    } else {
+      setDotLookupStatus('idle');
+      setFmcsaData(null);
+    }
+  }, [formData.dotNumber, lookupDOT]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -46,13 +112,56 @@ const Register = () => {
     setLoading(true);
 
     try {
-      await register(formData);
+      // Include FMCSA verification status in registration
+      const registrationData = {
+        ...formData,
+        fmcsaVerified: dotLookupStatus === 'verified',
+        fmcsaData: fmcsaData
+      };
+
+      await register(registrationData);
       toast.success('Account created successfully!');
       navigate('/app/dashboard');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Registration failed');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // DOT field status indicator
+  const getDotStatusIndicator = () => {
+    switch (dotLookupStatus) {
+      case 'loading':
+        return (
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+            <FiLoader className="w-4 h-4 text-cta-500 animate-spin" />
+            <span className="text-xs text-[#94A3B8]">Verifying...</span>
+          </div>
+        );
+      case 'verified':
+        return (
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+            <FiCheckCircle className="w-4 h-4 text-green-500" />
+            <span className="text-xs text-green-600 font-medium">Verified</span>
+          </div>
+        );
+      case 'not_found':
+        return (
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+            <FiAlertCircle className="w-4 h-4 text-amber-500" />
+            <span className="text-xs text-amber-600">Not found</span>
+          </div>
+        );
+      case 'error':
+        return (
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+            <FiAlertCircle className="w-4 h-4 text-red-500" />
+            <span className="text-xs text-red-600">Error</span>
+          </div>
+        );
+      default:
+        return null;
     }
   };
 
@@ -253,30 +362,14 @@ const Register = () => {
                   <span className="text-sm font-bold text-[#1E293B]">Company Information</span>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-[#1E293B] mb-2">
-                    Company Name
-                  </label>
-                  <div className="relative group">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#94A3B8] group-focus-within:text-cta-500 transition-colors">
-                      <FiBriefcase className="w-5 h-5" />
-                    </div>
-                    <input
-                      type="text"
-                      name="companyName"
-                      className="w-full pl-12 pr-4 py-3.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-[#1E293B] placeholder-[#94A3B8] focus:outline-none focus:border-cta-500/50 focus:ring-2 focus:ring-cta-500/20 focus:bg-white transition-all duration-200"
-                      placeholder="ABC Trucking LLC"
-                      value={formData.companyName}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                </div>
-
+                {/* DOT Number - with FMCSA auto-lookup */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-[#1E293B] mb-2">
                       DOT Number <span className="text-cta-500">*</span>
+                      {dotLookupStatus === 'verified' && (
+                        <span className="ml-2 text-xs text-green-600 font-normal">Auto-fills company info</span>
+                      )}
                     </label>
                     <div className="relative group">
                       <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#94A3B8] group-focus-within:text-cta-500 transition-colors">
@@ -285,15 +378,27 @@ const Register = () => {
                       <input
                         type="text"
                         name="dotNumber"
-                        className="w-full pl-12 pr-4 py-3.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-[#1E293B] placeholder-[#94A3B8] focus:outline-none focus:border-cta-500/50 focus:ring-2 focus:ring-cta-500/20 focus:bg-white transition-all duration-200"
-                        placeholder="1234567"
+                        className={`w-full pl-12 pr-28 py-3.5 bg-[#F8FAFC] border rounded-xl text-[#1E293B] placeholder-[#94A3B8] focus:outline-none focus:ring-2 focus:bg-white transition-all duration-200 ${
+                          dotLookupStatus === 'verified'
+                            ? 'border-green-400 focus:border-green-500 focus:ring-green-500/20'
+                            : dotLookupStatus === 'not_found'
+                            ? 'border-amber-400 focus:border-amber-500 focus:ring-amber-500/20'
+                            : 'border-[#E2E8F0] focus:border-cta-500/50 focus:ring-cta-500/20'
+                        }`}
+                        placeholder="Enter your DOT number"
                         value={formData.dotNumber}
                         onChange={handleChange}
                         required
                         pattern="\d{5,8}"
                         title="DOT number must be 5-8 digits"
                       />
+                      {getDotStatusIndicator()}
                     </div>
+                    {dotLookupStatus === 'not_found' && (
+                      <p className="mt-1.5 text-xs text-amber-600">
+                        Carrier not found in FMCSA. You can still register manually.
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-[#1E293B] mb-2">
@@ -308,6 +413,51 @@ const Register = () => {
                       onChange={handleChange}
                     />
                   </div>
+                </div>
+
+                {/* Company Name - auto-filled from FMCSA */}
+                <div>
+                  <label className="block text-sm font-semibold text-[#1E293B] mb-2">
+                    Company Name
+                    {dotLookupStatus === 'verified' && fmcsaData?.legalName && (
+                      <span className="ml-2 inline-flex items-center gap-1 text-xs text-green-600 font-normal">
+                        <FiCheckCircle className="w-3 h-3" />
+                        From FMCSA
+                      </span>
+                    )}
+                  </label>
+                  <div className="relative group">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#94A3B8] group-focus-within:text-cta-500 transition-colors">
+                      <FiBriefcase className="w-5 h-5" />
+                    </div>
+                    <input
+                      type="text"
+                      name="companyName"
+                      className={`w-full pl-12 pr-4 py-3.5 border rounded-xl text-[#1E293B] placeholder-[#94A3B8] focus:outline-none focus:ring-2 focus:bg-white transition-all duration-200 ${
+                        dotLookupStatus === 'verified' && fmcsaData?.legalName
+                          ? 'bg-green-50 border-green-200 focus:border-green-500 focus:ring-green-500/20'
+                          : 'bg-[#F8FAFC] border-[#E2E8F0] focus:border-cta-500/50 focus:ring-cta-500/20'
+                      }`}
+                      placeholder="ABC Trucking LLC"
+                      value={formData.companyName}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+                  {dotLookupStatus === 'verified' && fmcsaData && (
+                    <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <p className="text-xs text-green-800 font-medium flex items-center gap-1.5">
+                        <FiCheckCircle className="w-3.5 h-3.5" />
+                        Verified with FMCSA
+                      </p>
+                      <p className="text-xs text-green-700 mt-1">
+                        Status: <span className="font-medium">{fmcsaData.operatingStatus || 'ACTIVE'}</span>
+                        {fmcsaData.fleetSize?.powerUnits && (
+                          <> • Fleet: <span className="font-medium">{fmcsaData.fleetSize.powerUnits} units</span></>
+                        )}
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Terms notice */}
@@ -361,7 +511,7 @@ const Register = () => {
             <div className="w-8 h-8 rounded-full bg-primary-50 flex items-center justify-center">
               <FiShield className="w-4 h-4 text-primary-500" />
             </div>
-            <span className="text-sm font-medium">SOC 2 Compliant</span>
+            <span className="text-sm font-medium">FMCSA Compliant</span>
           </div>
           <div className="flex items-center gap-2 text-[#94A3B8]">
             <div className="w-8 h-8 rounded-full bg-primary-50 flex items-center justify-center">

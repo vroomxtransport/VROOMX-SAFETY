@@ -309,9 +309,22 @@ const CSAChecker = () => {
           <div className="p-4">
             {/* Compact Company Header */}
             <div className="mb-3 pb-3 border-b border-[#E2E8F0]">
-              <h3 className="text-sm font-bold text-primary-500 truncate mb-1">
-                {carrierData.carrier.legalName}
-              </h3>
+              <div className="flex items-start justify-between gap-2 mb-1">
+                <h3 className="text-sm font-bold text-primary-500 truncate flex-1">
+                  {carrierData.carrier.legalName}
+                </h3>
+                {/* Data Source Badge */}
+                {carrierData.dataSource === 'FMCSA_SAFER' ? (
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-[8px] font-medium text-emerald-600 whitespace-nowrap">
+                    <FiCheckCircle className="w-2.5 h-2.5" />
+                    Live FMCSA
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-50 border border-amber-200 text-[8px] font-medium text-amber-600 whitespace-nowrap">
+                    Demo Data
+                  </span>
+                )}
+              </div>
               <div className="flex items-center gap-2 text-[10px] text-[#475569] font-mono">
                 <span>MC-{carrierData.carrier.mcNumber}</span>
                 <span className="text-[#94A3B8]">|</span>

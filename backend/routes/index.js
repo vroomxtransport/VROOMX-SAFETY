@@ -21,6 +21,7 @@ const inspectionRoutes = require('./inspections');
 const csaRoutes = require('./csa');
 const templateRoutes = require('./templates');
 const csaCheckerRoutes = require('./csaChecker');
+const fmcsaLookupRoutes = require('./fmcsaLookup');
 
 // Mount routes
 router.use('/auth', authRoutes);
@@ -43,5 +44,6 @@ router.use('/inspections', inspectionRoutes);
 router.use('/csa', csaRoutes);
 router.use('/templates', templateRoutes);
 router.use('/csa-checker', csaCheckerRoutes);
+router.use('/fmcsa', fmcsaLookupRoutes);
 
 module.exports = router;
