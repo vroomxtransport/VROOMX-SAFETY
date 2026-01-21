@@ -56,11 +56,11 @@ router.post('/register', [
     password,
     firstName,
     lastName,
-    // Initialize subscription as free trial (14 days)
+    // Initialize subscription as free trial (3 days)
     subscription: {
       plan: 'free_trial',
       status: 'trialing',
-      trialEndsAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) // 14 days from now
+      trialEndsAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) // 3 days from now
     },
     // Legacy fields for backward compatibility
     role: 'admin',

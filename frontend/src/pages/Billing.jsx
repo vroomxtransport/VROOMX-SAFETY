@@ -501,7 +501,7 @@ const Billing = () => {
           <div className="p-4 bg-white rounded-xl border border-primary-200/60">
             <h4 className="font-medium text-primary-900 mb-2">Do you offer refunds?</h4>
             <p className="text-sm text-primary-600">
-              We offer a 14-day free trial. If you're not satisfied within 30 days of subscribing, contact us for a full refund.
+              We offer a 3-day free trial. If you're not satisfied within 30 days of subscribing, contact us for a full refund.
             </p>
           </div>
           <div className="p-4 bg-white rounded-xl border border-primary-200/60">

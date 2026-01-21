@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VroomX Safety - Theme 3: Dark Modern (Tech-Forward)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /*
+        ═══════════════════════════════════════════════════════════════
+        THEME 3: DARK MODERN - "Tech-Forward"
+        ═══════════════════════════════════════════════════════════════
+
+        Psychology:
+        - Dark = Premium, modern, tech-savvy
+        - Cyan/Teal = Innovation, AI, futuristic
+        - Best for: Attracting younger fleet owners, tech enthusiasts
+
+        Similar to: Vercel, Linear, Modern SaaS products
+        Risk: May feel too "techy" for traditional truckers
+        ═══════════════════════════════════════════════════════════════
+        */
+
+        :root {
+            --primary: #06B6D4;
+            --primary-light: #22D3EE;
+            --primary-dark: #0891B2;
+            --cta: #F97316;
+            --cta-hover: #EA580C;
+            --success: #10B981;
+            --success-light: rgba(16, 185, 129, 0.2);
+            --warning: #FBBF24;
+            --danger: #EF4444;
+            --danger-light: rgba(239, 68, 68, 0.2);
+            --text-primary: #F1F5F9;
+            --text-secondary: #94A3B8;
+            --text-muted: #64748B;
+            --background: #0F172A;
+            --card-bg: #1E293B;
+            --border: #334155;
+            --ai-accent: #A855F7;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .theme-label {
+            background: linear-gradient(90deg, var(--primary) 0%, var(--ai-accent) 100%);
+            color: white;
+            text-align: center;
+            padding: 12px;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--ai-accent) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .nav-right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--cta);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--cta-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(249, 115, 22, 0.5);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: var(--background);
+        }
+
+        .hero {
+            padding: 80px 24px;
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(168, 85, 247, 0.2);
+            color: var(--ai-accent);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(90deg, var(--primary) 0%, var(--ai-accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        .hero-ctas {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 40px;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 40px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .dashboard-preview {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border);
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .dashboard-title {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .status-badge {
+            background: var(--success-light);
+            color: var(--success);
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .score-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .score-label {
+            width: 130px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .score-bar {
+            flex: 1;
+            height: 28px;
+            background: var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .score-fill {
+            height: 100%;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .score-fill.green { background: linear-gradient(90deg, #059669 0%, var(--success) 100%); }
+        .score-fill.yellow { background: linear-gradient(90deg, #D97706 0%, var(--warning) 100%); }
+        .score-fill.red { background: linear-gradient(90deg, #DC2626 0%, var(--danger) 100%); }
+
+        .features {
+            padding: 80px 24px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .section-header h2 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        .section-header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            padding: 28px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(6, 182, 212, 0.15);
+            border-color: var(--primary);
+        }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            font-size: 1.3rem;
+        }
+
+        .feature-card.ai .feature-icon {
+            background: linear-gradient(135deg, var(--ai-accent) 0%, #7C3AED 100%);
+        }
+
+        .feature-card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, var(--card-bg) 0%, #0F172A 100%);
+            padding: 60px 24px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .cta-section h2 {
+            color: var(--text-primary);
+            font-size: 2rem;
+            margin-bottom: 12px;
+        }
+
+        .cta-section p {
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .cta-input-group {
+            display: flex;
+            gap: 12px;
+            max-width: 450px;
+            margin: 0 auto;
+        }
+
+        .cta-input {
+            flex: 1;
+            padding: 14px 18px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--background);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .cta-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .pricing {
+            padding: 80px 24px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .pricing-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 32px;
+            border: 1px solid var(--border);
+            text-align: center;
+            position: relative;
+        }
+
+        .pricing-card.featured {
+            border-color: var(--primary);
+            box-shadow: 0 8px 30px rgba(6, 182, 212, 0.2);
+        }
+
+        .pricing-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(90deg, var(--primary) 0%, var(--ai-accent) 100%);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .pricing-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .pricing-target {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+        }
+
+        .price {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .price span {
+            font-size: 1rem;
+            color: var(--text-muted);
+        }
+
+        .price-extra {
+            color: var(--cta);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        .pricing-features {
+            list-style: none;
+            text-align: left;
+            margin-bottom: 24px;
+        }
+
+        .pricing-features li {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .pricing-features li::before {
+            content: "✓ ";
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        .pricing-card .btn {
+            width: 100%;
+        }
+
+        .footer {
+            background: var(--card-bg);
+            color: var(--text-secondary);
+            padding: 40px 24px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+        }
+
+        .color-swatches {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            font-size: 0.7rem;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        .color-swatches h4 {
+            margin-bottom: 10px;
+            font-size: 0.8rem;
+            color: var(--text-primary);
+        }
+
+        .swatch-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .swatch {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 900px) {
+            .hero { grid-template-columns: 1fr; text-align: center; }
+            .hero-ctas { justify-content: center; }
+            .hero-stats { justify-content: center; }
+            .features-grid, .pricing-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="theme-label">🎨 THEME 3: Dark Modern — "Tech-Forward" (Premium SaaS Feel)</div>
+
+    <nav class="nav">
+        <a href="#" class="logo">
+            <div class="logo-icon">V</div>
+            VroomX Safety
+        </a>
+        <div class="nav-right">
+            <a href="#" class="btn btn-outline">Log In</a>
+            <a href="#" class="btn btn-primary">Start Free Trial</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div>
+            <div class="hero-badge">🤖 AI-Powered Compliance</div>
+            <h1>Stay <span>FMCSA Compliant</span> Without the Headache</h1>
+            <p>The AI-powered platform that manages your DQF, tracks your CSA score, and keeps you audit-ready.</p>
+            <div class="hero-ctas">
+                <a href="#" class="btn btn-primary">Start Free 14-Day Trial →</a>
+                <a href="#" class="btn btn-outline">Check CSA Score Free</a>
+            </div>
+            <div class="hero-stats">
+                <div>
+                    <div class="stat-value">$19</div>
+                    <div class="stat-label">Starting price/mo</div>
+                </div>
+                <div>
+                    <div class="stat-value">85%</div>
+                    <div class="stat-label">Time saved</div>
+                </div>
+                <div>
+                    <div class="stat-value">24/7</div>
+                    <div class="stat-label">AI assistance</div>
+                </div>
+            </div>
+        </div>
+        <div class="dashboard-preview">
+            <div class="dashboard-header">
+                <div class="dashboard-title">CSA Score Overview</div>
+                <div class="status-badge">✓ Compliant</div>
+            </div>
+            <div class="score-row">
+                <div class="score-label">Unsafe Driving</div>
+                <div class="score-bar"><div class="score-fill green" style="width: 32%">32%</div></div>
+            </div>
+            <div class="score-row">
+                <div class="score-label">HOS Compliance</div>
+                <div class="score-bar"><div class="score-fill green" style="width: 45%">45%</div></div>
+            </div>
+            <div class="score-row">
+                <div class="score-label">Vehicle Maint.</div>
+                <div class="score-bar"><div class="score-fill yellow" style="width: 58%">58%</div></div>
+            </div>
+            <div class="score-row">
+                <div class="score-label">Driver Fitness</div>
+                <div class="score-bar"><div class="score-fill green" style="width: 21%">21%</div></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="section-header">
+            <h2>Everything You Need to Stay Compliant</h2>
+            <p>AI-powered features that save you time and keep you audit-ready.</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">📁</div>
+                <h3>DQF Management</h3>
+                <p>Store and track all Driver Qualification Files. Get alerts before documents expire.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>CSA Score Tracking</h3>
+                <p>Monitor scores across all 7 BASICs with change notifications.</p>
+            </div>
+            <div class="feature-card ai">
+                <div class="feature-icon">🤖</div>
+                <h3>AI Regulation Assistant</h3>
+                <p>Ask any FMCSA question and get instant, accurate answers 24/7.</p>
+            </div>
+            <div class="feature-card ai">
+                <div class="feature-icon">📝</div>
+                <h3>DataQ Generator</h3>
+                <p>AI drafts challenge letters for disputable violations automatically.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔔</div>
+                <h3>Smart Alerts</h3>
+                <p>Never miss an expiring medical card, CDL, or inspection again.</p>
+            </div>
+            <div class="feature-card ai">
+                <div class="feature-icon">📸</div>
+                <h3>AI Violation Reader</h3>
+                <p>Upload a ticket, get plain-English explanation and next steps.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <h2>Check Your CSA Score for FREE</h2>
+        <p>See where your carrier stands in 30 seconds. No signup required.</p>
+        <div class="cta-input-group">
+            <input type="text" class="cta-input" placeholder="Enter MC# or DOT#">
+            <button class="btn btn-primary">Check Score →</button>
+        </div>
+    </section>
+
+    <section class="pricing">
+        <div class="section-header">
+            <h2>Simple, Transparent Pricing</h2>
+            <p>No hidden fees. No long contracts. Cancel anytime.</p>
+        </div>
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <div class="pricing-name">Solo</div>
+                <div class="pricing-target">Owner-Operators</div>
+                <div class="price">$19<span>/mo</span></div>
+                <div class="price-extra">1 driver included</div>
+                <ul class="pricing-features">
+                    <li>Full DQF Management</li>
+                    <li>AI Regulation Assistant</li>
+                    <li>CSA Score Tracking</li>
+                    <li>Document Expiry Alerts</li>
+                </ul>
+                <a href="#" class="btn btn-outline">Start Free Trial</a>
+            </div>
+            <div class="pricing-card featured">
+                <div class="pricing-badge">Most Popular</div>
+                <div class="pricing-name">Fleet</div>
+                <div class="pricing-target">Small Fleets (2-10)</div>
+                <div class="price">$39<span>/mo</span></div>
+                <div class="price-extra">+$6/driver after 3</div>
+                <ul class="pricing-features">
+                    <li>Everything in Solo</li>
+                    <li>3 drivers included</li>
+                    <li>AI Violation Reader</li>
+                    <li>DataQ Draft Generator</li>
+                </ul>
+                <a href="#" class="btn btn-primary">Start Free Trial</a>
+            </div>
+            <div class="pricing-card">
+                <div class="pricing-name">Pro</div>
+                <div class="pricing-target">Growing Fleets (10-50)</div>
+                <div class="price">$79<span>/mo</span></div>
+                <div class="price-extra">+$5/driver after 10</div>
+                <ul class="pricing-features">
+                    <li>Everything in Fleet</li>
+                    <li>10 drivers included</li>
+                    <li>Advanced CSA Analytics</li>
+                    <li>API Access</li>
+                </ul>
+                <a href="#" class="btn btn-outline">Start Free Trial</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>© 2026 VroomX Safety. AI-Powered FMCSA Compliance.</p>
+    </footer>
+
+    <div class="color-swatches">
+        <h4>Theme 3 Colors</h4>
+        <div class="swatch-row"><div class="swatch" style="background: #06B6D4;"></div> Primary: Cyan</div>
+        <div class="swatch-row"><div class="swatch" style="background: #F97316;"></div> CTA: Orange</div>
+        <div class="swatch-row"><div class="swatch" style="background: #10B981;"></div> Success: Emerald</div>
+        <div class="swatch-row"><div class="swatch" style="background: #A855F7;"></div> AI: Purple</div>
+        <div class="swatch-row"><div class="swatch" style="background: #0F172A; border: 1px solid #334155;"></div> BG: Slate</div>
+    </div>
+</body>
+</html>

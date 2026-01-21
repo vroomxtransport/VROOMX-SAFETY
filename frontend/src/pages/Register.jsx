@@ -97,7 +97,7 @@ const Register = () => {
           {[
             { icon: FiCheckCircle, text: 'No credit card required' },
             { icon: FiClock, text: 'Setup in 5 minutes' },
-            { icon: FiAward, text: '14-day free trial' },
+            { icon: FiAward, text: '3-day free trial' },
           ].map((item, i) => (
             <div
               key={i}
