@@ -82,7 +82,7 @@ const Dashboard = () => {
       iconColor: 'text-warning-600',
       valueColor: data?.summary?.driversWithExpiringDocs > 0 ? 'text-warning-600' : 'text-success-600',
       alert: data?.summary?.driversWithExpiringDocs > 0,
-      link: '/drivers'
+      link: '/app/drivers'
     },
     {
       title: 'Inspections Due',
@@ -92,7 +92,7 @@ const Dashboard = () => {
       iconBg: 'bg-accent-100',
       iconColor: 'text-accent-600',
       valueColor: data?.summary?.vehiclesDueForInspection > 0 ? 'text-accent-600' : 'text-success-600',
-      link: '/vehicles'
+      link: '/app/vehicles'
     },
     {
       title: 'DataQ Disputes',
@@ -102,7 +102,7 @@ const Dashboard = () => {
       iconBg: 'bg-info-100',
       iconColor: 'text-info-600',
       valueColor: 'text-info-600',
-      link: '/violations'
+      link: '/app/violations'
     },
     {
       title: 'Drug Tests',
@@ -112,7 +112,7 @@ const Dashboard = () => {
       iconBg: 'bg-success-100',
       iconColor: 'text-success-600',
       valueColor: 'text-success-600',
-      link: '/drug-alcohol'
+      link: '/app/drug-alcohol'
     }
   ];
 
@@ -125,11 +125,11 @@ const Dashboard = () => {
           <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1">Welcome back! Here's your compliance overview.</p>
         </div>
         <div className="flex gap-3">
-          <Link to="/reports" className="btn btn-secondary">
+          <Link to="/app/reports" className="btn btn-secondary">
             <FiFileText className="w-4 h-4" />
             Generate Report
           </Link>
-          <Link to="/compliance" className="btn btn-primary">
+          <Link to="/app/compliance" className="btn btn-primary">
             <FiShield className="w-4 h-4" />
             View SMS Data
           </Link>
@@ -190,7 +190,7 @@ const Dashboard = () => {
                 <p className="text-xs text-zinc-500 dark:text-zinc-400">Safety Measurement System percentiles</p>
               </div>
             </div>
-            <Link to="/compliance" className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium flex items-center gap-1">
+            <Link to="/app/compliance" className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium flex items-center gap-1">
               Details <FiArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -256,7 +256,7 @@ const Dashboard = () => {
               </div>
               <h2 className="text-base font-semibold text-zinc-900 dark:text-white">Recent Alerts</h2>
             </div>
-            <Link to="/violations" className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium">
+            <Link to="/app/violations" className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium">
               View all
             </Link>
           </div>
@@ -324,7 +324,7 @@ const Dashboard = () => {
               </div>
               <h2 className="text-base font-semibold text-zinc-900 dark:text-white">Recent Violations</h2>
             </div>
-            <Link to="/violations" className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium flex items-center gap-1">
+            <Link to="/app/violations" className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium flex items-center gap-1">
               View all <FiArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -361,7 +361,7 @@ const Dashboard = () => {
                         </td>
                         <td className="px-4 py-3 text-right">
                           <Link
-                            to={`/violations?id=${violation.id}`}
+                            to={`/app/violations`}
                             className="inline-flex items-center gap-1 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 font-medium"
                           >
                             View <FiArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -385,7 +385,7 @@ const Dashboard = () => {
               </div>
               <h2 className="text-base font-semibold text-zinc-900 dark:text-white">Driver Qualification Files</h2>
             </div>
-            <Link to="/drivers" className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium flex items-center gap-1">
+            <Link to="/app/drivers" className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium flex items-center gap-1">
               Manage <FiArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -447,7 +447,7 @@ const Dashboard = () => {
               <p className="text-xs text-zinc-500 dark:text-zinc-400">Quick compliance status check</p>
             </div>
           </div>
-          <Link to="/reports" className="btn btn-accent">
+          <Link to="/app/reports" className="btn btn-accent">
             <FiClipboard className="w-4 h-4" />
             Run Mock Audit
           </Link>

@@ -22,6 +22,26 @@ router.get('/', (req, res) => {
   });
 });
 
+// @route   GET /api/templates/by/category
+// @desc    Get templates grouped by category
+// @access  Private
+router.get('/by/category', (req, res) => {
+  const templates = templateGeneratorService.getAvailableTemplates();
+
+  const grouped = templates.reduce((acc, template) => {
+    if (!acc[template.category]) {
+      acc[template.category] = [];
+    }
+    acc[template.category].push(template);
+    return acc;
+  }, {});
+
+  res.json({
+    success: true,
+    categories: grouped
+  });
+});
+
 // @route   GET /api/templates/:templateKey
 // @desc    Get template definition with field details
 // @access  Private
@@ -161,25 +181,5 @@ router.post('/:templateKey/generate', asyncHandler(async (req, res) => {
 
   res.send(pdf.buffer);
 }));
-
-// @route   GET /api/templates/categories
-// @desc    Get templates grouped by category
-// @access  Private
-router.get('/by/category', (req, res) => {
-  const templates = templateGeneratorService.getAvailableTemplates();
-
-  const grouped = templates.reduce((acc, template) => {
-    if (!acc[template.category]) {
-      acc[template.category] = [];
-    }
-    acc[template.category].push(template);
-    return acc;
-  }, {});
-
-  res.json({
-    success: true,
-    categories: grouped
-  });
-});
 
 module.exports = router;

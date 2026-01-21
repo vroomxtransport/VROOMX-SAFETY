@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import Layout from './components/Layout';
 import Landing from './pages/Landing';
@@ -42,6 +42,17 @@ const ProtectedRoute = ({ children }) => {
   }
 
   return children;
+};
+
+// Legacy redirect helpers for dynamic routes
+const LegacyDriverRedirect = () => {
+  const { id } = useParams();
+  return <Navigate to={`/app/drivers/${id}`} replace />;
+};
+
+const LegacyVehicleRedirect = () => {
+  const { id } = useParams();
+  return <Navigate to={`/app/vehicles/${id}`} replace />;
 };
 
 // Public route wrapper (redirects to dashboard if logged in)
@@ -130,9 +141,9 @@ function App() {
       {/* Legacy routes - redirect to /app prefix */}
       <Route path="/dashboard" element={<Navigate to="/app/dashboard" replace />} />
       <Route path="/drivers" element={<Navigate to="/app/drivers" replace />} />
-      <Route path="/drivers/:id" element={<Navigate to="/app/drivers/:id" replace />} />
+      <Route path="/drivers/:id" element={<LegacyDriverRedirect />} />
       <Route path="/vehicles" element={<Navigate to="/app/vehicles" replace />} />
-      <Route path="/vehicles/:id" element={<Navigate to="/app/vehicles/:id" replace />} />
+      <Route path="/vehicles/:id" element={<LegacyVehicleRedirect />} />
       <Route path="/violations" element={<Navigate to="/app/violations" replace />} />
       <Route path="/tickets" element={<Navigate to="/app/tickets" replace />} />
       <Route path="/damage-claims" element={<Navigate to="/app/damage-claims" replace />} />

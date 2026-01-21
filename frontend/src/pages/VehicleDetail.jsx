@@ -36,7 +36,7 @@ const VehicleDetail = () => {
       setVehicle(response.data.vehicle);
     } catch (error) {
       toast.error('Failed to load vehicle details');
-      navigate('/vehicles');
+      navigate('/app/vehicles');
     } finally {
       setLoading(false);
     }
@@ -100,7 +100,7 @@ const VehicleDetail = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <button
-            onClick={() => navigate('/vehicles')}
+            onClick={() => navigate('/app/vehicles')}
             className="p-2 hover:bg-gray-100 rounded-lg"
           >
             <FiArrowLeft className="w-5 h-5" />

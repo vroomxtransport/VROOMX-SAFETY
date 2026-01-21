@@ -26,7 +26,7 @@ const DriverDetail = () => {
       setDriver(response.data.driver);
     } catch (error) {
       toast.error('Failed to load driver details');
-      navigate('/drivers');
+      navigate('/app/drivers');
     } finally {
       setLoading(false);
     }
@@ -79,7 +79,7 @@ const DriverDetail = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <button
-            onClick={() => navigate('/drivers')}
+            onClick={() => navigate('/app/drivers')}
             className="p-2 hover:bg-gray-100 rounded-lg"
           >
             <FiArrowLeft className="w-5 h-5" />

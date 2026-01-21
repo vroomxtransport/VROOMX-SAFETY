@@ -144,6 +144,19 @@ router.get('/types', checkPermission('documents', 'view'), (req, res) => {
   });
 });
 
+// @route   GET /api/documents/ai-status
+// @desc    Check if AI document intelligence is available
+// @access  Private
+router.get('/ai-status', checkPermission('documents', 'view'), (req, res) => {
+  res.json({
+    success: true,
+    aiEnabled: openaiVisionService.isEnabled(),
+    message: openaiVisionService.isEnabled()
+      ? 'AI document intelligence is available'
+      : 'AI document intelligence is not configured. Set OPENAI_API_KEY to enable.'
+  });
+});
+
 // @route   GET /api/documents/:id
 // @desc    Get single document
 // @access  Private
@@ -397,19 +410,6 @@ router.post('/:id/apply-extraction', checkPermission('documents', 'upload'),
     });
   })
 );
-
-// @route   GET /api/documents/ai-status
-// @desc    Check if AI document intelligence is available
-// @access  Private
-router.get('/ai-status', checkPermission('documents', 'view'), (req, res) => {
-  res.json({
-    success: true,
-    aiEnabled: openaiVisionService.isEnabled(),
-    message: openaiVisionService.isEnabled()
-      ? 'AI document intelligence is available'
-      : 'AI document intelligence is not configured. Set OPENAI_API_KEY to enable.'
-  });
-});
 
 // @route   POST /api/documents/bulk
 // @desc    Upload multiple documents

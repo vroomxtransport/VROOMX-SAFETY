@@ -138,7 +138,7 @@ const Vehicles = () => {
         <button
           onClick={(e) => {
             e.stopPropagation();
-            navigate(`/vehicles/${row._id}`);
+            navigate(`/app/vehicles/${row._id}`);
           }}
           className="p-2 text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-primary-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
         >
@@ -273,7 +273,7 @@ const Vehicles = () => {
         page={page}
         totalPages={totalPages}
         onPageChange={setPage}
-        onRowClick={(row) => navigate(`/vehicles/${row._id}`)}
+        onRowClick={(row) => navigate(`/app/vehicles/${row._id}`)}
         emptyMessage="No vehicles found"
         emptyIcon={FiTruck}
       />
