@@ -12,7 +12,7 @@ const HeroSection = ({ heroTextIndex, heroTexts }) => {
           className="w-full h-full object-cover"
           alt="American Truck Background"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-white/50 via-white/30 to-transparent" />
       </div>
 
       <div className="max-w-7xl w-full grid lg:grid-cols-2 gap-16 items-center relative z-10">
