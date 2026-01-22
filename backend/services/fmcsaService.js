@@ -2,10 +2,15 @@
  * FMCSA Service - Real Carrier Data Lookup via SAFER Web Scraping
  *
  * Fetches real CSA scores and carrier information from FMCSA SAFER system
+ * Uses Puppeteer for SMS pages that require JavaScript rendering
  */
 
 const cheerio = require('cheerio');
 const NodeCache = require('node-cache');
+const puppeteer = require('puppeteer');
+
+// Browser instance for reuse
+let browserInstance = null;
 
 // Cache FMCSA data for 6 hours (data updates weekly anyway)
 const cache = new NodeCache({ stdTTL: 21600, checkperiod: 600 });
@@ -237,144 +242,209 @@ const fmcsaService = {
   },
 
   /**
-   * Fetch CSA BASIC scores from SMS system
+   * Get or create browser instance for Puppeteer
+   */
+  async getBrowser() {
+    if (!browserInstance || !browserInstance.isConnected()) {
+      console.log('[FMCSA] Launching Puppeteer browser...');
+      browserInstance = await puppeteer.launch({
+        headless: 'new',
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-accelerated-2d-canvas',
+          '--disable-gpu',
+          '--window-size=1920,1080'
+        ]
+      });
+    }
+    return browserInstance;
+  },
+
+  /**
+   * Fetch CSA BASIC scores from SMS system using Puppeteer
+   * SMS page requires JavaScript rendering to display BASIC percentiles
    */
   async fetchCSAScores(dotNumber) {
     const url = SAFER_URLS.smsProfile(dotNumber);
+    let page = null;
 
     try {
-      const response = await fetch(url, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-        }
+      console.log(`[FMCSA] Fetching CSA scores for DOT ${dotNumber} via Puppeteer...`);
+
+      const browser = await this.getBrowser();
+      page = await browser.newPage();
+
+      // Set viewport and user agent
+      await page.setViewport({ width: 1920, height: 1080 });
+      await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+
+      // Navigate to SMS page
+      await page.goto(url, {
+        waitUntil: 'networkidle2',
+        timeout: 30000
       });
 
-      if (!response.ok) {
-        // SMS might not have data for all carriers
-        return null;
-      }
+      // Wait for BASIC list to load (the JavaScript-rendered content)
+      await page.waitForSelector('#BASICList', { timeout: 10000 }).catch(() => {
+        console.log('[FMCSA] BASICList not found, page may not have BASIC data');
+      });
 
-      const html = await response.text();
-      const $ = cheerio.load(html);
+      // Give extra time for all JS to execute
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
-      const basics = {
-        unsafeDriving: null,
-        hosCompliance: null,
-        vehicleMaintenance: null,
-        crashIndicator: null,
-        controlledSubstances: null,
-        hazmatCompliance: null,
-        driverFitness: null
-      };
+      // Extract BASIC scores from the rendered page
+      const data = await page.evaluate(() => {
+        const basics = {
+          unsafeDriving: null,
+          hosCompliance: null,
+          vehicleMaintenance: null,
+          crashIndicator: null,
+          controlledSubstances: null,
+          hazmatCompliance: null,
+          driverFitness: null
+        };
 
-      let inspections = { total: 0, last24Months: 0 };
-      let crashes = { total: 0, last24Months: 0 };
+        let inspections = { total: 0, last24Months: 0 };
+        let crashes = { total: 0, last24Months: 0 };
 
-      // Parse BASIC scores - SMS uses specific div/span patterns
-      // Look for percentile values in various formats
+        // BASIC name to key mapping
+        const basicMapping = {
+          'unsafe driving': 'unsafeDriving',
+          'unsafedriving': 'unsafeDriving',
+          'hours-of-service': 'hosCompliance',
+          'hos compliance': 'hosCompliance',
+          'hoscompliance': 'hosCompliance',
+          'vehicle maintenance': 'vehicleMaintenance',
+          'vehiclemaint': 'vehicleMaintenance',
+          'crash indicator': 'crashIndicator',
+          'crashindicator': 'crashIndicator',
+          'controlled substances': 'controlledSubstances',
+          'drugsalcohol': 'controlledSubstances',
+          'drugs/alcohol': 'controlledSubstances',
+          'hazmat compliance': 'hazmatCompliance',
+          'hazmat': 'hazmatCompliance',
+          'driver fitness': 'driverFitness',
+          'driverfitness': 'driverFitness'
+        };
 
-      // Method 1: Look for data-percentile attributes or percentile classes
-      $('[class*="percentile"], [class*="Percentile"]').each((i, el) => {
-        const text = $(el).text().trim();
-        const value = parseInt(text.replace('%', ''), 10);
-        if (!isNaN(value)) {
-          // Try to determine which BASIC this belongs to
-          const parent = $(el).closest('tr, div, section');
-          const parentText = parent.text().toLowerCase();
+        // Method 1: Look for BASIC items in the list
+        const basicItems = document.querySelectorAll('#BASICList li');
+        basicItems.forEach(item => {
+          // Get BASIC name from class or text
+          const className = item.className.toLowerCase().replace(/\s+/g, '');
+          const nameElement = item.querySelector('.basicName');
+          const name = nameElement ? nameElement.textContent.trim().toLowerCase() : '';
 
-          if (parentText.includes('unsafe driving')) {
-            basics.unsafeDriving = value;
-          } else if (parentText.includes('hos') || parentText.includes('hours of service')) {
-            basics.hosCompliance = value;
-          } else if (parentText.includes('vehicle maint')) {
-            basics.vehicleMaintenance = value;
-          } else if (parentText.includes('crash')) {
-            basics.crashIndicator = value;
-          } else if (parentText.includes('controlled') || parentText.includes('substance')) {
-            basics.controlledSubstances = value;
-          } else if (parentText.includes('hazmat')) {
-            basics.hazmatCompliance = value;
-          } else if (parentText.includes('driver fitness')) {
-            basics.driverFitness = value;
+          // Look for percentile value - usually in a span or displayed in the item
+          const percentileElement = item.querySelector('.percentile, .score, [class*="percent"]');
+          let percentile = null;
+
+          if (percentileElement) {
+            const text = percentileElement.textContent.trim();
+            const match = text.match(/(\d{1,3})/);
+            if (match) percentile = parseInt(match[1], 10);
+          }
+
+          // Also check for percentile bar width (some SMS versions use CSS width)
+          const barElement = item.querySelector('.bar, .percentile-bar, [class*="bar"]');
+          if (!percentile && barElement) {
+            const style = barElement.getAttribute('style') || '';
+            const widthMatch = style.match(/width:\s*(\d+)/i);
+            if (widthMatch) percentile = parseInt(widthMatch[1], 10);
+          }
+
+          // Also look for text like "45%" or "Percentile: 45"
+          if (!percentile) {
+            const itemText = item.textContent;
+            const percentMatch = itemText.match(/(\d{1,3})(?:\s*%|\s*percentile)/i);
+            if (percentMatch) percentile = parseInt(percentMatch[1], 10);
+          }
+
+          // Map to correct BASIC
+          const key = basicMapping[className] || basicMapping[name];
+          if (key && percentile !== null && percentile >= 0 && percentile <= 100) {
+            basics[key] = percentile;
+          }
+        });
+
+        // Method 2: Look for inspection/crash statistics
+        const statsSection = document.querySelector('#inspCrashStats, .stats, [class*="inspection"]');
+        if (statsSection) {
+          const text = statsSection.textContent;
+
+          const inspMatch = text.match(/(\d+)\s*(?:total\s+)?inspections?/i);
+          if (inspMatch) {
+            inspections.last24Months = parseInt(inspMatch[1], 10);
+            inspections.total = inspections.last24Months;
+          }
+
+          const crashMatch = text.match(/(\d+)\s*(?:total\s+)?crash/i);
+          if (crashMatch) {
+            crashes.last24Months = parseInt(crashMatch[1], 10);
+            crashes.total = crashes.last24Months;
           }
         }
-      });
 
-      // Method 2: Parse from table structures
-      $('table tr').each((i, row) => {
-        const cells = $(row).find('td');
-        if (cells.length >= 2) {
-          const label = $(cells[0]).text().trim().toLowerCase();
-          const valueText = $(cells[cells.length - 1]).text().trim();
-          const value = parseInt(valueText.replace(/[^0-9]/g, ''), 10);
+        // Method 3: Check for "insufficient data" or "not evaluated" indicators
+        const pageText = document.body.textContent.toLowerCase();
+        const hasInsufficientData = pageText.includes('insufficient data') ||
+                                    pageText.includes('not evaluated') ||
+                                    pageText.includes('no data available');
 
-          if (!isNaN(value) && value >= 0 && value <= 100) {
-            if (label.includes('unsafe driving')) {
-              basics.unsafeDriving = value;
-            } else if (label.includes('hos') || label.includes('hours')) {
-              basics.hosCompliance = value;
-            } else if (label.includes('vehicle')) {
-              basics.vehicleMaintenance = value;
-            } else if (label.includes('crash')) {
-              basics.crashIndicator = value;
-            } else if (label.includes('controlled') || label.includes('substance')) {
-              basics.controlledSubstances = value;
-            } else if (label.includes('hazmat')) {
-              basics.hazmatCompliance = value;
-            } else if (label.includes('fitness')) {
-              basics.driverFitness = value;
-            }
-          }
-        }
-      });
+        // Method 4: Look for explicit percentile displays anywhere on page
+        const allText = document.body.innerHTML;
+        const explicitPercentiles = [
+          { pattern: /unsafe\s*driving[^<]*?(\d{1,3})\s*%/gi, key: 'unsafeDriving' },
+          { pattern: /hours?-?of-?service[^<]*?(\d{1,3})\s*%/gi, key: 'hosCompliance' },
+          { pattern: /vehicle\s*maint[^<]*?(\d{1,3})\s*%/gi, key: 'vehicleMaintenance' },
+          { pattern: /crash\s*indicator[^<]*?(\d{1,3})\s*%/gi, key: 'crashIndicator' },
+          { pattern: /controlled\s*subst[^<]*?(\d{1,3})\s*%/gi, key: 'controlledSubstances' },
+          { pattern: /drugs?\/?alcohol[^<]*?(\d{1,3})\s*%/gi, key: 'controlledSubstances' },
+          { pattern: /hazmat[^<]*?(\d{1,3})\s*%/gi, key: 'hazmatCompliance' },
+          { pattern: /driver\s*fitness[^<]*?(\d{1,3})\s*%/gi, key: 'driverFitness' }
+        ];
 
-      // Method 3: Look for specific SMS HTML patterns
-      const htmlLower = html.toLowerCase();
-
-      // Try regex patterns for percentile values
-      const basicPatterns = [
-        { key: 'unsafeDriving', patterns: [/unsafe\s*driving[^0-9]*(\d{1,3})/i] },
-        { key: 'hosCompliance', patterns: [/hos\s*compliance[^0-9]*(\d{1,3})/i, /hours\s*of\s*service[^0-9]*(\d{1,3})/i] },
-        { key: 'vehicleMaintenance', patterns: [/vehicle\s*maint[^0-9]*(\d{1,3})/i] },
-        { key: 'crashIndicator', patterns: [/crash\s*indicator[^0-9]*(\d{1,3})/i] },
-        { key: 'controlledSubstances', patterns: [/controlled\s*substances?[^0-9]*(\d{1,3})/i] },
-        { key: 'hazmatCompliance', patterns: [/hazmat[^0-9]*(\d{1,3})/i] },
-        { key: 'driverFitness', patterns: [/driver\s*fitness[^0-9]*(\d{1,3})/i] }
-      ];
-
-      basicPatterns.forEach(({ key, patterns }) => {
-        if (basics[key] === null) {
-          for (const pattern of patterns) {
-            const match = html.match(pattern);
+        explicitPercentiles.forEach(({ pattern, key }) => {
+          if (basics[key] === null) {
+            const match = allText.match(pattern);
             if (match && match[1]) {
-              const value = parseInt(match[1], 10);
-              if (value >= 0 && value <= 100) {
-                basics[key] = value;
-                break;
+              const val = parseInt(match[1], 10);
+              if (val >= 0 && val <= 100) {
+                basics[key] = val;
               }
             }
           }
-        }
+        });
+
+        return {
+          basics,
+          inspections,
+          crashes,
+          hasInsufficientData,
+          debug: {
+            basicItemsFound: basicItems.length,
+            pageTitle: document.title
+          }
+        };
       });
 
-      // Parse inspection counts
-      const inspectionMatch = html.match(/(\d+)\s*inspections?/i);
-      if (inspectionMatch) {
-        inspections.last24Months = parseInt(inspectionMatch[1], 10);
-        inspections.total = inspections.last24Months;
-      }
+      console.log(`[FMCSA] CSA scores extracted:`, JSON.stringify(data.basics));
 
-      // Parse crash counts
-      const crashMatch = html.match(/(\d+)\s*crash/i);
-      if (crashMatch) {
-        crashes.last24Months = parseInt(crashMatch[1], 10);
-        crashes.total = crashes.last24Months;
-      }
+      return {
+        basics: data.basics,
+        inspections: data.inspections,
+        crashes: data.crashes
+      };
 
-      return { basics, inspections, crashes };
     } catch (error) {
-      console.error('Error fetching SMS scores:', error.message);
+      console.error('[FMCSA] Error fetching SMS scores with Puppeteer:', error.message);
       return null;
+    } finally {
+      if (page) {
+        await page.close().catch(() => {});
+      }
     }
   },
 

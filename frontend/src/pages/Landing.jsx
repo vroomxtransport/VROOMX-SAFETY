@@ -458,8 +458,8 @@ const Landing = () => {
               // THE PROBLEM
             </div>
             <h2 className="text-4xl md:text-5xl font-heading font-bold tracking-tight mb-8 leading-tight text-primary-500">
-              Compliance is a <span className="text-transparent bg-clip-text bg-gradient-to-r from-cta-500 to-cta-600">Mess.</span><br />
-              <span className="text-[#475569]">VroomX helps to clean it up.</span>
+              Compliance is <span className="text-transparent bg-clip-text bg-gradient-to-r from-cta-500 to-cta-600">Complex.</span><br />
+              <span className="text-[#475569]">VroomX Safety Isn't.</span>
             </h2>
             <p className="text-lg text-[#475569] leading-relaxed mb-10">
               You're running a trucking business, not a filing cabinet. FMCSA requirements are complex, but your software
