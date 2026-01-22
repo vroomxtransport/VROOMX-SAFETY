@@ -3,14 +3,16 @@ import { damageClaimsAPI, driversAPI, vehiclesAPI } from '../utils/api';
 import { formatDate, formatCurrency } from '../utils/helpers';
 import toast from 'react-hot-toast';
 import {
-  FiPlus, FiCalendar, FiDollarSign, FiUser, FiTruck,
-  FiCheck, FiAlertTriangle, FiFileText, FiEdit2, FiTrash2,
-  FiChevronRight, FiInfo, FiUpload, FiPaperclip
+  FiPlus, FiDollarSign, FiUser,
+  FiCheck, FiAlertTriangle, FiFileText, FiChevronRight, FiPaperclip
 } from 'react-icons/fi';
 import DataTable from '../components/DataTable';
 import StatusBadge from '../components/StatusBadge';
-import Modal from '../components/Modal';
-import LoadingSpinner from '../components/LoadingSpinner';
+import { ClaimForm, ClaimDetailModal, ClaimDeleteModal } from '../components/claims';
+import {
+  damageTypes, faultParties, statusOptions, initialFormData,
+  getStatusBadgeType, getDamageTypeLabel, getFaultLabel
+} from '../data/claimOptions';
 
 const DamageClaims = () => {
   const [claims, setClaims] = useState([]);
@@ -28,51 +30,7 @@ const DamageClaims = () => {
   const [vehicles, setVehicles] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [editMode, setEditMode] = useState(false);
-
-  const initialFormData = {
-    incidentDate: new Date().toISOString().split('T')[0],
-    claimNumber: '',
-    vehicleId: '',
-    driverId: '',
-    tripId: '',
-    damageType: 'cargo_damage',
-    faultParty: 'unknown',
-    status: 'open',
-    description: '',
-    claimAmount: 0,
-    settlementAmount: 0,
-    insuranceClaimNumber: '',
-    location: '',
-    resolutionNotes: ''
-  };
-
   const [formData, setFormData] = useState(initialFormData);
-
-  const damageTypes = [
-    { value: 'cargo_damage', label: 'Cargo Damage' },
-    { value: 'vehicle_damage', label: 'Vehicle Damage' },
-    { value: 'property_damage', label: 'Property Damage' },
-    { value: 'third_party', label: 'Third Party Damage' },
-    { value: 'other', label: 'Other' }
-  ];
-
-  const faultParties = [
-    { value: 'unknown', label: 'UNKNOWN' },
-    { value: 'driver', label: 'DRIVER' },
-    { value: 'company', label: 'COMPANY' },
-    { value: 'third_party', label: 'THIRD PARTY' },
-    { value: 'weather', label: 'WEATHER/ACT OF GOD' },
-    { value: 'mechanical', label: 'MECHANICAL FAILURE' }
-  ];
-
-  const statusOptions = [
-    { value: 'open', label: 'OPEN' },
-    { value: 'under_investigation', label: 'UNDER INVESTIGATION' },
-    { value: 'pending_settlement', label: 'PENDING SETTLEMENT' },
-    { value: 'settled', label: 'SETTLED' },
-    { value: 'closed', label: 'CLOSED' },
-    { value: 'denied', label: 'DENIED' }
-  ];
 
   useEffect(() => {
     fetchClaims();
@@ -137,7 +95,6 @@ const DamageClaims = () => {
         settlementAmount: parseFloat(formData.settlementAmount) || 0
       };
 
-      // Remove empty optional fields
       if (!submitData.vehicleId) delete submitData.vehicleId;
       if (!submitData.driverId) delete submitData.driverId;
       if (!submitData.claimNumber) delete submitData.claimNumber;
@@ -200,26 +157,6 @@ const DamageClaims = () => {
     } finally {
       setSubmitting(false);
     }
-  };
-
-  const getStatusBadgeType = (status) => {
-    switch (status) {
-      case 'open': return 'warning';
-      case 'under_investigation': return 'info';
-      case 'pending_settlement': return 'info';
-      case 'settled': return 'success';
-      case 'closed': return 'success';
-      case 'denied': return 'danger';
-      default: return 'default';
-    }
-  };
-
-  const getDamageTypeLabel = (type) => {
-    return damageTypes.find(t => t.value === type)?.label || type;
-  };
-
-  const getFaultLabel = (fault) => {
-    return faultParties.find(f => f.value === fault)?.label || fault;
   };
 
   const columns = [
@@ -367,9 +304,7 @@ const DamageClaims = () => {
               <FiDollarSign className="w-5 h-5 text-primary-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-primary-900 font-mono">
-                {formatCurrency(stats?.totalClaimAmount || 0)}
-              </p>
+              <p className="text-2xl font-bold text-primary-900 font-mono">{formatCurrency(stats?.totalClaimAmount || 0)}</p>
               <p className="text-xs text-primary-500">Total Claimed</p>
             </div>
           </div>
@@ -381,9 +316,7 @@ const DamageClaims = () => {
               <FiUser className="w-5 h-5 text-danger-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-danger-600 font-mono">
-                {formatCurrency(stats?.driverFaultSettled || 0)}
-              </p>
+              <p className="text-2xl font-bold text-danger-600 font-mono">{formatCurrency(stats?.driverFaultSettled || 0)}</p>
               <p className="text-xs text-primary-500">Driver Fault (Paid)</p>
             </div>
           </div>
@@ -395,9 +328,7 @@ const DamageClaims = () => {
               <FiCheck className="w-5 h-5 text-success-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-success-600 font-mono">
-                {formatCurrency(stats?.recovered || 0)}
-              </p>
+              <p className="text-2xl font-bold text-success-600 font-mono">{formatCurrency(stats?.recovered || 0)}</p>
               <p className="text-xs text-primary-500">Recovered</p>
             </div>
           </div>
@@ -409,9 +340,7 @@ const DamageClaims = () => {
               <FiFileText className="w-5 h-5 text-warning-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-warning-600 font-mono">
-                {stats?.openClaims || 0}
-              </p>
+              <p className="text-2xl font-bold text-warning-600 font-mono">{stats?.openClaims || 0}</p>
               <p className="text-xs text-primary-500">Open Claims</p>
             </div>
           </div>
@@ -419,10 +348,7 @@ const DamageClaims = () => {
       </div>
 
       {/* Filters */}
-      <div
-        className="bg-white rounded-xl border border-primary-200/60 p-4"
-        style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}
-      >
+      <div className="bg-white rounded-xl border border-primary-200/60 p-4" style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}>
         <div className="flex flex-col sm:flex-row gap-4">
           <select
             className="form-select"
@@ -475,413 +401,49 @@ const DamageClaims = () => {
       />
 
       {/* Add/Edit Claim Modal */}
-      <Modal
+      <ClaimForm
         isOpen={showAddModal}
         onClose={() => {
           setShowAddModal(false);
           setEditMode(false);
           setSelectedClaim(null);
-          setFormData(initialFormData);
         }}
-        title={editMode ? 'Edit Damage Claim' : 'New Damage Claim'}
-        icon={FiAlertTriangle}
-        size="lg"
-      >
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Incident Date & Claim Number */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-primary-700 mb-1.5">Incident Date *</label>
-              <input
-                type="date"
-                className="form-input"
-                required
-                value={formData.incidentDate}
-                onChange={(e) => setFormData({ ...formData, incidentDate: e.target.value })}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-primary-700 mb-1.5">Claim Number</label>
-              <input
-                type="text"
-                className="form-input"
-                placeholder="Auto-generated if empty"
-                value={formData.claimNumber}
-                onChange={(e) => setFormData({ ...formData, claimNumber: e.target.value })}
-              />
-            </div>
-          </div>
-
-          {/* Truck & Driver Assignment */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-primary-700 mb-1.5">Assign to Truck</label>
-              <select
-                className="form-select"
-                value={formData.vehicleId}
-                onChange={(e) => setFormData({ ...formData, vehicleId: e.target.value })}
-              >
-                <option value="">-- Select Truck --</option>
-                {vehicles.map((vehicle) => (
-                  <option key={vehicle._id} value={vehicle._id}>
-                    Unit #{vehicle.unitNumber} - {vehicle.make} {vehicle.model}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-primary-700 mb-1.5">Assign to Driver</label>
-              <select
-                className="form-select"
-                value={formData.driverId}
-                onChange={(e) => setFormData({ ...formData, driverId: e.target.value })}
-              >
-                <option value="">-- Select Driver --</option>
-                {drivers.map((driver) => (
-                  <option key={driver._id} value={driver._id}>
-                    {driver.firstName} {driver.lastName}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Related Trip */}
-          <div>
-            <label className="block text-sm font-medium text-primary-700 mb-1.5">Related Trip (Optional)</label>
-            <input
-              type="text"
-              className="form-input"
-              placeholder="Trip ID or reference"
-              value={formData.tripId}
-              onChange={(e) => setFormData({ ...formData, tripId: e.target.value })}
-            />
-          </div>
-
-          {/* Damage Type & Fault Party */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-primary-700 mb-1.5">Damage Type *</label>
-              <select
-                className="form-select"
-                required
-                value={formData.damageType}
-                onChange={(e) => setFormData({ ...formData, damageType: e.target.value })}
-              >
-                {damageTypes.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-primary-700 mb-1.5">Fault Party *</label>
-              <select
-                className="form-select"
-                required
-                value={formData.faultParty}
-                onChange={(e) => setFormData({ ...formData, faultParty: e.target.value })}
-              >
-                {faultParties.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Status */}
-          <div>
-            <label className="block text-sm font-medium text-primary-700 mb-1.5">Status *</label>
-            <select
-              className="form-select"
-              required
-              value={formData.status}
-              onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-            >
-              {statusOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* Description */}
-          <div>
-            <label className="block text-sm font-medium text-primary-700 mb-1.5">Description *</label>
-            <textarea
-              className="form-input"
-              rows={3}
-              required
-              placeholder="Describe the damage incident..."
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            />
-          </div>
-
-          {/* Amounts */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-primary-700 mb-1.5">Claim Amount ($) *</label>
-              <input
-                type="number"
-                className="form-input font-mono"
-                required
-                min="0"
-                step="0.01"
-                placeholder="0.00"
-                value={formData.claimAmount}
-                onChange={(e) => setFormData({ ...formData, claimAmount: e.target.value })}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-primary-700 mb-1.5">Settlement Amount ($)</label>
-              <input
-                type="number"
-                className="form-input font-mono"
-                min="0"
-                step="0.01"
-                placeholder="If settled"
-                value={formData.settlementAmount}
-                onChange={(e) => setFormData({ ...formData, settlementAmount: e.target.value })}
-              />
-            </div>
-          </div>
-
-          {/* Insurance & Location */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-primary-700 mb-1.5">Insurance Claim Number</label>
-              <input
-                type="text"
-                className="form-input"
-                placeholder="Insurance reference #"
-                value={formData.insuranceClaimNumber}
-                onChange={(e) => setFormData({ ...formData, insuranceClaimNumber: e.target.value })}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-primary-700 mb-1.5">Location of Incident</label>
-              <input
-                type="text"
-                className="form-input"
-                placeholder="Address or location"
-                value={formData.location}
-                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-              />
-            </div>
-          </div>
-
-          {/* Resolution Notes */}
-          <div>
-            <label className="block text-sm font-medium text-primary-700 mb-1.5">Resolution Notes</label>
-            <textarea
-              className="form-input"
-              rows={2}
-              placeholder="Notes about claim resolution..."
-              value={formData.resolutionNotes}
-              onChange={(e) => setFormData({ ...formData, resolutionNotes: e.target.value })}
-            />
-          </div>
-
-          {/* Form Actions */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-primary-100">
-            <button
-              type="button"
-              onClick={() => {
-                setShowAddModal(false);
-                setEditMode(false);
-                setSelectedClaim(null);
-                setFormData(initialFormData);
-              }}
-              className="btn btn-secondary"
-            >
-              Cancel
-            </button>
-            <button type="submit" className="btn btn-primary" disabled={submitting}>
-              {submitting ? <LoadingSpinner size="sm" /> : (editMode ? 'Save Changes' : 'Save Claim')}
-            </button>
-          </div>
-        </form>
-      </Modal>
+        formData={formData}
+        setFormData={setFormData}
+        handleSubmit={handleSubmit}
+        submitting={submitting}
+        editMode={editMode}
+        drivers={drivers}
+        vehicles={vehicles}
+        initialFormData={initialFormData}
+      />
 
       {/* Claim Detail Modal */}
-      <Modal
+      <ClaimDetailModal
         isOpen={showDetailModal}
         onClose={() => {
           setShowDetailModal(false);
           setSelectedClaim(null);
         }}
-        title="Claim Details"
-        icon={FiAlertTriangle}
-        size="lg"
-      >
-        {selectedClaim && (
-          <div className="space-y-5">
-            {/* Header */}
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="font-mono text-lg font-bold text-primary-900">{selectedClaim.claimNumber}</p>
-                <p className="text-sm text-primary-500">{formatDate(selectedClaim.incidentDate)}</p>
-              </div>
-              <StatusBadge
-                status={statusOptions.find(s => s.value === selectedClaim.status)?.label || selectedClaim.status}
-                type={getStatusBadgeType(selectedClaim.status)}
-              />
-            </div>
-
-            {/* Driver & Vehicle */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-3 rounded-lg bg-primary-50 border border-primary-200">
-                <p className="text-xs text-primary-500 mb-1">Driver</p>
-                {selectedClaim.driverId ? (
-                  <p className="text-sm font-medium text-primary-900">
-                    {selectedClaim.driverId.firstName} {selectedClaim.driverId.lastName}
-                  </p>
-                ) : (
-                  <p className="text-sm text-primary-400">Not assigned</p>
-                )}
-              </div>
-              <div className="p-3 rounded-lg bg-primary-50 border border-primary-200">
-                <p className="text-xs text-primary-500 mb-1">Vehicle</p>
-                {selectedClaim.vehicleId ? (
-                  <p className="text-sm font-medium text-primary-900">
-                    Unit #{selectedClaim.vehicleId.unitNumber}
-                  </p>
-                ) : (
-                  <p className="text-sm text-primary-400">Not assigned</p>
-                )}
-              </div>
-            </div>
-
-            {/* Description */}
-            <div className="p-4 rounded-xl bg-warning-50 border border-warning-200">
-              <div className="flex items-center gap-2 mb-2">
-                <span className={`text-xs font-semibold px-2 py-1 rounded ${
-                  selectedClaim.faultParty === 'driver' ? 'bg-danger-100 text-danger-700' :
-                  'bg-primary-100 text-primary-600'
-                }`}>
-                  {getFaultLabel(selectedClaim.faultParty)}
-                </span>
-                <span className="text-xs text-primary-500">
-                  {getDamageTypeLabel(selectedClaim.damageType)}
-                </span>
-              </div>
-              <p className="text-sm text-primary-800">{selectedClaim.description}</p>
-              {selectedClaim.location && (
-                <p className="text-xs text-primary-500 mt-2">Location: {selectedClaim.location}</p>
-              )}
-            </div>
-
-            {/* Financial Details */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-3 rounded-lg bg-white border border-primary-200">
-                <p className="text-xs text-primary-500 mb-1">Claim Amount</p>
-                <p className="text-xl font-bold font-mono text-primary-900">
-                  {formatCurrency(selectedClaim.claimAmount)}
-                </p>
-              </div>
-              <div className="p-3 rounded-lg bg-white border border-primary-200">
-                <p className="text-xs text-primary-500 mb-1">Settlement Amount</p>
-                <p className="text-xl font-bold font-mono text-success-600">
-                  {formatCurrency(selectedClaim.settlementAmount)}
-                </p>
-              </div>
-            </div>
-
-            {/* Insurance Info */}
-            {selectedClaim.insuranceClaimNumber && (
-              <div className="p-3 rounded-lg bg-info-50 border border-info-200">
-                <p className="text-xs text-info-600 mb-1">Insurance Claim #</p>
-                <p className="text-sm font-mono text-info-800">{selectedClaim.insuranceClaimNumber}</p>
-              </div>
-            )}
-
-            {/* Resolution Notes */}
-            {selectedClaim.resolutionNotes && (
-              <div className="p-3 rounded-lg bg-success-50 border border-success-200">
-                <p className="text-xs text-success-600 mb-1">Resolution Notes</p>
-                <p className="text-sm text-success-800">{selectedClaim.resolutionNotes}</p>
-              </div>
-            )}
-
-            {/* Documents */}
-            {selectedClaim.documents?.length > 0 && (
-              <div>
-                <p className="text-sm font-medium text-primary-700 mb-2">Attached Files</p>
-                <div className="space-y-2">
-                  {selectedClaim.documents.map((doc, idx) => (
-                    <div key={idx} className="flex items-center gap-2 p-2 rounded bg-primary-50 border border-primary-200">
-                      <FiPaperclip className="w-4 h-4 text-primary-500" />
-                      <span className="text-sm text-primary-700">{doc.originalName || doc.filename}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Actions */}
-            <div className="flex justify-between pt-4 border-t border-primary-100">
-              <button
-                onClick={() => {
-                  setShowDetailModal(false);
-                  setShowDeleteModal(true);
-                }}
-                className="btn btn-secondary text-danger-600 hover:text-danger-700 hover:bg-danger-50"
-              >
-                <FiTrash2 className="w-4 h-4" />
-                Delete
-              </button>
-              <button
-                onClick={() => handleEdit(selectedClaim)}
-                className="btn btn-primary"
-              >
-                <FiEdit2 className="w-4 h-4" />
-                Edit Claim
-              </button>
-            </div>
-          </div>
-        )}
-      </Modal>
+        claim={selectedClaim}
+        onEdit={handleEdit}
+        onDelete={() => {
+          setShowDetailModal(false);
+          setShowDeleteModal(true);
+        }}
+      />
 
       {/* Delete Confirmation Modal */}
-      <Modal
+      <ClaimDeleteModal
         isOpen={showDeleteModal}
         onClose={() => {
           setShowDeleteModal(false);
           setSelectedClaim(null);
         }}
-        title="Delete Claim"
-        icon={FiTrash2}
-      >
-        <div className="space-y-4">
-          <p className="text-primary-700">
-            Are you sure you want to delete this damage claim? This action cannot be undone.
-          </p>
-          <div className="p-4 rounded-xl bg-danger-50 border border-danger-200">
-            <p className="font-mono font-semibold text-danger-900">{selectedClaim?.claimNumber}</p>
-            <p className="text-sm text-danger-700 mt-1">{selectedClaim?.description}</p>
-            <p className="text-sm text-danger-600 mt-1 font-mono">
-              {formatCurrency(selectedClaim?.claimAmount)}
-            </p>
-          </div>
-          <div className="flex justify-end gap-3 pt-4 border-t border-primary-100">
-            <button
-              onClick={() => {
-                setShowDeleteModal(false);
-                setSelectedClaim(null);
-              }}
-              className="btn btn-secondary"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleDelete}
-              className="btn btn-primary bg-danger-600 hover:bg-danger-700"
-              disabled={submitting}
-            >
-              {submitting ? <LoadingSpinner size="sm" /> : 'Delete Claim'}
-            </button>
-          </div>
-        </div>
-      </Modal>
+        claim={selectedClaim}
+        onDelete={handleDelete}
+        submitting={submitting}
+      />
     </div>
   );
 };

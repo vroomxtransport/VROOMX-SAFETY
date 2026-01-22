@@ -3,14 +3,15 @@ import { ticketsAPI, driversAPI } from '../utils/api';
 import { formatDate, formatCurrency } from '../utils/helpers';
 import toast from 'react-hot-toast';
 import {
-  FiPlus, FiCalendar, FiDollarSign, FiUser, FiMapPin,
-  FiCheck, FiX, FiClock, FiAlertCircle, FiFileText,
-  FiEdit2, FiTrash2, FiMessageSquare, FiChevronRight
+  FiPlus, FiCalendar, FiDollarSign,
+  FiCheck, FiAlertCircle, FiFileText, FiChevronRight
 } from 'react-icons/fi';
 import DataTable from '../components/DataTable';
 import StatusBadge from '../components/StatusBadge';
-import Modal from '../components/Modal';
-import LoadingSpinner from '../components/LoadingSpinner';
+import { TicketForm, TicketDetailModal, TicketDeleteModal } from '../components/tickets';
+import {
+  ticketTypes, statusOptions, initialFormData, getStatusBadgeType
+} from '../data/ticketOptions';
 
 const Tickets = () => {
   const [tickets, setTickets] = useState([]);
@@ -28,64 +29,7 @@ const Tickets = () => {
   const [drivers, setDrivers] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [editMode, setEditMode] = useState(false);
-
-  const initialFormData = {
-    driverId: '',
-    ticketDate: new Date().toISOString().split('T')[0],
-    description: '',
-    ticketType: 'speeding',
-    ticketNumber: '',
-    status: 'open',
-    courtDate: '',
-    courtDecision: 'not_yet',
-    dataQDecision: 'not_filed',
-    fineAmount: 0,
-    points: 0,
-    notes: '',
-    location: { city: '', state: '' },
-    attorney: { name: '', phone: '', firm: '' }
-  };
-
   const [formData, setFormData] = useState(initialFormData);
-
-  const ticketTypes = [
-    { value: 'speeding', label: 'Speeding' },
-    { value: 'logbook', label: 'Logbook Violation' },
-    { value: 'equipment', label: 'Equipment Violation' },
-    { value: 'parking', label: 'Parking' },
-    { value: 'weight', label: 'Overweight' },
-    { value: 'lane_violation', label: 'Lane Violation' },
-    { value: 'red_light', label: 'Red Light' },
-    { value: 'stop_sign', label: 'Stop Sign' },
-    { value: 'reckless', label: 'Reckless Driving' },
-    { value: 'other', label: 'Other' }
-  ];
-
-  const statusOptions = [
-    { value: 'open', label: 'Open' },
-    { value: 'pending_court', label: 'Pending Court' },
-    { value: 'fighting', label: 'Fighting' },
-    { value: 'dismissed', label: 'Dismissed' },
-    { value: 'paid', label: 'Paid' },
-    { value: 'points_reduced', label: 'Points Reduced' },
-    { value: 'deferred', label: 'Deferred' }
-  ];
-
-  const courtDecisionOptions = [
-    { value: 'not_yet', label: 'Not Yet' },
-    { value: 'guilty', label: 'Guilty' },
-    { value: 'not_guilty', label: 'Not Guilty' },
-    { value: 'reduced', label: 'Reduced' },
-    { value: 'dismissed', label: 'Dismissed' },
-    { value: 'deferred', label: 'Deferred' }
-  ];
-
-  const dataQOptions = [
-    { value: 'not_filed', label: 'Not Filed' },
-    { value: 'pending', label: 'Pending' },
-    { value: 'accepted', label: 'Accepted' },
-    { value: 'denied', label: 'Denied' }
-  ];
 
   useEffect(() => {
     fetchTickets();
@@ -213,19 +157,6 @@ const Tickets = () => {
       fetchStats();
     } catch (error) {
       toast.error('Failed to update ticket');
-    }
-  };
-
-  const getStatusBadgeType = (status) => {
-    switch (status) {
-      case 'open': return 'warning';
-      case 'pending_court': return 'info';
-      case 'fighting': return 'info';
-      case 'dismissed': return 'success';
-      case 'paid': return 'success';
-      case 'points_reduced': return 'success';
-      case 'deferred': return 'warning';
-      default: return 'default';
     }
   };
 
@@ -370,9 +301,7 @@ const Tickets = () => {
               <FiFileText className="w-5 h-5 text-warning-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-primary-900 font-mono">
-                {stats?.openTickets || 0}
-              </p>
+              <p className="text-2xl font-bold text-primary-900 font-mono">{stats?.openTickets || 0}</p>
               <p className="text-xs text-primary-500">Open Tickets</p>
             </div>
           </div>
@@ -384,9 +313,7 @@ const Tickets = () => {
               <FiCalendar className="w-5 h-5 text-info-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-info-600 font-mono">
-                {stats?.upcomingCourtDates || 0}
-              </p>
+              <p className="text-2xl font-bold text-info-600 font-mono">{stats?.upcomingCourtDates || 0}</p>
               <p className="text-xs text-primary-500">Upcoming Court</p>
             </div>
           </div>
@@ -398,9 +325,7 @@ const Tickets = () => {
               <FiDollarSign className="w-5 h-5 text-danger-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-danger-600 font-mono">
-                {formatCurrency(stats?.financials?.totalOutstanding || 0)}
-              </p>
+              <p className="text-2xl font-bold text-danger-600 font-mono">{formatCurrency(stats?.financials?.totalOutstanding || 0)}</p>
               <p className="text-xs text-primary-500">Outstanding</p>
             </div>
           </div>
@@ -412,9 +337,7 @@ const Tickets = () => {
               <FiCheck className="w-5 h-5 text-success-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-success-600 font-mono">
-                {formatCurrency(stats?.financials?.totalPaid || 0)}
-              </p>
+              <p className="text-2xl font-bold text-success-600 font-mono">{formatCurrency(stats?.financials?.totalPaid || 0)}</p>
               <p className="text-xs text-primary-500">Total Paid</p>
             </div>
           </div>
@@ -426,9 +349,7 @@ const Tickets = () => {
               <FiAlertCircle className="w-5 h-5 text-accent-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-accent-600 font-mono">
-                {stats?.financials?.totalPoints || 0}
-              </p>
+              <p className="text-2xl font-bold text-accent-600 font-mono">{stats?.financials?.totalPoints || 0}</p>
               <p className="text-xs text-primary-500">Total Points</p>
             </div>
           </div>
@@ -473,10 +394,7 @@ const Tickets = () => {
       )}
 
       {/* Filters */}
-      <div
-        className="bg-white rounded-xl border border-primary-200/60 p-4"
-        style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}
-      >
+      <div className="bg-white rounded-xl border border-primary-200/60 p-4" style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}>
         <div className="flex flex-col sm:flex-row gap-4">
           <select
             className="form-select"
@@ -524,388 +442,49 @@ const Tickets = () => {
       />
 
       {/* Add/Edit Ticket Modal */}
-      <Modal
+      <TicketForm
         isOpen={showAddModal}
         onClose={() => {
           setShowAddModal(false);
           setEditMode(false);
           setSelectedTicket(null);
-          setFormData(initialFormData);
         }}
-        title={editMode ? 'Edit Ticket' : 'New Ticket'}
-        icon={FiFileText}
-        size="lg"
-      >
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Driver & Date */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-primary-700 mb-1.5">Driver *</label>
-              <select
-                className="form-select"
-                required
-                value={formData.driverId}
-                onChange={(e) => setFormData({ ...formData, driverId: e.target.value })}
-              >
-                <option value="">Select Driver</option>
-                {drivers.map((driver) => (
-                  <option key={driver._id} value={driver._id}>
-                    {driver.firstName} {driver.lastName}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-primary-700 mb-1.5">Status *</label>
-              <select
-                className="form-select"
-                required
-                value={formData.status}
-                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-              >
-                {statusOptions.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-primary-700 mb-1.5">Ticket Date *</label>
-              <input
-                type="date"
-                className="form-input"
-                required
-                value={formData.ticketDate}
-                onChange={(e) => setFormData({ ...formData, ticketDate: e.target.value })}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-primary-700 mb-1.5">Court Date</label>
-              <input
-                type="date"
-                className="form-input"
-                value={formData.courtDate}
-                onChange={(e) => setFormData({ ...formData, courtDate: e.target.value })}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-primary-700 mb-1.5">Ticket Type</label>
-              <select
-                className="form-select"
-                value={formData.ticketType}
-                onChange={(e) => setFormData({ ...formData, ticketType: e.target.value })}
-              >
-                {ticketTypes.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-primary-700 mb-1.5">Ticket Description *</label>
-            <textarea
-              className="form-input"
-              rows={2}
-              required
-              placeholder="e.g., Speeding 15mph over limit, Logbook violation..."
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            />
-          </div>
-
-          {/* Attorney Info */}
-          <div className="border-t border-primary-100 pt-4">
-            <label className="block text-sm font-medium text-primary-700 mb-1.5">Attorney Info</label>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <input
-                type="text"
-                className="form-input"
-                placeholder="Attorney name"
-                value={formData.attorney.name}
-                onChange={(e) => setFormData({ ...formData, attorney: { ...formData.attorney, name: e.target.value } })}
-              />
-              <input
-                type="text"
-                className="form-input"
-                placeholder="Phone"
-                value={formData.attorney.phone}
-                onChange={(e) => setFormData({ ...formData, attorney: { ...formData.attorney, phone: e.target.value } })}
-              />
-              <input
-                type="text"
-                className="form-input"
-                placeholder="Firm"
-                value={formData.attorney.firm}
-                onChange={(e) => setFormData({ ...formData, attorney: { ...formData.attorney, firm: e.target.value } })}
-              />
-            </div>
-          </div>
-
-          {/* Decisions */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-primary-700 mb-1.5">Court Decision</label>
-              <select
-                className="form-select"
-                value={formData.courtDecision}
-                onChange={(e) => setFormData({ ...formData, courtDecision: e.target.value })}
-              >
-                {courtDecisionOptions.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-primary-700 mb-1.5">DataQ Decision</label>
-              <select
-                className="form-select"
-                value={formData.dataQDecision}
-                onChange={(e) => setFormData({ ...formData, dataQDecision: e.target.value })}
-              >
-                {dataQOptions.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Fine & Points */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-primary-700 mb-1.5">Fine Amount ($)</label>
-              <input
-                type="number"
-                className="form-input font-mono"
-                min="0"
-                step="0.01"
-                value={formData.fineAmount}
-                onChange={(e) => setFormData({ ...formData, fineAmount: parseFloat(e.target.value) || 0 })}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-primary-700 mb-1.5">Points</label>
-              <input
-                type="number"
-                className="form-input font-mono"
-                min="0"
-                value={formData.points}
-                onChange={(e) => setFormData({ ...formData, points: parseInt(e.target.value) || 0 })}
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-primary-700 mb-1.5">Notes</label>
-            <textarea
-              className="form-input"
-              rows={2}
-              placeholder="Additional notes..."
-              value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-            />
-          </div>
-
-          <div className="flex justify-end gap-3 pt-4 border-t border-primary-100">
-            <button
-              type="button"
-              onClick={() => {
-                setShowAddModal(false);
-                setEditMode(false);
-                setSelectedTicket(null);
-                setFormData(initialFormData);
-              }}
-              className="btn btn-secondary"
-            >
-              Cancel
-            </button>
-            <button type="submit" className="btn btn-primary" disabled={submitting}>
-              {submitting ? <LoadingSpinner size="sm" /> : (editMode ? 'Save Changes' : 'Create Ticket')}
-            </button>
-          </div>
-        </form>
-      </Modal>
+        formData={formData}
+        setFormData={setFormData}
+        handleSubmit={handleSubmit}
+        submitting={submitting}
+        editMode={editMode}
+        drivers={drivers}
+        initialFormData={initialFormData}
+      />
 
       {/* Ticket Detail Modal */}
-      <Modal
+      <TicketDetailModal
         isOpen={showDetailModal}
         onClose={() => {
           setShowDetailModal(false);
           setSelectedTicket(null);
         }}
-        title="Ticket Details"
-        icon={FiFileText}
-        size="lg"
-      >
-        {selectedTicket && (
-          <div className="space-y-5">
-            {/* Header */}
-            <div className="flex items-start justify-between">
-              <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center text-sm font-semibold text-primary-600">
-                    {selectedTicket.driverId?.firstName?.[0]}{selectedTicket.driverId?.lastName?.[0]}
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-primary-900">
-                      {selectedTicket.driverId?.firstName} {selectedTicket.driverId?.lastName}
-                    </h3>
-                    <p className="text-sm text-primary-500">{selectedTicket.driverId?.employeeId}</p>
-                  </div>
-                </div>
-              </div>
-              <StatusBadge status={selectedTicket.status} type={getStatusBadgeType(selectedTicket.status)} />
-            </div>
-
-            {/* Description */}
-            <div className="p-4 rounded-xl bg-primary-50 border border-primary-200">
-              <p className="font-medium text-primary-900 mb-1">{selectedTicket.description}</p>
-              <div className="flex items-center gap-4 text-sm text-primary-600">
-                <span className="flex items-center gap-1">
-                  <FiCalendar className="w-4 h-4" />
-                  {formatDate(selectedTicket.ticketDate)}
-                </span>
-                <span className="capitalize">
-                  {ticketTypes.find(t => t.value === selectedTicket.ticketType)?.label}
-                </span>
-              </div>
-            </div>
-
-            {/* Details Grid */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-3 rounded-lg bg-white border border-primary-200">
-                <p className="text-xs text-primary-500 mb-1">Fine Amount</p>
-                <p className="text-lg font-bold font-mono text-primary-900">
-                  {formatCurrency(selectedTicket.fineAmount)}
-                </p>
-                {selectedTicket.finePaid && (
-                  <span className="text-xs text-success-600 font-medium">Paid</span>
-                )}
-              </div>
-              <div className="p-3 rounded-lg bg-white border border-primary-200">
-                <p className="text-xs text-primary-500 mb-1">Points</p>
-                <p className="text-lg font-bold font-mono text-primary-900">{selectedTicket.points}</p>
-                {selectedTicket.pointsOnRecord && (
-                  <span className="text-xs text-danger-600 font-medium">On Record</span>
-                )}
-              </div>
-              <div className="p-3 rounded-lg bg-white border border-primary-200">
-                <p className="text-xs text-primary-500 mb-1">Court Date</p>
-                <p className="text-sm font-medium text-primary-900">
-                  {selectedTicket.courtDate ? formatDate(selectedTicket.courtDate) : 'Not set'}
-                </p>
-              </div>
-              <div className="p-3 rounded-lg bg-white border border-primary-200">
-                <p className="text-xs text-primary-500 mb-1">Court Decision</p>
-                <p className="text-sm font-medium text-primary-900 capitalize">
-                  {courtDecisionOptions.find(o => o.value === selectedTicket.courtDecision)?.label || 'Not Yet'}
-                </p>
-              </div>
-            </div>
-
-            {/* Attorney */}
-            {(selectedTicket.attorney?.name || selectedTicket.attorney?.firm) && (
-              <div className="p-4 rounded-xl bg-info-50 border border-info-200">
-                <h4 className="text-sm font-semibold text-info-800 mb-2">Attorney Information</h4>
-                <p className="text-sm text-info-700">{selectedTicket.attorney.name}</p>
-                {selectedTicket.attorney.firm && (
-                  <p className="text-sm text-info-600">{selectedTicket.attorney.firm}</p>
-                )}
-                {selectedTicket.attorney.phone && (
-                  <p className="text-sm text-info-600">{selectedTicket.attorney.phone}</p>
-                )}
-              </div>
-            )}
-
-            {/* Notes */}
-            {selectedTicket.notes && (
-              <div className="p-4 rounded-xl bg-warning-50 border border-warning-200">
-                <h4 className="text-sm font-semibold text-warning-800 mb-2">Notes</h4>
-                <p className="text-sm text-warning-700">{selectedTicket.notes}</p>
-              </div>
-            )}
-
-            {/* Actions */}
-            <div className="flex justify-between pt-4 border-t border-primary-100">
-              <button
-                onClick={() => {
-                  setSelectedTicket(selectedTicket);
-                  setShowDetailModal(false);
-                  setShowDeleteModal(true);
-                }}
-                className="btn btn-secondary text-danger-600 hover:text-danger-700 hover:bg-danger-50"
-              >
-                <FiTrash2 className="w-4 h-4" />
-                Delete
-              </button>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => handleEdit(selectedTicket)}
-                  className="btn btn-secondary"
-                >
-                  <FiEdit2 className="w-4 h-4" />
-                  Edit
-                </button>
-                {!selectedTicket.finePaid && selectedTicket.status !== 'dismissed' && (
-                  <button
-                    onClick={() => {
-                      handleMarkPaid(selectedTicket);
-                      setShowDetailModal(false);
-                    }}
-                    className="btn btn-primary"
-                  >
-                    <FiDollarSign className="w-4 h-4" />
-                    Mark Paid
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-      </Modal>
+        ticket={selectedTicket}
+        onEdit={handleEdit}
+        onDelete={() => {
+          setShowDetailModal(false);
+          setShowDeleteModal(true);
+        }}
+        onMarkPaid={handleMarkPaid}
+      />
 
       {/* Delete Confirmation Modal */}
-      <Modal
+      <TicketDeleteModal
         isOpen={showDeleteModal}
         onClose={() => {
           setShowDeleteModal(false);
           setSelectedTicket(null);
         }}
-        title="Delete Ticket"
-        icon={FiTrash2}
-      >
-        <div className="space-y-4">
-          <p className="text-primary-700">
-            Are you sure you want to delete this ticket? This action cannot be undone.
-          </p>
-          <div className="p-4 rounded-xl bg-danger-50 border border-danger-200">
-            <p className="font-medium text-danger-900">{selectedTicket?.description}</p>
-            <p className="text-sm text-danger-700 mt-1">
-              {selectedTicket?.driverId?.firstName} {selectedTicket?.driverId?.lastName} - {formatDate(selectedTicket?.ticketDate)}
-            </p>
-          </div>
-          <div className="flex justify-end gap-3 pt-4 border-t border-primary-100">
-            <button
-              onClick={() => {
-                setShowDeleteModal(false);
-                setSelectedTicket(null);
-              }}
-              className="btn btn-secondary"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleDelete}
-              className="btn btn-primary bg-danger-600 hover:bg-danger-700"
-              disabled={submitting}
-            >
-              {submitting ? <LoadingSpinner size="sm" /> : 'Delete Ticket'}
-            </button>
-          </div>
-        </div>
-      </Modal>
+        ticket={selectedTicket}
+        onDelete={handleDelete}
+        submitting={submitting}
+      />
     </div>
   );
 };
