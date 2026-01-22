@@ -47,6 +47,14 @@ const Layout = () => {
   const getSubscriptionBadge = () => {
     if (!subscription) return null;
 
+    // Handle pending_payment status (Solo tier before payment)
+    if (subscription.status === 'pending_payment') {
+      return {
+        label: 'Payment Required',
+        className: 'bg-warning-500/20 text-warning-400 border-warning-500/30'
+      };
+    }
+
     if (subscription.status === 'trialing') {
       return {
         label: `Trial: ${subscription.trialDaysRemaining}d left`,
@@ -55,6 +63,17 @@ const Layout = () => {
     }
 
     switch (subscription.plan) {
+      case 'solo':
+        return {
+          label: 'Solo',
+          className: 'bg-primary-500/20 text-primary-300 border-primary-500/30'
+        };
+      case 'fleet':
+        return {
+          label: 'Fleet',
+          className: 'bg-primary-500/20 text-primary-300 border-primary-500/30'
+        };
+      case 'pro':
       case 'professional':
         return {
           label: 'Professional',
@@ -66,10 +85,7 @@ const Layout = () => {
           className: 'bg-primary-500/20 text-primary-300 border-primary-500/30'
         };
       default:
-        return {
-          label: 'Free Trial',
-          className: 'bg-primary-700/30 text-primary-400 border-primary-600/30'
-        };
+        return null;
     }
   };
 
