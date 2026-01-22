@@ -115,11 +115,12 @@ const Register = () => {
     setLoading(true);
 
     try {
-      // Include FMCSA verification status in registration
+      // Include FMCSA verification status and selected plan in registration
       const registrationData = {
         ...formData,
         fmcsaVerified: dotLookupStatus === 'verified',
-        fmcsaData: fmcsaData
+        fmcsaData: fmcsaData,
+        selectedPlan: selectedPlan || null // Pass 'solo' if from Solo tier, null for trial tiers
       };
 
       await register(registrationData);

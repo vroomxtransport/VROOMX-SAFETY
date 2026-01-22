@@ -30,7 +30,7 @@ router.post('/register', [
     return res.status(400).json({ success: false, errors: errors.array() });
   }
 
-  const { email, password, firstName, lastName, companyName, dotNumber, mcNumber, phone, address } = req.body;
+  const { email, password, firstName, lastName, companyName, dotNumber, mcNumber, phone, address, selectedPlan } = req.body;
 
   // Check if user exists
   const existingUser = await User.findOne({ email });
@@ -50,18 +50,31 @@ router.post('/register', [
     });
   }
 
+  // Determine subscription based on selected plan
+  let subscription;
+  if (selectedPlan === 'solo') {
+    // Solo plan: No trial, requires payment to activate
+    subscription = {
+      plan: 'solo',
+      status: 'pending_payment',
+      trialEndsAt: null
+    };
+  } else {
+    // Fleet/Pro plans: 3-day free trial
+    subscription = {
+      plan: 'free_trial',
+      status: 'trialing',
+      trialEndsAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) // 3 days from now
+    };
+  }
+
   // Create user first (needed for ownerId)
   const user = await User.create({
     email,
     password,
     firstName,
     lastName,
-    // Initialize subscription as free trial (3 days)
-    subscription: {
-      plan: 'free_trial',
-      status: 'trialing',
-      trialEndsAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) // 3 days from now
-    },
+    subscription,
     // Legacy fields for backward compatibility
     role: 'admin',
     permissions: User.getDefaultPermissionsForRole('owner')

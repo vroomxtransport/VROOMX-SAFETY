@@ -96,14 +96,14 @@ const userSchema = new mongoose.Schema({
   subscription: {
     plan: {
       type: String,
-      enum: ['free_trial', 'starter', 'professional'],
+      enum: ['free_trial', 'solo', 'fleet', 'pro', 'starter', 'professional'],
       default: 'free_trial'
     },
     stripeSubscriptionId: String,
     stripePriceId: String,
     status: {
       type: String,
-      enum: ['trialing', 'active', 'past_due', 'canceled', 'unpaid'],
+      enum: ['trialing', 'active', 'past_due', 'canceled', 'unpaid', 'pending_payment'],
       default: 'trialing'
     },
     currentPeriodStart: Date,
