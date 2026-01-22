@@ -12,14 +12,16 @@ const HeroSection = ({ heroTextIndex, heroTexts }) => {
           className="w-full h-full object-cover"
           alt="American Truck Background"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-white/50 via-white/30 to-transparent" />
+        {/* Frosted glass overlay on left half for text readability */}
+        <div className="absolute inset-y-0 left-0 w-[60%] bg-white/75 backdrop-blur-sm" />
+        <div className="absolute inset-y-0 left-[60%] w-[20%] bg-gradient-to-r from-white/75 to-transparent backdrop-blur-[2px]" />
       </div>
 
       <div className="max-w-7xl w-full grid lg:grid-cols-2 gap-16 items-center relative z-10">
         {/* Hero Text */}
         <div className="text-center lg:text-left order-2 lg:order-1">
           {/* Social Proof Badge */}
-          <div className="inline-flex items-center gap-3 mb-6 px-4 py-2 rounded-full bg-white/80 backdrop-blur-sm border border-[#E2E8F0] shadow-sm animate-fade-in-up">
+          <div className="inline-flex items-center gap-3 mb-6 px-4 py-2 rounded-full bg-white/90 border border-[#E2E8F0] shadow-sm animate-fade-in-up">
             <div className="flex -space-x-2">
               <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop&crop=face" className="w-8 h-8 rounded-full border-2 border-white" alt="" />
               <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=32&h=32&fit=crop&crop=face" className="w-8 h-8 rounded-full border-2 border-white" alt="" />
@@ -78,16 +80,16 @@ const HeroSection = ({ heroTextIndex, heroTexts }) => {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-5 justify-center lg:justify-start animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-            <Link
-              to="/register"
+            <a
+              href="#pricing"
               className="btn-glow px-8 py-4 rounded-xl font-bold text-white text-base tracking-wide flex items-center justify-center gap-3"
             >
-              Start Free Trial
+              Get Started
               <FiArrowRight className="w-5 h-5" />
-            </Link>
+            </a>
             <a
               href="#features"
-              className="px-8 py-4 rounded-xl font-bold text-primary-500 text-base tracking-wide border border-primary-500/30 bg-white hover:bg-primary-50 transition-all flex items-center justify-center gap-3 group"
+              className="px-8 py-4 rounded-xl font-bold text-primary-500 text-base tracking-wide border-2 border-primary-500/40 bg-white hover:bg-primary-50 transition-all flex items-center justify-center gap-3 group"
             >
               View Demo
               <FiPlay className="w-5 h-5 group-hover:translate-x-1 transition-transform text-primary-500" />

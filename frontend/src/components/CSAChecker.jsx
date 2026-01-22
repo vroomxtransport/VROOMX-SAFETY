@@ -223,11 +223,6 @@ const CSAChecker = () => {
             <span className="text-[10px] font-mono text-white uppercase tracking-wider">CSA Score Analyzer</span>
           </div>
           <div className="flex items-center gap-3">
-            {step === 'input' && (
-              <span className="text-[9px] font-mono text-white/80">
-                {stats.checksThisMonth.toLocaleString()} checked
-              </span>
-            )}
             {(step === 'loading' || step === 'generating') && (
               <span className="text-[9px] font-mono text-cta-300 data-pulse">SCANNING...</span>
             )}
@@ -248,7 +243,7 @@ const CSAChecker = () => {
           <div className="p-5">
             <form onSubmit={handleLookup}>
               <div className="text-center mb-4">
-                <p className="text-primary-500 font-semibold text-sm mb-1">
+                <p className="text-cta-500 font-bold text-base mb-1">
                   Are you on FMCSA's radar?
                 </p>
                 <p className="text-[#475569] text-xs">

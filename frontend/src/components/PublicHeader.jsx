@@ -53,9 +53,9 @@ const PublicHeader = ({ activePage = 'landing', variant = 'light' }) => {
         </div>
 
         {/* CTA Button */}
-        <Link to="/register" className="btn-glow px-6 py-2.5 rounded-lg font-bold text-white text-sm tracking-wide shadow-lg">
-          Start Free Trial
-        </Link>
+        <a href="#pricing" className="btn-glow px-6 py-2.5 rounded-lg font-bold text-white text-sm tracking-wide shadow-lg">
+          Get Started
+        </a>
       </div>
     </nav>
   );

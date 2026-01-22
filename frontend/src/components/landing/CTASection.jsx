@@ -12,13 +12,13 @@ const CTASection = () => {
         <p className="text-xl text-white/80 mb-10 max-w-xl mx-auto">
           Join hundreds of owner-operators and small fleets who trust VroomX to keep them FMCSA compliant.
         </p>
-        <Link
-          to="/register"
+        <a
+          href="#pricing"
           className="bg-cta-500 hover:bg-cta-600 px-12 py-5 rounded-full font-bold text-white text-lg inline-flex items-center gap-2 shadow-lg shadow-cta-500/30 transition-all hover:scale-105 mb-6"
         >
-          Start Free Trial
+          Get Started
           <FiArrowRight className="w-5 h-5" />
-        </Link>
+        </a>
         <div className="flex flex-wrap justify-center gap-6 text-sm text-white/70">
           <span className="flex items-center gap-2">
             <FiCheck className="w-4 h-4 text-cta-400" />

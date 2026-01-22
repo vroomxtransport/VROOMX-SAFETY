@@ -159,7 +159,8 @@ export const pricingPlans = [
       '100 AI queries/month'
     ],
     popular: false,
-    color: 'primary'
+    color: 'primary',
+    hasTrial: false
   },
   {
     name: 'Fleet',
@@ -177,7 +178,8 @@ export const pricingPlans = [
       'Priority Support'
     ],
     popular: true,
-    color: 'cta'
+    color: 'cta',
+    hasTrial: true
   },
   {
     name: 'Pro',
@@ -195,7 +197,8 @@ export const pricingPlans = [
       'Dedicated Support'
     ],
     popular: false,
-    color: 'primary'
+    color: 'primary',
+    hasTrial: true
   }
 ];
 

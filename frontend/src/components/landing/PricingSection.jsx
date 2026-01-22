@@ -56,6 +56,14 @@ const PricingSection = ({ isAnnual, setIsAnnual, pricingPlans, comparisonFeature
                   </span>
                   <span className={plan.popular ? 'text-white/70' : 'text-[#475569]'}>/mo</span>
                 </div>
+                {isAnnual && (
+                  <p className={`text-sm mt-1 ${plan.popular ? 'text-white/70' : 'text-[#475569]'}`}>
+                    Billed <span className="font-semibold">${plan.annualPrice * 12}/year</span>
+                    <span className={`line-through ml-2 ${plan.popular ? 'text-white/40' : 'text-[#94A3B8]'}`}>
+                      ${plan.monthlyPrice * 12}
+                    </span>
+                  </p>
+                )}
                 <p className={`text-sm mt-1 ${plan.popular ? 'text-white/60' : 'text-[#94A3B8]'}`}>
                   {plan.drivers}
                   {plan.extraDriver && <span className="block">{plan.extraDriver}</span>}
@@ -72,14 +80,14 @@ const PricingSection = ({ isAnnual, setIsAnnual, pricingPlans, comparisonFeature
               </ul>
 
               <Link
-                to="/register"
+                to={`/register${plan.hasTrial === false ? '?plan=solo' : ''}`}
                 className={`w-full py-4 rounded-xl font-bold text-center block transition-all hover:scale-[1.02] ${
                   plan.popular
                     ? 'bg-cta-500 hover:bg-cta-600 text-white shadow-lg shadow-cta-500/30'
                     : 'btn-glow text-white'
                 }`}
               >
-                Start Free Trial
+                {plan.hasTrial === false ? 'Register Now' : 'Start 3-Day Free Trial'}
               </Link>
             </div>
           ))}

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import {
@@ -27,6 +27,9 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const selectedPlan = searchParams.get('plan');
+  const isSoloPlan = selectedPlan === 'solo';
 
   // FMCSA lookup state
   const [dotLookupStatus, setDotLookupStatus] = useState('idle'); // idle, loading, verified, not_found, error
@@ -194,7 +197,7 @@ const Register = () => {
         {/* Hero Text */}
         <div className="text-center mb-6 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
           <h1 className="text-3xl md:text-4xl font-bold text-primary-500 mb-3 font-heading tracking-tight">
-            Start Your Free Trial
+            {isSoloPlan ? 'Create Your Account' : 'Start Your 3-Day Free Trial'}
           </h1>
           <p className="text-[#475569] text-lg max-w-lg mx-auto">
             Join 500+ carriers managing their FMCSA compliance with VroomX Safety
@@ -203,11 +206,15 @@ const Register = () => {
 
         {/* Benefits Pills */}
         <div className="flex flex-wrap justify-center gap-3 mb-8 animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
-          {[
+          {(isSoloPlan ? [
+            { icon: FiCheckCircle, text: 'Solo Plan - $19/mo' },
+            { icon: FiClock, text: 'Setup in 5 minutes' },
+            { icon: FiAward, text: 'Full access immediately' },
+          ] : [
             { icon: FiCheckCircle, text: 'No credit card required' },
             { icon: FiClock, text: 'Setup in 5 minutes' },
             { icon: FiAward, text: '3-day free trial' },
-          ].map((item, i) => (
+          ]).map((item, i) => (
             <div
               key={i}
               className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full border border-[#E2E8F0] text-sm text-[#475569]"

@@ -292,10 +292,10 @@ const Landing = () => {
                   </div>
                 ))}
               </div>
-              <Link to="/register" className="btn-glow inline-flex items-center gap-3 px-8 py-4 rounded-xl font-bold text-white text-base">
-                Start Free Trial
+              <a href="#pricing" className="btn-glow inline-flex items-center gap-3 px-8 py-4 rounded-xl font-bold text-white text-base">
+                Get Started
                 <FiArrowRight className="w-5 h-5" />
-              </Link>
+              </a>
             </div>
 
             {/* Chat Demo */}
