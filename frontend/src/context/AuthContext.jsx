@@ -35,12 +35,13 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
       setCompanies(userData.companies || []);
       setActiveCompany(userData.activeCompany || userData.company);
+      console.log('fetchUser - subscription from backend:', userData.subscription);
       setSubscription({
-        plan: userData.subscription?.plan || 'free_trial',
-        status: userData.subscription?.status || 'trialing',
-        trialEndsAt: userData.subscription?.trialEndsAt,
+        plan: userData.subscription?.plan || null,
+        status: userData.subscription?.status || null,
+        trialEndsAt: userData.subscription?.trialEndsAt || null,
         trialDaysRemaining: userData.subscription?.trialDaysRemaining || 0,
-        currentPeriodEnd: userData.subscription?.currentPeriodEnd,
+        currentPeriodEnd: userData.subscription?.currentPeriodEnd || null,
         cancelAtPeriodEnd: userData.subscription?.cancelAtPeriodEnd || false,
         limits: userData.limits,
         usage: userData.usage
@@ -63,12 +64,13 @@ export const AuthProvider = ({ children }) => {
     setUser(userData);
     setCompanies(userData.companies || []);
     setActiveCompany(userData.activeCompany || userData.company);
+    console.log('login - subscription from backend:', userData.subscription);
     setSubscription({
-      plan: userData.subscription?.plan || 'free_trial',
-      status: userData.subscription?.status || 'trialing',
-      trialEndsAt: userData.subscription?.trialEndsAt,
+      plan: userData.subscription?.plan || null,
+      status: userData.subscription?.status || null,
+      trialEndsAt: userData.subscription?.trialEndsAt || null,
       trialDaysRemaining: userData.subscription?.trialDaysRemaining || 0,
-      currentPeriodEnd: userData.subscription?.currentPeriodEnd,
+      currentPeriodEnd: userData.subscription?.currentPeriodEnd || null,
       cancelAtPeriodEnd: userData.subscription?.cancelAtPeriodEnd || false,
       limits: userData.limits
     });
@@ -91,10 +93,11 @@ export const AuthProvider = ({ children }) => {
     setUser(userData);
     setCompanies(userData.companies || []);
     setActiveCompany(userData.activeCompany || userData.company);
+    console.log('register - subscription from backend:', userData.subscription);
     setSubscription({
-      plan: userData.subscription?.plan || 'free_trial',
-      status: userData.subscription?.status || 'trialing',
-      trialEndsAt: userData.subscription?.trialEndsAt,
+      plan: userData.subscription?.plan || null,
+      status: userData.subscription?.status || null,
+      trialEndsAt: userData.subscription?.trialEndsAt || null,
       trialDaysRemaining: userData.subscription?.trialDaysRemaining || 0,
       limits: userData.limits
     });
