@@ -253,16 +253,22 @@ const fmcsaService = {
     if (!browserInstance || !browserInstance.isConnected()) {
       console.log('[FMCSA] Launching Puppeteer browser...');
 
-      // Check if we're in development (local) or production (cloud)
-      const isLocal = process.env.NODE_ENV === 'development' ||
-                      process.env.PUPPETEER_EXECUTABLE_PATH ||
-                      process.platform === 'darwin'; // macOS
+      // Check if we're in a cloud environment (Render sets RENDER=true)
+      // Also check for common cloud indicators
+      const isCloud = process.env.RENDER === 'true' ||
+                      process.env.AWS_LAMBDA_FUNCTION_NAME ||
+                      process.env.VERCEL ||
+                      process.env.NODE_ENV === 'production';
+
+      // Explicitly set local if user provides a path
+      const isLocal = process.env.PUPPETEER_EXECUTABLE_PATH ||
+                      (!isCloud && process.env.NODE_ENV === 'development');
 
       let executablePath;
       let args;
 
       if (isLocal) {
-        // Local development - use system Chrome or let puppeteer find it
+        // Local development - use system Chrome
         executablePath = process.env.PUPPETEER_EXECUTABLE_PATH ||
           '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
         args = [
@@ -274,18 +280,38 @@ const fmcsaService = {
         console.log('[FMCSA] Using local Chrome:', executablePath);
       } else {
         // Cloud environment - use chromium-min
-        console.log('[FMCSA] Downloading Chromium for cloud environment...');
-        executablePath = await chromium.executablePath(CHROMIUM_URL);
-        args = chromium.args;
-        console.log('[FMCSA] Chromium path:', executablePath);
+        console.log('[FMCSA] Cloud environment detected, downloading Chromium...');
+        console.log('[FMCSA] Environment: RENDER=' + process.env.RENDER + ', NODE_ENV=' + process.env.NODE_ENV);
+
+        try {
+          executablePath = await chromium.executablePath(CHROMIUM_URL);
+          console.log('[FMCSA] Chromium downloaded to:', executablePath);
+        } catch (dlError) {
+          console.error('[FMCSA] Failed to download Chromium:', dlError.message);
+          throw new Error('Chromium download failed: ' + dlError.message);
+        }
+
+        args = [
+          ...chromium.args,
+          '--disable-gpu',
+          '--disable-dev-shm-usage',
+          '--single-process'  // Important for cloud environments with limited resources
+        ];
       }
 
-      browserInstance = await puppeteer.launch({
-        args,
-        defaultViewport: { width: 1920, height: 1080 },
-        executablePath,
-        headless: true
-      });
+      try {
+        browserInstance = await puppeteer.launch({
+          args,
+          defaultViewport: chromium.defaultViewport || { width: 1920, height: 1080 },
+          executablePath,
+          headless: chromium.headless ?? true,
+          ignoreHTTPSErrors: true
+        });
+        console.log('[FMCSA] Browser launched successfully');
+      } catch (launchError) {
+        console.error('[FMCSA] Browser launch failed:', launchError.message);
+        throw new Error('Browser launch failed: ' + launchError.message);
+      }
     }
     return browserInstance;
   },
@@ -296,6 +322,7 @@ const fmcsaService = {
    */
   async fetchCSAScores(dotNumber) {
     let page = null;
+    let browser = null;
 
     // BASIC pages to scrape - each has data-percentile attribute
     const basicPages = [
@@ -310,8 +337,10 @@ const fmcsaService = {
     try {
       console.log(`[FMCSA] Fetching CSA scores for DOT ${dotNumber} via Puppeteer...`);
 
-      const browser = await this.getBrowser();
+      browser = await this.getBrowser();
+      console.log('[FMCSA] Got browser instance, creating new page...');
       page = await browser.newPage();
+      console.log('[FMCSA] New page created successfully');
 
       // Set viewport and user agent
       await page.setViewport({ width: 1920, height: 1080 });
@@ -406,10 +435,31 @@ const fmcsaService = {
 
     } catch (error) {
       console.error('[FMCSA] Error fetching SMS scores with Puppeteer:', error.message);
-      return null;
+      console.error('[FMCSA] Full error stack:', error.stack);
+
+      // Return fallback structure instead of null so the rest of the data still works
+      return {
+        basics: {
+          unsafeDriving: null,
+          hosCompliance: null,
+          vehicleMaintenance: null,
+          crashIndicator: null,
+          controlledSubstances: null,
+          hazmatCompliance: null,
+          driverFitness: null
+        },
+        inspections: { total: 0, last24Months: 0 },
+        crashes: { total: 0, last24Months: 0 },
+        error: error.message
+      };
     } finally {
       if (page) {
         await page.close().catch(() => {});
+      }
+      // Close browser after each request in cloud to free resources
+      if (browserInstance && process.env.RENDER === 'true') {
+        await browserInstance.close().catch(() => {});
+        browserInstance = null;
       }
     }
   },
