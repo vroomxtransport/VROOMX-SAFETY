@@ -4,9 +4,10 @@ import { billingAPI } from '../utils/api';
 import toast from 'react-hot-toast';
 import {
   FiCreditCard, FiCheck, FiX, FiStar, FiTruck, FiUsers, FiBriefcase,
-  FiArrowRight, FiZap, FiShield, FiExternalLink, FiAlertCircle
+  FiArrowRight, FiZap, FiShield, FiExternalLink, FiAlertCircle, FiUser
 } from 'react-icons/fi';
 import LoadingSpinner from '../components/LoadingSpinner';
+import VroomXLogo from '../components/VroomXLogo';
 
 const Billing = () => {
   const { subscription, refreshUser } = useAuth();
@@ -99,6 +100,8 @@ const Billing = () => {
         return FiZap;
       case 'starter':
         return FiStar;
+      case 'solo':
+        return FiUser;
       default:
         return FiShield;
     }
@@ -121,12 +124,115 @@ const Billing = () => {
 
   const PlanIcon = getPlanIcon(subscription?.plan);
 
+  // Special view for pending_payment users (Solo tier who need to pay)
+  if (subscription?.status === 'pending_payment') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 to-white flex items-center justify-center p-4">
+        <div className="max-w-md w-full">
+          {/* Logo */}
+          <div className="text-center mb-8">
+            <VroomXLogo size="lg" showText={true} animate={true} className="mx-auto" />
+          </div>
+
+          {/* Payment Required Card */}
+          <div className="bg-white rounded-2xl border border-primary-200 shadow-xl p-8">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 rounded-full bg-warning-100 flex items-center justify-center mx-auto mb-4">
+                <FiAlertCircle className="w-8 h-8 text-warning-600" />
+              </div>
+              <h1 className="text-2xl font-bold text-primary-900 mb-2">Complete Your Subscription</h1>
+              <p className="text-primary-500">
+                Activate your Solo plan to start managing your compliance
+              </p>
+            </div>
+
+            {/* Solo Plan Details */}
+            <div className="bg-primary-50 rounded-xl p-6 mb-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center">
+                  <FiUser className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-primary-900">Solo Plan</h3>
+                  <p className="text-sm text-primary-500">Perfect for Owner-Operators</p>
+                </div>
+              </div>
+
+              <div className="flex items-baseline gap-1 mb-4">
+                <span className="text-4xl font-bold text-primary-900">$19</span>
+                <span className="text-primary-500">/month</span>
+              </div>
+
+              <ul className="space-y-2">
+                <li className="flex items-center gap-2 text-sm text-primary-700">
+                  <FiCheck className="w-4 h-4 text-success-500" />
+                  1 Driver (You)
+                </li>
+                <li className="flex items-center gap-2 text-sm text-primary-700">
+                  <FiCheck className="w-4 h-4 text-success-500" />
+                  1 Vehicle
+                </li>
+                <li className="flex items-center gap-2 text-sm text-primary-700">
+                  <FiCheck className="w-4 h-4 text-success-500" />
+                  Full DQF Management
+                </li>
+                <li className="flex items-center gap-2 text-sm text-primary-700">
+                  <FiCheck className="w-4 h-4 text-success-500" />
+                  CSA Score Tracking
+                </li>
+                <li className="flex items-center gap-2 text-sm text-primary-700">
+                  <FiCheck className="w-4 h-4 text-success-500" />
+                  Violation Tracking
+                </li>
+                <li className="flex items-center gap-2 text-sm text-primary-700">
+                  <FiCheck className="w-4 h-4 text-success-500" />
+                  Document Management
+                </li>
+              </ul>
+            </div>
+
+            {/* Payment Button */}
+            <button
+              onClick={() => handleSubscribe('solo')}
+              disabled={loading}
+              className="w-full py-4 px-6 rounded-xl font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary-500/25"
+            >
+              {loading ? (
+                <LoadingSpinner size="sm" />
+              ) : (
+                <>
+                  <FiCreditCard className="w-5 h-5" />
+                  Subscribe Now - $19/month
+                  <FiArrowRight className="w-5 h-5" />
+                </>
+              )}
+            </button>
+
+            <p className="text-xs text-center text-primary-400 mt-4">
+              Secure payment powered by Stripe. Cancel anytime.
+            </p>
+          </div>
+
+          {/* Need more capacity? */}
+          <div className="text-center mt-6">
+            <p className="text-sm text-primary-500">
+              Need more drivers or vehicles?{' '}
+              <a href="/register" className="text-primary-600 hover:text-primary-700 font-medium">
+                Check our Fleet plans
+              </a>
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-6xl mx-auto">
       {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-primary-900">Billing & Subscription</h1>
-        <p className="text-primary-500 text-sm mt-1">Manage your subscription plan and billing details</p>
+        <h1 className="text-2xl font-bold text-primary-900 dark:text-white">Billing & Subscription</h1>
+        <p className="text-primary-500 dark:text-zinc-400 text-sm mt-1">Manage your subscription plan and billing details</p>
       </div>
 
       {/* Current Subscription Card */}

@@ -7,6 +7,26 @@ const { asyncHandler, AppError } = require('../middleware/errorHandler');
 
 // Price configuration for display
 const PRICING = {
+  solo: {
+    name: 'Solo',
+    price: 19,
+    priceId: process.env.STRIPE_SOLO_PRICE_ID,
+    features: [
+      '1 Company',
+      '1 Driver',
+      '1 Vehicle',
+      'Full DQF Management',
+      'CSA Score Tracking',
+      'Violation Tracking',
+      'Document Management',
+      'Email Support'
+    ],
+    limits: {
+      maxCompanies: 1,
+      maxDriversPerCompany: 1,
+      maxVehiclesPerCompany: 1
+    }
+  },
   starter: {
     name: 'Starter',
     price: 29,
@@ -103,7 +123,7 @@ router.get('/subscription', protect, asyncHandler(async (req, res) => {
 router.post('/create-checkout-session', protect, asyncHandler(async (req, res) => {
   const { plan } = req.body;
 
-  if (!['starter', 'professional'].includes(plan)) {
+  if (!['solo', 'starter', 'professional'].includes(plan)) {
     throw new AppError('Invalid plan selected', 400);
   }
 

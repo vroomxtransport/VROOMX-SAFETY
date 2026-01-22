@@ -12,12 +12,19 @@ if (!STRIPE_ENABLED) {
 
 // Price IDs from environment
 const PRICE_IDS = {
+  solo: process.env.STRIPE_SOLO_PRICE_ID,
   starter: process.env.STRIPE_STARTER_PRICE_ID,
   professional: process.env.STRIPE_PROFESSIONAL_PRICE_ID
 };
 
 // Plan metadata mapping
 const PLAN_METADATA = {
+  solo: {
+    plan: 'solo',
+    maxCompanies: 1,
+    maxDriversPerCompany: 1,
+    maxVehiclesPerCompany: 1
+  },
   starter: {
     plan: 'starter',
     maxCompanies: 1,
@@ -344,6 +351,7 @@ const stripeService = {
    * Get plan name from Stripe price ID
    */
   getPlanFromPriceId(priceId) {
+    if (priceId === PRICE_IDS.solo) return 'solo';
     if (priceId === PRICE_IDS.starter) return 'starter';
     if (priceId === PRICE_IDS.professional) return 'professional';
     return 'free_trial';

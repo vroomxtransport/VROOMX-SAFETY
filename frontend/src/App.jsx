@@ -26,8 +26,8 @@ import LoadingSpinner from './components/LoadingSpinner';
 import ChatWidget from './components/AIChat/ChatWidget';
 
 // Protected route wrapper
-const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+const ProtectedRoute = ({ children, allowPendingPayment = false }) => {
+  const { isAuthenticated, loading, subscription } = useAuth();
 
   if (loading) {
     return (
@@ -39,6 +39,11 @@ const ProtectedRoute = ({ children }) => {
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  // Block users with pending_payment (Solo tier unpaid) unless explicitly allowed
+  if (!allowPendingPayment && subscription?.status === 'pending_payment') {
+    return <Navigate to="/app/billing" replace />;
   }
 
   return children;
@@ -107,7 +112,19 @@ function App() {
       {/* Blog - public, accessible to everyone */}
       <Route path="/blog" element={<Blog />} />
 
-      {/* Protected routes */}
+      {/* Billing route - allows pending_payment users */}
+      <Route
+        path="/app/billing"
+        element={
+          <ProtectedRoute allowPendingPayment={true}>
+            <Layout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Billing />} />
+      </Route>
+
+      {/* Protected routes - blocks pending_payment users */}
       <Route
         path="/app"
         element={
@@ -130,7 +147,6 @@ function App() {
         <Route path="compliance" element={<Compliance />} />
         <Route path="reports" element={<Reports />} />
         <Route path="settings" element={<Settings />} />
-        <Route path="billing" element={<Billing />} />
         <Route path="ai-assistant" element={<RegulationAssistant />} />
         <Route path="alerts" element={<AlertsDashboard />} />
         <Route path="csa-estimator" element={<Navigate to="/app/compliance" replace />} />
