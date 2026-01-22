@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.2",
+    "@sparticuz/chromium-min": "^143.0.4",
     "bcryptjs": "^2.4.3",
     "cheerio": "^1.1.2",
     "cors": "^2.8.5",
@@ -29,7 +30,7 @@
     "node-cron": "^3.0.3",
     "nodemailer": "^6.9.7",
     "openai": "^6.16.0",
-    "puppeteer": "^24.35.0",
+    "puppeteer-core": "^24.35.0",
     "stripe": "^20.2.0",
     "uuid": "^9.0.1"
   },

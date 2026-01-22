@@ -7,10 +7,14 @@
 
 const cheerio = require('cheerio');
 const NodeCache = require('node-cache');
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
+const chromium = require('@sparticuz/chromium-min');
 
 // Browser instance for reuse
 let browserInstance = null;
+
+// Chromium download URL for cloud environments
+const CHROMIUM_URL = 'https://github.com/nickadam/chromium-for-aws-lambda/releases/download/chromium-124/chromium.zip';
 
 // Cache FMCSA data for 6 hours (data updates weekly anyway)
 const cache = new NodeCache({ stdTTL: 21600, checkperiod: 600 });
@@ -243,20 +247,44 @@ const fmcsaService = {
 
   /**
    * Get or create browser instance for Puppeteer
+   * Uses @sparticuz/chromium-min for cloud environments (Render, Lambda, etc.)
    */
   async getBrowser() {
     if (!browserInstance || !browserInstance.isConnected()) {
       console.log('[FMCSA] Launching Puppeteer browser...');
-      browserInstance = await puppeteer.launch({
-        headless: 'new',
-        args: [
+
+      // Check if we're in development (local) or production (cloud)
+      const isLocal = process.env.NODE_ENV === 'development' ||
+                      process.env.PUPPETEER_EXECUTABLE_PATH ||
+                      process.platform === 'darwin'; // macOS
+
+      let executablePath;
+      let args;
+
+      if (isLocal) {
+        // Local development - use system Chrome or let puppeteer find it
+        executablePath = process.env.PUPPETEER_EXECUTABLE_PATH ||
+          '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+        args = [
           '--no-sandbox',
           '--disable-setuid-sandbox',
           '--disable-dev-shm-usage',
-          '--disable-accelerated-2d-canvas',
-          '--disable-gpu',
-          '--window-size=1920,1080'
-        ]
+          '--disable-gpu'
+        ];
+        console.log('[FMCSA] Using local Chrome:', executablePath);
+      } else {
+        // Cloud environment - use chromium-min
+        console.log('[FMCSA] Downloading Chromium for cloud environment...');
+        executablePath = await chromium.executablePath(CHROMIUM_URL);
+        args = chromium.args;
+        console.log('[FMCSA] Chromium path:', executablePath);
+      }
+
+      browserInstance = await puppeteer.launch({
+        args,
+        defaultViewport: { width: 1920, height: 1080 },
+        executablePath,
+        headless: true
       });
     }
     return browserInstance;
