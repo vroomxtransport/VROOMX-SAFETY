@@ -186,7 +186,8 @@ const Landing = () => {
           {/* Spreadsheet Chaos Mockup */}
           <div className="relative group">
             <div className="absolute inset-0 bg-gradient-to-tr from-primary-500/10 to-cta-500/10 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-500" />
-            <div className="bg-black/80 backdrop-blur-xl rounded-2xl overflow-hidden relative border border-white/10 shadow-2xl">
+            <div className="bg-white rounded-2xl overflow-hidden relative border border-[#E2E8F0] shadow-2xl">
+              {/* Excel Title Bar */}
               <div className="bg-[#217346] px-3 py-2 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="flex gap-1.5">
@@ -198,6 +199,57 @@ const Landing = () => {
                 </div>
                 <div className="text-red-400 text-[9px] font-medium animate-pulse">⚠️ Last saved: 6 months ago</div>
               </div>
+
+              {/* Excel Ribbon */}
+              <div className="bg-[#f3f3f3] px-2 py-1 border-b border-[#d4d4d4] flex items-center gap-4">
+                <span className="text-[9px] text-[#217346] font-semibold">File</span>
+                <span className="text-[9px] text-gray-600">Home</span>
+                <span className="text-[9px] text-gray-600">Insert</span>
+                <span className="text-[9px] text-gray-600">Data</span>
+              </div>
+
+              {/* Spreadsheet Grid */}
+              <div className="bg-white text-[9px] font-mono">
+                {/* Header Row */}
+                <div className="grid grid-cols-5 border-b border-[#d4d4d4] bg-[#f8f8f8]">
+                  <div className="p-1.5 border-r border-[#d4d4d4] font-semibold text-gray-700">Driver</div>
+                  <div className="p-1.5 border-r border-[#d4d4d4] font-semibold text-gray-700">CDL Exp</div>
+                  <div className="p-1.5 border-r border-[#d4d4d4] font-semibold text-gray-700">Med Card</div>
+                  <div className="p-1.5 border-r border-[#d4d4d4] font-semibold text-gray-700">MVR</div>
+                  <div className="p-1.5 font-semibold text-gray-700">Status</div>
+                </div>
+                {/* Data Rows */}
+                <div className="grid grid-cols-5 border-b border-[#e5e5e5]">
+                  <div className="p-1.5 border-r border-[#e5e5e5] text-gray-800">J. Smith</div>
+                  <div className="p-1.5 border-r border-[#e5e5e5] text-red-600 bg-red-50 font-semibold">EXPIRED</div>
+                  <div className="p-1.5 border-r border-[#e5e5e5] text-amber-600 bg-amber-50">12/15/24</div>
+                  <div className="p-1.5 border-r border-[#e5e5e5] text-red-600 bg-red-50">MISSING!</div>
+                  <div className="p-1.5 text-red-600 font-semibold">⚠️ OOS</div>
+                </div>
+                <div className="grid grid-cols-5 border-b border-[#e5e5e5]">
+                  <div className="p-1.5 border-r border-[#e5e5e5] text-gray-800">M. Johnson</div>
+                  <div className="p-1.5 border-r border-[#e5e5e5] text-gray-600">03/22/26</div>
+                  <div className="p-1.5 border-r border-[#e5e5e5] text-red-600 bg-red-50 font-semibold">EXPIRED</div>
+                  <div className="p-1.5 border-r border-[#e5e5e5] text-gray-600">08/10/24</div>
+                  <div className="p-1.5 text-amber-600">⚠️ Check</div>
+                </div>
+                <div className="grid grid-cols-5 border-b border-[#e5e5e5]">
+                  <div className="p-1.5 border-r border-[#e5e5e5] text-gray-800">R. Davis</div>
+                  <div className="p-1.5 border-r border-[#e5e5e5] text-amber-600 bg-amber-50">01/30/25</div>
+                  <div className="p-1.5 border-r border-[#e5e5e5] text-gray-600">06/18/25</div>
+                  <div className="p-1.5 border-r border-[#e5e5e5] text-red-600 bg-red-50">MISSING!</div>
+                  <div className="p-1.5 text-gray-600">Active</div>
+                </div>
+                <div className="grid grid-cols-5 border-b border-[#e5e5e5]">
+                  <div className="p-1.5 border-r border-[#e5e5e5] text-gray-800">T. Wilson</div>
+                  <div className="p-1.5 border-r border-[#e5e5e5] text-gray-400 italic">???</div>
+                  <div className="p-1.5 border-r border-[#e5e5e5] text-gray-400 italic">???</div>
+                  <div className="p-1.5 border-r border-[#e5e5e5] text-gray-400 italic">???</div>
+                  <div className="p-1.5 text-gray-400 italic">Unknown</div>
+                </div>
+              </div>
+
+              {/* Error Bar */}
               <div className="bg-[#c42b1c] px-3 py-1.5 flex items-center justify-between">
                 <span className="text-[8px] text-white font-medium">⚠️ 12 ERRORS • AUDIT IN 3 DAYS!! • WHERE IS J.SMITH MVR???</span>
                 <span className="text-[8px] text-white/60 animate-pulse">Not responding...</span>

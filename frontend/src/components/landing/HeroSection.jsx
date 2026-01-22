@@ -44,9 +44,19 @@ const HeroSection = ({ heroTextIndex, heroTexts }) => {
             </span>
           </h1>
 
-          <p className="text-[#475569] text-lg md:text-xl max-w-xl mb-8 leading-relaxed animate-fade-in-up mx-auto lg:mx-0" style={{ animationDelay: '0.1s' }}>
-            The all-in-one platform for 49 CFR requirements. Track DQF files, maintenance, and SMS BASICs with
+          <p className="text-[#1E293B] text-lg md:text-xl max-w-2xl mb-4 leading-relaxed font-medium animate-fade-in-up mx-auto lg:mx-0" style={{ animationDelay: '0.1s' }}>
+            The all-in-one platform for 49 CFR compliance. Track DQF files, maintenance, and SMS BASICs with
             predictive alerts that keep you off the radar.
+          </p>
+
+          <p className="text-[#1E293B] text-lg md:text-xl max-w-2xl mb-4 leading-relaxed animate-fade-in-up mx-auto lg:mx-0" style={{ animationDelay: '0.12s' }}>
+            <span className="text-cta-500 font-semibold">Avoid failed audits</span>,{' '}
+            <span className="text-primary-500 font-semibold">spot missing documents</span>, and{' '}
+            <span className="font-semibold">stay FMCSA-ready</span>.
+          </p>
+
+          <p className="text-[#475569] text-base md:text-lg max-w-xl mb-8 italic animate-fade-in-up mx-auto lg:mx-0" style={{ animationDelay: '0.14s' }}>
+            We empower small carriers to take control of compliance — not outsource it.
           </p>
 
           {/* Stats inline */}
