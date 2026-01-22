@@ -8,13 +8,10 @@
 const cheerio = require('cheerio');
 const NodeCache = require('node-cache');
 const puppeteer = require('puppeteer-core');
-const chromium = require('@sparticuz/chromium-min');
+const chromium = require('@sparticuz/chromium');
 
 // Browser instance for reuse
 let browserInstance = null;
-
-// Chromium download URL for cloud environments
-const CHROMIUM_URL = 'https://github.com/nickadam/chromium-for-aws-lambda/releases/download/chromium-124/chromium.zip';
 
 // Cache FMCSA data for 6 hours (data updates weekly anyway)
 const cache = new NodeCache({ stdTTL: 21600, checkperiod: 600 });
@@ -279,23 +276,24 @@ const fmcsaService = {
         ];
         console.log('[FMCSA] Using local Chrome:', executablePath);
       } else {
-        // Cloud environment - use chromium-min
-        console.log('[FMCSA] Cloud environment detected, downloading Chromium...');
+        // Cloud environment - use @sparticuz/chromium (includes bundled binary)
+        console.log('[FMCSA] Cloud environment detected, using bundled Chromium...');
         console.log('[FMCSA] Environment: RENDER=' + process.env.RENDER + ', NODE_ENV=' + process.env.NODE_ENV);
 
         try {
-          executablePath = await chromium.executablePath(CHROMIUM_URL);
-          console.log('[FMCSA] Chromium downloaded to:', executablePath);
-        } catch (dlError) {
-          console.error('[FMCSA] Failed to download Chromium:', dlError.message);
-          throw new Error('Chromium download failed: ' + dlError.message);
+          executablePath = await chromium.executablePath();
+          console.log('[FMCSA] Chromium path:', executablePath);
+        } catch (pathError) {
+          console.error('[FMCSA] Failed to get Chromium path:', pathError.message);
+          throw new Error('Chromium path error: ' + pathError.message);
         }
 
         args = [
           ...chromium.args,
           '--disable-gpu',
           '--disable-dev-shm-usage',
-          '--single-process'  // Important for cloud environments with limited resources
+          '--single-process',  // Important for cloud environments with limited resources
+          '--no-zygote'        // Helps with memory on constrained environments
         ];
       }
 
