@@ -690,4 +690,35 @@ router.delete('/', async (req, res) => {
   }
 });
 
+// DELETE /api/seed/all - Clear ALL data (users, companies, everything)
+router.delete('/all', async (req, res) => {
+  try {
+    const results = await Promise.all([
+      User.deleteMany({}),
+      Company.deleteMany({}),
+      Driver.deleteMany({}),
+      Vehicle.deleteMany({}),
+      Violation.deleteMany({}),
+      DrugAlcoholTest.deleteMany({}),
+      Ticket.deleteMany({})
+    ]);
+
+    res.json({
+      success: true,
+      message: 'All data cleared',
+      deleted: {
+        users: results[0].deletedCount,
+        companies: results[1].deletedCount,
+        drivers: results[2].deletedCount,
+        vehicles: results[3].deletedCount,
+        violations: results[4].deletedCount,
+        drugAlcoholTests: results[5].deletedCount,
+        tickets: results[6].deletedCount
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to clear all data', details: error.message });
+  }
+});
+
 module.exports = router;
