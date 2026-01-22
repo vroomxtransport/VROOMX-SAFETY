@@ -99,8 +99,10 @@ const stripeService = {
   async createCheckoutSession(user, planType) {
     try {
       const priceId = PRICE_IDS[planType];
+      console.log(`createCheckoutSession: planType=${planType}, priceId=${priceId}`);
+      console.log('Available PRICE_IDS:', JSON.stringify(PRICE_IDS));
       if (!priceId) {
-        throw new Error(`Invalid plan type: ${planType}`);
+        throw new Error(`Invalid plan type or missing price ID: ${planType}. Available: ${Object.keys(PRICE_IDS).filter(k => PRICE_IDS[k]).join(', ')}`);
       }
 
       // Ensure user has a Stripe customer ID
