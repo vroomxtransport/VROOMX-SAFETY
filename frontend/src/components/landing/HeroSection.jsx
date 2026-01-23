@@ -9,7 +9,7 @@ const HeroSection = ({ heroTextIndex, heroTexts }) => {
       <div className="absolute inset-0 z-0">
         <img
           src="https://images.pexels.com/photos/93398/pexels-photo-93398.jpeg?auto=compress&cs=tinysrgb&w=1920"
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover object-[center_70%]"
           alt="American Truck Background"
         />
         {/* Frosted glass overlay on left half for text readability */}
