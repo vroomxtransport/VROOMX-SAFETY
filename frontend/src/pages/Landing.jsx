@@ -235,9 +235,6 @@ const Landing = () => {
       {/* Features Section */}
       <FeaturesSection features={features} />
 
-      {/* Testimonials Section */}
-      <TestimonialsSection testimonials={testimonials} />
-
       {/* Pricing Section */}
       <PricingSection
         isAnnual={isAnnual}
@@ -245,6 +242,9 @@ const Landing = () => {
         pricingPlans={pricingPlans}
         comparisonFeatures={comparisonFeatures}
       />
+
+      {/* Testimonials Section */}
+      <TestimonialsSection testimonials={testimonials} />
 
       {/* FAQ Section */}
       <FAQSection faqData={faqData} openFaq={openFaq} setOpenFaq={setOpenFaq} />
