@@ -246,7 +246,7 @@ const CSAChecker = () => {
                 <p className="text-cta-500 font-bold text-base mb-1">
                   Are you on FMCSA's radar?
                 </p>
-                <p className="text-zinc-600 dark:text-zinc-300 text-xs">
+                <p className="text-zinc-700 text-xs font-semibold">
                   High BASICs = audits, fines & lost contracts
                 </p>
               </div>
@@ -283,12 +283,12 @@ const CSAChecker = () => {
               </button>
 
               {/* Trust Badges with Social Proof */}
-              <div className="mt-4 flex items-center justify-center gap-2 text-[10px] text-zinc-600 dark:text-zinc-300">
+              <div className="mt-4 flex items-center justify-center gap-2 text-[11px] text-zinc-700 font-semibold">
                 <span>100% Free</span>
-                <span className="text-zinc-400 dark:text-zinc-400">·</span>
+                <span className="text-zinc-400 font-normal">·</span>
                 <span>30 seconds</span>
-                <span className="text-zinc-400 dark:text-zinc-400">·</span>
-                <span className="text-cta-500 font-medium">{stats.checksThisMonth.toLocaleString()} carriers checked</span>
+                <span className="text-zinc-400 font-normal">·</span>
+                <span className="text-cta-500 font-bold">{stats.checksThisMonth.toLocaleString()} carriers checked</span>
               </div>
             </form>
           </div>
