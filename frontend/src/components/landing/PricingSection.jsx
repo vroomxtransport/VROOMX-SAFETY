@@ -1,15 +1,22 @@
 import { Link } from 'react-router-dom';
 import { FiCheck, FiX } from 'react-icons/fi';
+import useInView from '../../hooks/useInView';
 
 const PricingSection = ({ isAnnual, setIsAnnual, pricingPlans, comparisonFeatures }) => {
+  const [headerRef, headerInView] = useInView({ threshold: 0.3 });
+  const [cardsRef, cardsInView] = useInView({ threshold: 0.1 });
+
   return (
     <section id="pricing" className="py-24 px-6 md:px-16 relative z-10">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center max-w-3xl mx-auto mb-12">
+        <div
+          ref={headerRef}
+          className={`text-center max-w-3xl mx-auto mb-12 transition-all duration-700 ${headerInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+        >
           <h2 className="text-3xl md:text-5xl font-heading font-bold text-primary-500 mb-4">
             Simple, Transparent <span className="text-transparent bg-clip-text bg-gradient-to-r from-cta-500 to-cta-600">Pricing</span>
           </h2>
-          <p className="text-lg text-zinc-600 dark:text-zinc-300 mb-8">
+          <p className="text-lg text-zinc-600 mb-8">
             No hidden fees. No long contracts. Cancel anytime.
           </p>
 
@@ -31,15 +38,16 @@ const PricingSection = ({ isAnnual, setIsAnnual, pricingPlans, comparisonFeature
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+        <div ref={cardsRef} className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {pricingPlans.map((plan, i) => (
             <div
               key={i}
-              className={`relative p-8 rounded-3xl overflow-hidden transition-all ${
+              className={`relative p-8 rounded-3xl overflow-hidden transition-all duration-500 ${
                 plan.popular
                   ? 'bg-primary-500 text-white shadow-xl shadow-primary-500/20 scale-105 z-10'
                   : 'bg-white border border-[#E2E8F0] hover:border-primary-500/30 hover:shadow-lg'
-              }`}
+              } ${cardsInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+              style={{ transitionDelay: cardsInView ? `${i * 150}ms` : '0ms' }}
             >
               {plan.popular && (
                 <div className="absolute top-0 right-0 bg-cta-500 px-4 py-1 rounded-bl-xl text-xs font-bold text-white uppercase tracking-wider">

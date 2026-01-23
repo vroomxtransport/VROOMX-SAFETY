@@ -1,21 +1,29 @@
 import { FiChevronDown } from 'react-icons/fi';
+import useInView from '../../hooks/useInView';
 
 const FAQSection = ({ faqData, openFaq, setOpenFaq }) => {
+  const [headerRef, headerInView] = useInView({ threshold: 0.3 });
+  const [listRef, listInView] = useInView({ threshold: 0.1 });
+
   return (
     <section className="py-24 px-6 md:px-16 relative z-10 bg-[#F8FAFC]">
       <div className="max-w-3xl mx-auto">
-        <div className="text-center mb-12">
+        <div
+          ref={headerRef}
+          className={`text-center mb-12 transition-all duration-700 ${headerInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+        >
           <span className="font-mono text-xs text-cta-500 uppercase tracking-widest">// FAQ</span>
           <h2 className="text-3xl md:text-4xl font-heading font-bold text-primary-500 mt-4">
             Frequently Asked Questions
           </h2>
         </div>
 
-        <div className="space-y-4">
+        <div ref={listRef} className="space-y-4">
           {faqData.map((faq, i) => (
             <div
               key={i}
-              className="bg-white border border-[#E2E8F0] rounded-xl overflow-hidden hover:border-primary-500/30 transition-colors"
+              className={`bg-white border border-[#E2E8F0] rounded-xl overflow-hidden hover:border-primary-500/30 transition-all duration-500 ${listInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+              style={{ transitionDelay: listInView ? `${i * 100}ms` : '0ms' }}
             >
               <button
                 onClick={() => setOpenFaq(openFaq === i ? null : i)}

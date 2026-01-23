@@ -1,13 +1,24 @@
+import useInView from '../../hooks/useInView';
+
 const TestimonialsSection = ({ testimonials }) => {
+  const [headerRef, headerInView] = useInView({ threshold: 0.3 });
+  const [carouselRef, carouselInView] = useInView({ threshold: 0.1 });
+
   return (
     <section className="py-24 relative z-10 overflow-hidden bg-primary-500">
-      <div className="max-w-7xl mx-auto px-6 mb-12 text-center">
+      <div
+        ref={headerRef}
+        className={`max-w-7xl mx-auto px-6 mb-12 text-center transition-all duration-700 ${headerInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+      >
         <h2 className="text-3xl md:text-5xl font-heading font-bold text-white">
           Trusted by <span className="text-transparent bg-clip-text bg-gradient-to-r from-cta-400 to-cta-500">Fleets Everywhere.</span>
         </h2>
       </div>
 
-      <div className="relative w-full overflow-hidden">
+      <div
+        ref={carouselRef}
+        className={`relative w-full overflow-hidden transition-all duration-700 delay-200 ${carouselInView ? 'opacity-100' : 'opacity-0'}`}
+      >
         {/* Mask for fading edges */}
         <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-primary-500 to-transparent z-20 pointer-events-none" />
         <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-primary-500 to-transparent z-20 pointer-events-none" />

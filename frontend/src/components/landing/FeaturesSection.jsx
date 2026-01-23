@@ -5,9 +5,13 @@ import {
   LuCreditCard, LuStethoscope, LuFileCheck, LuAlertTriangle, LuCheckCircle,
   LuFileCheck2
 } from 'react-icons/lu';
+import useInView from '../../hooks/useInView';
 
 const FeaturesSection = () => {
   const [activeTab, setActiveTab] = useState(2);
+  const [headerRef, headerInView] = useInView({ threshold: 0.2 });
+  const [tabsRef, tabsInView] = useInView({ threshold: 0.2 });
+  const [cardRef, cardInView] = useInView({ threshold: 0.1 });
 
   const features = [
     {
@@ -218,7 +222,10 @@ const FeaturesSection = () => {
 
       <div className="relative z-10 max-w-6xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-8">
+        <div
+          ref={headerRef}
+          className={`text-center mb-8 transition-all duration-700 ${headerInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+        >
           <h2 className="font-serif text-4xl md:text-5xl font-semibold text-gray-800 mb-4 tracking-tight">
             Compliance made <em className="italic text-[#FF6B4A]">simple</em>,
             <br />so you can focus on the road.
@@ -229,7 +236,10 @@ const FeaturesSection = () => {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex justify-center mb-10">
+        <div
+          ref={tabsRef}
+          className={`flex justify-center mb-10 transition-all duration-700 delay-150 ${tabsInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+        >
           <div className="inline-flex gap-1.5 p-2 bg-white/85 backdrop-blur-xl rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.04),inset_0_0_0_1px_rgba(0,0,0,0.06)]">
             {features.map((feature, i) => (
               <button
@@ -260,8 +270,9 @@ const FeaturesSection = () => {
 
         {/* Feature Card */}
         <div
+          ref={cardRef}
           key={activeTab}
-          className={`bg-white/85 backdrop-blur-xl rounded-[32px] overflow-hidden shadow-[0_4px_6px_rgba(0,0,0,0.02),0_12px_24px_rgba(0,0,0,0.04),0_24px_48px_rgba(0,0,0,0.06),inset_0_0_0_1px_rgba(0,0,0,0.06)] border-l-[5px] ${accentBorders[activeFeature.accent]} animate-[cardSlideIn_0.5s_cubic-bezier(0.4,0,0.2,1)_both]`}
+          className={`bg-white/85 backdrop-blur-xl rounded-[32px] overflow-hidden shadow-[0_4px_6px_rgba(0,0,0,0.02),0_12px_24px_rgba(0,0,0,0.04),0_24px_48px_rgba(0,0,0,0.06),inset_0_0_0_1px_rgba(0,0,0,0.06)] border-l-[5px] ${accentBorders[activeFeature.accent]} transition-all duration-700 delay-300 ${cardInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
         >
           <div className="grid md:grid-cols-2">
             {/* Visual Panel */}
