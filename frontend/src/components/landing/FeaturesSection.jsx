@@ -7,7 +7,7 @@ import {
 } from 'react-icons/lu';
 
 const FeaturesSection = () => {
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState(2);
 
   const features = [
     {
