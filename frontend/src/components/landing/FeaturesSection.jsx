@@ -2,7 +2,7 @@ import { useState } from 'react';
 import {
   LuBot, LuBarChart3, LuFolderOpen, LuFileText, LuBellRing,
   LuSparkles, LuTrendingUp, LuCheck, LuArrowRight, LuUser,
-  LuIdCard, LuStethoscope, LuFileCheck, LuAlertTriangle, LuCheckCircle,
+  LuCreditCard, LuStethoscope, LuFileCheck, LuAlertTriangle, LuCheckCircle,
   LuShieldCheck, LuFileCheck2
 } from 'react-icons/lu';
 
@@ -137,7 +137,7 @@ const FeaturesSection = () => {
   const FilesMockup = () => (
     <div className="space-y-2.5">
       {[
-        { icon: LuIdCard, iconBg: 'bg-gradient-to-br from-[#1E3A5F] to-[#2D5A87]', name: 'CDL - Mike Rodriguez', meta: 'Expires Dec 2026', status: 'Valid', statusClass: 'bg-emerald-50 text-emerald-600' },
+        { icon: LuCreditCard, iconBg: 'bg-gradient-to-br from-[#1E3A5F] to-[#2D5A87]', name: 'CDL - Mike Rodriguez', meta: 'Expires Dec 2026', status: 'Valid', statusClass: 'bg-emerald-50 text-emerald-600' },
         { icon: LuStethoscope, iconBg: 'bg-gradient-to-br from-red-500 to-red-400', name: 'Medical Card', meta: 'Expires Mar 2026', status: '45 days', statusClass: 'bg-amber-50 text-amber-600' },
         { icon: LuFileCheck, iconBg: 'bg-gradient-to-br from-emerald-400 to-emerald-300', name: 'MVR Report', meta: 'Updated Jan 2026', status: 'Current', statusClass: 'bg-emerald-50 text-emerald-600' }
       ].map((file, i) => (
