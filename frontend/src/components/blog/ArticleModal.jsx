@@ -16,7 +16,7 @@ const ArticleModal = ({ article, onClose }) => {
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-[#F1F5F9] border border-[#E2E8F0] flex items-center justify-center text-zinc-600 dark:text-zinc-300 hover:text-primary-500 hover:bg-[#E2E8F0] transition-colors"
+          className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-[#F1F5F9] border border-[#E2E8F0] flex items-center justify-center text-zinc-600 hover:text-primary-500 hover:bg-[#E2E8F0] transition-colors"
         >
           <FiX className="w-5 h-5" />
         </button>
@@ -27,16 +27,16 @@ const ArticleModal = ({ article, onClose }) => {
             <span className="px-3 py-1 rounded-full border border-cta-500/30 bg-cta-500/10 text-cta-500 font-mono text-[10px] uppercase tracking-wide">
               {article.tag}
             </span>
-            <span className="flex items-center gap-2 text-zinc-400 dark:text-zinc-400 text-sm">
+            <span className="flex items-center gap-2 text-zinc-500 text-sm">
               <FiClock className="w-4 h-4" />
               {article.readTime}
             </span>
-            <span className="text-zinc-400 dark:text-zinc-400 text-sm font-mono">{article.date}</span>
+            <span className="text-zinc-500 text-sm font-mono">{article.date}</span>
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-primary-500 mb-4 font-heading leading-tight">
             {article.title}
           </h1>
-          <p className="text-lg text-zinc-600 dark:text-zinc-300">{article.description}</p>
+          <p className="text-lg text-zinc-600">{article.description}</p>
         </div>
 
         {/* Article Content */}
@@ -49,7 +49,7 @@ const ArticleModal = ({ article, onClose }) => {
         <div className="p-8 md:p-12 border-t border-[#E2E8F0] bg-[#F8FAFC]">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div>
-              <p className="text-zinc-600 dark:text-zinc-300 mb-2">Want to stay compliant?</p>
+              <p className="text-zinc-600 mb-2">Want to stay compliant?</p>
               <p className="text-primary-500 font-medium">Start your free trial of VroomX Safety today.</p>
             </div>
             <Link
