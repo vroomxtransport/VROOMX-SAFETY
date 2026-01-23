@@ -3,7 +3,7 @@ import {
   LuBot, LuBarChart3, LuFolderOpen, LuFileText, LuBellRing,
   LuSparkles, LuTrendingUp, LuCheck, LuArrowRight, LuUser,
   LuCreditCard, LuStethoscope, LuFileCheck, LuAlertTriangle, LuCheckCircle,
-  LuShieldCheck, LuFileCheck2
+  LuFileCheck2
 } from 'react-icons/lu';
 
 const FeaturesSection = () => {
@@ -219,14 +219,6 @@ const FeaturesSection = () => {
       <div className="relative z-10 max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-3 mb-10">
-            <div className="w-12 h-12 bg-gradient-to-br from-[#FF6B4A] to-[#FF8A6B] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#FF6B4A]/30">
-              <LuShieldCheck className="w-6 h-6" />
-            </div>
-            <div className="text-2xl font-bold text-gray-800">
-              Vroom<span className="text-[#FF6B4A]">X</span> Safety
-            </div>
-          </div>
           <h2 className="font-serif text-4xl md:text-5xl font-semibold text-gray-800 mb-4 tracking-tight">
             Compliance made <em className="italic text-[#FF6B4A]">simple</em>,
             <br />so you can focus on the road.
