@@ -18,7 +18,10 @@ const PricingSection = ({ isAnnual, setIsAnnual, pricingPlans, comparisonFeature
             <span className={`text-sm font-medium ${!isAnnual ? 'text-primary-500' : 'text-zinc-400 dark:text-zinc-400'}`}>Monthly</span>
             <button
               onClick={() => setIsAnnual(!isAnnual)}
-              className={`relative w-14 h-7 rounded-full transition-colors ${isAnnual ? 'bg-cta-500' : 'bg-[#E2E8F0]'}`}
+              role="switch"
+              aria-checked={isAnnual}
+              aria-label="Toggle annual pricing"
+              className={`relative w-14 h-7 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-cta-500 focus:ring-offset-2 ${isAnnual ? 'bg-cta-500' : 'bg-[#E2E8F0]'}`}
             >
               <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow-md transition-transform ${isAnnual ? 'translate-x-8' : 'translate-x-1'}`} />
             </button>

@@ -19,7 +19,7 @@ const TestimonialsSection = ({ testimonials }) => {
               <div className={`absolute -top-4 left-8 w-8 h-8 ${t.featured ? 'bg-cta-500 shadow-lg shadow-cta-500/30' : 'bg-white/20'} rounded-full flex items-center justify-center text-xl font-black text-white`}>
                 "
               </div>
-              <p className="text-white/90 text-lg mb-6 leading-relaxed relative z-10 pt-2" dangerouslySetInnerHTML={{ __html: t.quote }} />
+              <p className="text-white/90 text-lg mb-6 leading-relaxed relative z-10 pt-2">{t.quote}</p>
               <div className="flex items-center gap-4">
                 <img
                   src={t.image}
@@ -41,7 +41,7 @@ const TestimonialsSection = ({ testimonials }) => {
               <div className={`absolute -top-4 left-8 w-8 h-8 ${t.featured ? 'bg-cta-500 shadow-lg shadow-cta-500/30' : 'bg-white/20'} rounded-full flex items-center justify-center text-xl font-black text-white`}>
                 "
               </div>
-              <p className="text-white/90 text-lg mb-6 leading-relaxed relative z-10 pt-2" dangerouslySetInnerHTML={{ __html: t.quote }} />
+              <p className="text-white/90 text-lg mb-6 leading-relaxed relative z-10 pt-2">{t.quote}</p>
               <div className="flex items-center gap-4">
                 <img
                   src={t.image}

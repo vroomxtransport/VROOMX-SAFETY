@@ -20,15 +20,22 @@ const FAQSection = ({ faqData, openFaq, setOpenFaq }) => {
               <button
                 onClick={() => setOpenFaq(openFaq === i ? null : i)}
                 className="w-full p-6 flex items-center justify-between text-left"
+                aria-expanded={openFaq === i}
+                aria-controls={`faq-answer-${i}`}
               >
                 <span className="font-bold text-primary-500 pr-4">{faq.question}</span>
-                <FiChevronDown className={`w-5 h-5 text-zinc-600 dark:text-zinc-300 transition-transform flex-shrink-0 ${openFaq === i ? 'rotate-180' : ''}`} />
+                <FiChevronDown className={`w-5 h-5 text-zinc-500 transition-transform duration-300 flex-shrink-0 ${openFaq === i ? 'rotate-180' : ''}`} />
               </button>
-              {openFaq === i && (
-                <div className="px-6 pb-6 pt-0">
-                  <p className="text-zinc-600 dark:text-zinc-300 leading-relaxed">{faq.answer}</p>
+              <div
+                id={`faq-answer-${i}`}
+                className={`grid transition-all duration-300 ease-in-out ${openFaq === i ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
+              >
+                <div className="overflow-hidden">
+                  <div className="px-6 pb-6 pt-0">
+                    <p className="text-zinc-600 leading-relaxed">{faq.answer}</p>
+                  </div>
                 </div>
-              )}
+              </div>
             </div>
           ))}
         </div>
