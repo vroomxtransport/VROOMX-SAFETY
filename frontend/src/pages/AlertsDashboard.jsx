@@ -119,7 +119,7 @@ const AlertsDashboard = () => {
     return (
       <div className="flex flex-col items-center justify-center h-64">
         <LoadingSpinner size="lg" variant="truck" />
-        <p className="mt-4 text-sm text-primary-500">Loading alerts...</p>
+        <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-300">Loading alerts...</p>
       </div>
     );
   }
@@ -130,7 +130,7 @@ const AlertsDashboard = () => {
         <div className="w-16 h-16 rounded-full bg-danger-100 flex items-center justify-center mb-4">
           <FiAlertCircle className="w-8 h-8 text-danger-500" />
         </div>
-        <p className="text-danger-600 font-medium mb-2">{error}</p>
+        <p className="text-danger-600 dark:text-danger-400 font-medium mb-2">{error}</p>
         <button onClick={fetchData} className="btn btn-primary">
           Try Again
         </button>
@@ -146,8 +146,8 @@ const AlertsDashboard = () => {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-primary-900">Alerts Dashboard</h1>
-          <p className="text-primary-500 text-sm mt-1">
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Alerts Dashboard</h1>
+          <p className="text-zinc-600 dark:text-zinc-300 text-sm mt-1">
             Monitor compliance alerts and track your safety score
           </p>
         </div>
@@ -174,16 +174,16 @@ const AlertsDashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* VroomX Score Card */}
         <div
-          className="lg:col-span-1 bg-white rounded-xl border border-primary-200/60 p-5"
+          className="lg:col-span-1 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 p-5"
           style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}
         >
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-lg bg-accent-100 flex items-center justify-center">
-              <FiTrendingUp className="w-5 h-5 text-accent-600" />
+            <div className="w-10 h-10 rounded-lg bg-accent-100 dark:bg-accent-500/20 flex items-center justify-center">
+              <FiTrendingUp className="w-5 h-5 text-accent-600 dark:text-accent-400" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-primary-900">VroomX Score</h3>
-              <p className="text-xs text-primary-500">Compliance Rating</p>
+              <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">VroomX Score</h3>
+              <p className="text-xs text-zinc-600 dark:text-zinc-300">Compliance Rating</p>
             </div>
           </div>
 
@@ -213,7 +213,7 @@ const AlertsDashboard = () => {
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <span className={`text-3xl font-bold ${getScoreColor(score)}`}>{score}</span>
-                <span className="text-xs text-primary-500">/ 100</span>
+                <span className="text-xs text-zinc-600 dark:text-zinc-400">/ 100</span>
               </div>
             </div>
           </div>
@@ -223,7 +223,7 @@ const AlertsDashboard = () => {
               {score >= 80 ? 'Excellent' : score >= 60 ? 'Good' : 'Needs Attention'}
             </p>
             {complianceScore?.score?.lastCalculated && (
-              <p className="text-xs text-primary-400 mt-1">
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
                 Updated {formatDate(complianceScore.score.lastCalculated)}
               </p>
             )}
@@ -232,57 +232,57 @@ const AlertsDashboard = () => {
 
         {/* Alert Count Cards */}
         <div
-          className="bg-white rounded-xl border border-danger-200/60 p-5 hover:shadow-card transition-shadow"
+          className="bg-white dark:bg-zinc-900 rounded-xl border border-danger-200/60 dark:border-danger-500/30 p-5 hover:shadow-card transition-shadow"
           style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-primary-500">Critical</p>
-              <p className="text-3xl font-bold text-danger-600">{alerts.critical.length}</p>
+              <p className="text-sm font-medium text-zinc-600 dark:text-zinc-300">Critical</p>
+              <p className="text-3xl font-bold text-danger-600 dark:text-danger-400">{alerts.critical.length}</p>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-danger-100 flex items-center justify-center">
-              <FiAlertCircle className="w-6 h-6 text-danger-600" />
+            <div className="w-12 h-12 rounded-xl bg-danger-100 dark:bg-danger-500/20 flex items-center justify-center">
+              <FiAlertCircle className="w-6 h-6 text-danger-600 dark:text-danger-400" />
             </div>
           </div>
-          <p className="text-xs text-danger-600 mt-2">Requires immediate action</p>
+          <p className="text-xs text-danger-600 dark:text-danger-400 mt-2">Requires immediate action</p>
         </div>
 
         <div
-          className="bg-white rounded-xl border border-warning-200/60 p-5 hover:shadow-card transition-shadow"
+          className="bg-white dark:bg-zinc-900 rounded-xl border border-warning-200/60 dark:border-warning-500/30 p-5 hover:shadow-card transition-shadow"
           style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-primary-500">Warning</p>
-              <p className="text-3xl font-bold text-warning-600">{alerts.warning.length}</p>
+              <p className="text-sm font-medium text-zinc-600 dark:text-zinc-300">Warning</p>
+              <p className="text-3xl font-bold text-warning-600 dark:text-warning-400">{alerts.warning.length}</p>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-warning-100 flex items-center justify-center">
-              <FiAlertTriangle className="w-6 h-6 text-warning-600" />
+            <div className="w-12 h-12 rounded-xl bg-warning-100 dark:bg-warning-500/20 flex items-center justify-center">
+              <FiAlertTriangle className="w-6 h-6 text-warning-600 dark:text-warning-400" />
             </div>
           </div>
-          <p className="text-xs text-warning-600 mt-2">Needs attention soon</p>
+          <p className="text-xs text-warning-600 dark:text-warning-400 mt-2">Needs attention soon</p>
         </div>
 
         <div
-          className="bg-white rounded-xl border border-info-200/60 p-5 hover:shadow-card transition-shadow"
+          className="bg-white dark:bg-zinc-900 rounded-xl border border-info-200/60 dark:border-info-500/30 p-5 hover:shadow-card transition-shadow"
           style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-primary-500">Info</p>
-              <p className="text-3xl font-bold text-info-600">{alerts.info.length}</p>
+              <p className="text-sm font-medium text-zinc-600 dark:text-zinc-300">Info</p>
+              <p className="text-3xl font-bold text-info-600 dark:text-info-400">{alerts.info.length}</p>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-info-100 flex items-center justify-center">
-              <FiInfo className="w-6 h-6 text-info-600" />
+            <div className="w-12 h-12 rounded-xl bg-info-100 dark:bg-info-500/20 flex items-center justify-center">
+              <FiInfo className="w-6 h-6 text-info-600 dark:text-info-400" />
             </div>
           </div>
-          <p className="text-xs text-info-600 mt-2">For your awareness</p>
+          <p className="text-xs text-info-600 dark:text-info-400 mt-2">For your awareness</p>
         </div>
       </div>
 
       {/* Category Filter */}
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-sm font-medium text-primary-600 mr-2">
+        <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mr-2">
           <FiFilter className="inline w-4 h-4 mr-1" />
           Filter:
         </span>
@@ -292,8 +292,8 @@ const AlertsDashboard = () => {
             onClick={() => setCategoryFilter(cat)}
             className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
               categoryFilter === cat
-                ? 'bg-primary-600 text-white border-primary-600'
-                : 'bg-white text-primary-600 border-primary-200 hover:border-primary-400'
+                ? 'bg-accent-600 text-white border-accent-600 dark:bg-accent-500 dark:border-accent-500'
+                : 'bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-600 hover:border-zinc-400 dark:hover:border-zinc-500'
             }`}
           >
             {cat === 'all' ? 'All' : cat.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
@@ -304,14 +304,14 @@ const AlertsDashboard = () => {
       {/* Alert Columns */}
       {totalAlerts === 0 ? (
         <div
-          className="bg-white rounded-xl border border-primary-200/60 p-12 text-center"
+          className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 p-12 text-center"
           style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}
         >
-          <div className="w-16 h-16 rounded-full bg-success-100 flex items-center justify-center mx-auto mb-4">
-            <FiCheckCircle className="w-8 h-8 text-success-500" />
+          <div className="w-16 h-16 rounded-full bg-success-100 dark:bg-success-500/20 flex items-center justify-center mx-auto mb-4">
+            <FiCheckCircle className="w-8 h-8 text-success-500 dark:text-success-400" />
           </div>
-          <h3 className="text-lg font-semibold text-primary-900 mb-2">All Clear!</h3>
-          <p className="text-primary-500">No active alerts at this time. Your fleet is running smoothly.</p>
+          <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-2">All Clear!</h3>
+          <p className="text-zinc-600 dark:text-zinc-300">No active alerts at this time. Your fleet is running smoothly.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -369,32 +369,32 @@ const AlertsDashboard = () => {
       {dismissModal.open && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div
-            className="bg-white rounded-xl max-w-md w-full p-6"
+            className="bg-white dark:bg-zinc-900 rounded-xl max-w-md w-full p-6"
             style={{ boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.25)' }}
           >
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-primary-900">Dismiss Alert</h3>
+              <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Dismiss Alert</h3>
               <button
                 onClick={() => setDismissModal({ open: false, alert: null })}
-                className="text-primary-400 hover:text-primary-600"
+                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
               >
                 <FiX className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="mb-4 p-3 rounded-lg bg-primary-50 border border-primary-200">
-              <p className="text-sm font-medium text-primary-800">{dismissModal.alert?.title}</p>
-              <p className="text-xs text-primary-600 mt-1">{dismissModal.alert?.message}</p>
+            <div className="mb-4 p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700">
+              <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">{dismissModal.alert?.title}</p>
+              <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1">{dismissModal.alert?.message}</p>
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium text-primary-700 mb-2">
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                 Reason for dismissal (optional)
               </label>
               <textarea
                 value={dismissReason}
                 onChange={(e) => setDismissReason(e.target.value)}
-                className="w-full px-3 py-2 border border-primary-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
                 rows={3}
                 placeholder="Enter reason for dismissing this alert..."
               />
@@ -454,19 +454,19 @@ const AlertColumn = ({
       {/* Column Header */}
       <button
         onClick={() => setExpanded(!expanded)}
-        className={`w-full px-4 py-3 flex items-center justify-between ${headerBg}`}
+        className={`w-full px-4 py-3 flex items-center justify-between ${headerBg} dark:bg-opacity-20`}
       >
         <div className="flex items-center gap-2">
           <Icon className={`w-5 h-5 ${iconColor}`} />
-          <span className="font-semibold text-primary-900">{title}</span>
-          <span className="px-2 py-0.5 text-xs font-medium bg-white/80 rounded-full">
+          <span className="font-semibold text-zinc-900 dark:text-zinc-100">{title}</span>
+          <span className="px-2 py-0.5 text-xs font-medium bg-white/80 dark:bg-zinc-800 dark:text-zinc-200 rounded-full">
             {alerts.length}
           </span>
         </div>
         {expanded ? (
-          <FiChevronUp className="w-4 h-4 text-primary-500" />
+          <FiChevronUp className="w-4 h-4 text-zinc-600 dark:text-zinc-400" />
         ) : (
-          <FiChevronDown className="w-4 h-4 text-primary-500" />
+          <FiChevronDown className="w-4 h-4 text-zinc-600 dark:text-zinc-400" />
         )}
       </button>
 
@@ -476,7 +476,7 @@ const AlertColumn = ({
           {alerts.length === 0 ? (
             <div className="text-center py-8">
               <FiCheckCircle className="w-8 h-8 text-success-400 mx-auto mb-2" />
-              <p className="text-sm text-primary-500">No {title.toLowerCase()} alerts</p>
+              <p className="text-sm text-zinc-600 dark:text-zinc-300">No {title.toLowerCase()} alerts</p>
             </div>
           ) : (
             alerts.map((alert) => {
@@ -486,39 +486,39 @@ const AlertColumn = ({
               return (
                 <div
                   key={alert._id}
-                  className="bg-white rounded-lg border border-primary-200/60 p-3 hover:shadow-sm transition-shadow"
+                  className="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-3 hover:shadow-sm transition-shadow"
                 >
                   <div className="flex items-start gap-3">
                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                      type === 'critical' ? 'bg-danger-100' :
-                      type === 'warning' ? 'bg-warning-100' :
-                      'bg-info-100'
+                      type === 'critical' ? 'bg-danger-100 dark:bg-danger-500/20' :
+                      type === 'warning' ? 'bg-warning-100 dark:bg-warning-500/20' :
+                      'bg-info-100 dark:bg-info-500/20'
                     }`}>
                       <CategoryIcon className={`w-4 h-4 ${
-                        type === 'critical' ? 'text-danger-600' :
-                        type === 'warning' ? 'text-warning-600' :
-                        'text-info-600'
+                        type === 'critical' ? 'text-danger-600 dark:text-danger-400' :
+                        type === 'warning' ? 'text-warning-600 dark:text-warning-400' :
+                        'text-info-600 dark:text-info-400'
                       }`} />
                     </div>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
-                        <p className="text-sm font-medium text-primary-800 leading-snug">
+                        <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200 leading-snug">
                           {alert.title}
                         </p>
                         {alert.escalationLevel > 0 && (
-                          <span className="px-1.5 py-0.5 text-xs font-bold bg-danger-100 text-danger-700 rounded">
+                          <span className="px-1.5 py-0.5 text-xs font-bold bg-danger-100 dark:bg-danger-500/20 text-danger-700 dark:text-danger-400 rounded">
                             L{alert.escalationLevel}
                           </span>
                         )}
                       </div>
 
-                      <p className="text-xs text-primary-600 mt-1 line-clamp-2">
+                      <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1 line-clamp-2">
                         {alert.message}
                       </p>
 
                       <div className="flex items-center justify-between mt-2">
-                        <span className="text-xs text-primary-400 flex items-center gap-1">
+                        <span className="text-xs text-zinc-600 dark:text-zinc-300 flex items-center gap-1">
                           <FiClock className="w-3 h-3" />
                           {formatDate(alert.createdAt)}
                         </span>
@@ -527,7 +527,7 @@ const AlertColumn = ({
                           {entityLink && (
                             <Link
                               to={entityLink}
-                              className="p-1 text-primary-400 hover:text-primary-600 hover:bg-primary-100 rounded"
+                              className="p-1 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded"
                               title="View details"
                             >
                               <FiExternalLink className="w-3.5 h-3.5" />
@@ -536,7 +536,7 @@ const AlertColumn = ({
                           <button
                             onClick={() => onDismiss(alert)}
                             disabled={dismissingId === alert._id}
-                            className="p-1 text-primary-400 hover:text-danger-600 hover:bg-danger-50 rounded"
+                            className="p-1 text-zinc-400 hover:text-danger-600 dark:hover:text-danger-400 hover:bg-danger-50 dark:hover:bg-danger-500/20 rounded"
                             title="Dismiss"
                           >
                             <FiX className="w-3.5 h-3.5" />

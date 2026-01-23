@@ -22,9 +22,9 @@ const FeaturesSection = ({ features }) => {
           <span className="font-mono text-xs text-cta-500 uppercase tracking-widest">// Platform Modules</span>
           <h2 className="text-3xl md:text-5xl font-heading font-bold text-primary-500 mt-4 mb-6">
             Everything You Need.<br />
-            <span className="text-[#475569] line-through decoration-2 decoration-red-500">Nothing You Don't.</span>
+            <span className="text-zinc-600 dark:text-zinc-300 line-through decoration-2 decoration-red-500">Nothing You Don't.</span>
           </h2>
-          <p className="text-lg text-[#475569] max-w-2xl mx-auto">
+          <p className="text-lg text-zinc-600 dark:text-zinc-300 max-w-2xl mx-auto">
             A complete suite of tools engineered for 49 CFR compliance.
           </p>
         </div>
@@ -39,10 +39,10 @@ const FeaturesSection = ({ features }) => {
                     <Icon className="w-7 h-7 text-cta-500" />
                   </div>
                   <h3 className="text-xl font-bold text-primary-500 mb-3">{feature.title}</h3>
-                  <p className="text-sm text-[#475569] mb-6 leading-relaxed">{feature.description}</p>
+                  <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-6 leading-relaxed">{feature.description}</p>
                   <div className="flex flex-wrap gap-2">
                     {feature.tags.map((tag, j) => (
-                      <span key={j} className="px-2 py-1 rounded-md bg-[#F1F5F9] border border-[#E2E8F0] text-[10px] text-[#475569] uppercase tracking-wide">
+                      <span key={j} className="px-2 py-1 rounded-md bg-[#F1F5F9] border border-[#E2E8F0] text-[10px] text-zinc-600 dark:text-zinc-300 uppercase tracking-wide">
                         {tag}
                       </span>
                     ))}

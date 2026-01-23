@@ -25,7 +25,7 @@ const ChatMessage = ({ message, isUser }) => {
       // Check for headers (##)
       if (para.startsWith('## ')) {
         return (
-          <h3 key={i} className="font-semibold text-primary-900 dark:text-primary-100 mt-3 mb-2">
+          <h3 key={i} className="font-semibold text-zinc-900 dark:text-zinc-100 mt-3 mb-2">
             {para.replace('## ', '')}
           </h3>
         );
@@ -37,8 +37,8 @@ const ChatMessage = ({ message, isUser }) => {
         if (match) {
           return (
             <div key={i} className="mt-2">
-              <span className="font-semibold text-primary-800 dark:text-primary-200">{match[1]}:</span>
-              <span className="text-primary-700 dark:text-primary-300"> {match[2]}</span>
+              <span className="font-semibold text-zinc-800 dark:text-zinc-200">{match[1]}:</span>
+              <span className="text-zinc-700 dark:text-zinc-300"> {match[2]}</span>
             </div>
           );
         }
@@ -48,7 +48,7 @@ const ChatMessage = ({ message, isUser }) => {
       if (para.includes('\n- ') || para.startsWith('- ')) {
         const items = para.split('\n').filter(line => line.startsWith('- '));
         return (
-          <ul key={i} className="list-disc list-inside space-y-1 mt-2 text-primary-700 dark:text-primary-300">
+          <ul key={i} className="list-disc list-inside space-y-1 mt-2 text-zinc-700 dark:text-zinc-300">
             {items.map((item, j) => (
               <li key={j}>{item.replace(/^- /, '')}</li>
             ))}
@@ -60,7 +60,7 @@ const ChatMessage = ({ message, isUser }) => {
       if (/^\d+\.\s/.test(para)) {
         const items = para.split('\n').filter(line => /^\d+\.\s/.test(line));
         return (
-          <ol key={i} className="list-decimal list-inside space-y-1 mt-2 text-primary-700 dark:text-primary-300">
+          <ol key={i} className="list-decimal list-inside space-y-1 mt-2 text-zinc-700 dark:text-zinc-300">
             {items.map((item, j) => (
               <li key={j}>{item.replace(/^\d+\.\s/, '')}</li>
             ))}
@@ -70,7 +70,7 @@ const ChatMessage = ({ message, isUser }) => {
 
       // Regular paragraph
       return (
-        <p key={i} className="text-primary-700 dark:text-primary-300 mt-2 first:mt-0">
+        <p key={i} className="text-zinc-700 dark:text-zinc-300 mt-2 first:mt-0">
           {para}
         </p>
       );
@@ -124,7 +124,7 @@ const ChatMessage = ({ message, isUser }) => {
           <div className="mt-1 flex items-center gap-2">
             <button
               onClick={handleCopy}
-              className="text-xs text-primary-400 hover:text-primary-600 flex items-center gap-1 transition-colors"
+              className="text-xs text-zinc-600 dark:text-zinc-300 hover:text-zinc-700 dark:hover:text-zinc-200 flex items-center gap-1 transition-colors"
             >
               {copied ? (
                 <>
@@ -141,7 +141,7 @@ const ChatMessage = ({ message, isUser }) => {
 
             {/* Show CFR citations if present */}
             {message.cfrCitations && message.cfrCitations.length > 0 && (
-              <span className="text-xs text-primary-400">
+              <span className="text-xs text-zinc-600 dark:text-zinc-300">
                 | {message.cfrCitations.length} CFR reference{message.cfrCitations.length > 1 ? 's' : ''}
               </span>
             )}
@@ -149,7 +149,7 @@ const ChatMessage = ({ message, isUser }) => {
         )}
 
         {/* Timestamp */}
-        <p className={`text-xs text-primary-400 mt-1 ${isUser ? 'text-right' : ''}`}>
+        <p className={`text-xs text-zinc-600 dark:text-zinc-300 mt-1 ${isUser ? 'text-right' : ''}`}>
           {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </p>
       </div>

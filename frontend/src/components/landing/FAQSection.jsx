@@ -22,11 +22,11 @@ const FAQSection = ({ faqData, openFaq, setOpenFaq }) => {
                 className="w-full p-6 flex items-center justify-between text-left"
               >
                 <span className="font-bold text-primary-500 pr-4">{faq.question}</span>
-                <FiChevronDown className={`w-5 h-5 text-[#475569] transition-transform flex-shrink-0 ${openFaq === i ? 'rotate-180' : ''}`} />
+                <FiChevronDown className={`w-5 h-5 text-zinc-600 dark:text-zinc-300 transition-transform flex-shrink-0 ${openFaq === i ? 'rotate-180' : ''}`} />
               </button>
               {openFaq === i && (
                 <div className="px-6 pb-6 pt-0">
-                  <p className="text-[#475569] leading-relaxed">{faq.answer}</p>
+                  <p className="text-zinc-600 dark:text-zinc-300 leading-relaxed">{faq.answer}</p>
                 </div>
               )}
             </div>

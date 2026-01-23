@@ -144,10 +144,10 @@ const InspectionUpload = () => {
   };
 
   const getSeverityColor = (weight) => {
-    if (weight >= 8) return 'text-danger-600 bg-danger-100';
-    if (weight >= 5) return 'text-warning-600 bg-warning-100';
-    if (weight >= 3) return 'text-info-600 bg-info-100';
-    return 'text-success-600 bg-success-100';
+    if (weight >= 8) return 'text-danger-600 dark:text-danger-400 bg-danger-100 dark:bg-danger-500/20';
+    if (weight >= 5) return 'text-warning-600 dark:text-warning-400 bg-warning-100 dark:bg-warning-500/20';
+    if (weight >= 3) return 'text-info-600 dark:text-info-400 bg-info-100 dark:bg-info-500/20';
+    return 'text-success-600 dark:text-success-400 bg-success-100 dark:bg-success-500/20';
   };
 
   // Step indicator component
@@ -158,8 +158,8 @@ const InspectionUpload = () => {
           <div
             className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${
               step >= s
-                ? 'bg-primary-600 text-white'
-                : 'bg-primary-100 text-primary-400'
+                ? 'bg-primary-600 dark:bg-primary-500 text-white'
+                : 'bg-primary-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300'
             }`}
           >
             {step > s ? <FiCheck className="w-5 h-5" /> : s}
@@ -167,7 +167,7 @@ const InspectionUpload = () => {
           {index < 3 && (
             <div
               className={`w-16 h-1 mx-2 rounded ${
-                step > s ? 'bg-primary-600' : 'bg-primary-100'
+                step > s ? 'bg-primary-600 dark:bg-primary-500' : 'bg-primary-100 dark:bg-zinc-800'
               }`}
             />
           )}
@@ -182,8 +182,8 @@ const InspectionUpload = () => {
     <div className="max-w-4xl mx-auto">
       {/* Page Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-primary-900">DOT Inspection Upload</h1>
-        <p className="text-primary-500 text-sm mt-1">
+        <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">DOT Inspection Upload</h1>
+        <p className="text-zinc-600 dark:text-zinc-300 text-sm mt-1">
           Upload an inspection report to automatically extract violations
         </p>
       </div>
@@ -196,7 +196,7 @@ const InspectionUpload = () => {
             <span
               key={label}
               className={`text-sm font-medium ${
-                step === index + 1 ? 'text-primary-700' : 'text-primary-400'
+                step === index + 1 ? 'text-zinc-700 dark:text-zinc-200' : 'text-zinc-600 dark:text-zinc-300'
               }`}
             >
               {label}
@@ -207,10 +207,10 @@ const InspectionUpload = () => {
 
       {/* Error Display */}
       {error && (
-        <div className="mb-6 p-4 bg-danger-50 border border-danger-200 rounded-xl flex items-start gap-3">
-          <FiAlertCircle className="w-5 h-5 text-danger-600 flex-shrink-0 mt-0.5" />
+        <div className="mb-6 p-4 bg-danger-50 dark:bg-danger-500/20 border border-danger-200 dark:border-danger-500/30 rounded-xl flex items-start gap-3">
+          <FiAlertCircle className="w-5 h-5 text-danger-600 dark:text-danger-400 flex-shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-medium text-danger-800">{error}</p>
+            <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">{error}</p>
           </div>
         </div>
       )}
@@ -218,15 +218,15 @@ const InspectionUpload = () => {
       {/* Step 1: Upload */}
       {step === 1 && (
         <div
-          className="bg-white rounded-xl border border-primary-200/60 overflow-hidden"
+          className="bg-white dark:bg-zinc-900 rounded-xl border border-primary-200/60 dark:border-zinc-700 overflow-hidden"
           style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}
         >
           {!aiEnabled && (
-            <div className="p-4 bg-warning-50 border-b border-warning-200 flex items-start gap-3">
-              <FiInfo className="w-5 h-5 text-warning-600 flex-shrink-0" />
+            <div className="p-4 bg-warning-50 dark:bg-warning-500/20 border-b border-warning-200 dark:border-warning-500/30 flex items-start gap-3">
+              <FiInfo className="w-5 h-5 text-warning-600 dark:text-warning-400 flex-shrink-0" />
               <div>
-                <p className="text-sm font-medium text-warning-800">AI Processing Unavailable</p>
-                <p className="text-xs text-warning-700 mt-1">
+                <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">AI Processing Unavailable</p>
+                <p className="text-xs text-warning-700 dark:text-warning-400 mt-1">
                   OpenAI API key is not configured. Contact your administrator to enable AI-powered extraction.
                 </p>
               </div>
@@ -237,7 +237,7 @@ const InspectionUpload = () => {
             {/* Drop zone */}
             <div
               className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
-                file ? 'border-primary-400 bg-primary-50' : 'border-primary-200 hover:border-primary-400'
+                file ? 'border-primary-400 dark:border-primary-500 bg-primary-50 dark:bg-primary-500/10' : 'border-primary-200 dark:border-zinc-700 hover:border-primary-400 dark:hover:border-primary-500'
               }`}
               onDrop={handleDrop}
               onDragOver={(e) => e.preventDefault()}
@@ -253,11 +253,11 @@ const InspectionUpload = () => {
 
               {file ? (
                 <div className="flex flex-col items-center">
-                  <div className="w-16 h-16 rounded-full bg-primary-100 flex items-center justify-center mb-4">
-                    <FiFile className="w-8 h-8 text-primary-600" />
+                  <div className="w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-500/20 flex items-center justify-center mb-4">
+                    <FiFile className="w-8 h-8 text-primary-600 dark:text-primary-400" />
                   </div>
-                  <p className="text-lg font-medium text-primary-800">{file.name}</p>
-                  <p className="text-sm text-primary-500 mt-1">
+                  <p className="text-lg font-medium text-zinc-800 dark:text-zinc-200">{file.name}</p>
+                  <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-1">
                     {(file.size / 1024 / 1024).toFixed(2)} MB
                   </p>
                   <button
@@ -265,20 +265,20 @@ const InspectionUpload = () => {
                       e.stopPropagation();
                       setFile(null);
                     }}
-                    className="mt-3 text-sm text-danger-600 hover:text-danger-700 flex items-center gap-1"
+                    className="mt-3 text-sm text-danger-600 dark:text-danger-400 hover:text-danger-700 dark:hover:text-danger-300 flex items-center gap-1"
                   >
                     <FiX className="w-4 h-4" /> Remove
                   </button>
                 </div>
               ) : (
                 <div className="flex flex-col items-center">
-                  <div className="w-16 h-16 rounded-full bg-primary-100 flex items-center justify-center mb-4">
-                    <FiUpload className="w-8 h-8 text-primary-600" />
+                  <div className="w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-500/20 flex items-center justify-center mb-4">
+                    <FiUpload className="w-8 h-8 text-primary-600 dark:text-primary-400" />
                   </div>
-                  <p className="text-lg font-medium text-primary-800">
+                  <p className="text-lg font-medium text-zinc-800 dark:text-zinc-200">
                     Drop your inspection report here
                   </p>
-                  <p className="text-sm text-primary-500 mt-1">
+                  <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-1">
                     or click to browse (PDF, JPG, PNG)
                   </p>
                 </div>
@@ -314,46 +314,43 @@ const InspectionUpload = () => {
         <div className="space-y-6">
           {/* Inspection Details */}
           <div
-            className="bg-white rounded-xl border border-primary-200/60 overflow-hidden"
+            className="bg-white dark:bg-zinc-900 rounded-xl border border-primary-200/60 dark:border-zinc-700 overflow-hidden"
             style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}
           >
-            <div
-              className="px-5 py-4 border-b border-primary-100"
-              style={{ background: 'linear-gradient(to bottom, #fafbfc, #f8fafc)' }}
-            >
-              <h2 className="text-base font-semibold text-primary-900">Inspection Details</h2>
+            <div className="px-5 py-4 border-b border-primary-100 dark:border-zinc-700 bg-gradient-to-b from-[#fafbfc] to-[#f8fafc] dark:from-zinc-800 dark:to-zinc-800/80">
+              <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">Inspection Details</h2>
             </div>
             <div className="p-5">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
-                  <p className="text-xs text-primary-500 mb-1">Report Number</p>
-                  <p className="text-sm font-medium text-primary-800">{inspection?.reportNumber || 'N/A'}</p>
+                  <p className="text-xs text-zinc-600 dark:text-zinc-300 mb-1">Report Number</p>
+                  <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">{inspection?.reportNumber || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-primary-500 mb-1">Date</p>
-                  <p className="text-sm font-medium text-primary-800">{inspection?.date || 'N/A'}</p>
+                  <p className="text-xs text-zinc-600 dark:text-zinc-300 mb-1">Date</p>
+                  <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">{inspection?.date || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-primary-500 mb-1">Location</p>
-                  <p className="text-sm font-medium text-primary-800">
+                  <p className="text-xs text-zinc-600 dark:text-zinc-300 mb-1">Location</p>
+                  <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">
                     {inspection?.location?.city && inspection?.location?.state
                       ? `${inspection.location.city}, ${inspection.location.state}`
                       : 'N/A'}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-primary-500 mb-1">Level</p>
-                  <p className="text-sm font-medium text-primary-800">Level {inspection?.inspectionLevel || 'N/A'}</p>
+                  <p className="text-xs text-zinc-600 dark:text-zinc-300 mb-1">Level</p>
+                  <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Level {inspection?.inspectionLevel || 'N/A'}</p>
                 </div>
               </div>
 
               {/* OOS Status */}
               {(inspection?.oosStatus?.driver || inspection?.oosStatus?.vehicle) && (
-                <div className="mt-4 p-3 bg-danger-50 border border-danger-200 rounded-lg flex items-center gap-3">
-                  <FiAlertTriangle className="w-5 h-5 text-danger-600" />
+                <div className="mt-4 p-3 bg-danger-50 dark:bg-danger-500/20 border border-danger-200 dark:border-danger-500/30 rounded-lg flex items-center gap-3">
+                  <FiAlertTriangle className="w-5 h-5 text-danger-600 dark:text-danger-400" />
                   <div>
-                    <p className="text-sm font-medium text-danger-800">Out of Service</p>
-                    <p className="text-xs text-danger-700">
+                    <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Out of Service</p>
+                    <p className="text-xs text-danger-700 dark:text-danger-400">
                       {inspection?.oosStatus?.driver && 'Driver OOS '}
                       {inspection?.oosStatus?.vehicle && 'Vehicle OOS'}
                     </p>
@@ -365,51 +362,48 @@ const InspectionUpload = () => {
 
           {/* Violations */}
           <div
-            className="bg-white rounded-xl border border-primary-200/60 overflow-hidden"
+            className="bg-white dark:bg-zinc-900 rounded-xl border border-primary-200/60 dark:border-zinc-700 overflow-hidden"
             style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}
           >
-            <div
-              className="px-5 py-4 border-b border-primary-100 flex items-center justify-between"
-              style={{ background: 'linear-gradient(to bottom, #fafbfc, #f8fafc)' }}
-            >
-              <h2 className="text-base font-semibold text-primary-900">
+            <div className="px-5 py-4 border-b border-primary-100 dark:border-zinc-700 flex items-center justify-between bg-gradient-to-b from-[#fafbfc] to-[#f8fafc] dark:from-zinc-800 dark:to-zinc-800/80">
+              <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
                 Extracted Violations ({violations.length})
               </h2>
             </div>
-            <div className="divide-y divide-primary-100">
+            <div className="divide-y divide-primary-100 dark:divide-zinc-700">
               {violations.length === 0 ? (
                 <div className="p-8 text-center">
-                  <div className="w-14 h-14 rounded-full bg-success-100 flex items-center justify-center mx-auto mb-3">
-                    <FiCheckCircle className="w-7 h-7 text-success-500" />
+                  <div className="w-14 h-14 rounded-full bg-success-100 dark:bg-success-500/20 flex items-center justify-center mx-auto mb-3">
+                    <FiCheckCircle className="w-7 h-7 text-success-500 dark:text-success-400" />
                   </div>
-                  <p className="font-medium text-primary-700">No Violations Found</p>
-                  <p className="text-sm text-primary-500 mt-1">This appears to be a clean inspection</p>
+                  <p className="font-medium text-zinc-700 dark:text-zinc-200">No Violations Found</p>
+                  <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-1">This appears to be a clean inspection</p>
                 </div>
               ) : (
                 violations.map((v, index) => (
-                  <div key={index} className="p-4 hover:bg-primary-50/50 transition-colors">
+                  <div key={index} className="p-4 hover:bg-primary-50/50 dark:hover:bg-zinc-800/50 transition-colors">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="font-mono font-semibold text-primary-800">
+                          <span className="font-mono font-semibold text-zinc-800 dark:text-zinc-200">
                             {v.normalizedCode || v.originalCode}
                           </span>
                           <span className={`px-2 py-0.5 text-xs font-medium rounded ${getSeverityColor(v.severityWeight)}`}>
                             {getSeverityLabel(v.severityWeight)}
                           </span>
                           {v.isOutOfService && (
-                            <span className="px-2 py-0.5 text-xs font-bold bg-danger-100 text-danger-700 rounded">
+                            <span className="px-2 py-0.5 text-xs font-bold bg-danger-100 dark:bg-danger-500/20 text-danger-700 dark:text-danger-400 rounded">
                               OOS
                             </span>
                           )}
                           {v.unknown && (
-                            <span className="px-2 py-0.5 text-xs font-medium bg-warning-100 text-warning-700 rounded">
+                            <span className="px-2 py-0.5 text-xs font-medium bg-warning-100 dark:bg-warning-500/20 text-warning-700 dark:text-warning-400 rounded">
                               Unknown Code
                             </span>
                           )}
                         </div>
-                        <p className="text-sm text-primary-600">{v.description}</p>
-                        <div className="flex items-center gap-4 mt-2 text-xs text-primary-500">
+                        <p className="text-sm text-zinc-700 dark:text-zinc-300">{v.description}</p>
+                        <div className="flex items-center gap-4 mt-2 text-xs text-zinc-600 dark:text-zinc-300">
                           <span>BASIC: {v.basic?.replace(/_/g, ' ')}</span>
                           {v.cfrReference && <span>{v.cfrReference}</span>}
                           <span>Severity: {v.severityWeight}</span>
@@ -418,13 +412,13 @@ const InspectionUpload = () => {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => setEditingViolation(index)}
-                          className="p-2 text-primary-400 hover:text-primary-600 hover:bg-primary-100 rounded"
+                          className="p-2 text-zinc-600 dark:text-zinc-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-500/20 rounded"
                         >
                           <FiEdit2 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleRemoveViolation(index)}
-                          className="p-2 text-primary-400 hover:text-danger-600 hover:bg-danger-50 rounded"
+                          className="p-2 text-zinc-600 dark:text-zinc-300 hover:text-danger-600 dark:hover:text-danger-400 hover:bg-danger-50 dark:hover:bg-danger-500/20 rounded"
                         >
                           <FiTrash2 className="w-4 h-4" />
                         </button>
@@ -433,35 +427,35 @@ const InspectionUpload = () => {
 
                     {/* Edit form */}
                     {editingViolation === index && (
-                      <div className="mt-4 p-4 bg-primary-50 rounded-lg">
+                      <div className="mt-4 p-4 bg-primary-50 dark:bg-zinc-800 rounded-lg">
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-xs font-medium text-primary-700 mb-1">Violation Code</label>
+                            <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-200 mb-1">Violation Code</label>
                             <input
                               type="text"
                               value={v.normalizedCode || v.originalCode}
                               onChange={(e) => handleUpdateViolation(index, 'normalizedCode', e.target.value)}
-                              className="w-full px-3 py-2 text-sm border border-primary-200 rounded-lg"
+                              className="w-full px-3 py-2 text-sm border border-primary-200 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
                             />
                           </div>
                           <div>
-                            <label className="block text-xs font-medium text-primary-700 mb-1">Severity (1-10)</label>
+                            <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-200 mb-1">Severity (1-10)</label>
                             <input
                               type="number"
                               min="1"
                               max="10"
                               value={v.severityWeight}
                               onChange={(e) => handleUpdateViolation(index, 'severityWeight', parseInt(e.target.value))}
-                              className="w-full px-3 py-2 text-sm border border-primary-200 rounded-lg"
+                              className="w-full px-3 py-2 text-sm border border-primary-200 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
                             />
                           </div>
                           <div className="col-span-2">
-                            <label className="block text-xs font-medium text-primary-700 mb-1">Description</label>
+                            <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-200 mb-1">Description</label>
                             <input
                               type="text"
                               value={v.description}
                               onChange={(e) => handleUpdateViolation(index, 'description', e.target.value)}
-                              className="w-full px-3 py-2 text-sm border border-primary-200 rounded-lg"
+                              className="w-full px-3 py-2 text-sm border border-primary-200 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
                             />
                           </div>
                           <div className="col-span-2 flex items-center gap-4">
@@ -470,13 +464,13 @@ const InspectionUpload = () => {
                                 type="checkbox"
                                 checked={v.isOutOfService}
                                 onChange={(e) => handleUpdateViolation(index, 'isOutOfService', e.target.checked)}
-                                className="rounded border-primary-300"
+                                className="rounded border-primary-300 dark:border-zinc-600"
                               />
-                              <span className="text-sm text-primary-700">Out of Service</span>
+                              <span className="text-sm text-zinc-700 dark:text-zinc-200">Out of Service</span>
                             </label>
                             <button
                               onClick={() => setEditingViolation(null)}
-                              className="ml-auto text-sm text-primary-600 hover:text-primary-800"
+                              className="ml-auto text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300"
                             >
                               Done editing
                             </button>
@@ -506,26 +500,23 @@ const InspectionUpload = () => {
       {step === 3 && (
         <div className="space-y-6">
           <div
-            className="bg-white rounded-xl border border-primary-200/60 overflow-hidden"
+            className="bg-white dark:bg-zinc-900 rounded-xl border border-primary-200/60 dark:border-zinc-700 overflow-hidden"
             style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}
           >
-            <div
-              className="px-5 py-4 border-b border-primary-100"
-              style={{ background: 'linear-gradient(to bottom, #fafbfc, #f8fafc)' }}
-            >
-              <h2 className="text-base font-semibold text-primary-900">Assign to Driver & Vehicle</h2>
-              <p className="text-xs text-primary-500 mt-1">Optional: Link these violations to a driver and vehicle</p>
+            <div className="px-5 py-4 border-b border-primary-100 dark:border-zinc-700 bg-gradient-to-b from-[#fafbfc] to-[#f8fafc] dark:from-zinc-800 dark:to-zinc-800/80">
+              <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">Assign to Driver & Vehicle</h2>
+              <p className="text-xs text-zinc-600 dark:text-zinc-300 mt-1">Optional: Link these violations to a driver and vehicle</p>
             </div>
             <div className="p-5 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-primary-700 mb-2 flex items-center gap-2">
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-2 flex items-center gap-2">
                   <FiUser className="w-4 h-4" />
                   Driver
                 </label>
                 <select
                   value={selectedDriver}
                   onChange={(e) => setSelectedDriver(e.target.value)}
-                  className="w-full px-3 py-2 border border-primary-200 rounded-lg focus:ring-2 focus:ring-primary-500"
+                  className="w-full px-3 py-2 border border-primary-200 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
                 >
                   <option value="">-- Select Driver (Optional) --</option>
                   {drivers.map(d => (
@@ -537,14 +528,14 @@ const InspectionUpload = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-primary-700 mb-2 flex items-center gap-2">
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-2 flex items-center gap-2">
                   <FiTruck className="w-4 h-4" />
                   Vehicle
                 </label>
                 <select
                   value={selectedVehicle}
                   onChange={(e) => setSelectedVehicle(e.target.value)}
-                  className="w-full px-3 py-2 border border-primary-200 rounded-lg focus:ring-2 focus:ring-primary-500"
+                  className="w-full px-3 py-2 border border-primary-200 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
                 >
                   <option value="">-- Select Vehicle (Optional) --</option>
                   {vehicles.map(v => (
@@ -559,31 +550,28 @@ const InspectionUpload = () => {
 
           {/* Summary */}
           <div
-            className="bg-white rounded-xl border border-primary-200/60 overflow-hidden"
+            className="bg-white dark:bg-zinc-900 rounded-xl border border-primary-200/60 dark:border-zinc-700 overflow-hidden"
             style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}
           >
-            <div
-              className="px-5 py-4 border-b border-primary-100"
-              style={{ background: 'linear-gradient(to bottom, #fafbfc, #f8fafc)' }}
-            >
-              <h2 className="text-base font-semibold text-primary-900">Confirmation Summary</h2>
+            <div className="px-5 py-4 border-b border-primary-100 dark:border-zinc-700 bg-gradient-to-b from-[#fafbfc] to-[#f8fafc] dark:from-zinc-800 dark:to-zinc-800/80">
+              <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">Confirmation Summary</h2>
             </div>
             <div className="p-5">
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                  <p className="text-xs text-primary-500">Report Number</p>
-                  <p className="text-sm font-medium text-primary-800">{inspection?.reportNumber || 'N/A'}</p>
+                  <p className="text-xs text-zinc-600 dark:text-zinc-300">Report Number</p>
+                  <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">{inspection?.reportNumber || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-primary-500">Date</p>
-                  <p className="text-sm font-medium text-primary-800">{inspection?.date || 'N/A'}</p>
+                  <p className="text-xs text-zinc-600 dark:text-zinc-300">Date</p>
+                  <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">{inspection?.date || 'N/A'}</p>
                 </div>
               </div>
-              <div className="p-3 bg-primary-50 rounded-lg">
-                <p className="text-sm text-primary-700">
+              <div className="p-3 bg-primary-50 dark:bg-primary-500/10 rounded-lg">
+                <p className="text-sm text-zinc-700 dark:text-zinc-200">
                   <strong>{violations.length}</strong> violation{violations.length !== 1 ? 's' : ''} will be created
                   {violations.filter(v => v.isOutOfService).length > 0 && (
-                    <span className="text-danger-600">
+                    <span className="text-danger-600 dark:text-danger-400">
                       {' '}({violations.filter(v => v.isOutOfService).length} OOS)
                     </span>
                   )}
@@ -621,14 +609,14 @@ const InspectionUpload = () => {
       {/* Step 4: Complete */}
       {step === 4 && (
         <div
-          className="bg-white rounded-xl border border-primary-200/60 p-8 text-center"
+          className="bg-white dark:bg-zinc-900 rounded-xl border border-primary-200/60 dark:border-zinc-700 p-8 text-center"
           style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}
         >
-          <div className="w-20 h-20 rounded-full bg-success-100 flex items-center justify-center mx-auto mb-4">
-            <FiCheckCircle className="w-10 h-10 text-success-500" />
+          <div className="w-20 h-20 rounded-full bg-success-100 dark:bg-success-500/20 flex items-center justify-center mx-auto mb-4">
+            <FiCheckCircle className="w-10 h-10 text-success-500 dark:text-success-400" />
           </div>
-          <h2 className="text-xl font-bold text-primary-900 mb-2">Violations Created Successfully!</h2>
-          <p className="text-primary-600 mb-6">
+          <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">Violations Created Successfully!</h2>
+          <p className="text-zinc-700 dark:text-zinc-300 mb-6">
             {violations.length} violation record{violations.length !== 1 ? 's' : ''} have been added to your system.
           </p>
           <div className="flex justify-center gap-4">

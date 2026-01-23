@@ -27,7 +27,7 @@ const HeroSection = ({ heroTextIndex, heroTexts }) => {
               <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=32&h=32&fit=crop&crop=face" className="w-8 h-8 rounded-full border-2 border-white" alt="" />
               <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face" className="w-8 h-8 rounded-full border-2 border-white" alt="" />
             </div>
-            <span className="text-sm text-[#475569]">
+            <span className="text-sm text-zinc-600 dark:text-zinc-300">
               <strong className="text-primary-500">500+</strong> carriers trust VroomX
             </span>
           </div>
@@ -39,7 +39,7 @@ const HeroSection = ({ heroTextIndex, heroTexts }) => {
               <span className="invisible col-start-1 row-start-1">ZERO STRESS.</span>
               <span
                 key={heroTextIndex}
-                className="typewriter-text col-start-1 row-start-1 text-transparent bg-clip-text bg-gradient-to-b from-[#475569] to-[#94A3B8]"
+                className="typewriter-text col-start-1 row-start-1 text-transparent bg-clip-text bg-gradient-to-b from-zinc-600 dark:from-zinc-300 to-zinc-400 dark:to-zinc-400"
               >
                 {heroTexts[heroTextIndex]}
               </span>
@@ -57,7 +57,7 @@ const HeroSection = ({ heroTextIndex, heroTexts }) => {
             <span className="font-semibold">stay FMCSA-ready</span>.
           </p>
 
-          <p className="text-[#475569] text-base md:text-lg max-w-xl mb-8 italic animate-fade-in-up mx-auto lg:mx-0" style={{ animationDelay: '0.14s' }}>
+          <p className="text-zinc-600 dark:text-zinc-300 text-base md:text-lg max-w-xl mb-8 italic animate-fade-in-up mx-auto lg:mx-0" style={{ animationDelay: '0.14s' }}>
             We empower small carriers to take control of compliance — not outsource it.
           </p>
 
@@ -65,17 +65,17 @@ const HeroSection = ({ heroTextIndex, heroTexts }) => {
           <div className="flex flex-wrap gap-6 mb-10 justify-center lg:justify-start animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
             <div className="text-center">
               <div className="text-2xl font-black text-cta-500">3,247+</div>
-              <div className="text-xs text-[#475569]">CSA Checks</div>
+              <div className="text-xs text-zinc-600 dark:text-zinc-300">CSA Checks</div>
             </div>
             <div className="w-px bg-[#E2E8F0]" />
             <div className="text-center">
               <div className="text-2xl font-black text-primary-500">99.2%</div>
-              <div className="text-xs text-[#475569]">Uptime</div>
+              <div className="text-xs text-zinc-600 dark:text-zinc-300">Uptime</div>
             </div>
             <div className="w-px bg-[#E2E8F0]" />
             <div className="text-center">
               <div className="text-2xl font-black text-success-500">4.9★</div>
-              <div className="text-xs text-[#475569]">Rating</div>
+              <div className="text-xs text-zinc-600 dark:text-zinc-300">Rating</div>
             </div>
           </div>
 

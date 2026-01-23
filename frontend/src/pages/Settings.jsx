@@ -259,7 +259,7 @@ const Settings = () => {
       {/* Page Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Settings</h1>
-        <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1">Manage your account, companies, and subscription</p>
+        <p className="text-zinc-600 dark:text-zinc-300 text-sm mt-1">Manage your account, companies, and subscription</p>
       </div>
 
       {/* Tabs */}
@@ -277,7 +277,7 @@ const Settings = () => {
                 className={`flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 -mb-px transition-colors whitespace-nowrap ${
                   activeTab === tab.id
                     ? 'border-accent-500 text-accent-600 dark:text-accent-400 bg-accent-50/30 dark:bg-accent-500/10'
-                    : 'border-transparent text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-50/50 dark:hover:bg-zinc-800/50'
+                    : 'border-transparent text-zinc-600 dark:text-zinc-300 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-50/50 dark:hover:bg-zinc-800/50'
                 }`}
               >
                 <Icon className="w-4 h-4" />

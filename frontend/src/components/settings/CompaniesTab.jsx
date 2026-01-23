@@ -36,7 +36,7 @@ const CompaniesTab = ({
               >
                 <div>
                   <p className="font-medium text-zinc-900 dark:text-white">{inv.company.name}</p>
-                  <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                  <p className="text-sm text-zinc-600 dark:text-zinc-300">
                     Invited as {inv.role?.replace('_', ' ')} by {inv.invitedBy.firstName}
                   </p>
                 </div>
@@ -69,7 +69,7 @@ const CompaniesTab = ({
           </div>
           <div>
             <h3 className="font-semibold text-zinc-900 dark:text-white">Your Companies</h3>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            <p className="text-xs text-zinc-600 dark:text-zinc-300">
               {companies.length} of {subscription?.limits?.maxCompanies === Infinity ? 'unlimited' : subscription?.limits?.maxCompanies || 1} companies
             </p>
           </div>
@@ -106,7 +106,7 @@ const CompaniesTab = ({
                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
                   isActive ? 'bg-accent-500/20' : 'bg-zinc-100 dark:bg-zinc-800'
                 }`}>
-                  <FiBriefcase className={`w-5 h-5 ${isActive ? 'text-accent-500' : 'text-zinc-500 dark:text-zinc-400'}`} />
+                  <FiBriefcase className={`w-5 h-5 ${isActive ? 'text-accent-500' : 'text-zinc-600 dark:text-zinc-300'}`} />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
@@ -118,7 +118,7 @@ const CompaniesTab = ({
                     )}
                   </div>
                   <div className="flex items-center gap-3 mt-0.5">
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400 font-mono">DOT# {company.dotNumber}</p>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-300 font-mono">DOT# {company.dotNumber}</p>
                     <span className={`px-2 py-0.5 rounded text-xs font-medium ${getRoleBadgeColor(company.role)}`}>
                       {company.role?.replace('_', ' ').toUpperCase()}
                     </span>
@@ -163,8 +163,8 @@ const CompaniesTab = ({
           {companyMembers.length === 0 ? (
             <div className="text-center py-8">
               <FiUsers className="w-10 h-10 text-zinc-400 dark:text-primary-500 mx-auto mb-2" />
-              <p className="text-zinc-500 dark:text-zinc-400">No team members yet</p>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">Invite people to join this company</p>
+              <p className="text-zinc-600 dark:text-zinc-300">No team members yet</p>
+              <p className="text-sm text-zinc-600 dark:text-zinc-300">Invite people to join this company</p>
             </div>
           ) : (
             <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
@@ -176,7 +176,7 @@ const CompaniesTab = ({
                     </div>
                     <div>
                       <p className="font-medium text-zinc-900 dark:text-white">{member.firstName} {member.lastName}</p>
-                      <p className="text-sm text-zinc-500 dark:text-zinc-400">{member.email}</p>
+                      <p className="text-sm text-zinc-600 dark:text-zinc-300">{member.email}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -209,7 +209,7 @@ const CompaniesTab = ({
                   >
                     <div>
                       <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">{inv.email}</p>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400">Invited as {inv.role?.replace('_', ' ')}</p>
+                      <p className="text-xs text-zinc-600 dark:text-zinc-300">Invited as {inv.role?.replace('_', ' ')}</p>
                     </div>
                     <button
                       onClick={() => handleCancelInvitation(inv.id)}

@@ -46,7 +46,7 @@ const BillingTab = ({ subscription, companies, currentUsage, handleManageBilling
           </div>
           <p className="text-2xl font-bold text-zinc-900 dark:text-white">
             {currentUsage?.companies || companies.length}
-            <span className="text-sm font-normal text-zinc-500 dark:text-zinc-400 ml-1">
+            <span className="text-sm font-normal text-zinc-600 dark:text-zinc-300 ml-1">
               / {subscription?.limits?.maxCompanies === Infinity ? '∞' : subscription?.limits?.maxCompanies || 1}
             </span>
           </p>
@@ -58,7 +58,7 @@ const BillingTab = ({ subscription, companies, currentUsage, handleManageBilling
           </div>
           <p className="text-2xl font-bold text-zinc-900 dark:text-white">
             {currentUsage?.drivers || 0}
-            <span className="text-sm font-normal text-zinc-500 dark:text-zinc-400 ml-1">
+            <span className="text-sm font-normal text-zinc-600 dark:text-zinc-300 ml-1">
               / {subscription?.limits?.maxDriversPerCompany === Infinity ? '∞' : subscription?.limits?.maxDriversPerCompany || 3}
             </span>
           </p>
@@ -70,7 +70,7 @@ const BillingTab = ({ subscription, companies, currentUsage, handleManageBilling
           </div>
           <p className="text-2xl font-bold text-zinc-900 dark:text-white">
             {currentUsage?.vehicles || 0}
-            <span className="text-sm font-normal text-zinc-500 dark:text-zinc-400 ml-1">
+            <span className="text-sm font-normal text-zinc-600 dark:text-zinc-300 ml-1">
               / {subscription?.limits?.maxVehiclesPerCompany === Infinity ? '∞' : subscription?.limits?.maxVehiclesPerCompany || 3}
             </span>
           </p>

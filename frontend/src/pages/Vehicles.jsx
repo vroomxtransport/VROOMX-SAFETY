@@ -92,7 +92,7 @@ const Vehicles = () => {
           </div>
           <div>
             <p className="font-semibold text-zinc-900 dark:text-white">{row.unitNumber}</p>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400 capitalize">{row.vehicleType?.replace('_', ' ')}</p>
+            <p className="text-xs text-zinc-600 dark:text-zinc-300 capitalize">{row.vehicleType?.replace('_', ' ')}</p>
           </div>
         </div>
       )
@@ -108,7 +108,7 @@ const Vehicles = () => {
       render: (row) => (
         <div>
           <p className="text-sm text-zinc-800 dark:text-zinc-200">{row.make || 'N/A'} {row.model || ''}</p>
-          {row.year && <p className="text-xs text-zinc-500 dark:text-zinc-400">{row.year}</p>}
+          {row.year && <p className="text-xs text-zinc-600 dark:text-zinc-300">{row.year}</p>}
         </div>
       )
     },
@@ -120,7 +120,7 @@ const Vehicles = () => {
           <div>
             <p className="text-sm font-mono text-zinc-700 dark:text-zinc-300">{formatDate(row.annualInspection?.nextDueDate)}</p>
             {days !== null && (
-              <p className={`text-xs font-medium ${days < 0 ? 'text-danger-600 dark:text-danger-400' : days <= 30 ? 'text-warning-600 dark:text-warning-400' : 'text-zinc-500 dark:text-zinc-400'}`}>
+              <p className={`text-xs font-medium ${days < 0 ? 'text-danger-600 dark:text-danger-400' : days <= 30 ? 'text-warning-600 dark:text-warning-400' : 'text-zinc-600 dark:text-zinc-300'}`}>
                 {days < 0 ? `Overdue ${Math.abs(days)}d` : `${days}d left`}
               </p>
             )}
@@ -140,7 +140,7 @@ const Vehicles = () => {
             e.stopPropagation();
             navigate(`/app/vehicles/${row._id}`);
           }}
-          className="p-2 text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-primary-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+          className="p-2 text-zinc-600 dark:text-zinc-300 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-primary-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
         >
           <FiEye className="w-4 h-4" />
         </button>
@@ -154,7 +154,7 @@ const Vehicles = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Vehicle Files</h1>
-          <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1">Manage vehicle maintenance and inspections per 49 CFR 396</p>
+          <p className="text-zinc-600 dark:text-zinc-300 text-sm mt-1">Manage vehicle maintenance and inspections per 49 CFR 396</p>
         </div>
         <button
           onClick={() => setShowAddModal(true)}
@@ -174,46 +174,46 @@ const Vehicles = () => {
             </div>
             <div>
               <p className="text-2xl font-bold text-zinc-900 dark:text-white font-mono">{vehicles.length || 0}</p>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">Total Vehicles</p>
+              <p className="text-xs text-zinc-600 dark:text-zinc-300">Total Vehicles</p>
             </div>
           </div>
         </div>
         <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-success-100 dark:bg-success-500/20 flex items-center justify-center">
-              <FiCheckCircle className="w-5 h-5 text-success-600" />
+              <FiCheckCircle className="w-5 h-5 text-success-600 dark:text-success-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-success-600 font-mono">
+              <p className="text-2xl font-bold text-success-600 dark:text-success-400 font-mono">
                 {vehicles.filter(v => v.status === 'active').length}
               </p>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">Active</p>
+              <p className="text-xs text-zinc-600 dark:text-zinc-300">Active</p>
             </div>
           </div>
         </div>
         <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-warning-100 dark:bg-warning-500/20 flex items-center justify-center">
-              <FiTool className="w-5 h-5 text-warning-600" />
+              <FiTool className="w-5 h-5 text-warning-600 dark:text-warning-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-warning-600 font-mono">
+              <p className="text-2xl font-bold text-warning-600 dark:text-warning-400 font-mono">
                 {vehicles.filter(v => v.status === 'maintenance').length}
               </p>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">Maintenance</p>
+              <p className="text-xs text-zinc-600 dark:text-zinc-300">Maintenance</p>
             </div>
           </div>
         </div>
         <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-danger-100 dark:bg-danger-500/20 flex items-center justify-center">
-              <FiAlertTriangle className="w-5 h-5 text-danger-600" />
+              <FiAlertTriangle className="w-5 h-5 text-danger-600 dark:text-danger-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-danger-600 font-mono">
+              <p className="text-2xl font-bold text-danger-600 dark:text-danger-400 font-mono">
                 {vehicles.filter(v => v.status === 'out_of_service').length}
               </p>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">Out of Service</p>
+              <p className="text-xs text-zinc-600 dark:text-zinc-300">Out of Service</p>
             </div>
           </div>
         </div>

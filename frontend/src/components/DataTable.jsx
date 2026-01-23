@@ -16,7 +16,7 @@ const DataTable = ({
     return (
       <div className="flex flex-col items-center justify-center py-16 bg-white dark:bg-primary-800 rounded-xl border border-primary-200/60 dark:border-primary-700">
         <LoadingSpinner size="lg" />
-        <p className="mt-4 text-sm text-primary-500 dark:text-primary-400">Loading data...</p>
+        <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-300">Loading data...</p>
       </div>
     );
   }
@@ -46,7 +46,7 @@ const DataTable = ({
                       <EmptyIcon className="w-8 h-8 text-primary-400" />
                     </div>
                     <p className="text-primary-600 dark:text-primary-300 font-medium">{emptyMessage}</p>
-                    <p className="text-sm text-primary-400 mt-1">Try adjusting your filters or add new data</p>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-1">Try adjusting your filters or add new data</p>
                   </div>
                 </td>
               </tr>
@@ -83,12 +83,12 @@ const DataTable = ({
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between px-4 py-3 border-t border-primary-200 dark:border-primary-700 bg-gradient-to-b from-primary-50/50 to-white dark:from-primary-900/50 dark:to-primary-800">
-          <p className="text-sm text-primary-500 dark:text-primary-400 font-mono">
+          <p className="text-sm text-zinc-600 dark:text-zinc-300 font-mono">
             Page <span className="font-semibold text-primary-700 dark:text-primary-200">{page}</span> of {totalPages}
           </p>
           <div className="flex items-center gap-1">
             <button
-              className="p-2 text-primary-500 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-200 hover:bg-primary-100 dark:hover:bg-primary-700 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="p-2 text-zinc-600 dark:text-zinc-300 hover:text-primary-700 dark:hover:text-primary-200 hover:bg-primary-100 dark:hover:bg-primary-700 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               onClick={() => onPageChange(page - 1)}
               disabled={page <= 1}
             >
@@ -113,7 +113,7 @@ const DataTable = ({
                   className={`w-9 h-9 rounded-lg text-sm font-medium transition-all duration-150 ${
                     pageNum === page
                       ? 'text-white shadow-md bg-primary-600 dark:bg-primary-500'
-                      : 'text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-700'
+                      : 'text-zinc-700 dark:text-zinc-300 hover:bg-primary-100 dark:hover:bg-primary-700'
                   }`}
                   onClick={() => onPageChange(pageNum)}
                 >
@@ -123,7 +123,7 @@ const DataTable = ({
             })}
 
             <button
-              className="p-2 text-primary-500 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-200 hover:bg-primary-100 dark:hover:bg-primary-700 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="p-2 text-zinc-600 dark:text-zinc-300 hover:text-primary-700 dark:hover:text-primary-200 hover:bg-primary-100 dark:hover:bg-primary-700 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               onClick={() => onPageChange(page + 1)}
               disabled={page >= totalPages}
             >

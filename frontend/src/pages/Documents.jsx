@@ -123,8 +123,8 @@ const Documents = () => {
             <FiFile className="w-5 h-5 text-blue-600" />
           </div>
           <div>
-            <p className="font-medium text-gray-900">{row.name}</p>
-            <p className="text-xs text-gray-500">{row.documentType}</p>
+            <p className="font-medium text-zinc-900 dark:text-zinc-100">{row.name}</p>
+            <p className="text-xs text-zinc-600 dark:text-zinc-300">{row.documentType}</p>
           </div>
         </div>
       )
@@ -140,13 +140,13 @@ const Documents = () => {
     {
       header: 'Expiry',
       render: (row) => {
-        if (!row.expiryDate) return <span className="text-gray-400">N/A</span>;
+        if (!row.expiryDate) return <span className="text-zinc-500 dark:text-zinc-400">N/A</span>;
         const days = daysUntilExpiry(row.expiryDate);
         return (
           <div>
             <p className="text-sm">{formatDate(row.expiryDate)}</p>
             {days !== null && days <= 30 && (
-              <p className={`text-xs ${days < 0 ? 'text-red-600' : 'text-yellow-600'}`}>
+              <p className={`text-xs ${days < 0 ? 'text-red-600 dark:text-red-400' : 'text-yellow-600 dark:text-yellow-400'}`}>
                 {days < 0 ? `${Math.abs(days)} days overdue` : `${days} days left`}
               </p>
             )}
@@ -160,7 +160,7 @@ const Documents = () => {
     },
     {
       header: 'Size',
-      render: (row) => <span className="text-sm text-gray-500">{formatFileSize(row.fileSize)}</span>
+      render: (row) => <span className="text-sm text-zinc-600 dark:text-zinc-300">{formatFileSize(row.fileSize)}</span>
     },
     {
       header: 'Actions',
@@ -171,7 +171,7 @@ const Documents = () => {
               href={row.fileUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-2 text-gray-500 hover:text-primary-600 hover:bg-gray-100 rounded-lg"
+              className="p-2 text-zinc-600 dark:text-zinc-300 hover:text-primary-600 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg"
               title="View"
             >
               <FiEye className="w-4 h-4" />
@@ -182,7 +182,7 @@ const Documents = () => {
               e.stopPropagation();
               handleDelete(row._id);
             }}
-            className="p-2 text-gray-500 hover:text-red-600 hover:bg-gray-100 rounded-lg"
+            className="p-2 text-zinc-600 dark:text-zinc-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg"
             title="Delete"
           >
             <FiTrash2 className="w-4 h-4" />
@@ -197,8 +197,8 @@ const Documents = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Document Library</h1>
-          <p className="text-gray-500">Centralized document management with expiration tracking</p>
+          <h1 className="text-2xl font-bold text-zinc-800 dark:text-zinc-100">Document Library</h1>
+          <p className="text-zinc-600 dark:text-zinc-300">Centralized document management with expiration tracking</p>
         </div>
         <button
           onClick={() => setShowUploadModal(true)}
@@ -215,7 +215,7 @@ const Documents = () => {
           <FiAlertCircle className="w-5 h-5 mr-3" />
           <div>
             {expiring.expired?.count > 0 && (
-              <span className="font-medium text-red-600">{expiring.expired.count} document(s) expired. </span>
+              <span className="font-medium text-red-600 dark:text-red-400">{expiring.expired.count} document(s) expired. </span>
             )}
             {expiring.expiring?.count > 0 && (
               <span>{expiring.expiring.count} document(s) expiring in the next 30 days.</span>
@@ -231,32 +231,32 @@ const Documents = () => {
             <FiFolder className="w-8 h-8 text-blue-600" />
             <div>
               <p className="text-2xl font-bold">{stats?.totals?.total || 0}</p>
-              <p className="text-xs text-gray-500">Total</p>
+              <p className="text-xs text-zinc-600 dark:text-zinc-300">Total</p>
             </div>
           </div>
         </div>
         <div className="card p-4">
           <div className="text-center">
-            <p className="text-2xl font-bold text-green-600">{stats?.totals?.valid || 0}</p>
-            <p className="text-xs text-gray-500">Valid</p>
+            <p className="text-2xl font-bold text-green-600 dark:text-green-400">{stats?.totals?.valid || 0}</p>
+            <p className="text-xs text-zinc-600 dark:text-zinc-300">Valid</p>
           </div>
         </div>
         <div className="card p-4">
           <div className="text-center">
-            <p className="text-2xl font-bold text-yellow-600">{stats?.totals?.dueSoon || 0}</p>
-            <p className="text-xs text-gray-500">Due Soon</p>
+            <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{stats?.totals?.dueSoon || 0}</p>
+            <p className="text-xs text-zinc-600 dark:text-zinc-300">Due Soon</p>
           </div>
         </div>
         <div className="card p-4">
           <div className="text-center">
-            <p className="text-2xl font-bold text-red-600">{stats?.totals?.expired || 0}</p>
-            <p className="text-xs text-gray-500">Expired</p>
+            <p className="text-2xl font-bold text-red-600 dark:text-red-400">{stats?.totals?.expired || 0}</p>
+            <p className="text-xs text-zinc-600 dark:text-zinc-300">Expired</p>
           </div>
         </div>
         <div className="card p-4">
           <div className="text-center">
-            <p className="text-2xl font-bold text-gray-400">{stats?.totals?.missing || 0}</p>
-            <p className="text-xs text-gray-500">Missing</p>
+            <p className="text-2xl font-bold text-zinc-500 dark:text-zinc-400">{stats?.totals?.missing || 0}</p>
+            <p className="text-xs text-zinc-600 dark:text-zinc-300">Missing</p>
           </div>
         </div>
       </div>
@@ -266,7 +266,7 @@ const Documents = () => {
         <div className="flex flex-col sm:flex-row gap-4">
           <form onSubmit={handleSearch} className="flex-1">
             <div className="relative">
-              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 dark:text-zinc-400" />
               <input
                 type="text"
                 placeholder="Search documents..."
@@ -334,7 +334,7 @@ const Documents = () => {
               className="form-input"
               accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx"
             />
-            <p className="text-xs text-gray-500 mt-1">PDF, JPG, PNG, DOC, XLS (Max 10MB)</p>
+            <p className="text-xs text-zinc-600 dark:text-zinc-300 mt-1">PDF, JPG, PNG, DOC, XLS (Max 10MB)</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

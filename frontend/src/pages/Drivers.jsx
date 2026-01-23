@@ -100,7 +100,7 @@ const Drivers = () => {
           </div>
           <div>
             <p className="font-medium text-zinc-900 dark:text-white">{row.firstName} {row.lastName}</p>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400 font-mono">{row.employeeId}</p>
+            <p className="text-xs text-zinc-600 dark:text-zinc-300 font-mono">{row.employeeId}</p>
           </div>
         </div>
       )
@@ -110,7 +110,7 @@ const Drivers = () => {
       render: (row) => (
         <div>
           <p className="text-sm font-mono text-zinc-800 dark:text-zinc-200">{row.cdl?.number || 'N/A'}</p>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400">Class {row.cdl?.class} - {row.cdl?.state}</p>
+          <p className="text-xs text-zinc-600 dark:text-zinc-300">Class {row.cdl?.class} - {row.cdl?.state}</p>
         </div>
       )
     },
@@ -158,7 +158,7 @@ const Drivers = () => {
             e.stopPropagation();
             navigate(`/app/drivers/${row._id}`);
           }}
-          className="p-2 text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-primary-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+          className="p-2 text-zinc-600 dark:text-zinc-300 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-primary-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
           title="View Details"
         >
           <FiEye className="w-4 h-4" />
@@ -173,7 +173,7 @@ const Drivers = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Driver Qualification Files</h1>
-          <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1">Manage driver documents and compliance per 49 CFR 391</p>
+          <p className="text-zinc-600 dark:text-zinc-300 text-sm mt-1">Manage driver documents and compliance per 49 CFR 391</p>
         </div>
         <button
           onClick={() => setShowAddModal(true)}
@@ -193,46 +193,46 @@ const Drivers = () => {
             </div>
             <div>
               <p className="text-2xl font-bold text-zinc-900 dark:text-white font-mono">{drivers.length || 0}</p>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">Total Drivers</p>
+              <p className="text-xs text-zinc-600 dark:text-zinc-300">Total Drivers</p>
             </div>
           </div>
         </div>
         <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-success-100 dark:bg-success-500/20 flex items-center justify-center">
-              <FiCheckCircle className="w-5 h-5 text-success-600" />
+              <FiCheckCircle className="w-5 h-5 text-success-600 dark:text-success-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-success-600 font-mono">
+              <p className="text-2xl font-bold text-success-600 dark:text-success-400 font-mono">
                 {drivers.filter(d => d.complianceStatus?.overall === 'compliant').length}
               </p>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">Compliant</p>
+              <p className="text-xs text-zinc-600 dark:text-zinc-300">Compliant</p>
             </div>
           </div>
         </div>
         <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-warning-100 dark:bg-warning-500/20 flex items-center justify-center">
-              <FiAlertTriangle className="w-5 h-5 text-warning-600" />
+              <FiAlertTriangle className="w-5 h-5 text-warning-600 dark:text-warning-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-warning-600 font-mono">
+              <p className="text-2xl font-bold text-warning-600 dark:text-warning-400 font-mono">
                 {drivers.filter(d => d.complianceStatus?.overall === 'warning').length}
               </p>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">Expiring Soon</p>
+              <p className="text-xs text-zinc-600 dark:text-zinc-300">Expiring Soon</p>
             </div>
           </div>
         </div>
         <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-danger-100 dark:bg-danger-500/20 flex items-center justify-center">
-              <FiAlertTriangle className="w-5 h-5 text-danger-600" />
+              <FiAlertTriangle className="w-5 h-5 text-danger-600 dark:text-danger-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-danger-600 font-mono">
+              <p className="text-2xl font-bold text-danger-600 dark:text-danger-400 font-mono">
                 {drivers.filter(d => d.complianceStatus?.overall === 'non_compliant').length}
               </p>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">Non-Compliant</p>
+              <p className="text-xs text-zinc-600 dark:text-zinc-300">Non-Compliant</p>
             </div>
           </div>
         </div>

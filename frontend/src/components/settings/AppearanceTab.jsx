@@ -15,7 +15,7 @@ const AppearanceTab = ({ theme, setLightTheme, setDarkTheme, setSystemTheme }) =
         </div>
         <div>
           <h3 className="font-semibold text-zinc-900 dark:text-white">Theme</h3>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">Choose how VroomX Safety looks to you</p>
+          <p className="text-sm text-zinc-600 dark:text-zinc-300">Choose how VroomX Safety looks to you</p>
         </div>
       </div>
 
@@ -41,7 +41,7 @@ const AppearanceTab = ({ theme, setLightTheme, setDarkTheme, setSystemTheme }) =
               <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
                 isSelected
                   ? 'bg-accent-500/20 text-accent-600 dark:text-accent-400'
-                  : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400'
+                  : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300'
               }`}>
                 <option.icon className="w-5 h-5" />
               </div>
@@ -49,7 +49,7 @@ const AppearanceTab = ({ theme, setLightTheme, setDarkTheme, setSystemTheme }) =
                 <p className={`font-medium ${isSelected ? 'text-accent-700 dark:text-accent-400' : 'text-zinc-800 dark:text-zinc-200'}`}>
                   {option.label}
                 </p>
-                <p className="text-sm text-zinc-500 dark:text-zinc-400">{option.description}</p>
+                <p className="text-sm text-zinc-600 dark:text-zinc-300">{option.description}</p>
               </div>
               {isSelected && (
                 <div className="w-6 h-6 rounded-full bg-accent-500 flex items-center justify-center">

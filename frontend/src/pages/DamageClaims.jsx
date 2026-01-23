@@ -164,8 +164,8 @@ const DamageClaims = () => {
       header: 'Claim #',
       render: (row) => (
         <div>
-          <span className="font-mono text-sm font-semibold text-primary-800">{row.claimNumber}</span>
-          <p className="text-xs text-primary-400">{formatDate(row.incidentDate)}</p>
+          <span className="font-mono text-sm font-semibold text-zinc-800 dark:text-zinc-200">{row.claimNumber}</span>
+          <p className="text-xs text-zinc-600 dark:text-zinc-300">{formatDate(row.incidentDate)}</p>
         </div>
       )
     },
@@ -175,15 +175,15 @@ const DamageClaims = () => {
         <div className="flex items-center gap-2">
           {row.driverId ? (
             <>
-              <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-xs font-semibold text-primary-600">
+              <div className="w-8 h-8 rounded-full bg-primary-100 dark:bg-zinc-700 flex items-center justify-center text-xs font-semibold text-zinc-700 dark:text-zinc-300">
                 {row.driverId?.firstName?.[0]}{row.driverId?.lastName?.[0]}
               </div>
-              <span className="text-sm text-primary-800 font-medium">
+              <span className="text-sm text-zinc-800 dark:text-zinc-200 font-medium">
                 {row.driverId.firstName} {row.driverId.lastName}
               </span>
             </>
           ) : (
-            <span className="text-sm text-primary-400">Not assigned</span>
+            <span className="text-sm text-zinc-600 dark:text-zinc-300">Not assigned</span>
           )}
         </div>
       )
@@ -191,7 +191,7 @@ const DamageClaims = () => {
     {
       header: 'Type',
       render: (row) => (
-        <span className="text-sm text-primary-700 capitalize">
+        <span className="text-sm text-zinc-700 dark:text-zinc-200 capitalize">
           {getDamageTypeLabel(row.damageType)}
         </span>
       )
@@ -199,17 +199,17 @@ const DamageClaims = () => {
     {
       header: 'Description',
       render: (row) => (
-        <p className="text-sm text-primary-700 truncate max-w-xs">{row.description}</p>
+        <p className="text-sm text-zinc-700 dark:text-zinc-200 truncate max-w-xs">{row.description}</p>
       )
     },
     {
       header: 'Fault',
       render: (row) => (
         <span className={`text-xs font-semibold px-2 py-1 rounded ${
-          row.faultParty === 'driver' ? 'bg-danger-100 text-danger-700' :
-          row.faultParty === 'third_party' ? 'bg-info-100 text-info-700' :
-          row.faultParty === 'unknown' ? 'bg-primary-100 text-primary-600' :
-          'bg-warning-100 text-warning-700'
+          row.faultParty === 'driver' ? 'bg-danger-100 dark:bg-danger-900/30 text-danger-700 dark:text-danger-400' :
+          row.faultParty === 'third_party' ? 'bg-info-100 dark:bg-info-900/30 text-info-700 dark:text-info-400' :
+          row.faultParty === 'unknown' ? 'bg-primary-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300' :
+          'bg-warning-100 dark:bg-warning-900/30 text-warning-700 dark:text-warning-400'
         }`}>
           {getFaultLabel(row.faultParty)}
         </span>
@@ -219,11 +219,11 @@ const DamageClaims = () => {
       header: 'Amount',
       render: (row) => (
         <div className="text-right">
-          <p className="font-mono text-sm font-semibold text-primary-800">
+          <p className="font-mono text-sm font-semibold text-zinc-800 dark:text-zinc-200">
             {formatCurrency(row.claimAmount)}
           </p>
           {row.settlementAmount > 0 && (
-            <p className="text-xs text-success-600">Settled: {formatCurrency(row.settlementAmount)}</p>
+            <p className="text-xs text-success-600 dark:text-success-400">Settled: {formatCurrency(row.settlementAmount)}</p>
           )}
         </div>
       )
@@ -243,12 +243,12 @@ const DamageClaims = () => {
       render: (row) => (
         <div className="flex items-center gap-1">
           {row.documents?.length > 0 ? (
-            <span className="text-xs text-primary-500 flex items-center gap-1">
+            <span className="text-xs text-zinc-600 dark:text-zinc-300 flex items-center gap-1">
               <FiPaperclip className="w-3 h-3" />
               {row.documents.length}
             </span>
           ) : (
-            <span className="text-xs text-primary-400">-</span>
+            <span className="text-xs text-zinc-600 dark:text-zinc-300">-</span>
           )}
         </div>
       )
@@ -262,7 +262,7 @@ const DamageClaims = () => {
             setSelectedClaim(row);
             setShowDetailModal(true);
           }}
-          className="p-2 text-primary-500 hover:text-primary-700 hover:bg-primary-50 rounded-lg transition-colors"
+          className="p-2 text-zinc-600 dark:text-zinc-300 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-primary-50 dark:hover:bg-zinc-700 rounded-lg transition-colors"
           title="View Details"
         >
           <FiChevronRight className="w-4 h-4" />
@@ -276,11 +276,11 @@ const DamageClaims = () => {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-primary-900 flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
             <FiAlertTriangle className="w-7 h-7 text-danger-500" />
             Damage Claims
           </h1>
-          <p className="text-primary-500 text-sm mt-1">Track and manage cargo, vehicle, and property damage claims</p>
+          <p className="text-zinc-600 dark:text-zinc-300 text-sm mt-1">Track and manage cargo, vehicle, and property damage claims</p>
         </div>
         <button
           onClick={() => {
@@ -298,57 +298,57 @@ const DamageClaims = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl border border-primary-200/60 p-4" style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}>
+        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 p-4" style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center">
-              <FiDollarSign className="w-5 h-5 text-primary-600" />
+            <div className="w-10 h-10 rounded-lg bg-primary-100 dark:bg-zinc-700 flex items-center justify-center">
+              <FiDollarSign className="w-5 h-5 text-primary-600 dark:text-primary-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-primary-900 font-mono">{formatCurrency(stats?.totalClaimAmount || 0)}</p>
-              <p className="text-xs text-primary-500">Total Claimed</p>
+              <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 font-mono">{formatCurrency(stats?.totalClaimAmount || 0)}</p>
+              <p className="text-xs text-zinc-600 dark:text-zinc-300">Total Claimed</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-primary-200/60 p-4" style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}>
+        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 p-4" style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-danger-100 flex items-center justify-center">
-              <FiUser className="w-5 h-5 text-danger-600" />
+            <div className="w-10 h-10 rounded-lg bg-danger-100 dark:bg-danger-900/30 flex items-center justify-center">
+              <FiUser className="w-5 h-5 text-danger-600 dark:text-danger-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-danger-600 font-mono">{formatCurrency(stats?.driverFaultSettled || 0)}</p>
-              <p className="text-xs text-primary-500">Driver Fault (Paid)</p>
+              <p className="text-2xl font-bold text-danger-600 dark:text-danger-400 font-mono">{formatCurrency(stats?.driverFaultSettled || 0)}</p>
+              <p className="text-xs text-zinc-600 dark:text-zinc-300">Driver Fault (Paid)</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-primary-200/60 p-4" style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}>
+        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 p-4" style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-success-100 flex items-center justify-center">
-              <FiCheck className="w-5 h-5 text-success-600" />
+            <div className="w-10 h-10 rounded-lg bg-success-100 dark:bg-success-900/30 flex items-center justify-center">
+              <FiCheck className="w-5 h-5 text-success-600 dark:text-success-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-success-600 font-mono">{formatCurrency(stats?.recovered || 0)}</p>
-              <p className="text-xs text-primary-500">Recovered</p>
+              <p className="text-2xl font-bold text-success-600 dark:text-success-400 font-mono">{formatCurrency(stats?.recovered || 0)}</p>
+              <p className="text-xs text-zinc-600 dark:text-zinc-300">Recovered</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-primary-200/60 p-4" style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}>
+        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 p-4" style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-warning-100 flex items-center justify-center">
-              <FiFileText className="w-5 h-5 text-warning-600" />
+            <div className="w-10 h-10 rounded-lg bg-warning-100 dark:bg-warning-900/30 flex items-center justify-center">
+              <FiFileText className="w-5 h-5 text-warning-600 dark:text-warning-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-warning-600 font-mono">{stats?.openClaims || 0}</p>
-              <p className="text-xs text-primary-500">Open Claims</p>
+              <p className="text-2xl font-bold text-warning-600 dark:text-warning-400 font-mono">{stats?.openClaims || 0}</p>
+              <p className="text-xs text-zinc-600 dark:text-zinc-300">Open Claims</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl border border-primary-200/60 p-4" style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}>
+      <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 p-4" style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}>
         <div className="flex flex-col sm:flex-row gap-4">
           <select
             className="form-select"
@@ -379,7 +379,7 @@ const DamageClaims = () => {
             ))}
           </select>
         </div>
-        <p className="text-xs text-primary-400 mt-3">
+        <p className="text-xs text-zinc-600 dark:text-zinc-300 mt-3">
           {stats?.totalClaims || 0} of {stats?.totalClaims || 0} claims
         </p>
       </div>

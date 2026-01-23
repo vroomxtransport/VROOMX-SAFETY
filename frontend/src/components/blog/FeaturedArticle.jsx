@@ -18,12 +18,12 @@ const FeaturedArticle = ({ article, onClick }) => {
         <div className="p-8 md:p-12 flex flex-col justify-center">
           <div className="flex items-center gap-4 mb-4">
             <span className="px-3 py-1 rounded-full border border-cta-500/30 bg-cta-500/10 text-cta-500 font-mono text-[10px] uppercase tracking-wide">Featured</span>
-            <span className="text-[#94A3B8] text-xs font-mono">{article.date}</span>
+            <span className="text-zinc-400 dark:text-zinc-400 text-xs font-mono">{article.date}</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold text-primary-500 mb-4 leading-tight group-hover:text-cta-500 transition-colors font-heading">
             {article.title}
           </h2>
-          <p className="text-[#475569] mb-8 leading-relaxed">
+          <p className="text-zinc-600 dark:text-zinc-300 mb-8 leading-relaxed">
             {article.description}
           </p>
           <span className="inline-flex items-center gap-2 text-cta-500 font-bold group-hover:gap-3 transition-all">

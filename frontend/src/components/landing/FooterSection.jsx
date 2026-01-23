@@ -12,7 +12,7 @@ const FooterSection = () => {
             <div className="mb-4">
               <VroomXLogo size="md" showText={true} textColor="light" animate={true} linkToHome={true} />
             </div>
-            <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
+            <p className="text-zinc-600 dark:text-zinc-300 text-sm leading-relaxed max-w-xs">
               AI-powered FMCSA compliance made simple for owner-operators and small fleets.
             </p>
           </div>
@@ -21,10 +21,10 @@ const FooterSection = () => {
           <div>
             <h4 className="text-white font-bold mb-4">Product</h4>
             <ul className="space-y-3">
-              <li><a href="#features" className="text-gray-400 text-sm hover:text-white transition-colors">Features</a></li>
-              <li><a href="#pricing" className="text-gray-400 text-sm hover:text-white transition-colors">Pricing</a></li>
-              <li><a href="#csa-checker" className="text-gray-400 text-sm hover:text-white transition-colors">Free CSA Checker</a></li>
-              <li><Link to="/api" className="text-gray-400 text-sm hover:text-white transition-colors">API</Link></li>
+              <li><a href="#features" className="text-zinc-600 dark:text-zinc-300 text-sm hover:text-white transition-colors">Features</a></li>
+              <li><a href="#pricing" className="text-zinc-600 dark:text-zinc-300 text-sm hover:text-white transition-colors">Pricing</a></li>
+              <li><a href="#csa-checker" className="text-zinc-600 dark:text-zinc-300 text-sm hover:text-white transition-colors">Free CSA Checker</a></li>
+              <li><Link to="/api" className="text-zinc-600 dark:text-zinc-300 text-sm hover:text-white transition-colors">API</Link></li>
             </ul>
           </div>
 
@@ -32,10 +32,10 @@ const FooterSection = () => {
           <div>
             <h4 className="text-white font-bold mb-4">Resources</h4>
             <ul className="space-y-3">
-              <li><Link to="/blog" className="text-gray-400 text-sm hover:text-white transition-colors">Blog</Link></li>
-              <li><Link to="/fmcsa-guide" className="text-gray-400 text-sm hover:text-white transition-colors">FMCSA Guide</Link></li>
-              <li><Link to="/dataq-help" className="text-gray-400 text-sm hover:text-white transition-colors">DataQ Help</Link></li>
-              <li><Link to="/support" className="text-gray-400 text-sm hover:text-white transition-colors">Support</Link></li>
+              <li><Link to="/blog" className="text-zinc-600 dark:text-zinc-300 text-sm hover:text-white transition-colors">Blog</Link></li>
+              <li><Link to="/fmcsa-guide" className="text-zinc-600 dark:text-zinc-300 text-sm hover:text-white transition-colors">FMCSA Guide</Link></li>
+              <li><Link to="/dataq-help" className="text-zinc-600 dark:text-zinc-300 text-sm hover:text-white transition-colors">DataQ Help</Link></li>
+              <li><Link to="/support" className="text-zinc-600 dark:text-zinc-300 text-sm hover:text-white transition-colors">Support</Link></li>
             </ul>
           </div>
 
@@ -43,20 +43,20 @@ const FooterSection = () => {
           <div>
             <h4 className="text-white font-bold mb-4">Company</h4>
             <ul className="space-y-3">
-              <li><Link to="/about" className="text-gray-400 text-sm hover:text-white transition-colors">About</Link></li>
-              <li><a href="mailto:support@vroomxsafety.com" className="text-gray-400 text-sm hover:text-white transition-colors">Contact</a></li>
-              <li><Link to="/privacy" className="text-gray-400 text-sm hover:text-white transition-colors">Privacy Policy</Link></li>
-              <li><Link to="/terms" className="text-gray-400 text-sm hover:text-white transition-colors">Terms of Service</Link></li>
+              <li><Link to="/about" className="text-zinc-600 dark:text-zinc-300 text-sm hover:text-white transition-colors">About</Link></li>
+              <li><a href="mailto:support@vroomxsafety.com" className="text-zinc-600 dark:text-zinc-300 text-sm hover:text-white transition-colors">Contact</a></li>
+              <li><Link to="/privacy" className="text-zinc-600 dark:text-zinc-300 text-sm hover:text-white transition-colors">Privacy Policy</Link></li>
+              <li><Link to="/terms" className="text-zinc-600 dark:text-zinc-300 text-sm hover:text-white transition-colors">Terms of Service</Link></li>
             </ul>
           </div>
         </div>
 
         {/* Bottom Section */}
         <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-gray-500 text-sm">
+          <p className="text-zinc-600 dark:text-zinc-300 text-sm">
             &copy; 2026 VroomX Safety. All rights reserved.
           </p>
-          <p className="text-gray-500 text-sm">
+          <p className="text-zinc-600 dark:text-zinc-300 text-sm">
             Made with <span className="text-cta-500">❤️</span> for truckers
           </p>
         </div>

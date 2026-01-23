@@ -38,7 +38,7 @@ const SecurityTab = ({ passwordForm, setPasswordForm, handlePasswordChange, load
               onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
             />
           </div>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Minimum 8 characters</p>
+          <p className="text-xs text-zinc-600 dark:text-zinc-300 mt-1">Minimum 8 characters</p>
         </div>
         <div>
           <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Confirm New Password</label>

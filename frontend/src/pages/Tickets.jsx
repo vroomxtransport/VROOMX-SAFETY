@@ -165,9 +165,9 @@ const Tickets = () => {
       header: 'Date',
       render: (row) => (
         <div>
-          <span className="font-mono text-sm text-primary-700">{formatDate(row.ticketDate)}</span>
+          <span className="font-mono text-sm text-zinc-700 dark:text-zinc-200">{formatDate(row.ticketDate)}</span>
           {row.ticketNumber && (
-            <p className="text-xs text-primary-400 font-mono">#{row.ticketNumber}</p>
+            <p className="text-xs text-zinc-600 dark:text-zinc-300 font-mono">#{row.ticketNumber}</p>
           )}
         </div>
       )
@@ -176,10 +176,10 @@ const Tickets = () => {
       header: 'Driver',
       render: (row) => (
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-xs font-semibold text-primary-600">
+          <div className="w-8 h-8 rounded-full bg-primary-100 dark:bg-zinc-700 flex items-center justify-center text-xs font-semibold text-zinc-700 dark:text-zinc-300">
             {row.driverId?.firstName?.[0]}{row.driverId?.lastName?.[0]}
           </div>
-          <span className="text-sm text-primary-800 font-medium">
+          <span className="text-sm text-zinc-800 dark:text-zinc-200 font-medium">
             {row.driverId ? `${row.driverId.firstName} ${row.driverId.lastName}` : 'N/A'}
           </span>
         </div>
@@ -189,8 +189,8 @@ const Tickets = () => {
       header: 'Description',
       render: (row) => (
         <div className="max-w-xs">
-          <p className="font-medium text-primary-900 truncate">{row.description}</p>
-          <p className="text-xs text-primary-500 capitalize">
+          <p className="font-medium text-zinc-900 dark:text-zinc-100 truncate">{row.description}</p>
+          <p className="text-xs text-zinc-600 dark:text-zinc-300 capitalize">
             {ticketTypes.find(t => t.value === row.ticketType)?.label || row.ticketType}
           </p>
         </div>
@@ -202,16 +202,16 @@ const Tickets = () => {
         <div>
           {row.courtDate ? (
             <>
-              <span className="font-mono text-sm text-primary-700">{formatDate(row.courtDate)}</span>
+              <span className="font-mono text-sm text-zinc-700 dark:text-zinc-200">{formatDate(row.courtDate)}</span>
               {row.daysUntilCourt > 0 && row.daysUntilCourt <= 7 && (
-                <p className="text-xs text-danger-600 font-medium flex items-center gap-1 mt-0.5">
+                <p className="text-xs text-danger-600 dark:text-danger-400 font-medium flex items-center gap-1 mt-0.5">
                   <FiAlertCircle className="w-3 h-3" />
                   {row.daysUntilCourt} days
                 </p>
               )}
             </>
           ) : (
-            <span className="text-sm text-primary-400">Not set</span>
+            <span className="text-sm text-zinc-600 dark:text-zinc-300">Not set</span>
           )}
         </div>
       )
@@ -220,11 +220,11 @@ const Tickets = () => {
       header: 'Fine / Points',
       render: (row) => (
         <div className="text-right">
-          <p className="font-mono text-sm font-semibold text-primary-800">
+          <p className="font-mono text-sm font-semibold text-zinc-800 dark:text-zinc-200">
             {formatCurrency(row.fineAmount)}
           </p>
           {row.points > 0 && (
-            <p className="text-xs text-danger-600 font-medium">{row.points} pts</p>
+            <p className="text-xs text-danger-600 dark:text-danger-400 font-medium">{row.points} pts</p>
           )}
         </div>
       )
@@ -249,7 +249,7 @@ const Tickets = () => {
               setSelectedTicket(row);
               setShowDetailModal(true);
             }}
-            className="p-2 text-primary-500 hover:text-primary-700 hover:bg-primary-50 rounded-lg transition-colors"
+            className="p-2 text-zinc-600 dark:text-zinc-300 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-primary-50 dark:hover:bg-zinc-700 rounded-lg transition-colors"
             title="View Details"
           >
             <FiChevronRight className="w-4 h-4" />
@@ -260,7 +260,7 @@ const Tickets = () => {
                 e.stopPropagation();
                 handleMarkPaid(row);
               }}
-              className="p-2 text-success-600 hover:text-success-700 hover:bg-success-50 rounded-lg transition-colors"
+              className="p-2 text-success-600 dark:text-success-400 hover:text-success-700 dark:hover:text-success-300 hover:bg-success-50 dark:hover:bg-success-900/30 rounded-lg transition-colors"
               title="Mark Paid"
             >
               <FiDollarSign className="w-4 h-4" />
@@ -276,8 +276,8 @@ const Tickets = () => {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-primary-900">Ticket Tracker</h1>
-          <p className="text-primary-500 text-sm mt-1">Manage driver tickets, court dates, and fines</p>
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Ticket Tracker</h1>
+          <p className="text-zinc-600 dark:text-zinc-300 text-sm mt-1">Manage driver tickets, court dates, and fines</p>
         </div>
         <button
           onClick={() => {
@@ -295,62 +295,62 @@ const Tickets = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-        <div className="bg-white rounded-xl border border-primary-200/60 p-4" style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}>
+        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 p-4" style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-warning-100 flex items-center justify-center">
-              <FiFileText className="w-5 h-5 text-warning-600" />
+            <div className="w-10 h-10 rounded-lg bg-warning-100 dark:bg-warning-900/30 flex items-center justify-center">
+              <FiFileText className="w-5 h-5 text-warning-600 dark:text-warning-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-primary-900 font-mono">{stats?.openTickets || 0}</p>
-              <p className="text-xs text-primary-500">Open Tickets</p>
+              <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 font-mono">{stats?.openTickets || 0}</p>
+              <p className="text-xs text-zinc-600 dark:text-zinc-300">Open Tickets</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-primary-200/60 p-4" style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}>
+        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 p-4" style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-info-100 flex items-center justify-center">
-              <FiCalendar className="w-5 h-5 text-info-600" />
+            <div className="w-10 h-10 rounded-lg bg-info-100 dark:bg-info-900/30 flex items-center justify-center">
+              <FiCalendar className="w-5 h-5 text-info-600 dark:text-info-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-info-600 font-mono">{stats?.upcomingCourtDates || 0}</p>
-              <p className="text-xs text-primary-500">Upcoming Court</p>
+              <p className="text-2xl font-bold text-info-600 dark:text-info-400 font-mono">{stats?.upcomingCourtDates || 0}</p>
+              <p className="text-xs text-zinc-600 dark:text-zinc-300">Upcoming Court</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-primary-200/60 p-4" style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}>
+        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 p-4" style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-danger-100 flex items-center justify-center">
-              <FiDollarSign className="w-5 h-5 text-danger-600" />
+            <div className="w-10 h-10 rounded-lg bg-danger-100 dark:bg-danger-900/30 flex items-center justify-center">
+              <FiDollarSign className="w-5 h-5 text-danger-600 dark:text-danger-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-danger-600 font-mono">{formatCurrency(stats?.financials?.totalOutstanding || 0)}</p>
-              <p className="text-xs text-primary-500">Outstanding</p>
+              <p className="text-2xl font-bold text-danger-600 dark:text-danger-400 font-mono">{formatCurrency(stats?.financials?.totalOutstanding || 0)}</p>
+              <p className="text-xs text-zinc-600 dark:text-zinc-300">Outstanding</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-primary-200/60 p-4" style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}>
+        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 p-4" style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-success-100 flex items-center justify-center">
-              <FiCheck className="w-5 h-5 text-success-600" />
+            <div className="w-10 h-10 rounded-lg bg-success-100 dark:bg-success-900/30 flex items-center justify-center">
+              <FiCheck className="w-5 h-5 text-success-600 dark:text-success-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-success-600 font-mono">{formatCurrency(stats?.financials?.totalPaid || 0)}</p>
-              <p className="text-xs text-primary-500">Total Paid</p>
+              <p className="text-2xl font-bold text-success-600 dark:text-success-400 font-mono">{formatCurrency(stats?.financials?.totalPaid || 0)}</p>
+              <p className="text-xs text-zinc-600 dark:text-zinc-300">Total Paid</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-primary-200/60 p-4" style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}>
+        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 p-4" style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-accent-100 flex items-center justify-center">
-              <FiAlertCircle className="w-5 h-5 text-accent-600" />
+            <div className="w-10 h-10 rounded-lg bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center">
+              <FiAlertCircle className="w-5 h-5 text-accent-600 dark:text-accent-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-accent-600 font-mono">{stats?.financials?.totalPoints || 0}</p>
-              <p className="text-xs text-primary-500">Total Points</p>
+              <p className="text-2xl font-bold text-accent-600 dark:text-accent-400 font-mono">{stats?.financials?.totalPoints || 0}</p>
+              <p className="text-xs text-zinc-600 dark:text-zinc-300">Total Points</p>
             </div>
           </div>
         </div>
@@ -358,33 +358,33 @@ const Tickets = () => {
 
       {/* Upcoming Court Dates Alert */}
       {upcomingCourt.length > 0 && (
-        <div className="bg-white rounded-xl border border-info-200 p-4" style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}>
+        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-info-200 dark:border-info-800 p-4" style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}>
           <div className="flex items-center gap-2 mb-3">
-            <FiCalendar className="w-5 h-5 text-info-600" />
-            <h3 className="font-semibold text-primary-900">Upcoming Court Dates</h3>
+            <FiCalendar className="w-5 h-5 text-info-600 dark:text-info-400" />
+            <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">Upcoming Court Dates</h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {upcomingCourt.slice(0, 3).map((ticket) => (
               <div
                 key={ticket._id}
-                className="p-3 rounded-lg bg-info-50 border border-info-200 cursor-pointer hover:bg-info-100 transition-colors"
+                className="p-3 rounded-lg bg-info-50 dark:bg-info-900/20 border border-info-200 dark:border-info-800 cursor-pointer hover:bg-info-100 dark:hover:bg-info-900/30 transition-colors"
                 onClick={() => {
                   setSelectedTicket(ticket);
                   setShowDetailModal(true);
                 }}
               >
                 <div className="flex items-center justify-between mb-1">
-                  <span className="font-mono text-sm font-semibold text-info-700">
+                  <span className="font-mono text-sm font-semibold text-info-700 dark:text-info-300">
                     {formatDate(ticket.courtDate)}
                   </span>
                   {ticket.daysUntilCourt <= 7 && (
-                    <span className="text-xs font-medium text-danger-600 bg-danger-50 px-2 py-0.5 rounded">
+                    <span className="text-xs font-medium text-danger-600 dark:text-danger-400 bg-danger-50 dark:bg-danger-900/30 px-2 py-0.5 rounded">
                       {ticket.daysUntilCourt} days
                     </span>
                   )}
                 </div>
-                <p className="text-sm text-primary-800 font-medium truncate">{ticket.description}</p>
-                <p className="text-xs text-primary-500">
+                <p className="text-sm text-zinc-800 dark:text-zinc-200 font-medium truncate">{ticket.description}</p>
+                <p className="text-xs text-zinc-600 dark:text-zinc-300">
                   {ticket.driverId?.firstName} {ticket.driverId?.lastName}
                 </p>
               </div>
@@ -394,7 +394,7 @@ const Tickets = () => {
       )}
 
       {/* Filters */}
-      <div className="bg-white rounded-xl border border-primary-200/60 p-4" style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}>
+      <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 p-4" style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}>
         <div className="flex flex-col sm:flex-row gap-4">
           <select
             className="form-select"

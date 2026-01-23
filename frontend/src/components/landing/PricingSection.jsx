@@ -9,20 +9,20 @@ const PricingSection = ({ isAnnual, setIsAnnual, pricingPlans, comparisonFeature
           <h2 className="text-3xl md:text-5xl font-heading font-bold text-primary-500 mb-4">
             Simple, Transparent <span className="text-transparent bg-clip-text bg-gradient-to-r from-cta-500 to-cta-600">Pricing</span>
           </h2>
-          <p className="text-lg text-[#475569] mb-8">
+          <p className="text-lg text-zinc-600 dark:text-zinc-300 mb-8">
             No hidden fees. No long contracts. Cancel anytime.
           </p>
 
           {/* Pricing Toggle */}
           <div className="flex items-center justify-center gap-4">
-            <span className={`text-sm font-medium ${!isAnnual ? 'text-primary-500' : 'text-[#94A3B8]'}`}>Monthly</span>
+            <span className={`text-sm font-medium ${!isAnnual ? 'text-primary-500' : 'text-zinc-400 dark:text-zinc-400'}`}>Monthly</span>
             <button
               onClick={() => setIsAnnual(!isAnnual)}
               className={`relative w-14 h-7 rounded-full transition-colors ${isAnnual ? 'bg-cta-500' : 'bg-[#E2E8F0]'}`}
             >
               <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow-md transition-transform ${isAnnual ? 'translate-x-8' : 'translate-x-1'}`} />
             </button>
-            <span className={`text-sm font-medium ${isAnnual ? 'text-primary-500' : 'text-[#94A3B8]'}`}>
+            <span className={`text-sm font-medium ${isAnnual ? 'text-primary-500' : 'text-zinc-400 dark:text-zinc-400'}`}>
               Annual <span className="text-cta-500 font-bold">(Save 20%)</span>
             </span>
           </div>
@@ -46,7 +46,7 @@ const PricingSection = ({ isAnnual, setIsAnnual, pricingPlans, comparisonFeature
 
               <div className="mb-6">
                 <h3 className={`text-xl font-bold mb-1 ${plan.popular ? 'text-white' : 'text-primary-500'}`}>{plan.name}</h3>
-                <p className={`text-sm ${plan.popular ? 'text-white/70' : 'text-[#475569]'}`}>{plan.subtitle}</p>
+                <p className={`text-sm ${plan.popular ? 'text-white/70' : 'text-zinc-600 dark:text-zinc-300'}`}>{plan.subtitle}</p>
               </div>
 
               <div className="mb-6">
@@ -54,17 +54,17 @@ const PricingSection = ({ isAnnual, setIsAnnual, pricingPlans, comparisonFeature
                   <span className={`text-5xl font-black tracking-tight ${plan.popular ? 'text-white' : 'text-primary-500'}`}>
                     ${isAnnual ? plan.annualPrice : plan.monthlyPrice}
                   </span>
-                  <span className={plan.popular ? 'text-white/70' : 'text-[#475569]'}>/mo</span>
+                  <span className={plan.popular ? 'text-white/70' : 'text-zinc-600 dark:text-zinc-300'}>/mo</span>
                 </div>
                 {isAnnual && (
-                  <p className={`text-sm mt-1 ${plan.popular ? 'text-white/70' : 'text-[#475569]'}`}>
+                  <p className={`text-sm mt-1 ${plan.popular ? 'text-white/70' : 'text-zinc-600 dark:text-zinc-300'}`}>
                     Billed <span className="font-semibold">${plan.annualPrice * 12}/year</span>
-                    <span className={`line-through ml-2 ${plan.popular ? 'text-white/40' : 'text-[#94A3B8]'}`}>
+                    <span className={`line-through ml-2 ${plan.popular ? 'text-white/40' : 'text-zinc-400 dark:text-zinc-400'}`}>
                       ${plan.monthlyPrice * 12}
                     </span>
                   </p>
                 )}
-                <p className={`text-sm mt-1 ${plan.popular ? 'text-white/60' : 'text-[#94A3B8]'}`}>
+                <p className={`text-sm mt-1 ${plan.popular ? 'text-white/60' : 'text-zinc-400 dark:text-zinc-400'}`}>
                   {plan.drivers}
                   {plan.extraDriver && <span className="block">{plan.extraDriver}</span>}
                 </p>
@@ -72,7 +72,7 @@ const PricingSection = ({ isAnnual, setIsAnnual, pricingPlans, comparisonFeature
 
               <ul className="space-y-3 mb-8">
                 {plan.features.map((feature, j) => (
-                  <li key={j} className={`flex items-center gap-3 text-sm ${plan.popular ? 'text-white/90' : 'text-[#475569]'}`}>
+                  <li key={j} className={`flex items-center gap-3 text-sm ${plan.popular ? 'text-white/90' : 'text-zinc-600 dark:text-zinc-300'}`}>
                     <FiCheck className={`w-4 h-4 flex-shrink-0 ${plan.popular ? 'text-cta-400' : 'text-success-500'}`} />
                     {feature}
                   </li>
@@ -98,21 +98,21 @@ const PricingSection = ({ isAnnual, setIsAnnual, pricingPlans, comparisonFeature
           <h3 className="text-2xl md:text-3xl font-heading font-bold text-primary-500 text-center mb-4">
             VroomX vs The Competition
           </h3>
-          <p className="text-[#475569] text-center mb-10">See why fleets are switching to VroomX</p>
+          <p className="text-zinc-600 dark:text-zinc-300 text-center mb-10">See why fleets are switching to VroomX</p>
 
           <div className="bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden shadow-lg">
             {/* Table Header */}
             <div className="grid grid-cols-4 bg-[#F8FAFC] border-b border-[#E2E8F0]">
               <div className="p-4 font-bold text-primary-500">Feature</div>
               <div className="p-4 font-bold text-center text-cta-500 bg-cta-50">VroomX</div>
-              <div className="p-4 font-bold text-center text-[#475569]">Spreadsheets</div>
-              <div className="p-4 font-bold text-center text-[#475569]">Other Software</div>
+              <div className="p-4 font-bold text-center text-zinc-600 dark:text-zinc-300">Spreadsheets</div>
+              <div className="p-4 font-bold text-center text-zinc-600 dark:text-zinc-300">Other Software</div>
             </div>
 
             {/* Table Body */}
             {comparisonFeatures.map((row, i) => (
               <div key={i} className={`grid grid-cols-4 ${i !== comparisonFeatures.length - 1 ? 'border-b border-[#E2E8F0]' : ''}`}>
-                <div className="p-4 text-sm text-[#1E293B] font-medium">{row.feature}</div>
+                <div className="p-4 text-sm text-zinc-800 dark:text-zinc-100 font-medium">{row.feature}</div>
                 <div className="p-4 flex justify-center items-center bg-cta-50/50">
                   {typeof row.vroomx === 'boolean' ? (
                     row.vroomx ? (
@@ -134,7 +134,7 @@ const PricingSection = ({ isAnnual, setIsAnnual, pricingPlans, comparisonFeature
                   ) : row.spreadsheets === 'limited' ? (
                     <span className="text-xs text-amber-500 font-medium">Limited</span>
                   ) : (
-                    <span className="text-sm text-[#475569]">{row.spreadsheets}</span>
+                    <span className="text-sm text-zinc-600 dark:text-zinc-300">{row.spreadsheets}</span>
                   )}
                 </div>
                 <div className="p-4 flex justify-center items-center">
@@ -147,14 +147,14 @@ const PricingSection = ({ isAnnual, setIsAnnual, pricingPlans, comparisonFeature
                   ) : row.other === 'limited' ? (
                     <span className="text-xs text-amber-500 font-medium">Limited</span>
                   ) : (
-                    <span className="text-sm text-[#475569]">{row.other}</span>
+                    <span className="text-sm text-zinc-600 dark:text-zinc-300">{row.other}</span>
                   )}
                 </div>
               </div>
             ))}
           </div>
 
-          <p className="text-center text-xs text-[#94A3B8] mt-4">*Spreadsheets require significant time investment and manual maintenance</p>
+          <p className="text-center text-xs text-zinc-400 dark:text-zinc-400 mt-4">*Spreadsheets require significant time investment and manual maintenance</p>
         </div>
       </div>
     </section>

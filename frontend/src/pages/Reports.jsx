@@ -89,8 +89,8 @@ const Reports = () => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-800">Reports & Export</h1>
-        <p className="text-gray-500">Generate PDF reports for compliance audits and record keeping</p>
+        <h1 className="text-2xl font-bold text-zinc-800 dark:text-zinc-100">Reports & Export</h1>
+        <p className="text-zinc-600 dark:text-zinc-300">Generate PDF reports for compliance audits and record keeping</p>
       </div>
 
       {/* Date Range Filter (for applicable reports) */}
@@ -133,8 +133,8 @@ const Reports = () => {
                     <Icon className={`w-6 h-6 ${colors.text}`} />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-gray-800">{report.title}</h3>
-                    <p className="text-sm text-gray-500 mt-1">{report.description}</p>
+                    <h3 className="font-semibold text-zinc-800 dark:text-zinc-100">{report.title}</h3>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-1">{report.description}</p>
 
                     <div className="flex flex-wrap gap-2 mt-4">
                       <button
@@ -177,21 +177,21 @@ const Reports = () => {
         </div>
         <div className="card-body">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-            <div className="p-3 bg-gray-50 rounded-lg">
-              <p className="font-medium text-gray-700">49 CFR 391</p>
-              <p className="text-gray-500">Driver Qualifications</p>
+            <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
+              <p className="font-medium text-zinc-700 dark:text-zinc-200">49 CFR 391</p>
+              <p className="text-zinc-600 dark:text-zinc-300">Driver Qualifications</p>
             </div>
-            <div className="p-3 bg-gray-50 rounded-lg">
-              <p className="font-medium text-gray-700">49 CFR 396</p>
-              <p className="text-gray-500">Vehicle Inspection & Maintenance</p>
+            <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
+              <p className="font-medium text-zinc-700 dark:text-zinc-200">49 CFR 396</p>
+              <p className="text-zinc-600 dark:text-zinc-300">Vehicle Inspection & Maintenance</p>
             </div>
-            <div className="p-3 bg-gray-50 rounded-lg">
-              <p className="font-medium text-gray-700">49 CFR 382</p>
-              <p className="text-gray-500">Drug & Alcohol Testing</p>
+            <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
+              <p className="font-medium text-zinc-700 dark:text-zinc-200">49 CFR 382</p>
+              <p className="text-zinc-600 dark:text-zinc-300">Drug & Alcohol Testing</p>
             </div>
-            <div className="p-3 bg-gray-50 rounded-lg">
-              <p className="font-medium text-gray-700">SMS Methodology</p>
-              <p className="text-gray-500">BASICs Scoring System</p>
+            <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
+              <p className="font-medium text-zinc-700 dark:text-zinc-200">SMS Methodology</p>
+              <p className="text-zinc-600 dark:text-zinc-300">BASICs Scoring System</p>
             </div>
           </div>
         </div>
@@ -201,7 +201,7 @@ const Reports = () => {
       <div className="card">
         <div className="card-header">
           <h3 className="font-semibold">Mock Audit Checklist</h3>
-          <p className="text-sm text-gray-500">Entry-level audit items per FMCSA guidelines</p>
+          <p className="text-sm text-zinc-600 dark:text-zinc-300">Entry-level audit items per FMCSA guidelines</p>
         </div>
         <div className="card-body">
           <div className="space-y-3">
@@ -219,9 +219,9 @@ const Reports = () => {
               'Hours of service records (if applicable)',
               'Insurance certificates current'
             ].map((item, index) => (
-              <div key={index} className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded">
+              <div key={index} className="flex items-center space-x-3 p-2 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded">
                 <input type="checkbox" className="w-4 h-4 text-primary-600" />
-                <span className="text-sm text-gray-700">{item}</span>
+                <span className="text-sm text-zinc-700 dark:text-zinc-200">{item}</span>
               </div>
             ))}
           </div>

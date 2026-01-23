@@ -60,7 +60,7 @@ const Login = () => {
           <h1 className="text-3xl md:text-4xl font-bold text-primary-500 mb-3 font-heading tracking-tight">
             Welcome Back
           </h1>
-          <p className="text-[#475569] text-lg max-w-md mx-auto">
+          <p className="text-zinc-600 dark:text-zinc-300 text-lg max-w-md mx-auto">
             Sign in to continue managing your fleet's compliance
           </p>
         </div>
@@ -84,11 +84,11 @@ const Login = () => {
               <form onSubmit={handleSubmit} className="space-y-5">
                 {/* Email */}
                 <div>
-                  <label className="block text-sm font-semibold text-[#1E293B] mb-2">
+                  <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-100 mb-2">
                     Email Address
                   </label>
                   <div className="relative group">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#94A3B8] group-focus-within:text-primary-500 transition-colors">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400 dark:text-zinc-400 group-focus-within:text-primary-500 transition-colors">
                       <FiMail className="w-5 h-5" />
                     </div>
                     <input
@@ -104,11 +104,11 @@ const Login = () => {
 
                 {/* Password */}
                 <div>
-                  <label className="block text-sm font-semibold text-[#1E293B] mb-2">
+                  <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-100 mb-2">
                     Password
                   </label>
                   <div className="relative group">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#94A3B8] group-focus-within:text-primary-500 transition-colors">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400 dark:text-zinc-400 group-focus-within:text-primary-500 transition-colors">
                       <FiLock className="w-5 h-5" />
                     </div>
                     <input
@@ -121,7 +121,7 @@ const Login = () => {
                     />
                     <button
                       type="button"
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-[#94A3B8] hover:text-primary-500 transition-colors"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 dark:text-zinc-400 hover:text-primary-500 transition-colors"
                       onClick={() => setShowPassword(!showPassword)}
                     >
                       {showPassword ? <FiEyeOff className="w-5 h-5" /> : <FiEye className="w-5 h-5" />}
@@ -152,7 +152,7 @@ const Login = () => {
                   <div className="w-full border-t border-[#E2E8F0]"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-white text-[#94A3B8] font-medium">New to VroomX Safety?</span>
+                  <span className="px-4 bg-white text-zinc-400 dark:text-zinc-400 font-medium">New to VroomX Safety?</span>
                 </div>
               </div>
 
@@ -173,19 +173,19 @@ const Login = () => {
           className="mt-10 flex flex-wrap items-center justify-center gap-6 md:gap-10 animate-fade-in-up"
           style={{ animationDelay: '0.3s' }}
         >
-          <div className="flex items-center gap-2 text-[#94A3B8]">
+          <div className="flex items-center gap-2 text-zinc-400 dark:text-zinc-400">
             <div className="w-8 h-8 rounded-full bg-primary-50 flex items-center justify-center">
               <FiLock className="w-4 h-4 text-primary-500" />
             </div>
             <span className="text-sm font-medium">SSL Secure</span>
           </div>
-          <div className="flex items-center gap-2 text-[#94A3B8]">
+          <div className="flex items-center gap-2 text-zinc-400 dark:text-zinc-400">
             <div className="w-8 h-8 rounded-full bg-primary-50 flex items-center justify-center">
               <FiShield className="w-4 h-4 text-primary-500" />
             </div>
             <span className="text-sm font-medium">FMCSA Compliant</span>
           </div>
-          <div className="flex items-center gap-2 text-[#94A3B8]">
+          <div className="flex items-center gap-2 text-zinc-400 dark:text-zinc-400">
             <div className="w-8 h-8 rounded-full bg-primary-50 flex items-center justify-center">
               <FiCheckCircle className="w-4 h-4 text-primary-500" />
             </div>
@@ -194,7 +194,7 @@ const Login = () => {
         </div>
 
         {/* Bottom link */}
-        <p className="mt-8 text-sm text-[#94A3B8] animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+        <p className="mt-8 text-sm text-zinc-400 dark:text-zinc-400 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
           Need help?{' '}
           <a href="mailto:support@vroomxsafety.com" className="text-primary-500 hover:text-primary-600 font-medium transition-colors">
             Contact support

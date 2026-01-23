@@ -110,15 +110,15 @@ const Billing = () => {
   const getStatusColor = (status) => {
     switch (status) {
       case 'active':
-        return 'bg-success-100 text-success-700 border-success-200';
+        return 'bg-success-100 dark:bg-success-900/30 text-success-700 dark:text-success-400 border-success-200 dark:border-success-700';
       case 'trialing':
-        return 'bg-accent-100 text-accent-700 border-accent-200';
+        return 'bg-accent-100 dark:bg-accent-900/30 text-accent-700 dark:text-accent-400 border-accent-200 dark:border-accent-700';
       case 'past_due':
-        return 'bg-warning-100 text-warning-700 border-warning-200';
+        return 'bg-warning-100 dark:bg-warning-900/30 text-warning-700 dark:text-warning-400 border-warning-200 dark:border-warning-700';
       case 'canceled':
-        return 'bg-danger-100 text-danger-700 border-danger-200';
+        return 'bg-danger-100 dark:bg-danger-900/30 text-danger-700 dark:text-danger-400 border-danger-200 dark:border-danger-700';
       default:
-        return 'bg-primary-100 text-primary-700 border-primary-200';
+        return 'bg-primary-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 border-zinc-200 dark:border-zinc-700';
     }
   };
 
@@ -127,7 +127,7 @@ const Billing = () => {
   // Special view for pending_payment users (Solo tier who need to pay)
   if (subscription?.status === 'pending_payment') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-50 to-white flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 to-white dark:from-zinc-900 dark:to-zinc-950 flex items-center justify-center p-4">
         <div className="max-w-md w-full">
           {/* Logo */}
           <div className="text-center mb-8">
@@ -135,56 +135,56 @@ const Billing = () => {
           </div>
 
           {/* Payment Required Card */}
-          <div className="bg-white rounded-2xl border border-primary-200 shadow-xl p-8">
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-xl p-8">
             <div className="text-center mb-6">
               <div className="w-16 h-16 rounded-full bg-warning-100 flex items-center justify-center mx-auto mb-4">
                 <FiAlertCircle className="w-8 h-8 text-warning-600" />
               </div>
-              <h1 className="text-2xl font-bold text-primary-900 mb-2">Complete Your Subscription</h1>
-              <p className="text-primary-500">
+              <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">Complete Your Subscription</h1>
+              <p className="text-zinc-600 dark:text-zinc-300">
                 Activate your Solo plan to start managing your compliance
               </p>
             </div>
 
             {/* Solo Plan Details */}
-            <div className="bg-primary-50 rounded-xl p-6 mb-6">
+            <div className="bg-primary-50 dark:bg-zinc-800 rounded-xl p-6 mb-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center">
                   <FiUser className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-primary-900">Solo Plan</h3>
-                  <p className="text-sm text-primary-500">Perfect for Owner-Operators</p>
+                  <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">Solo Plan</h3>
+                  <p className="text-sm text-zinc-600 dark:text-zinc-300">Perfect for Owner-Operators</p>
                 </div>
               </div>
 
               <div className="flex items-baseline gap-1 mb-4">
-                <span className="text-4xl font-bold text-primary-900">$19</span>
-                <span className="text-primary-500">/month</span>
+                <span className="text-4xl font-bold text-zinc-900 dark:text-zinc-100">$19</span>
+                <span className="text-zinc-600 dark:text-zinc-300">/month</span>
               </div>
 
               <ul className="space-y-2">
-                <li className="flex items-center gap-2 text-sm text-primary-700">
+                <li className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
                   <FiCheck className="w-4 h-4 text-success-500" />
                   1 Driver (You)
                 </li>
-                <li className="flex items-center gap-2 text-sm text-primary-700">
+                <li className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
                   <FiCheck className="w-4 h-4 text-success-500" />
                   1 Vehicle
                 </li>
-                <li className="flex items-center gap-2 text-sm text-primary-700">
+                <li className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
                   <FiCheck className="w-4 h-4 text-success-500" />
                   Full DQF Management
                 </li>
-                <li className="flex items-center gap-2 text-sm text-primary-700">
+                <li className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
                   <FiCheck className="w-4 h-4 text-success-500" />
                   CSA Score Tracking
                 </li>
-                <li className="flex items-center gap-2 text-sm text-primary-700">
+                <li className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
                   <FiCheck className="w-4 h-4 text-success-500" />
                   Violation Tracking
                 </li>
-                <li className="flex items-center gap-2 text-sm text-primary-700">
+                <li className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
                   <FiCheck className="w-4 h-4 text-success-500" />
                   Document Management
                 </li>
@@ -208,16 +208,16 @@ const Billing = () => {
               )}
             </button>
 
-            <p className="text-xs text-center text-primary-400 mt-4">
+            <p className="text-xs text-center text-zinc-600 dark:text-zinc-300 mt-4">
               Secure payment powered by Stripe. Cancel anytime.
             </p>
           </div>
 
           {/* Need more capacity? */}
           <div className="text-center mt-6">
-            <p className="text-sm text-primary-500">
+            <p className="text-sm text-zinc-600 dark:text-zinc-300">
               Need more drivers or vehicles?{' '}
-              <a href="/register" className="text-primary-600 hover:text-primary-700 font-medium">
+              <a href="/register" className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium">
                 Check our Fleet plans
               </a>
             </p>
@@ -237,12 +237,11 @@ const Billing = () => {
 
       {/* Current Subscription Card */}
       <div
-        className="bg-white rounded-2xl border border-primary-200/60 mb-8 overflow-hidden"
+        className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-700 mb-8 overflow-hidden"
         style={{ boxShadow: '0 4px 20px -5px rgba(0, 0, 0, 0.08)' }}
       >
         <div
-          className="px-6 py-5 border-b border-primary-100"
-          style={{ background: 'linear-gradient(to right, #f8fafc, #f1f5f9)' }}
+          className="px-6 py-5 border-b border-zinc-200 dark:border-zinc-700 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-zinc-800 dark:to-zinc-800"
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -250,9 +249,9 @@ const Billing = () => {
                 <PlanIcon className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-primary-900">Current Plan</h2>
+                <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Current Plan</h2>
                 <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-primary-600 font-medium capitalize">
+                  <span className="text-zinc-700 dark:text-zinc-300 font-medium capitalize">
                     {subscription?.plan?.replace('_', ' ') || 'Free Trial'}
                   </span>
                   <span className={`px-2 py-0.5 text-xs font-medium rounded-full border ${getStatusColor(subscription?.status)}`}>
@@ -282,13 +281,13 @@ const Billing = () => {
         <div className="p-6">
           {/* Trial Warning */}
           {subscription?.status === 'trialing' && subscription?.trialDaysRemaining <= 7 && (
-            <div className="mb-6 p-4 rounded-xl bg-accent-50 border border-accent-200 flex items-start gap-3">
-              <FiAlertCircle className="w-5 h-5 text-accent-600 flex-shrink-0 mt-0.5" />
+            <div className="mb-6 p-4 rounded-xl bg-accent-50 dark:bg-accent-900/20 border border-accent-200 dark:border-accent-700 flex items-start gap-3">
+              <FiAlertCircle className="w-5 h-5 text-accent-600 dark:text-accent-400 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-medium text-accent-800">
+                <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">
                   Your trial ends in {subscription.trialDaysRemaining} days
                 </p>
-                <p className="text-sm text-accent-600 mt-0.5">
+                <p className="text-sm text-accent-600 dark:text-accent-400 mt-0.5">
                   Subscribe now to keep access to all features.
                 </p>
               </div>
@@ -298,53 +297,53 @@ const Billing = () => {
           {/* Subscription Details */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Current Period */}
-            <div className="p-4 rounded-xl bg-primary-50/50 border border-primary-100">
-              <p className="text-xs font-medium text-primary-500 uppercase tracking-wider mb-1">
+            <div className="p-4 rounded-xl bg-primary-50/50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700">
+              <p className="text-xs font-medium text-zinc-600 dark:text-zinc-300 uppercase tracking-wider mb-1">
                 {subscription?.status === 'trialing' ? 'Trial Ends' : 'Renewal Date'}
               </p>
-              <p className="text-lg font-semibold text-primary-900">
+              <p className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
                 {subscription?.status === 'trialing'
                   ? formatDate(subscription?.trialEndsAt)
                   : formatDate(subscription?.currentPeriodEnd)
                 }
               </p>
               {subscription?.cancelAtPeriodEnd && (
-                <p className="text-xs text-danger-600 mt-1 font-medium">
+                <p className="text-xs text-danger-600 dark:text-danger-400 mt-1 font-medium">
                   Subscription will end on this date
                 </p>
               )}
             </div>
 
             {/* Usage */}
-            <div className="p-4 rounded-xl bg-primary-50/50 border border-primary-100">
-              <p className="text-xs font-medium text-primary-500 uppercase tracking-wider mb-2">
+            <div className="p-4 rounded-xl bg-primary-50/50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700">
+              <p className="text-xs font-medium text-zinc-600 dark:text-zinc-300 uppercase tracking-wider mb-2">
                 Current Usage
               </p>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 text-sm text-primary-600">
+                  <div className="flex items-center gap-1.5 text-sm text-zinc-700 dark:text-zinc-300">
                     <FiBriefcase className="w-3.5 h-3.5" />
                     Companies
                   </div>
-                  <span className="text-sm font-semibold text-primary-900">
+                  <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
                     {currentUsage?.companies || 0} / {subscription?.limits?.maxCompanies === Infinity ? '∞' : subscription?.limits?.maxCompanies || 1}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 text-sm text-primary-600">
+                  <div className="flex items-center gap-1.5 text-sm text-zinc-700 dark:text-zinc-300">
                     <FiUsers className="w-3.5 h-3.5" />
                     Drivers
                   </div>
-                  <span className="text-sm font-semibold text-primary-900">
+                  <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
                     {currentUsage?.drivers || 0} / {subscription?.limits?.maxDriversPerCompany === Infinity ? '∞' : subscription?.limits?.maxDriversPerCompany || 3}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 text-sm text-primary-600">
+                  <div className="flex items-center gap-1.5 text-sm text-zinc-700 dark:text-zinc-300">
                     <FiTruck className="w-3.5 h-3.5" />
                     Vehicles
                   </div>
-                  <span className="text-sm font-semibold text-primary-900">
+                  <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
                     {currentUsage?.vehicles || 0} / {subscription?.limits?.maxVehiclesPerCompany === Infinity ? '∞' : subscription?.limits?.maxVehiclesPerCompany || 3}
                   </span>
                 </div>
@@ -352,8 +351,8 @@ const Billing = () => {
             </div>
 
             {/* Actions */}
-            <div className="p-4 rounded-xl bg-primary-50/50 border border-primary-100">
-              <p className="text-xs font-medium text-primary-500 uppercase tracking-wider mb-2">
+            <div className="p-4 rounded-xl bg-primary-50/50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700">
+              <p className="text-xs font-medium text-zinc-600 dark:text-zinc-300 uppercase tracking-wider mb-2">
                 Subscription Actions
               </p>
               <div className="space-y-2">
@@ -369,12 +368,12 @@ const Billing = () => {
                   <button
                     onClick={handleCancelSubscription}
                     disabled={loading}
-                    className="btn btn-secondary w-full text-sm text-danger-600 hover:text-danger-700 hover:bg-danger-50"
+                    className="btn btn-secondary w-full text-sm text-danger-600 dark:text-danger-400 hover:text-danger-700 hover:bg-danger-50 dark:hover:bg-danger-900/20"
                   >
                     {loading ? <LoadingSpinner size="sm" /> : 'Cancel Subscription'}
                   </button>
                 ) : (
-                  <p className="text-sm text-primary-500">Choose a plan below to subscribe</p>
+                  <p className="text-sm text-zinc-600 dark:text-zinc-300">Choose a plan below to subscribe</p>
                 )}
               </div>
             </div>
@@ -384,23 +383,23 @@ const Billing = () => {
 
       {/* Pricing Plans */}
       <div className="mb-4">
-        <h2 className="text-xl font-semibold text-primary-900">Available Plans</h2>
-        <p className="text-primary-500 text-sm mt-1">Choose the plan that fits your fleet size</p>
+        <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">Available Plans</h2>
+        <p className="text-zinc-600 dark:text-zinc-300 text-sm mt-1">Choose the plan that fits your fleet size</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Starter Plan */}
         <div
-          className={`relative bg-white rounded-2xl border-2 overflow-hidden transition-all ${
+          className={`relative bg-white dark:bg-zinc-900 rounded-2xl border-2 overflow-hidden transition-all ${
             subscription?.plan === 'starter' && subscription?.status !== 'trialing'
-              ? 'border-primary-300 ring-2 ring-primary-100'
-              : 'border-primary-200/60 hover:border-primary-300'
+              ? 'border-primary-300 dark:border-primary-600 ring-2 ring-primary-100 dark:ring-primary-900'
+              : 'border-zinc-200 dark:border-zinc-700 hover:border-primary-300 dark:hover:border-primary-600'
           }`}
           style={{ boxShadow: '0 4px 20px -5px rgba(0, 0, 0, 0.08)' }}
         >
           {subscription?.plan === 'starter' && subscription?.status !== 'trialing' && (
             <div className="absolute top-4 right-4">
-              <span className="px-2.5 py-1 bg-primary-100 text-primary-700 text-xs font-semibold rounded-full">
+              <span className="px-2.5 py-1 bg-primary-100 dark:bg-primary-900/30 text-zinc-700 dark:text-zinc-200 text-xs font-semibold rounded-full">
                 Current Plan
               </span>
             </div>
@@ -412,46 +411,46 @@ const Billing = () => {
                 <FiStar className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-primary-900">Starter</h3>
-                <p className="text-sm text-primary-500">For small fleets</p>
+                <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">Starter</h3>
+                <p className="text-sm text-zinc-600 dark:text-zinc-300">For small fleets</p>
               </div>
             </div>
 
             <div className="mb-6">
               <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-bold text-primary-900">$29</span>
-                <span className="text-primary-500">/month</span>
+                <span className="text-4xl font-bold text-zinc-900 dark:text-zinc-100">$29</span>
+                <span className="text-zinc-600 dark:text-zinc-300">/month</span>
               </div>
             </div>
 
             <ul className="space-y-3 mb-6">
-              <li className="flex items-center gap-3 text-sm text-primary-700">
-                <div className="w-5 h-5 rounded-full bg-success-100 flex items-center justify-center flex-shrink-0">
-                  <FiCheck className="w-3 h-3 text-success-600" />
+              <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
+                <div className="w-5 h-5 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
+                  <FiCheck className="w-3 h-3 text-success-600 dark:text-success-400" />
                 </div>
                 <span><strong>1</strong> Company</span>
               </li>
-              <li className="flex items-center gap-3 text-sm text-primary-700">
-                <div className="w-5 h-5 rounded-full bg-success-100 flex items-center justify-center flex-shrink-0">
-                  <FiCheck className="w-3 h-3 text-success-600" />
+              <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
+                <div className="w-5 h-5 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
+                  <FiCheck className="w-3 h-3 text-success-600 dark:text-success-400" />
                 </div>
                 <span><strong>3</strong> Drivers per company</span>
               </li>
-              <li className="flex items-center gap-3 text-sm text-primary-700">
-                <div className="w-5 h-5 rounded-full bg-success-100 flex items-center justify-center flex-shrink-0">
-                  <FiCheck className="w-3 h-3 text-success-600" />
+              <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
+                <div className="w-5 h-5 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
+                  <FiCheck className="w-3 h-3 text-success-600 dark:text-success-400" />
                 </div>
                 <span><strong>3</strong> Vehicles per company</span>
               </li>
-              <li className="flex items-center gap-3 text-sm text-primary-700">
-                <div className="w-5 h-5 rounded-full bg-success-100 flex items-center justify-center flex-shrink-0">
-                  <FiCheck className="w-3 h-3 text-success-600" />
+              <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
+                <div className="w-5 h-5 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
+                  <FiCheck className="w-3 h-3 text-success-600 dark:text-success-400" />
                 </div>
                 All compliance features
               </li>
-              <li className="flex items-center gap-3 text-sm text-primary-700">
-                <div className="w-5 h-5 rounded-full bg-success-100 flex items-center justify-center flex-shrink-0">
-                  <FiCheck className="w-3 h-3 text-success-600" />
+              <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
+                <div className="w-5 h-5 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
+                  <FiCheck className="w-3 h-3 text-success-600 dark:text-success-400" />
                 </div>
                 AI Assistant access
               </li>
@@ -462,8 +461,8 @@ const Billing = () => {
               disabled={loading || (subscription?.plan === 'starter' && subscription?.status !== 'trialing')}
               className={`w-full py-3 px-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${
                 subscription?.plan === 'starter' && subscription?.status !== 'trialing'
-                  ? 'bg-primary-100 text-primary-400 cursor-not-allowed'
-                  : 'bg-primary-900 text-white hover:bg-primary-800'
+                  ? 'bg-primary-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 cursor-not-allowed'
+                  : 'bg-primary-900 dark:bg-primary-600 text-white hover:bg-primary-800 dark:hover:bg-primary-700'
               }`}
             >
               {loading ? (
@@ -482,10 +481,10 @@ const Billing = () => {
 
         {/* Professional Plan */}
         <div
-          className={`relative bg-white rounded-2xl border-2 overflow-hidden transition-all ${
+          className={`relative bg-white dark:bg-zinc-900 rounded-2xl border-2 overflow-hidden transition-all ${
             subscription?.plan === 'professional' && subscription?.status !== 'trialing'
-              ? 'border-accent-300 ring-2 ring-accent-100'
-              : 'border-accent-200 hover:border-accent-300'
+              ? 'border-accent-300 dark:border-accent-600 ring-2 ring-accent-100 dark:ring-accent-900'
+              : 'border-accent-200 dark:border-accent-700 hover:border-accent-300 dark:hover:border-accent-600'
           }`}
           style={{ boxShadow: '0 4px 25px -5px rgba(251, 146, 60, 0.15)' }}
         >
@@ -496,7 +495,7 @@ const Billing = () => {
 
           {subscription?.plan === 'professional' && subscription?.status !== 'trialing' && (
             <div className="absolute top-10 right-4">
-              <span className="px-2.5 py-1 bg-accent-100 text-accent-700 text-xs font-semibold rounded-full">
+              <span className="px-2.5 py-1 bg-accent-100 dark:bg-accent-900/30 text-zinc-800 dark:text-zinc-200 text-xs font-semibold rounded-full">
                 Current Plan
               </span>
             </div>
@@ -508,52 +507,52 @@ const Billing = () => {
                 <FiZap className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-primary-900">Professional</h3>
-                <p className="text-sm text-primary-500">For growing fleets</p>
+                <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">Professional</h3>
+                <p className="text-sm text-zinc-600 dark:text-zinc-300">For growing fleets</p>
               </div>
             </div>
 
             <div className="mb-6">
               <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-bold text-primary-900">$49</span>
-                <span className="text-primary-500">/month</span>
+                <span className="text-4xl font-bold text-zinc-900 dark:text-zinc-100">$49</span>
+                <span className="text-zinc-600 dark:text-zinc-300">/month</span>
               </div>
             </div>
 
             <ul className="space-y-3 mb-6">
-              <li className="flex items-center gap-3 text-sm text-primary-700">
-                <div className="w-5 h-5 rounded-full bg-accent-100 flex items-center justify-center flex-shrink-0">
-                  <FiCheck className="w-3 h-3 text-accent-600" />
+              <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
+                <div className="w-5 h-5 rounded-full bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center flex-shrink-0">
+                  <FiCheck className="w-3 h-3 text-accent-600 dark:text-accent-400" />
                 </div>
                 <span><strong>Unlimited</strong> Companies</span>
               </li>
-              <li className="flex items-center gap-3 text-sm text-primary-700">
-                <div className="w-5 h-5 rounded-full bg-accent-100 flex items-center justify-center flex-shrink-0">
-                  <FiCheck className="w-3 h-3 text-accent-600" />
+              <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
+                <div className="w-5 h-5 rounded-full bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center flex-shrink-0">
+                  <FiCheck className="w-3 h-3 text-accent-600 dark:text-accent-400" />
                 </div>
                 <span><strong>Unlimited</strong> Drivers per company</span>
               </li>
-              <li className="flex items-center gap-3 text-sm text-primary-700">
-                <div className="w-5 h-5 rounded-full bg-accent-100 flex items-center justify-center flex-shrink-0">
-                  <FiCheck className="w-3 h-3 text-accent-600" />
+              <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
+                <div className="w-5 h-5 rounded-full bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center flex-shrink-0">
+                  <FiCheck className="w-3 h-3 text-accent-600 dark:text-accent-400" />
                 </div>
                 <span><strong>Unlimited</strong> Vehicles per company</span>
               </li>
-              <li className="flex items-center gap-3 text-sm text-primary-700">
-                <div className="w-5 h-5 rounded-full bg-accent-100 flex items-center justify-center flex-shrink-0">
-                  <FiCheck className="w-3 h-3 text-accent-600" />
+              <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
+                <div className="w-5 h-5 rounded-full bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center flex-shrink-0">
+                  <FiCheck className="w-3 h-3 text-accent-600 dark:text-accent-400" />
                 </div>
                 All compliance features
               </li>
-              <li className="flex items-center gap-3 text-sm text-primary-700">
-                <div className="w-5 h-5 rounded-full bg-accent-100 flex items-center justify-center flex-shrink-0">
-                  <FiCheck className="w-3 h-3 text-accent-600" />
+              <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
+                <div className="w-5 h-5 rounded-full bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center flex-shrink-0">
+                  <FiCheck className="w-3 h-3 text-accent-600 dark:text-accent-400" />
                 </div>
                 Priority AI Assistant access
               </li>
-              <li className="flex items-center gap-3 text-sm text-primary-700">
-                <div className="w-5 h-5 rounded-full bg-accent-100 flex items-center justify-center flex-shrink-0">
-                  <FiCheck className="w-3 h-3 text-accent-600" />
+              <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
+                <div className="w-5 h-5 rounded-full bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center flex-shrink-0">
+                  <FiCheck className="w-3 h-3 text-accent-600 dark:text-accent-400" />
                 </div>
                 Team management
               </li>
@@ -564,7 +563,7 @@ const Billing = () => {
               disabled={loading || (subscription?.plan === 'professional' && subscription?.status !== 'trialing')}
               className={`w-full py-3 px-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${
                 subscription?.plan === 'professional' && subscription?.status !== 'trialing'
-                  ? 'bg-accent-100 text-accent-400 cursor-not-allowed'
+                  ? 'bg-accent-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 cursor-not-allowed'
                   : 'bg-gradient-to-r from-accent-500 to-accent-600 text-white hover:from-accent-600 hover:to-accent-700'
               }`}
             >
@@ -590,29 +589,29 @@ const Billing = () => {
 
       {/* FAQ Section */}
       <div className="mt-12 mb-8">
-        <h2 className="text-xl font-semibold text-primary-900 mb-4">Frequently Asked Questions</h2>
+        <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-4">Frequently Asked Questions</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="p-4 bg-white rounded-xl border border-primary-200/60">
-            <h4 className="font-medium text-primary-900 mb-2">Can I change plans anytime?</h4>
-            <p className="text-sm text-primary-600">
+          <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700">
+            <h4 className="font-medium text-zinc-900 dark:text-zinc-100 mb-2">Can I change plans anytime?</h4>
+            <p className="text-sm text-zinc-700 dark:text-zinc-300">
               Yes! You can upgrade or downgrade your plan at any time. Changes take effect immediately, and we'll prorate the charges.
             </p>
           </div>
-          <div className="p-4 bg-white rounded-xl border border-primary-200/60">
-            <h4 className="font-medium text-primary-900 mb-2">What happens when I cancel?</h4>
-            <p className="text-sm text-primary-600">
+          <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700">
+            <h4 className="font-medium text-zinc-900 dark:text-zinc-100 mb-2">What happens when I cancel?</h4>
+            <p className="text-sm text-zinc-700 dark:text-zinc-300">
               You'll retain access until the end of your billing period. After that, your account will be limited to view-only mode.
             </p>
           </div>
-          <div className="p-4 bg-white rounded-xl border border-primary-200/60">
-            <h4 className="font-medium text-primary-900 mb-2">Do you offer refunds?</h4>
-            <p className="text-sm text-primary-600">
+          <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700">
+            <h4 className="font-medium text-zinc-900 dark:text-zinc-100 mb-2">Do you offer refunds?</h4>
+            <p className="text-sm text-zinc-700 dark:text-zinc-300">
               We offer a 3-day free trial. If you're not satisfied within 30 days of subscribing, contact us for a full refund.
             </p>
           </div>
-          <div className="p-4 bg-white rounded-xl border border-primary-200/60">
-            <h4 className="font-medium text-primary-900 mb-2">Is my payment information secure?</h4>
-            <p className="text-sm text-primary-600">
+          <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700">
+            <h4 className="font-medium text-zinc-900 dark:text-zinc-100 mb-2">Is my payment information secure?</h4>
+            <p className="text-sm text-zinc-700 dark:text-zinc-300">
               Absolutely. We use Stripe for payment processing, which is PCI-DSS compliant and uses bank-level encryption.
             </p>
           </div>

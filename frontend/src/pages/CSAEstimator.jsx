@@ -61,25 +61,25 @@ const CSAEstimator = () => {
   };
 
   const getScoreColor = (percentile, threshold) => {
-    if (percentile >= 80) return 'text-danger-600';
-    if (percentile >= threshold) return 'text-warning-600';
-    return 'text-success-600';
+    if (percentile >= 80) return 'text-danger-600 dark:text-danger-400';
+    if (percentile >= threshold) return 'text-warning-600 dark:text-warning-400';
+    return 'text-success-600 dark:text-success-400';
   };
 
   const getScoreBgColor = (percentile, threshold) => {
-    if (percentile >= 80) return 'bg-danger-100';
-    if (percentile >= threshold) return 'bg-warning-100';
-    return 'bg-success-100';
+    if (percentile >= 80) return 'bg-danger-100 dark:bg-danger-500/20';
+    if (percentile >= threshold) return 'bg-warning-100 dark:bg-warning-500/20';
+    return 'bg-success-100 dark:bg-success-500/20';
   };
 
   const getStatusBadge = (status) => {
     switch (status) {
       case 'critical':
-        return <span className="px-2 py-1 text-xs font-semibold bg-danger-100 text-danger-700 rounded-full">Critical</span>;
+        return <span className="px-2 py-1 text-xs font-semibold bg-danger-100 dark:bg-danger-500/20 text-danger-700 dark:text-danger-400 rounded-full">Critical</span>;
       case 'alert':
-        return <span className="px-2 py-1 text-xs font-semibold bg-warning-100 text-warning-700 rounded-full">Alert</span>;
+        return <span className="px-2 py-1 text-xs font-semibold bg-warning-100 dark:bg-warning-500/20 text-warning-700 dark:text-warning-400 rounded-full">Alert</span>;
       default:
-        return <span className="px-2 py-1 text-xs font-semibold bg-success-100 text-success-700 rounded-full">OK</span>;
+        return <span className="px-2 py-1 text-xs font-semibold bg-success-100 dark:bg-success-500/20 text-success-700 dark:text-success-400 rounded-full">OK</span>;
     }
   };
 
@@ -96,7 +96,7 @@ const CSAEstimator = () => {
     return (
       <div className="flex flex-col items-center justify-center h-64">
         <LoadingSpinner size="lg" variant="truck" />
-        <p className="mt-4 text-sm text-primary-500">Loading CSA scores...</p>
+        <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-300">Loading CSA scores...</p>
       </div>
     );
   }
@@ -104,10 +104,10 @@ const CSAEstimator = () => {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center h-64">
-        <div className="w-16 h-16 rounded-full bg-danger-100 flex items-center justify-center mb-4">
-          <FiAlertCircle className="w-8 h-8 text-danger-500" />
+        <div className="w-16 h-16 rounded-full bg-danger-100 dark:bg-danger-500/20 flex items-center justify-center mb-4">
+          <FiAlertCircle className="w-8 h-8 text-danger-500 dark:text-danger-400" />
         </div>
-        <p className="text-danger-600 font-medium mb-2">{error}</p>
+        <p className="text-danger-600 dark:text-danger-400 font-medium mb-2">{error}</p>
         <button onClick={fetchData} className="btn btn-primary">
           Try Again
         </button>
@@ -120,8 +120,8 @@ const CSAEstimator = () => {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-primary-900">CSA Score Estimator</h1>
-          <p className="text-primary-500 text-sm mt-1">
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">CSA Score Estimator</h1>
+          <p className="text-zinc-600 dark:text-zinc-300 text-sm mt-1">
             Estimate your SMS BASIC percentiles based on recorded violations
           </p>
         </div>
@@ -142,12 +142,12 @@ const CSAEstimator = () => {
 
       {/* Disclaimer Banner */}
       <div
-        className="bg-info-50 border border-info-200 rounded-xl p-4 flex items-start gap-3"
+        className="bg-info-50 dark:bg-info-500/20 border border-info-200 dark:border-info-500/30 rounded-xl p-4 flex items-start gap-3"
       >
-        <FiInfo className="w-5 h-5 text-info-600 flex-shrink-0 mt-0.5" />
+        <FiInfo className="w-5 h-5 text-info-600 dark:text-info-400 flex-shrink-0 mt-0.5" />
         <div>
-          <p className="text-sm font-medium text-info-800">These are ESTIMATED scores</p>
-          <p className="text-xs text-info-700 mt-1">
+          <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">These are ESTIMATED scores</p>
+          <p className="text-xs text-info-700 dark:text-info-400 mt-1">
             Actual SMS percentiles require peer group comparisons using national data from FMCSA.
             These estimates are based on your recorded violations and standard severity weights.
           </p>
@@ -157,82 +157,82 @@ const CSAEstimator = () => {
       {/* Summary Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div
-          className="bg-white rounded-xl border border-primary-200/60 p-5"
+          className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 p-5"
           style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}
         >
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-lg bg-danger-100 flex items-center justify-center">
-              <FiAlertCircle className="w-5 h-5 text-danger-600" />
+            <div className="w-10 h-10 rounded-lg bg-danger-100 dark:bg-danger-500/20 flex items-center justify-center">
+              <FiAlertCircle className="w-5 h-5 text-danger-600 dark:text-danger-400" />
             </div>
-            <span className="text-sm font-medium text-primary-600">Critical BASICs</span>
+            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Critical BASICs</span>
           </div>
-          <p className="text-3xl font-bold text-danger-600">{summary?.criticalCount || 0}</p>
+          <p className="text-3xl font-bold text-danger-600 dark:text-danger-400">{summary?.criticalCount || 0}</p>
         </div>
 
         <div
-          className="bg-white rounded-xl border border-primary-200/60 p-5"
+          className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 p-5"
           style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}
         >
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-lg bg-warning-100 flex items-center justify-center">
-              <FiAlertTriangle className="w-5 h-5 text-warning-600" />
+            <div className="w-10 h-10 rounded-lg bg-warning-100 dark:bg-warning-500/20 flex items-center justify-center">
+              <FiAlertTriangle className="w-5 h-5 text-warning-600 dark:text-warning-400" />
             </div>
-            <span className="text-sm font-medium text-primary-600">Alert BASICs</span>
+            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Alert BASICs</span>
           </div>
-          <p className="text-3xl font-bold text-warning-600">{summary?.alertCount || 0}</p>
+          <p className="text-3xl font-bold text-warning-600 dark:text-warning-400">{summary?.alertCount || 0}</p>
         </div>
 
         <div
-          className="bg-white rounded-xl border border-primary-200/60 p-5"
+          className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 p-5"
           style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}
         >
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-lg bg-success-100 flex items-center justify-center">
-              <FiCheckCircle className="w-5 h-5 text-success-600" />
+            <div className="w-10 h-10 rounded-lg bg-success-100 dark:bg-success-500/20 flex items-center justify-center">
+              <FiCheckCircle className="w-5 h-5 text-success-600 dark:text-success-400" />
             </div>
-            <span className="text-sm font-medium text-primary-600">OK BASICs</span>
+            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">OK BASICs</span>
           </div>
-          <p className="text-3xl font-bold text-success-600">{summary?.okCount || 0}</p>
+          <p className="text-3xl font-bold text-success-600 dark:text-success-400">{summary?.okCount || 0}</p>
         </div>
 
         <div
-          className="bg-white rounded-xl border border-primary-200/60 p-5"
+          className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 p-5"
           style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}
         >
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center">
-              <FiActivity className="w-5 h-5 text-primary-600" />
+            <div className="w-10 h-10 rounded-lg bg-primary-100 dark:bg-primary-500/20 flex items-center justify-center">
+              <FiActivity className="w-5 h-5 text-primary-600 dark:text-primary-400" />
             </div>
-            <span className="text-sm font-medium text-primary-600">Avg Percentile</span>
+            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Avg Percentile</span>
           </div>
-          <p className="text-3xl font-bold text-primary-700">{summary?.averagePercentile || 0}%</p>
+          <p className="text-3xl font-bold text-zinc-700 dark:text-zinc-200">{summary?.averagePercentile || 0}%</p>
         </div>
       </div>
 
       {/* What-If Calculator (collapsible) */}
       {whatIfOpen && (
         <div
-          className="bg-white rounded-xl border border-accent-200/60 overflow-hidden"
+          className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 overflow-hidden"
           style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}
         >
           <div
-            className="px-5 py-4 border-b border-accent-100"
+            className="px-5 py-4 border-b border-accent-100 dark:border-zinc-700 dark:bg-zinc-800/50"
             style={{ background: 'linear-gradient(to bottom, #fff7ed, #ffedd5)' }}
           >
             <div className="flex items-center gap-3">
-              <FiTarget className="w-5 h-5 text-accent-600" />
-              <h2 className="text-base font-semibold text-primary-900">What-If Calculator</h2>
+              <FiTarget className="w-5 h-5 text-accent-600 dark:text-accent-400" />
+              <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">What-If Calculator</h2>
             </div>
-            <p className="text-xs text-primary-500 mt-1">Project how a new violation would impact your scores</p>
+            <p className="text-xs text-zinc-600 dark:text-zinc-300 mt-1">Project how a new violation would impact your scores</p>
           </div>
           <div className="p-5">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
               <div>
-                <label className="block text-sm font-medium text-primary-700 mb-1">BASIC Category</label>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">BASIC Category</label>
                 <select
                   value={whatIfData.basic}
                   onChange={(e) => setWhatIfData({ ...whatIfData, basic: e.target.value })}
-                  className="w-full px-3 py-2 border border-primary-200 rounded-lg focus:ring-2 focus:ring-primary-500"
+                  className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-700 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-zinc-800 dark:text-zinc-100"
                 >
                   <option value="unsafe_driving">Unsafe Driving</option>
                   <option value="hours_of_service">Hours of Service</option>
@@ -243,11 +243,11 @@ const CSAEstimator = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-primary-700 mb-1">Severity Weight</label>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Severity Weight</label>
                 <select
                   value={whatIfData.severityWeight}
                   onChange={(e) => setWhatIfData({ ...whatIfData, severityWeight: parseInt(e.target.value) })}
-                  className="w-full px-3 py-2 border border-primary-200 rounded-lg focus:ring-2 focus:ring-primary-500"
+                  className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-700 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-zinc-800 dark:text-zinc-100"
                 >
                   <option value="1">1 - Minor</option>
                   <option value="3">3 - Low</option>
@@ -257,11 +257,11 @@ const CSAEstimator = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-primary-700 mb-1">Out of Service?</label>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Out of Service?</label>
                 <select
                   value={whatIfData.outOfService ? 'yes' : 'no'}
                   onChange={(e) => setWhatIfData({ ...whatIfData, outOfService: e.target.value === 'yes' })}
-                  className="w-full px-3 py-2 border border-primary-200 rounded-lg focus:ring-2 focus:ring-primary-500"
+                  className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-700 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-zinc-800 dark:text-zinc-100"
                 >
                   <option value="no">No</option>
                   <option value="yes">Yes</option>
@@ -281,35 +281,35 @@ const CSAEstimator = () => {
 
             {/* What-If Results */}
             {whatIfResult && (
-              <div className="mt-4 p-4 bg-primary-50 rounded-lg border border-primary-200">
-                <h3 className="text-sm font-semibold text-primary-800 mb-3">Projected Impact: {whatIfResult.impact.basicName}</h3>
+              <div className="mt-4 p-4 bg-primary-50 dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700">
+                <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200 mb-3">Projected Impact: {whatIfResult.impact.basicName}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="text-center p-3 bg-white rounded-lg">
-                    <p className="text-xs text-primary-500 mb-1">Before</p>
-                    <p className="text-2xl font-bold text-primary-700">{whatIfResult.impact.before.estimatedPercentile}%</p>
-                    <p className="text-xs text-primary-500">{whatIfResult.impact.before.rawPoints} pts</p>
+                  <div className="text-center p-3 bg-white dark:bg-zinc-900 rounded-lg">
+                    <p className="text-xs text-zinc-600 dark:text-zinc-300 mb-1">Before</p>
+                    <p className="text-2xl font-bold text-zinc-700 dark:text-zinc-200">{whatIfResult.impact.before.estimatedPercentile}%</p>
+                    <p className="text-xs text-zinc-600 dark:text-zinc-300">{whatIfResult.impact.before.rawPoints} pts</p>
                   </div>
-                  <div className="text-center p-3 bg-white rounded-lg flex flex-col items-center justify-center">
-                    <FiChevronRight className="w-6 h-6 text-accent-500" />
-                    <p className={`text-sm font-bold ${whatIfResult.impact.change.percentileChange > 0 ? 'text-danger-600' : 'text-success-600'}`}>
+                  <div className="text-center p-3 bg-white dark:bg-zinc-900 rounded-lg flex flex-col items-center justify-center">
+                    <FiChevronRight className="w-6 h-6 text-accent-500 dark:text-accent-400" />
+                    <p className={`text-sm font-bold ${whatIfResult.impact.change.percentileChange > 0 ? 'text-danger-600 dark:text-danger-400' : 'text-success-600 dark:text-success-400'}`}>
                       {whatIfResult.impact.change.percentileChange > 0 ? '+' : ''}{whatIfResult.impact.change.percentileChange}%
                     </p>
                   </div>
-                  <div className="text-center p-3 bg-white rounded-lg">
-                    <p className="text-xs text-primary-500 mb-1">After</p>
+                  <div className="text-center p-3 bg-white dark:bg-zinc-900 rounded-lg">
+                    <p className="text-xs text-zinc-600 dark:text-zinc-300 mb-1">After</p>
                     <p className={`text-2xl font-bold ${
-                      whatIfResult.impact.exceedsCriticalThreshold ? 'text-danger-600' :
-                      whatIfResult.impact.exceedsAlertThreshold ? 'text-warning-600' :
-                      'text-success-600'
+                      whatIfResult.impact.exceedsCriticalThreshold ? 'text-danger-600 dark:text-danger-400' :
+                      whatIfResult.impact.exceedsAlertThreshold ? 'text-warning-600 dark:text-warning-400' :
+                      'text-success-600 dark:text-success-400'
                     }`}>
                       {whatIfResult.impact.after.estimatedPercentile}%
                     </p>
-                    <p className="text-xs text-primary-500">{whatIfResult.impact.after.rawPoints} pts</p>
+                    <p className="text-xs text-zinc-600 dark:text-zinc-300">{whatIfResult.impact.after.rawPoints} pts</p>
                   </div>
                 </div>
                 {whatIfResult.impact.exceedsAlertThreshold && whatIfResult.impact.previouslyUnderThreshold && (
-                  <div className="mt-3 p-2 bg-warning-100 rounded text-center">
-                    <p className="text-sm font-medium text-warning-800">
+                  <div className="mt-3 p-2 bg-warning-100 dark:bg-warning-500/20 rounded text-center">
+                    <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">
                       This would push you over the alert threshold!
                     </p>
                   </div>
@@ -325,7 +325,7 @@ const CSAEstimator = () => {
         {scores && Object.entries(scores).map(([key, basic]) => (
           <div
             key={key}
-            className={`bg-white rounded-xl border border-primary-200/60 overflow-hidden cursor-pointer transition-all hover:shadow-card ${
+            className={`bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 overflow-hidden cursor-pointer transition-all hover:shadow-card ${
               selectedBasic === key ? 'ring-2 ring-primary-500' : ''
             }`}
             style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}
@@ -334,8 +334,8 @@ const CSAEstimator = () => {
             <div className="p-5">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h3 className="text-lg font-semibold text-primary-900">{basic.name}</h3>
-                  <p className="text-xs text-primary-500 mt-1">{basicDescriptions[key]}</p>
+                  <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{basic.name}</h3>
+                  <p className="text-xs text-zinc-600 dark:text-zinc-300 mt-1">{basicDescriptions[key]}</p>
                 </div>
                 {getStatusBadge(basic.status)}
               </div>
@@ -349,7 +349,7 @@ const CSAEstimator = () => {
                 </div>
                 <div className="flex-1">
                   {/* Progress bar */}
-                  <div className="h-3 bg-primary-100 rounded-full overflow-hidden mb-2">
+                  <div className="h-3 bg-primary-100 dark:bg-zinc-700 rounded-full overflow-hidden mb-2">
                     <div
                       className={`h-full transition-all ${
                         basic.status === 'critical' ? 'bg-danger-500' :
@@ -359,45 +359,45 @@ const CSAEstimator = () => {
                       style={{ width: `${Math.min(basic.estimatedPercentile, 100)}%` }}
                     />
                   </div>
-                  <div className="flex justify-between text-xs text-primary-500">
+                  <div className="flex justify-between text-xs text-zinc-600 dark:text-zinc-300">
                     <span>0%</span>
-                    <span className="text-warning-600">Alert: {basic.threshold}%</span>
-                    <span className="text-danger-600">Critical: {basic.criticalThreshold}%</span>
+                    <span className="text-warning-600 dark:text-warning-400">Alert: {basic.threshold}%</span>
+                    <span className="text-danger-600 dark:text-danger-400">Critical: {basic.criticalThreshold}%</span>
                     <span>100%</span>
                   </div>
                 </div>
               </div>
 
               {/* Stats */}
-              <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-primary-100">
+              <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-700">
                 <div className="text-center">
-                  <p className="text-xs text-primary-500">Raw Points</p>
-                  <p className="text-sm font-semibold text-primary-700">{basic.rawPoints}</p>
+                  <p className="text-xs text-zinc-600 dark:text-zinc-300">Raw Points</p>
+                  <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">{basic.rawPoints}</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-xs text-primary-500">Violations</p>
-                  <p className="text-sm font-semibold text-primary-700">{basic.violationCount}</p>
+                  <p className="text-xs text-zinc-600 dark:text-zinc-300">Violations</p>
+                  <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">{basic.violationCount}</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-xs text-primary-500">OOS Count</p>
-                  <p className="text-sm font-semibold text-danger-600">{basic.oosCount}</p>
+                  <p className="text-xs text-zinc-600 dark:text-zinc-300">OOS Count</p>
+                  <p className="text-sm font-semibold text-danger-600 dark:text-danger-400">{basic.oosCount}</p>
                 </div>
               </div>
 
               {/* Expanded violation details */}
               {selectedBasic === key && basic.violations?.length > 0 && (
-                <div className="mt-4 pt-4 border-t border-primary-100">
-                  <h4 className="text-sm font-semibold text-primary-700 mb-2">Recent Violations</h4>
+                <div className="mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-700">
+                  <h4 className="text-sm font-semibold text-zinc-700 dark:text-zinc-200 mb-2">Recent Violations</h4>
                   <div className="space-y-2 max-h-40 overflow-y-auto">
                     {basic.violations.map((v, i) => (
-                      <div key={i} className="flex items-center justify-between text-xs p-2 bg-primary-50 rounded">
+                      <div key={i} className="flex items-center justify-between text-xs p-2 bg-primary-50 dark:bg-zinc-800 rounded">
                         <div>
-                          <span className="font-mono font-medium text-primary-700">{v.code}</span>
-                          {v.isOOS && <span className="ml-2 px-1 py-0.5 bg-danger-100 text-danger-700 rounded text-[10px]">OOS</span>}
+                          <span className="font-mono font-medium text-zinc-700 dark:text-zinc-200">{v.code}</span>
+                          {v.isOOS && <span className="ml-2 px-1 py-0.5 bg-danger-100 dark:bg-danger-500/20 text-danger-700 dark:text-danger-400 rounded text-[10px]">OOS</span>}
                         </div>
                         <div className="text-right">
-                          <span className="text-primary-600">{v.weightedPoints} pts</span>
-                          <span className="text-primary-400 ml-2">(x{v.timeWeight})</span>
+                          <span className="text-zinc-700 dark:text-zinc-300">{v.weightedPoints} pts</span>
+                          <span className="text-zinc-600 dark:text-zinc-300 ml-2">(x{v.timeWeight})</span>
                         </div>
                       </div>
                     ))}
@@ -412,20 +412,20 @@ const CSAEstimator = () => {
       {/* Time Decay Chart */}
       {timeDecay && (
         <div
-          className="bg-white rounded-xl border border-primary-200/60 overflow-hidden"
+          className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 overflow-hidden"
           style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}
         >
           <div
-            className="px-5 py-4 border-b border-primary-100"
+            className="px-5 py-4 border-b border-zinc-100 dark:border-zinc-700 dark:bg-zinc-800/50"
             style={{ background: 'linear-gradient(to bottom, #fafbfc, #f8fafc)' }}
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-primary-100 flex items-center justify-center">
-                <FiClock className="w-5 h-5 text-primary-600" />
+              <div className="w-9 h-9 rounded-lg bg-primary-100 dark:bg-primary-500/20 flex items-center justify-center">
+                <FiClock className="w-5 h-5 text-primary-600 dark:text-primary-400" />
               </div>
               <div>
-                <h2 className="text-base font-semibold text-primary-900">24-Month Score Projection</h2>
-                <p className="text-xs text-primary-500">How your scores will improve as violations age out</p>
+                <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">24-Month Score Projection</h2>
+                <p className="text-xs text-zinc-600 dark:text-zinc-300">How your scores will improve as violations age out</p>
               </div>
             </div>
           </div>
@@ -469,13 +469,13 @@ const CSAEstimator = () => {
 
             {/* Improvement Summary */}
             {timeDecay.insights?.improvements && (
-              <div className="mt-4 pt-4 border-t border-primary-100">
-                <h4 className="text-sm font-semibold text-primary-700 mb-3">Projected Improvements (24 months)</h4>
+              <div className="mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-700">
+                <h4 className="text-sm font-semibold text-zinc-700 dark:text-zinc-200 mb-3">Projected Improvements (24 months)</h4>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
                   {Object.entries(timeDecay.insights.improvements).map(([key, data]) => (
-                    <div key={key} className="text-center p-2 bg-primary-50 rounded-lg">
-                      <p className="text-xs text-primary-500 truncate">{key.replace(/_/g, ' ')}</p>
-                      <p className={`text-sm font-bold ${data.change < 0 ? 'text-success-600' : 'text-primary-600'}`}>
+                    <div key={key} className="text-center p-2 bg-primary-50 dark:bg-zinc-800 rounded-lg">
+                      <p className="text-xs text-zinc-600 dark:text-zinc-300 truncate">{key.replace(/_/g, ' ')}</p>
+                      <p className={`text-sm font-bold ${data.change < 0 ? 'text-success-600 dark:text-success-400' : 'text-zinc-700 dark:text-zinc-300'}`}>
                         {data.change < 0 ? '' : '+'}{data.change}%
                       </p>
                     </div>

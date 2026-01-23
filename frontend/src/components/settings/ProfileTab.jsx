@@ -11,7 +11,7 @@ const ProfileTab = ({ user, activeCompany, getRoleBadgeColor }) => {
         </div>
         <div>
           <h4 className="text-lg font-semibold text-zinc-900 dark:text-white">{user?.firstName} {user?.lastName}</h4>
-          <p className="text-zinc-500 dark:text-zinc-400 capitalize text-sm">{user?.role?.replace('_', ' ')}</p>
+          <p className="text-zinc-600 dark:text-zinc-300 capitalize text-sm">{user?.role?.replace('_', ' ')}</p>
         </div>
       </div>
 
@@ -42,16 +42,16 @@ const ProfileTab = ({ user, activeCompany, getRoleBadgeColor }) => {
           </div>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <span className="text-zinc-500 dark:text-zinc-400">Company:</span>
+              <span className="text-zinc-600 dark:text-zinc-300">Company:</span>
               <span className="ml-2 font-medium text-zinc-800 dark:text-zinc-200">{activeCompany.name}</span>
             </div>
             <div>
-              <span className="text-zinc-500 dark:text-zinc-400">DOT#:</span>
+              <span className="text-zinc-600 dark:text-zinc-300">DOT#:</span>
               <span className="ml-2 font-mono font-medium text-zinc-800 dark:text-zinc-200">{activeCompany.dotNumber}</span>
             </div>
             {activeCompany.role && (
               <div>
-                <span className="text-zinc-500 dark:text-zinc-400">Your Role:</span>
+                <span className="text-zinc-600 dark:text-zinc-300">Your Role:</span>
                 <span className={`ml-2 px-2 py-0.5 rounded text-xs font-medium ${getRoleBadgeColor(activeCompany.role)}`}>
                   {activeCompany.role?.replace('_', ' ').toUpperCase()}
                 </span>

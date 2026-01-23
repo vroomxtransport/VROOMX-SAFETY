@@ -101,7 +101,7 @@ const VehicleDetail = () => {
         <div className="flex items-center space-x-4">
           <button
             onClick={() => navigate('/app/vehicles')}
-            className="p-2 hover:bg-gray-100 rounded-lg"
+            className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg"
           >
             <FiArrowLeft className="w-5 h-5" />
           </button>
@@ -110,8 +110,8 @@ const VehicleDetail = () => {
               <FiTruck className="w-6 h-6 text-orange-600" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-800">{vehicle.unitNumber}</h1>
-              <p className="text-gray-500">{vehicle.make} {vehicle.model} {vehicle.year}</p>
+              <h1 className="text-2xl font-bold text-zinc-800 dark:text-zinc-100">{vehicle.unitNumber}</h1>
+              <p className="text-zinc-600 dark:text-zinc-300">{vehicle.make} {vehicle.model} {vehicle.year}</p>
             </div>
           </div>
         </div>
@@ -128,37 +128,37 @@ const VehicleDetail = () => {
             </div>
             <div className="card-body space-y-3">
               <div className="flex justify-between">
-                <span className="text-gray-500">Unit Number</span>
-                <span className="font-medium">{vehicle.unitNumber}</span>
+                <span className="text-zinc-600 dark:text-zinc-300">Unit Number</span>
+                <span className="font-medium text-zinc-800 dark:text-zinc-200">{vehicle.unitNumber}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500">VIN</span>
-                <span className="font-mono text-sm">{vehicle.vin}</span>
+                <span className="text-zinc-600 dark:text-zinc-300">VIN</span>
+                <span className="font-mono text-sm text-zinc-800 dark:text-zinc-200">{vehicle.vin}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500">Type</span>
-                <span className="capitalize">{vehicle.vehicleType?.replace('_', ' ')}</span>
+                <span className="text-zinc-600 dark:text-zinc-300">Type</span>
+                <span className="capitalize text-zinc-800 dark:text-zinc-200">{vehicle.vehicleType?.replace('_', ' ')}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500">Make</span>
-                <span>{vehicle.make || 'N/A'}</span>
+                <span className="text-zinc-600 dark:text-zinc-300">Make</span>
+                <span className="text-zinc-800 dark:text-zinc-200">{vehicle.make || 'N/A'}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500">Model</span>
-                <span>{vehicle.model || 'N/A'}</span>
+                <span className="text-zinc-600 dark:text-zinc-300">Model</span>
+                <span className="text-zinc-800 dark:text-zinc-200">{vehicle.model || 'N/A'}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500">Year</span>
-                <span>{vehicle.year || 'N/A'}</span>
+                <span className="text-zinc-600 dark:text-zinc-300">Year</span>
+                <span className="text-zinc-800 dark:text-zinc-200">{vehicle.year || 'N/A'}</span>
               </div>
               {vehicle.currentOdometer?.reading && (
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Odometer</span>
-                  <span>{vehicle.currentOdometer.reading.toLocaleString()} mi</span>
+                  <span className="text-zinc-600 dark:text-zinc-300">Odometer</span>
+                  <span className="text-zinc-800 dark:text-zinc-200">{vehicle.currentOdometer.reading.toLocaleString()} mi</span>
                 </div>
               )}
               <div className="flex justify-between">
-                <span className="text-gray-500">Status</span>
+                <span className="text-zinc-600 dark:text-zinc-300">Status</span>
                 <StatusBadge status={vehicle.status} />
               </div>
             </div>
@@ -189,17 +189,17 @@ const VehicleDetail = () => {
               </div>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Last Inspection</span>
-                  <span>{formatDate(vehicle.annualInspection?.lastInspectionDate)}</span>
+                  <span className="text-zinc-600 dark:text-zinc-300">Last Inspection</span>
+                  <span className="text-zinc-800 dark:text-zinc-200">{formatDate(vehicle.annualInspection?.lastInspectionDate)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Next Due</span>
-                  <span className={inspectionDays < 0 ? 'text-red-600 font-medium' : ''}>
+                  <span className="text-zinc-600 dark:text-zinc-300">Next Due</span>
+                  <span className={inspectionDays < 0 ? 'text-red-600 dark:text-red-400 font-medium' : 'text-zinc-800 dark:text-zinc-200'}>
                     {formatDate(vehicle.annualInspection?.nextDueDate)}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Result</span>
+                  <span className="text-zinc-600 dark:text-zinc-300">Result</span>
                   <StatusBadge status={vehicle.annualInspection?.result === 'pass' ? 'valid' : 'warning'} />
                 </div>
               </div>
@@ -213,19 +213,19 @@ const VehicleDetail = () => {
             </div>
             <div className="card-body space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-500">Last PM</span>
-                <span>{formatDate(vehicle.pmSchedule?.lastPmDate)}</span>
+                <span className="text-zinc-600 dark:text-zinc-300">Last PM</span>
+                <span className="text-zinc-800 dark:text-zinc-200">{formatDate(vehicle.pmSchedule?.lastPmDate)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500">Next PM Due</span>
-                <span>{formatDate(vehicle.pmSchedule?.nextPmDueDate)}</span>
+                <span className="text-zinc-600 dark:text-zinc-300">Next PM Due</span>
+                <span className="text-zinc-800 dark:text-zinc-200">{formatDate(vehicle.pmSchedule?.nextPmDueDate)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500">Interval</span>
-                <span>{vehicle.pmSchedule?.intervalMiles?.toLocaleString() || 25000} mi / {vehicle.pmSchedule?.intervalDays || 90} days</span>
+                <span className="text-zinc-600 dark:text-zinc-300">Interval</span>
+                <span className="text-zinc-800 dark:text-zinc-200">{vehicle.pmSchedule?.intervalMiles?.toLocaleString() || 25000} mi / {vehicle.pmSchedule?.intervalDays || 90} days</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500">PM Status</span>
+                <span className="text-zinc-600 dark:text-zinc-300">PM Status</span>
                 <StatusBadge status={vehicle.complianceStatus?.pmStatus} />
               </div>
             </div>
@@ -247,9 +247,9 @@ const VehicleDetail = () => {
             </div>
             <div className="card-body p-0">
               {vehicle.maintenanceLog?.length > 0 ? (
-                <div className="divide-y divide-gray-100">
+                <div className="divide-y divide-zinc-100 dark:divide-zinc-700">
                   {vehicle.maintenanceLog.slice().reverse().slice(0, 10).map((record, index) => (
-                    <div key={index} className="p-4 hover:bg-gray-50">
+                    <div key={index} className="p-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/50">
                       <div className="flex items-start justify-between">
                         <div className="flex items-start space-x-3">
                           <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
@@ -264,8 +264,8 @@ const VehicleDetail = () => {
                             }`} />
                           </div>
                           <div>
-                            <p className="font-medium text-gray-900">{record.description}</p>
-                            <div className="flex items-center space-x-3 text-sm text-gray-500 mt-1">
+                            <p className="font-medium text-zinc-900 dark:text-zinc-100">{record.description}</p>
+                            <div className="flex items-center space-x-3 text-sm text-zinc-600 dark:text-zinc-300 mt-1">
                               <span>{formatDate(record.date)}</span>
                               <span className="capitalize">{record.maintenanceType}</span>
                               <span className="capitalize">{record.category}</span>
@@ -275,12 +275,12 @@ const VehicleDetail = () => {
                         <div className="text-right">
                           <StatusBadge status={record.severity} />
                           {record.totalCost && (
-                            <p className="text-sm text-gray-500 mt-1">{formatCurrency(record.totalCost)}</p>
+                            <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-1">{formatCurrency(record.totalCost)}</p>
                           )}
                         </div>
                       </div>
                       {record.odometer && (
-                        <p className="text-sm text-gray-500 mt-2 ml-13">
+                        <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-2 ml-13">
                           Odometer: {record.odometer.toLocaleString()} mi
                         </p>
                       )}
@@ -288,8 +288,8 @@ const VehicleDetail = () => {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-12 text-gray-500">
-                  <FiFileText className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+                <div className="text-center py-12 text-zinc-600 dark:text-zinc-300">
+                  <FiFileText className="w-12 h-12 mx-auto mb-2 text-zinc-300 dark:text-zinc-600" />
                   <p>No maintenance records yet</p>
                 </div>
               )}

@@ -14,14 +14,14 @@ const ArticleCard = ({ article, onClick }) => {
       </div>
       <div className="p-6 flex-1 flex flex-col">
         <div className="flex items-center gap-3 mb-3">
-          <span className="text-xs text-[#94A3B8] font-mono">{article.date}</span>
+          <span className="text-xs text-zinc-400 dark:text-zinc-400 font-mono">{article.date}</span>
           <span className="text-xs text-[#CBD5E1]">•</span>
-          <span className="text-xs text-[#94A3B8]">{article.readTime}</span>
+          <span className="text-xs text-zinc-400 dark:text-zinc-400">{article.readTime}</span>
         </div>
         <h3 className="text-xl font-bold text-primary-500 mb-3 group-hover:text-cta-500 transition-colors font-heading">
           {article.title}
         </h3>
-        <p className="text-sm text-[#475569] mb-4 flex-1">{article.description}</p>
+        <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-4 flex-1">{article.description}</p>
         <span className="text-sm text-cta-500 font-medium inline-flex items-center gap-1 group-hover:gap-2 transition-all">
           Read Article
           <FiArrowRight className="w-4 h-4" />

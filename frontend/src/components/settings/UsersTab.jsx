@@ -26,7 +26,7 @@ const UsersTab = ({ users, setShowAddUserModal }) => {
               <FiUsers className="w-7 h-7 text-zinc-400" />
             </div>
             <p className="text-zinc-600 dark:text-zinc-300 font-medium">No team members yet</p>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Add users to your team to get started</p>
+            <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-1">Add users to your team to get started</p>
           </div>
         ) : (
           <div className="overflow-x-auto">

@@ -140,7 +140,7 @@ const Register = () => {
         return (
           <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
             <FiLoader className="w-4 h-4 text-cta-500 animate-spin" />
-            <span className="text-xs text-[#94A3B8]">Verifying...</span>
+            <span className="text-xs text-zinc-400 dark:text-zinc-400">Verifying...</span>
           </div>
         );
       case 'verified':
@@ -200,7 +200,7 @@ const Register = () => {
           <h1 className="text-3xl md:text-4xl font-bold text-primary-500 mb-3 font-heading tracking-tight">
             {isSoloPlan ? 'Create Your Account' : 'Start Your 3-Day Free Trial'}
           </h1>
-          <p className="text-[#475569] text-lg max-w-lg mx-auto">
+          <p className="text-zinc-600 dark:text-zinc-300 text-lg max-w-lg mx-auto">
             Join 500+ carriers managing their FMCSA compliance with VroomX Safety
           </p>
         </div>
@@ -218,7 +218,7 @@ const Register = () => {
           ]).map((item, i) => (
             <div
               key={i}
-              className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full border border-[#E2E8F0] text-sm text-[#475569]"
+              className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full border border-[#E2E8F0] text-sm text-zinc-600 dark:text-zinc-300"
             >
               <item.icon className="w-4 h-4 text-cta-500" />
               <span className="font-medium">{item.text}</span>
@@ -248,12 +248,12 @@ const Register = () => {
                   <div className="w-7 h-7 rounded-lg bg-primary-50 flex items-center justify-center">
                     <FiUser className="w-4 h-4 text-primary-500" />
                   </div>
-                  <span className="text-sm font-bold text-[#1E293B]">Personal Information</span>
+                  <span className="text-sm font-bold text-zinc-800 dark:text-zinc-100">Personal Information</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-[#1E293B] mb-2">
+                    <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-100 mb-2">
                       First Name
                     </label>
                     <input
@@ -267,7 +267,7 @@ const Register = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-[#1E293B] mb-2">
+                    <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-100 mb-2">
                       Last Name
                     </label>
                     <input
@@ -283,11 +283,11 @@ const Register = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-[#1E293B] mb-2">
+                  <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-100 mb-2">
                     Email Address
                   </label>
                   <div className="relative group">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#94A3B8] group-focus-within:text-primary-500 transition-colors">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 dark:text-zinc-400 group-focus-within:text-primary-500 transition-colors">
                       <FiMail className="w-5 h-5" />
                     </div>
                     <input
@@ -304,11 +304,11 @@ const Register = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-[#1E293B] mb-2">
+                    <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-100 mb-2">
                       Password
                     </label>
                     <div className="relative group">
-                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#94A3B8] group-focus-within:text-primary-500 transition-colors">
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 dark:text-zinc-400 group-focus-within:text-primary-500 transition-colors">
                         <FiLock className="w-5 h-5" />
                       </div>
                       <input
@@ -323,7 +323,7 @@ const Register = () => {
                       />
                       <button
                         type="button"
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-[#94A3B8] hover:text-primary-500 transition-colors"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 dark:text-zinc-400 hover:text-primary-500 transition-colors"
                         onClick={() => setShowPassword(!showPassword)}
                       >
                         {showPassword ? <FiEyeOff className="w-5 h-5" /> : <FiEye className="w-5 h-5" />}
@@ -331,7 +331,7 @@ const Register = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-[#1E293B] mb-2">
+                    <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-100 mb-2">
                       Confirm Password
                     </label>
                     <div className="relative">
@@ -346,7 +346,7 @@ const Register = () => {
                       />
                       <button
                         type="button"
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-[#94A3B8] hover:text-primary-500 transition-colors"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 dark:text-zinc-400 hover:text-primary-500 transition-colors"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       >
                         {showConfirmPassword ? <FiEyeOff className="w-5 h-5" /> : <FiEye className="w-5 h-5" />}
@@ -367,20 +367,20 @@ const Register = () => {
                   <div className="w-7 h-7 rounded-lg bg-cta-50 flex items-center justify-center">
                     <FiBriefcase className="w-4 h-4 text-cta-500" />
                   </div>
-                  <span className="text-sm font-bold text-[#1E293B]">Company Information</span>
+                  <span className="text-sm font-bold text-zinc-800 dark:text-zinc-100">Company Information</span>
                 </div>
 
                 {/* DOT Number - with FMCSA auto-lookup */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-[#1E293B] mb-2">
+                    <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-100 mb-2">
                       DOT Number <span className="text-cta-500">*</span>
                       {dotLookupStatus === 'verified' && (
                         <span className="ml-2 text-xs text-green-600 font-normal">Auto-fills company info</span>
                       )}
                     </label>
                     <div className="relative group">
-                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#94A3B8] group-focus-within:text-cta-500 transition-colors">
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 dark:text-zinc-400 group-focus-within:text-cta-500 transition-colors">
                         <FiHash className="w-5 h-5" />
                       </div>
                       <input
@@ -409,8 +409,8 @@ const Register = () => {
                     )}
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-[#1E293B] mb-2">
-                      MC Number <span className="text-[#94A3B8] text-xs font-normal">(optional)</span>
+                    <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-100 mb-2">
+                      MC Number <span className="text-zinc-400 dark:text-zinc-400 text-xs font-normal">(optional)</span>
                     </label>
                     <input
                       type="text"
@@ -425,7 +425,7 @@ const Register = () => {
 
                 {/* Company Name - auto-filled from FMCSA */}
                 <div>
-                  <label className="block text-sm font-semibold text-[#1E293B] mb-2">
+                  <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-100 mb-2">
                     Company Name
                     {dotLookupStatus === 'verified' && fmcsaData?.legalName && (
                       <span className="ml-2 inline-flex items-center gap-1 text-xs text-green-600 font-normal">
@@ -435,7 +435,7 @@ const Register = () => {
                     )}
                   </label>
                   <div className="relative group">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#94A3B8] group-focus-within:text-cta-500 transition-colors">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 dark:text-zinc-400 group-focus-within:text-cta-500 transition-colors">
                       <FiBriefcase className="w-5 h-5" />
                     </div>
                     <input
@@ -469,7 +469,7 @@ const Register = () => {
                 </div>
 
                 {/* Terms notice */}
-                <p className="text-xs text-[#94A3B8] mt-4">
+                <p className="text-xs text-zinc-400 dark:text-zinc-400 mt-4">
                   By creating an account, you agree to our{' '}
                   <a href="#" className="text-primary-500 hover:text-primary-600 underline transition-colors">Terms of Service</a>
                   {' '}and{' '}
@@ -497,7 +497,7 @@ const Register = () => {
         </div>
 
         {/* Sign in link */}
-        <p className="mt-8 text-sm text-[#475569] animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+        <p className="mt-8 text-sm text-zinc-600 dark:text-zinc-300 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
           Already have an account?{' '}
           <Link to="/login" className="text-primary-500 hover:text-primary-600 font-semibold transition-colors">
             Sign in
@@ -509,19 +509,19 @@ const Register = () => {
           className="mt-8 flex flex-wrap items-center justify-center gap-6 md:gap-10 animate-fade-in-up"
           style={{ animationDelay: '0.35s' }}
         >
-          <div className="flex items-center gap-2 text-[#94A3B8]">
+          <div className="flex items-center gap-2 text-zinc-400 dark:text-zinc-400">
             <div className="w-8 h-8 rounded-full bg-primary-50 flex items-center justify-center">
               <FiLock className="w-4 h-4 text-primary-500" />
             </div>
             <span className="text-sm font-medium">SSL Secure</span>
           </div>
-          <div className="flex items-center gap-2 text-[#94A3B8]">
+          <div className="flex items-center gap-2 text-zinc-400 dark:text-zinc-400">
             <div className="w-8 h-8 rounded-full bg-primary-50 flex items-center justify-center">
               <FiShield className="w-4 h-4 text-primary-500" />
             </div>
             <span className="text-sm font-medium">FMCSA Compliant</span>
           </div>
-          <div className="flex items-center gap-2 text-[#94A3B8]">
+          <div className="flex items-center gap-2 text-zinc-400 dark:text-zinc-400">
             <div className="w-8 h-8 rounded-full bg-primary-50 flex items-center justify-center">
               <FiCheckCircle className="w-4 h-4 text-primary-500" />
             </div>

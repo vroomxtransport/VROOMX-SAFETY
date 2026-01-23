@@ -125,7 +125,7 @@ const DrugAlcohol = () => {
       render: (row) => (
         row.drugTest?.performed ? (
           <StatusBadge status={row.drugTest.result} />
-        ) : <span className="text-gray-400">N/A</span>
+        ) : <span className="text-zinc-500 dark:text-zinc-400">N/A</span>
       )
     },
     {
@@ -133,7 +133,7 @@ const DrugAlcohol = () => {
       render: (row) => (
         row.alcoholTest?.performed ? (
           <StatusBadge status={row.alcoholTest.result} />
-        ) : <span className="text-gray-400">N/A</span>
+        ) : <span className="text-zinc-500 dark:text-zinc-400">N/A</span>
       )
     },
     {
@@ -147,7 +147,7 @@ const DrugAlcohol = () => {
           <span className="badge badge-success">Reported</span>
         ) : row.overallResult === 'positive' || row.overallResult === 'refused' ? (
           <span className="badge badge-warning">Pending</span>
-        ) : <span className="text-gray-400">-</span>
+        ) : <span className="text-zinc-500 dark:text-zinc-400">-</span>
       )
     }
   ];
@@ -157,8 +157,8 @@ const DrugAlcohol = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Drug & Alcohol Program</h1>
-          <p className="text-gray-500">DOT testing and Clearinghouse compliance per 49 CFR 382</p>
+          <h1 className="text-2xl font-bold text-zinc-800 dark:text-zinc-100">Drug & Alcohol Program</h1>
+          <p className="text-zinc-600 dark:text-zinc-300">DOT testing and Clearinghouse compliance per 49 CFR 382</p>
         </div>
         <button
           onClick={() => setShowAddModal(true)}
@@ -174,7 +174,7 @@ const DrugAlcohol = () => {
         <div className="card p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500 text-sm">Drivers in Pool</p>
+              <p className="text-zinc-600 dark:text-zinc-300 text-sm">Drivers in Pool</p>
               <p className="text-2xl font-bold">{stats?.activeDriversInPool || 0}</p>
             </div>
             <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -186,7 +186,7 @@ const DrugAlcohol = () => {
         <div className="card p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500 text-sm">Random Tests (YTD)</p>
+              <p className="text-zinc-600 dark:text-zinc-300 text-sm">Random Tests (YTD)</p>
               <p className="text-2xl font-bold">
                 {stats?.testsByType?.find(t => t._id === 'random')?.total || 0}
               </p>
@@ -200,7 +200,7 @@ const DrugAlcohol = () => {
         <div className="card p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500 text-sm">Compliance Rate</p>
+              <p className="text-zinc-600 dark:text-zinc-300 text-sm">Compliance Rate</p>
               <p className="text-2xl font-bold">
                 {stats?.randomTestingCompliance?.complianceRate || 0}%
               </p>
@@ -220,8 +220,8 @@ const DrugAlcohol = () => {
         <div className="card p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500 text-sm">Pending Queries</p>
-              <p className="text-2xl font-bold text-orange-600">
+              <p className="text-zinc-600 dark:text-zinc-300 text-sm">Pending Queries</p>
+              <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
                 {stats?.driversNeedingClearinghouseQuery || 0}
               </p>
             </div>
@@ -237,15 +237,15 @@ const DrugAlcohol = () => {
         <h3 className="font-semibold mb-3">Random Testing Requirements</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="text-sm">
-            <span className="text-gray-500">Drug Tests Required (50%): </span>
+            <span className="text-zinc-600 dark:text-zinc-300">Drug Tests Required (50%): </span>
             <span className="font-medium">{stats?.randomTestingCompliance?.drugTestsRequired || 0}</span>
           </div>
           <div className="text-sm">
-            <span className="text-gray-500">Completed: </span>
+            <span className="text-zinc-600 dark:text-zinc-300">Completed: </span>
             <span className="font-medium">{stats?.randomTestingCompliance?.drugTestsCompleted || 0}</span>
           </div>
           <div className="text-sm">
-            <span className="text-gray-500">Status: </span>
+            <span className="text-zinc-600 dark:text-zinc-300">Status: </span>
             {(stats?.randomTestingCompliance?.complianceRate || 0) >= 100 ? (
               <span className="badge badge-success">On Track</span>
             ) : (
@@ -370,7 +370,7 @@ const DrugAlcohol = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 border border-gray-200 rounded-lg">
+            <div className="p-4 border border-zinc-200 dark:border-zinc-700 rounded-lg">
               <div className="flex items-center justify-between mb-3">
                 <label className="font-medium">Drug Test</label>
                 <input
@@ -399,7 +399,7 @@ const DrugAlcohol = () => {
               )}
             </div>
 
-            <div className="p-4 border border-gray-200 rounded-lg">
+            <div className="p-4 border border-zinc-200 dark:border-zinc-700 rounded-lg">
               <div className="flex items-center justify-between mb-3">
                 <label className="font-medium">Alcohol Test</label>
                 <input

@@ -163,7 +163,7 @@ const Violations = () => {
       render: (row) => (
         <div>
           <p className="font-medium text-zinc-900 dark:text-white">{row.violationType}</p>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400 font-mono">{row.violationCode}</p>
+          <p className="text-xs text-zinc-600 dark:text-zinc-300 font-mono">{row.violationCode}</p>
         </div>
       )
     },
@@ -252,7 +252,7 @@ const Violations = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Violation Tracker</h1>
-          <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1">Track and manage violations with DataQ support</p>
+          <p className="text-zinc-600 dark:text-zinc-300 text-sm mt-1">Track and manage violations with DataQ support</p>
         </div>
         {activeTab === 'list' && (
           <button
@@ -282,44 +282,44 @@ const Violations = () => {
               <p className="text-2xl font-bold text-zinc-900 dark:text-white font-mono">
                 {stats?.byBasic?.reduce((a, b) => a + b.count, 0) || 0}
               </p>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">Total Violations</p>
+              <p className="text-xs text-zinc-600 dark:text-zinc-300">Total Violations</p>
             </div>
           </div>
         </div>
         <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-warning-100 dark:bg-warning-500/20 flex items-center justify-center">
-              <FiClock className="w-5 h-5 text-warning-600" />
+              <FiClock className="w-5 h-5 text-warning-600 dark:text-warning-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-warning-600 font-mono">
+              <p className="text-2xl font-bold text-warning-600 dark:text-warning-400 font-mono">
                 {stats?.byStatus?.find(s => s._id === 'open')?.count || 0}
               </p>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">Open</p>
+              <p className="text-xs text-zinc-600 dark:text-zinc-300">Open</p>
             </div>
           </div>
         </div>
         <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-info-100 dark:bg-info-500/20 flex items-center justify-center">
-              <FiMessageSquare className="w-5 h-5 text-info-600" />
+              <FiMessageSquare className="w-5 h-5 text-info-600 dark:text-info-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-info-600 font-mono">{stats?.openDataQChallenges || 0}</p>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">DataQ In Progress</p>
+              <p className="text-2xl font-bold text-info-600 dark:text-info-400 font-mono">{stats?.openDataQChallenges || 0}</p>
+              <p className="text-xs text-zinc-600 dark:text-zinc-300">DataQ In Progress</p>
             </div>
           </div>
         </div>
         <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-success-100 dark:bg-success-500/20 flex items-center justify-center">
-              <FiCheckCircle className="w-5 h-5 text-success-600" />
+              <FiCheckCircle className="w-5 h-5 text-success-600 dark:text-success-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-success-600 font-mono">
+              <p className="text-2xl font-bold text-success-600 dark:text-success-400 font-mono">
                 {stats?.byStatus?.find(s => s._id === 'resolved')?.count || 0}
               </p>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">Resolved</p>
+              <p className="text-xs text-zinc-600 dark:text-zinc-300">Resolved</p>
             </div>
           </div>
         </div>
@@ -585,7 +585,7 @@ const Violations = () => {
               multiple
               accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
             />
-            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Upload any supporting evidence (max 5 files)</p>
+            <p className="text-xs text-zinc-600 dark:text-zinc-300 mt-1">Upload any supporting evidence (max 5 files)</p>
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-zinc-100 dark:border-zinc-800">

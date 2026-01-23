@@ -222,48 +222,48 @@ const statusVariants = {
   // Neutral states
   missing: {
     label: 'Missing',
-    bg: 'bg-zinc-100 dark:bg-zinc-500/15',
+    bg: 'bg-zinc-100 dark:bg-zinc-500/25',
     text: 'text-zinc-600 dark:text-zinc-400',
     border: 'border-zinc-200 dark:border-zinc-500/30',
     icon: FiMinus,
-    iconBg: 'bg-zinc-200 dark:bg-zinc-500/20',
-    iconColor: 'text-zinc-500 dark:text-zinc-400'
+    iconBg: 'bg-zinc-200 dark:bg-zinc-500/25',
+    iconColor: 'text-zinc-600 dark:text-zinc-300'
   },
   no_data: {
     label: 'No Data',
-    bg: 'bg-zinc-100 dark:bg-zinc-500/15',
+    bg: 'bg-zinc-100 dark:bg-zinc-500/25',
     text: 'text-zinc-600 dark:text-zinc-400',
     border: 'border-zinc-200 dark:border-zinc-500/30',
     icon: FiMinus,
-    iconBg: 'bg-zinc-200 dark:bg-zinc-500/20',
-    iconColor: 'text-zinc-500 dark:text-zinc-400'
+    iconBg: 'bg-zinc-200 dark:bg-zinc-500/25',
+    iconColor: 'text-zinc-600 dark:text-zinc-300'
   },
   inactive: {
     label: 'Inactive',
-    bg: 'bg-zinc-100 dark:bg-zinc-500/15',
+    bg: 'bg-zinc-100 dark:bg-zinc-500/25',
     text: 'text-zinc-600 dark:text-zinc-400',
     border: 'border-zinc-200 dark:border-zinc-500/30',
     icon: FiPause,
-    iconBg: 'bg-zinc-200 dark:bg-zinc-500/20',
-    iconColor: 'text-zinc-500 dark:text-zinc-400'
+    iconBg: 'bg-zinc-200 dark:bg-zinc-500/25',
+    iconColor: 'text-zinc-600 dark:text-zinc-300'
   },
   sold: {
     label: 'Sold',
-    bg: 'bg-zinc-100 dark:bg-zinc-500/15',
-    text: 'text-zinc-500 dark:text-zinc-400',
+    bg: 'bg-zinc-100 dark:bg-zinc-500/25',
+    text: 'text-zinc-600 dark:text-zinc-300',
     border: 'border-zinc-200 dark:border-zinc-500/30',
     icon: FiMinus,
-    iconBg: 'bg-zinc-200 dark:bg-zinc-500/20',
-    iconColor: 'text-zinc-400 dark:text-zinc-500'
+    iconBg: 'bg-zinc-200 dark:bg-zinc-500/25',
+    iconColor: 'text-zinc-600 dark:text-zinc-300'
   },
   cancelled: {
     label: 'Cancelled',
-    bg: 'bg-zinc-100 dark:bg-zinc-500/15',
-    text: 'text-zinc-500 dark:text-zinc-400',
+    bg: 'bg-zinc-100 dark:bg-zinc-500/25',
+    text: 'text-zinc-600 dark:text-zinc-300',
     border: 'border-zinc-200 dark:border-zinc-500/30',
     icon: FiX,
-    iconBg: 'bg-zinc-200 dark:bg-zinc-500/20',
-    iconColor: 'text-zinc-400 dark:text-zinc-500'
+    iconBg: 'bg-zinc-200 dark:bg-zinc-500/25',
+    iconColor: 'text-zinc-600 dark:text-zinc-300'
   }
 };
 

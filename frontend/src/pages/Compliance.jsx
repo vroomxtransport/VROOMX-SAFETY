@@ -119,8 +119,8 @@ const Compliance = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Compliance Dashboard</h1>
-          <p className="text-gray-500">SMS BASICs and compliance overview</p>
+          <h1 className="text-2xl font-bold text-zinc-800 dark:text-zinc-100">Compliance Dashboard</h1>
+          <p className="text-zinc-600 dark:text-zinc-300">SMS BASICs and compliance overview</p>
         </div>
         {activeTab === 'overview' && (
           <button
@@ -143,7 +143,7 @@ const Compliance = () => {
       <div className="card">
         <div className="card-header">
           <h2 className="text-lg font-semibold">SMS BASICs Overview</h2>
-          <p className="text-sm text-gray-500 mt-1">Based on FMCSA Safety Measurement System methodology</p>
+          <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-1">Based on FMCSA Safety Measurement System methodology</p>
         </div>
         <div className="card-body">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -176,31 +176,31 @@ const Compliance = () => {
                 <div
                   key={basic.key}
                   className={`p-4 rounded-lg border-2 ${
-                    basic.status === 'critical' ? 'border-red-300 bg-red-50' :
-                    basic.status === 'warning' ? 'border-yellow-300 bg-yellow-50' :
-                    basic.status === 'compliant' ? 'border-green-300 bg-green-50' :
-                    'border-gray-200 bg-gray-50'
+                    basic.status === 'critical' ? 'border-red-300 dark:border-red-500/50 bg-red-50 dark:bg-red-500/10' :
+                    basic.status === 'warning' ? 'border-yellow-300 dark:border-yellow-500/50 bg-yellow-50 dark:bg-yellow-500/10' :
+                    basic.status === 'compliant' ? 'border-green-300 dark:border-green-500/50 bg-green-50 dark:bg-green-500/10' :
+                    'border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800'
                   }`}
                 >
-                  <p className="text-sm font-medium text-gray-700 truncate">{basic.name}</p>
+                  <p className="text-sm font-medium text-zinc-700 dark:text-zinc-200 truncate">{basic.name}</p>
                   <div className="flex items-end justify-between mt-2">
                     <span className={`text-2xl font-bold ${
-                      basic.status === 'critical' ? 'text-red-600' :
-                      basic.status === 'warning' ? 'text-yellow-600' :
-                      basic.status === 'compliant' ? 'text-green-600' :
-                      'text-gray-500'
+                      basic.status === 'critical' ? 'text-red-600 dark:text-red-400' :
+                      basic.status === 'warning' ? 'text-yellow-600 dark:text-yellow-400' :
+                      basic.status === 'compliant' ? 'text-green-600 dark:text-green-400' :
+                      'text-zinc-500 dark:text-zinc-400'
                     }`}>
                       {basic.percentile || '--'}%
                     </span>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-zinc-600 dark:text-zinc-300">
                       Threshold: {basic.threshold}%
                     </span>
                   </div>
                   {basic.status === 'critical' && (
-                    <p className="text-xs text-red-600 mt-1 font-medium">Over Critical Threshold</p>
+                    <p className="text-xs text-red-600 dark:text-red-400 mt-1 font-medium">Over Critical Threshold</p>
                   )}
                   {basic.status === 'warning' && (
-                    <p className="text-xs text-yellow-600 mt-1 font-medium">Over Intervention Threshold</p>
+                    <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1 font-medium">Over Intervention Threshold</p>
                   )}
                 </div>
               ))}
@@ -238,7 +238,7 @@ const Compliance = () => {
                 </PieChart>
               </ResponsiveContainer>
             </div>
-            <div className="text-center text-sm text-gray-500 mt-2">
+            <div className="text-center text-sm text-zinc-600 dark:text-zinc-300 mt-2">
               Total: {dashboard?.drivers?.active || 0} active drivers
             </div>
           </div>
@@ -256,16 +256,16 @@ const Compliance = () => {
           </div>
           <div className="card-body space-y-4">
             {/* DQF Files */}
-            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
               <div className="flex items-center space-x-3">
                 {auditReadiness?.dqFiles?.compliant ? (
-                  <FiCheck className="w-6 h-6 text-green-500" />
+                  <FiCheck className="w-6 h-6 text-green-500 dark:text-green-400" />
                 ) : (
-                  <FiAlertCircle className="w-6 h-6 text-red-500" />
+                  <FiAlertCircle className="w-6 h-6 text-red-500 dark:text-red-400" />
                 )}
                 <div>
                   <p className="font-medium">Driver Qualification Files</p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-zinc-600 dark:text-zinc-300">
                     {auditReadiness?.dqFiles?.driversWithIssues || 0} of {auditReadiness?.dqFiles?.totalDrivers || 0} with issues
                   </p>
                 </div>
@@ -273,16 +273,16 @@ const Compliance = () => {
             </div>
 
             {/* Vehicle Records */}
-            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
               <div className="flex items-center space-x-3">
                 {auditReadiness?.vehicleRecords?.compliant ? (
-                  <FiCheck className="w-6 h-6 text-green-500" />
+                  <FiCheck className="w-6 h-6 text-green-500 dark:text-green-400" />
                 ) : (
-                  <FiAlertCircle className="w-6 h-6 text-yellow-500" />
+                  <FiAlertCircle className="w-6 h-6 text-yellow-500 dark:text-yellow-400" />
                 )}
                 <div>
                   <p className="font-medium">Vehicle Records</p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-zinc-600 dark:text-zinc-300">
                     {auditReadiness?.vehicleRecords?.vehiclesWithIssues || 0} of {auditReadiness?.vehicleRecords?.totalVehicles || 0} need attention
                   </p>
                 </div>
@@ -290,16 +290,16 @@ const Compliance = () => {
             </div>
 
             {/* Drug & Alcohol */}
-            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
               <div className="flex items-center space-x-3">
                 {auditReadiness?.drugAlcohol?.compliant ? (
-                  <FiCheck className="w-6 h-6 text-green-500" />
+                  <FiCheck className="w-6 h-6 text-green-500 dark:text-green-400" />
                 ) : (
-                  <FiAlertTriangle className="w-6 h-6 text-yellow-500" />
+                  <FiAlertTriangle className="w-6 h-6 text-yellow-500 dark:text-yellow-400" />
                 )}
                 <div>
                   <p className="font-medium">Drug & Alcohol Program</p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-zinc-600 dark:text-zinc-300">
                     {auditReadiness?.drugAlcohol?.randomTestsCompleted || 0} of {auditReadiness?.drugAlcohol?.randomTestsRequired || 0} random tests completed
                   </p>
                 </div>
@@ -330,37 +330,37 @@ const Compliance = () => {
                   <td className="font-medium">Unsafe Driving</td>
                   <td>65%</td>
                   <td>49 CFR 392</td>
-                  <td className="text-sm text-gray-500">Operation of CMVs in dangerous manner</td>
+                  <td className="text-sm text-zinc-600 dark:text-zinc-300">Operation of CMVs in dangerous manner</td>
                 </tr>
                 <tr>
                   <td className="font-medium">HOS Compliance</td>
                   <td>65%</td>
                   <td>49 CFR 395</td>
-                  <td className="text-sm text-gray-500">Hours of service violations</td>
+                  <td className="text-sm text-zinc-600 dark:text-zinc-300">Hours of service violations</td>
                 </tr>
                 <tr>
                   <td className="font-medium">Vehicle Maintenance</td>
                   <td>80%</td>
                   <td>49 CFR 393, 396</td>
-                  <td className="text-sm text-gray-500">Failure to maintain CMVs properly</td>
+                  <td className="text-sm text-zinc-600 dark:text-zinc-300">Failure to maintain CMVs properly</td>
                 </tr>
                 <tr>
                   <td className="font-medium">Controlled Substances</td>
                   <td>80%</td>
                   <td>49 CFR 382</td>
-                  <td className="text-sm text-gray-500">Impairment due to drugs/alcohol</td>
+                  <td className="text-sm text-zinc-600 dark:text-zinc-300">Impairment due to drugs/alcohol</td>
                 </tr>
                 <tr>
                   <td className="font-medium">Driver Fitness</td>
                   <td>80%</td>
                   <td>49 CFR 391</td>
-                  <td className="text-sm text-gray-500">Unfit drivers operating CMVs</td>
+                  <td className="text-sm text-zinc-600 dark:text-zinc-300">Unfit drivers operating CMVs</td>
                 </tr>
                 <tr>
                   <td className="font-medium">Crash Indicator</td>
                   <td>65%</td>
                   <td>-</td>
-                  <td className="text-sm text-gray-500">History of crash involvement</td>
+                  <td className="text-sm text-zinc-600 dark:text-zinc-300">History of crash involvement</td>
                 </tr>
               </tbody>
             </table>
@@ -379,7 +379,7 @@ const Compliance = () => {
         title="Update SMS BASICs"
       >
         <form onSubmit={handleUpdateBasics} className="space-y-4">
-          <p className="text-sm text-gray-500 mb-4">
+          <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-4">
             Enter your current BASIC percentiles from the FMCSA SMS system.
             Leave blank if no data available.
           </p>

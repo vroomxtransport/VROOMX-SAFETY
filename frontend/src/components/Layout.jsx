@@ -117,7 +117,7 @@ const Layout = () => {
       {/* Sidebar */}
       <aside
         className={`fixed inset-y-0 left-0 z-50 flex flex-col transform transition-all duration-300 ease-out lg:translate-x-0
-          bg-white dark:bg-sidebar-gradient dark:bg-surface-200
+          bg-white dark:bg-zinc-900/50
           border-r border-zinc-200 dark:border-white/5
           ${sidebarCollapsed ? 'w-20' : 'w-64'}
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
@@ -131,7 +131,7 @@ const Layout = () => {
             animate={true}
           />
           <button
-            className="lg:hidden p-2 text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/10 rounded-lg transition-colors"
+            className="lg:hidden p-2 text-zinc-600 dark:text-zinc-300 hover:text-zinc-700 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/10 rounded-lg transition-colors"
             onClick={() => setSidebarOpen(false)}
           >
             <FiX className="w-5 h-5" />
@@ -149,28 +149,28 @@ const Layout = () => {
                 to={item.path}
                 title={sidebarCollapsed ? item.name : undefined}
                 className={`relative flex items-center rounded-xl transition-all duration-200 group ${
-                  sidebarCollapsed ? 'justify-center px-2 py-2' : 'gap-3 px-4 py-2'
+                  sidebarCollapsed ? 'justify-center px-2 py-2.5' : 'gap-3 px-4 py-2.5'
                 } ${isActive
-                    ? 'bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-white'
+                    ? 'bg-accent-50 dark:bg-accent-500/10 text-accent-600 dark:text-white'
                     : item.isAI
-                      ? 'text-primary-600 dark:text-primary-300 hover:bg-primary-50 dark:hover:bg-primary-500/10 hover:text-primary-700 dark:hover:text-primary-200'
-                      : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-white/5 hover:text-zinc-900 dark:hover:text-white'
+                      ? 'text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 hover:text-blue-700 dark:hover:text-blue-300'
+                      : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-white/5 hover:text-zinc-900 dark:hover:text-white'
                   }`}
                 onClick={() => setSidebarOpen(false)}
               >
                 {/* Active indicator */}
                 {isActive && (
                   <span
-                    className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 rounded-r-full bg-gradient-to-b from-primary-400 to-primary-600"
+                    className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 rounded-r-full bg-gradient-to-b from-accent-400 to-accent-600"
                   />
                 )}
 
                 {/* Icon container */}
-                <span className={`flex items-center justify-center w-7 h-7 rounded-lg transition-all duration-200 ${isActive
-                    ? 'bg-primary-100 dark:bg-primary-500/20 text-primary-600 dark:text-primary-400'
+                <span className={`flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 ${isActive
+                    ? 'bg-accent-100 dark:bg-accent-500/20 text-accent-600 dark:text-accent-400'
                     : item.isAI
-                      ? 'bg-primary-50 dark:bg-gradient-to-br dark:from-primary-500/20 dark:to-primary-600/20 text-primary-500 dark:text-primary-400'
-                      : 'bg-zinc-100 dark:bg-white/5 text-zinc-500 dark:text-zinc-400 group-hover:bg-zinc-200 dark:group-hover:bg-white/10 group-hover:text-zinc-700 dark:group-hover:text-zinc-200'
+                      ? 'bg-blue-100 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 group-hover:bg-blue-200 dark:group-hover:bg-blue-500/20'
+                      : 'bg-zinc-100 dark:bg-white/5 text-zinc-600 dark:text-zinc-300 group-hover:bg-zinc-200 dark:group-hover:bg-white/10 group-hover:text-zinc-700 dark:group-hover:text-zinc-200'
                   }`}>
                   <Icon className="w-4 h-4" />
                 </span>
@@ -179,7 +179,7 @@ const Layout = () => {
                   <>
                     <span className="font-medium">{item.name}</span>
                     {item.isAI && (
-                      <span className="ml-auto text-[10px] font-semibold px-1.5 py-0.5 rounded bg-primary-100 dark:bg-primary-500/20 text-primary-600 dark:text-primary-400">
+                      <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400">
                         AI
                       </span>
                     )}
@@ -198,9 +198,9 @@ const Layout = () => {
         {/* Subscription Badge */}
         {badge && !sidebarCollapsed && (
           <div className="px-4 py-2 border-t border-zinc-200 dark:border-white/5">
-            <div className={`flex items-center justify-center gap-2 px-3 py-2 rounded-lg border ${badge.className}`}>
-              <FiStar className="w-3.5 h-3.5" />
-              <span className="text-xs font-semibold">{badge.label}</span>
+            <div className={`flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-accent-50 dark:bg-accent-500/10 border border-accent-200 dark:border-accent-500/30`}>
+              <FiStar className="w-4 h-4 text-accent-500" fill="currentColor" />
+              <span className="text-sm font-semibold text-accent-600 dark:text-accent-500">{badge.label}</span>
             </div>
           </div>
         )}
@@ -216,7 +216,7 @@ const Layout = () => {
         <div className={`hidden lg:flex items-center border-t border-zinc-200 dark:border-white/5 ${sidebarCollapsed ? 'justify-center px-2 py-3' : 'px-4 py-3'}`}>
           <button
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className={`flex items-center gap-2 p-2 rounded-lg text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/10 transition-colors ${sidebarCollapsed ? 'w-full justify-center' : ''}`}
+            className={`flex items-center gap-2 p-2 rounded-lg text-zinc-600 dark:text-zinc-300 hover:text-zinc-700 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/10 transition-colors ${sidebarCollapsed ? 'w-full justify-center' : ''}`}
             title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             {sidebarCollapsed ? (
@@ -234,7 +234,7 @@ const Layout = () => {
       {/* Main content */}
       <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:pl-20' : 'lg:pl-64'}`}>
         {/* Top header */}
-        <header className="sticky top-0 z-30 bg-white/80 dark:bg-surface-200/80 backdrop-blur-xl border-b border-zinc-200/60 dark:border-white/5">
+        <header className="sticky top-0 z-30 bg-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-zinc-200/60 dark:border-white/5">
           <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
             {/* Left side */}
             <div className="flex items-center gap-4">
@@ -250,20 +250,32 @@ const Layout = () => {
             </div>
 
             {/* Right side */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
+              {/* Search */}
+              <div className="relative hidden md:block">
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  className="w-64 pl-10 pr-4 py-2 bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-xl text-sm text-zinc-900 dark:text-white placeholder-zinc-500 focus:outline-none focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20"
+                />
+                <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+              </div>
+
               {/* Theme toggle button */}
               <button
                 onClick={toggleTheme}
-                className="p-2.5 text-zinc-500 hover:text-zinc-700 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-zinc-200 dark:hover:bg-white/10 rounded-lg transition-colors"
+                className="p-2.5 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-white dark:hover:bg-white/10 rounded-lg transition-colors"
                 title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
               >
                 {isDark ? <FiSun className="w-5 h-5" /> : <FiMoon className="w-5 h-5" />}
               </button>
 
               {/* Notifications button */}
-              <button className="relative p-2.5 text-zinc-500 hover:text-zinc-700 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-zinc-200 dark:hover:bg-white/10 rounded-lg transition-colors">
+              <button className="relative p-2.5 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-white dark:hover:bg-white/10 rounded-lg transition-colors">
                 <FiBell className="w-5 h-5" />
-                <span className="absolute top-2 right-2 w-2 h-2 bg-primary-500 rounded-full ring-2 ring-white dark:ring-surface-200"></span>
+                <span className="absolute top-2 right-2 w-2 h-2 bg-accent-500 rounded-full"></span>
               </button>
 
               {/* User menu */}
@@ -276,7 +288,7 @@ const Layout = () => {
                   }}
                 >
                   <div
-                    className="w-9 h-9 rounded-lg flex items-center justify-center text-white text-sm font-semibold bg-gradient-to-br from-primary-500 to-primary-600 shadow-glow-sm"
+                    className="w-9 h-9 rounded-lg flex items-center justify-center text-white text-sm font-bold bg-gradient-to-br from-accent-500 to-accent-600 shadow-md shadow-accent-500/30"
                   >
                     {user?.firstName?.[0]}{user?.lastName?.[0]}
                   </div>
@@ -284,7 +296,7 @@ const Layout = () => {
                     <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">
                       {user?.firstName} {user?.lastName}
                     </p>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 capitalize">{user?.role?.replace('_', ' ')}</p>
+                    <p className="text-xs text-zinc-600 dark:text-zinc-400 capitalize">{user?.role?.replace('_', ' ')}</p>
                   </div>
                   <FiChevronDown className={`w-4 h-4 text-zinc-400 transition-transform duration-200 ${userMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
@@ -295,7 +307,7 @@ const Layout = () => {
                     {/* User info section */}
                     <div className="px-4 py-3 border-b border-zinc-100 dark:border-white/5">
                       <p className="text-sm font-semibold text-zinc-800 dark:text-white">{user?.firstName} {user?.lastName}</p>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">{user?.email}</p>
+                      <p className="text-xs text-zinc-600 dark:text-zinc-400 truncate">{user?.email}</p>
                     </div>
 
                     <div className="py-1">
