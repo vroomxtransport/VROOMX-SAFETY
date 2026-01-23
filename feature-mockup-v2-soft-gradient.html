@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VroomX Safety - Feature Showcase v2</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Crimson+Pro:ital,wght@0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --coral: #FF6B4A;
+            --coral-light: #FFF0ED;
+            --purple: #A78BFA;
+            --purple-light: #F3F0FF;
+            --mint: #34D399;
+            --mint-light: #ECFDF5;
+            --amber: #FBBF24;
+            --amber-light: #FEF9E7;
+            --navy: #1E3A5F;
+            --text-dark: #1F2937;
+            --text-body: #6B7280;
+            --text-muted: #9CA3AF;
+            --bg-warm: #FFFBF5;
+            --bg-peach: #FEF3E8;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --border: rgba(0, 0, 0, 0.06);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(145deg, var(--bg-warm) 0%, var(--bg-peach) 50%, #FDE8D8 100%);
+            color: var(--text-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Floating decorative shapes */
+        .floating-shapes {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.5;
+        }
+
+        .shape-1 {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, #FFD6CC 0%, #FFC4B8 100%);
+            top: -100px;
+            right: -100px;
+            animation: float1 20s ease-in-out infinite;
+        }
+
+        .shape-2 {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, #E9D5FF 0%, #DDD6FE 100%);
+            bottom: 10%;
+            left: -80px;
+            animation: float2 25s ease-in-out infinite;
+        }
+
+        .shape-3 {
+            width: 250px;
+            height: 250px;
+            background: linear-gradient(135deg, #A7F3D0 0%, #6EE7B7 100%);
+            top: 40%;
+            right: 5%;
+            animation: float3 18s ease-in-out infinite;
+        }
+
+        .shape-4 {
+            width: 180px;
+            height: 180px;
+            background: linear-gradient(135deg, #FDE68A 0%, #FCD34D 100%);
+            bottom: 20%;
+            right: 30%;
+            animation: float1 22s ease-in-out infinite reverse;
+        }
+
+        @keyframes float1 {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(5deg); }
+            66% { transform: translate(-20px, 20px) rotate(-3deg); }
+        }
+
+        @keyframes float2 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(40px, -20px) scale(1.1); }
+        }
+
+        @keyframes float3 {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(-25px, 25px); }
+            75% { transform: translate(25px, -15px); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+
+        /* Header */
+        .header {
+            padding: 50px 0 30px;
+            text-align: center;
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.6s ease both;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--coral) 0%, #FF8A6B 100%);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 8px 24px rgba(255, 107, 74, 0.3);
+        }
+
+        .logo-icon i { width: 26px; height: 26px; }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .logo-text span { color: var(--coral); }
+
+        .header h1 {
+            font-family: 'Crimson Pro', serif;
+            font-size: clamp(2.25rem, 4.5vw, 3.5rem);
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
+            line-height: 1.15;
+            animation: fadeInUp 0.6s ease 0.1s both;
+        }
+
+        .header h1 em {
+            font-style: italic;
+            color: var(--coral);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: var(--text-body);
+            max-width: 520px;
+            margin: 0 auto;
+            animation: fadeInUp 0.6s ease 0.2s both;
+        }
+
+        /* Tab Navigation */
+        .tab-section {
+            padding: 30px 0;
+            animation: fadeInUp 0.6s ease 0.3s both;
+        }
+
+        .tab-wrapper {
+            display: flex;
+            justify-content: center;
+        }
+
+        .tab-container {
+            display: inline-flex;
+            gap: 6px;
+            padding: 8px;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04), inset 0 0 0 1px var(--border);
+        }
+
+        .tab-btn {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 22px;
+            background: transparent;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-body);
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+
+        .tab-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--coral) 0%, #FF8A6B 100%);
+            border-radius: 14px;
+            opacity: 0;
+            transform: scale(0.9);
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .tab-btn:hover {
+            color: var(--text-dark);
+        }
+
+        .tab-btn.active::before {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .tab-btn.active {
+            color: white;
+            box-shadow: 0 8px 20px rgba(255, 107, 74, 0.25);
+        }
+
+        .tab-btn i,
+        .tab-btn span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .tab-btn i {
+            width: 20px;
+            height: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .tab-btn:hover i {
+            transform: scale(1.15) rotate(-5deg);
+        }
+
+        .tab-btn .ai-pill {
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 3px 7px;
+            border-radius: 6px;
+            background: var(--purple);
+            color: white;
+            letter-spacing: 0.05em;
+        }
+
+        .tab-btn.active .ai-pill {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        /* Feature Showcase */
+        .showcase {
+            padding: 40px 0 80px;
+        }
+
+        .feature-card {
+            display: none;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 32px;
+            overflow: hidden;
+            box-shadow:
+                0 4px 6px rgba(0, 0, 0, 0.02),
+                0 12px 24px rgba(0, 0, 0, 0.04),
+                0 24px 48px rgba(0, 0, 0, 0.06),
+                inset 0 0 0 1px var(--border);
+        }
+
+        .feature-card.active {
+            display: grid;
+            grid-template-columns: 1.1fr 1fr;
+            animation: cardSlideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+        }
+
+        @keyframes cardSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Visual Panel */
+        .visual-panel {
+            padding: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .visual-panel::before {
+            content: '';
+            position: absolute;
+            inset: 20px;
+            border-radius: 24px;
+            opacity: 0.6;
+        }
+
+        .visual-panel.theme-coral::before {
+            background: linear-gradient(145deg, var(--coral-light) 0%, #FFE4DE 100%);
+        }
+
+        .visual-panel.theme-navy::before {
+            background: linear-gradient(145deg, #E8EEF4 0%, #D8E3ED 100%);
+        }
+
+        .visual-panel.theme-mint::before {
+            background: linear-gradient(145deg, var(--mint-light) 0%, #D1FAE5 100%);
+        }
+
+        .visual-panel.theme-purple::before {
+            background: linear-gradient(145deg, var(--purple-light) 0%, #EDE9FE 100%);
+        }
+
+        .visual-panel.theme-amber::before {
+            background: linear-gradient(145deg, var(--amber-light) 0%, #FEF3C7 100%);
+        }
+
+        /* Accent border */
+        .feature-card[data-accent="coral"] { border-left: 5px solid var(--coral); }
+        .feature-card[data-accent="navy"] { border-left: 5px solid var(--navy); }
+        .feature-card[data-accent="mint"] { border-left: 5px solid var(--mint); }
+        .feature-card[data-accent="purple"] { border-left: 5px solid var(--purple); }
+        .feature-card[data-accent="amber"] { border-left: 5px solid var(--amber); }
+
+        /* Mini Mockup */
+        .mini-mockup {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 380px;
+            background: white;
+            border-radius: 20px;
+            box-shadow:
+                0 20px 40px rgba(0, 0, 0, 0.08),
+                0 8px 16px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+            animation: mockupFloat 5s ease-in-out infinite;
+        }
+
+        @keyframes mockupFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(1deg); }
+        }
+
+        .mockup-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 18px;
+            background: linear-gradient(135deg, #2D3748 0%, #1A202C 100%);
+        }
+
+        .bar-dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+        }
+
+        .bar-dot.r { background: #FC8181; }
+        .bar-dot.y { background: #F6E05E; }
+        .bar-dot.g { background: #68D391; }
+
+        .mockup-content {
+            padding: 24px;
+            min-height: 220px;
+            background: #FAFAFA;
+        }
+
+        /* Chat UI */
+        .chat-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .chat-row {
+            display: flex;
+            gap: 12px;
+            opacity: 0;
+            animation: chatBubbleIn 0.5s ease forwards;
+        }
+
+        .chat-row:nth-child(1) { animation-delay: 0.4s; }
+        .chat-row:nth-child(2) { animation-delay: 0.8s; }
+
+        @keyframes chatBubbleIn {
+            from { opacity: 0; transform: translateY(12px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .chat-avi {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .chat-avi.human {
+            background: #E5E7EB;
+            color: var(--text-muted);
+        }
+
+        .chat-avi.bot {
+            background: linear-gradient(135deg, var(--purple) 0%, #C4B5FD 100%);
+            color: white;
+            animation: aviPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes aviPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(167, 139, 250, 0.4); }
+            50% { box-shadow: 0 0 0 8px rgba(167, 139, 250, 0); }
+        }
+
+        .chat-avi i { width: 18px; height: 18px; }
+
+        .chat-text {
+            padding: 14px 18px;
+            border-radius: 16px;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            max-width: 260px;
+        }
+
+        .chat-text.human {
+            background: white;
+            color: var(--text-dark);
+            border: 1px solid #E5E7EB;
+        }
+
+        .chat-text.bot {
+            background: linear-gradient(135deg, var(--purple-light) 0%, #EDE9FE 100%);
+            color: var(--text-dark);
+        }
+
+        /* Chart UI */
+        .chart-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .chart-line {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chart-name {
+            width: 85px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-body);
+        }
+
+        .chart-bar-bg {
+            flex: 1;
+            height: 14px;
+            background: #E5E7EB;
+            border-radius: 7px;
+            overflow: hidden;
+        }
+
+        .chart-bar-fill {
+            height: 100%;
+            border-radius: 7px;
+            animation: barExpand 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            transform-origin: left;
+            transform: scaleX(0);
+        }
+
+        @keyframes barExpand {
+            to { transform: scaleX(1); }
+        }
+
+        .chart-bar-fill.low { background: linear-gradient(90deg, var(--mint) 0%, #6EE7B7 100%); }
+        .chart-bar-fill.mid { background: linear-gradient(90deg, var(--amber) 0%, #FCD34D 100%); }
+        .chart-bar-fill.high { background: linear-gradient(90deg, #F87171 0%, #FCA5A5 100%); }
+
+        .chart-num {
+            width: 36px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            text-align: right;
+        }
+
+        /* File List UI */
+        .file-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .file-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            background: white;
+            border-radius: 14px;
+            border: 1px solid #E5E7EB;
+            opacity: 0;
+            animation: fileRowIn 0.4s ease forwards;
+        }
+
+        .file-row:nth-child(1) { animation-delay: 0.3s; }
+        .file-row:nth-child(2) { animation-delay: 0.5s; }
+        .file-row:nth-child(3) { animation-delay: 0.7s; }
+
+        @keyframes fileRowIn {
+            from { opacity: 0; transform: translateX(15px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .file-ico {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .file-ico.blue { background: linear-gradient(135deg, var(--navy) 0%, #2D5A87 100%); }
+        .file-ico.red { background: linear-gradient(135deg, #EF4444 0%, #F87171 100%); }
+        .file-ico.green { background: linear-gradient(135deg, var(--mint) 0%, #6EE7B7 100%); }
+
+        .file-ico i { width: 18px; height: 18px; }
+
+        .file-details { flex: 1; }
+
+        .file-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .file-sub {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .file-badge {
+            font-size: 0.65rem;
+            font-weight: 600;
+            padding: 5px 10px;
+            border-radius: 8px;
+        }
+
+        .file-badge.ok {
+            background: var(--mint-light);
+            color: #059669;
+        }
+
+        .file-badge.warn {
+            background: var(--amber-light);
+            color: #B45309;
+        }
+
+        /* DataQ Center */
+        .dataq-display {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .dataq-orb {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--purple) 0%, #C4B5FD 100%);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            box-shadow: 0 12px 30px rgba(167, 139, 250, 0.35);
+            animation: orbBounce 3s ease-in-out infinite;
+        }
+
+        @keyframes orbBounce {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-8px) scale(1.05); }
+        }
+
+        .dataq-orb i { width: 36px; height: 36px; }
+
+        .dataq-label {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+        }
+
+        .dataq-chance {
+            font-size: 0.85rem;
+            color: var(--text-body);
+        }
+
+        .dataq-chance strong {
+            color: var(--mint);
+            font-weight: 700;
+        }
+
+        /* Alert List */
+        .alert-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .alert-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px;
+            border-radius: 14px;
+            opacity: 0;
+            animation: alertIn 0.4s ease forwards;
+        }
+
+        .alert-row:nth-child(1) { animation-delay: 0.3s; }
+        .alert-row:nth-child(2) { animation-delay: 0.5s; }
+
+        @keyframes alertIn {
+            from { opacity: 0; transform: scale(0.92); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .alert-row.warn-type { background: var(--amber-light); }
+        .alert-row.ok-type { background: var(--mint-light); }
+
+        .alert-ico {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .alert-row.warn-type .alert-ico {
+            background: rgba(251, 191, 36, 0.25);
+            color: #B45309;
+        }
+
+        .alert-row.ok-type .alert-ico {
+            background: rgba(52, 211, 153, 0.25);
+            color: #059669;
+        }
+
+        .alert-ico i { width: 18px; height: 18px; }
+
+        .alert-info { flex: 1; }
+
+        .alert-head {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .alert-desc {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        /* Content Panel */
+        .content-panel {
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .content-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--purple);
+            margin-bottom: 16px;
+            opacity: 0;
+            animation: contentReveal 0.5s ease 0.15s forwards;
+        }
+
+        .content-tag i { width: 14px; height: 14px; }
+
+        .content-panel h2 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 2.25rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 16px;
+            letter-spacing: -0.01em;
+            line-height: 1.2;
+            opacity: 0;
+            animation: contentReveal 0.5s ease 0.25s forwards;
+        }
+
+        .content-panel p {
+            font-size: 1.05rem;
+            color: var(--text-body);
+            margin-bottom: 32px;
+            line-height: 1.7;
+            opacity: 0;
+            animation: contentReveal 0.5s ease 0.35s forwards;
+        }
+
+        @keyframes contentReveal {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Feature Bullets */
+        .bullets {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            margin-bottom: 36px;
+            opacity: 0;
+            animation: contentReveal 0.5s ease 0.45s forwards;
+        }
+
+        .bullet {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            color: var(--text-body);
+        }
+
+        .bullet-check {
+            width: 26px;
+            height: 26px;
+            background: var(--mint-light);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--mint);
+            flex-shrink: 0;
+        }
+
+        .bullet-check i { width: 14px; height: 14px; }
+
+        /* CTA */
+        .cta-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 32px;
+            background: linear-gradient(135deg, var(--coral) 0%, #FF8A6B 100%);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(255, 107, 74, 0.3);
+            opacity: 0;
+            animation: contentReveal 0.5s ease 0.55s forwards;
+        }
+
+        .cta-link:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 12px 32px rgba(255, 107, 74, 0.4);
+        }
+
+        .cta-link:active {
+            transform: translateY(-1px) scale(0.99);
+        }
+
+        .cta-link i {
+            width: 20px;
+            height: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .cta-link:hover i {
+            transform: translateX(5px);
+        }
+
+        /* Keyframes */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 1050px) {
+            .feature-card.active {
+                grid-template-columns: 1fr;
+            }
+
+            .visual-panel {
+                padding: 40px;
+            }
+
+            .content-panel {
+                padding: 40px;
+            }
+        }
+
+        @media (max-width: 850px) {
+            .tab-container {
+                flex-wrap: wrap;
+                justify-content: center;
+                max-width: 100%;
+            }
+
+            .tab-btn {
+                padding: 12px 16px;
+            }
+
+            .tab-btn span:not(.ai-pill) {
+                display: none;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 0 20px;
+            }
+
+            .header {
+                padding: 30px 0 20px;
+            }
+
+            .content-panel h2 {
+                font-size: 1.75rem;
+            }
+
+            .bullets {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating Shapes -->
+    <div class="floating-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+        <div class="shape shape-4"></div>
+    </div>
+
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i data-lucide="shield-check"></i>
+                </div>
+                <div class="logo-text">Vroom<span>X</span> Safety</div>
+            </div>
+            <h1>Compliance made <em>simple</em>,<br>so you can focus on the road.</h1>
+            <p>Powerful tools for owner-operators and small fleets to stay DOT compliant without the headache.</p>
+        </header>
+
+        <section class="tab-section">
+            <div class="tab-wrapper">
+                <div class="tab-container">
+                    <button class="tab-btn active" data-tab="0">
+                        <i data-lucide="bot"></i>
+                        <span>AI Assistant</span>
+                        <span class="ai-pill">AI</span>
+                    </button>
+                    <button class="tab-btn" data-tab="1">
+                        <i data-lucide="bar-chart-3"></i>
+                        <span>CSA Tracking</span>
+                    </button>
+                    <button class="tab-btn" data-tab="2">
+                        <i data-lucide="folder-open"></i>
+                        <span>DQF Files</span>
+                    </button>
+                    <button class="tab-btn" data-tab="3">
+                        <i data-lucide="file-text"></i>
+                        <span>DataQ</span>
+                        <span class="ai-pill">AI</span>
+                    </button>
+                    <button class="tab-btn" data-tab="4">
+                        <i data-lucide="bell-ring"></i>
+                        <span>Alerts</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section class="showcase">
+            <!-- Card 0: AI Assistant -->
+            <article class="feature-card active" data-card="0" data-accent="coral">
+                <div class="visual-panel theme-coral">
+                    <div class="mini-mockup">
+                        <div class="mockup-bar">
+                            <span class="bar-dot r"></span>
+                            <span class="bar-dot y"></span>
+                            <span class="bar-dot g"></span>
+                        </div>
+                        <div class="mockup-content">
+                            <div class="chat-flow">
+                                <div class="chat-row">
+                                    <div class="chat-avi human"><i data-lucide="user"></i></div>
+                                    <div class="chat-text human">What's the HOS limit for property-carrying drivers?</div>
+                                </div>
+                                <div class="chat-row">
+                                    <div class="chat-avi bot"><i data-lucide="bot"></i></div>
+                                    <div class="chat-text bot">11-hour driving limit after 10 consecutive hours off duty, per FMCSA §395.3.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="content-panel">
+                    <div class="content-tag">
+                        <i data-lucide="sparkles"></i>
+                        AI-Powered
+                    </div>
+                    <h2>AI Regulation Assistant</h2>
+                    <p>Ask any FMCSA regulation question and get instant, accurate answers. Like having a compliance expert on call 24/7.</p>
+                    <div class="bullets">
+                        <div class="bullet">
+                            <span class="bullet-check"><i data-lucide="check"></i></span>
+                            Instant answers
+                        </div>
+                        <div class="bullet">
+                            <span class="bullet-check"><i data-lucide="check"></i></span>
+                            Always up-to-date
+                        </div>
+                        <div class="bullet">
+                            <span class="bullet-check"><i data-lucide="check"></i></span>
+                            Plain English
+                        </div>
+                        <div class="bullet">
+                            <span class="bullet-check"><i data-lucide="check"></i></span>
+                            24/7 available
+                        </div>
+                    </div>
+                    <a href="#" class="cta-link">
+                        Try It Free
+                        <i data-lucide="arrow-right"></i>
+                    </a>
+                </div>
+            </article>
+
+            <!-- Card 1: CSA Tracking -->
+            <article class="feature-card" data-card="1" data-accent="navy">
+                <div class="visual-panel theme-navy">
+                    <div class="mini-mockup">
+                        <div class="mockup-bar">
+                            <span class="bar-dot r"></span>
+                            <span class="bar-dot y"></span>
+                            <span class="bar-dot g"></span>
+                        </div>
+                        <div class="mockup-content">
+                            <div class="chart-stack">
+                                <div class="chart-line">
+                                    <span class="chart-name">Unsafe Driving</span>
+                                    <div class="chart-bar-bg"><div class="chart-bar-fill low" style="width: 32%"></div></div>
+                                    <span class="chart-num">32%</span>
+                                </div>
+                                <div class="chart-line">
+                                    <span class="chart-name">HOS Compliance</span>
+                                    <div class="chart-bar-bg"><div class="chart-bar-fill low" style="width: 45%"></div></div>
+                                    <span class="chart-num">45%</span>
+                                </div>
+                                <div class="chart-line">
+                                    <span class="chart-name">Vehicle Maint.</span>
+                                    <div class="chart-bar-bg"><div class="chart-bar-fill mid" style="width: 68%"></div></div>
+                                    <span class="chart-num">68%</span>
+                                </div>
+                                <div class="chart-line">
+                                    <span class="chart-name">Driver Fitness</span>
+                                    <div class="chart-bar-bg"><div class="chart-bar-fill low" style="width: 21%"></div></div>
+                                    <span class="chart-num">21%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="content-panel">
+                    <div class="content-tag" style="color: var(--navy);">
+                        <i data-lucide="trending-up"></i>
+                        Analytics
+                    </div>
+                    <h2>CSA Score Tracking</h2>
+                    <p>Monitor your CSA scores across all 7 BASICs in real-time. Get actionable recommendations to improve your safety rating.</p>
+                    <div class="bullets">
+                        <div class="bullet">
+                            <span class="bullet-check"><i data-lucide="check"></i></span>
+                            All 7 BASICs
+                        </div>
+                        <div class="bullet">
+                            <span class="bullet-check"><i data-lucide="check"></i></span>
+                            Historical trends
+                        </div>
+                        <div class="bullet">
+                            <span class="bullet-check"><i data-lucide="check"></i></span>
+                            Score alerts
+                        </div>
+                        <div class="bullet">
+                            <span class="bullet-check"><i data-lucide="check"></i></span>
+                            AI recommendations
+                        </div>
+                    </div>
+                    <a href="#" class="cta-link">
+                        Check Your Score
+                        <i data-lucide="arrow-right"></i>
+                    </a>
+                </div>
+            </article>
+
+            <!-- Card 2: DQF Files -->
+            <article class="feature-card" data-card="2" data-accent="mint">
+                <div class="visual-panel theme-mint">
+                    <div class="mini-mockup">
+                        <div class="mockup-bar">
+                            <span class="bar-dot r"></span>
+                            <span class="bar-dot y"></span>
+                            <span class="bar-dot g"></span>
+                        </div>
+                        <div class="mockup-content">
+                            <div class="file-stack">
+                                <div class="file-row">
+                                    <div class="file-ico blue"><i data-lucide="id-card"></i></div>
+                                    <div class="file-details">
+                                        <div class="file-title">CDL - Mike Rodriguez</div>
+                                        <div class="file-sub">Expires Dec 2026</div>
+                                    </div>
+                                    <span class="file-badge ok">Valid</span>
+                                </div>
+                                <div class="file-row">
+                                    <div class="file-ico red"><i data-lucide="stethoscope"></i></div>
+                                    <div class="file-details">
+                                        <div class="file-title">Medical Card</div>
+                                        <div class="file-sub">Expires Mar 2026</div>
+                                    </div>
+                                    <span class="file-badge warn">45 days</span>
+                                </div>
+                                <div class="file-row">
+                                    <div class="file-ico green"><i data-lucide="file-check"></i></div>
+                                    <div class="file-details">
+                                        <div class="file-title">MVR Report</div>
+                                        <div class="file-sub">Updated Jan 2026</div>
+                                    </div>
+                                    <span class="file-badge ok">Current</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="content-panel">
+                    <div class="content-tag" style="color: var(--mint);">
+                        <i data-lucide="folder-open"></i>
+                        Document Management
+                    </div>
+                    <h2>DQF Management</h2>
+                    <p>Store, organize, and track all Driver Qualification Files in one secure place with automatic expiration tracking.</p>
+                    <div class="bullets">
+                        <div class="bullet">
+                            <span class="bullet-check"><i data-lucide="check"></i></span>
+                            Secure cloud storage
+                        </div>
+                        <div class="bullet">
+                            <span class="bullet-check"><i data-lucide="check"></i></span>
+                            Auto expiration alerts
+                        </div>
+                        <div class="bullet">
+                            <span class="bullet-check"><i data-lucide="check"></i></span>
+                            One-click reports
+                        </div>
+                        <div class="bullet">
+                            <span class="bullet-check"><i data-lucide="check"></i></span>
+                            Audit-ready
+                        </div>
+                    </div>
+                    <a href="#" class="cta-link">
+                        Upload Documents
+                        <i data-lucide="arrow-right"></i>
+                    </a>
+                </div>
+            </article>
+
+            <!-- Card 3: DataQ Generator -->
+            <article class="feature-card" data-card="3" data-accent="purple">
+                <div class="visual-panel theme-purple">
+                    <div class="mini-mockup">
+                        <div class="mockup-bar">
+                            <span class="bar-dot r"></span>
+                            <span class="bar-dot y"></span>
+                            <span class="bar-dot g"></span>
+                        </div>
+                        <div class="mockup-content">
+                            <div class="dataq-display">
+                                <div class="dataq-orb">
+                                    <i data-lucide="file-check-2"></i>
+                                </div>
+                                <div class="dataq-label">DataQ Letter Ready</div>
+                                <div class="dataq-chance">Success probability: <strong>68%</strong></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="content-panel">
+                    <div class="content-tag">
+                        <i data-lucide="sparkles"></i>
+                        AI-Powered
+                    </div>
+                    <h2>DataQ Challenge Generator</h2>
+                    <p>Our AI identifies challengeable violations and drafts professional DataQ letters automatically.</p>
+                    <div class="bullets">
+                        <div class="bullet">
+                            <span class="bullet-check"><i data-lucide="check"></i></span>
+                            Auto-detect opportunities
+                        </div>
+                        <div class="bullet">
+                            <span class="bullet-check"><i data-lucide="check"></i></span>
+                            Generate letters
+                        </div>
+                        <div class="bullet">
+                            <span class="bullet-check"><i data-lucide="check"></i></span>
+                            Track status
+                        </div>
+                        <div class="bullet">
+                            <span class="bullet-check"><i data-lucide="check"></i></span>
+                            40% success rate
+                        </div>
+                    </div>
+                    <a href="#" class="cta-link">
+                        Challenge a Violation
+                        <i data-lucide="arrow-right"></i>
+                    </a>
+                </div>
+            </article>
+
+            <!-- Card 4: Smart Alerts -->
+            <article class="feature-card" data-card="4" data-accent="amber">
+                <div class="visual-panel theme-amber">
+                    <div class="mini-mockup">
+                        <div class="mockup-bar">
+                            <span class="bar-dot r"></span>
+                            <span class="bar-dot y"></span>
+                            <span class="bar-dot g"></span>
+                        </div>
+                        <div class="mockup-content">
+                            <div class="alert-stack">
+                                <div class="alert-row warn-type">
+                                    <div class="alert-ico"><i data-lucide="alert-triangle"></i></div>
+                                    <div class="alert-info">
+                                        <div class="alert-head">Medical Card Expiring</div>
+                                        <div class="alert-desc">Mike Rodriguez - 45 days remaining</div>
+                                    </div>
+                                </div>
+                                <div class="alert-row ok-type">
+                                    <div class="alert-ico"><i data-lucide="check-circle"></i></div>
+                                    <div class="alert-info">
+                                        <div class="alert-head">Inspection Complete</div>
+                                        <div class="alert-desc">Truck #1042 passed all checks</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="content-panel">
+                    <div class="content-tag" style="color: var(--amber);">
+                        <i data-lucide="bell-ring"></i>
+                        Notifications
+                    </div>
+                    <h2>Smart Alerts</h2>
+                    <p>Never miss an expiring document or compliance deadline. Automated reminders via email, SMS, or push.</p>
+                    <div class="bullets">
+                        <div class="bullet">
+                            <span class="bullet-check"><i data-lucide="check"></i></span>
+                            Email, SMS, push
+                        </div>
+                        <div class="bullet">
+                            <span class="bullet-check"><i data-lucide="check"></i></span>
+                            Custom schedules
+                        </div>
+                        <div class="bullet">
+                            <span class="bullet-check"><i data-lucide="check"></i></span>
+                            Driver alerts
+                        </div>
+                        <div class="bullet">
+                            <span class="bullet-check"><i data-lucide="check"></i></span>
+                            Score notifications
+                        </div>
+                    </div>
+                    <a href="#" class="cta-link">
+                        Set Up Alerts
+                        <i data-lucide="arrow-right"></i>
+                    </a>
+                </div>
+            </article>
+        </section>
+    </div>
+
+    <script>
+        // Initialize Lucide
+        lucide.createIcons();
+
+        // Tab functionality
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const cards = document.querySelectorAll('.feature-card');
+
+        function switchTab(index) {
+            tabBtns.forEach((btn, i) => {
+                btn.classList.toggle('active', i === index);
+            });
+
+            cards.forEach((card, i) => {
+                card.classList.toggle('active', i === index);
+            });
+
+            // Reinit icons
+            setTimeout(() => lucide.createIcons(), 50);
+        }
+
+        tabBtns.forEach((btn, index) => {
+            btn.addEventListener('click', () => switchTab(index));
+        });
+    </script>
+</body>
+</html>
