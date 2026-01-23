@@ -8,7 +8,7 @@ const HeroSection = ({ heroTextIndex, heroTexts }) => {
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <img
-          src="https://images.pexels.com/photos/2199293/pexels-photo-2199293.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
+          src="https://images.pexels.com/photos/93398/pexels-photo-93398.jpeg?auto=compress&cs=tinysrgb&w=1920"
           className="w-full h-full object-cover"
           alt="American Truck Background"
         />
