@@ -69,13 +69,13 @@ const Landing = () => {
               { Icon: FiAward, title: 'SOC2 Compliant', subtitle: 'Enterprise security', bg: 'cta' },
               { Icon: FiHeadphones, title: 'US Support', subtitle: 'Real humans, fast', bg: 'purple' }
             ].map((badge, i) => (
-              <div key={i} className="flex items-center gap-3 text-zinc-600 dark:text-zinc-300">
+              <div key={i} className="flex items-center gap-3 text-zinc-600">
                 <div className={`w-10 h-10 rounded-full bg-${badge.bg}-50 flex items-center justify-center`}>
                   <badge.Icon className={`w-5 h-5 text-${badge.bg}-500`} />
                 </div>
                 <div>
-                  <div className="text-sm font-bold text-zinc-800 dark:text-zinc-100">{badge.title}</div>
-                  <div className="text-xs text-zinc-400 dark:text-zinc-400">{badge.subtitle}</div>
+                  <div className="text-sm font-bold text-zinc-800">{badge.title}</div>
+                  <div className="text-xs text-zinc-500">{badge.subtitle}</div>
                 </div>
               </div>
             ))}
@@ -102,11 +102,11 @@ const Landing = () => {
                   <>6<span className="text-cta-500 group-hover:text-primary-500 transition-colors">+</span></>
                 ) : (
                   stat.value.split('/').map((v, idx) => (
-                    <span key={idx}>{idx > 0 && <span className="text-zinc-400 dark:text-zinc-400">/</span>}{v}</span>
+                    <span key={idx}>{idx > 0 && <span className="text-zinc-500">/</span>}{v}</span>
                   ))
                 )}
               </div>
-              <div className="text-xs text-zinc-600 dark:text-zinc-300 mt-2 uppercase tracking-widest font-mono">{stat.label}</div>
+              <div className="text-xs text-zinc-600 mt-2 uppercase tracking-widest font-mono">{stat.label}</div>
             </div>
           ))}
         </div>
@@ -121,9 +121,9 @@ const Landing = () => {
             </div>
             <h2 className="text-4xl md:text-5xl font-heading font-bold tracking-tight mb-8 leading-tight text-primary-500">
               Compliance is <span className="text-transparent bg-clip-text bg-gradient-to-r from-cta-500 to-cta-600">Complex.</span><br />
-              <span className="text-zinc-600 dark:text-zinc-300">VroomX Safety Isn't.</span>
+              <span className="text-zinc-600">VroomX Safety Isn't.</span>
             </h2>
-            <p className="text-lg text-zinc-600 dark:text-zinc-300 leading-relaxed mb-10">
+            <p className="text-lg text-zinc-600 leading-relaxed mb-10">
               You're running a trucking business, not a filing cabinet. FMCSA requirements are complex, but your software
               shouldn't be. Stop juggling spreadsheets and start automating your safety.
             </p>
@@ -146,7 +146,7 @@ const Landing = () => {
                   </div>
                   <div>
                     <h4 className="text-primary-500 font-bold text-sm mb-1">{item.title}</h4>
-                    <p className="text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed">{item.desc}</p>
+                    <p className="text-xs text-zinc-600 leading-relaxed">{item.desc}</p>
                   </div>
                 </div>
               ))}
@@ -256,7 +256,7 @@ const Landing = () => {
             <div>
               <span className="font-mono text-xs text-cta-500 uppercase tracking-widest">// Stay Informed</span>
               <h2 className="text-3xl md:text-5xl font-heading font-bold text-primary-500 mt-4">
-                Latest <span className="text-zinc-600 dark:text-zinc-300">Updates</span>
+                Latest <span className="text-zinc-600">Updates</span>
               </h2>
             </div>
             <Link to="/blog" className="hidden md:flex items-center gap-2 text-sm font-bold text-cta-500 hover:text-cta-600 transition-colors">
@@ -276,9 +276,9 @@ const Landing = () => {
                     </div>
                   </div>
                   <div className="p-6 flex-1 flex flex-col">
-                    <div className="text-xs text-zinc-400 dark:text-zinc-400 mb-3 font-mono">{post.date}</div>
+                    <div className="text-xs text-zinc-500 mb-3 font-mono">{post.date}</div>
                     <h3 className="text-xl font-bold text-primary-500 mb-3 group-hover:text-cta-500 transition-colors">{post.title}</h3>
-                    <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-4 flex-1">{post.excerpt}</p>
+                    <p className="text-sm text-zinc-600 mb-4 flex-1">{post.excerpt}</p>
                     <div className="flex items-center gap-2 text-sm text-cta-500 font-medium">
                       Read Article
                       <FiArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />

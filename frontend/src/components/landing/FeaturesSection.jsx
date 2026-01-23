@@ -98,7 +98,7 @@ const FeaturesSection = () => {
   const ChatMockup = () => (
     <div className="space-y-3.5">
       <div className="flex gap-3 animate-[fadeSlideUp_0.5s_ease_0.4s_both]">
-        <div className="w-9 h-9 rounded-xl bg-gray-200 flex items-center justify-center text-gray-400 flex-shrink-0">
+        <div className="w-9 h-9 rounded-xl bg-gray-200 flex items-center justify-center text-gray-500 flex-shrink-0">
           <LuUser className="w-4 h-4" />
         </div>
         <div className="px-4 py-3 rounded-2xl bg-white border border-gray-200 text-sm text-gray-700 max-w-[240px]">
@@ -125,7 +125,7 @@ const FeaturesSection = () => {
         { label: 'Driver Fitness', value: 21, color: 'bg-gradient-to-r from-emerald-400 to-emerald-300' }
       ].map((item, i) => (
         <div key={i} className="flex items-center gap-2.5">
-          <span className="w-20 text-xs font-medium text-gray-500">{item.label}</span>
+          <span className="w-20 text-xs font-medium text-gray-600">{item.label}</span>
           <div className="flex-1 h-3.5 bg-gray-200 rounded-full overflow-hidden">
             <div
               className={`h-full rounded-full ${item.color} animate-[barGrow_1s_ease_forwards]`}
@@ -155,7 +155,7 @@ const FeaturesSection = () => {
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-sm font-semibold text-gray-800 truncate">{file.name}</div>
-            <div className="text-xs text-gray-400">{file.meta}</div>
+            <div className="text-xs text-gray-500">{file.meta}</div>
           </div>
           <span className={`text-[10px] font-semibold px-2.5 py-1 rounded-lg ${file.statusClass}`}>
             {file.status}
@@ -171,7 +171,7 @@ const FeaturesSection = () => {
         <LuFileCheck2 className="w-9 h-9" />
       </div>
       <div className="text-xl font-semibold text-gray-800 mb-1.5">DataQ Letter Ready</div>
-      <div className="text-sm text-gray-500">
+      <div className="text-sm text-gray-600">
         Success probability: <strong className="text-emerald-500 font-bold">68%</strong>
       </div>
     </div>
@@ -185,7 +185,7 @@ const FeaturesSection = () => {
         </div>
         <div className="flex-1">
           <div className="text-sm font-semibold text-gray-800">Medical Card Expiring</div>
-          <div className="text-xs text-gray-400">Mike Rodriguez - 45 days remaining</div>
+          <div className="text-xs text-gray-500">Mike Rodriguez - 45 days remaining</div>
         </div>
       </div>
       <div className="flex items-center gap-3 p-3.5 rounded-xl bg-emerald-50 animate-[fadeScale_0.4s_ease_0.5s_forwards] opacity-0">
@@ -194,7 +194,7 @@ const FeaturesSection = () => {
         </div>
         <div className="flex-1">
           <div className="text-sm font-semibold text-gray-800">Inspection Complete</div>
-          <div className="text-xs text-gray-400">Truck #1042 passed all checks</div>
+          <div className="text-xs text-gray-500">Truck #1042 passed all checks</div>
         </div>
       </div>
     </div>
@@ -230,7 +230,7 @@ const FeaturesSection = () => {
             Compliance made <em className="italic text-[#FF6B4A]">simple</em>,
             <br />so you can focus on the road.
           </h2>
-          <p className="text-lg text-gray-500 max-w-xl mx-auto">
+          <p className="text-lg text-gray-600 max-w-xl mx-auto">
             Powerful tools for owner-operators and small fleets to stay DOT compliant without the headache.
           </p>
         </div>
@@ -248,7 +248,7 @@ const FeaturesSection = () => {
                 className={`relative flex items-center gap-2.5 px-5 py-3.5 rounded-xl font-medium text-sm transition-all duration-300 ${
                   activeTab === i
                     ? 'text-white shadow-lg shadow-[#FF6B4A]/25'
-                    : 'text-gray-500 hover:text-gray-700'
+                    : 'text-gray-600 hover:text-gray-700'
                 }`}
               >
                 {activeTab === i && (
@@ -298,12 +298,12 @@ const FeaturesSection = () => {
               <h3 className="font-serif text-3xl font-semibold text-gray-800 mb-4 tracking-tight animate-[contentReveal_0.5s_ease_0.25s_forwards] opacity-0">
                 {activeFeature.heading}
               </h3>
-              <p className="text-base text-gray-500 mb-8 leading-relaxed animate-[contentReveal_0.5s_ease_0.35s_forwards] opacity-0">
+              <p className="text-base text-gray-600 mb-8 leading-relaxed animate-[contentReveal_0.5s_ease_0.35s_forwards] opacity-0">
                 {activeFeature.description}
               </p>
               <div className="grid grid-cols-2 gap-3.5 mb-9 animate-[contentReveal_0.5s_ease_0.45s_forwards] opacity-0">
                 {activeFeature.bullets.map((bullet, i) => (
-                  <div key={i} className="flex items-center gap-2.5 text-sm text-gray-500">
+                  <div key={i} className="flex items-center gap-2.5 text-sm text-gray-600">
                     <span className="w-6 h-6 bg-emerald-50 rounded-lg flex items-center justify-center text-emerald-400 flex-shrink-0">
                       <LuCheck className="w-3.5 h-3.5" />
                     </span>
