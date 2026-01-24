@@ -14,14 +14,8 @@ const PublicHeader = ({ activePage = 'landing', variant = 'light' }) => {
         {/* Navigation Links */}
         <div className={`hidden md:flex items-center gap-8 ${isLight ? 'bg-[#F1F5F9]' : 'bg-white/10'} px-8 py-2 rounded-full border ${isLight ? 'border-[#E2E8F0]' : 'border-white/10'}`}>
           <Link
-            to="/"
-            onClick={(e) => {
-              if (activePage === 'landing') {
-                e.preventDefault();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }
-            }}
-            className="text-cta-500 text-sm font-medium hover:text-cta-600 transition-colors flex items-center gap-1.5 cursor-pointer"
+            to="/csa-checker"
+            className={`${activePage === 'csa-checker' ? 'text-cta-600 font-bold' : 'text-cta-500'} text-sm font-medium hover:text-cta-600 transition-colors flex items-center gap-1.5 cursor-pointer`}
           >
             <FiSearch className="w-3.5 h-3.5" />
             Free CSA Check

@@ -3,6 +3,7 @@ import { useAuth } from './context/AuthContext';
 import Layout from './components/Layout';
 import Landing from './pages/Landing';
 import Blog from './pages/Blog';
+import CSACheckerPage from './pages/CSACheckerPage';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
@@ -111,6 +112,9 @@ function App() {
 
       {/* Blog - public, accessible to everyone */}
       <Route path="/blog" element={<Blog />} />
+
+      {/* CSA Checker - public lead magnet */}
+      <Route path="/csa-checker" element={<CSACheckerPage />} />
 
       {/* Billing route - allows pending_payment users */}
       <Route
