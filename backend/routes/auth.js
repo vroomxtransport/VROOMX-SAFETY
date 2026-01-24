@@ -6,6 +6,7 @@ const { User, Company } = require('../models');
 const { protect, restrictToCompany } = require('../middleware/auth');
 const { asyncHandler } = require('../middleware/errorHandler');
 const { getUsageStats } = require('../middleware/subscriptionLimits');
+const fmcsaSyncService = require('../services/fmcsaSyncService');
 
 // Generate JWT token
 const generateToken = (id) => {
@@ -109,6 +110,14 @@ router.post('/register', [
   user.activeCompanyId = company._id;
   user.companyId = company._id; // Legacy support
   await user.save({ validateBeforeSave: false });
+
+  // Auto-sync FMCSA data in background (non-blocking)
+  if (company.dotNumber) {
+    fmcsaSyncService.syncCompanyData(company._id).catch(err => {
+      console.error('[Registration] Background FMCSA sync failed:', err.message);
+    });
+    console.log(`[Registration] FMCSA sync initiated for DOT ${company.dotNumber}`);
+  }
 
   const token = generateToken(user._id);
 
@@ -248,6 +257,11 @@ router.post('/login', [
   // Update last login
   user.lastLogin = new Date();
   await user.save({ validateBeforeSave: false });
+
+  // Auto-sync FMCSA data if stale (non-blocking)
+  fmcsaSyncService.syncOnLogin(user._id).catch(err => {
+    console.error('[Login] Background FMCSA sync failed:', err.message);
+  });
 
   const token = generateToken(user._id);
 

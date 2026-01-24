@@ -7,6 +7,7 @@ const { asyncHandler } = require('../middleware/errorHandler');
 const { SMS_BASICS_THRESHOLDS, getComplianceStatus } = require('../config/fmcsaCompliance');
 const alertService = require('../services/alertService');
 const complianceScoreService = require('../services/complianceScoreService');
+const fmcsaSyncService = require('../services/fmcsaSyncService');
 
 router.use(protect);
 router.use(restrictToCompany);
@@ -305,6 +306,53 @@ router.put('/basics', asyncHandler(async (req, res) => {
     success: true,
     message: 'SMS BASICs updated',
     smsBasics: company.smsBasics
+  });
+}));
+
+// @route   POST /api/dashboard/refresh-fmcsa
+// @desc    Force refresh FMCSA data from SAFER (real CSA scores)
+// @access  Private
+router.post('/refresh-fmcsa', asyncHandler(async (req, res) => {
+  const companyId = req.user.companyId._id || req.user.companyId;
+
+  console.log('[Dashboard] Manual FMCSA refresh requested for company:', companyId);
+
+  const smsBasics = await fmcsaSyncService.forceRefresh(companyId);
+
+  if (!smsBasics) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch FMCSA data. Please try again later.'
+    });
+  }
+
+  // Also return the updated fmcsaData
+  const company = await Company.findById(companyId).select('smsBasics fmcsaData');
+
+  res.json({
+    success: true,
+    message: 'FMCSA data refreshed successfully',
+    smsBasics: company.smsBasics,
+    fmcsaData: company.fmcsaData
+  });
+}));
+
+// @route   GET /api/dashboard/fmcsa-status
+// @desc    Get FMCSA data sync status
+// @access  Private
+router.get('/fmcsa-status', asyncHandler(async (req, res) => {
+  const companyId = req.user.companyId._id || req.user.companyId;
+  const company = await Company.findById(companyId).select('smsBasics fmcsaData dotNumber');
+
+  const isStale = await fmcsaSyncService.isDataStale(companyId);
+
+  res.json({
+    success: true,
+    dotNumber: company?.dotNumber,
+    lastUpdated: company?.smsBasics?.lastUpdated,
+    isStale,
+    smsBasics: company?.smsBasics,
+    fmcsaData: company?.fmcsaData
   });
 }));
 

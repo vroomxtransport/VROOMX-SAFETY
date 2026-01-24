@@ -88,6 +88,26 @@ const companySchema = new mongoose.Schema({
     randomAlcoholTestRate: { type: Number, default: 10 }
   },
 
+  // Additional FMCSA data from scraper
+  fmcsaData: {
+    inspections: {
+      total: { type: Number, default: 0 },
+      last24Months: { type: Number, default: 0 }
+    },
+    crashes: {
+      total: { type: Number, default: 0 },
+      last24Months: { type: Number, default: 0 }
+    },
+    operatingStatus: { type: String },
+    safetyRating: { type: String },
+    outOfServiceRate: {
+      vehicle: { type: Number },
+      driver: { type: Number }
+    },
+    lastFetched: { type: Date },
+    dataSource: { type: String }
+  },
+
   // VroomX Compliance Score (0-100)
   complianceScore: {
     current: { type: Number, min: 0, max: 100, default: null },

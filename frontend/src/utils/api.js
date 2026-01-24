@@ -39,7 +39,9 @@ export default api;
 export const dashboardAPI = {
   get: () => api.get('/dashboard'),
   getAuditReadiness: () => api.get('/dashboard/audit-readiness'),
-  updateBasics: (data) => api.put('/dashboard/basics', data)
+  updateBasics: (data) => api.put('/dashboard/basics', data),
+  refreshFMCSA: () => api.post('/dashboard/refresh-fmcsa'),
+  getFMCSAStatus: () => api.get('/dashboard/fmcsa-status')
 };
 
 export const driversAPI = {
