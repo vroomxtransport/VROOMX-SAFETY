@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { FiChevronDown, FiCheck, FiPlus, FiBriefcase } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 
-const CompanySwitcher = () => {
+const CompanySwitcher = ({ darkMode = false }) => {
   const { companies, activeCompany, switchCompany, canCreateCompany, subscription } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [switching, setSwitching] = useState(false);
@@ -63,22 +63,32 @@ const CompanySwitcher = () => {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary-100 dark:bg-white/5 hover:bg-primary-200 dark:hover:bg-white/10 transition-colors w-full"
+        className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors w-full ${
+          darkMode
+            ? 'bg-white/5 hover:bg-white/10'
+            : 'bg-primary-100 dark:bg-white/5 hover:bg-primary-200 dark:hover:bg-white/10'
+        }`}
         disabled={switching}
       >
-        <div className="w-9 h-9 rounded-lg bg-accent-100 dark:bg-gradient-to-br dark:from-accent-500/20 dark:to-accent-600/20 flex items-center justify-center">
-          <FiBriefcase className="w-4 h-4 text-accent-600 dark:text-accent-400" />
+        <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${
+          darkMode
+            ? 'bg-white/10'
+            : 'bg-accent-100 dark:bg-gradient-to-br dark:from-accent-500/20 dark:to-accent-600/20'
+        }`}>
+          <FiBriefcase className={`w-4 h-4 ${darkMode ? 'text-white/70' : 'text-accent-600 dark:text-accent-400'}`} />
         </div>
         <div className="flex-1 min-w-0 text-left">
-          <p className="text-primary-900 dark:text-white text-sm font-medium truncate">
+          <p className={`text-sm font-medium truncate ${darkMode ? 'text-white' : 'text-primary-900 dark:text-white'}`}>
             {activeCompany.name}
           </p>
-          <p className="text-primary-500 dark:text-primary-400 text-xs font-mono">
+          <p className={`text-xs font-mono ${darkMode ? 'text-white/60' : 'text-primary-500 dark:text-primary-400'}`}>
             DOT# {activeCompany.dotNumber}
           </p>
         </div>
         <FiChevronDown
-          className={`w-4 h-4 text-primary-500 dark:text-primary-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+          className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''} ${
+            darkMode ? 'text-white/60' : 'text-primary-500 dark:text-primary-400'
+          }`}
         />
       </button>
 

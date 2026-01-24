@@ -13,18 +13,27 @@ import {
 } from 'react-icons/fi';
 
 const navigation = [
+  // Main section (no header)
   { name: 'Dashboard', path: '/app/dashboard', icon: FiHome },
   { name: 'VroomX AI', path: '/app/ai-assistant', icon: FiMessageCircle, isAI: true },
-  { name: 'Alerts', path: '/app/alerts', icon: FiActivity, isBeta: true },
-  { name: 'Driver Qualification', path: '/app/drivers', icon: FiUsers },
+  { name: 'Alerts', path: '/app/alerts', icon: FiActivity, hasAlerts: true },
+
+  // Management section
+  { section: 'MANAGEMENT' },
+  { name: 'Driver Files', path: '/app/drivers', icon: FiUsers },
   { name: 'Vehicle Files', path: '/app/vehicles', icon: FiTruck },
   { name: 'Compliance', path: '/app/compliance', icon: FiBarChart2 },
-  { name: 'Violation Tracker', path: '/app/violations', icon: FiAlertTriangle },
-  { name: 'Ticket Tracker', path: '/app/tickets', icon: FiTag },
+
+  // Tracking section
+  { section: 'TRACKING' },
+  { name: 'Violations', path: '/app/violations', icon: FiAlertTriangle },
+  { name: 'Tickets', path: '/app/tickets', icon: FiTag },
   { name: 'Damage Claims', path: '/app/damage-claims', icon: FiDollarSign },
   { name: 'Drug & Alcohol', path: '/app/drug-alcohol', icon: FiDroplet },
+
+  // Tools section
+  { section: 'TOOLS' },
   { name: 'Documents', path: '/app/documents', icon: FiFolder },
-  { name: 'Templates', path: '/app/templates', icon: FiCopy },
   { name: 'Reports', path: '/app/reports', icon: FiFileText },
 ];
 
@@ -117,21 +126,22 @@ const Layout = () => {
       {/* Sidebar */}
       <aside
         className={`fixed inset-y-0 left-0 z-50 flex flex-col transform transition-all duration-300 ease-out lg:translate-x-0
-          bg-white dark:bg-zinc-900/50
-          border-r border-zinc-200 dark:border-white/5
+          bg-[#1E293B]
+          border-r border-white/10
           ${sidebarCollapsed ? 'w-20' : 'w-64'}
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
         {/* Logo Header */}
-        <div className={`flex items-center justify-between py-5 border-b border-zinc-200 dark:border-white/5 ${sidebarCollapsed ? 'px-3' : 'px-5'}`}>
+        <div className={`flex items-center justify-between py-5 border-b border-white/10 ${sidebarCollapsed ? 'px-3' : 'px-5'}`}>
           <VroomXLogo
             size="sm"
             showText={!sidebarCollapsed}
+            textColor="light"
             linkToHome={true}
             animate={true}
           />
           <button
-            className="lg:hidden p-2 text-zinc-600 dark:text-zinc-300 hover:text-zinc-700 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/10 rounded-lg transition-colors"
+            className="lg:hidden p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
             onClick={() => setSidebarOpen(false)}
           >
             <FiX className="w-5 h-5" />
@@ -139,8 +149,20 @@ const Layout = () => {
         </div>
 
         {/* Navigation */}
-        <nav className={`flex-1 py-2 space-y-0.5 overflow-y-auto scrollbar-thin ${sidebarCollapsed ? 'px-2' : 'px-3'}`}>
-          {navigation.map((item) => {
+        <nav className={`flex-1 py-4 space-y-1 overflow-y-auto scrollbar-thin ${sidebarCollapsed ? 'px-2' : 'px-3'}`}>
+          {navigation.map((item, index) => {
+            // Render section header
+            if (item.section) {
+              if (sidebarCollapsed) return null;
+              return (
+                <div key={item.section} className="pt-4 pb-2 px-3">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-white/40">
+                    {item.section}
+                  </span>
+                </div>
+              );
+            }
+
             const Icon = item.icon;
             const isActive = location.pathname.startsWith(item.path);
             return (
@@ -148,44 +170,37 @@ const Layout = () => {
                 key={item.name}
                 to={item.path}
                 title={sidebarCollapsed ? item.name : undefined}
-                className={`relative flex items-center rounded-xl transition-all duration-200 group ${
-                  sidebarCollapsed ? 'justify-center px-2 py-2.5' : 'gap-3 px-4 py-2.5'
+                className={`relative flex items-center rounded-lg transition-all duration-200 group ${
+                  sidebarCollapsed ? 'justify-center px-2 py-2.5' : 'gap-3 px-3 py-2.5'
                 } ${isActive
-                    ? 'bg-accent-50 dark:bg-accent-500/10 text-accent-600 dark:text-white'
-                    : item.isAI
-                      ? 'text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 hover:text-blue-700 dark:hover:text-blue-300'
-                      : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-white/5 hover:text-zinc-900 dark:hover:text-white'
+                    ? 'bg-white/10 text-white'
+                    : 'text-white/70 hover:bg-white/5 hover:text-white'
                   }`}
                 onClick={() => setSidebarOpen(false)}
               >
-                {/* Active indicator */}
-                {isActive && (
-                  <span
-                    className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 rounded-r-full bg-gradient-to-b from-accent-400 to-accent-600"
-                  />
-                )}
-
-                {/* Icon container */}
-                <span className={`flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 ${isActive
-                    ? 'bg-accent-100 dark:bg-accent-500/20 text-accent-600 dark:text-accent-400'
-                    : item.isAI
-                      ? 'bg-blue-100 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 group-hover:bg-blue-200 dark:group-hover:bg-blue-500/20'
-                      : 'bg-zinc-100 dark:bg-white/5 text-zinc-600 dark:text-zinc-300 group-hover:bg-zinc-200 dark:group-hover:bg-white/10 group-hover:text-zinc-700 dark:group-hover:text-zinc-200'
-                  }`}>
-                  <Icon className="w-4 h-4" />
-                </span>
+                {/* Icon */}
+                <Icon className="w-5 h-5 flex-shrink-0" />
 
                 {!sidebarCollapsed && (
                   <>
-                    <span className="font-medium">{item.name}</span>
-                    {item.isAI && (
-                      <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400">
+                    <span className="font-medium text-sm">{item.name}</span>
+
+                    {/* Active dot indicator */}
+                    {isActive && (
+                      <span className="ml-auto w-2 h-2 rounded-full bg-orange-500" />
+                    )}
+
+                    {/* AI badge */}
+                    {item.isAI && !isActive && (
+                      <span className="ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-500 text-white">
                         AI
                       </span>
                     )}
-                    {item.isBeta && (
-                      <span className="ml-auto text-[10px] font-semibold px-1.5 py-0.5 rounded bg-info-100 dark:bg-info-500/20 text-info-600 dark:text-info-400">
-                        BETA
+
+                    {/* Alert count badge */}
+                    {item.hasAlerts && !isActive && (
+                      <span className="ml-auto flex items-center justify-center w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold">
+                        3
                       </span>
                     )}
                   </>
@@ -197,26 +212,26 @@ const Layout = () => {
 
         {/* Subscription Badge */}
         {badge && !sidebarCollapsed && (
-          <div className="px-4 py-2 border-t border-zinc-200 dark:border-white/5">
-            <div className={`flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-accent-50 dark:bg-accent-500/10 border border-accent-200 dark:border-accent-500/30`}>
-              <FiStar className="w-4 h-4 text-accent-500" fill="currentColor" />
-              <span className="text-sm font-semibold text-accent-600 dark:text-accent-500">{badge.label}</span>
+          <div className="px-4 py-2 border-t border-white/10">
+            <div className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/10">
+              <FiStar className="w-4 h-4 text-orange-500" fill="currentColor" />
+              <span className="text-sm font-semibold text-white/90">{badge.label}</span>
             </div>
           </div>
         )}
 
         {/* Company Switcher */}
         {!sidebarCollapsed && (
-          <div className="px-4 py-4 border-t border-zinc-200 dark:border-white/5">
-            <CompanySwitcher />
+          <div className="px-4 py-4 border-t border-white/10">
+            <CompanySwitcher darkMode={true} />
           </div>
         )}
 
         {/* Collapse Toggle Button */}
-        <div className={`hidden lg:flex items-center border-t border-zinc-200 dark:border-white/5 ${sidebarCollapsed ? 'justify-center px-2 py-3' : 'px-4 py-3'}`}>
+        <div className={`hidden lg:flex items-center border-t border-white/10 ${sidebarCollapsed ? 'justify-center px-2 py-3' : 'px-4 py-3'}`}>
           <button
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className={`flex items-center gap-2 p-2 rounded-lg text-zinc-600 dark:text-zinc-300 hover:text-zinc-700 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/10 transition-colors ${sidebarCollapsed ? 'w-full justify-center' : ''}`}
+            className={`flex items-center gap-2 p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors ${sidebarCollapsed ? 'w-full justify-center' : ''}`}
             title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             {sidebarCollapsed ? (
