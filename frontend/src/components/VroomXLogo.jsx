@@ -6,7 +6,6 @@ import { FiCheckCircle } from 'react-icons/fi';
  *
  * @param {string} size - "sm" | "md" | "lg" | "xl" - Controls icon and text size
  * @param {boolean} showText - Whether to show "VroomX Safety" text
- * @param {string} textColor - "light" (white) | "dark" (primary-500)
  * @param {boolean} animate - Whether to animate the spinner
  * @param {boolean} linkToHome - Whether to wrap in Link to "/"
  * @param {string} className - Additional classes for the container
@@ -14,7 +13,6 @@ import { FiCheckCircle } from 'react-icons/fi';
 const VroomXLogo = ({
   size = 'md',
   showText = true,
-  textColor = 'dark',
   animate = true,
   linkToHome = true,
   className = ''
@@ -56,7 +54,6 @@ const VroomXLogo = ({
   };
 
   const sizeConfig = sizes[size] || sizes.md;
-  const isLight = textColor === 'light';
 
   const LogoContent = () => (
     <div className={`flex items-center ${sizeConfig.gap} ${className}`}>
@@ -64,7 +61,7 @@ const VroomXLogo = ({
       <div className={`relative ${sizeConfig.container} flex items-center justify-center flex-shrink-0`}>
         {/* Outer spinning ring */}
         <svg
-          className={`${sizeConfig.svg} absolute ${isLight ? 'text-white' : 'text-primary-500'} ${animate ? 'animate-spin-slow' : ''}`}
+          className={`${sizeConfig.svg} absolute text-primary-500 dark:text-white ${animate ? 'animate-spin-slow' : ''}`}
           viewBox="0 0 100 100"
           fill="none"
         >
@@ -91,8 +88,8 @@ const VroomXLogo = ({
 
       {/* Text */}
       {showText && (
-        <div className={`${sizeConfig.text} font-bold tracking-tight font-heading ${isLight ? 'text-white' : 'text-primary-500'}`}>
-          VroomX <span className={isLight ? 'text-cta-400' : 'text-cta-500'}>Safety</span>
+        <div className={`${sizeConfig.text} font-bold tracking-tight font-heading text-primary-500 dark:text-white`}>
+          VroomX <span className="text-cta-500 dark:text-cta-400">Safety</span>
         </div>
       )}
     </div>
