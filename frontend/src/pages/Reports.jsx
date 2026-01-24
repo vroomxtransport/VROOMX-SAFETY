@@ -126,10 +126,10 @@ const Reports = () => {
           const isGenerating = generating[report.id];
 
           return (
-            <div key={report.id} className="card">
+            <div key={report.id} className="group card hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer">
               <div className="card-body">
                 <div className="flex items-start space-x-4">
-                  <div className={`w-12 h-12 ${colors.bg} rounded-lg flex items-center justify-center flex-shrink-0`}>
+                  <div className={`w-12 h-12 ${colors.bg} rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300`}>
                     <Icon className={`w-6 h-6 ${colors.text}`} />
                   </div>
                   <div className="flex-1">
@@ -177,19 +177,19 @@ const Reports = () => {
         </div>
         <div className="card-body">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-            <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
+            <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
               <p className="font-medium text-zinc-700 dark:text-zinc-200">49 CFR 391</p>
               <p className="text-zinc-600 dark:text-zinc-300">Driver Qualifications</p>
             </div>
-            <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
+            <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
               <p className="font-medium text-zinc-700 dark:text-zinc-200">49 CFR 396</p>
               <p className="text-zinc-600 dark:text-zinc-300">Vehicle Inspection & Maintenance</p>
             </div>
-            <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
+            <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
               <p className="font-medium text-zinc-700 dark:text-zinc-200">49 CFR 382</p>
               <p className="text-zinc-600 dark:text-zinc-300">Drug & Alcohol Testing</p>
             </div>
-            <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
+            <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
               <p className="font-medium text-zinc-700 dark:text-zinc-200">SMS Methodology</p>
               <p className="text-zinc-600 dark:text-zinc-300">BASICs Scoring System</p>
             </div>
@@ -219,7 +219,7 @@ const Reports = () => {
               'Hours of service records (if applicable)',
               'Insurance certificates current'
             ].map((item, index) => (
-              <div key={index} className="flex items-center space-x-3 p-2 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded">
+              <div key={index} className="flex items-center space-x-3 p-2 hover:bg-zinc-50 dark:hover:bg-zinc-800 hover:pl-4 border-l-2 border-transparent hover:border-accent-500 rounded transition-all duration-200 cursor-pointer">
                 <input type="checkbox" className="w-4 h-4 text-primary-600" />
                 <span className="text-sm text-zinc-700 dark:text-zinc-200">{item}</span>
               </div>

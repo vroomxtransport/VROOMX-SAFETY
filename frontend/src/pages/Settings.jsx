@@ -274,10 +274,10 @@ const Settings = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 -mb-px transition-colors whitespace-nowrap ${
+                className={`flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 -mb-px transition-all duration-200 whitespace-nowrap ${
                   activeTab === tab.id
                     ? 'border-accent-500 text-accent-600 dark:text-accent-400 bg-accent-50/30 dark:bg-accent-500/10'
-                    : 'border-transparent text-zinc-600 dark:text-zinc-300 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-50/50 dark:hover:bg-zinc-800/50'
+                    : 'border-transparent text-zinc-600 dark:text-zinc-300 hover:text-accent-600 dark:hover:text-accent-400 hover:bg-accent-50/30 dark:hover:bg-accent-500/10 hover:border-accent-300 dark:hover:border-accent-500/50'
                 }`}
               >
                 <Icon className="w-4 h-4" />

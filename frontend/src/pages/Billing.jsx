@@ -390,7 +390,7 @@ const Billing = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Starter Plan */}
         <div
-          className={`relative bg-white dark:bg-zinc-900 rounded-2xl border-2 overflow-hidden transition-all ${
+          className={`relative bg-white dark:bg-zinc-900 rounded-2xl border-2 overflow-hidden transition-all duration-300 cursor-pointer hover:shadow-xl hover:-translate-y-1 ${
             subscription?.plan === 'starter' && subscription?.status !== 'trialing'
               ? 'border-primary-300 dark:border-primary-600 ring-2 ring-primary-100 dark:ring-primary-900'
               : 'border-zinc-200 dark:border-zinc-700 hover:border-primary-300 dark:hover:border-primary-600'
@@ -481,7 +481,7 @@ const Billing = () => {
 
         {/* Professional Plan */}
         <div
-          className={`relative bg-white dark:bg-zinc-900 rounded-2xl border-2 overflow-hidden transition-all ${
+          className={`relative bg-white dark:bg-zinc-900 rounded-2xl border-2 overflow-hidden transition-all duration-300 cursor-pointer hover:shadow-xl hover:-translate-y-1 ${
             subscription?.plan === 'professional' && subscription?.status !== 'trialing'
               ? 'border-accent-300 dark:border-accent-600 ring-2 ring-accent-100 dark:ring-accent-900'
               : 'border-accent-200 dark:border-accent-700 hover:border-accent-300 dark:hover:border-accent-600'
@@ -591,25 +591,25 @@ const Billing = () => {
       <div className="mt-12 mb-8">
         <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-4">Frequently Asked Questions</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700">
+          <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-accent-300 dark:hover:border-accent-500/50 transition-all duration-200">
             <h4 className="font-medium text-zinc-900 dark:text-zinc-100 mb-2">Can I change plans anytime?</h4>
             <p className="text-sm text-zinc-700 dark:text-zinc-300">
               Yes! You can upgrade or downgrade your plan at any time. Changes take effect immediately, and we'll prorate the charges.
             </p>
           </div>
-          <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700">
+          <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-accent-300 dark:hover:border-accent-500/50 transition-all duration-200">
             <h4 className="font-medium text-zinc-900 dark:text-zinc-100 mb-2">What happens when I cancel?</h4>
             <p className="text-sm text-zinc-700 dark:text-zinc-300">
               You'll retain access until the end of your billing period. After that, your account will be limited to view-only mode.
             </p>
           </div>
-          <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700">
+          <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-accent-300 dark:hover:border-accent-500/50 transition-all duration-200">
             <h4 className="font-medium text-zinc-900 dark:text-zinc-100 mb-2">Do you offer refunds?</h4>
             <p className="text-sm text-zinc-700 dark:text-zinc-300">
               We offer a 3-day free trial. If you're not satisfied within 30 days of subscribing, contact us for a full refund.
             </p>
           </div>
-          <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700">
+          <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-accent-300 dark:hover:border-accent-500/50 transition-all duration-200">
             <h4 className="font-medium text-zinc-900 dark:text-zinc-100 mb-2">Is my payment information secure?</h4>
             <p className="text-sm text-zinc-700 dark:text-zinc-300">
               Absolutely. We use Stripe for payment processing, which is PCI-DSS compliant and uses bank-level encryption.

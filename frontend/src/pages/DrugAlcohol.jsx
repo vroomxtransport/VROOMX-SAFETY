@@ -171,19 +171,19 @@ const DrugAlcohol = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="card p-4">
+        <div className="group card p-4 hover:shadow-lg hover:-translate-y-1 hover:border-blue-300 dark:hover:border-blue-500/30 transition-all duration-300 cursor-pointer">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-zinc-600 dark:text-zinc-300 text-sm">Drivers in Pool</p>
               <p className="text-2xl font-bold">{stats?.activeDriversInPool || 0}</p>
             </div>
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
               <FiDroplet className="w-6 h-6 text-blue-600" />
             </div>
           </div>
         </div>
 
-        <div className="card p-4">
+        <div className="group card p-4 hover:shadow-lg hover:-translate-y-1 hover:border-green-300 dark:hover:border-green-500/30 transition-all duration-300 cursor-pointer">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-zinc-600 dark:text-zinc-300 text-sm">Random Tests (YTD)</p>
@@ -191,13 +191,13 @@ const DrugAlcohol = () => {
                 {stats?.testsByType?.find(t => t._id === 'random')?.total || 0}
               </p>
             </div>
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
               <FiCheck className="w-6 h-6 text-green-600" />
             </div>
           </div>
         </div>
 
-        <div className="card p-4">
+        <div className="group card p-4 hover:shadow-lg hover:-translate-y-1 hover:border-green-300 dark:hover:border-green-500/30 transition-all duration-300 cursor-pointer">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-zinc-600 dark:text-zinc-300 text-sm">Compliance Rate</p>
@@ -205,7 +205,7 @@ const DrugAlcohol = () => {
                 {stats?.randomTestingCompliance?.complianceRate || 0}%
               </p>
             </div>
-            <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+            <div className={`w-12 h-12 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300 ${
               (stats?.randomTestingCompliance?.complianceRate || 0) >= 100 ? 'bg-green-100' : 'bg-yellow-100'
             }`}>
               {(stats?.randomTestingCompliance?.complianceRate || 0) >= 100 ? (
@@ -217,7 +217,7 @@ const DrugAlcohol = () => {
           </div>
         </div>
 
-        <div className="card p-4">
+        <div className="group card p-4 hover:shadow-lg hover:-translate-y-1 hover:border-orange-300 dark:hover:border-orange-500/30 transition-all duration-300 cursor-pointer">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-zinc-600 dark:text-zinc-300 text-sm">Pending Queries</p>
@@ -225,7 +225,7 @@ const DrugAlcohol = () => {
                 {stats?.driversNeedingClearinghouseQuery || 0}
               </p>
             </div>
-            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
               <FiAlertCircle className="w-6 h-6 text-orange-600" />
             </div>
           </div>

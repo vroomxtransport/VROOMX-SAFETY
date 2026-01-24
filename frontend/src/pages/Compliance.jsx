@@ -175,11 +175,11 @@ const Compliance = () => {
               {basicsData.map((basic) => (
                 <div
                   key={basic.key}
-                  className={`p-4 rounded-lg border-2 ${
-                    basic.status === 'critical' ? 'border-red-300 dark:border-red-500/50 bg-red-50 dark:bg-red-500/10' :
-                    basic.status === 'warning' ? 'border-yellow-300 dark:border-yellow-500/50 bg-yellow-50 dark:bg-yellow-500/10' :
-                    basic.status === 'compliant' ? 'border-green-300 dark:border-green-500/50 bg-green-50 dark:bg-green-500/10' :
-                    'border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800'
+                  className={`p-4 rounded-lg border-2 cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ${
+                    basic.status === 'critical' ? 'border-red-300 dark:border-red-500/50 bg-red-50 dark:bg-red-500/10 hover:border-red-400 dark:hover:border-red-500/70' :
+                    basic.status === 'warning' ? 'border-yellow-300 dark:border-yellow-500/50 bg-yellow-50 dark:bg-yellow-500/10 hover:border-yellow-400 dark:hover:border-yellow-500/70' :
+                    basic.status === 'compliant' ? 'border-green-300 dark:border-green-500/50 bg-green-50 dark:bg-green-500/10 hover:border-green-400 dark:hover:border-green-500/70' :
+                    'border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-600'
                   }`}
                 >
                   <p className="text-sm font-medium text-zinc-700 dark:text-zinc-200 truncate">{basic.name}</p>
@@ -256,7 +256,7 @@ const Compliance = () => {
           </div>
           <div className="card-body space-y-4">
             {/* DQF Files */}
-            <div className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:pl-4 border-l-2 border-transparent hover:border-accent-500 transition-all duration-200">
               <div className="flex items-center space-x-3">
                 {auditReadiness?.dqFiles?.compliant ? (
                   <FiCheck className="w-6 h-6 text-green-500 dark:text-green-400" />
@@ -273,7 +273,7 @@ const Compliance = () => {
             </div>
 
             {/* Vehicle Records */}
-            <div className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:pl-4 border-l-2 border-transparent hover:border-accent-500 transition-all duration-200">
               <div className="flex items-center space-x-3">
                 {auditReadiness?.vehicleRecords?.compliant ? (
                   <FiCheck className="w-6 h-6 text-green-500 dark:text-green-400" />
@@ -290,7 +290,7 @@ const Compliance = () => {
             </div>
 
             {/* Drug & Alcohol */}
-            <div className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:pl-4 border-l-2 border-transparent hover:border-accent-500 transition-all duration-200">
               <div className="flex items-center space-x-3">
                 {auditReadiness?.drugAlcohol?.compliant ? (
                   <FiCheck className="w-6 h-6 text-green-500 dark:text-green-400" />

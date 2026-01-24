@@ -216,7 +216,7 @@ const DriverDetail = () => {
                 {documentChecklist.map((doc) => (
                   <div
                     key={doc.key}
-                    className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg"
+                    className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
                   >
                     <div className="flex items-center space-x-3">
                       {doc.status === 'complete' ? (
@@ -265,7 +265,7 @@ const DriverDetail = () => {
               {driver.documents?.mvrReviews?.length > 0 ? (
                 <div className="space-y-3">
                   {driver.documents.mvrReviews.slice(-3).reverse().map((mvr, index) => (
-                    <div key={index} className="p-3 border border-zinc-200 dark:border-zinc-700 rounded-lg">
+                    <div key={index} className="p-3 border border-zinc-200 dark:border-zinc-700 rounded-lg hover:shadow-md hover:-translate-y-0.5 hover:border-accent-300 dark:hover:border-accent-500/50 transition-all duration-200 cursor-pointer">
                       <div className="flex justify-between items-start">
                         <div>
                           <p className="font-medium text-zinc-800 dark:text-zinc-200">Review Date: {formatDate(mvr.reviewDate)}</p>

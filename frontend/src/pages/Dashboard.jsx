@@ -259,33 +259,33 @@ const Dashboard = () => {
           {/* Quick Stats Row */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Drivers */}
-            <div className="card-hover bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl p-5 shadow-sm">
+            <Link to="/app/drivers" className="group bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-blue-300 dark:hover:border-blue-500/30 transition-all duration-300 cursor-pointer">
               <div className="flex items-center justify-between mb-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-500/10 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                   <FiUsers className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 </div>
                 <span className="text-xs text-green-600 dark:text-green-400 font-semibold">All active</span>
               </div>
               <p className="text-3xl font-bold text-zinc-900 dark:text-white">{data?.drivers?.active || 0}</p>
               <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-1">Active Drivers</p>
-            </div>
+            </Link>
 
             {/* Vehicles */}
-            <div className="card-hover bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl p-5 shadow-sm">
+            <Link to="/app/vehicles" className="group bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-purple-300 dark:hover:border-purple-500/30 transition-all duration-300 cursor-pointer">
               <div className="flex items-center justify-between mb-3">
-                <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-500/10 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                   <FiTruck className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                 </div>
                 <span className="text-xs text-zinc-600 dark:text-zinc-300">All active</span>
               </div>
               <p className="text-3xl font-bold text-zinc-900 dark:text-white">{data?.vehicles?.active || 0}</p>
               <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-1">Fleet Vehicles</p>
-            </div>
+            </Link>
 
             {/* Expiring Docs */}
-            <div className="card-hover bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl p-5 shadow-sm">
+            <Link to="/app/documents" className="group bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-yellow-300 dark:hover:border-yellow-500/30 transition-all duration-300 cursor-pointer">
               <div className="flex items-center justify-between mb-3">
-                <div className="w-10 h-10 rounded-xl bg-yellow-100 dark:bg-yellow-500/10 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-yellow-100 dark:bg-yellow-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                   <FiClock className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
                 </div>
                 {(data?.summary?.driversWithExpiringDocs || 0) > 0 && (
@@ -296,19 +296,19 @@ const Dashboard = () => {
                 {data?.summary?.driversWithExpiringDocs || 0}
               </p>
               <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-1">Expiring Soon</p>
-            </div>
+            </Link>
 
             {/* Violations */}
-            <div className="card-hover bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl p-5 shadow-sm">
+            <Link to="/app/violations" className="group bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-red-300 dark:hover:border-red-500/30 transition-all duration-300 cursor-pointer">
               <div className="flex items-center justify-between mb-3">
-                <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-500/10 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                   <FiAlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
                 </div>
                 <span className="text-xs text-green-600 dark:text-green-400 font-semibold">-2 this year</span>
               </div>
               <p className="text-3xl font-bold text-zinc-900 dark:text-white">{data?.recentViolations?.length || 0}</p>
               <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-1">Open Violations</p>
-            </div>
+            </Link>
           </div>
 
           {/* SMS BASICs Overview */}
@@ -329,8 +329,8 @@ const Dashboard = () => {
             </div>
             <div className="p-5 grid grid-cols-2 lg:grid-cols-3 gap-4">
               {basicsData.length > 0 ? basicsData.map((basic, index) => (
-                <div key={index} className="flex items-center gap-3 p-3 rounded-xl bg-zinc-50 dark:bg-white/5 border border-zinc-100 dark:border-white/5">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                <div key={index} className="group flex items-center gap-3 p-3 rounded-xl bg-zinc-50 dark:bg-white/5 border border-zinc-100 dark:border-white/5 hover:shadow-md hover:-translate-y-0.5 hover:border-zinc-200 dark:hover:border-white/10 transition-all duration-200 cursor-pointer">
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-200 ${
                     basic.status === 'critical' ? 'bg-red-100 dark:bg-red-500/20' :
                     basic.status === 'warning' ? 'bg-yellow-100 dark:bg-yellow-500/20' :
                     'bg-green-100 dark:bg-green-500/20'
@@ -360,8 +360,8 @@ const Dashboard = () => {
                 // Default placeholders if no data
                 <>
                   {['Unsafe Driving', 'HOS Compliance', 'Vehicle Maint.', 'Controlled Sub.', 'Driver Fitness', 'Crash Indicator'].map((name, index) => (
-                    <div key={index} className="flex items-center gap-3 p-3 rounded-xl bg-zinc-50 dark:bg-white/5 border border-zinc-100 dark:border-white/5">
-                      <div className="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-500/20 flex items-center justify-center">
+                    <div key={index} className="group flex items-center gap-3 p-3 rounded-xl bg-zinc-50 dark:bg-white/5 border border-zinc-100 dark:border-white/5 hover:shadow-md hover:-translate-y-0.5 hover:border-zinc-200 dark:hover:border-white/10 transition-all duration-200 cursor-pointer">
+                      <div className="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-500/20 flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
                         <span className="text-lg font-bold text-green-600 dark:text-green-400">0%</span>
                       </div>
                       <div>
@@ -403,9 +403,9 @@ const Dashboard = () => {
               </div>
             ) : (
               data?.alerts?.slice(0, 3).map((alert, index) => (
-                <div key={index} className="p-4 hover:bg-zinc-50 dark:hover:bg-white/10 transition-colors cursor-pointer">
+                <div key={index} className="group p-4 hover:bg-zinc-50 dark:hover:bg-white/5 hover:pl-5 border-l-2 border-transparent hover:border-accent-500 transition-all duration-200 cursor-pointer">
                   <div className="flex items-start gap-3">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-200 ${
                       alert.type === 'critical' ? 'bg-red-100 dark:bg-red-500/20' : 'bg-yellow-100 dark:bg-yellow-500/20'
                     }`}>
                       {alert.type === 'critical' ? (
@@ -415,7 +415,7 @@ const Dashboard = () => {
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-zinc-900 dark:text-white">{alert.message}</p>
+                      <p className="text-sm text-zinc-900 dark:text-white group-hover:text-accent-600 dark:group-hover:text-accent-400 transition-colors">{alert.message}</p>
                       <p className="text-xs text-zinc-600 dark:text-zinc-300 mt-1">
                         {alert.category || 'Compliance'} {alert.type === 'critical' ? '- Critical' : '- Warning'}
                       </p>
@@ -456,15 +456,15 @@ const Dashboard = () => {
             <div className="p-5">
               {/* Status Grid */}
               <div className="grid grid-cols-3 gap-2 mb-4">
-                <div className="text-center p-3 rounded-xl bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20">
+                <div className="text-center p-3 rounded-xl bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 hover:shadow-md hover:-translate-y-0.5 hover:border-green-300 dark:hover:border-green-500/40 transition-all duration-200 cursor-pointer">
                   <p className="text-2xl font-bold text-green-600 dark:text-green-400">{data?.drivers?.compliant || 0}</p>
                   <p className="text-xs text-zinc-600 dark:text-zinc-300 mt-1">Compliant</p>
                 </div>
-                <div className="text-center p-3 rounded-xl bg-yellow-50 dark:bg-yellow-500/10 border border-yellow-200 dark:border-yellow-500/20">
+                <div className="text-center p-3 rounded-xl bg-yellow-50 dark:bg-yellow-500/10 border border-yellow-200 dark:border-yellow-500/20 hover:shadow-md hover:-translate-y-0.5 hover:border-yellow-300 dark:hover:border-yellow-500/40 transition-all duration-200 cursor-pointer">
                   <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{data?.drivers?.warning || 0}</p>
                   <p className="text-xs text-zinc-600 dark:text-zinc-300 mt-1">Warning</p>
                 </div>
-                <div className="text-center p-3 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20">
+                <div className="text-center p-3 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 hover:shadow-md hover:-translate-y-0.5 hover:border-red-300 dark:hover:border-red-500/40 transition-all duration-200 cursor-pointer">
                   <p className="text-2xl font-bold text-red-600 dark:text-red-400">{data?.drivers?.nonCompliant || 0}</p>
                   <p className="text-xs text-zinc-600 dark:text-zinc-300 mt-1">Non-Compliant</p>
                 </div>
@@ -509,12 +509,12 @@ const Dashboard = () => {
             </div>
             <div className="p-5 space-y-3">
               {/* DQF Files */}
-              <div className={`flex items-center gap-3 p-3 rounded-xl border ${
+              <div className={`group flex items-center gap-3 p-3 rounded-xl border hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer ${
                 (data?.drivers?.nonCompliant || 0) === 0
-                  ? 'bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/20'
-                  : 'bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20'
+                  ? 'bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/20 hover:border-green-300 dark:hover:border-green-500/40'
+                  : 'bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20 hover:border-red-300 dark:hover:border-red-500/40'
               }`}>
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200 ${
                   (data?.drivers?.nonCompliant || 0) === 0
                     ? 'bg-green-100 dark:bg-green-500/20'
                     : 'bg-red-100 dark:bg-red-500/20'
@@ -537,12 +537,12 @@ const Dashboard = () => {
                 </div>
               </div>
               {/* Vehicle Records */}
-              <div className={`flex items-center gap-3 p-3 rounded-xl border ${
+              <div className={`group flex items-center gap-3 p-3 rounded-xl border hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer ${
                 (data?.vehicles?.outOfService || 0) === 0
-                  ? 'bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/20'
-                  : 'bg-yellow-50 dark:bg-yellow-500/10 border-yellow-200 dark:border-yellow-500/20'
+                  ? 'bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/20 hover:border-green-300 dark:hover:border-green-500/40'
+                  : 'bg-yellow-50 dark:bg-yellow-500/10 border-yellow-200 dark:border-yellow-500/20 hover:border-yellow-300 dark:hover:border-yellow-500/40'
               }`}>
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200 ${
                   (data?.vehicles?.outOfService || 0) === 0
                     ? 'bg-green-100 dark:bg-green-500/20'
                     : 'bg-yellow-100 dark:bg-yellow-500/20'
@@ -565,8 +565,8 @@ const Dashboard = () => {
                 </div>
               </div>
               {/* Drug & Alcohol */}
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20">
-                <div className="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-500/20 flex items-center justify-center">
+              <div className="group flex items-center gap-3 p-3 rounded-xl bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 hover:shadow-md hover:-translate-y-0.5 hover:border-green-300 dark:hover:border-green-500/40 transition-all duration-200 cursor-pointer">
+                <div className="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
                   <FiCheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
                 </div>
                 <div className="flex-1">

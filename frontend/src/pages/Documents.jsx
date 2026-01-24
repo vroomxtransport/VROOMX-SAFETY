@@ -226,34 +226,34 @@ const Documents = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div className="card p-4">
+        <div className="group card p-4 hover:shadow-lg hover:-translate-y-1 hover:border-blue-300 dark:hover:border-blue-500/30 transition-all duration-300 cursor-pointer">
           <div className="flex items-center space-x-3">
-            <FiFolder className="w-8 h-8 text-blue-600" />
+            <FiFolder className="w-8 h-8 text-blue-600 group-hover:scale-110 transition-transform duration-300" />
             <div>
               <p className="text-2xl font-bold">{stats?.totals?.total || 0}</p>
               <p className="text-xs text-zinc-600 dark:text-zinc-300">Total</p>
             </div>
           </div>
         </div>
-        <div className="card p-4">
+        <div className="group card p-4 hover:shadow-lg hover:-translate-y-1 hover:border-green-300 dark:hover:border-green-500/30 transition-all duration-300 cursor-pointer">
           <div className="text-center">
             <p className="text-2xl font-bold text-green-600 dark:text-green-400">{stats?.totals?.valid || 0}</p>
             <p className="text-xs text-zinc-600 dark:text-zinc-300">Valid</p>
           </div>
         </div>
-        <div className="card p-4">
+        <div className="group card p-4 hover:shadow-lg hover:-translate-y-1 hover:border-yellow-300 dark:hover:border-yellow-500/30 transition-all duration-300 cursor-pointer">
           <div className="text-center">
             <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{stats?.totals?.dueSoon || 0}</p>
             <p className="text-xs text-zinc-600 dark:text-zinc-300">Due Soon</p>
           </div>
         </div>
-        <div className="card p-4">
+        <div className="group card p-4 hover:shadow-lg hover:-translate-y-1 hover:border-red-300 dark:hover:border-red-500/30 transition-all duration-300 cursor-pointer">
           <div className="text-center">
             <p className="text-2xl font-bold text-red-600 dark:text-red-400">{stats?.totals?.expired || 0}</p>
             <p className="text-xs text-zinc-600 dark:text-zinc-300">Expired</p>
           </div>
         </div>
-        <div className="card p-4">
+        <div className="group card p-4 hover:shadow-lg hover:-translate-y-1 hover:border-zinc-300 dark:hover:border-zinc-600 transition-all duration-300 cursor-pointer">
           <div className="text-center">
             <p className="text-2xl font-bold text-zinc-500 dark:text-zinc-400">{stats?.totals?.missing || 0}</p>
             <p className="text-xs text-zinc-600 dark:text-zinc-300">Missing</p>

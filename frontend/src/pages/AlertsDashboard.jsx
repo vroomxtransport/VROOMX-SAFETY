@@ -232,7 +232,7 @@ const AlertsDashboard = () => {
 
         {/* Alert Count Cards */}
         <div
-          className="bg-white dark:bg-zinc-900 rounded-xl border border-danger-200/60 dark:border-danger-500/30 p-5 hover:shadow-card transition-shadow"
+          className="group bg-white dark:bg-zinc-900 rounded-xl border border-danger-200/60 dark:border-danger-500/30 p-5 hover:shadow-lg hover:-translate-y-1 hover:border-danger-300 dark:hover:border-danger-500/50 transition-all duration-300 cursor-pointer"
           style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}
         >
           <div className="flex items-center justify-between">
@@ -240,7 +240,7 @@ const AlertsDashboard = () => {
               <p className="text-sm font-medium text-zinc-600 dark:text-zinc-300">Critical</p>
               <p className="text-3xl font-bold text-danger-600 dark:text-danger-400">{alerts.critical.length}</p>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-danger-100 dark:bg-danger-500/20 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-xl bg-danger-100 dark:bg-danger-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
               <FiAlertCircle className="w-6 h-6 text-danger-600 dark:text-danger-400" />
             </div>
           </div>
@@ -248,7 +248,7 @@ const AlertsDashboard = () => {
         </div>
 
         <div
-          className="bg-white dark:bg-zinc-900 rounded-xl border border-warning-200/60 dark:border-warning-500/30 p-5 hover:shadow-card transition-shadow"
+          className="group bg-white dark:bg-zinc-900 rounded-xl border border-warning-200/60 dark:border-warning-500/30 p-5 hover:shadow-lg hover:-translate-y-1 hover:border-warning-300 dark:hover:border-warning-500/50 transition-all duration-300 cursor-pointer"
           style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}
         >
           <div className="flex items-center justify-between">
@@ -256,7 +256,7 @@ const AlertsDashboard = () => {
               <p className="text-sm font-medium text-zinc-600 dark:text-zinc-300">Warning</p>
               <p className="text-3xl font-bold text-warning-600 dark:text-warning-400">{alerts.warning.length}</p>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-warning-100 dark:bg-warning-500/20 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-xl bg-warning-100 dark:bg-warning-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
               <FiAlertTriangle className="w-6 h-6 text-warning-600 dark:text-warning-400" />
             </div>
           </div>
@@ -264,7 +264,7 @@ const AlertsDashboard = () => {
         </div>
 
         <div
-          className="bg-white dark:bg-zinc-900 rounded-xl border border-info-200/60 dark:border-info-500/30 p-5 hover:shadow-card transition-shadow"
+          className="group bg-white dark:bg-zinc-900 rounded-xl border border-info-200/60 dark:border-info-500/30 p-5 hover:shadow-lg hover:-translate-y-1 hover:border-info-300 dark:hover:border-info-500/50 transition-all duration-300 cursor-pointer"
           style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}
         >
           <div className="flex items-center justify-between">
@@ -272,7 +272,7 @@ const AlertsDashboard = () => {
               <p className="text-sm font-medium text-zinc-600 dark:text-zinc-300">Info</p>
               <p className="text-3xl font-bold text-info-600 dark:text-info-400">{alerts.info.length}</p>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-info-100 dark:bg-info-500/20 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-xl bg-info-100 dark:bg-info-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
               <FiInfo className="w-6 h-6 text-info-600 dark:text-info-400" />
             </div>
           </div>
@@ -290,10 +290,10 @@ const AlertsDashboard = () => {
           <button
             key={cat}
             onClick={() => setCategoryFilter(cat)}
-            className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+            className={`px-3 py-1.5 text-sm rounded-lg border transition-all duration-200 hover:scale-105 active:scale-95 ${
               categoryFilter === cat
-                ? 'bg-accent-600 text-white border-accent-600 dark:bg-accent-500 dark:border-accent-500'
-                : 'bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-600 hover:border-zinc-400 dark:hover:border-zinc-500'
+                ? 'bg-accent-600 text-white border-accent-600 dark:bg-accent-500 dark:border-accent-500 shadow-md'
+                : 'bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-600 hover:border-accent-400 dark:hover:border-accent-500 hover:shadow-md'
             }`}
           >
             {cat === 'all' ? 'All' : cat.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
@@ -486,7 +486,7 @@ const AlertColumn = ({
               return (
                 <div
                   key={alert._id}
-                  className="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-3 hover:shadow-sm transition-shadow"
+                  className="group bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-3 hover:shadow-md hover:-translate-y-0.5 hover:border-accent-300 dark:hover:border-accent-500/50 transition-all duration-200 cursor-pointer"
                 >
                   <div className="flex items-start gap-3">
                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
