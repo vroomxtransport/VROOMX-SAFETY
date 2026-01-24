@@ -126,22 +126,21 @@ const Layout = () => {
       {/* Sidebar */}
       <aside
         className={`fixed inset-y-0 left-0 z-50 flex flex-col transform transition-all duration-300 ease-out lg:translate-x-0
-          bg-[#1E293B]
-          border-r border-white/10
+          bg-white dark:bg-zinc-900
+          border-r border-zinc-200 dark:border-white/10
           ${sidebarCollapsed ? 'w-20' : 'w-64'}
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
         {/* Logo Header */}
-        <div className={`flex items-center justify-between py-5 border-b border-white/10 ${sidebarCollapsed ? 'px-3' : 'px-5'}`}>
+        <div className={`flex items-center justify-between py-5 border-b border-zinc-200 dark:border-white/10 ${sidebarCollapsed ? 'px-3' : 'px-5'}`}>
           <VroomXLogo
             size="sm"
             showText={!sidebarCollapsed}
-            textColor="light"
             linkToHome={true}
             animate={true}
           />
           <button
-            className="lg:hidden p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+            className="lg:hidden p-2 text-zinc-600 dark:text-white/70 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/10 rounded-lg transition-colors"
             onClick={() => setSidebarOpen(false)}
           >
             <FiX className="w-5 h-5" />
@@ -156,7 +155,7 @@ const Layout = () => {
               if (sidebarCollapsed) return null;
               return (
                 <div key={item.section} className="pt-4 pb-2 px-3">
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-white/40">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-white/40">
                     {item.section}
                   </span>
                 </div>
@@ -173,8 +172,8 @@ const Layout = () => {
                 className={`relative flex items-center rounded-lg transition-all duration-200 group ${
                   sidebarCollapsed ? 'justify-center px-2 py-2.5' : 'gap-3 px-3 py-2.5'
                 } ${isActive
-                    ? 'bg-white/10 text-white'
-                    : 'text-white/70 hover:bg-white/5 hover:text-white'
+                    ? 'bg-accent-50 dark:bg-white/10 text-accent-600 dark:text-white'
+                    : 'text-zinc-600 dark:text-white/70 hover:bg-zinc-100 dark:hover:bg-white/5 hover:text-zinc-900 dark:hover:text-white'
                   }`}
                 onClick={() => setSidebarOpen(false)}
               >
@@ -212,26 +211,26 @@ const Layout = () => {
 
         {/* Subscription Badge */}
         {badge && !sidebarCollapsed && (
-          <div className="px-4 py-2 border-t border-white/10">
-            <div className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/10">
+          <div className="px-4 py-2 border-t border-zinc-200 dark:border-white/10">
+            <div className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10">
               <FiStar className="w-4 h-4 text-orange-500" fill="currentColor" />
-              <span className="text-sm font-semibold text-white/90">{badge.label}</span>
+              <span className="text-sm font-semibold text-zinc-700 dark:text-white/90">{badge.label}</span>
             </div>
           </div>
         )}
 
         {/* Company Switcher */}
         {!sidebarCollapsed && (
-          <div className="px-4 py-4 border-t border-white/10">
-            <CompanySwitcher darkMode={true} />
+          <div className="px-4 py-4 border-t border-zinc-200 dark:border-white/10">
+            <CompanySwitcher />
           </div>
         )}
 
         {/* Collapse Toggle Button */}
-        <div className={`hidden lg:flex items-center border-t border-white/10 ${sidebarCollapsed ? 'justify-center px-2 py-3' : 'px-4 py-3'}`}>
+        <div className={`hidden lg:flex items-center border-t border-zinc-200 dark:border-white/10 ${sidebarCollapsed ? 'justify-center px-2 py-3' : 'px-4 py-3'}`}>
           <button
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className={`flex items-center gap-2 p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors ${sidebarCollapsed ? 'w-full justify-center' : ''}`}
+            className={`flex items-center gap-2 p-2 rounded-lg text-zinc-600 dark:text-white/70 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/10 transition-colors ${sidebarCollapsed ? 'w-full justify-center' : ''}`}
             title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             {sidebarCollapsed ? (
