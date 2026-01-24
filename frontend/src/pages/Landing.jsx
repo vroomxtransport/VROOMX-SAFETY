@@ -112,6 +112,9 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* Features Section */}
+      <FeaturesSection features={features} />
+
       {/* Problem Section */}
       <section className="py-32 px-6 md:px-16 relative z-10">
         <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-20 items-center">
@@ -231,9 +234,6 @@ const Landing = () => {
           </div>
         </div>
       </section>
-
-      {/* Features Section */}
-      <FeaturesSection features={features} />
 
       {/* Pricing Section */}
       <PricingSection

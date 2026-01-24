@@ -12,9 +12,8 @@ const HeroSection = ({ heroTextIndex, heroTexts }) => {
           className="w-full h-full object-cover object-[center_70%]"
           alt="American Truck Background"
         />
-        {/* Frosted glass overlay on left half for text readability */}
-        <div className="absolute inset-y-0 left-0 w-[60%] bg-white/75 backdrop-blur-sm" />
-        <div className="absolute inset-y-0 left-[60%] w-[20%] bg-gradient-to-r from-white/75 to-transparent backdrop-blur-[2px]" />
+        {/* Dark gradient overlay for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-transparent" />
       </div>
 
       <div className="max-w-7xl w-full grid lg:grid-cols-2 gap-16 items-center relative z-10">
@@ -32,32 +31,32 @@ const HeroSection = ({ heroTextIndex, heroTexts }) => {
             </span>
           </div>
 
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.1] tracking-tight mb-8 font-heading animate-fade-in-up text-primary-500">
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.1] tracking-tight mb-8 font-heading animate-fade-in-up text-white drop-shadow-lg">
             TOTAL<br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-cta-500 to-cta-600">COMPLIANCE.</span><br />
             <span className="inline-grid text-left">
               <span className="invisible col-start-1 row-start-1">ZERO STRESS.</span>
               <span
                 key={heroTextIndex}
-                className="typewriter-text col-start-1 row-start-1 text-transparent bg-clip-text bg-gradient-to-b from-zinc-600 to-zinc-500"
+                className="typewriter-text col-start-1 row-start-1 text-white/90 drop-shadow-lg"
               >
                 {heroTexts[heroTextIndex]}
               </span>
             </span>
           </h1>
 
-          <p className="text-[#1E293B] text-lg md:text-xl max-w-2xl mb-4 leading-relaxed font-medium animate-fade-in-up mx-auto lg:mx-0" style={{ animationDelay: '0.1s' }}>
+          <p className="text-white drop-shadow-md text-lg md:text-xl max-w-2xl mb-4 leading-relaxed font-medium animate-fade-in-up mx-auto lg:mx-0" style={{ animationDelay: '0.1s' }}>
             The all-in-one platform for 49 CFR compliance. Track DQF files, maintenance, and SMS BASICs with
             predictive alerts that keep you off the radar.
           </p>
 
-          <p className="text-[#1E293B] text-lg md:text-xl max-w-2xl mb-4 leading-relaxed animate-fade-in-up mx-auto lg:mx-0" style={{ animationDelay: '0.12s' }}>
-            <span className="text-cta-500 font-semibold">Avoid failed audits</span>,{' '}
-            <span className="text-primary-500 font-semibold">spot missing documents</span>, and{' '}
+          <p className="text-white drop-shadow-md text-lg md:text-xl max-w-2xl mb-4 leading-relaxed animate-fade-in-up mx-auto lg:mx-0" style={{ animationDelay: '0.12s' }}>
+            <span className="text-cta-400 font-semibold">Avoid failed audits</span>,{' '}
+            <span className="text-white font-semibold">spot missing documents</span>, and{' '}
             <span className="font-semibold">stay AUDIT-ready</span>.
           </p>
 
-          <p className="text-zinc-600 text-base md:text-lg max-w-xl mb-8 italic animate-fade-in-up mx-auto lg:mx-0" style={{ animationDelay: '0.14s' }}>
+          <p className="text-white/80 drop-shadow-md text-base md:text-lg max-w-xl mb-8 italic animate-fade-in-up mx-auto lg:mx-0" style={{ animationDelay: '0.14s' }}>
             We empower small carriers to take control of compliance — not outsource it.
           </p>
 
@@ -65,17 +64,17 @@ const HeroSection = ({ heroTextIndex, heroTexts }) => {
           <div className="flex flex-wrap gap-6 mb-10 justify-center lg:justify-start animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
             <div className="text-center">
               <div className="text-2xl font-black text-cta-500">3,247+</div>
-              <div className="text-xs text-zinc-600">CSA Checks</div>
+              <div className="text-xs text-white/80">CSA Checks</div>
             </div>
-            <div className="w-px bg-[#E2E8F0]" />
+            <div className="w-px bg-white/30" />
             <div className="text-center">
-              <div className="text-2xl font-black text-primary-500">99.2%</div>
-              <div className="text-xs text-zinc-600">Uptime</div>
+              <div className="text-2xl font-black text-white">99.2%</div>
+              <div className="text-xs text-white/80">Uptime</div>
             </div>
-            <div className="w-px bg-[#E2E8F0]" />
+            <div className="w-px bg-white/30" />
             <div className="text-center">
-              <div className="text-2xl font-black text-success-500">4.9★</div>
-              <div className="text-xs text-zinc-600">Rating</div>
+              <div className="text-2xl font-black text-success-400">4.9★</div>
+              <div className="text-xs text-white/80">Rating</div>
             </div>
           </div>
 
@@ -89,10 +88,10 @@ const HeroSection = ({ heroTextIndex, heroTexts }) => {
             </a>
             <a
               href="#features"
-              className="px-8 py-4 rounded-xl font-bold text-primary-500 text-base tracking-wide border-2 border-primary-500/40 bg-white hover:bg-primary-50 transition-all flex items-center justify-center gap-3 group"
+              className="px-8 py-4 rounded-xl font-bold text-white text-base tracking-wide border-2 border-white/40 bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all flex items-center justify-center gap-3 group"
             >
               View Demo
-              <FiPlay className="w-5 h-5 group-hover:translate-x-1 transition-transform text-primary-500" />
+              <FiPlay className="w-5 h-5 group-hover:translate-x-1 transition-transform text-white" />
             </a>
           </div>
         </div>
