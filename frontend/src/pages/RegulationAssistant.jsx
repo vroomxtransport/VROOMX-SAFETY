@@ -142,7 +142,7 @@ const RegulationAssistant = () => {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-primary-900 dark:text-white">Regulation Assistant</h1>
-            <p className="text-primary-500 dark:text-primary-400">AI-powered FMCSA compliance help</p>
+            <p className="text-primary-600 dark:text-zinc-300 font-medium">AI-powered FMCSA compliance help</p>
           </div>
         </div>
       </div>
@@ -150,7 +150,7 @@ const RegulationAssistant = () => {
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Topic cards - left side */}
         <div className="lg:col-span-1 space-y-4">
-          <h2 className="text-sm font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wider mb-3">
+          <h2 className="text-sm font-bold text-primary-700 dark:text-zinc-300 uppercase tracking-wider mb-3">
             Quick Topics
           </h2>
 
@@ -161,43 +161,46 @@ const RegulationAssistant = () => {
             return (
               <div
                 key={index}
-                className={`bg-white dark:bg-zinc-800 rounded-xl border transition-all duration-200 ${
+                className={`bg-white dark:bg-zinc-800 rounded-xl border transition-all duration-300 cursor-pointer group ${
                   isExpanded
-                    ? 'border-accent-300 dark:border-accent-500 shadow-md'
-                    : 'border-primary-200 dark:border-zinc-700 hover:border-primary-300 dark:hover:border-zinc-600'
+                    ? 'border-accent-400 dark:border-accent-500 shadow-lg shadow-accent-500/10 dark:shadow-accent-500/20'
+                    : 'border-primary-200 dark:border-zinc-700 hover:border-accent-300 dark:hover:border-accent-500/50 hover:shadow-md hover:shadow-accent-500/5 dark:hover:shadow-accent-500/10 hover:-translate-y-0.5'
                 }`}
               >
                 <button
                   onClick={() => setExpandedTopic(isExpanded ? null : index)}
                   className="w-full flex items-center gap-3 p-4 text-left"
                 >
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 ${
                     isExpanded
-                      ? 'bg-accent-100 dark:bg-accent-500/20 text-accent-600 dark:text-accent-400'
-                      : 'bg-primary-100 dark:bg-zinc-700 text-primary-600 dark:text-primary-300'
+                      ? 'bg-accent-100 dark:bg-accent-500/20 text-accent-600 dark:text-accent-400 scale-110'
+                      : 'bg-primary-100 dark:bg-zinc-700 text-primary-600 dark:text-zinc-300 group-hover:bg-accent-50 dark:group-hover:bg-accent-500/10 group-hover:text-accent-600 dark:group-hover:text-accent-400'
                   }`}>
                     <Icon className="w-5 h-5" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-primary-800 dark:text-white">{topic.title}</h3>
-                    <p className="text-xs text-primary-500 dark:text-primary-400">{topic.description}</p>
+                    <h3 className="font-semibold text-primary-800 dark:text-white group-hover:text-accent-700 dark:group-hover:text-accent-300 transition-colors">{topic.title}</h3>
+                    <p className="text-sm text-primary-600 dark:text-zinc-400 font-medium">{topic.description}</p>
                   </div>
                   <FiChevronRight
-                    className={`w-5 h-5 text-primary-400 dark:text-primary-500 transition-transform ${
-                      isExpanded ? 'rotate-90' : ''
+                    className={`w-5 h-5 text-primary-400 dark:text-zinc-500 transition-all duration-300 group-hover:text-accent-500 dark:group-hover:text-accent-400 ${
+                      isExpanded ? 'rotate-90' : 'group-hover:translate-x-1'
                     }`}
                   />
                 </button>
 
                 {isExpanded && (
-                  <div className="px-4 pb-4 space-y-2">
+                  <div className="px-4 pb-4 space-y-2 animate-fade-in">
                     {topic.questions.map((q, i) => (
                       <button
                         key={i}
                         onClick={() => handleSend(q)}
                         disabled={loading}
-                        className="w-full text-left text-sm p-2 rounded-lg text-primary-700 dark:text-primary-300
-                                   hover:bg-accent-50 dark:hover:bg-accent-500/10 hover:text-accent-700 dark:hover:text-accent-400 transition-colors
+                        className="w-full text-left text-sm p-3 rounded-lg text-primary-700 dark:text-zinc-300 font-medium
+                                   bg-primary-50/50 dark:bg-zinc-700/50 border border-transparent
+                                   hover:bg-accent-50 dark:hover:bg-accent-500/15 hover:text-accent-700 dark:hover:text-accent-300
+                                   hover:border-accent-200 dark:hover:border-accent-500/30 hover:pl-4
+                                   transition-all duration-200
                                    disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {q}
@@ -234,35 +237,41 @@ const RegulationAssistant = () => {
                   <h3 className="text-lg font-semibold text-primary-800 dark:text-white mb-2">
                     Ask about FMCSA regulations
                   </h3>
-                  <p className="text-primary-500 dark:text-primary-400 max-w-md">
+                  <p className="text-primary-600 dark:text-zinc-400 max-w-md font-medium">
                     I can help with questions about driver qualifications, drug testing,
                     hours of service, vehicle maintenance, and CSA scoring.
                   </p>
-                  <div className="mt-6 flex flex-wrap justify-center gap-2">
+                  <div className="mt-6 flex flex-wrap justify-center gap-3">
                     <button
                       onClick={() => handleSend('What documents are required in a DQF?')}
                       disabled={loading}
-                      className="text-sm px-4 py-2 bg-white dark:bg-zinc-700 border border-primary-200 dark:border-zinc-600 rounded-full
-                                 text-primary-700 dark:text-primary-200 hover:border-accent-300 dark:hover:border-accent-500 hover:text-accent-600 dark:hover:text-accent-400
-                                 transition-colors disabled:opacity-50"
+                      className="text-sm px-5 py-2.5 bg-white dark:bg-zinc-700 border border-primary-200 dark:border-zinc-600 rounded-full
+                                 text-primary-700 dark:text-zinc-200 font-medium
+                                 hover:border-accent-400 dark:hover:border-accent-500 hover:text-accent-600 dark:hover:text-accent-400
+                                 hover:shadow-md hover:shadow-accent-500/10 dark:hover:shadow-accent-500/20 hover:-translate-y-0.5
+                                 transition-all duration-200 disabled:opacity-50"
                     >
                       DQF requirements
                     </button>
                     <button
                       onClick={() => handleSend('How do CSA percentiles work?')}
                       disabled={loading}
-                      className="text-sm px-4 py-2 bg-white dark:bg-zinc-700 border border-primary-200 dark:border-zinc-600 rounded-full
-                                 text-primary-700 dark:text-primary-200 hover:border-accent-300 dark:hover:border-accent-500 hover:text-accent-600 dark:hover:text-accent-400
-                                 transition-colors disabled:opacity-50"
+                      className="text-sm px-5 py-2.5 bg-white dark:bg-zinc-700 border border-primary-200 dark:border-zinc-600 rounded-full
+                                 text-primary-700 dark:text-zinc-200 font-medium
+                                 hover:border-accent-400 dark:hover:border-accent-500 hover:text-accent-600 dark:hover:text-accent-400
+                                 hover:shadow-md hover:shadow-accent-500/10 dark:hover:shadow-accent-500/20 hover:-translate-y-0.5
+                                 transition-all duration-200 disabled:opacity-50"
                     >
                       CSA scoring
                     </button>
                     <button
                       onClick={() => handleSend('What are the HOS rules?')}
                       disabled={loading}
-                      className="text-sm px-4 py-2 bg-white dark:bg-zinc-700 border border-primary-200 dark:border-zinc-600 rounded-full
-                                 text-primary-700 dark:text-primary-200 hover:border-accent-300 dark:hover:border-accent-500 hover:text-accent-600 dark:hover:text-accent-400
-                                 transition-colors disabled:opacity-50"
+                      className="text-sm px-5 py-2.5 bg-white dark:bg-zinc-700 border border-primary-200 dark:border-zinc-600 rounded-full
+                                 text-primary-700 dark:text-zinc-200 font-medium
+                                 hover:border-accent-400 dark:hover:border-accent-500 hover:text-accent-600 dark:hover:text-accent-400
+                                 hover:shadow-md hover:shadow-accent-500/10 dark:hover:shadow-accent-500/20 hover:-translate-y-0.5
+                                 transition-all duration-200 disabled:opacity-50"
                     >
                       Hours of Service
                     </button>
@@ -330,7 +339,7 @@ const RegulationAssistant = () => {
                   )}
                 </button>
               </div>
-              <p className="text-xs text-primary-400 dark:text-zinc-500 mt-2 px-1">
+              <p className="text-xs text-primary-500 dark:text-zinc-400 mt-2 px-1 font-medium">
                 Press Enter to send. AI responses are for informational purposes only.
               </p>
             </div>
