@@ -54,7 +54,7 @@ const HeroSection = ({ heroTextIndex, heroTexts }) => {
           <p className="text-[#1E293B] text-lg md:text-xl max-w-2xl mb-4 leading-relaxed animate-fade-in-up mx-auto lg:mx-0" style={{ animationDelay: '0.12s' }}>
             <span className="text-cta-500 font-semibold">Avoid failed audits</span>,{' '}
             <span className="text-primary-500 font-semibold">spot missing documents</span>, and{' '}
-            <span className="font-semibold">stay FMCSA-ready</span>.
+            <span className="font-semibold">stay AUDIT-ready</span>.
           </p>
 
           <p className="text-zinc-600 text-base md:text-lg max-w-xl mb-8 italic animate-fade-in-up mx-auto lg:mx-0" style={{ animationDelay: '0.14s' }}>
