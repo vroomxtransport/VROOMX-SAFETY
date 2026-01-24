@@ -81,7 +81,7 @@ const ChatMessage = ({ message, isUser }) => {
   const highlightCitations = (content) => {
     if (!content) return content;
     const cfrPattern = /(49\s*CFR\s*[§Part]*\s*[\d]+(?:\.[\d]+)?(?:\([a-z0-9]+\))*)/gi;
-    return content.replace(cfrPattern, '<span class="font-mono text-accent-600 bg-accent-50 px-1 rounded">$1</span>');
+    return content.replace(cfrPattern, '<span class="font-mono text-accent-600 dark:text-accent-400 bg-accent-50 dark:bg-accent-500/20 px-1 rounded">$1</span>');
   };
 
   return (

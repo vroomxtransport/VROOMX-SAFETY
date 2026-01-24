@@ -141,8 +141,8 @@ const RegulationAssistant = () => {
             <FiMessageCircle className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-primary-900">Regulation Assistant</h1>
-            <p className="text-primary-500">AI-powered FMCSA compliance help</p>
+            <h1 className="text-2xl font-bold text-primary-900 dark:text-white">Regulation Assistant</h1>
+            <p className="text-primary-500 dark:text-primary-400">AI-powered FMCSA compliance help</p>
           </div>
         </div>
       </div>
@@ -150,7 +150,7 @@ const RegulationAssistant = () => {
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Topic cards - left side */}
         <div className="lg:col-span-1 space-y-4">
-          <h2 className="text-sm font-semibold text-primary-600 uppercase tracking-wider mb-3">
+          <h2 className="text-sm font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wider mb-3">
             Quick Topics
           </h2>
 
@@ -161,10 +161,10 @@ const RegulationAssistant = () => {
             return (
               <div
                 key={index}
-                className={`bg-white rounded-xl border transition-all duration-200 ${
+                className={`bg-white dark:bg-zinc-800 rounded-xl border transition-all duration-200 ${
                   isExpanded
-                    ? 'border-accent-300 shadow-md'
-                    : 'border-primary-200 hover:border-primary-300'
+                    ? 'border-accent-300 dark:border-accent-500 shadow-md'
+                    : 'border-primary-200 dark:border-zinc-700 hover:border-primary-300 dark:hover:border-zinc-600'
                 }`}
               >
                 <button
@@ -173,17 +173,17 @@ const RegulationAssistant = () => {
                 >
                   <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
                     isExpanded
-                      ? 'bg-accent-100 text-accent-600'
-                      : 'bg-primary-100 text-primary-600'
+                      ? 'bg-accent-100 dark:bg-accent-500/20 text-accent-600 dark:text-accent-400'
+                      : 'bg-primary-100 dark:bg-zinc-700 text-primary-600 dark:text-primary-300'
                   }`}>
                     <Icon className="w-5 h-5" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-primary-800">{topic.title}</h3>
-                    <p className="text-xs text-primary-500">{topic.description}</p>
+                    <h3 className="font-semibold text-primary-800 dark:text-white">{topic.title}</h3>
+                    <p className="text-xs text-primary-500 dark:text-primary-400">{topic.description}</p>
                   </div>
                   <FiChevronRight
-                    className={`w-5 h-5 text-primary-400 transition-transform ${
+                    className={`w-5 h-5 text-primary-400 dark:text-primary-500 transition-transform ${
                       isExpanded ? 'rotate-90' : ''
                     }`}
                   />
@@ -196,8 +196,8 @@ const RegulationAssistant = () => {
                         key={i}
                         onClick={() => handleSend(q)}
                         disabled={loading}
-                        className="w-full text-left text-sm p-2 rounded-lg text-primary-700
-                                   hover:bg-accent-50 hover:text-accent-700 transition-colors
+                        className="w-full text-left text-sm p-2 rounded-lg text-primary-700 dark:text-primary-300
+                                   hover:bg-accent-50 dark:hover:bg-accent-500/10 hover:text-accent-700 dark:hover:text-accent-400 transition-colors
                                    disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {q}
@@ -212,29 +212,29 @@ const RegulationAssistant = () => {
 
         {/* Chat area - right side */}
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-xl border border-primary-200 shadow-sm overflow-hidden flex flex-col h-[700px]">
+          <div className="bg-white dark:bg-zinc-800 rounded-xl border border-primary-200 dark:border-zinc-700 shadow-sm overflow-hidden flex flex-col h-[700px]">
             {/* Chat header */}
-            <div className="px-6 py-4 border-b border-primary-100 bg-primary-50/50">
+            <div className="px-6 py-4 border-b border-primary-100 dark:border-zinc-700 bg-primary-50/50 dark:bg-zinc-900/50">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full" />
-                <span className="text-sm font-medium text-primary-700">
+                <span className="text-sm font-medium text-primary-700 dark:text-primary-300">
                   AI Assistant Online
                 </span>
               </div>
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-primary-50/30">
+            <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-primary-50/30 dark:bg-zinc-900/30">
               {messages.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-center">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent-100 to-accent-200
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent-100 to-accent-200 dark:from-accent-500/20 dark:to-accent-600/20
                                   flex items-center justify-center mb-4">
-                    <FiBook className="w-8 h-8 text-accent-600" />
+                    <FiBook className="w-8 h-8 text-accent-600 dark:text-accent-400" />
                   </div>
-                  <h3 className="text-lg font-semibold text-primary-800 mb-2">
+                  <h3 className="text-lg font-semibold text-primary-800 dark:text-white mb-2">
                     Ask about FMCSA regulations
                   </h3>
-                  <p className="text-primary-500 max-w-md">
+                  <p className="text-primary-500 dark:text-primary-400 max-w-md">
                     I can help with questions about driver qualifications, drug testing,
                     hours of service, vehicle maintenance, and CSA scoring.
                   </p>
@@ -242,8 +242,8 @@ const RegulationAssistant = () => {
                     <button
                       onClick={() => handleSend('What documents are required in a DQF?')}
                       disabled={loading}
-                      className="text-sm px-4 py-2 bg-white border border-primary-200 rounded-full
-                                 text-primary-700 hover:border-accent-300 hover:text-accent-600
+                      className="text-sm px-4 py-2 bg-white dark:bg-zinc-700 border border-primary-200 dark:border-zinc-600 rounded-full
+                                 text-primary-700 dark:text-primary-200 hover:border-accent-300 dark:hover:border-accent-500 hover:text-accent-600 dark:hover:text-accent-400
                                  transition-colors disabled:opacity-50"
                     >
                       DQF requirements
@@ -251,8 +251,8 @@ const RegulationAssistant = () => {
                     <button
                       onClick={() => handleSend('How do CSA percentiles work?')}
                       disabled={loading}
-                      className="text-sm px-4 py-2 bg-white border border-primary-200 rounded-full
-                                 text-primary-700 hover:border-accent-300 hover:text-accent-600
+                      className="text-sm px-4 py-2 bg-white dark:bg-zinc-700 border border-primary-200 dark:border-zinc-600 rounded-full
+                                 text-primary-700 dark:text-primary-200 hover:border-accent-300 dark:hover:border-accent-500 hover:text-accent-600 dark:hover:text-accent-400
                                  transition-colors disabled:opacity-50"
                     >
                       CSA scoring
@@ -260,8 +260,8 @@ const RegulationAssistant = () => {
                     <button
                       onClick={() => handleSend('What are the HOS rules?')}
                       disabled={loading}
-                      className="text-sm px-4 py-2 bg-white border border-primary-200 rounded-full
-                                 text-primary-700 hover:border-accent-300 hover:text-accent-600
+                      className="text-sm px-4 py-2 bg-white dark:bg-zinc-700 border border-primary-200 dark:border-zinc-600 rounded-full
+                                 text-primary-700 dark:text-primary-200 hover:border-accent-300 dark:hover:border-accent-500 hover:text-accent-600 dark:hover:text-accent-400
                                  transition-colors disabled:opacity-50"
                     >
                       Hours of Service
@@ -280,11 +280,11 @@ const RegulationAssistant = () => {
 
                   {/* Loading indicator */}
                   {loading && (
-                    <div className="flex items-center gap-2 text-primary-500">
+                    <div className="flex items-center gap-2 text-primary-500 dark:text-primary-400">
                       <div className="flex gap-1">
-                        <span className="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                        <span className="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                        <span className="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                        <span className="w-2 h-2 bg-primary-400 dark:bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                        <span className="w-2 h-2 bg-primary-400 dark:bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                        <span className="w-2 h-2 bg-primary-400 dark:bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                       </div>
                       <span className="text-sm">Researching regulations...</span>
                     </div>
@@ -296,7 +296,7 @@ const RegulationAssistant = () => {
             </div>
 
             {/* Input area */}
-            <div className="p-4 border-t border-primary-100 bg-white">
+            <div className="p-4 border-t border-primary-100 dark:border-zinc-700 bg-white dark:bg-zinc-800">
               <div className="flex items-end gap-3">
                 <div className="flex-1 relative">
                   <textarea
@@ -307,9 +307,9 @@ const RegulationAssistant = () => {
                     placeholder="Ask a compliance question..."
                     disabled={loading}
                     rows={1}
-                    className="w-full resize-none rounded-xl border border-primary-200 px-4 py-3
-                               focus:border-accent-400 focus:ring-2 focus:ring-accent-100
-                               text-primary-800 placeholder-primary-400 text-sm
+                    className="w-full resize-none rounded-xl border border-primary-200 dark:border-zinc-600 px-4 py-3
+                               focus:border-accent-400 dark:focus:border-accent-500 focus:ring-2 focus:ring-accent-100 dark:focus:ring-accent-500/20
+                               bg-white dark:bg-zinc-700 text-primary-800 dark:text-white placeholder-primary-400 dark:placeholder-zinc-400 text-sm
                                disabled:opacity-50 disabled:cursor-not-allowed
                                transition-all"
                     style={{ minHeight: '48px', maxHeight: '120px' }}
@@ -330,7 +330,7 @@ const RegulationAssistant = () => {
                   )}
                 </button>
               </div>
-              <p className="text-xs text-primary-400 mt-2 px-1">
+              <p className="text-xs text-primary-400 dark:text-zinc-500 mt-2 px-1">
                 Press Enter to send. AI responses are for informational purposes only.
               </p>
             </div>
