@@ -1,69 +1,127 @@
+import { FiStar } from 'react-icons/fi';
 import useInView from '../../hooks/useInView';
 
-const TestimonialsSection = ({ testimonials }) => {
+const TestimonialsSection = () => {
   const [headerRef, headerInView] = useInView({ threshold: 0.3 });
-  const [carouselRef, carouselInView] = useInView({ threshold: 0.1 });
+  const [statsRef, statsInView] = useInView({ threshold: 0.3 });
+  const [cardsRef, cardsInView] = useInView({ threshold: 0.1 });
+
+  const stats = [
+    { value: '2,500+', label: 'Active Fleets' },
+    { value: '15,000+', label: 'Drivers Managed' },
+    { value: '23pts', label: 'Avg CSA Reduction' },
+    { value: '4.9/5', label: 'Customer Rating' }
+  ];
+
+  const testimonials = [
+    {
+      quote: "We were one violation away from FMCSA intervention. After 90 days with VroomX, we dropped 23 points and passed a surprise DOT inspection with flying colors.",
+      result: { icon: '📉', text: 'CSA Score: 78% → 55% in 90 days' },
+      name: 'Mike Rodriguez',
+      role: 'Fleet Owner • 12 trucks',
+      initials: 'MR'
+    },
+    {
+      quote: "I used to spend 15+ hours a week on compliance paperwork. VroomX automated everything. Now I spend that time actually growing my business.",
+      result: { icon: '⏱️', text: 'Saved 10+ hours per week' },
+      name: 'Sarah Johnson',
+      role: 'Safety Manager • 45 trucks',
+      initials: 'SJ'
+    },
+    {
+      quote: "The AI assistant is incredible. I asked about a complex HOS regulation and got a clear, accurate answer in seconds. It's like having a compliance expert on call 24/7.",
+      result: { icon: '🤖', text: '500+ AI queries answered' },
+      name: 'David Thompson',
+      role: 'Owner-Operator',
+      initials: 'DT'
+    }
+  ];
 
   return (
-    <section className="py-24 relative z-10 overflow-hidden bg-primary-500">
-      <div
-        ref={headerRef}
-        className={`max-w-7xl mx-auto px-6 mb-12 text-center transition-all duration-700 ${headerInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-      >
-        <h2 className="text-3xl md:text-5xl font-heading font-bold text-white">
-          Trusted by <span className="text-transparent bg-clip-text bg-gradient-to-r from-cta-400 to-cta-500">Fleets Everywhere.</span>
-        </h2>
+    <section className="py-24 px-6 md:px-16 relative z-10 bg-[#F8FAFC]">
+      {/* Floating decorative shapes */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-cta-500/10 blur-[120px]" />
+        <div className="absolute bottom-[20%] -right-20 w-72 h-72 rounded-full bg-primary-500/8 blur-[120px]" />
       </div>
 
-      <div
-        ref={carouselRef}
-        className={`relative w-full overflow-hidden transition-all duration-700 delay-200 ${carouselInView ? 'opacity-100' : 'opacity-0'}`}
-      >
-        {/* Mask for fading edges */}
-        <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-primary-500 to-transparent z-20 pointer-events-none" />
-        <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-primary-500 to-transparent z-20 pointer-events-none" />
+      <div className="max-w-6xl mx-auto relative z-10">
+        {/* Header */}
+        <div
+          ref={headerRef}
+          className={`text-center mb-12 transition-all duration-700 ${headerInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+        >
+          <h2 className="text-3xl md:text-5xl font-heading font-extrabold text-gray-800 mb-4">
+            Trusted by <span className="text-cta-500">2,500+</span> Carriers
+          </h2>
+          <p className="text-lg text-gray-600">
+            See why fleet managers choose VroomX Safety
+          </p>
+        </div>
 
-        <div className="flex w-max animate-scroll hover:[animation-play-state:paused] gap-8">
-          {/* First set of testimonials */}
-          {testimonials.map((t, i) => (
-            <div key={i} className="w-[400px] bg-white/10 backdrop-blur-sm border border-white/10 p-8 rounded-2xl flex-shrink-0 relative group hover:border-white/30 transition-colors">
-              <div className={`absolute -top-4 left-8 w-8 h-8 ${t.featured ? 'bg-cta-500 shadow-lg shadow-cta-500/30' : 'bg-white/20'} rounded-full flex items-center justify-center text-xl font-black text-white`}>
-                "
+        {/* Stats Row */}
+        <div
+          ref={statsRef}
+          className={`flex flex-wrap justify-center gap-8 md:gap-16 mb-16 transition-all duration-700 delay-150 ${statsInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+        >
+          {stats.map((stat, i) => (
+            <div key={i} className="text-center">
+              <div className="text-3xl md:text-4xl font-heading font-extrabold text-cta-500">
+                {stat.value}
               </div>
-              <p className="text-white/90 text-lg mb-6 leading-relaxed relative z-10 pt-2">{t.quote}</p>
-              <div className="flex items-center gap-4">
-                <img
-                  src={t.image}
-                  alt={t.name}
-                  className="w-12 h-12 rounded-full object-cover border-2 border-white/20"
-                />
-                <div>
-                  <div className="text-white font-bold text-sm">{t.name}</div>
-                  <div className="text-cta-400 text-xs uppercase tracking-wider font-bold">
-                    {t.role}{t.fleet && ` • ${t.fleet}`}
-                  </div>
-                </div>
+              <div className="text-sm text-gray-500 mt-1">
+                {stat.label}
               </div>
             </div>
           ))}
-          {/* Duplicate set for infinite scroll */}
+        </div>
+
+        {/* Testimonial Cards Grid */}
+        <div
+          ref={cardsRef}
+          className="grid grid-cols-1 md:grid-cols-3 gap-6"
+        >
           {testimonials.map((t, i) => (
-            <div key={`dup-${i}`} className="w-[400px] bg-white/10 backdrop-blur-sm border border-white/10 p-8 rounded-2xl flex-shrink-0 relative group hover:border-white/30 transition-colors">
-              <div className={`absolute -top-4 left-8 w-8 h-8 ${t.featured ? 'bg-cta-500 shadow-lg shadow-cta-500/30' : 'bg-white/20'} rounded-full flex items-center justify-center text-xl font-black text-white`}>
-                "
+            <div
+              key={i}
+              className={`bg-white border border-gray-200 rounded-3xl p-8 shadow-lg hover:shadow-xl hover:-translate-y-2 transition-all duration-500 ${cardsInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+              style={{ transitionDelay: cardsInView ? `${i * 150}ms` : '0ms' }}
+            >
+              {/* Quote Icon */}
+              <div className="w-12 h-12 bg-gradient-to-br from-[#FF6B4A] to-[#FF8A6B] rounded-xl flex items-center justify-center mb-5 shadow-lg shadow-[#FF6B4A]/25">
+                <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
+                </svg>
               </div>
-              <p className="text-white/90 text-lg mb-6 leading-relaxed relative z-10 pt-2">{t.quote}</p>
+
+              {/* Stars */}
+              <div className="flex gap-1 mb-4">
+                {[...Array(5)].map((_, j) => (
+                  <FiStar key={j} className="w-5 h-5 text-amber-400 fill-amber-400" />
+                ))}
+              </div>
+
+              {/* Quote Text */}
+              <p className="text-gray-600 leading-relaxed mb-6">
+                "{t.quote}"
+              </p>
+
+              {/* Result Highlight */}
+              <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 mb-6 flex items-center gap-3">
+                <span className="text-xl">{t.result.icon}</span>
+                <span className="text-emerald-600 font-semibold text-sm">
+                  {t.result.text}
+                </span>
+              </div>
+
+              {/* Author */}
               <div className="flex items-center gap-4">
-                <img
-                  src={t.image}
-                  alt={t.name}
-                  className="w-12 h-12 rounded-full object-cover border-2 border-white/20"
-                />
+                <div className="w-12 h-12 bg-gradient-to-br from-[#FF6B4A] to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
+                  {t.initials}
+                </div>
                 <div>
-                  <div className="text-white font-bold text-sm">{t.name}</div>
-                  <div className="text-cta-400 text-xs uppercase tracking-wider font-bold">
-                    {t.role}{t.fleet && ` • ${t.fleet}`}
-                  </div>
+                  <div className="font-bold text-gray-800">{t.name}</div>
+                  <div className="text-sm text-gray-500">{t.role}</div>
                 </div>
               </div>
             </div>
