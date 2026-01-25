@@ -7,98 +7,119 @@ const PricingSection = ({ isAnnual, setIsAnnual, pricingPlans, comparisonFeature
   const [cardsRef, cardsInView] = useInView({ threshold: 0.1 });
 
   return (
-    <section id="pricing" className="py-24 px-6 md:px-16 relative z-10">
+    <section id="pricing" className="py-24 px-6 md:px-16 relative z-10 bg-gradient-to-b from-[#0a0a0a] via-[#1a1a2e] to-[#0a0a0a]">
       <div className="max-w-7xl mx-auto">
+        {/* Header */}
         <div
           ref={headerRef}
           className={`text-center max-w-3xl mx-auto mb-12 transition-all duration-700 ${headerInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         >
-          <h2 className="text-3xl md:text-5xl font-heading font-bold text-primary-500 mb-4">
-            Simple, Transparent <span className="text-transparent bg-clip-text bg-gradient-to-r from-cta-500 to-cta-600">Pricing</span>
+          <h2 className="text-3xl md:text-5xl font-heading font-extrabold text-white mb-4">
+            Choose Your <span className="text-cta-500">Plan</span>
           </h2>
-          <p className="text-lg text-zinc-600 mb-8">
+          <p className="text-lg text-zinc-400 mb-10">
             No hidden fees. No long contracts. Cancel anytime.
           </p>
 
-          {/* Pricing Toggle */}
-          <div className="flex items-center justify-center gap-4">
-            <span className={`text-sm font-medium ${!isAnnual ? 'text-primary-500' : 'text-zinc-500'}`}>Monthly</span>
+          {/* Toggle Pills */}
+          <div className="inline-flex items-center gap-2 p-1.5 bg-white/5 rounded-full">
             <button
-              onClick={() => setIsAnnual(!isAnnual)}
-              role="switch"
-              aria-checked={isAnnual}
-              aria-label="Toggle annual pricing"
-              className={`relative w-14 h-7 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-cta-500 focus:ring-offset-2 ${isAnnual ? 'bg-cta-500' : 'bg-[#E2E8F0]'}`}
+              onClick={() => setIsAnnual(false)}
+              className={`px-6 py-3 rounded-full font-semibold text-sm transition-all ${
+                !isAnnual
+                  ? 'bg-cta-500 text-white'
+                  : 'text-zinc-400 hover:text-white'
+              }`}
             >
-              <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow-md transition-transform ${isAnnual ? 'translate-x-8' : 'translate-x-1'}`} />
+              Monthly
             </button>
-            <span className={`text-sm font-medium ${isAnnual ? 'text-primary-500' : 'text-zinc-500'}`}>
-              Annual <span className="text-cta-500 font-bold">(Save 20%)</span>
-            </span>
+            <button
+              onClick={() => setIsAnnual(true)}
+              className={`px-6 py-3 rounded-full font-semibold text-sm transition-all flex items-center gap-2 ${
+                isAnnual
+                  ? 'bg-cta-500 text-white'
+                  : 'text-zinc-400 hover:text-white'
+              }`}
+            >
+              Annual
+              <span className="text-emerald-400 text-xs font-bold">Save 20%</span>
+            </button>
           </div>
         </div>
 
+        {/* Pricing Cards */}
         <div ref={cardsRef} className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {pricingPlans.map((plan, i) => (
             <div
               key={i}
-              className={`relative p-8 rounded-3xl overflow-hidden transition-all duration-500 ${
+              className={`relative p-10 rounded-3xl overflow-hidden transition-all duration-500 hover:-translate-y-3 ${
                 plan.popular
-                  ? 'bg-primary-500 text-white shadow-xl shadow-primary-500/20 scale-105 z-10'
-                  : 'bg-white border border-[#E2E8F0] hover:border-primary-500/30 hover:shadow-lg'
+                  ? 'bg-gradient-to-br from-cta-500/15 to-cta-500/5 border border-cta-500/40 scale-105 z-10 shadow-2xl shadow-black/50'
+                  : 'bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-cta-500/30 hover:shadow-2xl hover:shadow-black/40'
               } ${cardsInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
               style={{ transitionDelay: cardsInView ? `${i * 150}ms` : '0ms' }}
             >
+              {/* Popular Badge */}
               {plan.popular && (
-                <div className="absolute top-0 right-0 bg-cta-500 px-4 py-1 rounded-bl-xl text-xs font-bold text-white uppercase tracking-wider">
-                  Most Popular
+                <div className="absolute -top-px left-1/2 -translate-x-1/2">
+                  <div className="bg-gradient-to-r from-cta-500 to-cta-600 px-5 py-1.5 rounded-b-xl text-xs font-bold text-white uppercase tracking-wider shadow-lg shadow-cta-500/40">
+                    Most Popular
+                  </div>
                 </div>
               )}
 
-              <div className="mb-6">
-                <h3 className={`text-xl font-bold mb-1 ${plan.popular ? 'text-white' : 'text-primary-500'}`}>{plan.name}</h3>
-                <p className={`text-sm ${plan.popular ? 'text-white/70' : 'text-zinc-600'}`}>{plan.subtitle}</p>
+              {/* Plan Name */}
+              <div className="mb-2">
+                <h3 className="text-xl font-bold text-white">{plan.name}</h3>
               </div>
+              <p className="text-sm text-zinc-500 mb-6">{plan.subtitle}</p>
 
-              <div className="mb-6">
+              {/* Price */}
+              <div className="mb-2">
                 <div className="flex items-baseline gap-1">
-                  <span className={`text-5xl font-black tracking-tight ${plan.popular ? 'text-white' : 'text-primary-500'}`}>
-                    ${isAnnual ? plan.annualPrice : plan.monthlyPrice}
+                  <span className="text-2xl text-cta-500 font-bold">$</span>
+                  <span className="text-5xl font-extrabold text-white leading-none">
+                    {isAnnual ? plan.annualPrice : plan.monthlyPrice}
                   </span>
-                  <span className={plan.popular ? 'text-white/70' : 'text-zinc-600'}>/mo</span>
+                  <span className="text-zinc-500 ml-1">/month</span>
                 </div>
-                {isAnnual && (
-                  <p className={`text-sm mt-1 ${plan.popular ? 'text-white/70' : 'text-zinc-600'}`}>
-                    Billed <span className="font-semibold">${plan.annualPrice * 12}/year</span>
-                    <span className={`line-through ml-2 ${plan.popular ? 'text-white/40' : 'text-zinc-500'}`}>
-                      ${plan.monthlyPrice * 12}
-                    </span>
-                  </p>
-                )}
-                <p className={`text-sm mt-1 ${plan.popular ? 'text-white/60' : 'text-zinc-500'}`}>
-                  {plan.drivers}
-                  {plan.extraDriver && <span className="block">{plan.extraDriver}</span>}
-                </p>
               </div>
 
+              {/* Billing info */}
+              {isAnnual && (
+                <p className="text-sm text-zinc-500 mb-1">
+                  Billed <span className="text-zinc-300">${plan.annualPrice * 12}/year</span>
+                  <span className="line-through ml-2 text-zinc-600">${plan.monthlyPrice * 12}</span>
+                </p>
+              )}
+              <p className="text-sm text-zinc-500 mb-6">
+                {plan.drivers}
+                {plan.extraDriver && <span className="block text-xs mt-0.5">{plan.extraDriver}</span>}
+              </p>
+
+              {/* Divider */}
+              <div className="h-px bg-white/10 mb-6" />
+
+              {/* Features */}
               <ul className="space-y-3 mb-8">
                 {plan.features.map((feature, j) => (
-                  <li key={j} className={`flex items-center gap-3 text-sm ${plan.popular ? 'text-white/90' : 'text-zinc-600'}`}>
-                    <FiCheck className={`w-4 h-4 flex-shrink-0 ${plan.popular ? 'text-cta-400' : 'text-success-500'}`} />
+                  <li key={j} className="flex items-center gap-3 text-sm text-zinc-300">
+                    <FiCheck className="w-5 h-5 flex-shrink-0 text-emerald-400" />
                     {feature}
                   </li>
                 ))}
               </ul>
 
+              {/* CTA Button */}
               <Link
                 to={`/register${plan.hasTrial === false ? '?plan=solo' : ''}`}
-                className={`w-full py-4 rounded-xl font-bold text-center block transition-all hover:scale-[1.02] ${
+                className={`w-full py-4 rounded-xl font-bold text-center block transition-all ${
                   plan.popular
-                    ? 'bg-cta-500 hover:bg-cta-600 text-white shadow-lg shadow-cta-500/30'
-                    : 'btn-glow text-white'
+                    ? 'bg-gradient-to-r from-cta-500 to-cta-600 hover:shadow-lg hover:shadow-cta-500/40 hover:scale-[1.02] text-white'
+                    : 'bg-white/5 border border-white/10 text-white hover:bg-white/10'
                 }`}
               >
-                {plan.hasTrial === false ? 'Register Now' : 'Start 3-Day Free Trial'}
+                {plan.hasTrial === false ? 'Get Started' : 'Start Free Trial'}
               </Link>
             </div>
           ))}
@@ -106,28 +127,28 @@ const PricingSection = ({ isAnnual, setIsAnnual, pricingPlans, comparisonFeature
 
         {/* Comparison Table */}
         <div className="mt-24 max-w-4xl mx-auto">
-          <h3 className="text-2xl md:text-3xl font-heading font-bold text-primary-500 text-center mb-4">
-            VroomX vs The Competition
+          <h3 className="text-2xl md:text-3xl font-heading font-bold text-white text-center mb-4">
+            VroomX vs <span className="text-cta-500">The Competition</span>
           </h3>
-          <p className="text-zinc-600 text-center mb-10">See why fleets are switching to VroomX</p>
+          <p className="text-zinc-400 text-center mb-10">See why fleets are switching to VroomX</p>
 
-          <div className="bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden shadow-lg">
+          <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-2xl overflow-hidden">
             {/* Table Header */}
-            <div className="grid grid-cols-4 bg-[#F8FAFC] border-b border-[#E2E8F0]">
-              <div className="p-4 font-bold text-primary-500">Feature</div>
-              <div className="p-4 font-bold text-center text-cta-500 bg-cta-50">VroomX</div>
-              <div className="p-4 font-bold text-center text-zinc-600">Spreadsheets</div>
-              <div className="p-4 font-bold text-center text-zinc-600">Other Software</div>
+            <div className="grid grid-cols-4 bg-white/[0.02] border-b border-white/[0.08]">
+              <div className="p-4 font-bold text-white">Feature</div>
+              <div className="p-4 font-bold text-center text-cta-500 bg-cta-500/10">VroomX</div>
+              <div className="p-4 font-bold text-center text-zinc-400">Spreadsheets</div>
+              <div className="p-4 font-bold text-center text-zinc-400">Other Software</div>
             </div>
 
             {/* Table Body */}
             {comparisonFeatures.map((row, i) => (
-              <div key={i} className={`grid grid-cols-4 ${i !== comparisonFeatures.length - 1 ? 'border-b border-[#E2E8F0]' : ''}`}>
-                <div className="p-4 text-sm text-zinc-800 font-medium">{row.feature}</div>
-                <div className="p-4 flex justify-center items-center bg-cta-50/50">
+              <div key={i} className={`grid grid-cols-4 ${i !== comparisonFeatures.length - 1 ? 'border-b border-white/[0.05]' : ''}`}>
+                <div className="p-4 text-sm text-zinc-300 font-medium">{row.feature}</div>
+                <div className="p-4 flex justify-center items-center bg-cta-500/5">
                   {typeof row.vroomx === 'boolean' ? (
                     row.vroomx ? (
-                      <FiCheck className="w-5 h-5 text-success-500" />
+                      <FiCheck className="w-5 h-5 text-emerald-400" />
                     ) : (
                       <FiX className="w-5 h-5 text-red-400" />
                     )
@@ -138,34 +159,34 @@ const PricingSection = ({ isAnnual, setIsAnnual, pricingPlans, comparisonFeature
                 <div className="p-4 flex justify-center items-center">
                   {typeof row.spreadsheets === 'boolean' ? (
                     row.spreadsheets ? (
-                      <FiCheck className="w-5 h-5 text-success-500" />
+                      <FiCheck className="w-5 h-5 text-emerald-400" />
                     ) : (
                       <FiX className="w-5 h-5 text-red-400" />
                     )
                   ) : row.spreadsheets === 'limited' ? (
-                    <span className="text-xs text-amber-500 font-medium">Limited</span>
+                    <span className="text-xs text-amber-400 font-medium">Limited</span>
                   ) : (
-                    <span className="text-sm text-zinc-600">{row.spreadsheets}</span>
+                    <span className="text-sm text-zinc-500">{row.spreadsheets}</span>
                   )}
                 </div>
                 <div className="p-4 flex justify-center items-center">
                   {typeof row.other === 'boolean' ? (
                     row.other ? (
-                      <FiCheck className="w-5 h-5 text-success-500" />
+                      <FiCheck className="w-5 h-5 text-emerald-400" />
                     ) : (
                       <FiX className="w-5 h-5 text-red-400" />
                     )
                   ) : row.other === 'limited' ? (
-                    <span className="text-xs text-amber-500 font-medium">Limited</span>
+                    <span className="text-xs text-amber-400 font-medium">Limited</span>
                   ) : (
-                    <span className="text-sm text-zinc-600">{row.other}</span>
+                    <span className="text-sm text-zinc-500">{row.other}</span>
                   )}
                 </div>
               </div>
             ))}
           </div>
 
-          <p className="text-center text-xs text-zinc-500 mt-4">*Spreadsheets require significant time investment and manual maintenance</p>
+          <p className="text-center text-xs text-zinc-600 mt-4">*Spreadsheets require significant time investment and manual maintenance</p>
         </div>
       </div>
     </section>
