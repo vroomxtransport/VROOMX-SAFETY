@@ -270,7 +270,7 @@ const Landing = () => {
               <Link key={i} to="/blog" className="group block">
                 <div className="bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden h-full flex flex-col hover:-translate-y-2 hover:border-primary-500/30 hover:shadow-lg transition-all duration-300">
                   <div className="h-48 relative overflow-hidden">
-                    <img src={post.image} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <img src={post.image} alt={post.title} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full border border-[#E2E8F0] text-[10px] text-primary-500 font-mono uppercase tracking-wide">
                       {post.category}
                     </div>

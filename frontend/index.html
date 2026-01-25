@@ -7,6 +7,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="FMCSA Compliance Management Platform for Trucking Companies" />
   <title>VroomX Safety</title>
+
+  <!-- Preload LCP image for faster rendering -->
+  <link rel="preload" as="image" href="https://images.pexels.com/photos/93398/pexels-photo-93398.jpeg?auto=compress&cs=tinysrgb&w=1920" fetchpriority="high">
+
   <script>
     (function() {
       // Default to dark mode for new design
@@ -22,12 +26,19 @@
       }
     })();
   </script>
-  <!-- Google Fonts: Inter, Outfit, JetBrains Mono -->
+
+  <!-- Google Fonts: Optimized loading with reduced weights -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Non-render-blocking font loading -->
   <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
-    rel="stylesheet">
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap"
+    rel="stylesheet"
+    media="print"
+    onload="this.media='all'">
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  </noscript>
 </head>
 
 <body class="antialiased bg-black text-zinc-200">
