@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { dashboardAPI, csaAPI } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
@@ -193,7 +193,7 @@ const Dashboard = () => {
   const basicsData = getBasicsData();
 
   // Generate compliance trend data for last 30 days
-  const complianceTrendData = useMemo(() => {
+  const complianceTrendData = (() => {
     const baseScore = complianceScore;
     // Generate sample data points simulating a gradual improvement trend
     const points = [1, 7, 16, 24, 27, 30];
@@ -203,7 +203,7 @@ const Dashboard = () => {
       day,
       score: Math.round(startScore + ((baseScore - startScore) * (day / 30)) + (Math.sin(i) * 0.5))
     }));
-  }, [complianceScore]);
+  })();
 
   return (
     <div className="space-y-6">
