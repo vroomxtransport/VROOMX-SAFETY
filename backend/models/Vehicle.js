@@ -151,6 +151,10 @@ const vehicleSchema = new mongoose.Schema({
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User'
+    },
+    maintenanceRecordId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'MaintenanceRecord'
     }
   }],
 
