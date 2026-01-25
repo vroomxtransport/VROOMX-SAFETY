@@ -41,6 +41,14 @@ const protect = async (req, res, next) => {
       });
     }
 
+    if (user.isSuspended) {
+      return res.status(403).json({
+        success: false,
+        message: 'Your account has been suspended. Please contact support.',
+        code: 'ACCOUNT_SUSPENDED'
+      });
+    }
+
     // Check subscription status - allow access even if past_due for now
     // Block only if unpaid or canceled
     if (user.subscription?.status === 'unpaid') {
@@ -193,6 +201,27 @@ const requireCompanyOwner = (req, res, next) => {
   next();
 };
 
+// Require superadmin role for platform admin operations
+const requireSuperAdmin = (req, res, next) => {
+  if (!req.user.isSuperAdmin) {
+    return res.status(403).json({
+      success: false,
+      message: 'Access denied. Super admin privileges required.'
+    });
+  }
+
+  // Double-check suspended status for superadmins
+  if (req.user.isSuspended) {
+    return res.status(403).json({
+      success: false,
+      message: 'Your admin account has been suspended. Please contact support.',
+      code: 'ADMIN_SUSPENDED'
+    });
+  }
+
+  next();
+};
+
 module.exports = {
   protect,
   authorize,
@@ -200,5 +229,6 @@ module.exports = {
   restrictToCompany,
   checkSubscriptionActive,
   requireCompanyAdmin,
-  requireCompanyOwner
+  requireCompanyOwner,
+  requireSuperAdmin
 };

@@ -3,6 +3,7 @@ const router = express.Router();
 const { Driver, Vehicle, Violation, DrugAlcoholTest, Document, Accident, Company } = require('../models');
 const { protect, checkPermission, restrictToCompany } = require('../middleware/auth');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
+const pdf = require('../utils/pdfGenerator');
 
 router.use(protect);
 router.use(restrictToCompany);
@@ -21,10 +22,63 @@ router.get('/dqf', checkPermission('reports', 'view'), asyncHandler(async (req, 
   const company = await Company.findById(companyId);
 
   if (format === 'pdf') {
-    return res.status(400).json({
-      success: false,
-      message: 'PDF export is not available in the current deployment. Please use JSON format.'
+    const doc = pdf.createDocument();
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="driver-qualification-files.pdf"');
+
+    doc.pipe(res);
+
+    // Header
+    pdf.addHeader(doc, company, 'Driver Qualification Files Report');
+
+    // Summary
+    const compliant = drivers.filter(d => d.complianceStatus?.overall === 'compliant').length;
+    pdf.addSummaryBox(doc, 'Summary', [
+      { value: drivers.length, label: 'Total Drivers' },
+      { value: compliant, label: 'Compliant' },
+      { value: drivers.length - compliant, label: 'Needs Attention' }
+    ]);
+
+    // Driver table
+    pdf.addSectionTitle(doc, 'Driver Details');
+
+    const headers = ['Driver Name', 'Employee ID', 'CDL Status', 'Medical Card', 'Overall Status'];
+    const rows = drivers.map(d => [
+      `${d.firstName} ${d.lastName}`,
+      d.employeeId || '-',
+      d.complianceStatus?.cdlStatus || '-',
+      d.complianceStatus?.medicalStatus || '-',
+      d.complianceStatus?.overall || '-'
+    ]);
+
+    pdf.addTable(doc, headers, rows, [120, 80, 100, 100, 100]);
+
+    // Individual driver details
+    drivers.forEach((d, index) => {
+      if (index > 0 || drivers.length > 5) {
+        doc.addPage();
+      } else {
+        doc.moveDown(2);
+      }
+
+      pdf.addSectionTitle(doc, `${d.firstName} ${d.lastName}`);
+
+      pdf.addKeyValuePairs(doc, [
+        ['Employee ID', d.employeeId],
+        ['CDL Number', d.cdl?.number],
+        ['CDL State', d.cdl?.state],
+        ['CDL Class', d.cdl?.class],
+        ['CDL Expiry', pdf.formatDate(d.cdl?.expiryDate)],
+        ['Medical Card Expiry', pdf.formatDate(d.medicalCard?.expiryDate)],
+        ['Hire Date', pdf.formatDate(d.hireDate)],
+        ['Overall Status', d.complianceStatus?.overall]
+      ]);
     });
+
+    pdf.addFooter(doc);
+    doc.end();
+    return;
   }
 
   return res.json({
@@ -74,10 +128,62 @@ router.get('/vehicle-maintenance', checkPermission('reports', 'view'), asyncHand
   const company = await Company.findById(companyId);
 
   if (format === 'pdf') {
-    return res.status(400).json({
-      success: false,
-      message: 'PDF export is not available in the current deployment. Please use JSON format.'
+    const doc = pdf.createDocument();
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="vehicle-maintenance-report.pdf"');
+
+    doc.pipe(res);
+
+    // Header
+    pdf.addHeader(doc, company, 'Vehicle Maintenance Report');
+
+    // Summary
+    const compliant = vehicles.filter(v => v.complianceStatus?.overall === 'compliant').length;
+    const inMaintenance = vehicles.filter(v => v.status === 'maintenance').length;
+
+    pdf.addSummaryBox(doc, 'Summary', [
+      { value: vehicles.length, label: 'Total Vehicles' },
+      { value: compliant, label: 'Compliant' },
+      { value: inMaintenance, label: 'In Maintenance' }
+    ]);
+
+    // Vehicle table
+    pdf.addSectionTitle(doc, 'Fleet Overview');
+
+    const headers = ['Unit #', 'Type', 'VIN', 'Status', 'Next Inspection'];
+    const rows = vehicles.map(v => [
+      v.unitNumber,
+      v.vehicleType || '-',
+      v.vin ? `...${v.vin.slice(-6)}` : '-',
+      v.status || '-',
+      pdf.formatDate(v.annualInspection?.nextDueDate)
+    ]);
+
+    pdf.addTable(doc, headers, rows, [70, 80, 80, 80, 100]);
+
+    // Maintenance details per vehicle
+    vehicles.forEach((v, index) => {
+      const recentMaintenance = v.maintenanceLog?.slice(-5) || [];
+      if (recentMaintenance.length > 0) {
+        doc.moveDown(1);
+        pdf.addSectionTitle(doc, `Unit ${v.unitNumber} - Recent Maintenance`);
+
+        const maintHeaders = ['Date', 'Type', 'Description', 'Mileage'];
+        const maintRows = recentMaintenance.map(m => [
+          pdf.formatDate(m.date),
+          m.maintenanceType || '-',
+          m.description?.substring(0, 30) || '-',
+          m.mileage || '-'
+        ]);
+
+        pdf.addTable(doc, maintHeaders, maintRows, [100, 100, 150, 80]);
+      }
     });
+
+    pdf.addFooter(doc);
+    doc.end();
+    return;
   }
 
   return res.json({
@@ -124,10 +230,65 @@ router.get('/violations', checkPermission('reports', 'view'), asyncHandler(async
   const company = await Company.findById(companyId);
 
   if (format === 'pdf') {
-    return res.status(400).json({
-      success: false,
-      message: 'PDF export is not available in the current deployment. Please use JSON format.'
-    });
+    const doc = pdf.createDocument();
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="violations-report.pdf"');
+
+    doc.pipe(res);
+
+    // Header
+    pdf.addHeader(doc, company, 'Violations Summary Report');
+
+    // Date range info
+    if (startDate || endDate) {
+      doc.fontSize(10)
+         .fillColor(pdf.COLORS.lightText)
+         .text(`Date Range: ${startDate || 'Beginning'} to ${endDate || 'Present'}`);
+      doc.moveDown(1);
+    }
+
+    // Summary
+    const open = violations.filter(v => v.status === 'open').length;
+    const disputed = violations.filter(v => v.status === 'dispute_in_progress').length;
+
+    pdf.addSummaryBox(doc, 'Summary', [
+      { value: violations.length, label: 'Total Violations' },
+      { value: open, label: 'Open' },
+      { value: disputed, label: 'In Dispute' }
+    ]);
+
+    // By BASIC category
+    pdf.addSectionTitle(doc, 'Violations by BASIC Category');
+    const byBasic = violations.reduce((acc, v) => {
+      acc[v.basic] = (acc[v.basic] || 0) + 1;
+      return acc;
+    }, {});
+
+    const basicHeaders = ['BASIC Category', 'Count'];
+    const basicRows = Object.entries(byBasic).map(([basic, count]) => [basic, count]);
+    pdf.addTable(doc, basicHeaders, basicRows, [300, 100]);
+
+    doc.moveDown(1);
+
+    // Violations table
+    pdf.addSectionTitle(doc, 'Violation Details');
+
+    const headers = ['Date', 'Type', 'BASIC', 'Severity', 'Driver', 'Status'];
+    const rows = violations.map(v => [
+      pdf.formatDate(v.violationDate),
+      v.violationType?.substring(0, 20) || '-',
+      v.basic || '-',
+      v.severityWeight || '-',
+      v.driverId ? `${v.driverId.firstName} ${v.driverId.lastName}` : '-',
+      v.status || '-'
+    ]);
+
+    pdf.addTable(doc, headers, rows, [70, 100, 70, 50, 100, 80]);
+
+    pdf.addFooter(doc);
+    doc.end();
+    return;
   }
 
   return res.json({
@@ -217,10 +378,90 @@ router.get('/audit', checkPermission('reports', 'export'), asyncHandler(async (r
   };
 
   if (format === 'pdf') {
-    return res.status(400).json({
-      success: false,
-      message: 'PDF export is not available in the current deployment. Please use JSON format.'
-    });
+    const doc = pdf.createDocument();
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="comprehensive-audit-report.pdf"');
+
+    doc.pipe(res);
+
+    // Header
+    pdf.addHeader(doc, company, 'Comprehensive Audit Report');
+
+    // Company info
+    pdf.addSectionTitle(doc, 'Company Information');
+    pdf.addKeyValuePairs(doc, [
+      ['Company Name', company.name],
+      ['DOT Number', company.dotNumber],
+      ['MC Number', company.mcNumber || 'N/A']
+    ]);
+
+    doc.moveDown(1);
+
+    // Driver Qualification Summary
+    pdf.addSectionTitle(doc, 'Driver Qualification Summary');
+    pdf.addSummaryBox(doc, 'Drivers', [
+      { value: auditData.driverQualification.totalActive, label: 'Active Drivers' },
+      { value: auditData.driverQualification.compliant, label: 'Compliant' },
+      { value: auditData.driverQualification.withIssues, label: 'Needs Attention' }
+    ]);
+
+    // Vehicle Summary
+    pdf.addSectionTitle(doc, 'Vehicle Fleet Summary');
+    pdf.addSummaryBox(doc, 'Vehicles', [
+      { value: auditData.vehicles.total, label: 'Total Vehicles' },
+      { value: auditData.vehicles.compliant, label: 'Compliant' },
+      { value: auditData.vehicles.needingAttention, label: 'Needs Attention' }
+    ]);
+
+    // Violations Summary
+    pdf.addSectionTitle(doc, 'Violations Summary');
+    pdf.addSummaryBox(doc, 'Violations', [
+      { value: auditData.violations.total, label: 'Total (Last 50)' },
+      { value: auditData.violations.open, label: 'Open' },
+      { value: auditData.violations.disputed, label: 'In Dispute' }
+    ]);
+
+    // Drug & Alcohol Testing
+    doc.addPage();
+    pdf.addSectionTitle(doc, 'Drug & Alcohol Testing');
+
+    const testHeaders = ['Test Type', 'Count'];
+    const testRows = Object.entries(auditData.drugAlcohol.byType).map(([type, count]) => [type, count]);
+    if (testRows.length > 0) {
+      pdf.addTable(doc, testHeaders, testRows, [200, 100]);
+    } else {
+      doc.fontSize(10).fillColor(pdf.COLORS.lightText).text('No drug/alcohol tests recorded.');
+    }
+
+    doc.moveDown(1);
+
+    // Documents Summary
+    pdf.addSectionTitle(doc, 'Documents Summary');
+    pdf.addSummaryBox(doc, 'Documents', [
+      { value: auditData.documents.total, label: 'Total Documents' },
+      { value: auditData.documents.expiringSoon, label: 'Expiring Soon' },
+      { value: auditData.documents.expired, label: 'Expired' }
+    ]);
+
+    // SMS BASIC Scores if available
+    if (company.smsBasics) {
+      doc.moveDown(1);
+      pdf.addSectionTitle(doc, 'SMS BASIC Scores');
+
+      const basicHeaders = ['BASIC Category', 'Percentile'];
+      const basicRows = Object.entries(company.smsBasics)
+        .filter(([key, value]) => typeof value === 'number')
+        .map(([basic, score]) => [basic.replace(/([A-Z])/g, ' $1').trim(), `${score}%`]);
+
+      if (basicRows.length > 0) {
+        pdf.addTable(doc, basicHeaders, basicRows, [200, 100]);
+      }
+    }
+
+    pdf.addFooter(doc);
+    doc.end();
+    return;
   }
 
   return res.json({ success: true, report: auditData });

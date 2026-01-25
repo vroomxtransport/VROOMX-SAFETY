@@ -26,6 +26,12 @@ import TemplateGenerator from './pages/TemplateGenerator';
 import LoadingSpinner from './components/LoadingSpinner';
 import ChatWidget from './components/AIChat/ChatWidget';
 
+// Admin pages
+import AdminLayout from './pages/admin/AdminLayout';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminUsers from './pages/admin/AdminUsers';
+import AdminCompanies from './pages/admin/AdminCompanies';
+
 // Protected route wrapper
 const ProtectedRoute = ({ children, allowPendingPayment = false }) => {
   const { isAuthenticated, loading, subscription } = useAuth();
@@ -75,6 +81,29 @@ const PublicRoute = ({ children }) => {
 
   if (isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
+};
+
+// Super admin route wrapper (requires superadmin role)
+const SuperAdminRoute = ({ children }) => {
+  const { isAuthenticated, loading, user } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!user?.isSuperAdmin) {
+    return <Navigate to="/app/dashboard" replace />;
   }
 
   return children;
@@ -172,6 +201,20 @@ function App() {
       <Route path="/compliance" element={<Navigate to="/app/compliance" replace />} />
       <Route path="/reports" element={<Navigate to="/app/reports" replace />} />
       <Route path="/settings" element={<Navigate to="/app/settings" replace />} />
+
+      {/* Admin routes - requires superadmin role */}
+      <Route
+        path="/admin"
+        element={
+          <SuperAdminRoute>
+            <AdminLayout />
+          </SuperAdminRoute>
+        }
+      >
+        <Route index element={<AdminDashboard />} />
+        <Route path="users" element={<AdminUsers />} />
+        <Route path="companies" element={<AdminCompanies />} />
+      </Route>
 
       {/* 404 */}
       <Route path="*" element={<Navigate to="/" replace />} />

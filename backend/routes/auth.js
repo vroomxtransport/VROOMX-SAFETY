@@ -129,6 +129,7 @@ router.post('/register', [
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
+      isSuperAdmin: user.isSuperAdmin || false,
       subscription: {
         plan: user.subscription.plan,
         status: user.subscription.status,
@@ -201,6 +202,15 @@ router.post('/login', [
     return res.status(401).json({
       success: false,
       message: 'Your account has been deactivated'
+    });
+  }
+
+  // Check if user is suspended
+  if (user.isSuspended) {
+    return res.status(403).json({
+      success: false,
+      message: 'Your account has been suspended. Please contact support.',
+      code: 'ACCOUNT_SUSPENDED'
     });
   }
 
@@ -282,6 +292,7 @@ router.post('/login', [
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
+      isSuperAdmin: user.isSuperAdmin || false,
       subscription: {
         plan: user.subscription?.plan || 'free_trial',
         status: user.subscription?.status || 'trialing',
@@ -362,6 +373,7 @@ router.get('/me', protect, asyncHandler(async (req, res) => {
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
+      isSuperAdmin: user.isSuperAdmin || false,
       subscription: {
         plan: user.subscription?.plan || 'free_trial',
         status: user.subscription?.status || 'trialing',

@@ -22,6 +22,7 @@ const csaRoutes = require('./csa');
 const templateRoutes = require('./templates');
 const csaCheckerRoutes = require('./csaChecker');
 const fmcsaLookupRoutes = require('./fmcsaLookup');
+const adminRoutes = require('./admin');
 
 // Mount routes
 router.use('/auth', authRoutes);
@@ -45,5 +46,6 @@ router.use('/csa', csaRoutes);
 router.use('/templates', templateRoutes);
 router.use('/csa-checker', csaCheckerRoutes);
 router.use('/fmcsa', fmcsaLookupRoutes);
+router.use('/admin', adminRoutes);
 
 module.exports = router;
