@@ -295,14 +295,44 @@ router.post('/', [
 
   const record = await MaintenanceRecord.create(recordData);
 
-  // Optionally update vehicle's last service date
-  if (req.body.recordType !== 'scheduled') {
-    vehicle.lastServiceDate = req.body.serviceDate;
-    if (req.body.odometerReading) {
-      vehicle.currentMileage = req.body.odometerReading;
-    }
-    await vehicle.save();
+  // Map recordType to maintenanceType for Vehicle.maintenanceLog schema
+  const typeMapping = {
+    'preventive_maintenance': 'preventive',
+    'annual_inspection': 'inspection',
+    'repair': 'repair',
+    'tire_service': 'repair',
+    'brake_service': 'repair',
+    'oil_change': 'preventive',
+    'dot_inspection': 'inspection',
+    'roadside_repair': 'breakdown',
+    'recall': 'recall',
+    'other': 'repair'
+  };
+
+  // Sync to Vehicle's embedded maintenanceLog array
+  vehicle.maintenanceLog.push({
+    date: record.serviceDate,
+    odometer: record.odometerReading,
+    maintenanceType: typeMapping[record.recordType] || 'repair',
+    description: record.description,
+    laborCost: record.laborCost,
+    totalCost: record.totalCost,
+    vendor: record.provider ? {
+      name: record.provider.name,
+      phone: record.provider.phone,
+      address: record.provider.address
+    } : undefined,
+    performedBy: record.provider?.mechanic,
+    createdBy: req.user._id,
+    maintenanceRecordId: record._id  // Reference for linking/syncing
+  });
+
+  // Update vehicle's last service date and mileage
+  vehicle.lastServiceDate = record.serviceDate;
+  if (record.odometerReading) {
+    vehicle.currentMileage = record.odometerReading;
   }
+  await vehicle.save();
 
   const populatedRecord = await MaintenanceRecord.findById(record._id)
     .populate('vehicleId', 'unitNumber type make model year')
@@ -339,6 +369,49 @@ router.put('/:id', asyncHandler(async (req, res) => {
     .populate('createdBy', 'firstName lastName')
     .populate('lastUpdatedBy', 'firstName lastName');
 
+  // Sync update to Vehicle's embedded maintenanceLog array
+  const vehicle = await Vehicle.findById(record.vehicleId._id || record.vehicleId);
+  if (vehicle) {
+    // Map recordType to maintenanceType
+    const typeMapping = {
+      'preventive_maintenance': 'preventive',
+      'annual_inspection': 'inspection',
+      'repair': 'repair',
+      'tire_service': 'repair',
+      'brake_service': 'repair',
+      'oil_change': 'preventive',
+      'dot_inspection': 'inspection',
+      'roadside_repair': 'breakdown',
+      'recall': 'recall',
+      'other': 'repair'
+    };
+
+    // Find and update the matching entry in maintenanceLog
+    const logIndex = vehicle.maintenanceLog.findIndex(
+      log => log.maintenanceRecordId?.toString() === req.params.id
+    );
+
+    if (logIndex !== -1) {
+      vehicle.maintenanceLog[logIndex] = {
+        ...vehicle.maintenanceLog[logIndex].toObject(),
+        date: record.serviceDate,
+        odometer: record.odometerReading,
+        maintenanceType: typeMapping[record.recordType] || 'repair',
+        description: record.description,
+        laborCost: record.laborCost,
+        totalCost: record.totalCost,
+        vendor: record.provider ? {
+          name: record.provider.name,
+          phone: record.provider.phone,
+          address: record.provider.address
+        } : undefined,
+        performedBy: record.provider?.mechanic,
+        maintenanceRecordId: record._id
+      };
+      await vehicle.save();
+    }
+  }
+
   res.json({
     success: true,
     message: 'Maintenance record updated successfully',
@@ -357,6 +430,15 @@ router.delete('/:id', asyncHandler(async (req, res) => {
 
   if (!record) {
     return res.status(404).json({ success: false, message: 'Maintenance record not found' });
+  }
+
+  // Remove from Vehicle's embedded maintenanceLog array
+  const vehicle = await Vehicle.findById(record.vehicleId);
+  if (vehicle) {
+    vehicle.maintenanceLog = vehicle.maintenanceLog.filter(
+      log => log.maintenanceRecordId?.toString() !== req.params.id
+    );
+    await vehicle.save();
   }
 
   await MaintenanceRecord.findByIdAndDelete(req.params.id);

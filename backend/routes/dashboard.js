@@ -555,6 +555,75 @@ router.put('/alerts/:id/resolve', asyncHandler(async (req, res) => {
   });
 }));
 
+// @route   GET /api/dashboard/alerts/grouped
+// @desc    Get alerts grouped by type (critical, warning, info)
+// @access  Private
+router.get('/alerts/grouped', asyncHandler(async (req, res) => {
+  const companyId = req.user.companyId._id || req.user.companyId;
+  const { status } = req.query;
+
+  const result = await alertService.getAlerts(companyId, {
+    status: status || 'active',
+    limit: 100
+  });
+
+  res.json({
+    success: true,
+    grouped: result.grouped,
+    counts: {
+      critical: result.grouped.critical.length,
+      warning: result.grouped.warning.length,
+      info: result.grouped.info.length,
+      total: result.total
+    }
+  });
+}));
+
+// @route   POST /api/dashboard/alerts/escalate
+// @desc    Trigger alert escalation check
+// @access  Private
+router.post('/alerts/escalate', asyncHandler(async (req, res) => {
+  const escalated = await alertService.escalateAlerts();
+
+  res.json({
+    success: true,
+    message: `Escalated ${escalated} alert(s)`,
+    escalatedCount: escalated
+  });
+}));
+
+// @route   POST /api/dashboard/alerts/dismiss-bulk
+// @desc    Dismiss multiple alerts at once
+// @access  Private
+router.post('/alerts/dismiss-bulk', asyncHandler(async (req, res) => {
+  const { alertIds, reason } = req.body;
+
+  if (!alertIds || !Array.isArray(alertIds) || alertIds.length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'alertIds array is required'
+    });
+  }
+
+  const results = await Promise.all(
+    alertIds.map(id =>
+      alertService.dismissAlert(id, req.user._id, reason || 'Bulk dismissed')
+        .catch(err => ({ error: err.message, id }))
+    )
+  );
+
+  const dismissed = results.filter(r => !r.error);
+  const failed = results.filter(r => r.error);
+
+  res.json({
+    success: true,
+    message: `Dismissed ${dismissed.length} alert(s)`,
+    dismissed: dismissed.length,
+    failed: failed.length,
+    errors: failed
+  });
+}));
+
 // ============================================
 // COMPLIANCE SCORE ENDPOINTS
 // ============================================

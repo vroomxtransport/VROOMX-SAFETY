@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import CompanySwitcher from './CompanySwitcher';
 import VroomXLogo from './VroomXLogo';
+import api from '../utils/api';
 import {
   FiHome, FiUsers, FiTruck, FiAlertTriangle, FiDroplet,
   FiFolder, FiBarChart2, FiFileText, FiSettings, FiMenu,
@@ -49,7 +50,27 @@ const Layout = () => {
     return localStorage.getItem('sidebar-collapsed') === 'true';
   });
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [alertCounts, setAlertCounts] = useState({ critical: 0, warning: 0, info: 0, total: 0 });
   const location = useLocation();
+
+  // Fetch alert counts
+  useEffect(() => {
+    const fetchAlertCounts = async () => {
+      try {
+        const response = await api.get('/dashboard/alerts/counts');
+        if (response.data.success) {
+          setAlertCounts(response.data.counts);
+        }
+      } catch (error) {
+        console.error('Failed to fetch alert counts:', error);
+      }
+    };
+
+    fetchAlertCounts();
+    // Refresh every 5 minutes
+    const interval = setInterval(fetchAlertCounts, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [activeCompany]);
 
   // Persist sidebar collapsed state
   useEffect(() => {
@@ -201,9 +222,11 @@ const Layout = () => {
                     )}
 
                     {/* Alert count badge */}
-                    {item.hasAlerts && !isActive && (
-                      <span className="ml-auto flex items-center justify-center w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold">
-                        3
+                    {item.hasAlerts && alertCounts.total > 0 && !isActive && (
+                      <span className={`ml-auto flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full text-white text-[10px] font-bold ${
+                        alertCounts.critical > 0 ? 'bg-red-500' : alertCounts.warning > 0 ? 'bg-amber-500' : 'bg-blue-500'
+                      }`}>
+                        {alertCounts.total > 99 ? '99+' : alertCounts.total}
                       </span>
                     )}
                   </>

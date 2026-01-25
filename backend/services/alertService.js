@@ -4,6 +4,8 @@ const Vehicle = require('../models/Vehicle');
 const Document = require('../models/Document');
 const Violation = require('../models/Violation');
 const Company = require('../models/Company');
+const Task = require('../models/Task');
+const MaintenanceRecord = require('../models/MaintenanceRecord');
 const { SMS_BASICS_THRESHOLDS } = require('../config/fmcsaCompliance');
 
 /**
@@ -413,6 +415,112 @@ const alertService = {
       }
     }
 
+    // 7. Task overdue alerts
+    const overdueTasks = await Task.find({
+      companyId,
+      status: { $in: ['not_started', 'in_progress', 'overdue'] },
+      dueDate: { $lt: new Date() }
+    });
+
+    for (const task of overdueTasks) {
+      const daysOverdue = this._getDaysSince(task.dueDate);
+
+      alertPromises.push(this.createAlert({
+        companyId,
+        type: daysOverdue >= 7 || task.priority === 'high' ? 'critical' : 'warning',
+        category: 'driver', // Tasks often relate to driver compliance
+        title: 'Task Overdue',
+        message: `"${task.title}" is ${daysOverdue} day(s) overdue`,
+        entityType: 'task',
+        entityId: task._id,
+        daysRemaining: -daysOverdue,
+        metadata: {
+          priority: task.priority,
+          assignedToName: task.assignedToName,
+          linkedTo: task.linkedTo
+        },
+        deduplicationKey: `task-overdue-${task._id}`
+      }));
+    }
+
+    // Tasks due soon (within 3 days)
+    const threeDaysFromNow = new Date();
+    threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3);
+
+    const tasksDueSoon = await Task.find({
+      companyId,
+      status: { $in: ['not_started', 'in_progress'] },
+      dueDate: { $gte: new Date(), $lte: threeDaysFromNow }
+    });
+
+    for (const task of tasksDueSoon) {
+      const daysRemaining = this._getDaysRemaining(task.dueDate);
+
+      alertPromises.push(this.createAlert({
+        companyId,
+        type: task.priority === 'high' ? 'warning' : 'info',
+        category: 'driver',
+        title: 'Task Due Soon',
+        message: `"${task.title}" due in ${daysRemaining} day(s)`,
+        entityType: 'task',
+        entityId: task._id,
+        daysRemaining,
+        metadata: {
+          priority: task.priority,
+          assignedToName: task.assignedToName
+        },
+        deduplicationKey: `task-due-soon-${task._id}`
+      }));
+    }
+
+    // 8. Maintenance due alerts
+    const maintenanceRecords = await MaintenanceRecord.find({
+      companyId,
+      nextServiceDate: { $exists: true, $ne: null },
+      status: 'completed'
+    }).populate('vehicleId', 'unitNumber');
+
+    for (const record of maintenanceRecords) {
+      if (!record.vehicleId) continue;
+
+      const vehicleName = record.vehicleId.unitNumber || 'Unknown Vehicle';
+      const daysRemaining = this._getDaysRemaining(record.nextServiceDate);
+
+      if (daysRemaining < 0) {
+        alertPromises.push(this.createAlert({
+          companyId,
+          type: 'critical',
+          category: 'vehicle',
+          title: 'Maintenance Overdue',
+          message: `${vehicleName} - ${record.recordType.replace(/_/g, ' ')} is ${Math.abs(daysRemaining)} days overdue`,
+          entityType: 'maintenance',
+          entityId: record._id,
+          daysRemaining,
+          metadata: {
+            vehicleId: record.vehicleId._id,
+            recordType: record.recordType
+          },
+          deduplicationKey: `maintenance-overdue-${record._id}`
+        }));
+      } else if (daysRemaining <= 7) {
+        alertPromises.push(this.createAlert({
+          companyId,
+          type: 'warning',
+          category: 'vehicle',
+          title: 'Maintenance Due Soon',
+          message: `${vehicleName} - ${record.recordType.replace(/_/g, ' ')} due in ${daysRemaining} days`,
+          entityType: 'maintenance',
+          entityId: record._id,
+          daysRemaining,
+          metadata: {
+            vehicleId: record.vehicleId._id,
+            recordType: record.recordType
+          },
+          deduplicationKey: `maintenance-due-${record._id}`
+        }));
+      }
+    }
+
     // Execute all alert creations
     const results = await Promise.all(alertPromises);
 
@@ -487,6 +595,46 @@ const alertService = {
     // or have been resolved
 
     return 0; // Placeholder
+  },
+
+  /**
+   * Generate alerts for all companies (called by cron job)
+   */
+  async generateAlertsForAllCompanies() {
+    const companies = await Company.find({ isDeleted: { $ne: true } }).select('_id name');
+
+    console.log(`[AlertService] Starting alert generation for ${companies.length} companies`);
+
+    const results = {
+      companiesProcessed: 0,
+      totalCreated: 0,
+      totalUpdated: 0,
+      errors: []
+    };
+
+    for (const company of companies) {
+      try {
+        const result = await this.generateAlerts(company._id);
+        results.companiesProcessed++;
+        results.totalCreated += result.created;
+        results.totalUpdated += result.updated;
+      } catch (error) {
+        console.error(`[AlertService] Error generating alerts for company ${company._id}:`, error.message);
+        results.errors.push({ companyId: company._id, error: error.message });
+      }
+    }
+
+    // Also run escalation check
+    try {
+      const escalated = await this.escalateAlerts();
+      results.escalated = escalated;
+    } catch (error) {
+      console.error('[AlertService] Error escalating alerts:', error.message);
+    }
+
+    console.log(`[AlertService] Alert generation complete. Created: ${results.totalCreated}, Updated: ${results.totalUpdated}, Escalated: ${results.escalated || 0}`);
+
+    return results;
   },
 
   // Helper methods

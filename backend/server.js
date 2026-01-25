@@ -4,9 +4,11 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const path = require('path');
+const cron = require('node-cron');
 const connectDB = require('./config/database');
 const routes = require('./routes');
 const { errorHandler, notFound } = require('./middleware/errorHandler');
+const alertService = require('./services/alertService');
 
 // Initialize express
 const app = express();
@@ -67,6 +69,30 @@ app.listen(PORT, () => {
   ║     Environment: ${process.env.NODE_ENV || 'development'}                      ║
   ╚═══════════════════════════════════════════════════════╝
   `);
+
+  // Schedule daily alert generation at 6:00 AM
+  cron.schedule('0 6 * * *', async () => {
+    console.log('[Cron] Running daily alert generation...');
+    try {
+      const result = await alertService.generateAlertsForAllCompanies();
+      console.log('[Cron] Daily alert generation complete:', result);
+    } catch (error) {
+      console.error('[Cron] Error in daily alert generation:', error);
+    }
+  });
+
+  // Schedule alert escalation check every 6 hours
+  cron.schedule('0 */6 * * *', async () => {
+    console.log('[Cron] Running alert escalation check...');
+    try {
+      const escalated = await alertService.escalateAlerts();
+      console.log(`[Cron] Escalated ${escalated} alerts`);
+    } catch (error) {
+      console.error('[Cron] Error in alert escalation:', error);
+    }
+  });
+
+  console.log('[Cron] Scheduled: Daily alerts at 6 AM, Escalation check every 6 hours');
 });
 
 // Handle unhandled promise rejections
