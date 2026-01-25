@@ -12,6 +12,8 @@
 
 const fmcsaService = require('./fmcsaService');
 const Company = require('../models/Company');
+const CSAScoreHistory = require('../models/CSAScoreHistory');
+const csaAlertService = require('./csaAlertService');
 
 // Cache duration: 6 hours (in milliseconds)
 const CACHE_DURATION = 6 * 60 * 60 * 1000;
@@ -107,10 +109,130 @@ const fmcsaSyncService = {
       );
 
       console.log(`[FMCSA Sync] Successfully updated company ${company.dotNumber} with FMCSA data`);
+
+      // Record history snapshot for trend tracking
+      await this.recordHistory(
+        companyId,
+        updatedCompany.smsBasics,
+        updateData.fmcsaData,
+        company.dotNumber
+      );
+
+      // Check for alerts and create notifications
+      await csaAlertService.checkAndCreateAlerts(companyId);
+
       return updatedCompany.smsBasics;
 
     } catch (error) {
       console.error('[FMCSA Sync] Error:', error.message);
+      return null;
+    }
+  },
+
+  /**
+   * Record a history snapshot for trend tracking
+   * Called automatically after each successful sync
+   *
+   * @param {string} companyId - MongoDB ObjectId
+   * @param {object} smsBasics - The BASICs data
+   * @param {object} fmcsaData - Additional FMCSA data
+   * @param {string} dotNumber - Company DOT number
+   */
+  async recordHistory(companyId, smsBasics, fmcsaData, dotNumber) {
+    try {
+      // Get previous record to calculate changes
+      const previousRecord = await CSAScoreHistory.getLatest(companyId);
+
+      // Determine status for each BASIC
+      const getStatus = (percentile, basicKey) => {
+        if (percentile === null || percentile === undefined) return 'ok';
+        const criticalThresholds = {
+          unsafeDriving: 80, hoursOfService: 80, vehicleMaintenance: 90,
+          controlledSubstances: 90, driverFitness: 90, crashIndicator: 80
+        };
+        const alertThresholds = {
+          unsafeDriving: 65, hoursOfService: 65, vehicleMaintenance: 80,
+          controlledSubstances: 80, driverFitness: 80, crashIndicator: 65
+        };
+
+        if (percentile >= criticalThresholds[basicKey]) return 'critical';
+        if (percentile >= alertThresholds[basicKey]) return 'alert';
+        return 'ok';
+      };
+
+      // Calculate changes from previous record
+      const calculateChange = (current, basicKey) => {
+        if (!previousRecord || current === null || current === undefined) return 0;
+        const prevValue = previousRecord.basics[basicKey]?.percentile;
+        if (prevValue === null || prevValue === undefined) return 0;
+        return current - prevValue;
+      };
+
+      // Build the history record
+      const historyRecord = new CSAScoreHistory({
+        companyId,
+        dotNumber,
+        recordedAt: new Date(),
+        basics: {
+          unsafeDriving: {
+            percentile: smsBasics.unsafeDriving ?? null,
+            status: getStatus(smsBasics.unsafeDriving, 'unsafeDriving')
+          },
+          hoursOfService: {
+            percentile: smsBasics.hoursOfService ?? null,
+            status: getStatus(smsBasics.hoursOfService, 'hoursOfService')
+          },
+          vehicleMaintenance: {
+            percentile: smsBasics.vehicleMaintenance ?? null,
+            status: getStatus(smsBasics.vehicleMaintenance, 'vehicleMaintenance')
+          },
+          controlledSubstances: {
+            percentile: smsBasics.controlledSubstances ?? null,
+            status: getStatus(smsBasics.controlledSubstances, 'controlledSubstances')
+          },
+          driverFitness: {
+            percentile: smsBasics.driverFitness ?? null,
+            status: getStatus(smsBasics.driverFitness, 'driverFitness')
+          },
+          crashIndicator: {
+            percentile: smsBasics.crashIndicator ?? null,
+            status: getStatus(smsBasics.crashIndicator, 'crashIndicator')
+          }
+        },
+        metadata: {
+          totalInspections: fmcsaData?.inspections?.total || 0,
+          inspections24Months: fmcsaData?.inspections?.last24Months || 0,
+          totalCrashes: fmcsaData?.crashes?.total || 0,
+          crashes24Months: fmcsaData?.crashes?.last24Months || 0,
+          operatingStatus: fmcsaData?.operatingStatus,
+          vehicleOOSRate: fmcsaData?.outOfServiceRate?.vehicle,
+          driverOOSRate: fmcsaData?.outOfServiceRate?.driver,
+          dataSource: 'FMCSA_SAFER'
+        },
+        changes: {
+          unsafeDriving: calculateChange(smsBasics.unsafeDriving, 'unsafeDriving'),
+          hoursOfService: calculateChange(smsBasics.hoursOfService, 'hoursOfService'),
+          vehicleMaintenance: calculateChange(smsBasics.vehicleMaintenance, 'vehicleMaintenance'),
+          controlledSubstances: calculateChange(smsBasics.controlledSubstances, 'controlledSubstances'),
+          driverFitness: calculateChange(smsBasics.driverFitness, 'driverFitness'),
+          crashIndicator: calculateChange(smsBasics.crashIndicator, 'crashIndicator')
+        }
+      });
+
+      // Calculate overall trend
+      const changes = Object.values(historyRecord.changes).filter(c => c !== 0);
+      if (changes.length > 0) {
+        const avgChange = changes.reduce((a, b) => a + b, 0) / changes.length;
+        historyRecord.overallTrend = avgChange < -2 ? 'improving' : avgChange > 2 ? 'worsening' : 'stable';
+      }
+
+      await historyRecord.save();
+      console.log(`[FMCSA Sync] History recorded for DOT ${dotNumber}`);
+
+      return historyRecord;
+    } catch (error) {
+      console.error('[FMCSA Sync] Failed to record history:', error.message);
+      // Don't throw - history recording failure shouldn't break the sync
       return null;
     }
   },

@@ -1,17 +1,19 @@
 import { useState, useEffect } from 'react';
-import { dashboardAPI } from '../utils/api';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, Legend } from 'recharts';
+import { dashboardAPI, csaAPI } from '../utils/api';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, Legend, LineChart, Line, ReferenceLine } from 'recharts';
 import toast from 'react-hot-toast';
-import { FiEdit2, FiCheck, FiAlertTriangle, FiAlertCircle, FiInfo, FiBarChart2, FiTarget } from 'react-icons/fi';
+import { FiEdit2, FiCheck, FiAlertTriangle, FiAlertCircle, FiInfo, FiBarChart2, FiTarget, FiTrendingUp, FiTrendingDown, FiMinus, FiClock } from 'react-icons/fi';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Modal from '../components/Modal';
 import TabNav from '../components/TabNav';
 import CSAEstimatorContent from '../components/CSAEstimatorContent';
+import CSATrends from '../components/CSATrends';
 
 const Compliance = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [dashboard, setDashboard] = useState(null);
   const [auditReadiness, setAuditReadiness] = useState(null);
+  const [timeDecay, setTimeDecay] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
   const [updating, setUpdating] = useState(false);
@@ -26,6 +28,7 @@ const Compliance = () => {
 
   const tabs = [
     { key: 'overview', label: 'SMS BASICs Overview', icon: FiBarChart2 },
+    { key: 'trends', label: 'Score Trends', icon: FiTrendingUp },
     { key: 'estimator', label: 'CSA Estimator', icon: FiTarget, badge: 'BETA' }
   ];
 
@@ -35,12 +38,16 @@ const Compliance = () => {
 
   const fetchData = async () => {
     try {
-      const [dashboardRes, auditRes] = await Promise.all([
+      const [dashboardRes, auditRes, timeDecayRes] = await Promise.all([
         dashboardAPI.get(),
-        dashboardAPI.getAuditReadiness()
+        dashboardAPI.getAuditReadiness(),
+        csaAPI.getTimeDecay(24).catch(() => null)
       ]);
       setDashboard(dashboardRes.data.dashboard);
       setAuditReadiness(auditRes.data.auditReadiness);
+      if (timeDecayRes?.data) {
+        setTimeDecay(timeDecayRes.data);
+      }
 
       // Pre-fill form with current values
       if (dashboardRes.data.dashboard?.smsBasics) {
@@ -137,7 +144,9 @@ const Compliance = () => {
       <TabNav tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
 
       {/* Tab Content */}
-      {activeTab === 'overview' ? (
+      {activeTab === 'trends' ? (
+        <CSATrends />
+      ) : activeTab === 'overview' ? (
         <>
       {/* BASICs Overview */}
       <div className="card">
@@ -367,6 +376,81 @@ const Compliance = () => {
           </div>
         </div>
       </div>
+
+      {/* 24-Month Score Projection */}
+      {timeDecay && timeDecay.projections && (
+        <div className="card">
+          <div className="card-header">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                <FiClock className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-zinc-800 dark:text-zinc-100">24-Month Score Projection</h3>
+                <p className="text-sm text-zinc-600 dark:text-zinc-300">How your scores will improve as violations age out</p>
+              </div>
+            </div>
+          </div>
+          <div className="card-body">
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart
+                data={timeDecay.projections?.map(p => ({
+                  month: p.month,
+                  date: p.date,
+                  unsafeDriving: p.scores?.unsafe_driving?.estimatedPercentile || 0,
+                  hoursOfService: p.scores?.hours_of_service?.estimatedPercentile || 0,
+                  vehicleMaintenance: p.scores?.vehicle_maintenance?.estimatedPercentile || 0
+                })) || []}
+                margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" className="stroke-zinc-200 dark:stroke-zinc-700" />
+                <XAxis
+                  dataKey="month"
+                  tick={{ fontSize: 11 }}
+                  className="text-zinc-600 dark:text-zinc-400"
+                  tickFormatter={(v) => `+${v}mo`}
+                />
+                <YAxis
+                  domain={[0, 100]}
+                  tick={{ fontSize: 11 }}
+                  className="text-zinc-600 dark:text-zinc-400"
+                  tickFormatter={(v) => `${v}%`}
+                />
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: '8px',
+                    border: '1px solid #e2e8f0',
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                    backgroundColor: 'white'
+                  }}
+                />
+                <ReferenceLine y={65} stroke="#f59e0b" strokeDasharray="5 5" label={{ value: 'Alert 65%', fill: '#f59e0b', fontSize: 10 }} />
+                <ReferenceLine y={80} stroke="#ef4444" strokeDasharray="5 5" label={{ value: 'Critical 80%', fill: '#ef4444', fontSize: 10 }} />
+                <Line type="monotone" dataKey="unsafeDriving" stroke="#ef4444" name="Unsafe Driving" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="hoursOfService" stroke="#f59e0b" name="Hours of Service" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="vehicleMaintenance" stroke="#3b82f6" name="Vehicle Maintenance" strokeWidth={2} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+
+            {/* Improvement Summary */}
+            {timeDecay.insights?.improvements && (
+              <div className="mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-700">
+                <h4 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-3">Projected Improvements (24 months)</h4>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+                  {Object.entries(timeDecay.insights.improvements).map(([key, data]) => (
+                    <div key={key} className="text-center p-2 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate capitalize">{key.replace(/_/g, ' ')}</p>
+                      <p className={`text-sm font-bold ${data.change < 0 ? 'text-green-600 dark:text-green-400' : data.change > 0 ? 'text-red-600 dark:text-red-400' : 'text-zinc-600 dark:text-zinc-400'}`}>
+                        {data.change < 0 ? '' : data.change > 0 ? '+' : ''}{data.change?.toFixed(0) || 0}%
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
         </>
       ) : (
         <CSAEstimatorContent />

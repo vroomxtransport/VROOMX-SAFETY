@@ -3,6 +3,7 @@ const router = express.Router();
 const { protect, restrictToCompany } = require('../middleware/auth');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const csaCalculatorService = require('../services/csaCalculatorService');
+const CSAScoreHistory = require('../models/CSAScoreHistory');
 
 router.use(protect);
 router.use(restrictToCompany);
@@ -246,5 +247,187 @@ router.get('/basics', (req, res) => {
     ]
   });
 });
+
+// ==========================================
+// CSA SCORE HISTORY & TRENDS ENDPOINTS
+// ==========================================
+
+// @route   GET /api/csa/history
+// @desc    Get CSA score history for trend charts
+// @access  Private
+router.get('/history', asyncHandler(async (req, res) => {
+  const companyId = req.user.companyId._id || req.user.companyId;
+  const { days = 90, startDate, endDate } = req.query;
+
+  const history = await CSAScoreHistory.getHistory(companyId, {
+    days: parseInt(days),
+    startDate,
+    endDate
+  });
+
+  // Format for chart consumption
+  const chartData = history.map(record => ({
+    date: record.recordedAt,
+    dateFormatted: new Date(record.recordedAt).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric'
+    }),
+    unsafeDriving: record.basics.unsafeDriving?.percentile,
+    hoursOfService: record.basics.hoursOfService?.percentile,
+    vehicleMaintenance: record.basics.vehicleMaintenance?.percentile,
+    controlledSubstances: record.basics.controlledSubstances?.percentile,
+    driverFitness: record.basics.driverFitness?.percentile,
+    crashIndicator: record.basics.crashIndicator?.percentile,
+    overallTrend: record.overallTrend
+  }));
+
+  res.json({
+    success: true,
+    dataPoints: history.length,
+    history: chartData,
+    rawHistory: history
+  });
+}));
+
+// @route   GET /api/csa/trend-summary
+// @desc    Get trend summary with insights
+// @access  Private
+router.get('/trend-summary', asyncHandler(async (req, res) => {
+  const companyId = req.user.companyId._id || req.user.companyId;
+  const { days = 30 } = req.query;
+
+  const summary = await CSAScoreHistory.getTrendSummary(companyId, parseInt(days));
+
+  res.json({
+    success: true,
+    ...summary
+  });
+}));
+
+// @route   GET /api/csa/alerts
+// @desc    Get CSA score alerts (threshold crossings, significant changes)
+// @access  Private
+router.get('/alerts', asyncHandler(async (req, res) => {
+  const companyId = req.user.companyId._id || req.user.companyId;
+
+  const alerts = await CSAScoreHistory.checkForAlerts(companyId);
+
+  res.json({
+    success: true,
+    alertCount: alerts.length,
+    alerts
+  });
+}));
+
+// @route   GET /api/csa/compare
+// @desc    Compare scores between two dates
+// @access  Private
+router.get('/compare', asyncHandler(async (req, res) => {
+  const companyId = req.user.companyId._id || req.user.companyId;
+  const { startDate, endDate } = req.query;
+
+  if (!startDate || !endDate) {
+    throw new AppError('Both startDate and endDate are required', 400);
+  }
+
+  // Get records closest to the specified dates
+  const startRecord = await CSAScoreHistory.findOne({
+    companyId,
+    recordedAt: { $lte: new Date(startDate) }
+  }).sort({ recordedAt: -1 });
+
+  const endRecord = await CSAScoreHistory.findOne({
+    companyId,
+    recordedAt: { $lte: new Date(endDate) }
+  }).sort({ recordedAt: -1 });
+
+  if (!startRecord || !endRecord) {
+    return res.json({
+      success: false,
+      message: 'Not enough historical data for comparison'
+    });
+  }
+
+  const comparison = {};
+  const basicKeys = [
+    'unsafeDriving', 'hoursOfService', 'vehicleMaintenance',
+    'controlledSubstances', 'driverFitness', 'crashIndicator'
+  ];
+
+  for (const key of basicKeys) {
+    const startVal = startRecord.basics[key]?.percentile;
+    const endVal = endRecord.basics[key]?.percentile;
+
+    comparison[key] = {
+      startDate: startRecord.recordedAt,
+      endDate: endRecord.recordedAt,
+      startValue: startVal,
+      endValue: endVal,
+      change: (startVal !== null && endVal !== null) ? endVal - startVal : null,
+      improved: (startVal !== null && endVal !== null) ? endVal < startVal : null
+    };
+  }
+
+  res.json({
+    success: true,
+    comparison,
+    startRecord: {
+      date: startRecord.recordedAt,
+      basics: startRecord.basics
+    },
+    endRecord: {
+      date: endRecord.recordedAt,
+      basics: endRecord.basics
+    }
+  });
+}));
+
+// @route   GET /api/csa/export
+// @desc    Export CSA history as CSV
+// @access  Private
+router.get('/export', asyncHandler(async (req, res) => {
+  const companyId = req.user.companyId._id || req.user.companyId;
+  const { days = 365, format = 'csv' } = req.query;
+
+  const history = await CSAScoreHistory.getHistory(companyId, { days: parseInt(days), limit: 500 });
+
+  if (format === 'csv') {
+    // Generate CSV
+    const headers = [
+      'Date',
+      'Unsafe Driving',
+      'Hours of Service',
+      'Vehicle Maintenance',
+      'Controlled Substances',
+      'Driver Fitness',
+      'Crash Indicator',
+      'Overall Trend'
+    ];
+
+    const rows = history.map(record => [
+      new Date(record.recordedAt).toISOString().split('T')[0],
+      record.basics.unsafeDriving?.percentile ?? '',
+      record.basics.hoursOfService?.percentile ?? '',
+      record.basics.vehicleMaintenance?.percentile ?? '',
+      record.basics.controlledSubstances?.percentile ?? '',
+      record.basics.driverFitness?.percentile ?? '',
+      record.basics.crashIndicator?.percentile ?? '',
+      record.overallTrend
+    ]);
+
+    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename=csa-history-${Date.now()}.csv`);
+    return res.send(csv);
+  }
+
+  // Default to JSON
+  res.json({
+    success: true,
+    dataPoints: history.length,
+    history
+  });
+}));
 
 module.exports = router;

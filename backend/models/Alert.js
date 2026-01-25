@@ -18,7 +18,7 @@ const alertSchema = new mongoose.Schema({
 
   category: {
     type: String,
-    enum: ['driver', 'vehicle', 'violation', 'basics', 'document', 'drug_alcohol'],
+    enum: ['driver', 'vehicle', 'violation', 'basics', 'document', 'drug_alcohol', 'csa_score'],
     required: true,
     index: true
   },

@@ -9,6 +9,7 @@ const Document = require('./Document');
 const Accident = require('./Accident');
 const DamageClaim = require('./DamageClaim');
 const Lead = require('./Lead');
+const CSAScoreHistory = require('./CSAScoreHistory');
 
 module.exports = {
   User,
@@ -21,5 +22,6 @@ module.exports = {
   Document,
   Accident,
   DamageClaim,
-  Lead
+  Lead,
+  CSAScoreHistory
 };

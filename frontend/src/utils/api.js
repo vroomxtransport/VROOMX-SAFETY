@@ -242,7 +242,16 @@ export const csaAPI = {
   projectImpact: (violation) => api.post('/csa/project-impact', violation),
   getTimeDecay: (months) => api.get('/csa/time-decay', { params: { months } }),
   getThresholds: () => api.get('/csa/thresholds'),
-  getBasics: () => api.get('/csa/basics')
+  getBasics: () => api.get('/csa/basics'),
+  // History & Trends endpoints
+  getHistory: (days = 90) => api.get('/csa/history', { params: { days } }),
+  getTrendSummary: (days = 30) => api.get('/csa/trend-summary', { params: { days } }),
+  getAlerts: () => api.get('/csa/alerts'),
+  compare: (startDate, endDate) => api.get('/csa/compare', { params: { startDate, endDate } }),
+  exportHistory: (days = 365, format = 'csv') => api.get('/csa/export', {
+    params: { days, format },
+    responseType: format === 'csv' ? 'blob' : 'json'
+  })
 };
 
 // Inspections API - DOT Inspection Upload
@@ -280,4 +289,22 @@ export const templatesAPI = {
     vehicleId: options.vehicleId
   }, options.saveToDocuments ? {} : { responseType: 'blob' }),
   getByCategory: () => api.get('/templates/by/category')
+};
+
+// Admin API - Platform administration (super admin only)
+export const adminAPI = {
+  // Stats
+  getStats: () => api.get('/admin/stats'),
+
+  // Users
+  getUsers: (params) => api.get('/admin/users', { params }),
+  getUser: (id) => api.get(`/admin/users/${id}`),
+  updateUser: (id, data) => api.patch(`/admin/users/${id}`, data),
+  deleteUser: (id) => api.delete(`/admin/users/${id}`),
+  impersonateUser: (id) => api.post(`/admin/users/${id}/impersonate`),
+  updateSubscription: (id, data) => api.patch(`/admin/users/${id}/subscription`, data),
+
+  // Companies
+  getCompanies: (params) => api.get('/admin/companies', { params }),
+  getCompany: (id) => api.get(`/admin/companies/${id}`)
 };

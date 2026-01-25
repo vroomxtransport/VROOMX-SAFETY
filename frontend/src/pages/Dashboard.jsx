@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { dashboardAPI } from '../utils/api';
+import { dashboardAPI, csaAPI } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import {
   FiUsers, FiTruck, FiAlertTriangle, FiClock,
   FiCheckCircle, FiAlertCircle, FiFileText, FiShield,
-  FiMessageCircle, FiArrowRight, FiRefreshCw
+  FiMessageCircle, FiArrowRight, FiRefreshCw, FiTrendingUp, FiTrendingDown, FiMinus
 } from 'react-icons/fi';
 import LoadingSpinner from '../components/LoadingSpinner';
 
@@ -16,6 +16,7 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
   const [refreshingFMCSA, setRefreshingFMCSA] = useState(false);
   const [fmcsaMessage, setFmcsaMessage] = useState(null);
+  const [trendData, setTrendData] = useState(null);
 
   useEffect(() => {
     fetchDashboard();
@@ -23,8 +24,14 @@ const Dashboard = () => {
 
   const fetchDashboard = async () => {
     try {
-      const response = await dashboardAPI.get();
-      setData(response.data.dashboard);
+      const [dashboardRes, trendRes] = await Promise.all([
+        dashboardAPI.get(),
+        csaAPI.getTrendSummary(30).catch(() => null)
+      ]);
+      setData(dashboardRes.data.dashboard);
+      if (trendRes?.data) {
+        setTrendData(trendRes.data);
+      }
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to load dashboard');
     } finally {
@@ -129,8 +136,29 @@ const Dashboard = () => {
     return Object.entries(data.smsBasics).map(([key, value]) => ({
       name: value.name?.replace(' Compliance', '').replace(' Indicator', '') || key,
       percentile: value.percentile || 0,
-      status: value.status || 'compliant'
+      status: value.status || 'compliant',
+      key
     }));
+  };
+
+  // Get trend indicator for a BASIC category
+  const getTrendIndicator = (basicKey) => {
+    if (!trendData?.basicTrends) return null;
+    // Map the key format from camelCase to match trendData format
+    const keyMap = {
+      unsafeDriving: 'unsafeDriving',
+      hoursOfService: 'hoursOfService',
+      vehicleMaintenance: 'vehicleMaintenance',
+      controlledSubstances: 'controlledSubstances',
+      driverFitness: 'driverFitness',
+      crashIndicator: 'crashIndicator'
+    };
+    const trend = trendData.basicTrends[keyMap[basicKey]];
+    if (!trend) return null;
+    return {
+      direction: trend.trend,
+      change: trend.change || 0
+    };
   };
 
   if (loading) {
@@ -346,8 +374,28 @@ const Dashboard = () => {
                   <FiShield className="w-5 h-5 text-accent-600 dark:text-accent-500" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-zinc-900 dark:text-white">SMS BASICs</h3>
-                  <p className="text-xs text-zinc-600 dark:text-zinc-300">Safety Measurement System</p>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold text-zinc-900 dark:text-white">SMS BASICs</h3>
+                    {/* Overall Trend Badge */}
+                    {trendData?.overallTrend && (
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
+                        trendData.overallTrend === 'improving'
+                          ? 'bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400'
+                          : trendData.overallTrend === 'worsening'
+                          ? 'bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-400'
+                          : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300'
+                      }`}>
+                        {trendData.overallTrend === 'improving' ? (
+                          <><FiTrendingDown className="w-3 h-3" /> Improving</>
+                        ) : trendData.overallTrend === 'worsening' ? (
+                          <><FiTrendingUp className="w-3 h-3" /> Worsening</>
+                        ) : (
+                          <><FiMinus className="w-3 h-3" /> Stable</>
+                        )}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-zinc-600 dark:text-zinc-300">Safety Measurement System • 30-day trend</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -380,7 +428,9 @@ const Dashboard = () => {
               </div>
             )}
             <div className="p-5 grid grid-cols-2 lg:grid-cols-3 gap-4">
-              {basicsData.length > 0 ? basicsData.map((basic, index) => (
+              {basicsData.length > 0 ? basicsData.map((basic, index) => {
+                const trend = getTrendIndicator(basic.key);
+                return (
                 <div key={index} className="group flex items-center gap-3 p-3 rounded-xl bg-zinc-50 dark:bg-white/5 border border-zinc-100 dark:border-white/5 hover:shadow-md hover:-translate-y-0.5 hover:border-zinc-200 dark:hover:border-white/10 transition-all duration-200 cursor-pointer">
                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-200 ${
                     basic.status === 'critical' ? 'bg-red-100 dark:bg-red-500/20' :
@@ -395,8 +445,29 @@ const Dashboard = () => {
                       {basic.percentile}%
                     </span>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-zinc-900 dark:text-white">{basic.name}</p>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-medium text-zinc-900 dark:text-white">{basic.name}</p>
+                      {/* Trend Indicator */}
+                      {trend && (
+                        <div className={`flex items-center gap-0.5 text-xs font-medium ${
+                          trend.direction === 'improving' ? 'text-green-600 dark:text-green-400' :
+                          trend.direction === 'worsening' ? 'text-red-600 dark:text-red-400' :
+                          'text-zinc-500 dark:text-zinc-400'
+                        }`}>
+                          {trend.direction === 'improving' ? (
+                            <FiTrendingDown className="w-3 h-3" />
+                          ) : trend.direction === 'worsening' ? (
+                            <FiTrendingUp className="w-3 h-3" />
+                          ) : (
+                            <FiMinus className="w-3 h-3" />
+                          )}
+                          {trend.change !== 0 && (
+                            <span>{Math.abs(trend.change)}%</span>
+                          )}
+                        </div>
+                      )}
+                    </div>
                     <p className={`text-xs ${
                       basic.status === 'critical' ? 'text-red-600 dark:text-red-400' :
                       basic.status === 'warning' ? 'text-yellow-600 dark:text-yellow-400' :
@@ -408,7 +479,7 @@ const Dashboard = () => {
                     </p>
                   </div>
                 </div>
-              )) : (
+              )}) : (
                 // Default placeholders if no data
                 <>
                   {['Unsafe Driving', 'HOS Compliance', 'Vehicle Maint.', 'Controlled Sub.', 'Driver Fitness', 'Crash Indicator'].map((name, index) => (
