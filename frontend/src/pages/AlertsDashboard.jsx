@@ -195,7 +195,7 @@ const AlertsDashboard = () => {
                   cx="64"
                   cy="64"
                   r="56"
-                  stroke="#e2e8f0"
+                  className="stroke-zinc-200 dark:stroke-zinc-700"
                   strokeWidth="12"
                   fill="none"
                 />

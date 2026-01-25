@@ -419,9 +419,10 @@ const Compliance = () => {
                 <Tooltip
                   contentStyle={{
                     borderRadius: '8px',
-                    border: '1px solid #e2e8f0',
+                    border: '1px solid var(--glass-border)',
                     boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-                    backgroundColor: 'white'
+                    backgroundColor: 'var(--color-surface)',
+                    color: 'var(--text-primary)'
                   }}
                 />
                 <ReferenceLine y={65} stroke="#f59e0b" strokeDasharray="5 5" label={{ value: 'Alert 65%', fill: '#f59e0b', fontSize: 10 }} />

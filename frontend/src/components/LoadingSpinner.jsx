@@ -68,15 +68,11 @@ const LoadingSpinner = ({ size = 'md', variant = 'default', className = '' }) =>
     <div className={`relative ${sizes.spinner} ${className}`}>
       {/* Track */}
       <div
-        className={`absolute inset-0 rounded-full ${sizes.border} border-primary-200`}
+        className={`absolute inset-0 rounded-full ${sizes.border} border-zinc-200 dark:border-zinc-700`}
       />
       {/* Spinner */}
       <div
-        className={`absolute inset-0 rounded-full ${sizes.border} border-transparent animate-spin`}
-        style={{
-          borderTopColor: '#475569',
-          borderRightColor: '#47556940'
-        }}
+        className={`absolute inset-0 rounded-full ${sizes.border} border-transparent animate-spin border-t-cta-500 border-r-cta-500/40`}
       />
     </div>
   );

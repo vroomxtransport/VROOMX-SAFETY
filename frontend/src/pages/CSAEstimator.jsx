@@ -441,22 +441,24 @@ const CSAEstimator = () => {
                 })) || []}
                 margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--glass-border)" />
                 <XAxis
                   dataKey="month"
-                  tick={{ fontSize: 11, fill: '#64748b' }}
+                  tick={{ fontSize: 11, fill: 'var(--text-muted)' }}
                   tickFormatter={(v) => `+${v}mo`}
                 />
                 <YAxis
                   domain={[0, 100]}
-                  tick={{ fontSize: 11, fill: '#64748b' }}
+                  tick={{ fontSize: 11, fill: 'var(--text-muted)' }}
                   tickFormatter={(v) => `${v}%`}
                 />
                 <Tooltip
                   contentStyle={{
                     borderRadius: '8px',
-                    border: '1px solid #e2e8f0',
-                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                    border: '1px solid var(--glass-border)',
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                    backgroundColor: 'var(--color-surface)',
+                    color: 'var(--text-primary)'
                   }}
                 />
                 <ReferenceLine y={65} stroke="#f59e0b" strokeDasharray="5 5" label={{ value: 'Alert', fill: '#f59e0b', fontSize: 10 }} />

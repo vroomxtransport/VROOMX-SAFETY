@@ -277,24 +277,25 @@ const CSATrends = () => {
           <div className="h-[350px] sm:h-[400px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={history} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" className="dark:stroke-zinc-700" />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--glass-border)" />
                 <XAxis
                   dataKey="dateFormatted"
-                  tick={{ fontSize: 11, fill: '#64748b' }}
-                  tickLine={{ stroke: '#e2e8f0' }}
+                  tick={{ fontSize: 11, fill: 'var(--text-muted)' }}
+                  tickLine={{ stroke: 'var(--glass-border)' }}
                 />
                 <YAxis
                   domain={[0, 100]}
-                  tick={{ fontSize: 11, fill: '#64748b' }}
+                  tick={{ fontSize: 11, fill: 'var(--text-muted)' }}
                   tickFormatter={(v) => `${v}%`}
-                  tickLine={{ stroke: '#e2e8f0' }}
+                  tickLine={{ stroke: 'var(--glass-border)' }}
                 />
                 <Tooltip
                   contentStyle={{
                     borderRadius: '8px',
-                    border: '1px solid #e2e8f0',
+                    border: '1px solid var(--glass-border)',
                     boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-                    backgroundColor: '#fff',
+                    backgroundColor: 'var(--color-surface)',
+                    color: 'var(--text-primary)',
                     fontSize: '12px'
                   }}
                   formatter={(value, name) => [`${value}%`, basicNames[name]]}

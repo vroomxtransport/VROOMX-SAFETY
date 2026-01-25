@@ -209,10 +209,10 @@ const Tasks = () => {
 
   const getPriorityColor = (priority) => {
     switch (priority) {
-      case 'high': return 'text-red-400';
-      case 'medium': return 'text-yellow-400';
-      case 'low': return 'text-green-400';
-      default: return 'text-gray-400';
+      case 'high': return 'text-red-600 dark:text-red-400';
+      case 'medium': return 'text-yellow-600 dark:text-yellow-400';
+      case 'low': return 'text-green-600 dark:text-green-400';
+      default: return 'text-zinc-500 dark:text-zinc-400';
     }
   };
 
@@ -235,9 +235,9 @@ const Tasks = () => {
       label: 'Task',
       render: (task) => (
         <div className="cursor-pointer" onClick={() => openDetailModal(task)}>
-          <div className="font-medium text-white">{task.title}</div>
+          <div className="font-medium text-zinc-900 dark:text-white">{task.title}</div>
           {task.description && (
-            <div className="text-sm text-gray-400 truncate max-w-xs">{task.description}</div>
+            <div className="text-sm text-zinc-500 dark:text-zinc-400 truncate max-w-xs">{task.description}</div>
           )}
         </div>
       )
@@ -246,7 +246,7 @@ const Tasks = () => {
       key: 'dueDate',
       label: 'Due Date',
       render: (task) => (
-        <div className={`flex items-center gap-2 ${task.isOverdue ? 'text-red-400' : 'text-gray-300'}`}>
+        <div className={`flex items-center gap-2 ${task.isOverdue ? 'text-red-500 dark:text-red-400' : 'text-zinc-600 dark:text-zinc-300'}`}>
           <FiCalendar className="w-4 h-4" />
           {formatDate(task.dueDate)}
           {task.daysUntilDue !== null && task.status !== 'completed' && (
@@ -271,12 +271,12 @@ const Tasks = () => {
       key: 'assignedTo',
       label: 'Assigned To',
       render: (task) => task.assignedTo ? (
-        <div className="flex items-center gap-2 text-gray-300">
+        <div className="flex items-center gap-2 text-zinc-600 dark:text-zinc-300">
           <FiUser className="w-4 h-4" />
           {task.assignedTo.firstName} {task.assignedTo.lastName}
         </div>
       ) : (
-        <span className="text-gray-500">Unassigned</span>
+        <span className="text-zinc-400 dark:text-zinc-500">Unassigned</span>
       )
     },
     {
@@ -308,7 +308,7 @@ const Tasks = () => {
           )}
           <button
             onClick={(e) => { e.stopPropagation(); openEditModal(task); }}
-            className="p-1 text-gray-400 hover:bg-gray-700 rounded"
+            className="p-1 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded"
             title="Edit"
           >
             <FiEdit2 className="w-4 h-4" />
@@ -330,12 +330,12 @@ const Tasks = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Tasks</h1>
-          <p className="text-gray-400">Manage compliance tasks and reminders</p>
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Tasks</h1>
+          <p className="text-zinc-500 dark:text-zinc-400">Manage compliance tasks and reminders</p>
         </div>
         <button
           onClick={() => { resetForm(); setShowAddModal(true); }}
-          className="flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-cta-500 hover:bg-cta-600 text-white rounded-lg transition-colors"
         >
           <FiPlus className="w-5 h-5" />
           Add Task
@@ -345,58 +345,58 @@ const Tasks = () => {
       {/* Stats Cards */}
       {stats && (
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <div className="bg-dark-800/50 border border-dark-700 rounded-lg p-4">
+          <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-lg p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-500/10 rounded-lg">
-                <FiClock className="w-5 h-5 text-blue-400" />
+                <FiClock className="w-5 h-5 text-blue-500 dark:text-blue-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-white">{stats.total || 0}</div>
-                <div className="text-sm text-gray-400">Total Tasks</div>
+                <div className="text-2xl font-bold text-zinc-900 dark:text-white">{stats.total || 0}</div>
+                <div className="text-sm text-zinc-500 dark:text-zinc-400">Total Tasks</div>
               </div>
             </div>
           </div>
-          <div className="bg-dark-800/50 border border-dark-700 rounded-lg p-4">
+          <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-lg p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-yellow-500/10 rounded-lg">
-                <FiClock className="w-5 h-5 text-yellow-400" />
+                <FiClock className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-white">{stats.inProgress || 0}</div>
-                <div className="text-sm text-gray-400">In Progress</div>
+                <div className="text-2xl font-bold text-zinc-900 dark:text-white">{stats.inProgress || 0}</div>
+                <div className="text-sm text-zinc-500 dark:text-zinc-400">In Progress</div>
               </div>
             </div>
           </div>
-          <div className="bg-dark-800/50 border border-dark-700 rounded-lg p-4">
+          <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-lg p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-green-500/10 rounded-lg">
-                <FiCheckCircle className="w-5 h-5 text-green-400" />
+                <FiCheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-white">{stats.completed || 0}</div>
-                <div className="text-sm text-gray-400">Completed</div>
+                <div className="text-2xl font-bold text-zinc-900 dark:text-white">{stats.completed || 0}</div>
+                <div className="text-sm text-zinc-500 dark:text-zinc-400">Completed</div>
               </div>
             </div>
           </div>
-          <div className="bg-dark-800/50 border border-dark-700 rounded-lg p-4">
+          <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-lg p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-red-500/10 rounded-lg">
-                <FiAlertTriangle className="w-5 h-5 text-red-400" />
+                <FiAlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-white">{stats.overdueCount || 0}</div>
-                <div className="text-sm text-gray-400">Overdue</div>
+                <div className="text-2xl font-bold text-zinc-900 dark:text-white">{stats.overdueCount || 0}</div>
+                <div className="text-sm text-zinc-500 dark:text-zinc-400">Overdue</div>
               </div>
             </div>
           </div>
-          <div className="bg-dark-800/50 border border-dark-700 rounded-lg p-4">
+          <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-lg p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-orange-500/10 rounded-lg">
-                <FiCalendar className="w-5 h-5 text-orange-400" />
+                <FiCalendar className="w-5 h-5 text-orange-600 dark:text-orange-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-white">{stats.dueThisWeek || 0}</div>
-                <div className="text-sm text-gray-400">Due This Week</div>
+                <div className="text-2xl font-bold text-zinc-900 dark:text-white">{stats.dueThisWeek || 0}</div>
+                <div className="text-sm text-zinc-500 dark:text-zinc-400">Due This Week</div>
               </div>
             </div>
           </div>
@@ -407,20 +407,20 @@ const Tasks = () => {
       <div className="flex flex-wrap gap-4">
         <form onSubmit={handleSearch} className="flex-1 min-w-[200px]">
           <div className="relative">
-            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
             <input
               type="text"
               placeholder="Search tasks..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-dark-800 border border-dark-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-primary-500"
+              className="w-full pl-10 pr-4 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:border-cta-500"
             />
           </div>
         </form>
         <select
           value={statusFilter}
           onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-          className="px-4 py-2 bg-dark-800 border border-dark-700 rounded-lg text-white focus:outline-none focus:border-primary-500"
+          className="px-4 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:border-cta-500"
         >
           <option value="">All Status</option>
           <option value="not_started">Not Started</option>
@@ -432,7 +432,7 @@ const Tasks = () => {
         <select
           value={priorityFilter}
           onChange={(e) => { setPriorityFilter(e.target.value); setPage(1); }}
-          className="px-4 py-2 bg-dark-800 border border-dark-700 rounded-lg text-white focus:outline-none focus:border-primary-500"
+          className="px-4 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:border-cta-500"
         >
           <option value="">All Priorities</option>
           <option value="high">High</option>
@@ -464,45 +464,45 @@ const Tasks = () => {
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Title *</label>
+            <label className="block text-sm font-medium text-zinc-600 dark:text-zinc-300 mb-1">Title *</label>
             <input
               type="text"
               required
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+              className="w-full px-4 py-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:border-cta-500"
               placeholder="Enter task title"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Description</label>
+            <label className="block text-sm font-medium text-zinc-600 dark:text-zinc-300 mb-1">Description</label>
             <textarea
               rows={3}
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+              className="w-full px-4 py-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:border-cta-500"
               placeholder="Enter task description"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Due Date *</label>
+              <label className="block text-sm font-medium text-zinc-600 dark:text-zinc-300 mb-1">Due Date *</label>
               <input
                 type="date"
                 required
                 value={formData.dueDate}
                 onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
-                className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+                className="w-full px-4 py-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:border-cta-500"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Priority</label>
+              <label className="block text-sm font-medium text-zinc-600 dark:text-zinc-300 mb-1">Priority</label>
               <select
                 value={formData.priority}
                 onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-                className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+                className="w-full px-4 py-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:border-cta-500"
               >
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>
@@ -512,7 +512,7 @@ const Tasks = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Link To</label>
+            <label className="block text-sm font-medium text-zinc-600 dark:text-zinc-300 mb-1">Link To</label>
             <div className="grid grid-cols-2 gap-4">
               <select
                 value={formData.linkedTo.type}
@@ -520,7 +520,7 @@ const Tasks = () => {
                   ...formData,
                   linkedTo: { ...formData.linkedTo, type: e.target.value, refId: '', refName: '' }
                 })}
-                className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+                className="w-full px-4 py-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:border-cta-500"
               >
                 <option value="none">None</option>
                 <option value="driver">Driver</option>
@@ -540,7 +540,7 @@ const Tasks = () => {
                       }
                     });
                   }}
-                  className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+                  className="w-full px-4 py-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:border-cta-500"
                 >
                   <option value="">Select Driver</option>
                   {drivers.map(driver => (
@@ -564,7 +564,7 @@ const Tasks = () => {
                       }
                     });
                   }}
-                  className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+                  className="w-full px-4 py-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:border-cta-500"
                 >
                   <option value="">Select Vehicle</option>
                   {vehicles.map(vehicle => (
@@ -578,7 +578,7 @@ const Tasks = () => {
           </div>
 
           <div className="flex items-center gap-4">
-            <label className="flex items-center gap-2 text-gray-300">
+            <label className="flex items-center gap-2 text-zinc-600 dark:text-zinc-300">
               <input
                 type="checkbox"
                 checked={formData.recurring.enabled}
@@ -586,13 +586,13 @@ const Tasks = () => {
                   ...formData,
                   recurring: { ...formData.recurring, enabled: e.target.checked }
                 })}
-                className="w-4 h-4 rounded border-dark-600 bg-dark-700 text-primary-500 focus:ring-primary-500"
+                className="w-4 h-4 rounded border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-cta-500 focus:ring-cta-500"
               />
               Recurring Task
             </label>
             {formData.recurring.enabled && (
               <div className="flex items-center gap-2">
-                <span className="text-gray-400">Every</span>
+                <span className="text-zinc-500 dark:text-zinc-400">Every</span>
                 <input
                   type="number"
                   min="1"
@@ -602,9 +602,9 @@ const Tasks = () => {
                     ...formData,
                     recurring: { ...formData.recurring, intervalDays: parseInt(e.target.value) || 30 }
                   })}
-                  className="w-20 px-2 py-1 bg-dark-700 border border-dark-600 rounded text-white focus:outline-none focus:border-primary-500"
+                  className="w-20 px-2 py-1 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded text-zinc-900 dark:text-white focus:outline-none focus:border-cta-500"
                 />
-                <span className="text-gray-400">days</span>
+                <span className="text-zinc-500 dark:text-zinc-400">days</span>
               </div>
             )}
           </div>
@@ -613,14 +613,14 @@ const Tasks = () => {
             <button
               type="button"
               onClick={() => { setShowAddModal(false); resetForm(); }}
-              className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+              className="px-4 py-2 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors disabled:opacity-50"
+              className="px-4 py-2 bg-cta-500 hover:bg-cta-600 text-white rounded-lg transition-colors disabled:opacity-50"
             >
               {submitting ? 'Saving...' : (selectedTask ? 'Update Task' : 'Create Task')}
             </button>
@@ -639,36 +639,36 @@ const Tasks = () => {
           <div className="space-y-6">
             <div className="flex justify-between items-start">
               <div>
-                <h3 className="text-xl font-semibold text-white">{selectedTask.title}</h3>
-                <p className="text-gray-400 mt-1">{selectedTask.description || 'No description'}</p>
+                <h3 className="text-xl font-semibold text-zinc-900 dark:text-white">{selectedTask.title}</h3>
+                <p className="text-zinc-500 dark:text-zinc-400 mt-1">{selectedTask.description || 'No description'}</p>
               </div>
               {getStatusBadge(selectedTask.status)}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-dark-700/50 rounded-lg p-3">
-                <div className="text-sm text-gray-400">Due Date</div>
-                <div className={`font-medium ${selectedTask.isOverdue ? 'text-red-400' : 'text-white'}`}>
+              <div className="bg-zinc-100 dark:bg-zinc-800/50 rounded-lg p-3">
+                <div className="text-sm text-zinc-500 dark:text-zinc-400">Due Date</div>
+                <div className={`font-medium ${selectedTask.isOverdue ? 'text-red-500 dark:text-red-400' : 'text-zinc-900 dark:text-white'}`}>
                   {formatDate(selectedTask.dueDate)}
                 </div>
               </div>
-              <div className="bg-dark-700/50 rounded-lg p-3">
-                <div className="text-sm text-gray-400">Priority</div>
+              <div className="bg-zinc-100 dark:bg-zinc-800/50 rounded-lg p-3">
+                <div className="text-sm text-zinc-500 dark:text-zinc-400">Priority</div>
                 <div className={`font-medium capitalize ${getPriorityColor(selectedTask.priority)}`}>
                   {selectedTask.priority}
                 </div>
               </div>
-              <div className="bg-dark-700/50 rounded-lg p-3">
-                <div className="text-sm text-gray-400">Assigned To</div>
-                <div className="font-medium text-white">
+              <div className="bg-zinc-100 dark:bg-zinc-800/50 rounded-lg p-3">
+                <div className="text-sm text-zinc-500 dark:text-zinc-400">Assigned To</div>
+                <div className="font-medium text-zinc-900 dark:text-white">
                   {selectedTask.assignedTo
                     ? `${selectedTask.assignedTo.firstName} ${selectedTask.assignedTo.lastName}`
                     : 'Unassigned'}
                 </div>
               </div>
-              <div className="bg-dark-700/50 rounded-lg p-3">
-                <div className="text-sm text-gray-400">Created By</div>
-                <div className="font-medium text-white">
+              <div className="bg-zinc-100 dark:bg-zinc-800/50 rounded-lg p-3">
+                <div className="text-sm text-zinc-500 dark:text-zinc-400">Created By</div>
+                <div className="font-medium text-zinc-900 dark:text-white">
                   {selectedTask.createdBy
                     ? `${selectedTask.createdBy.firstName} ${selectedTask.createdBy.lastName}`
                     : 'Unknown'}
@@ -677,9 +677,9 @@ const Tasks = () => {
             </div>
 
             {selectedTask.linkedTo?.type !== 'none' && selectedTask.linkedTo?.refName && (
-              <div className="bg-dark-700/50 rounded-lg p-3">
-                <div className="text-sm text-gray-400">Linked To</div>
-                <div className="font-medium text-white flex items-center gap-2">
+              <div className="bg-zinc-100 dark:bg-zinc-800/50 rounded-lg p-3">
+                <div className="text-sm text-zinc-500 dark:text-zinc-400">Linked To</div>
+                <div className="font-medium text-zinc-900 dark:text-white flex items-center gap-2">
                   {selectedTask.linkedTo.type === 'driver' ? <FiUser /> : <FiTruck />}
                   {selectedTask.linkedTo.refName}
                 </div>
@@ -697,22 +697,22 @@ const Tasks = () => {
 
             {/* Notes Section */}
             <div>
-              <h4 className="text-lg font-medium text-white mb-3 flex items-center gap-2">
+              <h4 className="text-lg font-medium text-zinc-900 dark:text-white mb-3 flex items-center gap-2">
                 <FiMessageSquare className="w-5 h-5" />
                 Notes
               </h4>
               <div className="space-y-3 max-h-48 overflow-y-auto">
                 {selectedTask.notes?.length > 0 ? (
                   selectedTask.notes.map((note, idx) => (
-                    <div key={idx} className="bg-dark-700/50 rounded-lg p-3">
-                      <p className="text-white">{note.content}</p>
-                      <div className="text-xs text-gray-400 mt-1">
+                    <div key={idx} className="bg-zinc-100 dark:bg-zinc-800/50 rounded-lg p-3">
+                      <p className="text-zinc-900 dark:text-white">{note.content}</p>
+                      <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
                         {note.createdBy?.firstName} {note.createdBy?.lastName} - {formatDate(note.createdAt)}
                       </div>
                     </div>
                   ))
                 ) : (
-                  <p className="text-gray-500">No notes yet</p>
+                  <p className="text-zinc-400 dark:text-zinc-500">No notes yet</p>
                 )}
               </div>
               <div className="flex gap-2 mt-3">
@@ -721,21 +721,21 @@ const Tasks = () => {
                   value={noteContent}
                   onChange={(e) => setNoteContent(e.target.value)}
                   placeholder="Add a note..."
-                  className="flex-1 px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+                  className="flex-1 px-4 py-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:border-cta-500"
                 />
                 <button
                   onClick={handleAddNote}
-                  className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors"
+                  className="px-4 py-2 bg-cta-500 hover:bg-cta-600 text-white rounded-lg transition-colors"
                 >
                   Add
                 </button>
               </div>
             </div>
 
-            <div className="flex justify-between pt-4 border-t border-dark-700">
+            <div className="flex justify-between pt-4 border-t border-zinc-200 dark:border-zinc-700">
               <button
                 onClick={() => { setShowDetailModal(false); openEditModal(selectedTask); }}
-                className="flex items-center gap-2 px-4 py-2 text-gray-400 hover:text-white transition-colors"
+                className="flex items-center gap-2 px-4 py-2 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
               >
                 <FiEdit2 className="w-4 h-4" />
                 Edit
