@@ -8,7 +8,7 @@ const HeroSection = ({ heroTextIndex, heroTexts }) => {
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <img
-          src="https://images.pexels.com/photos/93398/pexels-photo-93398.jpeg?auto=compress&cs=tinysrgb&w=1920"
+          src="/images/hero-truck.webp"
           className="w-full h-full object-cover object-[center_70%]"
           alt="American Truck Background"
           fetchpriority="high"

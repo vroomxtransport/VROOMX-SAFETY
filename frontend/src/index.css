@@ -156,18 +156,19 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ==================== TYPEWRITER ANIMATION ==================== */
+/* GPU-accelerated: using clip-path instead of width */
 .typewriter-text {
   overflow: hidden;
   white-space: nowrap;
   border-right: 4px solid #1E3A5F;
   animation: typing 5s steps(12, end), blink 0.75s step-end infinite;
-  width: 0;
+  clip-path: inset(0 100% 0 0);
 }
 
 @keyframes typing {
-  0%, 10% { width: 0; }
-  40%, 60% { width: 100%; }
-  90%, 100% { width: 0; }
+  0%, 10% { clip-path: inset(0 100% 0 0); }
+  40%, 60% { clip-path: inset(0 0 0 0); }
+  90%, 100% { clip-path: inset(0 100% 0 0); }
 }
 
 @keyframes blink {
@@ -373,15 +374,15 @@ h1, h2, h3, h4, h5, h6 {
     content: '';
     position: absolute;
     top: 0;
-    left: 0;
-    right: 0;
+    left: -100%;
+    width: 300%;
     bottom: 0;
-    background: linear-gradient(90deg, #F97316, #FB923C, #F97316);
-    background-size: 200% 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
     animation: shine 3s linear infinite;
     z-index: -1;
     opacity: 0;
     transition: opacity 0.3s ease;
+    will-change: transform;
   }
 
   .btn-glow::after {
@@ -405,9 +406,10 @@ h1, h2, h3, h4, h5, h6 {
     opacity: 1;
   }
 
+  /* GPU-accelerated: using transform instead of background-position */
   @keyframes shine {
-    from { background-position: 0 0; }
-    to { background-position: -200% 0; }
+    from { transform: translateX(0); }
+    to { transform: translateX(66.67%); }
   }
 
   .btn-secondary {
@@ -1436,18 +1438,31 @@ h1, h2, h3, h4, h5, h6 {
     inset 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-/* Status dot pulse */
-@keyframes statusPulse {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0);
-  }
+/* Status dot pulse - GPU-accelerated using pseudo-element + transform */
+.status-dot-pulse {
+  position: relative;
 }
 
-.status-dot-pulse {
-  animation: statusPulse 2s ease-in-out infinite;
+.status-dot-pulse::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid rgba(34, 197, 94, 0.4);
+  animation: pulseRing 2s ease-in-out infinite;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+@keyframes pulseRing {
+  0%, 100% {
+    transform: scale(0.5);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0;
+  }
 }
 
 /* ==================== ANIMATION PERFORMANCE ==================== */
