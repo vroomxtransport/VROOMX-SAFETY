@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { drugAlcoholAPI, driversAPI } from '../utils/api';
 import { formatDate } from '../utils/helpers';
 import toast from 'react-hot-toast';
-import { FiPlus, FiDroplet, FiCheck, FiX, FiAlertCircle } from 'react-icons/fi';
+import { FiPlus, FiDroplet, FiCheck, FiX, FiAlertCircle, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import DataTable from '../components/DataTable';
 import StatusBadge from '../components/StatusBadge';
 import Modal from '../components/Modal';
@@ -20,7 +20,7 @@ const DrugAlcohol = () => {
   const [typeFilter, setTypeFilter] = useState('');
   const [resultFilter, setResultFilter] = useState('');
 
-  const [formData, setFormData] = useState({
+  const initialFormData = {
     driverId: '',
     testType: 'random',
     testDate: new Date().toISOString().split('T')[0],
@@ -28,7 +28,10 @@ const DrugAlcohol = () => {
     drugTest: { performed: true, result: 'pending' },
     alcoholTest: { performed: false },
     status: 'completed'
-  });
+  };
+
+  const [formData, setFormData] = useState(initialFormData);
+  const [selectedTest, setSelectedTest] = useState(null);
 
   useEffect(() => {
     fetchTests();
@@ -73,29 +76,57 @@ const DrugAlcohol = () => {
     }
   };
 
-  const handleAddTest = async (e) => {
+  const handleSubmitTest = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      await drugAlcoholAPI.create(formData);
-      toast.success('Test record added');
-      setShowAddModal(false);
-      setFormData({
-        driverId: '',
-        testType: 'random',
-        testDate: new Date().toISOString().split('T')[0],
-        overallResult: 'pending',
-        drugTest: { performed: true, result: 'pending' },
-        alcoholTest: { performed: false },
-        status: 'completed'
-      });
+      if (selectedTest) {
+        await drugAlcoholAPI.update(selectedTest._id, formData);
+        toast.success('Test record updated');
+      } else {
+        await drugAlcoholAPI.create(formData);
+        toast.success('Test record added');
+      }
+      handleCloseModal();
       fetchTests();
       fetchStats();
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to add test');
+      toast.error(error.response?.data?.message || 'Failed to save test');
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const openEditModal = (test) => {
+    setSelectedTest(test);
+    setFormData({
+      driverId: test.driverId?._id || test.driverId || '',
+      testType: test.testType || 'random',
+      testDate: test.testDate ? test.testDate.split('T')[0] : new Date().toISOString().split('T')[0],
+      overallResult: test.overallResult || 'pending',
+      drugTest: test.drugTest || { performed: true, result: 'pending' },
+      alcoholTest: test.alcoholTest || { performed: false },
+      status: test.status || 'completed'
+    });
+    setShowAddModal(true);
+  };
+
+  const handleDelete = async (test) => {
+    if (!confirm(`Delete this test record? This cannot be undone.`)) return;
+    try {
+      await drugAlcoholAPI.delete(test._id);
+      toast.success('Test record deleted');
+      fetchTests();
+      fetchStats();
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to delete test');
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowAddModal(false);
+    setSelectedTest(null);
+    setFormData(initialFormData);
   };
 
   const testTypeLabels = {
@@ -148,6 +179,33 @@ const DrugAlcohol = () => {
         ) : row.overallResult === 'positive' || row.overallResult === 'refused' ? (
           <span className="badge badge-warning">Pending</span>
         ) : <span className="text-zinc-500 dark:text-zinc-400">-</span>
+      )
+    },
+    {
+      header: '',
+      render: (row) => (
+        <div className="flex items-center space-x-1">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              openEditModal(row);
+            }}
+            className="p-2 text-zinc-600 dark:text-zinc-300 hover:text-accent-600 dark:hover:text-accent-400 hover:bg-accent-50 dark:hover:bg-accent-500/10 rounded-lg transition-colors"
+            title="Edit Test"
+          >
+            <FiEdit2 className="w-4 h-4" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete(row);
+            }}
+            className="p-2 text-zinc-600 dark:text-zinc-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
+            title="Delete Test"
+          >
+            <FiTrash2 className="w-4 h-4" />
+          </button>
+        </div>
       )
     }
   ];
@@ -301,14 +359,14 @@ const DrugAlcohol = () => {
         />
       </div>
 
-      {/* Add Test Modal */}
+      {/* Add/Edit Test Modal */}
       <Modal
         isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
-        title="Add Test Record"
+        onClose={handleCloseModal}
+        title={selectedTest ? 'Edit Test Record' : 'Add Test Record'}
         size="lg"
       >
-        <form onSubmit={handleAddTest} className="space-y-4">
+        <form onSubmit={handleSubmitTest} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="form-label">Driver *</label>
@@ -430,11 +488,11 @@ const DrugAlcohol = () => {
           </div>
 
           <div className="flex justify-end space-x-3 pt-4">
-            <button type="button" onClick={() => setShowAddModal(false)} className="btn btn-secondary">
+            <button type="button" onClick={handleCloseModal} className="btn btn-secondary">
               Cancel
             </button>
             <button type="submit" className="btn btn-primary" disabled={submitting}>
-              {submitting ? <LoadingSpinner size="sm" /> : 'Add Test Record'}
+              {submitting ? <LoadingSpinner size="sm" /> : (selectedTest ? 'Update Test' : 'Add Test Record')}
             </button>
           </div>
         </form>

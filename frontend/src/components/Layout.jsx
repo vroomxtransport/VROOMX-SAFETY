@@ -9,7 +9,7 @@ import {
   FiFolder, FiBarChart2, FiFileText, FiSettings, FiMenu,
   FiX, FiBell, FiLogOut, FiChevronDown, FiShield, FiTag, FiMessageCircle, FiDollarSign,
   FiStar, FiCreditCard, FiActivity, FiCopy, FiSun, FiMoon,
-  FiChevronsLeft, FiChevronsRight
+  FiChevronsLeft, FiChevronsRight, FiCheckSquare, FiClipboard, FiTool, FiAlertOctagon
 } from 'react-icons/fi';
 
 const navigation = [
@@ -17,23 +17,27 @@ const navigation = [
   { name: 'Dashboard', path: '/app/dashboard', icon: FiHome },
   { name: 'VroomX AI', path: '/app/ai-assistant', icon: FiMessageCircle, isAI: true },
   { name: 'Alerts', path: '/app/alerts', icon: FiActivity, hasAlerts: true },
+  { name: 'Tasks', path: '/app/tasks', icon: FiCheckSquare },
 
   // Management section
   { section: 'MANAGEMENT' },
+  { name: 'Compliance', path: '/app/compliance', icon: FiBarChart2 },
   { name: 'Driver Files', path: '/app/drivers', icon: FiUsers },
   { name: 'Vehicle Files', path: '/app/vehicles', icon: FiTruck },
-  { name: 'Compliance', path: '/app/compliance', icon: FiBarChart2 },
+  { name: 'Maintenance', path: '/app/maintenance', icon: FiTool },
 
   // Tracking section
   { section: 'TRACKING' },
   { name: 'Violations', path: '/app/violations', icon: FiAlertTriangle },
   { name: 'Tickets', path: '/app/tickets', icon: FiTag },
+  { name: 'Accidents', path: '/app/accidents', icon: FiAlertOctagon },
   { name: 'Damage Claims', path: '/app/damage-claims', icon: FiDollarSign },
   { name: 'Drug & Alcohol', path: '/app/drug-alcohol', icon: FiDroplet },
 
   // Tools section
   { section: 'TOOLS' },
   { name: 'Documents', path: '/app/documents', icon: FiFolder },
+  { name: 'Checklists', path: '/app/checklists', icon: FiClipboard },
   { name: 'Reports', path: '/app/reports', icon: FiFileText },
 ];
 
@@ -325,6 +329,19 @@ const Layout = () => {
                     </div>
 
                     <div className="py-1">
+                      {/* Admin Panel link - only for superadmins */}
+                      {user?.isSuperAdmin && (
+                        <NavLink
+                          to="/admin"
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400">
+                            <FiShield className="w-4 h-4" />
+                          </span>
+                          Admin Panel
+                        </NavLink>
+                      )}
                       <NavLink
                         to="/app/settings"
                         className="flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-white/5 transition-colors"

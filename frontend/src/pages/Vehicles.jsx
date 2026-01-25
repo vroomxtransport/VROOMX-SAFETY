@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { vehiclesAPI } from '../utils/api';
 import { formatDate, daysUntilExpiry } from '../utils/helpers';
 import toast from 'react-hot-toast';
-import { FiPlus, FiSearch, FiTruck, FiEye, FiCheckCircle, FiAlertTriangle, FiTool } from 'react-icons/fi';
+import { FiPlus, FiSearch, FiTruck, FiEye, FiCheckCircle, FiAlertTriangle, FiTool, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import DataTable from '../components/DataTable';
 import StatusBadge from '../components/StatusBadge';
 import Modal from '../components/Modal';
@@ -20,14 +20,32 @@ const Vehicles = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [formData, setFormData] = useState({
     unitNumber: '',
+    nickname: '',
     vin: '',
     vehicleType: 'tractor',
     make: '',
     model: '',
     year: '',
+    marketPrice: '',
+    licensePlate: { number: '', state: '' },
+    status: 'active',
   });
   const [submitting, setSubmitting] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
   const navigate = useNavigate();
+
+  const initialFormData = {
+    unitNumber: '',
+    nickname: '',
+    vin: '',
+    vehicleType: 'tractor',
+    make: '',
+    model: '',
+    year: '',
+    marketPrice: '',
+    licensePlate: { number: '', state: '' },
+    status: 'active',
+  };
 
   useEffect(() => {
     fetchVehicles();
@@ -59,27 +77,63 @@ const Vehicles = () => {
     fetchVehicles();
   };
 
-  const handleAddVehicle = async (e) => {
+  const handleSubmitVehicle = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      await vehiclesAPI.create(formData);
-      toast.success('Vehicle added successfully');
+      if (selectedVehicle) {
+        await vehiclesAPI.update(selectedVehicle._id, formData);
+        toast.success('Vehicle updated successfully');
+      } else {
+        await vehiclesAPI.create(formData);
+        toast.success('Vehicle added successfully');
+      }
       setShowAddModal(false);
-      setFormData({
-        unitNumber: '',
-        vin: '',
-        vehicleType: 'tractor',
-        make: '',
-        model: '',
-        year: '',
-      });
+      setSelectedVehicle(null);
+      setFormData(initialFormData);
       fetchVehicles();
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to add vehicle');
+      toast.error(error.response?.data?.message || 'Failed to save vehicle');
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const openEditModal = (vehicle) => {
+    setSelectedVehicle(vehicle);
+    setFormData({
+      unitNumber: vehicle.unitNumber || '',
+      nickname: vehicle.nickname || '',
+      vin: vehicle.vin || '',
+      vehicleType: vehicle.vehicleType || 'tractor',
+      make: vehicle.make || '',
+      model: vehicle.model || '',
+      year: vehicle.year || '',
+      marketPrice: vehicle.marketPrice || '',
+      licensePlate: {
+        number: vehicle.licensePlate?.number || '',
+        state: vehicle.licensePlate?.state || ''
+      },
+      status: vehicle.status || 'active',
+    });
+    setShowAddModal(true);
+  };
+
+  const handleDelete = async (vehicle) => {
+    if (!confirm(`Delete vehicle "${vehicle.unitNumber}"? This cannot be undone.`)) return;
+    try {
+      await vehiclesAPI.delete(vehicle._id);
+      toast.success('Vehicle deleted successfully');
+      fetchVehicles();
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to delete vehicle');
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowAddModal(false);
+    setSelectedVehicle(null);
+    setFormData(initialFormData);
   };
 
   const columns = [
@@ -135,15 +189,38 @@ const Vehicles = () => {
     {
       header: '',
       render: (row) => (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            navigate(`/app/vehicles/${row._id}`);
-          }}
-          className="p-2 text-zinc-600 dark:text-zinc-300 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-primary-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
-        >
-          <FiEye className="w-4 h-4" />
-        </button>
+        <div className="flex items-center space-x-1">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/app/vehicles/${row._id}`);
+            }}
+            className="p-2 text-zinc-600 dark:text-zinc-300 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-primary-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+            title="View Details"
+          >
+            <FiEye className="w-4 h-4" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              openEditModal(row);
+            }}
+            className="p-2 text-zinc-600 dark:text-zinc-300 hover:text-accent-600 dark:hover:text-accent-400 hover:bg-accent-50 dark:hover:bg-accent-500/10 rounded-lg transition-colors"
+            title="Edit Vehicle"
+          >
+            <FiEdit2 className="w-4 h-4" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete(row);
+            }}
+            className="p-2 text-zinc-600 dark:text-zinc-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
+            title="Delete Vehicle"
+          >
+            <FiTrash2 className="w-4 h-4" />
+          </button>
+        </div>
       )
     }
   ];
@@ -278,14 +355,14 @@ const Vehicles = () => {
         emptyIcon={FiTruck}
       />
 
-      {/* Add Vehicle Modal */}
+      {/* Add/Edit Vehicle Modal */}
       <Modal
         isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
-        title="Add New Vehicle"
+        onClose={handleCloseModal}
+        title={selectedVehicle ? 'Edit Vehicle' : 'Add New Vehicle'}
         icon={FiTruck}
       >
-        <form onSubmit={handleAddVehicle} className="space-y-5">
+        <form onSubmit={handleSubmitVehicle} className="space-y-5">
           {/* Basic Info Section */}
           <div className="flex items-center gap-2 mb-3">
             <div className="w-6 h-6 rounded-md bg-accent-100 dark:bg-accent-500/20 flex items-center justify-center">
@@ -307,6 +384,19 @@ const Vehicles = () => {
               />
             </div>
             <div>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Nickname</label>
+              <input
+                type="text"
+                className="form-input"
+                placeholder="Big Blue"
+                value={formData.nickname}
+                onChange={(e) => setFormData({ ...formData, nickname: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
               <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Vehicle Type *</label>
               <select
                 className="form-select"
@@ -319,6 +409,20 @@ const Vehicles = () => {
                 <option value="straight_truck">Straight Truck</option>
                 <option value="bus">Bus</option>
                 <option value="van">Van</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Status</label>
+              <select
+                className="form-select"
+                value={formData.status}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+              >
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="maintenance">Maintenance</option>
+                <option value="out_of_service">Out of Service</option>
+                <option value="sold">Sold</option>
               </select>
             </div>
           </div>
@@ -380,18 +484,54 @@ const Vehicles = () => {
                 />
               </div>
             </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Market Price ($)</label>
+                <input
+                  type="number"
+                  className="form-input"
+                  placeholder="85000"
+                  min="0"
+                  step="100"
+                  value={formData.marketPrice}
+                  onChange={(e) => setFormData({ ...formData, marketPrice: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Plate Number</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="ABC1234"
+                  value={formData.licensePlate.number}
+                  onChange={(e) => setFormData({ ...formData, licensePlate: { ...formData.licensePlate, number: e.target.value.toUpperCase() } })}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Plate State</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="TX"
+                  maxLength={2}
+                  value={formData.licensePlate.state}
+                  onChange={(e) => setFormData({ ...formData, licensePlate: { ...formData.licensePlate, state: e.target.value.toUpperCase() } })}
+                />
+              </div>
+            </div>
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-zinc-100 dark:border-zinc-800">
             <button
               type="button"
-              onClick={() => setShowAddModal(false)}
+              onClick={handleCloseModal}
               className="btn btn-secondary"
             >
               Cancel
             </button>
             <button type="submit" className="btn btn-primary" disabled={submitting}>
-              {submitting ? <LoadingSpinner size="sm" /> : 'Add Vehicle'}
+              {submitting ? <LoadingSpinner size="sm" /> : (selectedVehicle ? 'Update Vehicle' : 'Add Vehicle')}
             </button>
           </div>
         </form>

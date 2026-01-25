@@ -3,10 +3,34 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { vehiclesAPI } from '../utils/api';
 import { formatDate, formatCurrency, daysUntilExpiry } from '../utils/helpers';
 import toast from 'react-hot-toast';
-import { FiArrowLeft, FiPlus, FiTruck, FiTool, FiFileText, FiCalendar } from 'react-icons/fi';
+import { FiArrowLeft, FiPlus, FiTruck, FiTool, FiFileText, FiCalendar, FiUser } from 'react-icons/fi';
 import LoadingSpinner from '../components/LoadingSpinner';
 import StatusBadge from '../components/StatusBadge';
 import Modal from '../components/Modal';
+
+// Helper to get status color
+const getStatusColor = (status) => {
+  switch (status) {
+    case 'active': return 'text-green-600 dark:text-green-400';
+    case 'inactive': return 'text-zinc-500 dark:text-zinc-400';
+    case 'maintenance': return 'text-yellow-600 dark:text-yellow-400';
+    case 'out_of_service': return 'text-red-600 dark:text-red-400';
+    case 'sold': return 'text-blue-600 dark:text-blue-400';
+    default: return 'text-zinc-600 dark:text-zinc-300';
+  }
+};
+
+// Helper to get status dot color
+const getStatusDotColor = (status) => {
+  switch (status) {
+    case 'active': return 'bg-green-500';
+    case 'inactive': return 'bg-zinc-400';
+    case 'maintenance': return 'bg-yellow-500';
+    case 'out_of_service': return 'bg-red-500';
+    case 'sold': return 'bg-blue-500';
+    default: return 'bg-zinc-400';
+  }
+};
 
 const VehicleDetail = () => {
   const { id } = useParams();
@@ -121,46 +145,110 @@ const VehicleDetail = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Vehicle Info */}
         <div className="space-y-6">
-          {/* Vehicle Profile */}
+          {/* Vehicle Details */}
           <div className="card">
             <div className="card-header">
-              <h3 className="font-semibold">Vehicle Profile</h3>
+              <h3 className="font-semibold">Vehicle Details</h3>
             </div>
             <div className="card-body space-y-3">
+              {/* Unit ID / Nickname */}
               <div className="flex justify-between">
-                <span className="text-zinc-600 dark:text-zinc-300">Unit Number</span>
-                <span className="font-medium text-zinc-800 dark:text-zinc-200">{vehicle.unitNumber}</span>
+                <span className="text-zinc-600 dark:text-zinc-300">Unit ID / Nickname</span>
+                <span className="font-medium text-zinc-800 dark:text-zinc-200">
+                  {vehicle.unitNumber}{vehicle.nickname ? ` (${vehicle.nickname})` : ''}
+                </span>
               </div>
+
+              {/* VIN */}
               <div className="flex justify-between">
-                <span className="text-zinc-600 dark:text-zinc-300">VIN</span>
-                <span className="font-mono text-sm text-zinc-800 dark:text-zinc-200">{vehicle.vin}</span>
+                <span className="text-zinc-600 dark:text-zinc-300">VIN #</span>
+                <span className="font-mono text-xs text-zinc-800 dark:text-zinc-200">{vehicle.vin}</span>
               </div>
+
+              {/* Year / Make / Model */}
+              <div className="flex justify-between">
+                <span className="text-zinc-600 dark:text-zinc-300">Year / Make / Model</span>
+                <span className="text-zinc-800 dark:text-zinc-200">
+                  {vehicle.year || '—'} {vehicle.make || ''} {vehicle.model || ''}
+                </span>
+              </div>
+
+              {/* Market Price */}
+              <div className="flex justify-between">
+                <span className="text-zinc-600 dark:text-zinc-300">Market Price</span>
+                <span className="font-medium text-zinc-800 dark:text-zinc-200">
+                  {vehicle.marketPrice ? formatCurrency(vehicle.marketPrice) : '—'}
+                </span>
+              </div>
+
+              {/* Plate Number & State */}
+              <div className="flex justify-between">
+                <span className="text-zinc-600 dark:text-zinc-300">Plate Number & State</span>
+                <span className="text-zinc-800 dark:text-zinc-200">
+                  {vehicle.licensePlate?.number
+                    ? `${vehicle.licensePlate.number} ${vehicle.licensePlate.state || ''}`
+                    : '—'}
+                </span>
+              </div>
+
+              {/* Type (Tractor or Trailer) */}
               <div className="flex justify-between">
                 <span className="text-zinc-600 dark:text-zinc-300">Type</span>
-                <span className="capitalize text-zinc-800 dark:text-zinc-200">{vehicle.vehicleType?.replace('_', ' ')}</span>
+                <span className="capitalize text-zinc-800 dark:text-zinc-200">
+                  {vehicle.vehicleType?.replace('_', ' ') || '—'}
+                </span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-zinc-600 dark:text-zinc-300">Make</span>
-                <span className="text-zinc-800 dark:text-zinc-200">{vehicle.make || 'N/A'}</span>
+
+              {/* Assigned Driver */}
+              <div className="flex justify-between items-center">
+                <span className="text-zinc-600 dark:text-zinc-300">Assigned Driver</span>
+                {vehicle.assignedDriver ? (
+                  <div className="flex items-center space-x-2">
+                    <div className="w-6 h-6 bg-accent-100 rounded-full flex items-center justify-center">
+                      <FiUser className="w-3 h-3 text-accent-600" />
+                    </div>
+                    <span className="text-zinc-800 dark:text-zinc-200">
+                      {typeof vehicle.assignedDriver === 'object'
+                        ? `${vehicle.assignedDriver.firstName} ${vehicle.assignedDriver.lastName}`
+                        : 'Assigned'}
+                    </span>
+                  </div>
+                ) : (
+                  <span className="text-zinc-400 dark:text-zinc-500">Unassigned</span>
+                )}
               </div>
-              <div className="flex justify-between">
-                <span className="text-zinc-600 dark:text-zinc-300">Model</span>
-                <span className="text-zinc-800 dark:text-zinc-200">{vehicle.model || 'N/A'}</span>
+
+              {/* Status with Date */}
+              <div className="pt-2 border-t border-zinc-100 dark:border-zinc-700">
+                <div className="flex justify-between items-center">
+                  <span className="text-zinc-600 dark:text-zinc-300">Status</span>
+                  <div className="flex items-center space-x-2">
+                    <span className={`w-2 h-2 rounded-full ${getStatusDotColor(vehicle.status)}`}></span>
+                    <span className={`capitalize font-medium ${getStatusColor(vehicle.status)}`}>
+                      {vehicle.status?.replace('_', ' ')}
+                    </span>
+                  </div>
+                </div>
+                {/* Status Since Date */}
+                {vehicle.statusHistory?.length > 0 && (
+                  <div className="flex justify-between mt-1">
+                    <span className="text-zinc-500 dark:text-zinc-400 text-sm">Status Since</span>
+                    <span className="text-zinc-600 dark:text-zinc-300 text-sm">
+                      {formatDate(vehicle.statusHistory[vehicle.statusHistory.length - 1]?.changedAt)}
+                    </span>
+                  </div>
+                )}
               </div>
-              <div className="flex justify-between">
-                <span className="text-zinc-600 dark:text-zinc-300">Year</span>
-                <span className="text-zinc-800 dark:text-zinc-200">{vehicle.year || 'N/A'}</span>
-              </div>
+
+              {/* Odometer if available */}
               {vehicle.currentOdometer?.reading && (
-                <div className="flex justify-between">
+                <div className="flex justify-between pt-2 border-t border-zinc-100 dark:border-zinc-700">
                   <span className="text-zinc-600 dark:text-zinc-300">Odometer</span>
-                  <span className="text-zinc-800 dark:text-zinc-200">{vehicle.currentOdometer.reading.toLocaleString()} mi</span>
+                  <span className="text-zinc-800 dark:text-zinc-200">
+                    {vehicle.currentOdometer.reading.toLocaleString()} mi
+                  </span>
                 </div>
               )}
-              <div className="flex justify-between">
-                <span className="text-zinc-600 dark:text-zinc-300">Status</span>
-                <StatusBadge status={vehicle.status} />
-              </div>
             </div>
           </div>
 

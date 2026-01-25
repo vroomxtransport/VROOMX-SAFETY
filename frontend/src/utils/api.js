@@ -78,6 +78,7 @@ export const violationsAPI = {
   getById: (id) => api.get(`/violations/${id}`),
   create: (data) => api.post('/violations', data),
   update: (id, data) => api.put(`/violations/${id}`, data),
+  delete: (id) => api.delete(`/violations/${id}`),
   getStats: () => api.get('/violations/stats'),
   getSeverityWeights: () => api.get('/violations/severity-weights'),
   submitDataQ: (id, formData) => api.post(`/violations/${id}/dataq`, formData, {
@@ -95,6 +96,7 @@ export const drugAlcoholAPI = {
   getById: (id) => api.get(`/drug-alcohol/${id}`),
   create: (data) => api.post('/drug-alcohol', data),
   update: (id, data) => api.put(`/drug-alcohol/${id}`, data),
+  delete: (id) => api.delete(`/drug-alcohol/${id}`),
   getStats: () => api.get('/drug-alcohol/stats'),
   getRequirements: () => api.get('/drug-alcohol/requirements'),
   getRandomPool: () => api.get('/drug-alcohol/random-pool'),
@@ -130,6 +132,7 @@ export const accidentsAPI = {
   getById: (id) => api.get(`/accidents/${id}`),
   create: (data) => api.post('/accidents', data),
   update: (id, data) => api.put(`/accidents/${id}`, data),
+  delete: (id) => api.delete(`/accidents/${id}`),
   getStats: () => api.get('/accidents/stats'),
   uploadDocuments: (id, formData) => api.post(`/accidents/${id}/documents`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
@@ -289,6 +292,54 @@ export const templatesAPI = {
     vehicleId: options.vehicleId
   }, options.saveToDocuments ? {} : { responseType: 'blob' }),
   getByCategory: () => api.get('/templates/by/category')
+};
+
+// Tasks API - Compliance task management
+export const tasksAPI = {
+  getAll: (params) => api.get('/tasks', { params }),
+  getById: (id) => api.get(`/tasks/${id}`),
+  create: (data) => api.post('/tasks', data),
+  update: (id, data) => api.put(`/tasks/${id}`, data),
+  delete: (id) => api.delete(`/tasks/${id}`),
+  complete: (id, notes) => api.patch(`/tasks/${id}/complete`, { notes }),
+  reopen: (id) => api.patch(`/tasks/${id}/reopen`),
+  getStats: () => api.get('/tasks/stats'),
+  getOverdue: () => api.get('/tasks/overdue'),
+  addNote: (id, content) => api.post(`/tasks/${id}/notes`, { content })
+};
+
+// Checklists API - Checklist templates and assignments
+export const checklistsAPI = {
+  // Templates
+  getTemplates: (params) => api.get('/checklists/templates', { params }),
+  getTemplate: (id) => api.get(`/checklists/templates/${id}`),
+  createTemplate: (data) => api.post('/checklists/templates', data),
+  updateTemplate: (id, data) => api.put(`/checklists/templates/${id}`, data),
+  deleteTemplate: (id) => api.delete(`/checklists/templates/${id}`),
+  seedDefaults: () => api.post('/checklists/seed-defaults'),
+  // Assignments
+  getAssignments: (params) => api.get('/checklists/assignments', { params }),
+  getAssignment: (id) => api.get(`/checklists/assignments/${id}`),
+  createAssignment: (data) => api.post('/checklists/assignments', data),
+  deleteAssignment: (id) => api.delete(`/checklists/assignments/${id}`),
+  toggleItem: (id, itemId, notes) => api.patch(`/checklists/assignments/${id}/items/${itemId}`, { notes }),
+  addNote: (id, content) => api.post(`/checklists/assignments/${id}/notes`, { content }),
+  getStats: () => api.get('/checklists/assignments/stats')
+};
+
+// Maintenance API - Vehicle maintenance records
+export const maintenanceAPI = {
+  getAll: (params) => api.get('/maintenance', { params }),
+  getById: (id) => api.get(`/maintenance/${id}`),
+  create: (data) => api.post('/maintenance', data),
+  update: (id, data) => api.put(`/maintenance/${id}`, data),
+  delete: (id) => api.delete(`/maintenance/${id}`),
+  getStats: () => api.get('/maintenance/stats'),
+  getUpcoming: (days = 30) => api.get('/maintenance/upcoming', { params: { days } }),
+  getOverdue: () => api.get('/maintenance/overdue'),
+  getVehicleHistory: (vehicleId, params) => api.get(`/maintenance/vehicle/${vehicleId}`, { params }),
+  correctDefect: (id, defectIndex) => api.post(`/maintenance/${id}/defects/${defectIndex}/correct`),
+  exportVehicle: (vehicleId) => api.get(`/maintenance/export/vehicle/${vehicleId}`, { responseType: 'blob' })
 };
 
 // Admin API - Platform administration (super admin only)

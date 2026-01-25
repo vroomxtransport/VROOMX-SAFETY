@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { driversAPI } from '../utils/api';
 import { formatDate, daysUntilExpiry } from '../utils/helpers';
 import toast from 'react-hot-toast';
-import { FiPlus, FiSearch, FiFilter, FiUsers, FiEye, FiCreditCard, FiCalendar, FiCheckCircle, FiAlertTriangle } from 'react-icons/fi';
+import { FiPlus, FiSearch, FiFilter, FiUsers, FiEye, FiCreditCard, FiCalendar, FiCheckCircle, FiAlertTriangle, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import DataTable from '../components/DataTable';
 import StatusBadge from '../components/StatusBadge';
 import Modal from '../components/Modal';
@@ -30,7 +30,20 @@ const Drivers = () => {
     medicalCard: { expiryDate: '' }
   });
   const [submitting, setSubmitting] = useState(false);
+  const [selectedDriver, setSelectedDriver] = useState(null);
   const navigate = useNavigate();
+
+  const initialFormData = {
+    firstName: '',
+    lastName: '',
+    dateOfBirth: '',
+    email: '',
+    phone: '',
+    employeeId: '',
+    hireDate: '',
+    cdl: { number: '', state: '', class: 'A', expiryDate: '', endorsements: [] },
+    medicalCard: { expiryDate: '' }
+  };
 
   useEffect(() => {
     fetchDrivers();
@@ -62,30 +75,67 @@ const Drivers = () => {
     fetchDrivers();
   };
 
-  const handleAddDriver = async (e) => {
+  const handleSubmitDriver = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      await driversAPI.create(formData);
-      toast.success('Driver added successfully');
+      if (selectedDriver) {
+        await driversAPI.update(selectedDriver._id, formData);
+        toast.success('Driver updated successfully');
+      } else {
+        await driversAPI.create(formData);
+        toast.success('Driver added successfully');
+      }
       setShowAddModal(false);
-      setFormData({
-        firstName: '',
-        lastName: '',
-        dateOfBirth: '',
-        email: '',
-        phone: '',
-        employeeId: '',
-        hireDate: '',
-        cdl: { number: '', state: '', class: 'A', expiryDate: '', endorsements: [] },
-        medicalCard: { expiryDate: '' }
-      });
+      setSelectedDriver(null);
+      setFormData(initialFormData);
       fetchDrivers();
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to add driver');
+      toast.error(error.response?.data?.message || 'Failed to save driver');
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const openEditModal = (driver) => {
+    setSelectedDriver(driver);
+    setFormData({
+      firstName: driver.firstName || '',
+      lastName: driver.lastName || '',
+      dateOfBirth: driver.dateOfBirth ? driver.dateOfBirth.split('T')[0] : '',
+      email: driver.email || '',
+      phone: driver.phone || '',
+      employeeId: driver.employeeId || '',
+      hireDate: driver.hireDate ? driver.hireDate.split('T')[0] : '',
+      cdl: {
+        number: driver.cdl?.number || '',
+        state: driver.cdl?.state || '',
+        class: driver.cdl?.class || 'A',
+        expiryDate: driver.cdl?.expiryDate ? driver.cdl.expiryDate.split('T')[0] : '',
+        endorsements: driver.cdl?.endorsements || []
+      },
+      medicalCard: {
+        expiryDate: driver.medicalCard?.expiryDate ? driver.medicalCard.expiryDate.split('T')[0] : ''
+      }
+    });
+    setShowAddModal(true);
+  };
+
+  const handleDelete = async (driver) => {
+    if (!confirm(`Delete driver "${driver.firstName} ${driver.lastName}"? This cannot be undone.`)) return;
+    try {
+      await driversAPI.delete(driver._id);
+      toast.success('Driver deleted successfully');
+      fetchDrivers();
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to delete driver');
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowAddModal(false);
+    setSelectedDriver(null);
+    setFormData(initialFormData);
   };
 
   const columns = [
@@ -153,16 +203,38 @@ const Drivers = () => {
     {
       header: '',
       render: (row) => (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            navigate(`/app/drivers/${row._id}`);
-          }}
-          className="p-2 text-zinc-600 dark:text-zinc-300 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-primary-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
-          title="View Details"
-        >
-          <FiEye className="w-4 h-4" />
-        </button>
+        <div className="flex items-center space-x-1">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/app/drivers/${row._id}`);
+            }}
+            className="p-2 text-zinc-600 dark:text-zinc-300 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-primary-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+            title="View Details"
+          >
+            <FiEye className="w-4 h-4" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              openEditModal(row);
+            }}
+            className="p-2 text-zinc-600 dark:text-zinc-300 hover:text-accent-600 dark:hover:text-accent-400 hover:bg-accent-50 dark:hover:bg-accent-500/10 rounded-lg transition-colors"
+            title="Edit Driver"
+          >
+            <FiEdit2 className="w-4 h-4" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete(row);
+            }}
+            className="p-2 text-zinc-600 dark:text-zinc-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
+            title="Delete Driver"
+          >
+            <FiTrash2 className="w-4 h-4" />
+          </button>
+        </div>
       )
     }
   ];
@@ -297,15 +369,15 @@ const Drivers = () => {
         emptyIcon={FiUsers}
       />
 
-      {/* Add Driver Modal */}
+      {/* Add/Edit Driver Modal */}
       <Modal
         isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
-        title="Add New Driver"
+        onClose={handleCloseModal}
+        title={selectedDriver ? 'Edit Driver' : 'Add New Driver'}
         icon={FiUsers}
         size="lg"
       >
-        <form onSubmit={handleAddDriver} className="space-y-5">
+        <form onSubmit={handleSubmitDriver} className="space-y-5">
           {/* Personal Info Section */}
           <div className="flex items-center gap-2 mb-3">
             <div className="w-6 h-6 rounded-md bg-primary-100 dark:bg-zinc-800 flex items-center justify-center">
@@ -482,13 +554,13 @@ const Drivers = () => {
           <div className="flex justify-end gap-3 pt-4 border-t border-zinc-100 dark:border-zinc-800">
             <button
               type="button"
-              onClick={() => setShowAddModal(false)}
+              onClick={handleCloseModal}
               className="btn btn-secondary"
             >
               Cancel
             </button>
             <button type="submit" className="btn btn-primary" disabled={submitting}>
-              {submitting ? <LoadingSpinner size="sm" /> : 'Add Driver'}
+              {submitting ? <LoadingSpinner size="sm" /> : (selectedDriver ? 'Update Driver' : 'Add Driver')}
             </button>
           </div>
         </form>

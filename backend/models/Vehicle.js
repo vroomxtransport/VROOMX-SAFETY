@@ -14,6 +14,10 @@ const vehicleSchema = new mongoose.Schema({
     required: [true, 'Unit number is required'],
     trim: true
   },
+  nickname: {
+    type: String,
+    trim: true
+  },
   vin: {
     type: String,
     required: [true, 'VIN is required'],
@@ -48,6 +52,10 @@ const vehicleSchema = new mongoose.Schema({
     enum: ['diesel', 'gasoline', 'electric', 'cng', 'lng', 'hybrid']
   },
   color: String,
+  marketPrice: {
+    type: Number,
+    min: 0
+  },
   assignedDriver: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Driver'
@@ -61,6 +69,21 @@ const vehicleSchema = new mongoose.Schema({
   },
   inServiceDate: Date,
   outOfServiceDate: Date,
+  statusHistory: [{
+    status: {
+      type: String,
+      enum: ['active', 'inactive', 'maintenance', 'out_of_service', 'sold']
+    },
+    changedAt: {
+      type: Date,
+      default: Date.now
+    },
+    changedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    notes: String
+  }],
 
   // Annual Inspection (49 CFR 396.17)
   annualInspection: {
@@ -244,6 +267,17 @@ vehicleSchema.virtual('milesUntilPm').get(function() {
 // Update compliance status before save
 vehicleSchema.pre('save', function(next) {
   const now = new Date();
+
+  // Track status changes in history
+  if (this.isModified('status')) {
+    if (!this.statusHistory) {
+      this.statusHistory = [];
+    }
+    this.statusHistory.push({
+      status: this.status,
+      changedAt: now
+    });
+  }
 
   // Update inspection status
   if (this.annualInspection?.nextDueDate) {

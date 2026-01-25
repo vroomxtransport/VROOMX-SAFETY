@@ -23,6 +23,10 @@ import Billing from './pages/Billing';
 import RegulationAssistant from './pages/RegulationAssistant';
 import AlertsDashboard from './pages/AlertsDashboard';
 import TemplateGenerator from './pages/TemplateGenerator';
+import Tasks from './pages/Tasks';
+import Checklists from './pages/Checklists';
+import Maintenance from './pages/Maintenance';
+import Accidents from './pages/Accidents';
 import LoadingSpinner from './components/LoadingSpinner';
 import ChatWidget from './components/AIChat/ChatWidget';
 
@@ -185,6 +189,10 @@ function App() {
         <Route path="csa-estimator" element={<Navigate to="/app/compliance" replace />} />
         <Route path="inspection-upload" element={<Navigate to="/app/violations" replace />} />
         <Route path="templates" element={<TemplateGenerator />} />
+        <Route path="tasks" element={<Tasks />} />
+        <Route path="checklists" element={<Checklists />} />
+        <Route path="maintenance" element={<Maintenance />} />
+        <Route path="accidents" element={<Accidents />} />
       </Route>
 
       {/* Legacy routes - redirect to /app prefix */}

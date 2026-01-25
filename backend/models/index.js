@@ -10,6 +10,10 @@ const Accident = require('./Accident');
 const DamageClaim = require('./DamageClaim');
 const Lead = require('./Lead');
 const CSAScoreHistory = require('./CSAScoreHistory');
+const Task = require('./Task');
+const ChecklistTemplate = require('./ChecklistTemplate');
+const ChecklistAssignment = require('./ChecklistAssignment');
+const MaintenanceRecord = require('./MaintenanceRecord');
 
 module.exports = {
   User,
@@ -23,5 +27,9 @@ module.exports = {
   Accident,
   DamageClaim,
   Lead,
-  CSAScoreHistory
+  CSAScoreHistory,
+  Task,
+  ChecklistTemplate,
+  ChecklistAssignment,
+  MaintenanceRecord
 };

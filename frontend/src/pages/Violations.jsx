@@ -4,7 +4,7 @@ import { formatDate, basicCategories, getSeverityColor } from '../utils/helpers'
 import toast from 'react-hot-toast';
 import {
   FiPlus, FiSearch, FiAlertTriangle, FiMessageSquare, FiCheck,
-  FiCheckCircle, FiClock, FiX, FiFileText, FiUpload, FiList
+  FiCheckCircle, FiClock, FiX, FiFileText, FiUpload, FiList, FiEdit2, FiTrash2
 } from 'react-icons/fi';
 import DataTable from '../components/DataTable';
 import StatusBadge from '../components/StatusBadge';
@@ -34,7 +34,7 @@ const Violations = () => {
     { key: 'upload', label: 'Upload Inspection', icon: FiUpload, badge: 'AI' }
   ];
 
-  const [formData, setFormData] = useState({
+  const initialFormData = {
     inspectionNumber: '',
     violationDate: new Date().toISOString().split('T')[0],
     basic: 'vehicle_maintenance',
@@ -46,7 +46,10 @@ const Violations = () => {
     driverId: '',
     vehicleId: '',
     location: { city: '', state: '' }
-  });
+  };
+
+  const [formData, setFormData] = useState(initialFormData);
+  const [editingViolation, setEditingViolation] = useState(null);
 
   useEffect(() => {
     fetchViolations();
@@ -95,33 +98,61 @@ const Violations = () => {
     }
   };
 
-  const handleAddViolation = async (e) => {
+  const handleSubmitViolation = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      await violationsAPI.create(formData);
-      toast.success('Violation recorded');
-      setShowAddModal(false);
-      setFormData({
-        inspectionNumber: '',
-        violationDate: new Date().toISOString().split('T')[0],
-        basic: 'vehicle_maintenance',
-        violationType: '',
-        violationCode: '',
-        description: '',
-        severityWeight: 5,
-        outOfService: false,
-        driverId: '',
-        vehicleId: '',
-        location: { city: '', state: '' }
-      });
+      if (editingViolation) {
+        await violationsAPI.update(editingViolation._id, formData);
+        toast.success('Violation updated');
+      } else {
+        await violationsAPI.create(formData);
+        toast.success('Violation recorded');
+      }
+      handleCloseAddModal();
       fetchViolations();
       fetchStats();
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to add violation');
+      toast.error(error.response?.data?.message || 'Failed to save violation');
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const openEditModal = (violation) => {
+    setEditingViolation(violation);
+    setFormData({
+      inspectionNumber: violation.inspectionNumber || '',
+      violationDate: violation.violationDate ? violation.violationDate.split('T')[0] : new Date().toISOString().split('T')[0],
+      basic: violation.basic || 'vehicle_maintenance',
+      violationType: violation.violationType || '',
+      violationCode: violation.violationCode || '',
+      description: violation.description || '',
+      severityWeight: violation.severityWeight || 5,
+      outOfService: violation.outOfService || false,
+      driverId: violation.driverId?._id || violation.driverId || '',
+      vehicleId: violation.vehicleId?._id || violation.vehicleId || '',
+      location: violation.location || { city: '', state: '' }
+    });
+    setShowAddModal(true);
+  };
+
+  const handleDelete = async (violation) => {
+    if (!confirm(`Delete this violation? This cannot be undone.`)) return;
+    try {
+      await violationsAPI.delete(violation._id);
+      toast.success('Violation deleted');
+      fetchViolations();
+      fetchStats();
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to delete violation');
+    }
+  };
+
+  const handleCloseAddModal = () => {
+    setShowAddModal(false);
+    setEditingViolation(null);
+    setFormData(initialFormData);
   };
 
   const handleDataQSubmit = async (e) => {
@@ -204,7 +235,7 @@ const Violations = () => {
     {
       header: '',
       render: (row) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           {row.status === 'open' && (
             <>
               <button
@@ -235,6 +266,26 @@ const Violations = () => {
               DataQ Pending
             </span>
           )}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              openEditModal(row);
+            }}
+            className="p-2 text-zinc-600 dark:text-zinc-300 hover:text-accent-600 dark:hover:text-accent-400 hover:bg-accent-50 dark:hover:bg-accent-500/10 rounded-lg transition-colors"
+            title="Edit Violation"
+          >
+            <FiEdit2 className="w-4 h-4" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete(row);
+            }}
+            className="p-2 text-zinc-600 dark:text-zinc-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
+            title="Delete Violation"
+          >
+            <FiTrash2 className="w-4 h-4" />
+          </button>
         </div>
       )
     }
@@ -375,15 +426,15 @@ const Violations = () => {
         <InspectionUploadContent onSuccess={handleUploadSuccess} />
       )}
 
-      {/* Add Violation Modal */}
+      {/* Add/Edit Violation Modal */}
       <Modal
         isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
-        title="Add Violation Record"
+        onClose={handleCloseAddModal}
+        title={editingViolation ? 'Edit Violation' : 'Add Violation Record'}
         icon={FiAlertTriangle}
         size="lg"
       >
-        <form onSubmit={handleAddViolation} className="space-y-5">
+        <form onSubmit={handleSubmitViolation} className="space-y-5">
           {/* Inspection Details */}
           <div className="flex items-center gap-2 mb-3">
             <div className="w-6 h-6 rounded-md bg-danger-100 dark:bg-danger-500/20 flex items-center justify-center">
@@ -523,11 +574,11 @@ const Violations = () => {
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-zinc-100 dark:border-zinc-800">
-            <button type="button" onClick={() => setShowAddModal(false)} className="btn btn-secondary">
+            <button type="button" onClick={handleCloseAddModal} className="btn btn-secondary">
               Cancel
             </button>
             <button type="submit" className="btn btn-primary" disabled={submitting}>
-              {submitting ? <LoadingSpinner size="sm" /> : 'Add Violation'}
+              {submitting ? <LoadingSpinner size="sm" /> : (editingViolation ? 'Update Violation' : 'Add Violation')}
             </button>
           </div>
         </form>
