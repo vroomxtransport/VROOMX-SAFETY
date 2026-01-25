@@ -339,7 +339,26 @@ export const maintenanceAPI = {
   getOverdue: () => api.get('/maintenance/overdue'),
   getVehicleHistory: (vehicleId, params) => api.get(`/maintenance/vehicle/${vehicleId}`, { params }),
   correctDefect: (id, defectIndex) => api.post(`/maintenance/${id}/defects/${defectIndex}/correct`),
-  exportVehicle: (vehicleId) => api.get(`/maintenance/export/vehicle/${vehicleId}`, { responseType: 'blob' })
+  exportVehicle: (vehicleId) => api.get(`/maintenance/export/vehicle/${vehicleId}`, { responseType: 'blob' }),
+  // Document upload
+  uploadDocument: (id, file, documentType = 'other', name = '') => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('documentType', documentType);
+    if (name) formData.append('name', name);
+    return api.post(`/maintenance/${id}/documents`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+  },
+  deleteDocument: (id, docId) => api.delete(`/maintenance/${id}/documents/${docId}`),
+  // AI Smart Upload
+  smartUpload: (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post('/maintenance/smart-upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+  }
 };
 
 // Admin API - Platform administration (super admin only)

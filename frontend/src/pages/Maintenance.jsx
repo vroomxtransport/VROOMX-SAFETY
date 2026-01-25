@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { maintenanceAPI, vehiclesAPI } from '../utils/api';
 import { formatDate, formatCurrency } from '../utils/helpers';
 import toast from 'react-hot-toast';
 import {
   FiPlus, FiSearch, FiTool, FiTruck, FiCalendar, FiDollarSign,
   FiEdit2, FiTrash2, FiDownload, FiAlertTriangle, FiCheckCircle,
-  FiClock, FiFilter, FiFileText
+  FiClock, FiFilter, FiFileText, FiUpload, FiX, FiZap, FiPaperclip
 } from 'react-icons/fi';
 import DataTable from '../components/DataTable';
 import StatusBadge from '../components/StatusBadge';
@@ -13,6 +14,7 @@ import Modal from '../components/Modal';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const Maintenance = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -26,6 +28,9 @@ const Maintenance = () => {
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [vehicles, setVehicles] = useState([]);
   const [submitting, setSubmitting] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [smartUploading, setSmartUploading] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState(null);
 
   const recordTypes = [
     { value: 'preventive_maintenance', label: 'Preventive Maintenance' },
@@ -63,6 +68,30 @@ const Maintenance = () => {
     fetchStats();
     fetchVehicles();
   }, [page, vehicleFilter, typeFilter]);
+
+  // Handle URL param to open specific record from Vehicle Details
+  useEffect(() => {
+    const recordId = searchParams.get('record');
+    if (recordId) {
+      // Fetch the specific record and open detail modal
+      const fetchRecord = async () => {
+        try {
+          const response = await maintenanceAPI.getById(recordId);
+          if (response.data.record) {
+            setSelectedRecord(response.data.record);
+            setShowDetailModal(true);
+            // Clear the URL param
+            setSearchParams({});
+          }
+        } catch (error) {
+          console.error('Error fetching record:', error);
+          toast.error('Could not find the maintenance record');
+          setSearchParams({});
+        }
+      };
+      fetchRecord();
+    }
+  }, [searchParams]);
 
   const fetchRecords = async () => {
     setLoading(true);
@@ -164,6 +193,88 @@ const Maintenance = () => {
       toast.success('Export downloaded');
     } catch (error) {
       toast.error('Failed to export records');
+    }
+  };
+
+  // Smart Upload - AI extraction from invoice
+  const handleSmartUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setSmartUploading(true);
+    try {
+      const response = await maintenanceAPI.smartUpload(file);
+      if (response.data.success) {
+        const data = response.data.extractedData?.data;
+        if (data) {
+          // Auto-fill form with extracted data
+          setFormData(prev => ({
+            ...prev,
+            recordType: data.recordType || prev.recordType,
+            serviceDate: data.serviceDate || prev.serviceDate,
+            odometerReading: data.odometerReading || prev.odometerReading,
+            description: data.description || prev.description,
+            provider: {
+              name: data.provider?.name || prev.provider.name,
+              address: data.provider?.address || prev.provider.address,
+              phone: data.provider?.phone || prev.provider.phone,
+              mechanic: prev.provider.mechanic
+            },
+            laborCost: data.laborCost || prev.laborCost,
+            partsCost: data.partsCost || prev.partsCost,
+            nextServiceDate: data.nextServiceDate || prev.nextServiceDate,
+            nextServiceMileage: data.nextServiceMileage || prev.nextServiceMileage,
+            notes: data.notes || prev.notes
+          }));
+          toast.success('Data extracted! Please review and complete the form.');
+        }
+        // Store uploaded file info
+        if (response.data.uploadedFile) {
+          setUploadedFile(response.data.uploadedFile);
+        }
+      } else {
+        toast.error('Could not extract data from the document');
+      }
+    } catch (error) {
+      console.error('Smart upload error:', error);
+      toast.error('Failed to process document');
+    } finally {
+      setSmartUploading(false);
+      e.target.value = ''; // Reset input
+    }
+  };
+
+  // Upload document to existing record
+  const handleDocumentUpload = async (e, recordId) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      await maintenanceAPI.uploadDocument(recordId, file, 'invoice', file.name);
+      toast.success('Document uploaded');
+      // Refresh record details
+      const response = await maintenanceAPI.getById(recordId);
+      setSelectedRecord(response.data.record);
+    } catch (error) {
+      toast.error('Failed to upload document');
+    } finally {
+      setUploading(false);
+      e.target.value = '';
+    }
+  };
+
+  // Delete document from record
+  const handleDocumentDelete = async (recordId, docId) => {
+    if (!confirm('Delete this document?')) return;
+    try {
+      await maintenanceAPI.deleteDocument(recordId, docId);
+      toast.success('Document deleted');
+      // Refresh record details
+      const response = await maintenanceAPI.getById(recordId);
+      setSelectedRecord(response.data.record);
+    } catch (error) {
+      toast.error('Failed to delete document');
     }
   };
 
@@ -463,11 +574,56 @@ const Maintenance = () => {
       {/* Add/Edit Modal */}
       <Modal
         isOpen={showAddModal}
-        onClose={() => { setShowAddModal(false); resetForm(); }}
+        onClose={() => { setShowAddModal(false); resetForm(); setUploadedFile(null); }}
         title={selectedRecord ? 'Edit Record' : 'Add Maintenance Record'}
         size="lg"
       >
         <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+          {/* Smart Upload - AI Extraction */}
+          {!selectedRecord && (
+            <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-lg p-4 mb-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                    <FiZap className="w-5 h-5 text-blue-400" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-white">Smart Upload</h4>
+                    <p className="text-sm text-gray-400">Upload an invoice and AI will extract the details</p>
+                  </div>
+                </div>
+                <label className={`flex items-center gap-2 px-4 py-2 rounded-lg cursor-pointer transition-colors ${
+                  smartUploading ? 'bg-blue-500/30 text-blue-300' : 'bg-blue-500/20 hover:bg-blue-500/30 text-blue-400'
+                }`}>
+                  {smartUploading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <FiUpload className="w-4 h-4" />
+                      Upload Invoice
+                    </>
+                  )}
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept=".jpg,.jpeg,.png,.pdf"
+                    onChange={handleSmartUpload}
+                    disabled={smartUploading}
+                  />
+                </label>
+              </div>
+              {uploadedFile && (
+                <div className="mt-3 flex items-center gap-2 text-sm text-green-400">
+                  <FiPaperclip className="w-4 h-4" />
+                  {uploadedFile.name} attached
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-1">Vehicle *</label>
@@ -793,6 +949,70 @@ const Maintenance = () => {
                 <p className="text-white">{selectedRecord.notes}</p>
               </div>
             )}
+
+            {/* Documents Section */}
+            <div className="bg-dark-700/50 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-sm font-medium text-gray-400">Documents</h4>
+                <label className={`flex items-center gap-2 px-3 py-1.5 rounded-lg cursor-pointer text-sm transition-colors ${
+                  uploading ? 'bg-primary-500/30 text-primary-300' : 'bg-primary-500/20 hover:bg-primary-500/30 text-primary-400'
+                }`}>
+                  {uploading ? (
+                    <>
+                      <div className="w-3 h-3 border-2 border-primary-400 border-t-transparent rounded-full animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    <>
+                      <FiUpload className="w-3 h-3" />
+                      Upload
+                    </>
+                  )}
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+                    onChange={(e) => handleDocumentUpload(e, selectedRecord._id)}
+                    disabled={uploading}
+                  />
+                </label>
+              </div>
+              {selectedRecord.documents?.length > 0 ? (
+                <div className="space-y-2">
+                  {selectedRecord.documents.map((doc) => (
+                    <div key={doc._id} className="flex items-center justify-between p-2 bg-dark-600/50 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <FiFileText className="w-4 h-4 text-gray-400" />
+                        <div>
+                          <div className="text-sm text-white">{doc.name}</div>
+                          <div className="text-xs text-gray-500 capitalize">{doc.type?.replace(/_/g, ' ')}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <a
+                          href={`${import.meta.env.VITE_API_URL?.replace('/api', '')}${doc.url}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-1.5 text-gray-400 hover:text-white hover:bg-dark-500 rounded transition-colors"
+                          title="Download"
+                        >
+                          <FiDownload className="w-4 h-4" />
+                        </a>
+                        <button
+                          onClick={() => handleDocumentDelete(selectedRecord._id, doc._id)}
+                          className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded transition-colors"
+                          title="Delete"
+                        >
+                          <FiX className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500">No documents attached</p>
+              )}
+            </div>
 
             <div className="flex justify-between pt-4 border-t border-dark-700">
               <button

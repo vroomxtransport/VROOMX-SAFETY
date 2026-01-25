@@ -13,6 +13,7 @@ const createUploadDirs = () => {
     'uploads/violations',
     'uploads/drug-alcohol',
     'uploads/accidents',
+    'uploads/maintenance',
     'uploads/temp'
   ];
 
@@ -37,6 +38,7 @@ const storage = multer.diskStorage({
     else if (req.baseUrl.includes('violations')) folder = 'violations';
     else if (req.baseUrl.includes('drug-alcohol')) folder = 'drug-alcohol';
     else if (req.baseUrl.includes('accidents')) folder = 'accidents';
+    else if (req.baseUrl.includes('maintenance')) folder = 'maintenance';
     else if (req.body.category) folder = req.body.category;
 
     const uploadPath = path.join(process.cwd(), 'uploads', folder);

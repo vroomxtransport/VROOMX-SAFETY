@@ -126,7 +126,46 @@ Identify the document type and extract key fields in JSON format:
     // Any names found with their context
   },
   "confidence": 0.0-1.0 confidence score
-}`
+}`,
+
+  maintenance_invoice: `You are analyzing a maintenance invoice, work order, or repair receipt.
+Extract the following information in JSON format:
+{
+  "serviceDate": "YYYY-MM-DD format - the date service was performed",
+  "recordType": "preventive_maintenance", "repair", "oil_change", "tire_service", "brake_service", "annual_inspection", "dot_inspection", or "other",
+  "description": "Description of work performed - combine all line items into one summary",
+  "provider": {
+    "name": "Shop/provider/vendor name",
+    "address": "Full address if visible",
+    "phone": "Phone number if visible"
+  },
+  "odometerReading": number or null - vehicle mileage at time of service,
+  "partsUsed": [
+    {
+      "partNumber": "Part number if visible",
+      "description": "Part name/description",
+      "quantity": number,
+      "cost": number - cost per unit
+    }
+  ],
+  "laborCost": number - total labor cost,
+  "partsCost": number - total parts cost,
+  "totalCost": number - grand total,
+  "vehicleInfo": {
+    "unitNumber": "Unit/truck number if visible",
+    "vin": "VIN if visible",
+    "year": number if visible,
+    "make": "Vehicle make if visible",
+    "model": "Vehicle model if visible",
+    "licensePlate": "Plate number if visible"
+  },
+  "nextServiceDate": "YYYY-MM-DD format if recommended next service date is mentioned",
+  "nextServiceMileage": number if recommended next service mileage is mentioned,
+  "invoiceNumber": "Invoice/work order number",
+  "notes": "Any additional notes or recommendations",
+  "confidence": 0.0-1.0 confidence score
+}
+If a field is not visible or unclear, use null. For costs, extract numbers only (no currency symbols).`
 };
 
 /**
@@ -409,6 +448,64 @@ Return a JSON object with this structure:
       };
     } catch (error) {
       console.error('Error analyzing multi-page document:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Extract maintenance data from invoice/work order image
+   * @param {Buffer|string} imageInput - Image buffer or file path
+   * @returns {Object} Extracted maintenance data
+   */
+  async extractMaintenanceData(imageInput) {
+    if (!OPENAI_ENABLED) {
+      throw new Error('OpenAI is not configured. Set OPENAI_API_KEY to enable this feature.');
+    }
+
+    const prompt = EXTRACTION_PROMPTS.maintenance_invoice;
+    const base64Image = await this._getBase64Image(imageInput);
+    const mimeType = this._getMimeType(imageInput);
+
+    try {
+      const response = await openai.chat.completions.create({
+        model: 'gpt-4o',
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'text', text: prompt },
+            {
+              type: 'image_url',
+              image_url: {
+                url: `data:${mimeType};base64,${base64Image}`,
+                detail: 'high'
+              }
+            }
+          ]
+        }],
+        max_tokens: 3000
+      });
+
+      const content = response.choices[0].message.content;
+
+      // Parse JSON from response
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error('Failed to parse maintenance extraction response');
+      }
+
+      const extracted = JSON.parse(jsonMatch[0]);
+
+      return {
+        success: true,
+        data: extracted,
+        usage: {
+          promptTokens: response.usage.prompt_tokens,
+          completionTokens: response.usage.completion_tokens,
+          totalTokens: response.usage.total_tokens
+        }
+      };
+    } catch (error) {
+      console.error('Error extracting maintenance data:', error);
       throw error;
     }
   },

@@ -337,7 +337,17 @@ const VehicleDetail = () => {
               {vehicle.maintenanceLog?.length > 0 ? (
                 <div className="divide-y divide-zinc-100 dark:divide-zinc-700">
                   {vehicle.maintenanceLog.slice().reverse().slice(0, 10).map((record, index) => (
-                    <div key={index} className="p-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:pl-6 border-l-2 border-transparent hover:border-accent-500 transition-all duration-200 cursor-pointer">
+                    <div
+                      key={index}
+                      className="p-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:pl-6 border-l-2 border-transparent hover:border-accent-500 transition-all duration-200 cursor-pointer"
+                      onClick={() => {
+                        if (record.maintenanceRecordId) {
+                          navigate(`/app/maintenance?record=${record.maintenanceRecordId}`);
+                        } else {
+                          toast.error('This record was created before linking was enabled');
+                        }
+                      }}
+                    >
                       <div className="flex items-start justify-between">
                         <div className="flex items-start space-x-3">
                           <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${

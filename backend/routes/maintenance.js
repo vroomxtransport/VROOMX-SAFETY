@@ -5,6 +5,8 @@ const MaintenanceRecord = require('../models/MaintenanceRecord');
 const Vehicle = require('../models/Vehicle');
 const { protect, restrictToCompany, checkPermission } = require('../middleware/auth');
 const { asyncHandler } = require('../middleware/errorHandler');
+const { uploadSingle, getFileUrl, deleteFile } = require('../middleware/upload');
+const openaiVisionService = require('../services/openaiVisionService');
 
 // Apply authentication to all routes
 router.use(protect);
@@ -522,6 +524,129 @@ router.get('/export/vehicle/:vehicleId', asyncHandler(async (req, res) => {
   res.setHeader('Content-Type', 'text/csv');
   res.setHeader('Content-Disposition', `attachment; filename="maintenance_${vehicle.unitNumber}_${new Date().toISOString().split('T')[0]}.csv"`);
   res.send(csv);
+}));
+
+// ============================================
+// DOCUMENT UPLOAD ENDPOINTS
+// ============================================
+
+// @route   POST /api/maintenance/:id/documents
+// @desc    Upload a document to a maintenance record
+// @access  Private
+router.post('/:id/documents', uploadSingle('file'), asyncHandler(async (req, res) => {
+  const record = await MaintenanceRecord.findOne({
+    _id: req.params.id,
+    companyId: req.companyFilter.companyId
+  });
+
+  if (!record) {
+    return res.status(404).json({ success: false, message: 'Maintenance record not found' });
+  }
+
+  if (!req.file) {
+    return res.status(400).json({ success: false, message: 'No file uploaded' });
+  }
+
+  const documentType = req.body.documentType || 'other';
+  const fileUrl = getFileUrl(req.file.path);
+
+  record.documents.push({
+    name: req.body.name || req.file.originalname,
+    url: fileUrl,
+    type: documentType,
+    uploadedAt: new Date()
+  });
+
+  await record.save();
+
+  res.json({
+    success: true,
+    message: 'Document uploaded successfully',
+    document: record.documents[record.documents.length - 1]
+  });
+}));
+
+// @route   DELETE /api/maintenance/:id/documents/:docId
+// @desc    Delete a document from a maintenance record
+// @access  Private
+router.delete('/:id/documents/:docId', asyncHandler(async (req, res) => {
+  const record = await MaintenanceRecord.findOne({
+    _id: req.params.id,
+    companyId: req.companyFilter.companyId
+  });
+
+  if (!record) {
+    return res.status(404).json({ success: false, message: 'Maintenance record not found' });
+  }
+
+  const docIndex = record.documents.findIndex(d => d._id.toString() === req.params.docId);
+  if (docIndex === -1) {
+    return res.status(404).json({ success: false, message: 'Document not found' });
+  }
+
+  // Delete file from storage
+  const doc = record.documents[docIndex];
+  if (doc.url) {
+    try {
+      await deleteFile(doc.url);
+    } catch (err) {
+      console.error('Error deleting file:', err);
+    }
+  }
+
+  record.documents.splice(docIndex, 1);
+  await record.save();
+
+  res.json({
+    success: true,
+    message: 'Document deleted successfully'
+  });
+}));
+
+// ============================================
+// AI SMART UPLOAD ENDPOINT
+// ============================================
+
+// @route   POST /api/maintenance/smart-upload
+// @desc    Upload invoice/work order and extract data using AI
+// @access  Private
+router.post('/smart-upload', uploadSingle('file'), asyncHandler(async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ success: false, message: 'No file uploaded' });
+  }
+
+  const fileUrl = getFileUrl(req.file.path);
+  const filePath = req.file.path;
+
+  try {
+    // Use OpenAI Vision to extract data from the invoice/work order
+    const extractedData = await openaiVisionService.extractMaintenanceData(filePath);
+
+    res.json({
+      success: true,
+      message: 'Data extracted successfully',
+      extractedData,
+      uploadedFile: {
+        name: req.file.originalname,
+        url: fileUrl,
+        type: 'invoice'
+      }
+    });
+  } catch (error) {
+    console.error('AI extraction error:', error);
+    // Still return the file URL even if AI extraction fails
+    res.json({
+      success: true,
+      message: 'File uploaded but AI extraction failed. Please fill in details manually.',
+      extractedData: null,
+      uploadedFile: {
+        name: req.file.originalname,
+        url: fileUrl,
+        type: 'invoice'
+      },
+      error: error.message
+    });
+  }
 }));
 
 module.exports = router;
