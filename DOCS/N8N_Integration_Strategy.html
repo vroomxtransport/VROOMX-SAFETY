@@ -1,0 +1,2203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>n8n Integration Strategy - VroomX Safety</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --crimson: #e11d48;
+            --crimson-dark: #be123c;
+            --crimson-light: #fb7185;
+            --dark-bg: #0a0a0a;
+            --card-bg: #111111;
+            --card-border: #1f1f1f;
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #8b5cf6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--card-border);
+            padding: 1rem 2rem;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .nav-logo i {
+            font-size: 1.5rem;
+            color: var(--crimson);
+        }
+
+        .nav-logo span {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--crimson);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 8rem 2rem 4rem;
+            text-align: center;
+            background: linear-gradient(180deg, rgba(225, 29, 72, 0.1) 0%, transparent 50%);
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(225, 29, 72, 0.15);
+            border: 1px solid rgba(225, 29, 72, 0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.875rem;
+            color: var(--crimson-light);
+            margin-bottom: 1.5rem;
+        }
+
+        .hero h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #fff 0%, #a1a1aa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(135deg, var(--crimson) 0%, var(--crimson-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto 2rem;
+        }
+
+        .n8n-logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            margin-top: 1rem;
+        }
+
+        .n8n-logo img {
+            height: 40px;
+        }
+
+        .n8n-logo span {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ff6d5a;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Section Titles */
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-title h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .section-title p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Benefits Grid */
+        .benefits-section {
+            padding: 4rem 0;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .benefit-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .benefit-card:hover {
+            border-color: var(--crimson);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(225, 29, 72, 0.1);
+        }
+
+        .benefit-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .benefit-icon.crimson {
+            background: rgba(225, 29, 72, 0.15);
+            color: var(--crimson);
+        }
+
+        .benefit-icon.blue {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--info);
+        }
+
+        .benefit-icon.green {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--success);
+        }
+
+        .benefit-icon.purple {
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--purple);
+        }
+
+        .benefit-icon.orange {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+        }
+
+        .benefit-card h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .benefit-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .benefit-stat {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background: rgba(34, 197, 94, 0.1);
+            border-radius: 8px;
+            color: var(--success);
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        /* Use Cases Section */
+        .use-cases-section {
+            padding: 4rem 0;
+            background: linear-gradient(180deg, transparent 0%, rgba(17, 17, 17, 0.5) 50%, transparent 100%);
+        }
+
+        .use-case-category {
+            margin-bottom: 4rem;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .category-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            background: rgba(225, 29, 72, 0.15);
+            color: var(--crimson);
+        }
+
+        .category-header h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .category-header span {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .use-cases-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .use-case-item {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 1.5rem;
+            align-items: start;
+            transition: all 0.3s ease;
+        }
+
+        .use-case-item:hover {
+            border-color: rgba(225, 29, 72, 0.5);
+            background: rgba(225, 29, 72, 0.03);
+        }
+
+        .use-case-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--crimson) 0%, var(--crimson-dark) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .use-case-content h4 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .use-case-content p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .use-case-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .use-case-tag {
+            padding: 0.25rem 0.75rem;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 6px;
+            font-size: 0.75rem;
+            color: var(--info);
+        }
+
+        .use-case-tag.trigger {
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--purple);
+        }
+
+        .use-case-tag.action {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--success);
+        }
+
+        .use-case-impact {
+            text-align: right;
+            min-width: 120px;
+        }
+
+        .impact-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .impact-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        /* Workflow Diagrams */
+        .workflows-section {
+            padding: 4rem 0;
+        }
+
+        .workflow-diagram {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .workflow-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .workflow-header h4 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .workflow-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .workflow-badge.high {
+            background: rgba(225, 29, 72, 0.15);
+            color: var(--crimson);
+        }
+
+        .workflow-badge.medium {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+        }
+
+        .workflow-nodes {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            overflow-x: auto;
+            padding: 1rem 0;
+        }
+
+        .workflow-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 120px;
+        }
+
+        .node-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .node-icon.trigger {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+        }
+
+        .node-icon.process {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        }
+
+        .node-icon.condition {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        .node-icon.action {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        }
+
+        .node-icon.integration {
+            background: linear-gradient(135deg, var(--crimson) 0%, var(--crimson-dark) 100%);
+        }
+
+        .node-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .node-connector {
+            width: 40px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--card-border) 0%, var(--crimson) 50%, var(--card-border) 100%);
+            position: relative;
+        }
+
+        .node-connector::after {
+            content: '';
+            position: absolute;
+            right: -4px;
+            top: -3px;
+            border: solid var(--crimson);
+            border-width: 0 2px 2px 0;
+            padding: 3px;
+            transform: rotate(-45deg);
+        }
+
+        /* Integration Grid */
+        .integrations-section {
+            padding: 4rem 0;
+            background: linear-gradient(180deg, transparent 0%, rgba(225, 29, 72, 0.05) 50%, transparent 100%);
+        }
+
+        .integrations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .integration-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .integration-card:hover {
+            border-color: var(--crimson);
+            transform: translateY(-3px);
+        }
+
+        .integration-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 1rem;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .integration-card h4 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .integration-card p {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .integration-category {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: rgba(225, 29, 72, 0.1);
+            border-radius: 6px;
+            font-size: 0.7rem;
+            color: var(--crimson-light);
+            margin-top: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ROI Section */
+        .roi-section {
+            padding: 4rem 0;
+        }
+
+        .roi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+        }
+
+        .roi-card {
+            background: linear-gradient(135deg, rgba(225, 29, 72, 0.1) 0%, rgba(225, 29, 72, 0.02) 100%);
+            border: 1px solid rgba(225, 29, 72, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .roi-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--crimson) 0%, var(--crimson-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .roi-label {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* Implementation Timeline */
+        .timeline-section {
+            padding: 4rem 0;
+        }
+
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--crimson) 0%, var(--card-border) 100%);
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .timeline-item:nth-child(odd) {
+            flex-direction: row-reverse;
+            text-align: right;
+        }
+
+        .timeline-content {
+            flex: 1;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .timeline-content h4 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--crimson);
+        }
+
+        .timeline-content p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .timeline-week {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--crimson) 0%, var(--crimson-dark) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            z-index: 1;
+        }
+
+        .timeline-spacer {
+            flex: 1;
+        }
+
+        /* Priority Table */
+        .priority-section {
+            padding: 4rem 0;
+        }
+
+        .priority-table {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .priority-header {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+            background: rgba(225, 29, 72, 0.1);
+            padding: 1rem 1.5rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .priority-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--card-border);
+            transition: background 0.3s;
+        }
+
+        .priority-row:last-child {
+            border-bottom: none;
+        }
+
+        .priority-row:hover {
+            background: rgba(225, 29, 72, 0.03);
+        }
+
+        .priority-row .workflow-name {
+            font-weight: 500;
+        }
+
+        .priority-badge {
+            display: inline-flex;
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .priority-badge.critical {
+            background: rgba(225, 29, 72, 0.15);
+            color: var(--crimson);
+        }
+
+        .priority-badge.high {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+        }
+
+        .priority-badge.medium {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--info);
+        }
+
+        .priority-row .effort,
+        .priority-row .impact,
+        .priority-row .time-saved {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .priority-row .time-saved {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        /* Tech Stack Section */
+        .tech-section {
+            padding: 4rem 0;
+            background: linear-gradient(180deg, transparent 0%, rgba(17, 17, 17, 0.5) 100%);
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        .tech-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 2rem;
+        }
+
+        .tech-card h4 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .tech-card h4 i {
+            color: var(--crimson);
+        }
+
+        .tech-list {
+            list-style: none;
+        }
+
+        .tech-list li {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--card-border);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .tech-list li:last-child {
+            border-bottom: none;
+        }
+
+        .tech-list li i {
+            color: var(--success);
+            font-size: 0.8rem;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 5rem 2rem;
+            text-align: center;
+            background: linear-gradient(180deg, transparent 0%, rgba(225, 29, 72, 0.1) 100%);
+        }
+
+        .cta-section h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .cta-section p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--crimson) 0%, var(--crimson-dark) 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(225, 29, 72, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--crimson);
+        }
+
+        /* Footer */
+        footer {
+            padding: 2rem;
+            text-align: center;
+            border-top: 1px solid var(--card-border);
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .roi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .tech-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .priority-header,
+            .priority-row {
+                grid-template-columns: 1.5fr 1fr 1fr;
+            }
+
+            .priority-header > *:nth-child(4),
+            .priority-header > *:nth-child(5),
+            .priority-row > *:nth-child(4),
+            .priority-row > *:nth-child(5) {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .use-case-item {
+                grid-template-columns: 1fr;
+            }
+
+            .use-case-impact {
+                text-align: left;
+            }
+
+            .workflow-nodes {
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+
+            .node-connector {
+                display: none;
+            }
+
+            .timeline::before {
+                left: 20px;
+            }
+
+            .timeline-item,
+            .timeline-item:nth-child(odd) {
+                flex-direction: column;
+                text-align: left;
+                padding-left: 60px;
+            }
+
+            .timeline-week {
+                left: 20px;
+                transform: translateX(-50%);
+            }
+
+            .timeline-spacer {
+                display: none;
+            }
+
+            .roi-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-logo">
+            <i class="fas fa-truck-fast"></i>
+            <span>VroomX Safety</span>
+        </div>
+        <div class="nav-links">
+            <a href="#benefits">Benefits</a>
+            <a href="#use-cases">Use Cases</a>
+            <a href="#workflows">Workflows</a>
+            <a href="#integrations">Integrations</a>
+            <a href="#roi">ROI</a>
+            <a href="#implementation">Implementation</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-badge">
+            <i class="fas fa-bolt"></i>
+            Automation Strategy Document
+        </div>
+        <h1>n8n Integration for <span>VroomX Safety</span></h1>
+        <p>Comprehensive workflow automation strategy to supercharge your FMCSA compliance platform with intelligent, event-driven automations</p>
+        <div class="n8n-logo">
+            <span style="color: #ff6d5a;">n8n</span>
+            <span style="color: var(--text-secondary); font-size: 1rem; font-weight: 400;">+ VroomX Safety</span>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section class="benefits-section container" id="benefits">
+        <div class="section-title">
+            <h2>Why n8n for VroomX Safety?</h2>
+            <p>Key benefits of implementing n8n workflow automation for your compliance platform</p>
+        </div>
+
+        <div class="benefits-grid">
+            <div class="benefit-card">
+                <div class="benefit-icon crimson">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h3>Eliminate Manual Tasks</h3>
+                <p>Automate repetitive compliance checks, document verifications, and status updates that currently consume hours of manual work daily.</p>
+                <div class="benefit-stat">
+                    <i class="fas fa-arrow-down"></i>
+                    85% reduction in manual tasks
+                </div>
+            </div>
+
+            <div class="benefit-card">
+                <div class="benefit-icon blue">
+                    <i class="fas fa-sync-alt"></i>
+                </div>
+                <h3>Real-Time Data Sync</h3>
+                <p>Keep VroomX perfectly synchronized with FMCSA SAFER, ELD systems, and third-party services with automatic bidirectional data flows.</p>
+                <div class="benefit-stat">
+                    <i class="fas fa-bolt"></i>
+                    Near real-time updates
+                </div>
+            </div>
+
+            <div class="benefit-card">
+                <div class="benefit-icon green">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <h3>Proactive Alerts</h3>
+                <p>Trigger multi-channel notifications (email, SMS, Slack, push) based on CSA score changes, expiring documents, or compliance issues.</p>
+                <div class="benefit-stat">
+                    <i class="fas fa-check"></i>
+                    Zero missed deadlines
+                </div>
+            </div>
+
+            <div class="benefit-card">
+                <div class="benefit-icon purple">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h3>AI-Enhanced Workflows</h3>
+                <p>Integrate OpenAI/Claude for intelligent document analysis, violation interpretation, and automated regulation Q&A responses.</p>
+                <div class="benefit-stat">
+                    <i class="fas fa-brain"></i>
+                    Smart automation
+                </div>
+            </div>
+
+            <div class="benefit-card">
+                <div class="benefit-icon orange">
+                    <i class="fas fa-code-branch"></i>
+                </div>
+                <h3>Scalable Architecture</h3>
+                <p>Self-hosted solution that grows with your platform. Handle thousands of carriers without per-execution costs or API limitations.</p>
+                <div class="benefit-stat">
+                    <i class="fas fa-infinity"></i>
+                    Unlimited executions
+                </div>
+            </div>
+
+            <div class="benefit-card">
+                <div class="benefit-icon crimson">
+                    <i class="fas fa-plug"></i>
+                </div>
+                <h3>400+ Integrations</h3>
+                <p>Connect to ELD providers, TMS systems, accounting software, communication tools, and any API-enabled service out of the box.</p>
+                <div class="benefit-stat">
+                    <i class="fas fa-puzzle-piece"></i>
+                    Pre-built connectors
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Use Cases Section -->
+    <section class="use-cases-section container" id="use-cases">
+        <div class="section-title">
+            <h2>Comprehensive Use Cases</h2>
+            <p>Detailed automation workflows specifically designed for VroomX Safety</p>
+        </div>
+
+        <!-- FMCSA Data Automation -->
+        <div class="use-case-category">
+            <div class="category-header">
+                <div class="category-icon">
+                    <i class="fas fa-database"></i>
+                </div>
+                <div>
+                    <h3>FMCSA Data Automation</h3>
+                    <span>Automated synchronization with federal compliance databases</span>
+                </div>
+            </div>
+
+            <div class="use-cases-list">
+                <div class="use-case-item">
+                    <div class="use-case-number">1</div>
+                    <div class="use-case-content">
+                        <h4>SAFER Web Data Auto-Sync</h4>
+                        <p>Automatically pull carrier safety data, inspection results, crash records, and insurance status from FMCSA SAFER every 6 hours. Detect changes and update VroomX records instantly.</p>
+                        <div class="use-case-tags">
+                            <span class="use-case-tag trigger">Cron Trigger</span>
+                            <span class="use-case-tag">HTTP Request</span>
+                            <span class="use-case-tag">Data Transform</span>
+                            <span class="use-case-tag action">Database Update</span>
+                        </div>
+                    </div>
+                    <div class="use-case-impact">
+                        <div class="impact-label">Time Saved</div>
+                        <div class="impact-value">4h/day</div>
+                    </div>
+                </div>
+
+                <div class="use-case-item">
+                    <div class="use-case-number">2</div>
+                    <div class="use-case-content">
+                        <h4>CSA Score Change Detection</h4>
+                        <p>Monitor all 7 BASICs categories for score changes. When a threshold is breached or significant movement detected, trigger alerts to fleet managers and auto-generate improvement action items.</p>
+                        <div class="use-case-tags">
+                            <span class="use-case-tag trigger">Webhook Trigger</span>
+                            <span class="use-case-tag">Conditional Logic</span>
+                            <span class="use-case-tag action">Multi-Channel Alert</span>
+                            <span class="use-case-tag action">Task Creation</span>
+                        </div>
+                    </div>
+                    <div class="use-case-impact">
+                        <div class="impact-label">Response Time</div>
+                        <div class="impact-value">&lt;5min</div>
+                    </div>
+                </div>
+
+                <div class="use-case-item">
+                    <div class="use-case-number">3</div>
+                    <div class="use-case-content">
+                        <h4>New Violation Processing</h4>
+                        <p>When new violations appear in inspection reports, automatically categorize severity, match to 49 CFR sections, check DataQ challenge eligibility, and create remediation workflows.</p>
+                        <div class="use-case-tags">
+                            <span class="use-case-tag trigger">Data Change Trigger</span>
+                            <span class="use-case-tag">AI Analysis</span>
+                            <span class="use-case-tag">Rule Engine</span>
+                            <span class="use-case-tag action">Workflow Dispatch</span>
+                        </div>
+                    </div>
+                    <div class="use-case-impact">
+                        <div class="impact-label">Accuracy</div>
+                        <div class="impact-value">99%</div>
+                    </div>
+                </div>
+
+                <div class="use-case-item">
+                    <div class="use-case-number">4</div>
+                    <div class="use-case-content">
+                        <h4>Authority Status Monitoring</h4>
+                        <p>Track MC/USDOT authority status changes in real-time. Alert immediately if authority is revoked, suspended, or insurance lapses. Prevent non-compliant operations.</p>
+                        <div class="use-case-tags">
+                            <span class="use-case-tag trigger">Scheduled Check</span>
+                            <span class="use-case-tag">Status Comparison</span>
+                            <span class="use-case-tag action">Emergency Alert</span>
+                            <span class="use-case-tag action">Operation Halt</span>
+                        </div>
+                    </div>
+                    <div class="use-case-impact">
+                        <div class="impact-label">Risk Reduction</div>
+                        <div class="impact-value">100%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Document Management -->
+        <div class="use-case-category">
+            <div class="category-header">
+                <div class="category-icon">
+                    <i class="fas fa-folder-open"></i>
+                </div>
+                <div>
+                    <h3>Document Management Automation</h3>
+                    <span>Intelligent DQF and compliance document workflows</span>
+                </div>
+            </div>
+
+            <div class="use-cases-list">
+                <div class="use-case-item">
+                    <div class="use-case-number">5</div>
+                    <div class="use-case-content">
+                        <h4>Expiration Alert Cascade</h4>
+                        <p>Smart multi-stage alerts for expiring documents (CDL, Medical Card, MVR, Drug Tests). 90-day, 60-day, 30-day, 7-day, and daily reminders with escalating urgency and management notifications.</p>
+                        <div class="use-case-tags">
+                            <span class="use-case-tag trigger">Date Trigger</span>
+                            <span class="use-case-tag">Escalation Logic</span>
+                            <span class="use-case-tag action">Email/SMS</span>
+                            <span class="use-case-tag action">Push Notification</span>
+                        </div>
+                    </div>
+                    <div class="use-case-impact">
+                        <div class="impact-label">Compliance</div>
+                        <div class="impact-value">100%</div>
+                    </div>
+                </div>
+
+                <div class="use-case-item">
+                    <div class="use-case-number">6</div>
+                    <div class="use-case-content">
+                        <h4>AI Document Verification</h4>
+                        <p>When new documents are uploaded, use AI vision to extract data, verify authenticity, check dates, validate formatting, and auto-populate driver records. Flag discrepancies for review.</p>
+                        <div class="use-case-tags">
+                            <span class="use-case-tag trigger">File Upload Trigger</span>
+                            <span class="use-case-tag">OCR Processing</span>
+                            <span class="use-case-tag">AI Validation</span>
+                            <span class="use-case-tag action">Auto-Fill Records</span>
+                        </div>
+                    </div>
+                    <div class="use-case-impact">
+                        <div class="impact-label">Processing</div>
+                        <div class="impact-value">95% faster</div>
+                    </div>
+                </div>
+
+                <div class="use-case-item">
+                    <div class="use-case-number">7</div>
+                    <div class="use-case-content">
+                        <h4>Renewal Request Automation</h4>
+                        <p>Automatically generate and send renewal requests to drivers when documents approach expiration. Include pre-filled forms, instructions, and upload links. Track completion status.</p>
+                        <div class="use-case-tags">
+                            <span class="use-case-tag trigger">30-Day Threshold</span>
+                            <span class="use-case-tag">Template Generator</span>
+                            <span class="use-case-tag action">Email with Link</span>
+                            <span class="use-case-tag action">Status Tracking</span>
+                        </div>
+                    </div>
+                    <div class="use-case-impact">
+                        <div class="impact-label">Automation</div>
+                        <div class="impact-value">100%</div>
+                    </div>
+                </div>
+
+                <div class="use-case-item">
+                    <div class="use-case-number">8</div>
+                    <div class="use-case-content">
+                        <h4>DQF Completeness Audit</h4>
+                        <p>Daily automated audit of all driver files for 13 required DOT documents. Generate missing document reports, notify drivers and managers, track remediation progress.</p>
+                        <div class="use-case-tags">
+                            <span class="use-case-tag trigger">Daily Schedule</span>
+                            <span class="use-case-tag">Checklist Validation</span>
+                            <span class="use-case-tag action">Gap Report</span>
+                            <span class="use-case-tag action">Task Assignment</span>
+                        </div>
+                    </div>
+                    <div class="use-case-impact">
+                        <div class="impact-label">Audit Ready</div>
+                        <div class="impact-value">Always</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Communication Automation -->
+        <div class="use-case-category">
+            <div class="category-header">
+                <div class="category-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <div>
+                    <h3>Communication Automation</h3>
+                    <span>Multi-channel notification and alert systems</span>
+                </div>
+            </div>
+
+            <div class="use-cases-list">
+                <div class="use-case-item">
+                    <div class="use-case-number">9</div>
+                    <div class="use-case-content">
+                        <h4>Smart Notification Router</h4>
+                        <p>Route alerts based on severity, recipient preferences, and time of day. Critical alerts go SMS + call, high priority to Slack + email, routine updates to in-app only.</p>
+                        <div class="use-case-tags">
+                            <span class="use-case-tag trigger">Event Trigger</span>
+                            <span class="use-case-tag">Priority Router</span>
+                            <span class="use-case-tag action">Email/SMS/Slack</span>
+                            <span class="use-case-tag action">Voice Call</span>
+                        </div>
+                    </div>
+                    <div class="use-case-impact">
+                        <div class="impact-label">Delivery</div>
+                        <div class="impact-value">99.9%</div>
+                    </div>
+                </div>
+
+                <div class="use-case-item">
+                    <div class="use-case-number">10</div>
+                    <div class="use-case-content">
+                        <h4>Weekly Compliance Digest</h4>
+                        <p>Compile and send personalized weekly reports to each fleet manager: CSA score trends, expiring docs, pending tasks, inspection summaries, and improvement recommendations.</p>
+                        <div class="use-case-tags">
+                            <span class="use-case-tag trigger">Weekly Schedule</span>
+                            <span class="use-case-tag">Data Aggregation</span>
+                            <span class="use-case-tag">PDF Generation</span>
+                            <span class="use-case-tag action">Email Delivery</span>
+                        </div>
+                    </div>
+                    <div class="use-case-impact">
+                        <div class="impact-label">Engagement</div>
+                        <div class="impact-value">+80%</div>
+                    </div>
+                </div>
+
+                <div class="use-case-item">
+                    <div class="use-case-number">11</div>
+                    <div class="use-case-content">
+                        <h4>Driver Mobile Notifications</h4>
+                        <p>Push real-time compliance updates to driver mobile apps. Document expiration warnings, inspection preparation tips, and immediate action required alerts.</p>
+                        <div class="use-case-tags">
+                            <span class="use-case-tag trigger">Event Trigger</span>
+                            <span class="use-case-tag">User Lookup</span>
+                            <span class="use-case-tag action">Push Notification</span>
+                            <span class="use-case-tag action">Deep Link</span>
+                        </div>
+                    </div>
+                    <div class="use-case-impact">
+                        <div class="impact-label">Response</div>
+                        <div class="impact-value">&lt;1hr</div>
+                    </div>
+                </div>
+
+                <div class="use-case-item">
+                    <div class="use-case-number">12</div>
+                    <div class="use-case-content">
+                        <h4>Slack/Teams Integration</h4>
+                        <p>Post compliance updates to designated channels. Allow team members to acknowledge, assign, or escalate issues directly from chat. Sync status back to VroomX.</p>
+                        <div class="use-case-tags">
+                            <span class="use-case-tag trigger">VroomX Event</span>
+                            <span class="use-case-tag">Message Format</span>
+                            <span class="use-case-tag action">Channel Post</span>
+                            <span class="use-case-tag action">Interactive Buttons</span>
+                        </div>
+                    </div>
+                    <div class="use-case-impact">
+                        <div class="impact-label">Collaboration</div>
+                        <div class="impact-value">+65%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DataQ & Violation Management -->
+        <div class="use-case-category">
+            <div class="category-header">
+                <div class="category-icon">
+                    <i class="fas fa-gavel"></i>
+                </div>
+                <div>
+                    <h3>DataQ & Violation Management</h3>
+                    <span>Automated challenge and remediation workflows</span>
+                </div>
+            </div>
+
+            <div class="use-cases-list">
+                <div class="use-case-item">
+                    <div class="use-case-number">13</div>
+                    <div class="use-case-content">
+                        <h4>DataQ Challenge Eligibility Check</h4>
+                        <p>Automatically analyze new violations against DataQ challenge criteria. Identify high-probability success cases, gather supporting evidence, and initiate challenge workflows.</p>
+                        <div class="use-case-tags">
+                            <span class="use-case-tag trigger">New Violation</span>
+                            <span class="use-case-tag">Rule Analysis</span>
+                            <span class="use-case-tag">Evidence Collector</span>
+                            <span class="use-case-tag action">Challenge Initiation</span>
+                        </div>
+                    </div>
+                    <div class="use-case-impact">
+                        <div class="impact-label">Success Rate</div>
+                        <div class="impact-value">+40%</div>
+                    </div>
+                </div>
+
+                <div class="use-case-item">
+                    <div class="use-case-number">14</div>
+                    <div class="use-case-content">
+                        <h4>AI-Powered Challenge Draft</h4>
+                        <p>Use AI to analyze violation details, relevant regulations, and past successful challenges to auto-generate DataQ challenge letters with supporting arguments and evidence citations.</p>
+                        <div class="use-case-tags">
+                            <span class="use-case-tag trigger">Challenge Requested</span>
+                            <span class="use-case-tag">AI Generation</span>
+                            <span class="use-case-tag">Template Merge</span>
+                            <span class="use-case-tag action">Draft for Review</span>
+                        </div>
+                    </div>
+                    <div class="use-case-impact">
+                        <div class="impact-label">Draft Time</div>
+                        <div class="impact-value">2min</div>
+                    </div>
+                </div>
+
+                <div class="use-case-item">
+                    <div class="use-case-number">15</div>
+                    <div class="use-case-content">
+                        <h4>Challenge Status Tracker</h4>
+                        <p>Monitor FMCSA DataQ portal for challenge status updates. Notify stakeholders of approvals, denials, or requests for additional information. Track timelines and deadlines.</p>
+                        <div class="use-case-tags">
+                            <span class="use-case-tag trigger">Daily Check</span>
+                            <span class="use-case-tag">Status Scraper</span>
+                            <span class="use-case-tag">Change Detection</span>
+                            <span class="use-case-tag action">Status Update</span>
+                        </div>
+                    </div>
+                    <div class="use-case-impact">
+                        <div class="impact-label">Tracking</div>
+                        <div class="impact-value">100%</div>
+                    </div>
+                </div>
+
+                <div class="use-case-item">
+                    <div class="use-case-number">16</div>
+                    <div class="use-case-content">
+                        <h4>Violation Pattern Analysis</h4>
+                        <p>Aggregate violation data across fleet to identify patterns, repeat offenders, and systemic issues. Generate targeted training recommendations and preventive action plans.</p>
+                        <div class="use-case-tags">
+                            <span class="use-case-tag trigger">Monthly Analysis</span>
+                            <span class="use-case-tag">Data Mining</span>
+                            <span class="use-case-tag">AI Insights</span>
+                            <span class="use-case-tag action">Report + Actions</span>
+                        </div>
+                    </div>
+                    <div class="use-case-impact">
+                        <div class="impact-label">Prevention</div>
+                        <div class="impact-value">-35%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- External Integrations -->
+        <div class="use-case-category">
+            <div class="category-header">
+                <div class="category-icon">
+                    <i class="fas fa-network-wired"></i>
+                </div>
+                <div>
+                    <h3>External System Integrations</h3>
+                    <span>Connect VroomX to your existing tech stack</span>
+                </div>
+            </div>
+
+            <div class="use-cases-list">
+                <div class="use-case-item">
+                    <div class="use-case-number">17</div>
+                    <div class="use-case-content">
+                        <h4>ELD Data Integration</h4>
+                        <p>Sync Hours of Service data from major ELD providers (KeepTruckin, Samsara, Omnitracs). Auto-detect HOS violations, driver availability, and compliance status.</p>
+                        <div class="use-case-tags">
+                            <span class="use-case-tag trigger">API Webhook</span>
+                            <span class="use-case-tag">Data Normalize</span>
+                            <span class="use-case-tag">Violation Check</span>
+                            <span class="use-case-tag action">Sync to VroomX</span>
+                        </div>
+                    </div>
+                    <div class="use-case-impact">
+                        <div class="impact-label">Real-Time</div>
+                        <div class="impact-value">Yes</div>
+                    </div>
+                </div>
+
+                <div class="use-case-item">
+                    <div class="use-case-number">18</div>
+                    <div class="use-case-content">
+                        <h4>TMS Dispatch Integration</h4>
+                        <p>Connect to TMS systems to validate driver compliance before dispatch. Block non-compliant assignments, suggest alternatives, and maintain dispatch compliance logs.</p>
+                        <div class="use-case-tags">
+                            <span class="use-case-tag trigger">Dispatch Request</span>
+                            <span class="use-case-tag">Compliance Check</span>
+                            <span class="use-case-tag">Decision Engine</span>
+                            <span class="use-case-tag action">Approve/Block</span>
+                        </div>
+                    </div>
+                    <div class="use-case-impact">
+                        <div class="impact-label">Prevention</div>
+                        <div class="impact-value">100%</div>
+                    </div>
+                </div>
+
+                <div class="use-case-item">
+                    <div class="use-case-number">19</div>
+                    <div class="use-case-content">
+                        <h4>Accounting System Sync</h4>
+                        <p>Export compliance costs, violation fines, training expenses, and subscription fees to QuickBooks, Xero, or other accounting systems. Automate invoice reconciliation.</p>
+                        <div class="use-case-tags">
+                            <span class="use-case-tag trigger">Transaction Event</span>
+                            <span class="use-case-tag">Data Map</span>
+                            <span class="use-case-tag action">Create Entry</span>
+                            <span class="use-case-tag action">Reconcile</span>
+                        </div>
+                    </div>
+                    <div class="use-case-impact">
+                        <div class="impact-label">Accuracy</div>
+                        <div class="impact-value">100%</div>
+                    </div>
+                </div>
+
+                <div class="use-case-item">
+                    <div class="use-case-number">20</div>
+                    <div class="use-case-content">
+                        <h4>HR/Onboarding Integration</h4>
+                        <p>Sync with HRIS systems (BambooHR, Workday) for new driver onboarding. Auto-create driver profiles, initiate DQF collection workflows, and schedule required training.</p>
+                        <div class="use-case-tags">
+                            <span class="use-case-tag trigger">New Hire Event</span>
+                            <span class="use-case-tag">Profile Create</span>
+                            <span class="use-case-tag action">DQF Workflow</span>
+                            <span class="use-case-tag action">Training Schedule</span>
+                        </div>
+                    </div>
+                    <div class="use-case-impact">
+                        <div class="impact-label">Onboard Time</div>
+                        <div class="impact-value">-50%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI-Powered Features -->
+        <div class="use-case-category">
+            <div class="category-header">
+                <div class="category-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <div>
+                    <h3>AI-Powered Automation</h3>
+                    <span>Intelligent workflows using LLM capabilities</span>
+                </div>
+            </div>
+
+            <div class="use-cases-list">
+                <div class="use-case-item">
+                    <div class="use-case-number">21</div>
+                    <div class="use-case-content">
+                        <h4>AI Regulation Assistant Backend</h4>
+                        <p>Power your AI chat feature with automated regulation lookups. Query 49 CFR database, interpret requirements, and provide context-aware compliance guidance.</p>
+                        <div class="use-case-tags">
+                            <span class="use-case-tag trigger">Chat Query</span>
+                            <span class="use-case-tag">RAG Lookup</span>
+                            <span class="use-case-tag">GPT-4/Claude</span>
+                            <span class="use-case-tag action">Response</span>
+                        </div>
+                    </div>
+                    <div class="use-case-impact">
+                        <div class="impact-label">Response</div>
+                        <div class="impact-value">&lt;3sec</div>
+                    </div>
+                </div>
+
+                <div class="use-case-item">
+                    <div class="use-case-number">22</div>
+                    <div class="use-case-content">
+                        <h4>Predictive Compliance Scoring</h4>
+                        <p>Use ML models to predict future CSA scores based on current trends, seasonal patterns, and industry benchmarks. Generate proactive recommendations before issues arise.</p>
+                        <div class="use-case-tags">
+                            <span class="use-case-tag trigger">Weekly Analysis</span>
+                            <span class="use-case-tag">ML Prediction</span>
+                            <span class="use-case-tag">Trend Analysis</span>
+                            <span class="use-case-tag action">Recommendations</span>
+                        </div>
+                    </div>
+                    <div class="use-case-impact">
+                        <div class="impact-label">Prediction</div>
+                        <div class="impact-value">85% acc</div>
+                    </div>
+                </div>
+
+                <div class="use-case-item">
+                    <div class="use-case-number">23</div>
+                    <div class="use-case-content">
+                        <h4>Smart Email Processing</h4>
+                        <p>Monitor inboxes for compliance-related emails (FMCSA notices, insurance updates, inspection reports). Extract data, categorize, and route to appropriate workflows automatically.</p>
+                        <div class="use-case-tags">
+                            <span class="use-case-tag trigger">Email Received</span>
+                            <span class="use-case-tag">AI Classification</span>
+                            <span class="use-case-tag">Data Extraction</span>
+                            <span class="use-case-tag action">Route to Workflow</span>
+                        </div>
+                    </div>
+                    <div class="use-case-impact">
+                        <div class="impact-label">Processing</div>
+                        <div class="impact-value">Auto</div>
+                    </div>
+                </div>
+
+                <div class="use-case-item">
+                    <div class="use-case-number">24</div>
+                    <div class="use-case-content">
+                        <h4>Intelligent Report Generation</h4>
+                        <p>Auto-generate compliance reports with AI-written executive summaries, trend analysis, and actionable recommendations. Customize format for different stakeholders.</p>
+                        <div class="use-case-tags">
+                            <span class="use-case-tag trigger">Report Request</span>
+                            <span class="use-case-tag">Data Compile</span>
+                            <span class="use-case-tag">AI Summary</span>
+                            <span class="use-case-tag action">PDF/Email</span>
+                        </div>
+                    </div>
+                    <div class="use-case-impact">
+                        <div class="impact-label">Time Saved</div>
+                        <div class="impact-value">2hr/report</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Success -->
+        <div class="use-case-category">
+            <div class="category-header">
+                <div class="category-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div>
+                    <h3>Customer Success Automation</h3>
+                    <span>Enhance customer experience and retention</span>
+                </div>
+            </div>
+
+            <div class="use-cases-list">
+                <div class="use-case-item">
+                    <div class="use-case-number">25</div>
+                    <div class="use-case-content">
+                        <h4>Onboarding Sequence Automation</h4>
+                        <p>Trigger personalized onboarding emails based on customer actions. Guide users through platform setup, first FMCSA sync, document uploads, and feature discovery.</p>
+                        <div class="use-case-tags">
+                            <span class="use-case-tag trigger">Signup Event</span>
+                            <span class="use-case-tag">Drip Campaign</span>
+                            <span class="use-case-tag">Behavior Track</span>
+                            <span class="use-case-tag action">Email Sequence</span>
+                        </div>
+                    </div>
+                    <div class="use-case-impact">
+                        <div class="impact-label">Activation</div>
+                        <div class="impact-value">+45%</div>
+                    </div>
+                </div>
+
+                <div class="use-case-item">
+                    <div class="use-case-number">26</div>
+                    <div class="use-case-content">
+                        <h4>Churn Risk Detection</h4>
+                        <p>Monitor usage patterns, login frequency, feature adoption, and compliance improvements. Identify at-risk customers and trigger retention workflows or CS team alerts.</p>
+                        <div class="use-case-tags">
+                            <span class="use-case-tag trigger">Daily Analysis</span>
+                            <span class="use-case-tag">Risk Scoring</span>
+                            <span class="use-case-tag action">CS Alert</span>
+                            <span class="use-case-tag action">Retention Email</span>
+                        </div>
+                    </div>
+                    <div class="use-case-impact">
+                        <div class="impact-label">Churn</div>
+                        <div class="impact-value">-30%</div>
+                    </div>
+                </div>
+
+                <div class="use-case-item">
+                    <div class="use-case-number">27</div>
+                    <div class="use-case-content">
+                        <h4>NPS/Feedback Automation</h4>
+                        <p>Automatically send satisfaction surveys after key milestones. Route negative feedback to CS team immediately. Compile feedback for product improvement insights.</p>
+                        <div class="use-case-tags">
+                            <span class="use-case-tag trigger">Milestone Reached</span>
+                            <span class="use-case-tag">Survey Send</span>
+                            <span class="use-case-tag">Score Analysis</span>
+                            <span class="use-case-tag action">Route/Compile</span>
+                        </div>
+                    </div>
+                    <div class="use-case-impact">
+                        <div class="impact-label">NPS</div>
+                        <div class="impact-value">+25pts</div>
+                    </div>
+                </div>
+
+                <div class="use-case-item">
+                    <div class="use-case-number">28</div>
+                    <div class="use-case-content">
+                        <h4>Success Milestone Celebrations</h4>
+                        <p>Automatically recognize and celebrate customer achievements: improved CSA scores, audit passed, full DQF compliance. Send congratulations and share success stories.</p>
+                        <div class="use-case-tags">
+                            <span class="use-case-tag trigger">Achievement Event</span>
+                            <span class="use-case-tag">Badge Award</span>
+                            <span class="use-case-tag action">Email/In-App</span>
+                            <span class="use-case-tag action">Social Share</span>
+                        </div>
+                    </div>
+                    <div class="use-case-impact">
+                        <div class="impact-label">Engagement</div>
+                        <div class="impact-value">+60%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sample Workflows Section -->
+    <section class="workflows-section container" id="workflows">
+        <div class="section-title">
+            <h2>Sample Workflow Diagrams</h2>
+            <p>Visual representation of key automation workflows</p>
+        </div>
+
+        <!-- Workflow 1 -->
+        <div class="workflow-diagram">
+            <div class="workflow-header">
+                <h4><i class="fas fa-sync-alt" style="color: var(--crimson); margin-right: 0.5rem;"></i>FMCSA Data Sync Workflow</h4>
+                <span class="workflow-badge high">High Priority</span>
+            </div>
+            <div class="workflow-nodes">
+                <div class="workflow-node">
+                    <div class="node-icon trigger">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="node-label">Cron Trigger<br>(Every 6 Hours)</div>
+                </div>
+                <div class="node-connector"></div>
+                <div class="workflow-node">
+                    <div class="node-icon process">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <div class="node-label">Fetch SAFER<br>API Data</div>
+                </div>
+                <div class="node-connector"></div>
+                <div class="workflow-node">
+                    <div class="node-icon process">
+                        <i class="fas fa-code-compare"></i>
+                    </div>
+                    <div class="node-label">Compare with<br>Current Data</div>
+                </div>
+                <div class="node-connector"></div>
+                <div class="workflow-node">
+                    <div class="node-icon condition">
+                        <i class="fas fa-code-branch"></i>
+                    </div>
+                    <div class="node-label">Changes<br>Detected?</div>
+                </div>
+                <div class="node-connector"></div>
+                <div class="workflow-node">
+                    <div class="node-icon action">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <div class="node-label">Update<br>VroomX DB</div>
+                </div>
+                <div class="node-connector"></div>
+                <div class="workflow-node">
+                    <div class="node-icon integration">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <div class="node-label">Send Change<br>Notifications</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workflow 2 -->
+        <div class="workflow-diagram">
+            <div class="workflow-header">
+                <h4><i class="fas fa-folder-open" style="color: var(--crimson); margin-right: 0.5rem;"></i>Document Expiration Alert Workflow</h4>
+                <span class="workflow-badge high">High Priority</span>
+            </div>
+            <div class="workflow-nodes">
+                <div class="workflow-node">
+                    <div class="node-icon trigger">
+                        <i class="fas fa-calendar"></i>
+                    </div>
+                    <div class="node-label">Daily<br>Schedule</div>
+                </div>
+                <div class="node-connector"></div>
+                <div class="workflow-node">
+                    <div class="node-icon process">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <div class="node-label">Query Expiring<br>Documents</div>
+                </div>
+                <div class="node-connector"></div>
+                <div class="workflow-node">
+                    <div class="node-icon condition">
+                        <i class="fas fa-filter"></i>
+                    </div>
+                    <div class="node-label">Filter by<br>Urgency Level</div>
+                </div>
+                <div class="node-connector"></div>
+                <div class="workflow-node">
+                    <div class="node-icon process">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="node-label">Get Driver &<br>Manager Info</div>
+                </div>
+                <div class="node-connector"></div>
+                <div class="workflow-node">
+                    <div class="node-icon action">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="node-label">Send Email<br>Alerts</div>
+                </div>
+                <div class="node-connector"></div>
+                <div class="workflow-node">
+                    <div class="node-icon integration">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <div class="node-label">Push<br>Notifications</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workflow 3 -->
+        <div class="workflow-diagram">
+            <div class="workflow-header">
+                <h4><i class="fas fa-gavel" style="color: var(--crimson); margin-right: 0.5rem;"></i>DataQ Challenge Automation Workflow</h4>
+                <span class="workflow-badge medium">Medium Priority</span>
+            </div>
+            <div class="workflow-nodes">
+                <div class="workflow-node">
+                    <div class="node-icon trigger">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="node-label">New Violation<br>Detected</div>
+                </div>
+                <div class="node-connector"></div>
+                <div class="workflow-node">
+                    <div class="node-icon process">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <div class="node-label">AI Eligibility<br>Analysis</div>
+                </div>
+                <div class="node-connector"></div>
+                <div class="workflow-node">
+                    <div class="node-icon condition">
+                        <i class="fas fa-check-double"></i>
+                    </div>
+                    <div class="node-label">Eligible for<br>Challenge?</div>
+                </div>
+                <div class="node-connector"></div>
+                <div class="workflow-node">
+                    <div class="node-icon process">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="node-label">Generate<br>Challenge Draft</div>
+                </div>
+                <div class="node-connector"></div>
+                <div class="workflow-node">
+                    <div class="node-icon action">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div class="node-label">Create Review<br>Task</div>
+                </div>
+                <div class="node-connector"></div>
+                <div class="workflow-node">
+                    <div class="node-icon integration">
+                        <i class="fab fa-slack"></i>
+                    </div>
+                    <div class="node-label">Notify<br>Compliance Team</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Integrations Section -->
+    <section class="integrations-section container" id="integrations">
+        <div class="section-title">
+            <h2>Key Integration Possibilities</h2>
+            <p>Connect VroomX Safety with your existing tools and services</p>
+        </div>
+
+        <div class="integrations-grid">
+            <div class="integration-card">
+                <div class="integration-icon">
+                    <i class="fas fa-truck" style="color: #22c55e;"></i>
+                </div>
+                <h4>ELD Providers</h4>
+                <p>KeepTruckin, Samsara, Omnitracs, Geotab, BigRoad</p>
+                <span class="integration-category">Fleet Operations</span>
+            </div>
+
+            <div class="integration-card">
+                <div class="integration-icon">
+                    <i class="fas fa-route" style="color: #3b82f6;"></i>
+                </div>
+                <h4>TMS Systems</h4>
+                <p>McLeod, TMW, MercuryGate, Descartes, Trimble</p>
+                <span class="integration-category">Dispatch</span>
+            </div>
+
+            <div class="integration-card">
+                <div class="integration-icon">
+                    <i class="fas fa-envelope" style="color: #f59e0b;"></i>
+                </div>
+                <h4>Email/SMS</h4>
+                <p>SendGrid, Mailgun, Twilio, AWS SES, Postmark</p>
+                <span class="integration-category">Communication</span>
+            </div>
+
+            <div class="integration-card">
+                <div class="integration-icon">
+                    <i class="fab fa-slack" style="color: #8b5cf6;"></i>
+                </div>
+                <h4>Team Chat</h4>
+                <p>Slack, Microsoft Teams, Discord, Google Chat</p>
+                <span class="integration-category">Collaboration</span>
+            </div>
+
+            <div class="integration-card">
+                <div class="integration-icon">
+                    <i class="fas fa-calculator" style="color: #ec4899;"></i>
+                </div>
+                <h4>Accounting</h4>
+                <p>QuickBooks, Xero, FreshBooks, Sage, Wave</p>
+                <span class="integration-category">Finance</span>
+            </div>
+
+            <div class="integration-card">
+                <div class="integration-icon">
+                    <i class="fas fa-users-cog" style="color: #06b6d4;"></i>
+                </div>
+                <h4>HRIS</h4>
+                <p>BambooHR, Workday, Gusto, ADP, Paylocity</p>
+                <span class="integration-category">HR</span>
+            </div>
+
+            <div class="integration-card">
+                <div class="integration-icon">
+                    <i class="fas fa-database" style="color: var(--crimson);"></i>
+                </div>
+                <h4>Databases</h4>
+                <p>PostgreSQL, MySQL, MongoDB, Supabase, Firebase</p>
+                <span class="integration-category">Data</span>
+            </div>
+
+            <div class="integration-card">
+                <div class="integration-icon">
+                    <i class="fas fa-cloud" style="color: #64748b;"></i>
+                </div>
+                <h4>Cloud Storage</h4>
+                <p>AWS S3, Google Cloud, Azure, Dropbox, Box</p>
+                <span class="integration-category">Storage</span>
+            </div>
+
+            <div class="integration-card">
+                <div class="integration-icon">
+                    <i class="fas fa-robot" style="color: #10b981;"></i>
+                </div>
+                <h4>AI/ML</h4>
+                <p>OpenAI, Anthropic Claude, Google AI, Hugging Face</p>
+                <span class="integration-category">Intelligence</span>
+            </div>
+
+            <div class="integration-card">
+                <div class="integration-icon">
+                    <i class="fas fa-file-pdf" style="color: #ef4444;"></i>
+                </div>
+                <h4>Document Processing</h4>
+                <p>DocuSign, Adobe Sign, PDF.co, AWS Textract</p>
+                <span class="integration-category">Documents</span>
+            </div>
+
+            <div class="integration-card">
+                <div class="integration-icon">
+                    <i class="fas fa-headset" style="color: #f97316;"></i>
+                </div>
+                <h4>Support</h4>
+                <p>Zendesk, Intercom, Freshdesk, HubSpot, Help Scout</p>
+                <span class="integration-category">Customer Success</span>
+            </div>
+
+            <div class="integration-card">
+                <div class="integration-icon">
+                    <i class="fas fa-chart-bar" style="color: #a855f7;"></i>
+                </div>
+                <h4>Analytics</h4>
+                <p>Mixpanel, Amplitude, Segment, Google Analytics</p>
+                <span class="integration-category">Insights</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ROI Section -->
+    <section class="roi-section container" id="roi">
+        <div class="section-title">
+            <h2>Projected ROI Impact</h2>
+            <p>Estimated benefits from full n8n implementation</p>
+        </div>
+
+        <div class="roi-grid">
+            <div class="roi-card">
+                <div class="roi-value">85%</div>
+                <div class="roi-label">Reduction in Manual Tasks</div>
+            </div>
+            <div class="roi-card">
+                <div class="roi-value">40+</div>
+                <div class="roi-label">Hours Saved Weekly</div>
+            </div>
+            <div class="roi-card">
+                <div class="roi-value">100%</div>
+                <div class="roi-label">Document Compliance</div>
+            </div>
+            <div class="roi-card">
+                <div class="roi-value">5min</div>
+                <div class="roi-label">Issue Response Time</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Priority Table -->
+    <section class="priority-section container">
+        <div class="section-title">
+            <h2>Implementation Priority Matrix</h2>
+            <p>Recommended workflow implementation order based on impact and effort</p>
+        </div>
+
+        <div class="priority-table">
+            <div class="priority-header">
+                <div>Workflow</div>
+                <div>Priority</div>
+                <div>Effort</div>
+                <div>Impact</div>
+                <div>Time Saved</div>
+            </div>
+            <div class="priority-row">
+                <div class="workflow-name">FMCSA SAFER Data Sync</div>
+                <div><span class="priority-badge critical">Critical</span></div>
+                <div class="effort">Medium</div>
+                <div class="impact">Very High</div>
+                <div class="time-saved">4+ hrs/day</div>
+            </div>
+            <div class="priority-row">
+                <div class="workflow-name">Document Expiration Alerts</div>
+                <div><span class="priority-badge critical">Critical</span></div>
+                <div class="effort">Low</div>
+                <div class="impact">Very High</div>
+                <div class="time-saved">2+ hrs/day</div>
+            </div>
+            <div class="priority-row">
+                <div class="workflow-name">CSA Score Change Detection</div>
+                <div><span class="priority-badge critical">Critical</span></div>
+                <div class="effort">Medium</div>
+                <div class="impact">High</div>
+                <div class="time-saved">1+ hr/day</div>
+            </div>
+            <div class="priority-row">
+                <div class="workflow-name">Multi-Channel Notifications</div>
+                <div><span class="priority-badge high">High</span></div>
+                <div class="effort">Low</div>
+                <div class="impact">High</div>
+                <div class="time-saved">30 min/day</div>
+            </div>
+            <div class="priority-row">
+                <div class="workflow-name">AI Document Verification</div>
+                <div><span class="priority-badge high">High</span></div>
+                <div class="effort">High</div>
+                <div class="impact">High</div>
+                <div class="time-saved">2+ hrs/day</div>
+            </div>
+            <div class="priority-row">
+                <div class="workflow-name">DataQ Challenge Automation</div>
+                <div><span class="priority-badge high">High</span></div>
+                <div class="effort">Medium</div>
+                <div class="impact">Medium</div>
+                <div class="time-saved">1+ hr/case</div>
+            </div>
+            <div class="priority-row">
+                <div class="workflow-name">ELD Integration</div>
+                <div><span class="priority-badge high">High</span></div>
+                <div class="effort">High</div>
+                <div class="impact">High</div>
+                <div class="time-saved">Real-time</div>
+            </div>
+            <div class="priority-row">
+                <div class="workflow-name">Weekly Compliance Digest</div>
+                <div><span class="priority-badge medium">Medium</span></div>
+                <div class="effort">Medium</div>
+                <div class="impact">Medium</div>
+                <div class="time-saved">2+ hrs/week</div>
+            </div>
+            <div class="priority-row">
+                <div class="workflow-name">Customer Onboarding Sequence</div>
+                <div><span class="priority-badge medium">Medium</span></div>
+                <div class="effort">Medium</div>
+                <div class="impact">Medium</div>
+                <div class="time-saved">+45% activation</div>
+            </div>
+            <div class="priority-row">
+                <div class="workflow-name">Churn Risk Detection</div>
+                <div><span class="priority-badge medium">Medium</span></div>
+                <div class="effort">High</div>
+                <div class="impact">Medium</div>
+                <div class="time-saved">-30% churn</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Implementation Timeline -->
+    <section class="timeline-section container" id="implementation">
+        <div class="section-title">
+            <h2>Suggested Implementation Timeline</h2>
+            <p>Phased rollout for maximum impact with minimal disruption</p>
+        </div>
+
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h4>Phase 1: Foundation</h4>
+                    <p>Deploy n8n instance, configure VroomX API connections, implement FMCSA data sync and basic document expiration alerts.</p>
+                </div>
+                <div class="timeline-week">1-2</div>
+                <div class="timeline-spacer"></div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h4>Phase 2: Notifications</h4>
+                    <p>Set up multi-channel notification routing (email, SMS, Slack), CSA score change detection, and weekly compliance digest.</p>
+                </div>
+                <div class="timeline-week">3-4</div>
+                <div class="timeline-spacer"></div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h4>Phase 3: Intelligence</h4>
+                    <p>Implement AI document verification, DataQ challenge automation, and predictive compliance scoring workflows.</p>
+                </div>
+                <div class="timeline-week">5-6</div>
+                <div class="timeline-spacer"></div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h4>Phase 4: Integrations</h4>
+                    <p>Connect ELD providers, TMS systems, and accounting software. Enable bi-directional data flows with external systems.</p>
+                </div>
+                <div class="timeline-week">7-8</div>
+                <div class="timeline-spacer"></div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h4>Phase 5: Optimization</h4>
+                    <p>Implement customer success automations, refine workflows based on metrics, and expand to advanced use cases.</p>
+                </div>
+                <div class="timeline-week">9+</div>
+                <div class="timeline-spacer"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tech Requirements -->
+    <section class="tech-section container">
+        <div class="section-title">
+            <h2>Technical Requirements</h2>
+            <p>What you need to implement n8n automation</p>
+        </div>
+
+        <div class="tech-grid">
+            <div class="tech-card">
+                <h4><i class="fas fa-server"></i> Infrastructure</h4>
+                <ul class="tech-list">
+                    <li><i class="fas fa-check"></i> n8n self-hosted or cloud instance</li>
+                    <li><i class="fas fa-check"></i> Docker or Node.js environment</li>
+                    <li><i class="fas fa-check"></i> 2GB+ RAM recommended</li>
+                    <li><i class="fas fa-check"></i> PostgreSQL for workflow storage</li>
+                    <li><i class="fas fa-check"></i> Redis for queue management (optional)</li>
+                </ul>
+            </div>
+
+            <div class="tech-card">
+                <h4><i class="fas fa-code"></i> VroomX Requirements</h4>
+                <ul class="tech-list">
+                    <li><i class="fas fa-check"></i> REST API endpoints for data access</li>
+                    <li><i class="fas fa-check"></i> Webhook endpoints for triggers</li>
+                    <li><i class="fas fa-check"></i> API authentication (JWT/OAuth)</li>
+                    <li><i class="fas fa-check"></i> Event emission for real-time triggers</li>
+                    <li><i class="fas fa-check"></i> Rate limiting consideration</li>
+                </ul>
+            </div>
+
+            <div class="tech-card">
+                <h4><i class="fas fa-shield-alt"></i> Security</h4>
+                <ul class="tech-list">
+                    <li><i class="fas fa-check"></i> SSL/TLS encryption</li>
+                    <li><i class="fas fa-check"></i> API key rotation capability</li>
+                    <li><i class="fas fa-check"></i> Credential encryption in n8n</li>
+                    <li><i class="fas fa-check"></i> Audit logging for workflows</li>
+                    <li><i class="fas fa-check"></i> RBAC for n8n access</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <h2>Ready to Automate VroomX Safety?</h2>
+        <p>Implementing n8n workflows will dramatically reduce manual work, ensure 100% compliance, and delight your customers with proactive notifications.</p>
+        <div class="cta-buttons">
+            <a href="#" class="btn btn-primary">
+                <i class="fas fa-rocket"></i>
+                Start Implementation
+            </a>
+            <a href="https://n8n.io" class="btn btn-secondary" target="_blank">
+                <i class="fas fa-external-link-alt"></i>
+                Learn More About n8n
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>VroomX Safety | n8n Integration Strategy Document | Generated January 2026</p>
+    </footer>
+</body>
+</html>

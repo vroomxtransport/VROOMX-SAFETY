@@ -5,7 +5,8 @@ import { useAuth } from '../context/AuthContext';
 import {
   FiUsers, FiTruck, FiAlertTriangle, FiClock,
   FiCheckCircle, FiAlertCircle, FiFileText, FiShield,
-  FiMessageCircle, FiArrowRight, FiRefreshCw, FiTrendingUp, FiTrendingDown, FiMinus
+  FiMessageCircle, FiArrowRight, FiRefreshCw, FiTrendingUp, FiTrendingDown, FiMinus,
+  FiGift
 } from 'react-icons/fi';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
@@ -163,6 +164,18 @@ const Dashboard = () => {
       direction: trend.trend,
       change: trend.change || 0
     };
+  };
+
+  // Format birthday date with day of week
+  const formatBirthdayDate = (dateString, daysUntil) => {
+    const date = new Date(dateString);
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    if (daysUntil === 0) return 'Today!';
+    if (daysUntil === 1) return 'Tomorrow';
+
+    return `${monthNames[date.getMonth()]} ${date.getDate()} (${dayNames[date.getDay()]})`;
   };
 
   if (loading) {
@@ -576,7 +589,7 @@ const Dashboard = () => {
       {/* Bottom Row */}
       <div className="grid grid-cols-12 gap-6">
         {/* Recent Alerts */}
-        <div className="col-span-12 lg:col-span-5 bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl overflow-hidden shadow-sm">
+        <div className="col-span-12 lg:col-span-4 bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl overflow-hidden shadow-sm">
           <div className="p-5 border-b border-zinc-100 dark:border-white/5 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-500/10 flex items-center justify-center">
@@ -634,8 +647,72 @@ const Dashboard = () => {
           )}
         </div>
 
+        {/* Driver Birthdays */}
+        <div className="col-span-12 lg:col-span-3 bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl overflow-hidden shadow-sm">
+          <div className="p-5 border-b border-zinc-100 dark:border-white/5 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-pink-100 dark:bg-pink-500/10 flex items-center justify-center">
+                <FiGift className="w-5 h-5 text-pink-600 dark:text-pink-400" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-zinc-900 dark:text-white">Birthdays</h3>
+                <p className="text-xs text-zinc-600 dark:text-zinc-300">Next 7 days</p>
+              </div>
+            </div>
+            {(data?.upcomingBirthdays?.length || 0) > 0 && (
+              <span className="px-2.5 py-1 bg-pink-100 dark:bg-pink-500/20 text-pink-600 dark:text-pink-400 text-xs font-semibold rounded-full">
+                {data.upcomingBirthdays.length}
+              </span>
+            )}
+          </div>
+          <div className="divide-y divide-zinc-100 dark:divide-white/5">
+            {!data?.upcomingBirthdays || data.upcomingBirthdays.length === 0 ? (
+              <div className="p-8 text-center">
+                <div className="w-14 h-14 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mx-auto mb-3">
+                  <FiGift className="w-7 h-7 text-zinc-400 dark:text-zinc-500" />
+                </div>
+                <p className="font-medium text-zinc-700 dark:text-zinc-200">No Birthdays</p>
+                <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-1">None in the next 7 days</p>
+              </div>
+            ) : (
+              data.upcomingBirthdays.slice(0, 4).map((birthday, index) => (
+                <Link
+                  key={birthday.id}
+                  to={`/app/drivers/${birthday.id}`}
+                  className="group p-4 hover:bg-pink-50 dark:hover:bg-pink-500/5 hover:pl-5 border-l-2 border-transparent hover:border-pink-500 transition-all duration-200 flex items-center gap-3"
+                >
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-200 ${
+                    birthday.daysUntil === 0 ? 'bg-pink-100 dark:bg-pink-500/20' : 'bg-zinc-100 dark:bg-zinc-800'
+                  }`}>
+                    <FiGift className={`w-4 h-4 ${birthday.daysUntil === 0 ? 'text-pink-600 dark:text-pink-400' : 'text-zinc-500 dark:text-zinc-400'}`} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-zinc-900 dark:text-white truncate group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors">
+                      {birthday.firstName} {birthday.lastName}
+                    </p>
+                    <p className={`text-xs ${birthday.daysUntil === 0 ? 'text-pink-600 dark:text-pink-400 font-semibold' : 'text-zinc-600 dark:text-zinc-300'}`}>
+                      {formatBirthdayDate(birthday.birthdayDate, birthday.daysUntil)}
+                    </p>
+                  </div>
+                </Link>
+              ))
+            )}
+          </div>
+          {(data?.upcomingBirthdays?.length || 0) > 0 && (
+            <div className="p-4 border-t border-zinc-100 dark:border-white/5">
+              <Link
+                to="/app/drivers"
+                className="w-full py-2.5 text-sm font-medium text-pink-500 hover:text-pink-600 dark:hover:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-500/10 rounded-xl transition-colors flex items-center justify-center gap-1"
+              >
+                View All Drivers
+                <FiArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          )}
+        </div>
+
         {/* Driver & Vehicle Status */}
-        <div className="col-span-12 lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="col-span-12 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Driver Status */}
           <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl overflow-hidden shadow-sm">
             <div className="p-5 border-b border-zinc-100 dark:border-white/5 flex items-center justify-between">

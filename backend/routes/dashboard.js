@@ -31,7 +31,8 @@ router.get('/', asyncHandler(async (req, res) => {
     openDataQDisputes,
     drugTestStats,
     recentAccidents,
-    documentStats
+    documentStats,
+    driversWithBirthdays
   ] = await Promise.all([
     // Company info with SMS BASICs
     Company.findById(companyId).select('name dotNumber smsBasics'),
@@ -134,7 +135,14 @@ router.get('/', asyncHandler(async (req, res) => {
           dueSoon: { $sum: { $cond: [{ $eq: ['$status', 'due_soon'] }, 1, 0] } }
         }
       }
-    ])
+    ]),
+
+    // Drivers with birthdays (fetch all active drivers with dateOfBirth to filter in JS)
+    Driver.find({
+      companyId,
+      status: 'active',
+      dateOfBirth: { $exists: true, $ne: null }
+    }).select('firstName lastName dateOfBirth')
   ]);
 
   // Process SMS BASICs data
@@ -237,6 +245,37 @@ router.get('/', asyncHandler(async (req, res) => {
     }
   });
 
+  // Filter drivers with birthdays in the next 7 days
+  const upcomingBirthdays = driversWithBirthdays
+    .map(driver => {
+      const dob = new Date(driver.dateOfBirth);
+      const today = new Date();
+
+      // Create birthday date for this year
+      let birthdayThisYear = new Date(today.getFullYear(), dob.getMonth(), dob.getDate());
+
+      // If birthday has passed this year, check if it's within the window from end of year
+      if (birthdayThisYear < today) {
+        // Check next year's birthday
+        birthdayThisYear = new Date(today.getFullYear() + 1, dob.getMonth(), dob.getDate());
+      }
+
+      // Calculate days until birthday
+      const timeDiff = birthdayThisYear.getTime() - today.getTime();
+      const daysUntil = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+
+      return {
+        id: driver._id,
+        firstName: driver.firstName,
+        lastName: driver.lastName,
+        dateOfBirth: driver.dateOfBirth,
+        birthdayDate: birthdayThisYear,
+        daysUntil
+      };
+    })
+    .filter(driver => driver.daysUntil >= 0 && driver.daysUntil <= 7)
+    .sort((a, b) => a.daysUntil - b.daysUntil);
+
   res.json({
     success: true,
     dashboard: {
@@ -272,6 +311,7 @@ router.get('/', asyncHandler(async (req, res) => {
         isDotRecordable: a.isDotRecordable
       })),
       documents: documentStats[0] || { total: 0, expired: 0, dueSoon: 0 },
+      upcomingBirthdays,
       alerts: alerts.sort((a, b) => {
         const priority = { critical: 0, warning: 1, info: 2 };
         return priority[a.type] - priority[b.type];

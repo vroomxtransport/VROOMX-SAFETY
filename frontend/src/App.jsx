@@ -5,6 +5,8 @@ import Layout from './components/Layout';
 import Landing from './pages/Landing';
 import Blog from './pages/Blog';
 import CSACheckerPage from './pages/CSACheckerPage';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Drivers from './pages/Drivers';
@@ -159,6 +161,10 @@ function App() {
 
         {/* CSA Checker - public lead magnet */}
         <Route path="/csa-checker" element={<CSACheckerPage />} />
+
+        {/* Legal Pages - public */}
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsOfService />} />
 
         {/* Billing route - allows pending_payment users */}
         <Route

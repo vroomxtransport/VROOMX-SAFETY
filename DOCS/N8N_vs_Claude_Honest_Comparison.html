@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>n8n vs Claude - Honest Comparison for VroomX Safety</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --crimson: #e11d48;
+            --crimson-dark: #be123c;
+            --crimson-light: #fb7185;
+            --dark-bg: #0a0a0a;
+            --card-bg: #111111;
+            --card-border: #1f1f1f;
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #8b5cf6;
+            --claude-orange: #cc785c;
+            --n8n-orange: #ff6d5a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Hero */
+        .hero {
+            padding: 4rem 2rem;
+            text-align: center;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .hero h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.75rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .hero h1 .highlight {
+            color: var(--crimson);
+        }
+
+        .hero p {
+            color: var(--text-secondary);
+            font-size: 1.15rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Section */
+        section {
+            padding: 4rem 0;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-title h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .section-title p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        /* Key Difference Box */
+        .key-difference {
+            background: linear-gradient(135deg, rgba(225, 29, 72, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border: 1px solid rgba(225, 29, 72, 0.3);
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .key-difference h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .difference-grid {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .difference-box {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .difference-box.claude {
+            border-color: var(--claude-orange);
+        }
+
+        .difference-box.n8n {
+            border-color: var(--n8n-orange);
+        }
+
+        .difference-box h4 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .difference-box.claude h4 {
+            color: var(--claude-orange);
+        }
+
+        .difference-box.n8n h4 {
+            color: var(--n8n-orange);
+        }
+
+        .difference-box p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        .difference-box .keyword {
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .difference-box.claude .keyword {
+            color: var(--claude-orange);
+        }
+
+        .difference-box.n8n .keyword {
+            color: var(--n8n-orange);
+        }
+
+        .vs-badge {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: 2px solid var(--card-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+
+        /* Comparison Table */
+        .comparison-table {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .table-header {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            background: rgba(225, 29, 72, 0.1);
+            padding: 1rem 1.5rem;
+            font-weight: 600;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .table-header span:nth-child(2) {
+            text-align: center;
+            color: var(--claude-orange);
+        }
+
+        .table-header span:nth-child(3) {
+            text-align: center;
+            color: var(--n8n-orange);
+        }
+
+        .table-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--card-border);
+            align-items: center;
+        }
+
+        .table-row:last-child {
+            border-bottom: none;
+        }
+
+        .table-row:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .table-row .feature {
+            font-weight: 500;
+        }
+
+        .table-row .feature small {
+            display: block;
+            color: var(--text-secondary);
+            font-weight: 400;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+        }
+
+        .table-row .check {
+            text-align: center;
+            font-size: 1.25rem;
+        }
+
+        .check.yes {
+            color: var(--success);
+        }
+
+        .check.no {
+            color: #ef4444;
+        }
+
+        .check.partial {
+            color: var(--warning);
+        }
+
+        /* Category Cards */
+        .category-section {
+            margin-bottom: 3rem;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .category-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .category-icon.claude {
+            background: rgba(204, 120, 92, 0.15);
+            color: var(--claude-orange);
+        }
+
+        .category-icon.n8n {
+            background: rgba(255, 109, 90, 0.15);
+            color: var(--n8n-orange);
+        }
+
+        .category-icon.both {
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--purple);
+        }
+
+        .category-header h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 600;
+        }
+
+        .category-header .tag {
+            padding: 0.35rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .category-header .tag.claude {
+            background: rgba(204, 120, 92, 0.15);
+            color: var(--claude-orange);
+        }
+
+        .category-header .tag.n8n {
+            background: rgba(255, 109, 90, 0.15);
+            color: var(--n8n-orange);
+        }
+
+        .category-header .tag.both {
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--purple);
+        }
+
+        /* Use Case Cards */
+        .use-case-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .use-case-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .use-case-card:hover {
+            border-color: var(--crimson);
+        }
+
+        .use-case-card h4 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .use-case-card h4 i {
+            color: var(--crimson);
+        }
+
+        .use-case-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .use-case-card .why {
+            background: rgba(34, 197, 94, 0.1);
+            border-left: 3px solid var(--success);
+            padding: 0.75rem 1rem;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.85rem;
+        }
+
+        .use-case-card .why strong {
+            color: var(--success);
+        }
+
+        /* n8n Exclusive Section */
+        .n8n-exclusive {
+            background: linear-gradient(135deg, rgba(255, 109, 90, 0.05) 0%, rgba(255, 109, 90, 0.1) 100%);
+            border: 1px solid rgba(255, 109, 90, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .n8n-exclusive h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.35rem;
+            color: var(--n8n-orange);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .exclusive-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .exclusive-item {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 1.25rem;
+        }
+
+        .exclusive-item h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .exclusive-item h4 i {
+            color: var(--n8n-orange);
+        }
+
+        .exclusive-item p {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        /* Claude Territory Section */
+        .claude-territory {
+            background: linear-gradient(135deg, rgba(204, 120, 92, 0.05) 0%, rgba(204, 120, 92, 0.1) 100%);
+            border: 1px solid rgba(204, 120, 92, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .claude-territory h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.35rem;
+            color: var(--claude-orange);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        /* Decision Matrix */
+        .decision-section {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .decision-section h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.35rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .decision-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .decision-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 10px;
+            border-left: 4px solid transparent;
+        }
+
+        .decision-item.claude-answer {
+            border-left-color: var(--claude-orange);
+        }
+
+        .decision-item.n8n-answer {
+            border-left-color: var(--n8n-orange);
+        }
+
+        .decision-item .question {
+            flex: 1;
+            font-size: 0.95rem;
+        }
+
+        .decision-item .answer {
+            font-weight: 600;
+            padding: 0.35rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+        }
+
+        .decision-item.claude-answer .answer {
+            background: rgba(204, 120, 92, 0.15);
+            color: var(--claude-orange);
+        }
+
+        .decision-item.n8n-answer .answer {
+            background: rgba(255, 109, 90, 0.15);
+            color: var(--n8n-orange);
+        }
+
+        /* Real Value Section */
+        .real-value {
+            text-align: center;
+            padding: 3rem;
+            background: linear-gradient(135deg, rgba(225, 29, 72, 0.1) 0%, transparent 100%);
+            border-radius: 16px;
+            margin-top: 2rem;
+        }
+
+        .real-value h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .real-value p {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+        }
+
+        .value-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .value-stat {
+            text-align: center;
+        }
+
+        .value-stat .number {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--crimson);
+        }
+
+        .value-stat .label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Recommendation Box */
+        .recommendation {
+            background: var(--card-bg);
+            border: 2px solid var(--crimson);
+            border-radius: 16px;
+            padding: 2.5rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .recommendation h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--crimson);
+        }
+
+        .recommendation p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            max-width: 800px;
+            margin: 0 auto 1.5rem;
+        }
+
+        .recommendation .verdict {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--crimson) 0%, var(--crimson-dark) 100%);
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        /* Footer */
+        footer {
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .difference-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .vs-badge {
+                display: none;
+            }
+
+            .table-header,
+            .table-row {
+                grid-template-columns: 1.5fr 1fr 1fr;
+                font-size: 0.85rem;
+            }
+
+            .use-case-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .value-stats {
+                gap: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero -->
+    <section class="hero">
+        <div class="container">
+            <h1>n8n vs Claude: <span class="highlight">Honest Comparison</span></h1>
+            <p>A straightforward analysis of what n8n actually adds to VroomX Safety that Claude/AI can't already do — and what you don't need n8n for.</p>
+        </div>
+    </section>
+
+    <!-- Key Difference -->
+    <section class="container">
+        <div class="key-difference">
+            <h3>🎯 The Fundamental Difference</h3>
+            <div class="difference-grid">
+                <div class="difference-box claude">
+                    <h4>Claude / AI</h4>
+                    <p>Responds when asked</p>
+                    <div class="keyword">REACTIVE</div>
+                    <p style="margin-top: 1rem; font-size: 0.85rem;">User triggers action → AI responds</p>
+                </div>
+                <div class="vs-badge">VS</div>
+                <div class="difference-box n8n">
+                    <h4>n8n</h4>
+                    <p>Acts without being asked</p>
+                    <div class="keyword">PROACTIVE</div>
+                    <p style="margin-top: 1rem; font-size: 0.85rem;">Event/schedule triggers → Automation runs</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title">
+            <h2>Feature Comparison</h2>
+            <p>Who does what better?</p>
+        </div>
+
+        <div class="comparison-table">
+            <div class="table-header">
+                <span>Capability</span>
+                <span>Claude</span>
+                <span>n8n</span>
+            </div>
+            <div class="table-row">
+                <div class="feature">
+                    Analyze documents with AI
+                    <small>OCR, extract data, verify authenticity</small>
+                </div>
+                <div class="check yes"><i class="fas fa-check-circle"></i></div>
+                <div class="check no"><i class="fas fa-times-circle"></i></div>
+            </div>
+            <div class="table-row">
+                <div class="feature">
+                    Answer regulation questions
+                    <small>49 CFR interpretation, compliance guidance</small>
+                </div>
+                <div class="check yes"><i class="fas fa-check-circle"></i></div>
+                <div class="check no"><i class="fas fa-times-circle"></i></div>
+            </div>
+            <div class="table-row">
+                <div class="feature">
+                    Write DataQ challenge letters
+                    <small>Generate arguments, cite regulations</small>
+                </div>
+                <div class="check yes"><i class="fas fa-check-circle"></i></div>
+                <div class="check no"><i class="fas fa-times-circle"></i></div>
+            </div>
+            <div class="table-row">
+                <div class="feature">
+                    Generate compliance reports
+                    <small>Summaries, analysis, recommendations</small>
+                </div>
+                <div class="check yes"><i class="fas fa-check-circle"></i></div>
+                <div class="check no"><i class="fas fa-times-circle"></i></div>
+            </div>
+            <div class="table-row">
+                <div class="feature">
+                    Understand natural language
+                    <small>Complex queries, context awareness</small>
+                </div>
+                <div class="check yes"><i class="fas fa-check-circle"></i></div>
+                <div class="check no"><i class="fas fa-times-circle"></i></div>
+            </div>
+            <div class="table-row" style="background: rgba(255, 109, 90, 0.03);">
+                <div class="feature">
+                    Run tasks at 3 AM automatically
+                    <small>No user interaction needed</small>
+                </div>
+                <div class="check no"><i class="fas fa-times-circle"></i></div>
+                <div class="check yes"><i class="fas fa-check-circle"></i></div>
+            </div>
+            <div class="table-row" style="background: rgba(255, 109, 90, 0.03);">
+                <div class="feature">
+                    React to external webhooks instantly
+                    <small>ELD sends data → immediate processing</small>
+                </div>
+                <div class="check no"><i class="fas fa-times-circle"></i></div>
+                <div class="check yes"><i class="fas fa-check-circle"></i></div>
+            </div>
+            <div class="table-row" style="background: rgba(255, 109, 90, 0.03);">
+                <div class="feature">
+                    Connect 400+ services without code
+                    <small>Slack, QuickBooks, Twilio, etc.</small>
+                </div>
+                <div class="check partial"><i class="fas fa-minus-circle"></i></div>
+                <div class="check yes"><i class="fas fa-check-circle"></i></div>
+            </div>
+            <div class="table-row" style="background: rgba(255, 109, 90, 0.03);">
+                <div class="feature">
+                    Visual workflow builder
+                    <small>Non-developers can create automations</small>
+                </div>
+                <div class="check no"><i class="fas fa-times-circle"></i></div>
+                <div class="check yes"><i class="fas fa-check-circle"></i></div>
+            </div>
+            <div class="table-row" style="background: rgba(255, 109, 90, 0.03);">
+                <div class="feature">
+                    Monitor & retry failed jobs
+                    <small>Built-in error handling, logs, retries</small>
+                </div>
+                <div class="check no"><i class="fas fa-times-circle"></i></div>
+                <div class="check yes"><i class="fas fa-check-circle"></i></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- What n8n Actually Adds -->
+    <section class="container">
+        <div class="section-title">
+            <h2>What n8n ACTUALLY Adds</h2>
+            <p>The real, unique value — things you cannot do with Claude alone</p>
+        </div>
+
+        <div class="n8n-exclusive">
+            <h3><i class="fas fa-bolt"></i> n8n's True Superpowers</h3>
+            <div class="exclusive-grid">
+                <div class="exclusive-item">
+                    <h4><i class="fas fa-clock"></i> Scheduled Background Jobs</h4>
+                    <p>Run FMCSA sync every 6 hours, send expiration alerts daily at 8 AM, generate weekly reports every Monday — all without anyone clicking anything.</p>
+                </div>
+                <div class="exclusive-item">
+                    <h4><i class="fas fa-satellite-dish"></i> Webhook Listeners</h4>
+                    <p>When KeepTruckin sends HOS data, when a driver uploads a document, when FMCSA updates a record — instantly trigger processing.</p>
+                </div>
+                <div class="exclusive-item">
+                    <h4><i class="fas fa-project-diagram"></i> Multi-Step Orchestration</h4>
+                    <p>Fetch → Transform → Validate → Store → Notify → Log. Chain complex operations with conditional branches and error handling.</p>
+                </div>
+                <div class="exclusive-item">
+                    <h4><i class="fas fa-plug"></i> No-Code Integrations</h4>
+                    <p>Connect Slack, Twilio, QuickBooks, Google Sheets, etc. in minutes with drag-and-drop — no developer time needed.</p>
+                </div>
+                <div class="exclusive-item">
+                    <h4><i class="fas fa-redo"></i> Built-in Retry Logic</h4>
+                    <p>If FMCSA API is down, automatically retry in 5 minutes. Track failures, send alerts, maintain audit logs.</p>
+                </div>
+                <div class="exclusive-item">
+                    <h4><i class="fas fa-dollar-sign"></i> Cost Efficiency at Scale</h4>
+                    <p>Self-hosted = unlimited executions. Running 10,000 workflows/day? Same cost. Claude API calls add up fast.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="claude-territory">
+            <h3><i class="fas fa-brain"></i> Claude's Territory (Don't Need n8n)</h3>
+            <div class="exclusive-grid">
+                <div class="exclusive-item">
+                    <h4><i class="fas fa-file-alt"></i> Document Intelligence</h4>
+                    <p>Reading CDLs, extracting medical card dates, verifying document authenticity. Claude does this better than any n8n node.</p>
+                </div>
+                <div class="exclusive-item">
+                    <h4><i class="fas fa-comments"></i> Regulation Q&A</h4>
+                    <p>Answering "Can a driver with sleep apnea get a medical card?" — this is pure AI, n8n can't help here.</p>
+                </div>
+                <div class="exclusive-item">
+                    <h4><i class="fas fa-pen"></i> Content Generation</h4>
+                    <p>Writing DataQ challenges, compliance reports, email drafts. Claude's core strength.</p>
+                </div>
+                <div class="exclusive-item">
+                    <h4><i class="fas fa-chart-line"></i> Analysis & Insights</h4>
+                    <p>Interpreting CSA trends, predicting risks, recommending actions. Needs AI reasoning.</p>
+                </div>
+                <div class="exclusive-item">
+                    <h4><i class="fas fa-search"></i> Pattern Recognition</h4>
+                    <p>Identifying which violations are challengeable, spotting anomalies in data. AI excels here.</p>
+                </div>
+                <div class="exclusive-item">
+                    <h4><i class="fas fa-user-friends"></i> Conversational Interface</h4>
+                    <p>Any feature where users ask questions or interact naturally. n8n has no UI.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Decision Guide -->
+    <section class="container">
+        <div class="section-title">
+            <h2>Quick Decision Guide</h2>
+            <p>Ask yourself these questions</p>
+        </div>
+
+        <div class="decision-section">
+            <h3>🤔 "Should this be Claude or n8n?"</h3>
+            <div class="decision-flow">
+                <div class="decision-item claude-answer">
+                    <div class="question">Does it need to understand natural language or generate text?</div>
+                    <div class="answer">→ Claude</div>
+                </div>
+                <div class="decision-item claude-answer">
+                    <div class="question">Does it involve analyzing/reading documents?</div>
+                    <div class="answer">→ Claude</div>
+                </div>
+                <div class="decision-item claude-answer">
+                    <div class="question">Does a user click something to trigger it?</div>
+                    <div class="answer">→ Claude</div>
+                </div>
+                <div class="decision-item n8n-answer">
+                    <div class="question">Does it need to run automatically on a schedule?</div>
+                    <div class="answer">→ n8n</div>
+                </div>
+                <div class="decision-item n8n-answer">
+                    <div class="question">Does it react to an external system's webhook?</div>
+                    <div class="answer">→ n8n</div>
+                </div>
+                <div class="decision-item n8n-answer">
+                    <div class="question">Does it need to connect 3+ external services?</div>
+                    <div class="answer">→ n8n</div>
+                </div>
+                <div class="decision-item n8n-answer">
+                    <div class="question">Should non-developers be able to modify it?</div>
+                    <div class="answer">→ n8n</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Actual n8n Use Cases -->
+    <section class="container">
+        <div class="section-title">
+            <h2>n8n Use Cases That Actually Make Sense</h2>
+            <p>Where n8n provides real, irreplaceable value for VroomX</p>
+        </div>
+
+        <div class="category-section">
+            <div class="category-header">
+                <div class="category-icon n8n"><i class="fas fa-clock"></i></div>
+                <h3>Background Scheduled Tasks</h3>
+                <span class="tag n8n">n8n Only</span>
+            </div>
+            <div class="use-case-grid">
+                <div class="use-case-card">
+                    <h4><i class="fas fa-sync"></i> FMCSA Data Sync (Every 6 Hours)</h4>
+                    <p>Pull latest data from SAFER Web, compare with VroomX records, update changes, log sync history — all while everyone sleeps.</p>
+                    <div class="why"><strong>Why n8n:</strong> Runs at 2 AM, 8 AM, 2 PM, 8 PM automatically. No user action needed.</div>
+                </div>
+                <div class="use-case-card">
+                    <h4><i class="fas fa-bell"></i> Daily Expiration Check (8 AM)</h4>
+                    <p>Query all documents expiring in 7/30/60/90 days, send appropriate alerts via email/SMS based on urgency level.</p>
+                    <div class="why"><strong>Why n8n:</strong> Runs before workday starts. Fleet managers see alerts in inbox when they arrive.</div>
+                </div>
+                <div class="use-case-card">
+                    <h4><i class="fas fa-file-pdf"></i> Weekly Compliance Digest (Mondays 7 AM)</h4>
+                    <p>Compile CSA trends, expiring docs, completed tasks, and pending issues into a PDF report sent to each fleet manager.</p>
+                    <div class="why"><strong>Why n8n:</strong> Every Monday morning, automatically. Zero manual effort.</div>
+                </div>
+                <div class="use-case-card">
+                    <h4><i class="fas fa-database"></i> Database Cleanup (Sundays 3 AM)</h4>
+                    <p>Archive old records, clean temporary files, optimize tables, generate backup — maintenance that shouldn't interrupt users.</p>
+                    <div class="why"><strong>Why n8n:</strong> Off-peak hours, no user impact, fully automated.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="category-section">
+            <div class="category-header">
+                <div class="category-icon n8n"><i class="fas fa-satellite-dish"></i></div>
+                <h3>External Webhook Handlers</h3>
+                <span class="tag n8n">n8n Only</span>
+            </div>
+            <div class="use-case-grid">
+                <div class="use-case-card">
+                    <h4><i class="fas fa-truck"></i> ELD Data Receiver</h4>
+                    <p>KeepTruckin/Samsara sends HOS data via webhook → n8n receives, validates, stores in VroomX, checks for violations.</p>
+                    <div class="why"><strong>Why n8n:</strong> External system initiates. Must be listening 24/7 for incoming data.</div>
+                </div>
+                <div class="use-case-card">
+                    <h4><i class="fas fa-credit-card"></i> Payment Webhook (Stripe)</h4>
+                    <p>Subscription payment succeeds/fails → Update account status, send receipt, provision/deprovision features.</p>
+                    <div class="why"><strong>Why n8n:</strong> Stripe sends webhook at any time. Need instant processing.</div>
+                </div>
+                <div class="use-case-card">
+                    <h4><i class="fas fa-envelope"></i> Inbound Email Processor</h4>
+                    <p>Email arrives with FMCSA notice → Parse content, extract key info, create alert in VroomX, notify fleet manager.</p>
+                    <div class="why"><strong>Why n8n:</strong> Emails arrive unpredictably. Need always-on listener.</div>
+                </div>
+                <div class="use-case-card">
+                    <h4><i class="fas fa-file-upload"></i> Document Upload Handler</h4>
+                    <p>Driver uploads CDL photo via mobile → Webhook triggers → Store file, create processing queue entry, send confirmation.</p>
+                    <div class="why"><strong>Why n8n:</strong> Instant acknowledgment and queuing without blocking the app.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="category-section">
+            <div class="category-header">
+                <div class="category-icon n8n"><i class="fas fa-plug"></i></div>
+                <h3>Third-Party Integrations</h3>
+                <span class="tag n8n">n8n Easier</span>
+            </div>
+            <div class="use-case-grid">
+                <div class="use-case-card">
+                    <h4><i class="fab fa-slack"></i> Slack Notifications</h4>
+                    <p>Post alerts to #compliance channel, allow reactions to acknowledge, sync status back to VroomX.</p>
+                    <div class="why"><strong>Why n8n:</strong> Pre-built Slack node. 5 minutes to set up vs hours of custom code.</div>
+                </div>
+                <div class="use-case-card">
+                    <h4><i class="fas fa-sms"></i> Twilio SMS Alerts</h4>
+                    <p>Send SMS to drivers for urgent expirations. Receive replies, parse responses, update records.</p>
+                    <div class="why"><strong>Why n8n:</strong> Twilio node handles auth, rate limits, delivery tracking automatically.</div>
+                </div>
+                <div class="use-case-card">
+                    <h4><i class="fas fa-calculator"></i> QuickBooks Sync</h4>
+                    <p>Export subscription revenue, violation fines, and expenses to accounting system automatically.</p>
+                    <div class="why"><strong>Why n8n:</strong> OAuth flow, API quirks, data mapping — all handled by node.</div>
+                </div>
+                <div class="use-case-card">
+                    <h4><i class="fas fa-table"></i> Google Sheets Reports</h4>
+                    <p>Push compliance data to shared spreadsheets for clients who prefer Excel-style views.</p>
+                    <div class="why"><strong>Why n8n:</strong> Non-technical users can modify which data goes where.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Best of Both Worlds -->
+    <section class="container">
+        <div class="section-title">
+            <h2>Best of Both Worlds</h2>
+            <p>When to combine n8n + Claude for maximum power</p>
+        </div>
+
+        <div class="category-section">
+            <div class="category-header">
+                <div class="category-icon both"><i class="fas fa-handshake"></i></div>
+                <h3>n8n Orchestrates, Claude Thinks</h3>
+                <span class="tag both">Combined</span>
+            </div>
+            <div class="use-case-grid">
+                <div class="use-case-card">
+                    <h4><i class="fas fa-robot"></i> Auto Document Processing Pipeline</h4>
+                    <p><strong>n8n:</strong> Watches for new uploads, queues them, manages retries<br>
+                    <strong>Claude:</strong> Analyzes each document, extracts data, verifies validity</p>
+                    <div class="why"><strong>Together:</strong> 24/7 automated processing with AI intelligence</div>
+                </div>
+                <div class="use-case-card">
+                    <h4><i class="fas fa-gavel"></i> DataQ Challenge Pipeline</h4>
+                    <p><strong>n8n:</strong> Detects new violations, checks eligibility rules, routes qualified ones<br>
+                    <strong>Claude:</strong> Writes the actual challenge letter with arguments</p>
+                    <div class="why"><strong>Together:</strong> Automated screening + intelligent drafting</div>
+                </div>
+                <div class="use-case-card">
+                    <h4><i class="fas fa-chart-line"></i> Weekly AI Summary Reports</h4>
+                    <p><strong>n8n:</strong> Gathers data from multiple sources on schedule<br>
+                    <strong>Claude:</strong> Writes executive summary with insights and recommendations</p>
+                    <div class="why"><strong>Together:</strong> Automated data collection + human-quality writing</div>
+                </div>
+                <div class="use-case-card">
+                    <h4><i class="fas fa-envelope-open-text"></i> Smart Email Triage</h4>
+                    <p><strong>n8n:</strong> Receives incoming emails, extracts attachments<br>
+                    <strong>Claude:</strong> Classifies urgency, extracts key info, suggests actions</p>
+                    <div class="why"><strong>Together:</strong> Always-on inbox monitoring + intelligent categorization</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Real Value -->
+    <section class="container">
+        <div class="real-value">
+            <h3>The Honest Bottom Line</h3>
+            <p>n8n adds real value for <strong>background automation</strong>, <strong>external integrations</strong>, and <strong>event-driven workflows</strong>. But for anything requiring intelligence, understanding, or generation — that's Claude's job and n8n can't replace it.</p>
+
+            <div class="value-stats">
+                <div class="value-stat">
+                    <div class="number">~30%</div>
+                    <div class="label">of the original use cases<br>actually need n8n</div>
+                </div>
+                <div class="value-stat">
+                    <div class="number">~50%</div>
+                    <div class="label">can be done with<br>Claude + simple cron jobs</div>
+                </div>
+                <div class="value-stat">
+                    <div class="number">~20%</div>
+                    <div class="label">are best with<br>n8n + Claude combined</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="recommendation">
+            <h3>📋 My Recommendation</h3>
+            <p>Start with Claude built into VroomX for all user-facing AI features. Add n8n only when you need: (1) scheduled jobs that run without users, (2) webhook listeners for external systems, or (3) quick integrations with services like Slack/Twilio. Don't overcomplicate — most "automation" can be simple cron jobs calling your existing API.</p>
+            <div class="verdict">Focus on Claude first. Add n8n when you hit its specific strengths.</div>
+        </div>
+    </section>
+
+    <footer>
+        <p>VroomX Safety | Honest n8n vs Claude Comparison | January 2026</p>
+    </footer>
+</body>
+</html>
