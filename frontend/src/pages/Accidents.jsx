@@ -387,7 +387,7 @@ const Accidents = () => {
         </div>
         <button
           onClick={() => { resetForm(); setShowAddModal(true); }}
-          className="flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors"
+          className="btn btn-primary"
         >
           <FiPlus className="w-5 h-5" />
           Report Accident
@@ -778,7 +778,7 @@ const Accidents = () => {
             <button
               type="submit"
               disabled={submitting}
-              className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors disabled:opacity-50"
+              className="btn btn-primary"
             >
               {submitting ? 'Saving...' : (selectedAccident ? 'Update' : 'Report Accident')}
             </button>
