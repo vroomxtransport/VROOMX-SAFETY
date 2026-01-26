@@ -141,6 +141,16 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  isSuperAdmin: {
+    type: Boolean,
+    default: false
+  },
+  isSuspended: {
+    type: Boolean,
+    default: false
+  },
+  suspendedAt: Date,
+  suspendedReason: String,
   lastLogin: {
     type: Date
   },
@@ -286,5 +296,6 @@ userSchema.index({ email: 1 });
 userSchema.index({ 'companies.companyId': 1 });
 userSchema.index({ activeCompanyId: 1 });
 userSchema.index({ stripeCustomerId: 1 });
+userSchema.index({ isSuperAdmin: 1 });
 
 module.exports = mongoose.model('User', userSchema);
