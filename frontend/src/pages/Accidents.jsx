@@ -292,7 +292,7 @@ const Accidents = () => {
       key: 'driver',
       label: 'Driver',
       render: (accident) => accident.driverId ? (
-        <div className="flex items-center gap-2 text-gray-300">
+        <div className="flex items-center gap-2 text-zinc-700 dark:text-zinc-200">
           <FiUser className="w-4 h-4" />
           {accident.driverId.firstName} {accident.driverId.lastName}
         </div>
@@ -304,7 +304,7 @@ const Accidents = () => {
       key: 'vehicle',
       label: 'Vehicle',
       render: (accident) => accident.vehicleId ? (
-        <div className="flex items-center gap-2 text-gray-300">
+        <div className="flex items-center gap-2 text-zinc-700 dark:text-zinc-200">
           <FiTruck className="w-4 h-4" />
           {accident.vehicleId.unitNumber}
         </div>
@@ -316,7 +316,7 @@ const Accidents = () => {
       key: 'location',
       label: 'Location',
       render: (accident) => (
-        <div className="flex items-center gap-2 text-gray-300">
+        <div className="flex items-center gap-2 text-zinc-700 dark:text-zinc-200">
           <FiMapPin className="w-4 h-4" />
           {accident.location?.city && accident.location?.state
             ? `${accident.location.city}, ${accident.location.state}`
@@ -382,8 +382,8 @@ const Accidents = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Accident Register</h1>
-          <p className="text-gray-400">Track accidents per FMCSA 49 CFR 390.15</p>
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Accident Register</h1>
+          <p className="text-zinc-600 dark:text-zinc-300">Track accidents per FMCSA 49 CFR 390.15</p>
         </div>
         <button
           onClick={() => { resetForm(); setShowAddModal(true); }}
@@ -506,7 +506,7 @@ const Accidents = () => {
           {/* Date and Time */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Date *</label>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Date *</label>
               <input
                 type="date"
                 required
@@ -516,7 +516,7 @@ const Accidents = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Time</label>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Time</label>
               <input
                 type="time"
                 value={formData.accidentTime}
@@ -529,7 +529,7 @@ const Accidents = () => {
           {/* Driver and Vehicle */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Driver *</label>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Driver *</label>
               <select
                 required
                 value={formData.driverId}
@@ -545,7 +545,7 @@ const Accidents = () => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Vehicle *</label>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Vehicle *</label>
               <select
                 required
                 value={formData.vehicleId}
@@ -564,7 +564,7 @@ const Accidents = () => {
 
           {/* Location */}
           <div className="bg-dark-700/50 rounded-lg p-4 space-y-3">
-            <h4 className="text-sm font-medium text-gray-300">Location</h4>
+            <h4 className="text-sm font-medium text-zinc-700 dark:text-zinc-200">Location</h4>
             <div className="grid grid-cols-3 gap-3">
               <input
                 type="text"
@@ -595,7 +595,7 @@ const Accidents = () => {
           {/* Severity and Type */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Severity *</label>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Severity *</label>
               <select
                 required
                 value={formData.severity}
@@ -608,7 +608,7 @@ const Accidents = () => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Accident Type</label>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Accident Type</label>
               <select
                 value={formData.accidentType}
                 onChange={(e) => setFormData({ ...formData, accidentType: e.target.value })}
@@ -623,7 +623,7 @@ const Accidents = () => {
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Description *</label>
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Description *</label>
             <textarea
               required
               rows={3}
@@ -638,7 +638,7 @@ const Accidents = () => {
           <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
             <h4 className="text-sm font-medium text-red-400 mb-3">DOT Recordable Criteria (Check if applicable)</h4>
             <div className="flex flex-wrap gap-4">
-              <label className="flex items-center gap-2 text-gray-300">
+              <label className="flex items-center gap-2 text-zinc-700 dark:text-zinc-200">
                 <input
                   type="checkbox"
                   checked={formData.recordableCriteria.fatality}
@@ -650,7 +650,7 @@ const Accidents = () => {
                 />
                 Fatality
               </label>
-              <label className="flex items-center gap-2 text-gray-300">
+              <label className="flex items-center gap-2 text-zinc-700 dark:text-zinc-200">
                 <input
                   type="checkbox"
                   checked={formData.recordableCriteria.injury}
@@ -662,7 +662,7 @@ const Accidents = () => {
                 />
                 Injury (Medical Transport)
               </label>
-              <label className="flex items-center gap-2 text-gray-300">
+              <label className="flex items-center gap-2 text-zinc-700 dark:text-zinc-200">
                 <input
                   type="checkbox"
                   checked={formData.recordableCriteria.towAway}
@@ -686,7 +686,7 @@ const Accidents = () => {
           {/* Conditions */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Weather Conditions</label>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Weather Conditions</label>
               <select
                 value={formData.weatherConditions}
                 onChange={(e) => setFormData({ ...formData, weatherConditions: e.target.value })}
@@ -698,7 +698,7 @@ const Accidents = () => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Road Conditions</label>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Road Conditions</label>
               <select
                 value={formData.roadConditions}
                 onChange={(e) => setFormData({ ...formData, roadConditions: e.target.value })}
@@ -714,7 +714,7 @@ const Accidents = () => {
           {/* Police Report */}
           <div className="bg-dark-700/50 rounded-lg p-4 space-y-3">
             <div className="flex items-center gap-4">
-              <label className="flex items-center gap-2 text-gray-300">
+              <label className="flex items-center gap-2 text-zinc-700 dark:text-zinc-200">
                 <input
                   type="checkbox"
                   checked={formData.policeReport.filed}
@@ -726,7 +726,7 @@ const Accidents = () => {
                 />
                 Police Report Filed
               </label>
-              <label className="flex items-center gap-2 text-gray-300">
+              <label className="flex items-center gap-2 text-zinc-700 dark:text-zinc-200">
                 <input
                   type="checkbox"
                   checked={formData.policeReport.citationIssued}
@@ -754,7 +754,7 @@ const Accidents = () => {
           </div>
 
           {/* Hazmat */}
-          <label className="flex items-center gap-2 text-gray-300">
+          <label className="flex items-center gap-2 text-zinc-700 dark:text-zinc-200">
             <input
               type="checkbox"
               checked={formData.cargoDamage.hazmatSpill}

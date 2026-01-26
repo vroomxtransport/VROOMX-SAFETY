@@ -446,8 +446,8 @@ const Maintenance = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Maintenance Records</h1>
-          <p className="text-gray-400">Track vehicle maintenance per FMCSA 49 CFR Part 396</p>
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Maintenance Records</h1>
+          <p className="text-zinc-600 dark:text-zinc-300">Track vehicle maintenance per FMCSA 49 CFR Part 396</p>
         </div>
         <button
           onClick={() => { resetForm(); setShowAddModal(true); }}
@@ -626,7 +626,7 @@ const Maintenance = () => {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Vehicle *</label>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Vehicle *</label>
               <select
                 required
                 value={formData.vehicleId}
@@ -642,7 +642,7 @@ const Maintenance = () => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Record Type *</label>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Record Type *</label>
               <select
                 required
                 value={formData.recordType}
@@ -658,7 +658,7 @@ const Maintenance = () => {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Service Date *</label>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Service Date *</label>
               <input
                 type="date"
                 required
@@ -668,7 +668,7 @@ const Maintenance = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Odometer Reading</label>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Odometer Reading</label>
               <input
                 type="number"
                 value={formData.odometerReading}
@@ -680,7 +680,7 @@ const Maintenance = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Description *</label>
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Description *</label>
             <textarea
               required
               rows={3}
@@ -692,7 +692,7 @@ const Maintenance = () => {
           </div>
 
           <div className="bg-dark-700/50 rounded-lg p-4 space-y-3">
-            <h4 className="text-sm font-medium text-gray-300">Service Provider</h4>
+            <h4 className="text-sm font-medium text-zinc-700 dark:text-zinc-200">Service Provider</h4>
             <div className="grid grid-cols-2 gap-3">
               <input
                 type="text"
@@ -720,7 +720,7 @@ const Maintenance = () => {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Labor Cost ($)</label>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Labor Cost ($)</label>
               <input
                 type="number"
                 step="0.01"
@@ -731,7 +731,7 @@ const Maintenance = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Parts Cost ($)</label>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Parts Cost ($)</label>
               <input
                 type="number"
                 step="0.01"
@@ -745,7 +745,7 @@ const Maintenance = () => {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Next Service Date</label>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Next Service Date</label>
               <input
                 type="date"
                 value={formData.nextServiceDate}
@@ -754,7 +754,7 @@ const Maintenance = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Next Service Mileage</label>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Next Service Mileage</label>
               <input
                 type="number"
                 value={formData.nextServiceMileage}
@@ -767,7 +767,7 @@ const Maintenance = () => {
 
           {(formData.recordType === 'annual_inspection' || formData.recordType === 'dot_inspection') && (
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Inspection Result</label>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Inspection Result</label>
               <select
                 value={formData.inspectionResult}
                 onChange={(e) => setFormData({ ...formData, inspectionResult: e.target.value })}
@@ -782,7 +782,7 @@ const Maintenance = () => {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Notes</label>
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Notes</label>
             <textarea
               rows={2}
               value={formData.notes}
@@ -792,7 +792,7 @@ const Maintenance = () => {
             />
           </div>
 
-          <label className="flex items-center gap-2 text-gray-300">
+          <label className="flex items-center gap-2 text-zinc-700 dark:text-zinc-200">
             <input
               type="checkbox"
               checked={formData.warranty.covered}

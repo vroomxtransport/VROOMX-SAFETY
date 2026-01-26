@@ -461,8 +461,8 @@ const Checklists = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Checklists</h1>
-          <p className="text-gray-400">Manage compliance checklists and templates</p>
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Checklists</h1>
+          <p className="text-zinc-600 dark:text-zinc-300">Manage compliance checklists and templates</p>
         </div>
         <div className="flex gap-2">
           {activeTab === 'templates' ? (
@@ -592,7 +592,7 @@ const Checklists = () => {
       >
         <form onSubmit={handleCreateTemplate} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Name *</label>
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Name *</label>
             <input
               type="text"
               required
@@ -604,7 +604,7 @@ const Checklists = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Description</label>
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Description</label>
             <textarea
               rows={2}
               value={templateForm.description}
@@ -615,7 +615,7 @@ const Checklists = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Category</label>
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Category</label>
             <select
               value={templateForm.category}
               onChange={(e) => setTemplateForm({ ...templateForm, category: e.target.value })}
@@ -631,7 +631,7 @@ const Checklists = () => {
 
           <div>
             <div className="flex justify-between items-center mb-2">
-              <label className="block text-sm font-medium text-gray-300">Checklist Items *</label>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">Checklist Items *</label>
               <button
                 type="button"
                 onClick={addTemplateItem}
@@ -711,7 +711,7 @@ const Checklists = () => {
       >
         <form onSubmit={handleAssignChecklist} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Template *</label>
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Template *</label>
             <select
               required
               value={assignForm.templateId}
@@ -728,7 +728,7 @@ const Checklists = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Assign To *</label>
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Assign To *</label>
             <div className="grid grid-cols-2 gap-4">
               <select
                 value={assignForm.assignedTo.type}
@@ -797,7 +797,7 @@ const Checklists = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Due Date</label>
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Due Date</label>
             <input
               type="date"
               value={assignForm.dueDate}
