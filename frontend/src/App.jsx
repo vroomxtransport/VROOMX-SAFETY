@@ -7,6 +7,7 @@ import Blog from './pages/Blog';
 import CSACheckerPage from './pages/CSACheckerPage';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
+import Platform from './pages/Platform';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Drivers from './pages/Drivers';
@@ -165,6 +166,9 @@ function App() {
         {/* Legal Pages - public */}
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
+
+        {/* Platform Page - public showcase */}
+        <Route path="/platform" element={<Platform />} />
 
         {/* Billing route - allows pending_payment users */}
         <Route
