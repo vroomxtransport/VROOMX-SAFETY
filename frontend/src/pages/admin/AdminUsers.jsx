@@ -25,7 +25,16 @@ const AdminUsers = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, [page, search]);
+  }, [page]);
+
+  // Debounced search effect
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPage(1);
+      fetchUsers();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   const fetchUsers = async () => {
     try {
@@ -42,8 +51,7 @@ const AdminUsers = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    setPage(1);
-    fetchUsers();
+    // Search is already triggered by the useEffect
   };
 
   const handleSuspend = async (user) => {
@@ -192,14 +200,14 @@ const AdminUsers = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-zinc-50 dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700">
+              <thead className="bg-zinc-100 dark:bg-zinc-800 border-b-2 border-zinc-300 dark:border-zinc-600">
                 <tr>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">User</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">Subscription</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">Companies</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">Status</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">Joined</th>
-                  <th className="text-right px-4 py-3 text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">Actions</th>
+                  <th className="text-left px-4 py-4 text-sm font-bold text-zinc-800 dark:text-white uppercase tracking-wide">User</th>
+                  <th className="text-left px-4 py-4 text-sm font-bold text-zinc-800 dark:text-white uppercase tracking-wide">Subscription</th>
+                  <th className="text-left px-4 py-4 text-sm font-bold text-zinc-800 dark:text-white uppercase tracking-wide">Companies</th>
+                  <th className="text-left px-4 py-4 text-sm font-bold text-zinc-800 dark:text-white uppercase tracking-wide">Status</th>
+                  <th className="text-left px-4 py-4 text-sm font-bold text-zinc-800 dark:text-white uppercase tracking-wide">Joined</th>
+                  <th className="text-right px-4 py-4 text-sm font-bold text-zinc-800 dark:text-white uppercase tracking-wide">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
