@@ -13,6 +13,7 @@ import { FiCheckCircle } from 'react-icons/fi';
 const VroomXLogo = ({
   size = 'md',
   showText = true,
+  textColor = 'default',
   animate = true,
   linkToHome = true,
   className = ''
@@ -61,7 +62,7 @@ const VroomXLogo = ({
       <div className={`relative ${sizeConfig.container} flex items-center justify-center flex-shrink-0`}>
         {/* Outer spinning ring */}
         <svg
-          className={`${sizeConfig.svg} absolute text-primary-500 dark:text-white ${animate ? 'animate-spin-slow' : ''}`}
+          className={`${sizeConfig.svg} absolute ${textColor === 'light' ? 'text-white/30' : 'text-primary-500 dark:text-white'} ${animate ? 'animate-spin-slow' : ''}`}
           viewBox="0 0 100 100"
           fill="none"
         >
@@ -88,7 +89,7 @@ const VroomXLogo = ({
 
       {/* Text */}
       {showText && (
-        <div className={`${sizeConfig.text} font-bold tracking-tight font-heading text-primary-500 dark:text-white`}>
+        <div className={`${sizeConfig.text} font-bold tracking-tight font-heading ${textColor === 'light' ? 'text-white' : 'text-primary-500 dark:text-white'}`}>
           VroomX <span className="text-cta-500 dark:text-cta-400">Safety</span>
         </div>
       )}
