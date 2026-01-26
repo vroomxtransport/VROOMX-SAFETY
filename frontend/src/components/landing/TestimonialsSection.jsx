@@ -19,21 +19,21 @@ const TestimonialsSection = () => {
       result: { icon: '📉', text: 'CSA Score: 78% → 55% in 90 days' },
       name: 'Mike Rodriguez',
       role: 'Fleet Owner • 12 trucks',
-      initials: 'MR'
+      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face'
     },
     {
       quote: "I used to spend 15+ hours a week on compliance paperwork. VroomX automated everything. Now I spend that time actually growing my business.",
       result: { icon: '⏱️', text: 'Saved 10+ hours per week' },
       name: 'Sarah Johnson',
       role: 'Safety Manager • 45 trucks',
-      initials: 'SJ'
+      image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face'
     },
     {
       quote: "The AI assistant is incredible. I asked about a complex HOS regulation and got a clear, accurate answer in seconds. It's like having a compliance expert on call 24/7.",
       result: { icon: '🤖', text: '500+ AI queries answered' },
       name: 'David Thompson',
       role: 'Owner-Operator',
-      initials: 'DT'
+      image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
     }
   ];
 
@@ -116,9 +116,11 @@ const TestimonialsSection = () => {
 
               {/* Author */}
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-[#FF6B4A] to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
-                  {t.initials}
-                </div>
+                <img
+                  src={t.image}
+                  alt={t.name}
+                  className="w-12 h-12 rounded-full object-cover"
+                />
                 <div>
                   <div className="font-bold text-gray-800">{t.name}</div>
                   <div className="text-sm text-gray-500">{t.role}</div>
