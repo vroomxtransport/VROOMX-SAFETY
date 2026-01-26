@@ -309,13 +309,13 @@ const Checklists = () => {
       label: 'Template Name',
       render: (template) => (
         <div>
-          <div className="font-medium text-white flex items-center gap-2">
+          <div className="font-medium text-zinc-900 dark:text-white flex items-center gap-2">
             {template.name}
             {template.isDefault && (
-              <span className="px-2 py-0.5 text-xs bg-blue-500/20 text-blue-400 rounded">Default</span>
+              <span className="px-2 py-0.5 text-xs bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded">Default</span>
             )}
           </div>
-          <div className="text-sm text-gray-400">{template.description}</div>
+          <div className="text-sm text-zinc-500 dark:text-zinc-400">{template.description}</div>
         </div>
       )
     },
@@ -323,7 +323,7 @@ const Checklists = () => {
       key: 'category',
       label: 'Category',
       render: (template) => (
-        <span className="px-2 py-1 text-xs bg-dark-700 text-gray-300 rounded capitalize">
+        <span className="px-2 py-1 text-xs bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 rounded capitalize">
           {getCategoryLabel(template.category)}
         </span>
       )
@@ -332,7 +332,7 @@ const Checklists = () => {
       key: 'itemCount',
       label: 'Items',
       render: (template) => (
-        <span className="text-gray-300">{template.itemCount || template.items?.length || 0} items</span>
+        <span className="text-zinc-600 dark:text-zinc-300">{template.itemCount || template.items?.length || 0} items</span>
       )
     },
     {
@@ -353,14 +353,14 @@ const Checklists = () => {
             <>
               <button
                 onClick={() => openEditTemplate(template)}
-                className="p-1 text-gray-400 hover:bg-gray-700 rounded"
+                className="p-1 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded"
                 title="Edit"
               >
                 <FiEdit2 className="w-4 h-4" />
               </button>
               <button
                 onClick={() => handleDeleteTemplate(template)}
-                className="p-1 text-red-400 hover:bg-red-400/10 rounded"
+                className="p-1 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-400/10 rounded"
                 title="Delete"
               >
                 <FiTrash2 className="w-4 h-4" />
@@ -378,8 +378,8 @@ const Checklists = () => {
       label: 'Checklist',
       render: (assignment) => (
         <div className="cursor-pointer" onClick={() => openDetailModal(assignment)}>
-          <div className="font-medium text-white">{assignment.templateName}</div>
-          <div className="text-sm text-gray-400">
+          <div className="font-medium text-zinc-900 dark:text-white">{assignment.templateName}</div>
+          <div className="text-sm text-zinc-500 dark:text-zinc-400">
             {assignment.assignedTo?.type === 'driver' ? (
               <span className="flex items-center gap-1"><FiUser className="w-3 h-3" /> {assignment.assignedTo.name}</span>
             ) : assignment.assignedTo?.type === 'vehicle' ? (
@@ -396,7 +396,7 @@ const Checklists = () => {
       label: 'Progress',
       render: (assignment) => (
         <div className="flex items-center gap-3">
-          <div className="w-24 bg-dark-700 rounded-full h-2">
+          <div className="w-24 bg-zinc-200 dark:bg-zinc-700 rounded-full h-2">
             <div
               className={`h-2 rounded-full ${
                 assignment.progress === 100 ? 'bg-green-500' :
@@ -405,7 +405,7 @@ const Checklists = () => {
               style={{ width: `${assignment.progress || 0}%` }}
             />
           </div>
-          <span className="text-sm text-gray-400">{assignment.progress || 0}%</span>
+          <span className="text-sm text-zinc-500 dark:text-zinc-400">{assignment.progress || 0}%</span>
         </div>
       )
     },
@@ -413,7 +413,7 @@ const Checklists = () => {
       key: 'itemsSummary',
       label: 'Items',
       render: (assignment) => (
-        <span className="text-gray-300">
+        <span className="text-zinc-600 dark:text-zinc-300">
           {assignment.itemsSummary?.completed || 0} / {assignment.itemsSummary?.total || 0}
         </span>
       )
@@ -422,9 +422,9 @@ const Checklists = () => {
       key: 'dueDate',
       label: 'Due Date',
       render: (assignment) => assignment.dueDate ? (
-        <div className="text-gray-300">{formatDate(assignment.dueDate)}</div>
+        <div className="text-zinc-600 dark:text-zinc-300">{formatDate(assignment.dueDate)}</div>
       ) : (
-        <span className="text-gray-500">No due date</span>
+        <span className="text-zinc-400 dark:text-zinc-500">No due date</span>
       )
     },
     {
@@ -439,14 +439,14 @@ const Checklists = () => {
         <div className="flex items-center gap-2">
           <button
             onClick={(e) => { e.stopPropagation(); openDetailModal(assignment); }}
-            className="p-1 text-gray-400 hover:bg-gray-700 rounded"
+            className="p-1 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded"
             title="View Details"
           >
             <FiList className="w-4 h-4" />
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); handleDeleteAssignment(assignment); }}
-            className="p-1 text-red-400 hover:bg-red-400/10 rounded"
+            className="p-1 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-400/10 rounded"
             title="Delete"
           >
             <FiTrash2 className="w-4 h-4" />
@@ -469,7 +469,7 @@ const Checklists = () => {
             <>
               <button
                 onClick={handleSeedDefaults}
-                className="flex items-center gap-2 px-4 py-2 bg-dark-700 hover:bg-dark-600 text-white rounded-lg transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-zinc-100 dark:bg-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-600 text-zinc-900 dark:text-white rounded-lg transition-colors"
               >
                 <FiFileText className="w-5 h-5" />
                 Seed Defaults
@@ -497,47 +497,47 @@ const Checklists = () => {
       {/* Stats Cards (for assignments tab) */}
       {activeTab === 'assignments' && stats && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-dark-800/50 border border-dark-700 rounded-lg p-4">
+          <div className="card p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-500/10 rounded-lg">
-                <FiClipboard className="w-5 h-5 text-blue-400" />
+              <div className="p-2 bg-blue-100 dark:bg-blue-500/10 rounded-lg">
+                <FiClipboard className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-white">{stats.total || 0}</div>
-                <div className="text-sm text-gray-400">Total</div>
+                <div className="text-2xl font-bold text-zinc-900 dark:text-white">{stats.total || 0}</div>
+                <div className="text-sm text-zinc-500 dark:text-zinc-400">Total</div>
               </div>
             </div>
           </div>
-          <div className="bg-dark-800/50 border border-dark-700 rounded-lg p-4">
+          <div className="card p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-yellow-500/10 rounded-lg">
-                <FiClock className="w-5 h-5 text-yellow-400" />
+              <div className="p-2 bg-yellow-100 dark:bg-yellow-500/10 rounded-lg">
+                <FiClock className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-white">{stats.inProgress || 0}</div>
-                <div className="text-sm text-gray-400">In Progress</div>
+                <div className="text-2xl font-bold text-zinc-900 dark:text-white">{stats.inProgress || 0}</div>
+                <div className="text-sm text-zinc-500 dark:text-zinc-400">In Progress</div>
               </div>
             </div>
           </div>
-          <div className="bg-dark-800/50 border border-dark-700 rounded-lg p-4">
+          <div className="card p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-500/10 rounded-lg">
-                <FiCheckCircle className="w-5 h-5 text-green-400" />
+              <div className="p-2 bg-green-100 dark:bg-green-500/10 rounded-lg">
+                <FiCheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-white">{stats.completed || 0}</div>
-                <div className="text-sm text-gray-400">Completed</div>
+                <div className="text-2xl font-bold text-zinc-900 dark:text-white">{stats.completed || 0}</div>
+                <div className="text-sm text-zinc-500 dark:text-zinc-400">Completed</div>
               </div>
             </div>
           </div>
-          <div className="bg-dark-800/50 border border-dark-700 rounded-lg p-4">
+          <div className="card p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-red-500/10 rounded-lg">
-                <FiAlertTriangle className="w-5 h-5 text-red-400" />
+              <div className="p-2 bg-red-100 dark:bg-red-500/10 rounded-lg">
+                <FiAlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-white">{stats.overdue || 0}</div>
-                <div className="text-sm text-gray-400">Overdue</div>
+                <div className="text-2xl font-bold text-zinc-900 dark:text-white">{stats.overdue || 0}</div>
+                <div className="text-sm text-zinc-500 dark:text-zinc-400">Overdue</div>
               </div>
             </div>
           </div>
@@ -553,7 +553,7 @@ const Checklists = () => {
           <select
             value={statusFilter}
             onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-            className="px-4 py-2 bg-dark-800 border border-dark-700 rounded-lg text-white focus:outline-none focus:border-primary-500"
+            className="px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
           >
             <option value="">All Status</option>
             <option value="not_started">Not Started</option>
@@ -598,7 +598,7 @@ const Checklists = () => {
               required
               value={templateForm.name}
               onChange={(e) => setTemplateForm({ ...templateForm, name: e.target.value })}
-              className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+              className="w-full px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               placeholder="Template name"
             />
           </div>
@@ -609,7 +609,7 @@ const Checklists = () => {
               rows={2}
               value={templateForm.description}
               onChange={(e) => setTemplateForm({ ...templateForm, description: e.target.value })}
-              className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+              className="w-full px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               placeholder="Template description"
             />
           </div>
@@ -619,7 +619,7 @@ const Checklists = () => {
             <select
               value={templateForm.category}
               onChange={(e) => setTemplateForm({ ...templateForm, category: e.target.value })}
-              className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+              className="w-full px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             >
               <option value="onboarding">Onboarding</option>
               <option value="audit">Audit</option>
@@ -642,21 +642,21 @@ const Checklists = () => {
             </div>
             <div className="space-y-3 max-h-64 overflow-y-auto">
               {templateForm.items.map((item, idx) => (
-                <div key={idx} className="bg-dark-700/50 rounded-lg p-3 space-y-2">
+                <div key={idx} className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 space-y-2">
                   <div className="flex gap-2">
                     <input
                       type="text"
                       required
                       value={item.title}
                       onChange={(e) => updateTemplateItem(idx, 'title', e.target.value)}
-                      className="flex-1 px-3 py-2 bg-dark-700 border border-dark-600 rounded text-white focus:outline-none focus:border-primary-500"
+                      className="flex-1 px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
                       placeholder={`Item ${idx + 1} title`}
                     />
                     {templateForm.items.length > 1 && (
                       <button
                         type="button"
                         onClick={() => removeTemplateItem(idx)}
-                        className="p-2 text-red-400 hover:bg-red-400/10 rounded"
+                        className="p-2 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-400/10 rounded"
                       >
                         <FiTrash2 className="w-4 h-4" />
                       </button>
@@ -666,15 +666,15 @@ const Checklists = () => {
                     type="text"
                     value={item.description}
                     onChange={(e) => updateTemplateItem(idx, 'description', e.target.value)}
-                    className="w-full px-3 py-2 bg-dark-700 border border-dark-600 rounded text-white focus:outline-none focus:border-primary-500"
+                    className="w-full px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
                     placeholder="Description (optional)"
                   />
-                  <label className="flex items-center gap-2 text-sm text-gray-400">
+                  <label className="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
                     <input
                       type="checkbox"
                       checked={item.required}
                       onChange={(e) => updateTemplateItem(idx, 'required', e.target.checked)}
-                      className="w-4 h-4 rounded border-dark-600 bg-dark-700 text-primary-500"
+                      className="w-4 h-4 rounded border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-primary-500"
                     />
                     Required
                   </label>
@@ -683,11 +683,11 @@ const Checklists = () => {
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4">
+          <div className="flex justify-end gap-3 pt-4 border-t border-zinc-200 dark:border-zinc-700">
             <button
               type="button"
               onClick={() => { setShowTemplateModal(false); resetTemplateForm(); }}
-              className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+              className="px-4 py-2 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
             >
               Cancel
             </button>
@@ -716,7 +716,7 @@ const Checklists = () => {
               required
               value={assignForm.templateId}
               onChange={(e) => setAssignForm({ ...assignForm, templateId: e.target.value })}
-              className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+              className="w-full px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             >
               <option value="">Select Template</option>
               {templates.map(template => (
@@ -736,7 +736,7 @@ const Checklists = () => {
                   ...assignForm,
                   assignedTo: { type: e.target.value, refId: '', name: '' }
                 })}
-                className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+                className="w-full px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
                 <option value="driver">Driver</option>
                 <option value="vehicle">Vehicle</option>
@@ -758,7 +758,7 @@ const Checklists = () => {
                       }
                     });
                   }}
-                  className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+                  className="w-full px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                 >
                   <option value="">Select Driver</option>
                   {drivers.map(driver => (
@@ -783,7 +783,7 @@ const Checklists = () => {
                       }
                     });
                   }}
-                  className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+                  className="w-full px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                 >
                   <option value="">Select Vehicle</option>
                   {vehicles.map(vehicle => (
@@ -802,15 +802,15 @@ const Checklists = () => {
               type="date"
               value={assignForm.dueDate}
               onChange={(e) => setAssignForm({ ...assignForm, dueDate: e.target.value })}
-              className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+              className="w-full px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             />
           </div>
 
-          <div className="flex justify-end gap-3 pt-4">
+          <div className="flex justify-end gap-3 pt-4 border-t border-zinc-200 dark:border-zinc-700">
             <button
               type="button"
               onClick={() => { setShowAssignModal(false); resetAssignForm(); }}
-              className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+              className="px-4 py-2 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
             >
               Cancel
             </button>
@@ -836,8 +836,8 @@ const Checklists = () => {
           <div className="space-y-6">
             <div className="flex justify-between items-start">
               <div>
-                <h3 className="text-xl font-semibold text-white">{selectedAssignment.templateName}</h3>
-                <div className="text-gray-400 mt-1">
+                <h3 className="text-xl font-semibold text-zinc-900 dark:text-white">{selectedAssignment.templateName}</h3>
+                <div className="text-zinc-500 dark:text-zinc-400 mt-1">
                   {selectedAssignment.assignedTo?.type === 'driver' ? (
                     <span className="flex items-center gap-1"><FiUser className="w-4 h-4" /> {selectedAssignment.assignedTo.name}</span>
                   ) : selectedAssignment.assignedTo?.type === 'vehicle' ? (
@@ -853,10 +853,10 @@ const Checklists = () => {
             {/* Progress Bar */}
             <div>
               <div className="flex justify-between text-sm mb-2">
-                <span className="text-gray-400">Progress</span>
-                <span className="text-white font-medium">{selectedAssignment.progress || 0}%</span>
+                <span className="text-zinc-500 dark:text-zinc-400">Progress</span>
+                <span className="text-zinc-900 dark:text-white font-medium">{selectedAssignment.progress || 0}%</span>
               </div>
-              <div className="w-full bg-dark-700 rounded-full h-3">
+              <div className="w-full bg-zinc-200 dark:bg-zinc-700 rounded-full h-3">
                 <div
                   className={`h-3 rounded-full transition-all ${
                     selectedAssignment.progress === 100 ? 'bg-green-500' :
@@ -865,7 +865,7 @@ const Checklists = () => {
                   style={{ width: `${selectedAssignment.progress || 0}%` }}
                 />
               </div>
-              <div className="text-sm text-gray-400 mt-1">
+              <div className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
                 {selectedAssignment.itemsSummary?.completed} of {selectedAssignment.itemsSummary?.total} items completed
               </div>
             </div>
@@ -876,23 +876,23 @@ const Checklists = () => {
                 <div
                   key={item._id || idx}
                   className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
-                    item.completed ? 'bg-green-500/10 border border-green-500/30' : 'bg-dark-700/50 hover:bg-dark-700'
+                    item.completed ? 'bg-green-100 dark:bg-green-500/10 border border-green-300 dark:border-green-500/30' : 'bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-700'
                   }`}
                   onClick={() => handleToggleItem(selectedAssignment, item._id)}
                 >
-                  <div className={`mt-0.5 ${item.completed ? 'text-green-400' : 'text-gray-500'}`}>
+                  <div className={`mt-0.5 ${item.completed ? 'text-green-600 dark:text-green-400' : 'text-zinc-400 dark:text-zinc-500'}`}>
                     {item.completed ? <FiCheckCircle className="w-5 h-5" /> : <FiSquare className="w-5 h-5" />}
                   </div>
                   <div className="flex-1">
-                    <div className={`font-medium ${item.completed ? 'text-green-400 line-through' : 'text-white'}`}>
+                    <div className={`font-medium ${item.completed ? 'text-green-600 dark:text-green-400 line-through' : 'text-zinc-900 dark:text-white'}`}>
                       {item.title}
-                      {item.required && <span className="text-red-400 ml-1">*</span>}
+                      {item.required && <span className="text-red-500 dark:text-red-400 ml-1">*</span>}
                     </div>
                     {item.description && (
-                      <div className="text-sm text-gray-400">{item.description}</div>
+                      <div className="text-sm text-zinc-500 dark:text-zinc-400">{item.description}</div>
                     )}
                     {item.completed && item.completedBy && (
-                      <div className="text-xs text-gray-500 mt-1">
+                      <div className="text-xs text-zinc-400 dark:text-zinc-500 mt-1">
                         Completed by {item.completedBy.firstName} {item.completedBy.lastName} on {formatDate(item.completedAt)}
                       </div>
                     )}
@@ -902,7 +902,7 @@ const Checklists = () => {
             </div>
 
             {selectedAssignment.dueDate && (
-              <div className="flex items-center gap-2 text-gray-400">
+              <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400">
                 <FiCalendar className="w-4 h-4" />
                 Due: {formatDate(selectedAssignment.dueDate)}
               </div>

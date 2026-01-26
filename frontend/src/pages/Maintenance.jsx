@@ -355,11 +355,11 @@ const Maintenance = () => {
       label: 'Vehicle',
       render: (record) => (
         <div className="cursor-pointer" onClick={() => openDetailModal(record)}>
-          <div className="font-medium text-white flex items-center gap-2">
-            <FiTruck className="w-4 h-4 text-gray-400" />
+          <div className="font-medium text-zinc-900 dark:text-white flex items-center gap-2">
+            <FiTruck className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
             {record.vehicleId?.unitNumber || 'Unknown'}
           </div>
-          <div className="text-sm text-gray-400">
+          <div className="text-sm text-zinc-500 dark:text-zinc-400">
             {record.vehicleId?.make} {record.vehicleId?.model}
           </div>
         </div>
@@ -369,7 +369,7 @@ const Maintenance = () => {
       key: 'recordType',
       label: 'Type',
       render: (record) => (
-        <span className="px-2 py-1 text-xs bg-dark-700 text-gray-300 rounded capitalize">
+        <span className="px-2 py-1 text-xs bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 rounded capitalize">
           {getTypeLabel(record.recordType)}
         </span>
       )
@@ -378,7 +378,7 @@ const Maintenance = () => {
       key: 'serviceDate',
       label: 'Service Date',
       render: (record) => (
-        <div className="flex items-center gap-2 text-gray-300">
+        <div className="flex items-center gap-2 text-zinc-600 dark:text-zinc-300">
           <FiCalendar className="w-4 h-4" />
           {formatDate(record.serviceDate)}
         </div>
@@ -388,14 +388,14 @@ const Maintenance = () => {
       key: 'description',
       label: 'Description',
       render: (record) => (
-        <div className="text-gray-300 truncate max-w-xs">{record.description}</div>
+        <div className="text-zinc-600 dark:text-zinc-300 truncate max-w-xs">{record.description}</div>
       )
     },
     {
       key: 'totalCost',
       label: 'Cost',
       render: (record) => (
-        <div className="flex items-center gap-1 text-gray-300">
+        <div className="flex items-center gap-1 text-zinc-600 dark:text-zinc-300">
           <FiDollarSign className="w-4 h-4" />
           {formatCurrency ? formatCurrency(record.totalCost) : `$${(record.totalCost || 0).toFixed(2)}`}
         </div>
@@ -405,7 +405,7 @@ const Maintenance = () => {
       key: 'nextService',
       label: 'Next Service',
       render: (record) => record.nextServiceDate ? (
-        <div className={`text-sm ${record.isOverdue ? 'text-red-400' : 'text-gray-400'}`}>
+        <div className={`text-sm ${record.isOverdue ? 'text-red-500 dark:text-red-400' : 'text-zinc-500 dark:text-zinc-400'}`}>
           {formatDate(record.nextServiceDate)}
           {record.daysUntilNextService !== null && (
             <span className="ml-1">
@@ -414,7 +414,7 @@ const Maintenance = () => {
           )}
         </div>
       ) : (
-        <span className="text-gray-500">-</span>
+        <span className="text-zinc-400 dark:text-zinc-500">-</span>
       )
     },
     {
@@ -424,14 +424,14 @@ const Maintenance = () => {
         <div className="flex items-center gap-2">
           <button
             onClick={(e) => { e.stopPropagation(); openEditModal(record); }}
-            className="p-1 text-gray-400 hover:bg-gray-700 rounded"
+            className="p-1 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded"
             title="Edit"
           >
             <FiEdit2 className="w-4 h-4" />
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); handleDelete(record); }}
-            className="p-1 text-red-400 hover:bg-red-400/10 rounded"
+            className="p-1 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-400/10 rounded"
             title="Delete"
           >
             <FiTrash2 className="w-4 h-4" />
@@ -461,49 +461,49 @@ const Maintenance = () => {
       {/* Stats Cards */}
       {stats && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-dark-800/50 border border-dark-700 rounded-lg p-4">
+          <div className="card p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-500/10 rounded-lg">
-                <FiFileText className="w-5 h-5 text-blue-400" />
+              <div className="p-2 bg-blue-100 dark:bg-blue-500/10 rounded-lg">
+                <FiFileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-white">{stats.costs?.recordCount || 0}</div>
-                <div className="text-sm text-gray-400">Total Records</div>
+                <div className="text-2xl font-bold text-zinc-900 dark:text-white">{stats.costs?.recordCount || 0}</div>
+                <div className="text-sm text-zinc-500 dark:text-zinc-400">Total Records</div>
               </div>
             </div>
           </div>
-          <div className="bg-dark-800/50 border border-dark-700 rounded-lg p-4">
+          <div className="card p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-500/10 rounded-lg">
-                <FiDollarSign className="w-5 h-5 text-green-400" />
+              <div className="p-2 bg-green-100 dark:bg-green-500/10 rounded-lg">
+                <FiDollarSign className="w-5 h-5 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-white">
+                <div className="text-2xl font-bold text-zinc-900 dark:text-white">
                   ${((stats.costs?.grandTotal || 0) / 1000).toFixed(1)}k
                 </div>
-                <div className="text-sm text-gray-400">Total Spent</div>
+                <div className="text-sm text-zinc-500 dark:text-zinc-400">Total Spent</div>
               </div>
             </div>
           </div>
-          <div className="bg-dark-800/50 border border-dark-700 rounded-lg p-4">
+          <div className="card p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-yellow-500/10 rounded-lg">
-                <FiClock className="w-5 h-5 text-yellow-400" />
+              <div className="p-2 bg-yellow-100 dark:bg-yellow-500/10 rounded-lg">
+                <FiClock className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-white">{stats.upcomingServices || 0}</div>
-                <div className="text-sm text-gray-400">Due in 30 Days</div>
+                <div className="text-2xl font-bold text-zinc-900 dark:text-white">{stats.upcomingServices || 0}</div>
+                <div className="text-sm text-zinc-500 dark:text-zinc-400">Due in 30 Days</div>
               </div>
             </div>
           </div>
-          <div className="bg-dark-800/50 border border-dark-700 rounded-lg p-4">
+          <div className="card p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-red-500/10 rounded-lg">
-                <FiAlertTriangle className="w-5 h-5 text-red-400" />
+              <div className="p-2 bg-red-100 dark:bg-red-500/10 rounded-lg">
+                <FiAlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-white">{stats.overdueServices || 0}</div>
-                <div className="text-sm text-gray-400">Overdue</div>
+                <div className="text-2xl font-bold text-zinc-900 dark:text-white">{stats.overdueServices || 0}</div>
+                <div className="text-sm text-zinc-500 dark:text-zinc-400">Overdue</div>
               </div>
             </div>
           </div>
@@ -514,20 +514,20 @@ const Maintenance = () => {
       <div className="flex flex-wrap gap-4">
         <form onSubmit={handleSearch} className="flex-1 min-w-[200px]">
           <div className="relative">
-            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
             <input
               type="text"
               placeholder="Search records..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-dark-800 border border-dark-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-primary-500"
+              className="w-full pl-10 pr-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-lg text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             />
           </div>
         </form>
         <select
           value={vehicleFilter}
           onChange={(e) => { setVehicleFilter(e.target.value); setPage(1); }}
-          className="px-4 py-2 bg-dark-800 border border-dark-700 rounded-lg text-white focus:outline-none focus:border-primary-500"
+          className="px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
         >
           <option value="">All Vehicles</option>
           {vehicles.map(vehicle => (
@@ -539,7 +539,7 @@ const Maintenance = () => {
         <select
           value={typeFilter}
           onChange={(e) => { setTypeFilter(e.target.value); setPage(1); }}
-          className="px-4 py-2 bg-dark-800 border border-dark-700 rounded-lg text-white focus:outline-none focus:border-primary-500"
+          className="px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
         >
           <option value="">All Types</option>
           {recordTypes.map(type => (
@@ -549,7 +549,7 @@ const Maintenance = () => {
         {vehicleFilter && (
           <button
             onClick={() => handleExport(vehicleFilter)}
-            className="flex items-center gap-2 px-4 py-2 bg-dark-700 hover:bg-dark-600 text-white rounded-lg transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-zinc-100 dark:bg-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-600 text-zinc-900 dark:text-white rounded-lg transition-colors"
           >
             <FiDownload className="w-4 h-4" />
             Export CSV
@@ -588,8 +588,8 @@ const Maintenance = () => {
                     <FiZap className="w-5 h-5 text-blue-400" />
                   </div>
                   <div>
-                    <h4 className="font-medium text-white">Smart Upload</h4>
-                    <p className="text-sm text-gray-400">Upload an invoice and AI will extract the details</p>
+                    <h4 className="font-medium text-zinc-900 dark:text-white">Smart Upload</h4>
+                    <p className="text-sm text-zinc-500 dark:text-zinc-400">Upload an invoice and AI will extract the details</p>
                   </div>
                 </div>
                 <label className={`flex items-center gap-2 px-4 py-2 rounded-lg cursor-pointer transition-colors ${
@@ -631,7 +631,7 @@ const Maintenance = () => {
                 required
                 value={formData.vehicleId}
                 onChange={(e) => setFormData({ ...formData, vehicleId: e.target.value })}
-                className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+                className="w-full px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
                 <option value="">Select Vehicle</option>
                 {vehicles.map(vehicle => (
@@ -647,7 +647,7 @@ const Maintenance = () => {
                 required
                 value={formData.recordType}
                 onChange={(e) => setFormData({ ...formData, recordType: e.target.value })}
-                className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+                className="w-full px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
                 {recordTypes.map(type => (
                   <option key={type.value} value={type.value}>{type.label}</option>
@@ -664,7 +664,7 @@ const Maintenance = () => {
                 required
                 value={formData.serviceDate}
                 onChange={(e) => setFormData({ ...formData, serviceDate: e.target.value })}
-                className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+                className="w-full px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
             <div>
@@ -673,7 +673,7 @@ const Maintenance = () => {
                 type="number"
                 value={formData.odometerReading}
                 onChange={(e) => setFormData({ ...formData, odometerReading: e.target.value })}
-                className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+                className="w-full px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                 placeholder="Miles"
               />
             </div>
@@ -686,33 +686,33 @@ const Maintenance = () => {
               rows={3}
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+              className="w-full px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               placeholder="Describe the work performed"
             />
           </div>
 
-          <div className="bg-dark-700/50 rounded-lg p-4 space-y-3">
+          <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-4 space-y-3">
             <h4 className="text-sm font-medium text-zinc-700 dark:text-zinc-200">Service Provider</h4>
             <div className="grid grid-cols-2 gap-3">
               <input
                 type="text"
                 value={formData.provider.name}
                 onChange={(e) => setFormData({ ...formData, provider: { ...formData.provider, name: e.target.value } })}
-                className="w-full px-3 py-2 bg-dark-700 border border-dark-600 rounded text-white focus:outline-none focus:border-primary-500"
+                className="w-full px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                 placeholder="Provider Name"
               />
               <input
                 type="text"
                 value={formData.provider.phone}
                 onChange={(e) => setFormData({ ...formData, provider: { ...formData.provider, phone: e.target.value } })}
-                className="w-full px-3 py-2 bg-dark-700 border border-dark-600 rounded text-white focus:outline-none focus:border-primary-500"
+                className="w-full px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                 placeholder="Phone"
               />
               <input
                 type="text"
                 value={formData.provider.address}
                 onChange={(e) => setFormData({ ...formData, provider: { ...formData.provider, address: e.target.value } })}
-                className="col-span-2 w-full px-3 py-2 bg-dark-700 border border-dark-600 rounded text-white focus:outline-none focus:border-primary-500"
+                className="col-span-2 w-full px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                 placeholder="Address"
               />
             </div>
@@ -727,7 +727,7 @@ const Maintenance = () => {
                 min="0"
                 value={formData.laborCost}
                 onChange={(e) => setFormData({ ...formData, laborCost: e.target.value })}
-                className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+                className="w-full px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
             <div>
@@ -738,7 +738,7 @@ const Maintenance = () => {
                 min="0"
                 value={formData.partsCost}
                 onChange={(e) => setFormData({ ...formData, partsCost: e.target.value })}
-                className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+                className="w-full px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
           </div>
@@ -750,7 +750,7 @@ const Maintenance = () => {
                 type="date"
                 value={formData.nextServiceDate}
                 onChange={(e) => setFormData({ ...formData, nextServiceDate: e.target.value })}
-                className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+                className="w-full px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
             <div>
@@ -759,7 +759,7 @@ const Maintenance = () => {
                 type="number"
                 value={formData.nextServiceMileage}
                 onChange={(e) => setFormData({ ...formData, nextServiceMileage: e.target.value })}
-                className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+                className="w-full px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                 placeholder="Miles"
               />
             </div>
@@ -771,7 +771,7 @@ const Maintenance = () => {
               <select
                 value={formData.inspectionResult}
                 onChange={(e) => setFormData({ ...formData, inspectionResult: e.target.value })}
-                className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+                className="w-full px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
                 <option value="na">N/A</option>
                 <option value="passed">Passed</option>
@@ -787,7 +787,7 @@ const Maintenance = () => {
               rows={2}
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+              className="w-full px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               placeholder="Additional notes"
             />
           </div>
@@ -800,16 +800,16 @@ const Maintenance = () => {
                 ...formData,
                 warranty: { ...formData.warranty, covered: e.target.checked }
               })}
-              className="w-4 h-4 rounded border-dark-600 bg-dark-700 text-primary-500"
+              className="w-4 h-4 rounded border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-primary-500"
             />
             Covered by Warranty
           </label>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-dark-700">
+          <div className="flex justify-end gap-3 pt-4 border-t border-zinc-200 dark:border-zinc-700">
             <button
               type="button"
               onClick={() => { setShowAddModal(false); resetForm(); }}
-              className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+              className="px-4 py-2 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
             >
               Cancel
             </button>
@@ -835,71 +835,71 @@ const Maintenance = () => {
           <div className="space-y-6">
             <div className="flex justify-between items-start">
               <div>
-                <div className="flex items-center gap-2 text-xl font-semibold text-white">
-                  <FiTruck className="w-5 h-5 text-gray-400" />
+                <div className="flex items-center gap-2 text-xl font-semibold text-zinc-900 dark:text-white">
+                  <FiTruck className="w-5 h-5 text-zinc-500 dark:text-zinc-400" />
                   {selectedRecord.vehicleId?.unitNumber}
                 </div>
-                <div className="text-gray-400">
+                <div className="text-zinc-500 dark:text-zinc-400">
                   {selectedRecord.vehicleId?.make} {selectedRecord.vehicleId?.model} ({selectedRecord.vehicleId?.year})
                 </div>
               </div>
-              <span className="px-3 py-1 text-sm bg-dark-700 text-gray-300 rounded-full capitalize">
+              <span className="px-3 py-1 text-sm bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 rounded-full capitalize">
                 {getTypeLabel(selectedRecord.recordType)}
               </span>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-dark-700/50 rounded-lg p-3">
-                <div className="text-sm text-gray-400">Service Date</div>
-                <div className="font-medium text-white">{formatDate(selectedRecord.serviceDate)}</div>
+              <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3">
+                <div className="text-sm text-zinc-500 dark:text-zinc-400">Service Date</div>
+                <div className="font-medium text-zinc-900 dark:text-white">{formatDate(selectedRecord.serviceDate)}</div>
               </div>
-              <div className="bg-dark-700/50 rounded-lg p-3">
-                <div className="text-sm text-gray-400">Odometer</div>
-                <div className="font-medium text-white">
+              <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3">
+                <div className="text-sm text-zinc-500 dark:text-zinc-400">Odometer</div>
+                <div className="font-medium text-zinc-900 dark:text-white">
                   {selectedRecord.odometerReading ? `${selectedRecord.odometerReading.toLocaleString()} miles` : '-'}
                 </div>
               </div>
-              <div className="bg-dark-700/50 rounded-lg p-3">
-                <div className="text-sm text-gray-400">Total Cost</div>
-                <div className="font-medium text-white text-lg">
+              <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3">
+                <div className="text-sm text-zinc-500 dark:text-zinc-400">Total Cost</div>
+                <div className="font-medium text-zinc-900 dark:text-white text-lg">
                   ${(selectedRecord.totalCost || 0).toFixed(2)}
                 </div>
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-zinc-400 dark:text-zinc-500">
                   Labor: ${(selectedRecord.laborCost || 0).toFixed(2)} | Parts: ${(selectedRecord.partsCost || 0).toFixed(2)}
                 </div>
               </div>
-              <div className="bg-dark-700/50 rounded-lg p-3">
-                <div className="text-sm text-gray-400">Next Service</div>
-                <div className={`font-medium ${selectedRecord.isOverdue ? 'text-red-400' : 'text-white'}`}>
+              <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3">
+                <div className="text-sm text-zinc-500 dark:text-zinc-400">Next Service</div>
+                <div className={`font-medium ${selectedRecord.isOverdue ? 'text-red-500 dark:text-red-400' : 'text-zinc-900 dark:text-white'}`}>
                   {selectedRecord.nextServiceDate ? formatDate(selectedRecord.nextServiceDate) : '-'}
                 </div>
                 {selectedRecord.nextServiceMileage && (
-                  <div className="text-xs text-gray-500">or at {selectedRecord.nextServiceMileage.toLocaleString()} miles</div>
+                  <div className="text-xs text-zinc-400 dark:text-zinc-500">or at {selectedRecord.nextServiceMileage.toLocaleString()} miles</div>
                 )}
               </div>
             </div>
 
-            <div className="bg-dark-700/50 rounded-lg p-4">
-              <h4 className="text-sm font-medium text-gray-400 mb-2">Description</h4>
-              <p className="text-white">{selectedRecord.description}</p>
+            <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-4">
+              <h4 className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">Description</h4>
+              <p className="text-zinc-900 dark:text-white">{selectedRecord.description}</p>
             </div>
 
             {selectedRecord.provider?.name && (
-              <div className="bg-dark-700/50 rounded-lg p-4">
-                <h4 className="text-sm font-medium text-gray-400 mb-2">Service Provider</h4>
-                <div className="text-white">{selectedRecord.provider.name}</div>
+              <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-4">
+                <h4 className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">Service Provider</h4>
+                <div className="text-zinc-900 dark:text-white">{selectedRecord.provider.name}</div>
                 {selectedRecord.provider.address && (
-                  <div className="text-sm text-gray-400">{selectedRecord.provider.address}</div>
+                  <div className="text-sm text-zinc-500 dark:text-zinc-400">{selectedRecord.provider.address}</div>
                 )}
                 {selectedRecord.provider.phone && (
-                  <div className="text-sm text-gray-400">{selectedRecord.provider.phone}</div>
+                  <div className="text-sm text-zinc-500 dark:text-zinc-400">{selectedRecord.provider.phone}</div>
                 )}
               </div>
             )}
 
             {selectedRecord.inspectionResult && selectedRecord.inspectionResult !== 'na' && (
               <div className="flex items-center gap-3">
-                <span className="text-gray-400">Inspection Result:</span>
+                <span className="text-zinc-500 dark:text-zinc-400">Inspection Result:</span>
                 {getInspectionResultBadge(selectedRecord.inspectionResult)}
               </div>
             )}
@@ -916,7 +916,7 @@ const Maintenance = () => {
                         <FiAlertTriangle className="w-4 h-4 text-red-400 mt-0.5" />
                       )}
                       <div>
-                        <span className="text-white">{defect.description}</span>
+                        <span className="text-zinc-900 dark:text-white">{defect.description}</span>
                         <span className={`ml-2 text-xs px-1 rounded ${
                           defect.severity === 'oos' ? 'bg-red-500/20 text-red-400' :
                           defect.severity === 'major' ? 'bg-orange-500/20 text-orange-400' :
@@ -944,16 +944,16 @@ const Maintenance = () => {
             )}
 
             {selectedRecord.notes && (
-              <div className="bg-dark-700/50 rounded-lg p-4">
-                <h4 className="text-sm font-medium text-gray-400 mb-2">Notes</h4>
-                <p className="text-white">{selectedRecord.notes}</p>
+              <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-4">
+                <h4 className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">Notes</h4>
+                <p className="text-zinc-900 dark:text-white">{selectedRecord.notes}</p>
               </div>
             )}
 
             {/* Documents Section */}
-            <div className="bg-dark-700/50 rounded-lg p-4">
+            <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-4">
               <div className="flex items-center justify-between mb-3">
-                <h4 className="text-sm font-medium text-gray-400">Documents</h4>
+                <h4 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Documents</h4>
                 <label className={`flex items-center gap-2 px-3 py-1.5 rounded-lg cursor-pointer text-sm transition-colors ${
                   uploading ? 'bg-primary-500/30 text-primary-300' : 'bg-primary-500/20 hover:bg-primary-500/30 text-primary-400'
                 }`}>
@@ -980,12 +980,12 @@ const Maintenance = () => {
               {selectedRecord.documents?.length > 0 ? (
                 <div className="space-y-2">
                   {selectedRecord.documents.map((doc) => (
-                    <div key={doc._id} className="flex items-center justify-between p-2 bg-dark-600/50 rounded-lg">
+                    <div key={doc._id} className="flex items-center justify-between p-2 bg-zinc-100 dark:bg-zinc-700/50 rounded-lg">
                       <div className="flex items-center gap-2">
-                        <FiFileText className="w-4 h-4 text-gray-400" />
+                        <FiFileText className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
                         <div>
-                          <div className="text-sm text-white">{doc.name}</div>
-                          <div className="text-xs text-gray-500 capitalize">{doc.type?.replace(/_/g, ' ')}</div>
+                          <div className="text-sm text-zinc-900 dark:text-white">{doc.name}</div>
+                          <div className="text-xs text-zinc-400 dark:text-zinc-500 capitalize">{doc.type?.replace(/_/g, ' ')}</div>
                         </div>
                       </div>
                       <div className="flex items-center gap-1">
@@ -993,14 +993,14 @@ const Maintenance = () => {
                           href={`${import.meta.env.VITE_API_URL?.replace('/api', '')}${doc.url}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="p-1.5 text-gray-400 hover:text-white hover:bg-dark-500 rounded transition-colors"
+                          className="p-1.5 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200 dark:hover:bg-zinc-600 rounded transition-colors"
                           title="Download"
                         >
                           <FiDownload className="w-4 h-4" />
                         </a>
                         <button
                           onClick={() => handleDocumentDelete(selectedRecord._id, doc._id)}
-                          className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded transition-colors"
+                          className="p-1.5 text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-500/10 rounded transition-colors"
                           title="Delete"
                         >
                           <FiX className="w-4 h-4" />
@@ -1010,21 +1010,21 @@ const Maintenance = () => {
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-gray-500">No documents attached</p>
+                <p className="text-sm text-zinc-400 dark:text-zinc-500">No documents attached</p>
               )}
             </div>
 
-            <div className="flex justify-between pt-4 border-t border-dark-700">
+            <div className="flex justify-between pt-4 border-t border-zinc-200 dark:border-zinc-700">
               <button
                 onClick={() => { setShowDetailModal(false); openEditModal(selectedRecord); }}
-                className="flex items-center gap-2 px-4 py-2 text-gray-400 hover:text-white transition-colors"
+                className="flex items-center gap-2 px-4 py-2 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
               >
                 <FiEdit2 className="w-4 h-4" />
                 Edit
               </button>
               <button
                 onClick={() => setShowDetailModal(false)}
-                className="px-4 py-2 bg-dark-700 hover:bg-dark-600 text-white rounded-lg transition-colors"
+                className="px-4 py-2 bg-zinc-100 dark:bg-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-600 text-zinc-900 dark:text-white rounded-lg transition-colors"
               >
                 Close
               </button>

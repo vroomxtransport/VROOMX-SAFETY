@@ -278,12 +278,12 @@ const Accidents = () => {
       label: 'Date',
       render: (accident) => (
         <div className="cursor-pointer" onClick={() => openDetailModal(accident)}>
-          <div className="font-medium text-white flex items-center gap-2">
-            <FiCalendar className="w-4 h-4 text-gray-400" />
+          <div className="font-medium text-zinc-900 dark:text-white flex items-center gap-2">
+            <FiCalendar className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
             {formatDate(accident.accidentDate)}
           </div>
           {accident.accidentTime && (
-            <div className="text-sm text-gray-400">{accident.accidentTime}</div>
+            <div className="text-sm text-zinc-500 dark:text-zinc-400">{accident.accidentTime}</div>
           )}
         </div>
       )
@@ -297,7 +297,7 @@ const Accidents = () => {
           {accident.driverId.firstName} {accident.driverId.lastName}
         </div>
       ) : (
-        <span className="text-gray-500">-</span>
+        <span className="text-zinc-400 dark:text-zinc-500">-</span>
       )
     },
     {
@@ -309,7 +309,7 @@ const Accidents = () => {
           {accident.vehicleId.unitNumber}
         </div>
       ) : (
-        <span className="text-gray-500">-</span>
+        <span className="text-zinc-400 dark:text-zinc-500">-</span>
       )
     },
     {
@@ -333,12 +333,12 @@ const Accidents = () => {
       key: 'dotRecordable',
       label: 'DOT Recordable',
       render: (accident) => accident.isDotRecordable ? (
-        <span className="flex items-center gap-1 text-red-400">
+        <span className="flex items-center gap-1 text-red-500 dark:text-red-400">
           <FiAlertTriangle className="w-4 h-4" />
           Yes
         </span>
       ) : (
-        <span className="text-gray-500">No</span>
+        <span className="text-zinc-400 dark:text-zinc-500">No</span>
       )
     },
     {
@@ -353,21 +353,21 @@ const Accidents = () => {
         <div className="flex items-center gap-2">
           <button
             onClick={(e) => { e.stopPropagation(); openDetailModal(accident); }}
-            className="p-1 text-gray-400 hover:bg-gray-700 rounded"
+            className="p-1 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded"
             title="View Details"
           >
             <FiEye className="w-4 h-4" />
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); openEditModal(accident); }}
-            className="p-1 text-gray-400 hover:bg-gray-700 rounded"
+            className="p-1 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded"
             title="Edit"
           >
             <FiEdit2 className="w-4 h-4" />
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); handleDelete(accident); }}
-            className="p-1 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded"
+            className="p-1 text-zinc-500 dark:text-zinc-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded"
             title="Delete"
           >
             <FiTrash2 className="w-4 h-4" />
@@ -397,47 +397,47 @@ const Accidents = () => {
       {/* Stats Cards */}
       {stats && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-dark-800/50 border border-dark-700 rounded-lg p-4">
+          <div className="card p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-500/10 rounded-lg">
-                <FiAlertOctagon className="w-5 h-5 text-blue-400" />
+              <div className="p-2 bg-blue-100 dark:bg-blue-500/10 rounded-lg">
+                <FiAlertOctagon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-white">{stats.total || 0}</div>
-                <div className="text-sm text-gray-400">Total Accidents</div>
+                <div className="text-2xl font-bold text-zinc-900 dark:text-white">{stats.total || 0}</div>
+                <div className="text-sm text-zinc-500 dark:text-zinc-400">Total Accidents</div>
               </div>
             </div>
           </div>
-          <div className="bg-dark-800/50 border border-dark-700 rounded-lg p-4">
+          <div className="card p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-red-500/10 rounded-lg">
-                <FiAlertTriangle className="w-5 h-5 text-red-400" />
+              <div className="p-2 bg-red-100 dark:bg-red-500/10 rounded-lg">
+                <FiAlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-white">{stats.dotRecordable || 0}</div>
-                <div className="text-sm text-gray-400">DOT Recordable</div>
+                <div className="text-2xl font-bold text-zinc-900 dark:text-white">{stats.dotRecordable || 0}</div>
+                <div className="text-sm text-zinc-500 dark:text-zinc-400">DOT Recordable</div>
               </div>
             </div>
           </div>
-          <div className="bg-dark-800/50 border border-dark-700 rounded-lg p-4">
+          <div className="card p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-yellow-500/10 rounded-lg">
-                <FiSearch className="w-5 h-5 text-yellow-400" />
+              <div className="p-2 bg-yellow-100 dark:bg-yellow-500/10 rounded-lg">
+                <FiSearch className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-white">{stats.underInvestigation || 0}</div>
-                <div className="text-sm text-gray-400">Investigating</div>
+                <div className="text-2xl font-bold text-zinc-900 dark:text-white">{stats.underInvestigation || 0}</div>
+                <div className="text-sm text-zinc-500 dark:text-zinc-400">Investigating</div>
               </div>
             </div>
           </div>
-          <div className="bg-dark-800/50 border border-dark-700 rounded-lg p-4">
+          <div className="card p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-500/10 rounded-lg">
-                <FiCheckCircle className="w-5 h-5 text-green-400" />
+              <div className="p-2 bg-green-100 dark:bg-green-500/10 rounded-lg">
+                <FiCheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-white">{stats.closed || 0}</div>
-                <div className="text-sm text-gray-400">Closed</div>
+                <div className="text-2xl font-bold text-zinc-900 dark:text-white">{stats.closed || 0}</div>
+                <div className="text-sm text-zinc-500 dark:text-zinc-400">Closed</div>
               </div>
             </div>
           </div>
@@ -448,20 +448,20 @@ const Accidents = () => {
       <div className="flex flex-wrap gap-4">
         <form onSubmit={handleSearch} className="flex-1 min-w-[200px]">
           <div className="relative">
-            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
             <input
               type="text"
               placeholder="Search accidents..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-dark-800 border border-dark-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-primary-500"
+              className="w-full pl-10 pr-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-lg text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             />
           </div>
         </form>
         <select
           value={statusFilter}
           onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-          className="px-4 py-2 bg-dark-800 border border-dark-700 rounded-lg text-white focus:outline-none focus:border-primary-500"
+          className="px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
         >
           <option value="">All Status</option>
           <option value="reported">Reported</option>
@@ -471,7 +471,7 @@ const Accidents = () => {
         <select
           value={severityFilter}
           onChange={(e) => { setSeverityFilter(e.target.value); setPage(1); }}
-          className="px-4 py-2 bg-dark-800 border border-dark-700 rounded-lg text-white focus:outline-none focus:border-primary-500"
+          className="px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
         >
           <option value="">All Severity</option>
           <option value="minor">Minor</option>
@@ -512,7 +512,7 @@ const Accidents = () => {
                 required
                 value={formData.accidentDate}
                 onChange={(e) => setFormData({ ...formData, accidentDate: e.target.value })}
-                className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+                className="w-full px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
             <div>
@@ -521,7 +521,7 @@ const Accidents = () => {
                 type="time"
                 value={formData.accidentTime}
                 onChange={(e) => setFormData({ ...formData, accidentTime: e.target.value })}
-                className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+                className="w-full px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
           </div>
@@ -534,7 +534,7 @@ const Accidents = () => {
                 required
                 value={formData.driverId}
                 onChange={(e) => setFormData({ ...formData, driverId: e.target.value })}
-                className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+                className="w-full px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
                 <option value="">Select Driver</option>
                 {drivers.map(driver => (
@@ -550,7 +550,7 @@ const Accidents = () => {
                 required
                 value={formData.vehicleId}
                 onChange={(e) => setFormData({ ...formData, vehicleId: e.target.value })}
-                className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+                className="w-full px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
                 <option value="">Select Vehicle</option>
                 {vehicles.map(vehicle => (
@@ -563,14 +563,14 @@ const Accidents = () => {
           </div>
 
           {/* Location */}
-          <div className="bg-dark-700/50 rounded-lg p-4 space-y-3">
+          <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-4 space-y-3">
             <h4 className="text-sm font-medium text-zinc-700 dark:text-zinc-200">Location</h4>
             <div className="grid grid-cols-3 gap-3">
               <input
                 type="text"
                 value={formData.location.city}
                 onChange={(e) => setFormData({ ...formData, location: { ...formData.location, city: e.target.value } })}
-                className="w-full px-3 py-2 bg-dark-700 border border-dark-600 rounded text-white focus:outline-none focus:border-primary-500"
+                className="w-full px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
                 placeholder="City"
               />
               <input
@@ -579,14 +579,14 @@ const Accidents = () => {
                 maxLength={2}
                 value={formData.location.state}
                 onChange={(e) => setFormData({ ...formData, location: { ...formData.location, state: e.target.value.toUpperCase() } })}
-                className="w-full px-3 py-2 bg-dark-700 border border-dark-600 rounded text-white focus:outline-none focus:border-primary-500"
+                className="w-full px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
                 placeholder="State *"
               />
               <input
                 type="text"
                 value={formData.location.address}
                 onChange={(e) => setFormData({ ...formData, location: { ...formData.location, address: e.target.value } })}
-                className="w-full px-3 py-2 bg-dark-700 border border-dark-600 rounded text-white focus:outline-none focus:border-primary-500"
+                className="w-full px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
                 placeholder="Address"
               />
             </div>
@@ -600,7 +600,7 @@ const Accidents = () => {
                 required
                 value={formData.severity}
                 onChange={(e) => setFormData({ ...formData, severity: e.target.value })}
-                className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+                className="w-full px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
                 {severityOptions.map(opt => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -612,7 +612,7 @@ const Accidents = () => {
               <select
                 value={formData.accidentType}
                 onChange={(e) => setFormData({ ...formData, accidentType: e.target.value })}
-                className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+                className="w-full px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
                 {accidentTypes.map(opt => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -629,7 +629,7 @@ const Accidents = () => {
               rows={3}
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+              className="w-full px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               placeholder="Describe what happened"
             />
           </div>
@@ -646,7 +646,7 @@ const Accidents = () => {
                     ...formData,
                     recordableCriteria: { ...formData.recordableCriteria, fatality: e.target.checked }
                   })}
-                  className="w-4 h-4 rounded border-dark-600 bg-dark-700 text-red-500"
+                  className="w-4 h-4 rounded border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-red-500"
                 />
                 Fatality
               </label>
@@ -658,7 +658,7 @@ const Accidents = () => {
                     ...formData,
                     recordableCriteria: { ...formData.recordableCriteria, injury: e.target.checked }
                   })}
-                  className="w-4 h-4 rounded border-dark-600 bg-dark-700 text-red-500"
+                  className="w-4 h-4 rounded border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-red-500"
                 />
                 Injury (Medical Transport)
               </label>
@@ -670,7 +670,7 @@ const Accidents = () => {
                     ...formData,
                     recordableCriteria: { ...formData.recordableCriteria, towAway: e.target.checked }
                   })}
-                  className="w-4 h-4 rounded border-dark-600 bg-dark-700 text-red-500"
+                  className="w-4 h-4 rounded border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-red-500"
                 />
                 Tow-Away
               </label>
@@ -690,7 +690,7 @@ const Accidents = () => {
               <select
                 value={formData.weatherConditions}
                 onChange={(e) => setFormData({ ...formData, weatherConditions: e.target.value })}
-                className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+                className="w-full px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
                 {weatherOptions.map(opt => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -702,7 +702,7 @@ const Accidents = () => {
               <select
                 value={formData.roadConditions}
                 onChange={(e) => setFormData({ ...formData, roadConditions: e.target.value })}
-                className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+                className="w-full px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
                 {roadOptions.map(opt => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -712,7 +712,7 @@ const Accidents = () => {
           </div>
 
           {/* Police Report */}
-          <div className="bg-dark-700/50 rounded-lg p-4 space-y-3">
+          <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-4 space-y-3">
             <div className="flex items-center gap-4">
               <label className="flex items-center gap-2 text-zinc-700 dark:text-zinc-200">
                 <input
@@ -722,7 +722,7 @@ const Accidents = () => {
                     ...formData,
                     policeReport: { ...formData.policeReport, filed: e.target.checked }
                   })}
-                  className="w-4 h-4 rounded border-dark-600 bg-dark-700 text-primary-500"
+                  className="w-4 h-4 rounded border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-primary-500"
                 />
                 Police Report Filed
               </label>
@@ -734,7 +734,7 @@ const Accidents = () => {
                     ...formData,
                     policeReport: { ...formData.policeReport, citationIssued: e.target.checked }
                   })}
-                  className="w-4 h-4 rounded border-dark-600 bg-dark-700 text-primary-500"
+                  className="w-4 h-4 rounded border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-primary-500"
                 />
                 Citation Issued to Driver
               </label>
@@ -747,7 +747,7 @@ const Accidents = () => {
                   ...formData,
                   policeReport: { ...formData.policeReport, reportNumber: e.target.value }
                 })}
-                className="w-full px-3 py-2 bg-dark-700 border border-dark-600 rounded text-white focus:outline-none focus:border-primary-500"
+                className="w-full px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
                 placeholder="Police Report Number"
               />
             )}
@@ -762,16 +762,16 @@ const Accidents = () => {
                 ...formData,
                 cargoDamage: { ...formData.cargoDamage, hazmatSpill: e.target.checked }
               })}
-              className="w-4 h-4 rounded border-dark-600 bg-dark-700 text-orange-500"
+              className="w-4 h-4 rounded border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-orange-500"
             />
             Hazmat Release/Spill
           </label>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-dark-700">
+          <div className="flex justify-end gap-3 pt-4 border-t border-zinc-200 dark:border-zinc-700">
             <button
               type="button"
               onClick={() => { setShowAddModal(false); resetForm(); }}
-              className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+              className="px-4 py-2 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
             >
               Cancel
             </button>
@@ -799,7 +799,7 @@ const Accidents = () => {
             <div className="flex justify-between items-start">
               <div>
                 <div className="flex items-center gap-3">
-                  <h3 className="text-xl font-semibold text-white">
+                  <h3 className="text-xl font-semibold text-zinc-900 dark:text-white">
                     {formatDate(selectedAccident.accidentDate)}
                     {selectedAccident.accidentTime && ` at ${selectedAccident.accidentTime}`}
                   </h3>
@@ -809,7 +809,7 @@ const Accidents = () => {
                     </span>
                   )}
                 </div>
-                <div className="text-gray-400 mt-1 flex items-center gap-2">
+                <div className="text-zinc-500 dark:text-zinc-400 mt-1 flex items-center gap-2">
                   <FiMapPin className="w-4 h-4" />
                   {selectedAccident.location?.city && `${selectedAccident.location.city}, `}
                   {selectedAccident.location?.state}
@@ -823,16 +823,16 @@ const Accidents = () => {
 
             {/* Driver and Vehicle */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-dark-700/50 rounded-lg p-3">
-                <div className="text-sm text-gray-400">Driver</div>
-                <div className="font-medium text-white flex items-center gap-2">
+              <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3">
+                <div className="text-sm text-zinc-500 dark:text-zinc-400">Driver</div>
+                <div className="font-medium text-zinc-900 dark:text-white flex items-center gap-2">
                   <FiUser className="w-4 h-4" />
                   {selectedAccident.driverId?.firstName} {selectedAccident.driverId?.lastName}
                 </div>
               </div>
-              <div className="bg-dark-700/50 rounded-lg p-3">
-                <div className="text-sm text-gray-400">Vehicle</div>
-                <div className="font-medium text-white flex items-center gap-2">
+              <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3">
+                <div className="text-sm text-zinc-500 dark:text-zinc-400">Vehicle</div>
+                <div className="font-medium text-zinc-900 dark:text-white flex items-center gap-2">
                   <FiTruck className="w-4 h-4" />
                   {selectedAccident.vehicleId?.unitNumber} - {selectedAccident.vehicleId?.make} {selectedAccident.vehicleId?.model}
                 </div>
@@ -841,30 +841,30 @@ const Accidents = () => {
 
             {/* Accident Type and Conditions */}
             <div className="grid grid-cols-3 gap-4">
-              <div className="bg-dark-700/50 rounded-lg p-3">
-                <div className="text-sm text-gray-400">Type</div>
-                <div className="font-medium text-white capitalize">
+              <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3">
+                <div className="text-sm text-zinc-500 dark:text-zinc-400">Type</div>
+                <div className="font-medium text-zinc-900 dark:text-white capitalize">
                   {selectedAccident.accidentType?.replace(/_/g, ' ') || 'Other'}
                 </div>
               </div>
-              <div className="bg-dark-700/50 rounded-lg p-3">
-                <div className="text-sm text-gray-400">Weather</div>
-                <div className="font-medium text-white capitalize">
+              <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3">
+                <div className="text-sm text-zinc-500 dark:text-zinc-400">Weather</div>
+                <div className="font-medium text-zinc-900 dark:text-white capitalize">
                   {selectedAccident.weatherConditions || '-'}
                 </div>
               </div>
-              <div className="bg-dark-700/50 rounded-lg p-3">
-                <div className="text-sm text-gray-400">Road</div>
-                <div className="font-medium text-white capitalize">
+              <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3">
+                <div className="text-sm text-zinc-500 dark:text-zinc-400">Road</div>
+                <div className="font-medium text-zinc-900 dark:text-white capitalize">
                   {selectedAccident.roadConditions || '-'}
                 </div>
               </div>
             </div>
 
             {/* Description */}
-            <div className="bg-dark-700/50 rounded-lg p-4">
-              <h4 className="text-sm font-medium text-gray-400 mb-2">Description</h4>
-              <p className="text-white">{selectedAccident.description}</p>
+            <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-4">
+              <h4 className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">Description</h4>
+              <p className="text-zinc-900 dark:text-white">{selectedAccident.description}</p>
             </div>
 
             {/* DOT Criteria */}
@@ -887,12 +887,12 @@ const Accidents = () => {
 
             {/* Police Report */}
             {selectedAccident.policeReport?.filed && (
-              <div className="bg-dark-700/50 rounded-lg p-4">
-                <h4 className="text-sm font-medium text-gray-400 mb-2">Police Report</h4>
-                <div className="text-white">
+              <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-4">
+                <h4 className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">Police Report</h4>
+                <div className="text-zinc-900 dark:text-white">
                   Report #: {selectedAccident.policeReport.reportNumber || 'N/A'}
                   {selectedAccident.policeReport.citationIssued && (
-                    <span className="ml-3 text-yellow-400">Citation Issued</span>
+                    <span className="ml-3 text-yellow-600 dark:text-yellow-400">Citation Issued</span>
                   )}
                 </div>
               </div>
@@ -900,14 +900,14 @@ const Accidents = () => {
 
             {/* Injuries/Fatalities Summary */}
             {(selectedAccident.totalInjuries > 0 || selectedAccident.totalFatalities > 0) && (
-              <div className="bg-dark-700/50 rounded-lg p-4">
-                <h4 className="text-sm font-medium text-gray-400 mb-2">Casualties</h4>
+              <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-4">
+                <h4 className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">Casualties</h4>
                 <div className="flex gap-4">
                   {selectedAccident.totalInjuries > 0 && (
-                    <span className="text-yellow-400">{selectedAccident.totalInjuries} Injuries</span>
+                    <span className="text-yellow-600 dark:text-yellow-400">{selectedAccident.totalInjuries} Injuries</span>
                   )}
                   {selectedAccident.totalFatalities > 0 && (
-                    <span className="text-red-400">{selectedAccident.totalFatalities} Fatalities</span>
+                    <span className="text-red-600 dark:text-red-400">{selectedAccident.totalFatalities} Fatalities</span>
                   )}
                 </div>
               </div>
@@ -915,9 +915,9 @@ const Accidents = () => {
 
             {/* Cost Summary */}
             {selectedAccident.totalEstimatedCost > 0 && (
-              <div className="bg-dark-700/50 rounded-lg p-4">
-                <h4 className="text-sm font-medium text-gray-400 mb-2">Estimated Damages</h4>
-                <div className="text-xl font-bold text-white">
+              <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-4">
+                <h4 className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">Estimated Damages</h4>
+                <div className="text-xl font-bold text-zinc-900 dark:text-white">
                   ${selectedAccident.totalEstimatedCost.toLocaleString()}
                 </div>
               </div>
@@ -925,17 +925,17 @@ const Accidents = () => {
 
             {/* Investigation */}
             {selectedAccident.investigation?.findings && (
-              <div className="bg-dark-700/50 rounded-lg p-4">
-                <h4 className="text-sm font-medium text-gray-400 mb-2">Investigation Findings</h4>
-                <p className="text-white">{selectedAccident.investigation.findings}</p>
+              <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-4">
+                <h4 className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">Investigation Findings</h4>
+                <p className="text-zinc-900 dark:text-white">{selectedAccident.investigation.findings}</p>
                 {selectedAccident.investigation.preventable !== undefined && (
                   <div className="mt-2 flex items-center gap-2">
                     {selectedAccident.investigation.preventable ? (
-                      <span className="text-red-400 flex items-center gap-1">
+                      <span className="text-red-600 dark:text-red-400 flex items-center gap-1">
                         <FiXCircle className="w-4 h-4" /> Preventable
                       </span>
                     ) : (
-                      <span className="text-green-400 flex items-center gap-1">
+                      <span className="text-green-600 dark:text-green-400 flex items-center gap-1">
                         <FiCheckCircle className="w-4 h-4" /> Non-Preventable
                       </span>
                     )}
@@ -944,17 +944,17 @@ const Accidents = () => {
               </div>
             )}
 
-            <div className="flex justify-between pt-4 border-t border-dark-700">
+            <div className="flex justify-between pt-4 border-t border-zinc-200 dark:border-zinc-700">
               <button
                 onClick={() => { setShowDetailModal(false); openEditModal(selectedAccident); }}
-                className="flex items-center gap-2 px-4 py-2 text-gray-400 hover:text-white transition-colors"
+                className="flex items-center gap-2 px-4 py-2 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
               >
                 <FiEdit2 className="w-4 h-4" />
                 Edit
               </button>
               <button
                 onClick={() => setShowDetailModal(false)}
-                className="px-4 py-2 bg-dark-700 hover:bg-dark-600 text-white rounded-lg transition-colors"
+                className="px-4 py-2 bg-zinc-100 dark:bg-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-600 text-zinc-900 dark:text-white rounded-lg transition-colors"
               >
                 Close
               </button>
