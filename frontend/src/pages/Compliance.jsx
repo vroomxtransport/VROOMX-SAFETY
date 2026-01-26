@@ -132,7 +132,7 @@ const Compliance = () => {
         {activeTab === 'overview' && (
           <button
             onClick={() => setShowEditModal(true)}
-            className="btn btn-outline flex items-center"
+            className="btn btn-primary flex items-center"
           >
             <FiEdit2 className="w-4 h-4 mr-2" />
             Update BASICs
