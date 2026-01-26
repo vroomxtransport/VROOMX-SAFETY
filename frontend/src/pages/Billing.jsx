@@ -231,8 +231,8 @@ const Billing = () => {
     <div className="max-w-6xl mx-auto">
       {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-primary-900 dark:text-white">Billing & Subscription</h1>
-        <p className="text-primary-500 dark:text-zinc-400 text-sm mt-1">Manage your subscription plan and billing details</p>
+        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Billing & Subscription</h1>
+        <p className="text-zinc-600 dark:text-zinc-300 text-sm mt-1">Manage your subscription plan and billing details</p>
       </div>
 
       {/* Current Subscription Card */}

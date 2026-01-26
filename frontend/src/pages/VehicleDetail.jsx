@@ -134,7 +134,7 @@ const VehicleDetail = () => {
               <FiTruck className="w-6 h-6 text-orange-600" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-zinc-800 dark:text-zinc-100">{vehicle.unitNumber}</h1>
+              <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{vehicle.unitNumber}</h1>
               <p className="text-zinc-600 dark:text-zinc-300">{vehicle.make} {vehicle.model} {vehicle.year}</p>
             </div>
           </div>

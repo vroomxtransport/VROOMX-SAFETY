@@ -197,7 +197,7 @@ const Documents = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-800 dark:text-zinc-100">Document Library</h1>
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Document Library</h1>
           <p className="text-zinc-600 dark:text-zinc-300">Centralized document management with expiration tracking</p>
         </div>
         <button

@@ -215,7 +215,7 @@ const DrugAlcohol = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-800 dark:text-zinc-100">Drug & Alcohol Program</h1>
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Drug & Alcohol Program</h1>
           <p className="text-zinc-600 dark:text-zinc-300">DOT testing and Clearinghouse compliance per 49 CFR 382</p>
         </div>
         <button

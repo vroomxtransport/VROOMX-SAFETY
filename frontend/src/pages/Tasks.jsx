@@ -331,7 +331,7 @@ const Tasks = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Tasks</h1>
-          <p className="text-zinc-500 dark:text-zinc-400">Manage compliance tasks and reminders</p>
+          <p className="text-zinc-600 dark:text-zinc-300">Manage compliance tasks and reminders</p>
         </div>
         <button
           onClick={() => { resetForm(); setShowAddModal(true); }}

@@ -217,7 +217,7 @@ const Dashboard = () => {
           <span className="text-sm text-zinc-600 dark:text-zinc-300">{currentDate}</span>
           <Link
             to="/app/reports"
-            className="flex items-center gap-2 px-4 py-2 bg-accent-500 hover:bg-accent-600 text-white font-medium rounded-xl transition-colors shadow-lg shadow-accent-500/30"
+            className="btn btn-primary"
           >
             <FiFileText className="w-4 h-4" />
             Generate Report

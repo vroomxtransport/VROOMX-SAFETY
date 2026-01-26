@@ -126,7 +126,7 @@ const Compliance = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-800 dark:text-zinc-100">Compliance Dashboard</h1>
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Compliance Dashboard</h1>
           <p className="text-zinc-600 dark:text-zinc-300">SMS BASICs and compliance overview</p>
         </div>
         {activeTab === 'overview' && (
@@ -151,7 +151,7 @@ const Compliance = () => {
       {/* BASICs Overview */}
       <div className="card">
         <div className="card-header">
-          <h2 className="text-lg font-semibold text-zinc-800 dark:text-zinc-100">SMS BASICs Overview</h2>
+          <h2 className="text-lg font-semibold text-zinc-900 dark:text-white">SMS BASICs Overview</h2>
           <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-1">Based on FMCSA Safety Measurement System methodology</p>
         </div>
         <div className="card-body">
@@ -223,7 +223,7 @@ const Compliance = () => {
         {/* Driver Compliance */}
         <div className="card">
           <div className="card-header">
-            <h3 className="font-semibold text-zinc-800 dark:text-zinc-100">Driver Qualification Status</h3>
+            <h3 className="font-semibold text-zinc-900 dark:text-white">Driver Qualification Status</h3>
           </div>
           <div className="card-body">
             <div className="flex items-center justify-center">
@@ -256,7 +256,7 @@ const Compliance = () => {
         {/* Audit Readiness */}
         <div className="card">
           <div className="card-header flex items-center justify-between">
-            <h3 className="font-semibold text-zinc-800 dark:text-zinc-100">Audit Readiness</h3>
+            <h3 className="font-semibold text-zinc-900 dark:text-white">Audit Readiness</h3>
             {auditReadiness?.overallReadiness ? (
               <span className="badge badge-success">Ready</span>
             ) : (
@@ -273,7 +273,7 @@ const Compliance = () => {
                   <FiAlertCircle className="w-6 h-6 text-red-500 dark:text-red-400" />
                 )}
                 <div>
-                  <p className="font-medium text-zinc-800 dark:text-zinc-100">Driver Qualification Files</p>
+                  <p className="font-medium text-zinc-900 dark:text-white">Driver Qualification Files</p>
                   <p className="text-sm text-zinc-600 dark:text-zinc-300">
                     {auditReadiness?.dqFiles?.driversWithIssues || 0} of {auditReadiness?.dqFiles?.totalDrivers || 0} with issues
                   </p>
@@ -290,7 +290,7 @@ const Compliance = () => {
                   <FiAlertCircle className="w-6 h-6 text-yellow-500 dark:text-yellow-400" />
                 )}
                 <div>
-                  <p className="font-medium text-zinc-800 dark:text-zinc-100">Vehicle Records</p>
+                  <p className="font-medium text-zinc-900 dark:text-white">Vehicle Records</p>
                   <p className="text-sm text-zinc-600 dark:text-zinc-300">
                     {auditReadiness?.vehicleRecords?.vehiclesWithIssues || 0} of {auditReadiness?.vehicleRecords?.totalVehicles || 0} need attention
                   </p>
@@ -307,7 +307,7 @@ const Compliance = () => {
                   <FiAlertTriangle className="w-6 h-6 text-yellow-500 dark:text-yellow-400" />
                 )}
                 <div>
-                  <p className="font-medium text-zinc-800 dark:text-zinc-100">Drug & Alcohol Program</p>
+                  <p className="font-medium text-zinc-900 dark:text-white">Drug & Alcohol Program</p>
                   <p className="text-sm text-zinc-600 dark:text-zinc-300">
                     {auditReadiness?.drugAlcohol?.randomTestsCompleted || 0} of {auditReadiness?.drugAlcohol?.randomTestsRequired || 0} random tests completed
                   </p>
@@ -321,7 +321,7 @@ const Compliance = () => {
       {/* Threshold Reference */}
       <div className="card">
         <div className="card-header">
-          <h3 className="font-semibold text-zinc-800 dark:text-zinc-100">BASIC Threshold Reference</h3>
+          <h3 className="font-semibold text-zinc-900 dark:text-white">BASIC Threshold Reference</h3>
         </div>
         <div className="card-body">
           <div className="overflow-x-auto">
@@ -386,7 +386,7 @@ const Compliance = () => {
                 <FiClock className="w-5 h-5 text-primary-600 dark:text-primary-400" />
               </div>
               <div>
-                <h3 className="font-semibold text-zinc-800 dark:text-zinc-100">24-Month Score Projection</h3>
+                <h3 className="font-semibold text-zinc-900 dark:text-white">24-Month Score Projection</h3>
                 <p className="text-sm text-zinc-600 dark:text-zinc-300">How your scores will improve as violations age out</p>
               </div>
             </div>

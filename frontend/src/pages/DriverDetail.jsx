@@ -85,7 +85,7 @@ const DriverDetail = () => {
             <FiArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-zinc-800 dark:text-zinc-100">
+            <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">
               {driver.firstName} {driver.lastName}
             </h1>
             <p className="text-zinc-600 dark:text-zinc-300">Employee ID: {driver.employeeId}</p>

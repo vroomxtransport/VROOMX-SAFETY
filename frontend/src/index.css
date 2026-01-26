@@ -460,6 +460,48 @@ h1, h2, h3, h4, h5, h6 {
   .btn-lg {
     @apply px-6 py-3.5 text-base;
   }
+
+  /* Icon button for table actions */
+  .btn-icon {
+    @apply p-2 rounded-lg transition-colors;
+    color: var(--text-muted);
+  }
+
+  .btn-icon:hover {
+    background: var(--glass-bg);
+    color: var(--text-primary);
+  }
+
+  .btn-icon-danger {
+    @apply text-red-600 dark:text-red-400;
+  }
+
+  .btn-icon-danger:hover {
+    @apply bg-red-50 dark:bg-red-500/10;
+  }
+
+  /* Outline button */
+  .btn-outline {
+    @apply bg-transparent border;
+    border-color: var(--glass-border);
+    color: var(--text-primary);
+  }
+
+  .btn-outline:hover:not(:disabled) {
+    background: var(--glass-bg);
+    border-color: var(--glass-border-hover);
+  }
+
+  /* Text/Link button */
+  .btn-link {
+    @apply bg-transparent p-0 font-medium;
+    color: var(--color-cta-500);
+  }
+
+  .btn-link:hover:not(:disabled) {
+    color: var(--color-cta-600);
+    text-decoration: underline;
+  }
 }
 
 /* ==================== CARD COMPONENTS ==================== */
