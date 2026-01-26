@@ -40,7 +40,7 @@ const FAQSection = ({ faqData, openFaq, setOpenFaq }) => {
               >
                 <div className="overflow-hidden">
                   <div className="px-6 pb-6 pt-0">
-                    <p className="text-zinc-600 leading-relaxed">{faq.answer}</p>
+                    <p className="text-zinc-600 dark:text-zinc-200 leading-relaxed">{faq.answer}</p>
                   </div>
                 </div>
               </div>

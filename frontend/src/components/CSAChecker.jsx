@@ -246,7 +246,7 @@ const CSAChecker = () => {
                 <p className="text-cta-500 font-bold text-base mb-1">
                   Are you on FMCSA's radar?
                 </p>
-                <p className="text-zinc-700 text-xs font-semibold">
+                <p className="text-zinc-700 dark:text-zinc-300 text-xs font-semibold">
                   High BASICs = audits, fines & lost contracts
                 </p>
               </div>
@@ -283,7 +283,7 @@ const CSAChecker = () => {
               </button>
 
               {/* Trust Badges with Social Proof */}
-              <div className="mt-4 flex items-center justify-center gap-2 text-[11px] text-zinc-700 font-semibold">
+              <div className="mt-4 flex items-center justify-center gap-2 text-[11px] text-zinc-700 dark:text-zinc-300 font-semibold">
                 <span>100% Free</span>
                 <span className="text-zinc-400 font-normal">·</span>
                 <span>30 seconds</span>
@@ -449,7 +449,7 @@ const CSAChecker = () => {
                 </div>
                 <span className="text-[10px] font-medium text-zinc-600 dark:text-zinc-300">VroomX Analysis</span>
               </div>
-              <div className="text-xs text-zinc-800 dark:text-zinc-100 leading-relaxed whitespace-pre-wrap">
+              <div className="text-xs text-zinc-700 dark:text-zinc-200 leading-relaxed whitespace-pre-wrap">
                 {aiAnalysis}
               </div>
             </div>

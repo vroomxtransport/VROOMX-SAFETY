@@ -20,10 +20,10 @@ const PricingSection = ({ isAnnual, setIsAnnual, pricingPlans, comparisonFeature
           ref={headerRef}
           className={`text-center max-w-3xl mx-auto mb-12 transition-all duration-700 ${headerInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         >
-          <h2 className="text-3xl md:text-5xl font-heading font-extrabold text-gray-800 mb-4">
+          <h2 className="text-3xl md:text-5xl font-heading font-extrabold text-gray-800 dark:text-white mb-4">
             Choose Your <span className="text-cta-500">Plan</span>
           </h2>
-          <p className="text-lg text-gray-600 mb-10">
+          <p className="text-lg text-gray-600 dark:text-gray-300 mb-10">
             No hidden fees. No long contracts. Cancel anytime.
           </p>
 
@@ -34,7 +34,7 @@ const PricingSection = ({ isAnnual, setIsAnnual, pricingPlans, comparisonFeature
               className={`px-6 py-3 rounded-xl font-semibold text-sm transition-all ${
                 !isAnnual
                   ? 'bg-gradient-to-br from-[#FF6B4A] to-[#FF8A6B] text-white shadow-lg shadow-[#FF6B4A]/25'
-                  : 'text-gray-600 hover:text-gray-800'
+                  : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:text-white'
               }`}
             >
               Monthly
@@ -44,7 +44,7 @@ const PricingSection = ({ isAnnual, setIsAnnual, pricingPlans, comparisonFeature
               className={`px-6 py-3 rounded-xl font-semibold text-sm transition-all flex items-center gap-2 ${
                 isAnnual
                   ? 'bg-gradient-to-br from-[#FF6B4A] to-[#FF8A6B] text-white shadow-lg shadow-[#FF6B4A]/25'
-                  : 'text-gray-600 hover:text-gray-800'
+                  : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:text-white'
               }`}
             >
               Annual
@@ -76,29 +76,29 @@ const PricingSection = ({ isAnnual, setIsAnnual, pricingPlans, comparisonFeature
 
               {/* Plan Name */}
               <div className="mb-2">
-                <h3 className="text-xl font-bold text-gray-800">{plan.name}</h3>
+                <h3 className="text-xl font-bold text-gray-800 dark:text-white">{plan.name}</h3>
               </div>
-              <p className="text-sm text-gray-500 mb-6">{plan.subtitle}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">{plan.subtitle}</p>
 
               {/* Price */}
               <div className="mb-2">
                 <div className="flex items-baseline gap-1">
                   <span className="text-2xl text-cta-500 font-bold">$</span>
-                  <span className="text-5xl font-extrabold text-gray-800 leading-none">
+                  <span className="text-5xl font-extrabold text-gray-800 dark:text-white leading-none">
                     {isAnnual ? plan.annualPrice : plan.monthlyPrice}
                   </span>
-                  <span className="text-gray-500 ml-1">/month</span>
+                  <span className="text-gray-500 dark:text-gray-400 ml-1">/month</span>
                 </div>
               </div>
 
               {/* Billing info */}
               {isAnnual && (
-                <p className="text-sm text-gray-500 mb-1">
-                  Billed <span className="text-gray-700 font-medium">${plan.annualPrice * 12}/year</span>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                  Billed <span className="text-gray-700 dark:text-gray-200 font-medium">${plan.annualPrice * 12}/year</span>
                   <span className="line-through ml-2 text-gray-400">${plan.monthlyPrice * 12}</span>
                 </p>
               )}
-              <p className="text-sm text-gray-500 mb-6">
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
                 {plan.drivers}
                 {plan.extraDriver && <span className="block text-xs mt-0.5">{plan.extraDriver}</span>}
               </p>
@@ -109,7 +109,7 @@ const PricingSection = ({ isAnnual, setIsAnnual, pricingPlans, comparisonFeature
               {/* Features */}
               <ul className="space-y-3 mb-8">
                 {plan.features.map((feature, j) => (
-                  <li key={j} className="flex items-center gap-3 text-sm text-gray-600">
+                  <li key={j} className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300">
                     <span className="w-6 h-6 bg-emerald-50 rounded-lg flex items-center justify-center flex-shrink-0">
                       <FiCheck className="w-4 h-4 text-emerald-500" />
                     </span>
@@ -124,7 +124,7 @@ const PricingSection = ({ isAnnual, setIsAnnual, pricingPlans, comparisonFeature
                 className={`w-full py-4 rounded-xl font-bold text-center block transition-all ${
                   plan.popular
                     ? 'bg-gradient-to-r from-[#FF6B4A] to-[#FF8A6B] hover:shadow-lg hover:shadow-[#FF6B4A]/30 hover:scale-[1.02] text-white'
-                    : 'bg-gray-100 border border-gray-200 text-gray-700 hover:bg-gray-200 hover:border-gray-300'
+                    : 'bg-gray-100 border border-gray-200 text-gray-700 dark:text-gray-200 hover:bg-gray-200 hover:border-gray-300'
                 }`}
               >
                 {plan.hasTrial === false ? 'Get Started' : 'Start Free Trial'}
@@ -135,24 +135,24 @@ const PricingSection = ({ isAnnual, setIsAnnual, pricingPlans, comparisonFeature
 
         {/* Comparison Table */}
         <div className="mt-24 max-w-4xl mx-auto">
-          <h3 className="text-2xl md:text-3xl font-heading font-bold text-gray-800 text-center mb-4">
+          <h3 className="text-2xl md:text-3xl font-heading font-bold text-gray-800 dark:text-white text-center mb-4">
             VroomX vs <span className="text-cta-500">The Competition</span>
           </h3>
-          <p className="text-gray-600 text-center mb-10">See why fleets are switching to VroomX</p>
+          <p className="text-gray-600 dark:text-gray-300 text-center mb-10">See why fleets are switching to VroomX</p>
 
           <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-lg">
             {/* Table Header */}
             <div className="grid grid-cols-4 bg-gray-50 border-b border-gray-200">
-              <div className="p-4 font-bold text-gray-800">Feature</div>
+              <div className="p-4 font-bold text-gray-800 dark:text-white">Feature</div>
               <div className="p-4 font-bold text-center text-cta-500 bg-cta-50">VroomX</div>
-              <div className="p-4 font-bold text-center text-gray-500">Spreadsheets</div>
-              <div className="p-4 font-bold text-center text-gray-500">Other Software</div>
+              <div className="p-4 font-bold text-center text-gray-500 dark:text-gray-400">Spreadsheets</div>
+              <div className="p-4 font-bold text-center text-gray-500 dark:text-gray-400">Other Software</div>
             </div>
 
             {/* Table Body */}
             {comparisonFeatures.map((row, i) => (
               <div key={i} className={`grid grid-cols-4 ${i !== comparisonFeatures.length - 1 ? 'border-b border-gray-100' : ''}`}>
-                <div className="p-4 text-sm text-gray-700 font-medium">{row.feature}</div>
+                <div className="p-4 text-sm text-gray-700 dark:text-gray-200 font-medium">{row.feature}</div>
                 <div className="p-4 flex justify-center items-center bg-cta-50/50">
                   {typeof row.vroomx === 'boolean' ? (
                     row.vroomx ? (
@@ -182,7 +182,7 @@ const PricingSection = ({ isAnnual, setIsAnnual, pricingPlans, comparisonFeature
                   ) : row.spreadsheets === 'limited' ? (
                     <span className="text-xs text-amber-600 font-medium bg-amber-50 px-2 py-1 rounded">Limited</span>
                   ) : (
-                    <span className="text-sm text-gray-500">{row.spreadsheets}</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">{row.spreadsheets}</span>
                   )}
                 </div>
                 <div className="p-4 flex justify-center items-center">
@@ -199,14 +199,14 @@ const PricingSection = ({ isAnnual, setIsAnnual, pricingPlans, comparisonFeature
                   ) : row.other === 'limited' ? (
                     <span className="text-xs text-amber-600 font-medium bg-amber-50 px-2 py-1 rounded">Limited</span>
                   ) : (
-                    <span className="text-sm text-gray-500">{row.other}</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">{row.other}</span>
                   )}
                 </div>
               </div>
             ))}
           </div>
 
-          <p className="text-center text-xs text-gray-500 mt-4">*Spreadsheets require significant time investment and manual maintenance</p>
+          <p className="text-center text-xs text-gray-500 dark:text-gray-400 mt-4">*Spreadsheets require significant time investment and manual maintenance</p>
         </div>
       </div>
     </section>

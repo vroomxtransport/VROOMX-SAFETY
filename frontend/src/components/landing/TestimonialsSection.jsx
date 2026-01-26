@@ -51,10 +51,10 @@ const TestimonialsSection = () => {
           ref={headerRef}
           className={`text-center mb-12 transition-all duration-700 ${headerInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         >
-          <h2 className="text-3xl md:text-5xl font-heading font-extrabold text-gray-800 mb-4">
+          <h2 className="text-3xl md:text-5xl font-heading font-extrabold text-gray-800 dark:text-white mb-4">
             Trusted by <span className="text-cta-500">2,500+</span> Carriers
           </h2>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-gray-600 dark:text-gray-300">
             See why fleet managers choose VroomX Safety
           </p>
         </div>
@@ -69,7 +69,7 @@ const TestimonialsSection = () => {
               <div className="text-3xl md:text-4xl font-heading font-extrabold text-cta-500">
                 {stat.value}
               </div>
-              <div className="text-sm text-gray-500 mt-1">
+              <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                 {stat.label}
               </div>
             </div>
@@ -102,7 +102,7 @@ const TestimonialsSection = () => {
               </div>
 
               {/* Quote Text */}
-              <p className="text-gray-600 leading-relaxed mb-6">
+              <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-6">
                 "{t.quote}"
               </p>
 
@@ -122,8 +122,8 @@ const TestimonialsSection = () => {
                   className="w-12 h-12 rounded-full object-cover"
                 />
                 <div>
-                  <div className="font-bold text-gray-800">{t.name}</div>
-                  <div className="text-sm text-gray-500">{t.role}</div>
+                  <div className="font-bold text-gray-800 dark:text-white">{t.name}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{t.role}</div>
                 </div>
               </div>
             </div>
