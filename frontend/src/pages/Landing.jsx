@@ -83,35 +83,6 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Stats Bar */}
-      <section className="relative z-10 py-12 border-b border-[#E2E8F0] bg-white/80 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-10 px-6">
-          {[
-            { value: '6+', label: 'SMS BASICs Tracked' },
-            { value: '49 CFR', label: 'Compliance Built-In' },
-            { value: '30/14/7', label: 'Day Expiration Alerts' },
-            { value: 'DataQ', label: 'Challenge Support' }
-          ].map((stat, i) => (
-            <div key={i} className="text-center group">
-              <div className="text-3xl md:text-4xl font-black tracking-tight text-primary-500 group-hover:text-cta-500 transition-colors duration-300 font-heading">
-                {stat.value === '49 CFR' ? (
-                  <><span className="text-cta-500 group-hover:text-primary-500 transition-colors">49</span> CFR</>
-                ) : stat.value === 'DataQ' ? (
-                  <>Data<span className="text-cta-500 group-hover:text-primary-500 transition-colors">Q</span></>
-                ) : stat.value === '6+' ? (
-                  <>6<span className="text-cta-500 group-hover:text-primary-500 transition-colors">+</span></>
-                ) : (
-                  stat.value.split('/').map((v, idx) => (
-                    <span key={idx}>{idx > 0 && <span className="text-zinc-500">/</span>}{v}</span>
-                  ))
-                )}
-              </div>
-              <div className="text-xs text-zinc-600 mt-2 uppercase tracking-widest font-mono">{stat.label}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* Features Section */}
       <FeaturesSection features={features} />
 
