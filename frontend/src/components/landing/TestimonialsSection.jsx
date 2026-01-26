@@ -7,9 +7,8 @@ const TestimonialsSection = () => {
   const [cardsRef, cardsInView] = useInView({ threshold: 0.1 });
 
   const stats = [
-    { value: '2,500+', label: 'Active Fleets' },
-    { value: '15,000+', label: 'Drivers Managed' },
-    { value: '23pts', label: 'Avg CSA Reduction' },
+    { value: '500+', label: 'Active Fleets' },
+    { value: '7,000+', label: 'Drivers Managed' },
     { value: '4.9/5', label: 'Customer Rating' }
   ];
 
