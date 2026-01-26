@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const User = require('../models/User');
 const Company = require('../models/Company');
 const Driver = require('../models/Driver');
@@ -10,6 +11,52 @@ const { protect, requireSuperAdmin } = require('../middleware/auth');
 // All admin routes require authentication and superadmin role
 router.use(protect);
 router.use(requireSuperAdmin);
+
+// Helper function to cascade delete all company data
+async function cascadeDeleteCompany(companyId) {
+  const db = mongoose.connection.db;
+  const objectId = new mongoose.Types.ObjectId(companyId);
+
+  console.log(`[ADMIN] Cascade deleting company ${companyId} and all related data...`);
+
+  // Delete all related data in parallel
+  const results = await Promise.all([
+    db.collection('drivers').deleteMany({ companyId: objectId }),
+    db.collection('vehicles').deleteMany({ companyId: objectId }),
+    db.collection('documents').deleteMany({ companyId: objectId }),
+    db.collection('violations').deleteMany({ companyId: objectId }),
+    db.collection('accidents').deleteMany({ companyId: objectId }),
+    db.collection('drugalcoholtests').deleteMany({ companyId: objectId }),
+    db.collection('tickets').deleteMany({ companyId: objectId }),
+    db.collection('alerts').deleteMany({ companyId: objectId }),
+    db.collection('maintenancerecords').deleteMany({ companyId: objectId }),
+    db.collection('tasks').deleteMany({ companyId: objectId }),
+    db.collection('checklisttemplates').deleteMany({ companyId: objectId }),
+    db.collection('checklistassignments').deleteMany({ companyId: objectId }),
+    db.collection('csascorehistories').deleteMany({ companyId: objectId }),
+    db.collection('compliancescores').deleteMany({ companyId: objectId }),
+    db.collection('damageclaims').deleteMany({ companyId: objectId }),
+    db.collection('companyinvitations').deleteMany({ companyId: objectId }),
+  ]);
+
+  // Remove company from all users' companies array
+  await db.collection('users').updateMany(
+    { 'companies.companyId': objectId },
+    { $pull: { companies: { companyId: objectId } } }
+  );
+
+  // Clear activeCompanyId for users who had this as active
+  await db.collection('users').updateMany(
+    { activeCompanyId: objectId },
+    { $unset: { activeCompanyId: '' } }
+  );
+
+  // Delete the company itself
+  await db.collection('companies').deleteOne({ _id: objectId });
+
+  console.log(`[ADMIN] Company ${companyId} deleted with all related data`);
+  return results;
+}
 
 // Allowed values for subscription validation
 const VALID_PLANS = ['free_trial', 'solo', 'fleet', 'starter', 'professional'];
@@ -203,11 +250,11 @@ router.patch('/users/:id', async (req, res) => {
 });
 
 // @route   DELETE /api/admin/users/:id
-// @desc    Delete user
+// @desc    Delete user and their owned companies
 // @access  Super Admin
 router.delete('/users/:id', async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    const user = await User.findById(req.params.id).populate('companies.companyId');
 
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
@@ -221,9 +268,24 @@ router.delete('/users/:id', async (req, res) => {
       });
     }
 
+    // Find companies where user is the owner
+    const ownedCompanies = user.companies?.filter(c => c.role === 'owner') || [];
+
+    // Cascade delete all owned companies
+    for (const membership of ownedCompanies) {
+      const companyId = membership.companyId?._id || membership.companyId;
+      if (companyId) {
+        await cascadeDeleteCompany(companyId.toString());
+      }
+    }
+
+    // Delete the user
     await User.findByIdAndDelete(req.params.id);
 
-    res.json({ success: true, message: 'User deleted successfully' });
+    res.json({
+      success: true,
+      message: `User deleted successfully along with ${ownedCompanies.length} owned company(ies)`
+    });
   } catch (error) {
     console.error('Admin delete user error:', error);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -379,6 +441,32 @@ router.get('/companies', async (req, res) => {
     });
   } catch (error) {
     console.error('Admin list companies error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// @route   DELETE /api/admin/companies/:id
+// @desc    Delete company and all related data
+// @access  Super Admin
+router.delete('/companies/:id', async (req, res) => {
+  try {
+    const company = await Company.findById(req.params.id);
+
+    if (!company) {
+      return res.status(404).json({ success: false, message: 'Company not found' });
+    }
+
+    // Cascade delete company and all related data
+    await cascadeDeleteCompany(req.params.id);
+
+    console.log(`[ADMIN] User ${req.user.email} deleted company ${company.name} (${company.dotNumber})`);
+
+    res.json({
+      success: true,
+      message: `Company "${company.name}" and all related data deleted successfully`
+    });
+  } catch (error) {
+    console.error('Admin delete company error:', error);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });

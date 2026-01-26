@@ -376,5 +376,6 @@ export const adminAPI = {
 
   // Companies
   getCompanies: (params) => api.get('/admin/companies', { params }),
-  getCompany: (id) => api.get(`/admin/companies/${id}`)
+  getCompany: (id) => api.get(`/admin/companies/${id}`),
+  deleteCompany: (id) => api.delete(`/admin/companies/${id}`)
 };

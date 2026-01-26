@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { adminAPI } from '../../utils/api';
 import {
   FiSearch, FiBriefcase, FiUsers, FiTruck, FiUserCheck,
-  FiChevronLeft, FiChevronRight, FiExternalLink
+  FiChevronLeft, FiChevronRight, FiExternalLink, FiTrash2
 } from 'react-icons/fi';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import Modal from '../../components/Modal';
@@ -60,6 +60,21 @@ const AdminCompanies = () => {
   const closeDetailModal = () => {
     setShowDetailModal(false);
     setSelectedCompany(null);
+  };
+
+  const handleDeleteCompany = async (company) => {
+    const confirmMessage = `Are you sure you want to delete "${company.name}"?\n\nThis will permanently delete:\n- ${company.driverCount || 0} drivers\n- ${company.vehicleCount || 0} vehicles\n- All violations, accidents, documents, and other data\n\nThis action cannot be undone!`;
+
+    if (!window.confirm(confirmMessage)) return;
+
+    try {
+      await adminAPI.deleteCompany(company._id);
+      toast.success(`Company "${company.name}" deleted successfully`);
+      fetchCompanies();
+      closeDetailModal();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to delete company');
+    }
   };
 
   return (
@@ -154,14 +169,23 @@ const AdminCompanies = () => {
                       {new Date(company.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-4 text-right">
-                      <button
-                        onClick={() => viewCompanyDetails(company)}
-                        disabled={detailLoading}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
-                      >
-                        {detailLoading ? 'Loading...' : 'View Details'}
-                        <FiExternalLink className="w-4 h-4" />
-                      </button>
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => viewCompanyDetails(company)}
+                          disabled={detailLoading}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
+                        >
+                          {detailLoading ? 'Loading...' : 'View'}
+                          <FiExternalLink className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteCompany(company)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
+                          title="Delete company"
+                        >
+                          <FiTrash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -270,6 +294,17 @@ const AdminCompanies = () => {
                 </div>
               </div>
             )}
+
+            {/* Delete Button */}
+            <div className="pt-4 border-t border-zinc-200 dark:border-zinc-700">
+              <button
+                onClick={() => handleDeleteCompany(selectedCompany)}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 font-medium rounded-lg hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors"
+              >
+                <FiTrash2 className="w-4 h-4" />
+                Delete Company
+              </button>
+            </div>
           </div>
         ) : (
           <div className="flex items-center justify-center h-48">
