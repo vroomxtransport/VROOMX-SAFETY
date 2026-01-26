@@ -245,6 +245,8 @@ const FeaturesSection = () => {
               <button
                 key={feature.id}
                 onClick={() => setActiveTab(i)}
+                aria-label={feature.title}
+                aria-pressed={activeTab === i}
                 className={`relative flex items-center gap-2.5 px-5 py-3.5 rounded-xl font-medium text-sm transition-all duration-300 ${
                   activeTab === i
                     ? 'text-white shadow-lg shadow-[#FF6B4A]/25'
@@ -252,9 +254,9 @@ const FeaturesSection = () => {
                 }`}
               >
                 {activeTab === i && (
-                  <span className="absolute inset-0 bg-gradient-to-br from-[#FF6B4A] to-[#FF8A6B] rounded-xl" />
+                  <span className="absolute inset-0 bg-gradient-to-br from-[#FF6B4A] to-[#FF8A6B] rounded-xl" aria-hidden="true" />
                 )}
-                <feature.icon className="relative z-10 w-5 h-5" />
+                <feature.icon className="relative z-10 w-5 h-5" aria-hidden="true" />
                 <span className="relative z-10 hidden sm:inline">{feature.title}</span>
                 {feature.label && (
                   <span className={`relative z-10 text-[10px] font-bold px-1.5 py-0.5 rounded ${

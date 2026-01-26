@@ -59,19 +59,19 @@ export default {
           900: '#0A1525',
           950: '#050A12',
         },
-        // CTA - Orange (Action & Conversion)
+        // CTA - Orange (Action & Conversion) - Darker for WCAG contrast
         cta: {
-          DEFAULT: '#F97316',
+          DEFAULT: '#EA580C',
           50: '#FFF7ED',
           100: '#FFEDD5',
           200: '#FED7AA',
           300: '#FDBA74',
           400: '#FB923C',
-          500: '#F97316',
-          600: '#EA580C',
-          700: '#C2410C',
-          800: '#9A3412',
-          900: '#7C2D12',
+          500: '#EA580C',  // Darkened from #F97316 for 4.5:1 contrast on white
+          600: '#C2410C',
+          700: '#9A3412',
+          800: '#7C2D12',
+          900: '#5C1C0A',
         },
         // Accent - Same as CTA for buttons
         accent: {

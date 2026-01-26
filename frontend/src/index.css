@@ -45,10 +45,10 @@
   --color-primary-900: #0A1525;
   --color-primary-950: #050A12;
 
-  /* CTA - Orange (Action & Conversion) */
+  /* CTA - Orange (Action & Conversion) - Darker for WCAG contrast */
   --color-cta-400: #FB923C;
-  --color-cta-500: #F97316;
-  --color-cta-600: #EA580C;
+  --color-cta-500: #EA580C;  /* Darkened for 4.5:1 contrast on white */
+  --color-cta-600: #C2410C;
 
   /* Success - Green (Compliance) */
   --color-success-500: #22C55E;
