@@ -230,11 +230,36 @@ npm run dev  # Starts on port 5173
 
 ## Changelog
 
-### 2026-01-27 (Production Fixes)
+### 2026-01-27 (Production Fixes & Email Testing)
 - **Fix:** Added `trust proxy` setting for Render deployment — `express-rate-limit` was throwing `ERR_ERL_UNEXPECTED_X_FORWARDED_FOR` on every request because Render's reverse proxy sets `X-Forwarded-For` but Express wasn't configured to trust it
   - File: `backend/server.js`
 - **Fix:** Corrected production backend URL in PROJECT.md from `vroomx-safety-api.onrender.com` to `vroomx-safety.onrender.com`
-- **Note:** `RESEND_API_KEY` environment variable must be added to Render dashboard for email delivery to work — emails are silently skipped without it
+- **Fix:** EmailLog missing required `from` field — all audit log writes were silently failing (Mongoose validation error caught but not visible). Added `from: FROM` to both success and failure log paths.
+  - File: `backend/services/emailService.js`
+- **Fix:** Resend SDK v2 error handling — SDK returns `{ data, error }` without throwing. Code was logging failed sends as "sent". Added `result.error` check to properly detect and log Resend rejections.
+  - File: `backend/services/emailService.js`
+- **Fix:** `sendReport()` null attachment — report email route passes `null` for PDF buffer, but `sendReport()` always attached it. Resend silently rejected the null attachment. Now skips attachment when `pdfBuffer` is null.
+  - File: `backend/services/emailService.js`
+- **Infra:** Added `RESEND_API_KEY` to Render environment variables — emails were silently skipped without it
+
+#### Email System Test Results (2026-01-27)
+
+All 6 testable email types verified on production with real Resend delivery:
+
+| Email Type | Template | Status | Delivery Confirmed |
+|------------|----------|--------|--------------------|
+| Welcome | welcome | SENT | Yes |
+| Email Verification | email-verification | SENT | Yes |
+| Password Reset | password-reset | SENT | Yes |
+| Company Invitation | company-invitation | SENT | Yes |
+| Compliance Alert Digest | compliance-alert-digest | SENT | Yes |
+| Report Email | report | SENT | Yes |
+
+**Not tested (require external triggers):**
+- Payment Success / Payment Failed — requires Stripe webhook events (will trigger on real payments)
+- Trial Ending — requires user with trial ending in 2-3 days (cron runs at 9 AM daily)
+
+**EmailLog audit trail:** All sent emails now properly logged with Resend message IDs in the `emaillogs` MongoDB collection.
 
 ### 2025-01-26
 - **Limits:** Restricted free trial to 1 driver, 1 vehicle, 1 company (was 3/3/1)
