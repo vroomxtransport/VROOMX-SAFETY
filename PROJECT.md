@@ -24,7 +24,7 @@
 - **Build Tool:** Vite
 - **Styling:** Tailwind CSS (custom navy/orange theme)
 - **UI Libraries:** Recharts, React Icons, React DatePicker, React Hot Toast
-- **State Management:** React Context API (AuthContext, ThemeContext)
+- **State Management:** React Context API (AuthContext, ThemeContext, FeatureFlagContext)
 - **HTTP Client:** Axios
 - **PDF Generation:** jsPDF + jsPDF-AutoTable
 
@@ -47,8 +47,8 @@
 TRUCKING COMPLIANCE HUB1/
 ├── backend/
 │   ├── config/           # Database, FMCSA compliance config
-│   ├── middleware/       # Auth, uploads, error handling, subscription limits
-│   ├── models/           # 20 Mongoose models
+│   ├── middleware/       # Auth, uploads, error handling, subscription limits, maintenance mode
+│   ├── models/           # 23 Mongoose models
 │   ├── routes/           # 26 API route files
 │   ├── services/         # 11 business logic services
 │   ├── templates/        # Email/document templates
@@ -57,9 +57,9 @@ TRUCKING COMPLIANCE HUB1/
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── components/   # 21 reusable components
-│   │   ├── pages/        # 32 page components
-│   │   ├── context/      # AuthContext, ThemeContext
+│   │   ├── components/   # 25 reusable components
+│   │   ├── pages/        # 37 page components (incl. 7 admin pages)
+│   │   ├── context/      # AuthContext, ThemeContext, FeatureFlagContext
 │   │   ├── utils/        # API client, helpers
 │   │   ├── data/         # Static data, blog posts
 │   │   └── App.jsx       # Main routing
@@ -115,6 +115,17 @@ TRUCKING COMPLIANCE HUB1/
 - **Ticket System** - Support tickets
 - **Damage Claims Tracking**
 
+### Super Admin Panel
+- **Analytics Dashboard** - MRR, churn rate, signup trends, revenue by plan, active users, top companies (Recharts)
+- **User Power Tools** - Create users, bulk suspend/unsuspend/delete, force password reset, user detail drawer with login history & audit log
+- **Company Power Tools** - Edit company (DOT read-only), activate/deactivate, member role management, member removal
+- **Email Log Viewer** - Paginated list with search/filter by recipient, status, category, date range; detail modal
+- **Announcements** - Create/edit/toggle site-wide banners (info/warning/critical), date ranges, optional links
+- **Feature Flags** - Create/edit/toggle feature flags with validated keys; consumed via `useFeatureFlag()` hook
+- **Maintenance Mode** - Toggle maintenance mode; non-admin users see maintenance page; auto-retry health check
+- **System Health** - Database status, uptime, memory usage, service status (Email/Stripe/OpenAI)
+- **Audit Logging** - Full route instrumentation across all API endpoints; company-scoped audit log tab in Settings
+
 ---
 
 ## Pricing (Per-Driver Billing)
@@ -127,7 +138,7 @@ TRUCKING COMPLIANCE HUB1/
 
 ---
 
-## Database Models (20)
+## Database Models (23)
 
 1. User, Company, Driver, Vehicle
 2. Violation, DrugAlcoholTest, Document
@@ -135,6 +146,8 @@ TRUCKING COMPLIANCE HUB1/
 4. ComplianceScore, CompanyInvitation, Lead
 5. CSAScoreHistory, MaintenanceRecord, Task
 6. ChecklistTemplate, ChecklistAssignment
+7. AuditLog, EmailLog
+8. Announcement, FeatureFlag, SystemConfig
 
 ---
 
@@ -152,6 +165,10 @@ TRUCKING COMPLIANCE HUB1/
 | /api/ai            | AI chat completions              |
 | /api/csa           | CSA score estimation             |
 | /api/reports       | PDF report generation            |
+| /api/admin         | Super admin panel (analytics, users, companies, emails, announcements, features, maintenance, system) |
+| /api/audit         | Company-scoped audit logs        |
+| /api/announcements | Public active announcements      |
+| /api/features      | Public active feature flags      |
 
 ---
 
@@ -212,6 +229,21 @@ npm run dev  # Starts on port 5173
   - Welcome, email verification, password reset, payment success/failure
   - Trial ending, company invitation, compliance alert digest, report email
   - Email preferences UI in Settings, EmailLog audit trail
+- **Audit log system** - Full route instrumentation across all API endpoints
+  - AuditLog model with action/resource/detail tracking
+  - Company-scoped audit log tab in Settings (admin/owner only)
+  - Export to CSV support
+- **Per-email rate limiting** - Auth rate limiter keys on IP+email so blocking one email doesn't block others
+- **Rate limit countdown UI** - Login page shows exact countdown timer when rate limited
+- **Comprehensive admin panel overhaul** - Analytics, user/company power tools, system operations
+  - Analytics dashboard with MRR, churn, signup trends, revenue by plan, active users, top companies
+  - User power tools: create, bulk actions, force password reset, detail drawer with login history
+  - Company power tools: edit (DOT read-only), activate/deactivate, member role management
+  - Email log viewer with search/filter and detail modal
+  - Announcement system with global dismissible banners
+  - Feature flags with `useFeatureFlag()` hook and FeatureFlagContext
+  - Maintenance mode with middleware, admin toggle, and auto-retry maintenance page
+  - System health monitoring: DB status, uptime, memory, service status
 
 ### In Progress
 - Marketing and user acquisition
@@ -229,6 +261,43 @@ npm run dev  # Starts on port 5173
 ---
 
 ## Changelog
+
+### 2026-01-27 (Admin Panel Overhaul)
+- **Feature:** Comprehensive admin panel overhaul with analytics, power tools, and system operations
+  - **Backend — New Models:** `Announcement.js` (message, type, dates, audience), `FeatureFlag.js` (key, description, enabled), `SystemConfig.js` (key-value store with static helpers)
+  - **Backend — Maintenance Middleware:** `backend/middleware/maintenance.js` — checks SystemConfig for `maintenance_mode`, returns 503 for non-admin requests, caches 30s, superadmins bypass via JWT peek, `bustCache()` export
+  - **Backend — Public Routes:** `backend/routes/announcements.js` (GET active), `backend/routes/features.js` (GET active flag keys)
+  - **Backend — Admin Endpoints (~20 new):**
+    - Analytics: `GET /api/admin/analytics` (signups, active users, MRR, churn, top companies via aggregation)
+    - User tools: `POST /users`, `POST /users/bulk` (suspend/unsuspend/delete, max 50), `POST /users/:id/force-reset`, `GET /users/:id/login-history`, `GET /users/:id/audit-log`
+    - Company tools: `PATCH /companies/:id` (DOT blocked), `DELETE /companies/:companyId/members/:userId`, `PATCH /companies/:companyId/members/:userId`
+    - System: `GET /system` (DB, uptime, memory, services), `GET /emails` (paginated), `GET /emails/:id`, `GET /emails/stats`
+    - Announcements CRUD + toggle, Feature Flags CRUD + toggle, Maintenance get/set
+  - **Frontend — New Components:** `AnalyticsCharts.jsx`, `UserDetailDrawer.jsx`, `AdminEmails.jsx`, `AdminAnnouncements.jsx`, `AdminFeatureFlags.jsx`, `AnnouncementBanner.jsx`, `MaintenancePage.jsx`, `FeatureFlagContext.jsx`
+  - **Frontend — Enhanced Pages:** AdminDashboard (analytics + system health + maintenance toggle), AdminUsers (add user, bulk actions, force reset, checkbox selection, detail drawer), AdminCompanies (edit modal, status toggle, member role/removal)
+  - **Frontend — Wiring:** 25+ new adminAPI methods, announcementsAPI export, 503 maintenance interceptor, 3 new admin routes, FeatureFlagProvider wrapping, AnnouncementBanner in Layout
+  - Files modified: 26 files, 3,927 lines added
+- **Fix:** Feature flags page crash — `TypeError: t.map is not a function` because frontend read `response.data.flags` but backend returns `response.data.features`
+  - File: `frontend/src/pages/admin/AdminFeatureFlags.jsx`
+
+### 2026-01-27 (Audit Log & Rate Limiting)
+- **Feature:** Full audit log system with route instrumentation across all API endpoints
+  - New files: `backend/models/AuditLog.js`, `backend/services/auditService.js`, `backend/routes/audit.js`
+  - New frontend: `frontend/src/components/settings/AuditLogTab.jsx` — company-scoped audit log tab in Settings (admin/owner only) with CSV export
+  - Instrumented all routes: auth, admin, companies, billing, drivers, vehicles, violations, documents, drugAlcohol, accidents, tickets, damageClaims, maintenance, tasks, checklists
+  - Registered in: `backend/routes/index.js`, `backend/models/index.js`, `frontend/src/pages/Settings.jsx`
+- **Fix:** Auth rate limiter blocked all emails when one email hit the limit — was keyed on IP only
+  - Changed `keyGenerator` to `${req.ip}:${email}` so rate limiting is per-IP-per-email
+  - File: `backend/server.js`
+- **Feature:** Rate limit countdown timer on login page
+  - Shows exact time remaining when rate limited (reads `RateLimit-Reset` header)
+  - Live countdown display with disabled button showing "Locked (MM:SS)"
+  - Added CORS `exposedHeaders` for rate limit headers
+  - Files: `frontend/src/pages/Login.jsx`, `backend/server.js`
+- **Fix:** Generic password validation error on reset-password page — now shows specific validation message
+  - File: `backend/routes/auth.js`
+- **Feature:** Password reset confirmation email sent after successful reset
+  - File: `backend/routes/auth.js`, `backend/services/emailService.js`
 
 ### 2026-01-27 (Production Fixes & Email Testing)
 - **Fix:** Added `trust proxy` setting for Render deployment — `express-rate-limit` was throwing `ERR_ERL_UNEXPECTED_X_FORWARDED_FOR` on every request because Render's reverse proxy sets `X-Forwarded-For` but Express wasn't configured to trust it
