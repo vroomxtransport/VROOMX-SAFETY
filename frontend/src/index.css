@@ -1507,6 +1507,19 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(3deg);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
 /* ==================== ANIMATION PERFORMANCE ==================== */
 /* Optimize animations with will-change and GPU acceleration */
 .animate-blob {

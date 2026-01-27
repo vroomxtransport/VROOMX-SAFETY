@@ -167,6 +167,9 @@ const Platform = () => {
         </div>
       </section>
 
+      {/* Timeline Section - How It Works */}
+      <TimelineSection />
+
       {/* CTA Section */}
       <section className="relative z-10 py-20 px-6">
         <div className="max-w-4xl mx-auto text-center">
@@ -642,6 +645,307 @@ const TopicCard = ({ icon: Icon, title, cfr }) => (
         <div className="text-[9px] font-semibold text-zinc-800">{title}</div>
         <div className="text-[7px] text-zinc-400">{cfr}</div>
       </div>
+    </div>
+  </div>
+);
+
+// ============================================
+// TIMELINE SECTION - "How It Works"
+// ============================================
+import { FiFolderPlus, FiTrendingUp, FiBell, FiMessageSquare, FiFilePlus, FiCheck, FiArrowRight, FiCalendar, FiMail, FiRefreshCw as FiRefresh, FiBook, FiSearch as FiSearchIcon, FiAward, FiTarget } from 'react-icons/fi';
+
+const TimelineSection = () => {
+  const [visibleItems, setVisibleItems] = useState(new Set());
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const timeline = document.getElementById('timeline-container');
+      if (!timeline) return;
+
+      const rect = timeline.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      const progress = Math.min(100, Math.max(0,
+        ((windowHeight - rect.top) / (rect.height + windowHeight - 200)) * 100
+      ));
+      setScrollProgress(progress);
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const step = entry.target.dataset.step;
+            if (step) {
+              setVisibleItems(prev => new Set([...prev, step]));
+            }
+          }
+        });
+      },
+      { threshold: 0.2, rootMargin: '0px 0px -50px 0px' }
+    );
+
+    document.querySelectorAll('.timeline-item').forEach(item => {
+      observer.observe(item);
+    });
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll();
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+  const timelineSteps = [
+    {
+      step: 1,
+      icon: FiFolderPlus,
+      title: 'Organize Your DQF Files',
+      description: 'Upload and organize all your Driver Qualification Files in one secure location. We support all document types and automatically track expiration dates.',
+      features: [
+        { icon: FiUsers, text: 'CDL & medical cards' },
+        { icon: FiFileText, text: 'MVR tracking' },
+        { icon: FiClipboard, text: 'Annual inspections' },
+        { icon: FiFolder, text: 'Secure cloud storage' },
+      ],
+      isAI: false,
+    },
+    {
+      step: 2,
+      icon: FiBarChart2,
+      title: 'Monitor Your CSA Score',
+      description: 'Get a complete picture of your safety scores across all 7 BASICs. Track trends over time and understand what\'s affecting your numbers.',
+      features: [
+        { icon: FiShield, text: 'All 7 BASICs tracked' },
+        { icon: FiTrendingUp, text: 'Historical trends' },
+        { icon: FiUsers, text: 'Peer comparisons' },
+        { icon: FiTarget, text: 'Score projections' },
+      ],
+      isAI: false,
+      preview: 'csa',
+    },
+    {
+      step: 3,
+      icon: FiBell,
+      title: 'Stay Ahead with Smart Alerts',
+      description: 'Automated reminders ensure you never miss an expiring document or compliance deadline. Get notified via email, SMS, or push.',
+      features: [
+        { icon: FiCalendar, text: '30, 14, 7 day warnings' },
+        { icon: FiMail, text: 'Email & SMS alerts' },
+        { icon: FiActivity, text: 'CSA score changes' },
+        { icon: FiTool, text: 'Custom schedules' },
+      ],
+      isAI: false,
+    },
+    {
+      step: 4,
+      icon: FiMessageSquare,
+      title: 'Get AI-Powered Help',
+      description: 'Ask any FMCSA regulation question and get instant, accurate answers. Our AI is trained on the complete FMCSR and stays up-to-date with the latest changes.',
+      features: [
+        { icon: FiClock, text: '24/7 availability' },
+        { icon: FiMessageCircle, text: 'Plain English answers' },
+        { icon: FiRefresh, text: 'Always up-to-date' },
+        { icon: FiBook, text: 'Cite specific regulations' },
+      ],
+      isAI: true,
+      preview: 'chat',
+    },
+    {
+      step: 5,
+      icon: FiFilePlus,
+      title: 'Challenge Unfair Violations',
+      description: 'Our AI scans your violation history to identify challengeable items and generates professional DataQ letters automatically.',
+      features: [
+        { icon: FiSearchIcon, text: 'Auto-detect opportunities' },
+        { icon: FiFileText, text: 'Generate DataQ letters' },
+        { icon: FiActivity, text: 'Track challenge status' },
+        { icon: FiAward, text: '40% avg success rate' },
+      ],
+      isAI: true,
+    },
+  ];
+
+  return (
+    <section className="relative z-10 py-24 px-6">
+      <div className="max-w-[1000px] mx-auto">
+        {/* Section Header */}
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 mb-5 px-4 py-2 rounded-full border border-green-500/20 bg-gradient-to-r from-green-500/5 to-green-500/10 font-mono text-xs uppercase tracking-widest text-green-600">
+            <FiCheck className="w-4 h-4" />
+            How It Works
+          </div>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-primary-500 mb-4 font-heading">
+            Your Path to <span className="text-cta-500">Full Compliance</span>
+          </h2>
+          <p className="text-lg text-[#64748B] max-w-xl mx-auto">
+            VroomX guides you through every step of FMCSA compliance, from document management to score optimization.
+          </p>
+        </div>
+
+        {/* Timeline */}
+        <div id="timeline-container" className="relative pl-20 md:pl-28">
+          {/* Progress Line */}
+          <div className="absolute left-8 md:left-12 top-0 bottom-0 w-1.5 bg-[#E2E8F0] rounded-full overflow-hidden">
+            <div
+              className="w-full bg-gradient-to-b from-primary-500 via-indigo-500 to-green-500 rounded-full transition-all duration-300"
+              style={{ height: `${scrollProgress}%` }}
+            />
+          </div>
+
+          {/* Timeline Items */}
+          {timelineSteps.map((item) => (
+            <TimelineItem
+              key={item.step}
+              {...item}
+              isVisible={visibleItems.has(String(item.step))}
+            />
+          ))}
+
+          {/* Success Card */}
+          <div
+            className={`timeline-item relative mt-16 transition-all duration-700 ${visibleItems.has('success') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+            data-step="success"
+          >
+            <div className="bg-gradient-to-br from-green-50 to-emerald-100 rounded-3xl p-10 text-center relative overflow-hidden border border-green-200">
+              {/* Decorative blob */}
+              <div className="absolute -top-20 -right-20 w-60 h-60 bg-gradient-to-br from-green-400/20 to-green-500/10 rounded-full blur-3xl" />
+
+              <div className="relative z-10">
+                <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-lg shadow-green-500/30 animate-float">
+                  <FiShield className="w-10 h-10 text-white" />
+                </div>
+                <h3 className="text-2xl md:text-3xl font-bold text-green-800 mb-3">Stay Compliant, Stress-Free</h3>
+                <p className="text-green-700 mb-8 max-w-md mx-auto">
+                  Pass any DOT audit with confidence. Focus on driving while VroomX handles your compliance.
+                </p>
+                <Link
+                  to="/register"
+                  className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-cta-500 to-cta-600 text-white rounded-xl font-bold text-lg shadow-lg shadow-cta-500/30 hover:shadow-xl hover:shadow-cta-500/40 hover:-translate-y-1 transition-all"
+                >
+                  Start Your Free Trial
+                  <FiArrowRight className="w-5 h-5" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const TimelineItem = ({ step, icon: Icon, title, description, features, isAI, preview, isVisible }) => (
+  <div
+    className={`timeline-item relative mb-12 transition-all duration-700 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'}`}
+    data-step={step}
+    style={{ transitionDelay: `${step * 100}ms` }}
+  >
+    {/* Marker */}
+    <div className={`absolute -left-12 md:-left-16 top-0 w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-500 ${
+      isAI
+        ? 'bg-gradient-to-br from-indigo-500 to-purple-600 shadow-indigo-500/30'
+        : 'bg-white border-4 border-primary-500 shadow-primary-500/20'
+    } ${isVisible ? 'scale-100 rotate-0' : 'scale-75 rotate-12'}`}>
+      <Icon className={`w-6 h-6 md:w-7 md:h-7 ${isAI ? 'text-white' : 'text-primary-500'}`} />
+    </div>
+
+    {/* Step Number */}
+    <div className="absolute -left-20 md:-left-24 top-16 text-[10px] font-bold text-[#94A3B8] uppercase tracking-widest" style={{ writingMode: 'vertical-rl', textOrientation: 'mixed', transform: 'rotate(180deg)' }}>
+      Step {String(step).padStart(2, '0')}
+    </div>
+
+    {/* Card */}
+    <div className={`bg-white rounded-2xl p-6 md:p-8 shadow-lg border border-[#E2E8F0] transition-all duration-500 hover:shadow-xl hover:translate-x-2 relative overflow-hidden ${
+      isVisible ? 'before:scale-x-100' : 'before:scale-x-0'
+    } before:content-[''] before:absolute before:top-0 before:left-0 before:w-full before:h-1 before:origin-left before:transition-transform before:duration-500 ${
+      isAI ? 'before:bg-gradient-to-r before:from-indigo-500 before:to-purple-600' : 'before:bg-gradient-to-r before:from-primary-500 before:to-primary-400'
+    }`}>
+      {/* Header */}
+      <div className="flex items-start justify-between mb-4">
+        <h3 className="text-xl md:text-2xl font-bold text-[#1E293B]">{title}</h3>
+        {isAI && (
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-xs font-bold rounded-lg">
+            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2L9 9l-7 3 7 3 3 7 3-7 7-3-7-3-3-7z"/>
+            </svg>
+            AI-POWERED
+          </span>
+        )}
+      </div>
+
+      <p className="text-[#64748B] mb-6 leading-relaxed">{description}</p>
+
+      {/* Features Grid */}
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        {features.map((feature, idx) => (
+          <div
+            key={idx}
+            className="flex items-center gap-3 px-4 py-3 bg-[#F8FAFC] rounded-xl hover:bg-green-50 hover:translate-x-1 transition-all group"
+          >
+            <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center text-green-600 group-hover:bg-green-200 transition-colors">
+              <feature.icon className="w-4 h-4" />
+            </div>
+            <span className="text-sm text-[#475569]">{feature.text}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Preview (placeholder for screenshots) */}
+      {preview === 'csa' && (
+        <div className={`mt-6 p-4 rounded-xl ${isAI ? 'bg-indigo-50' : 'bg-[#F8FAFC]'}`}>
+          <div className="space-y-3">
+            {[
+              { name: 'Unsafe Driving', percent: 32, color: 'green' },
+              { name: 'HOS Compliance', percent: 45, color: 'green' },
+              { name: 'Vehicle Maint.', percent: 58, color: 'yellow' },
+            ].map((basic, idx) => (
+              <div key={idx} className="flex items-center gap-3">
+                <span className="text-xs text-[#94A3B8] w-24">{basic.name}</span>
+                <div className="flex-1 h-2.5 bg-white rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-1000 ${basic.color === 'green' ? 'bg-green-500' : 'bg-yellow-500'}`}
+                    style={{ width: isVisible ? `${basic.percent}%` : '0%' }}
+                  />
+                </div>
+                <span className="text-xs font-semibold text-[#475569] w-10 text-right">{basic.percent}%</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {preview === 'chat' && (
+        <div className="mt-6 p-4 rounded-xl bg-indigo-50">
+          <div className="space-y-3">
+            <div className="flex gap-3 items-start">
+              <div className="w-8 h-8 rounded-lg bg-[#E2E8F0] flex items-center justify-center text-[#94A3B8]">
+                <FiUsers className="w-4 h-4" />
+              </div>
+              <div className="bg-white px-4 py-2.5 rounded-xl rounded-tl-sm text-sm text-[#475569] max-w-[80%]">
+                What's the HOS limit for property-carrying drivers?
+              </div>
+            </div>
+            <div className="flex gap-3 items-start">
+              <div className="w-8 h-8 rounded-lg bg-indigo-500 flex items-center justify-center text-white">
+                <FiMessageSquare className="w-4 h-4" />
+              </div>
+              <div className="bg-white px-4 py-2.5 rounded-xl rounded-tl-sm text-sm text-[#475569] max-w-[80%]">
+                Property-carrying drivers have an <strong>11-hour driving limit</strong> after 10 consecutive hours off duty, per §395.3...
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Screenshot placeholder slot */}
+      {!preview && (
+        <div className="mt-6 aspect-video bg-gradient-to-br from-[#F1F5F9] to-[#E2E8F0] rounded-xl border-2 border-dashed border-[#CBD5E1] flex items-center justify-center">
+          <span className="text-sm text-[#94A3B8]">Screenshot coming soon</span>
+        </div>
+      )}
     </div>
   </div>
 );
