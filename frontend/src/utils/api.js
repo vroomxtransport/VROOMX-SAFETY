@@ -387,3 +387,9 @@ export const adminAPI = {
   getAuditLogs: (params) => api.get('/audit', { params }),
   exportAuditLogs: (params) => api.get('/audit/export', { params, responseType: 'blob' }),
 };
+
+// Audit API - Company-scoped audit logs (owner/admin)
+export const auditAPI = {
+  getLogs: (params) => api.get('/audit', { params }),
+  exportLogs: (params) => api.get('/audit/export', { params, responseType: 'blob' }),
+};
