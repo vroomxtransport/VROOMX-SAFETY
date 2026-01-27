@@ -224,6 +224,8 @@ const Maintenance = () => {
             notes: data.notes || prev.notes
           }));
           toast.success('Data extracted! Please review and complete the form.');
+        } else {
+          toast.error(response.data.error || 'Could not extract data from document. Please fill in details manually.');
         }
         // Store uploaded file info
         if (response.data.uploadedFile) {

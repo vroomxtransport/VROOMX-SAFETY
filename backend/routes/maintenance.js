@@ -350,6 +350,52 @@ router.post('/', [
   });
 }));
 
+// ============================================
+// AI SMART UPLOAD ENDPOINT
+// ============================================
+
+// @route   POST /api/maintenance/smart-upload
+// @desc    Upload invoice/work order and extract data using AI
+// @access  Private
+router.post('/smart-upload', uploadSingle('file'), asyncHandler(async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ success: false, message: 'No file uploaded' });
+  }
+
+  const fileUrl = getFileUrl(req.file.path);
+  const filePath = req.file.path;
+
+  try {
+    // Use OpenAI Vision to extract data from the invoice/work order
+    const extractedData = await openaiVisionService.extractMaintenanceData(filePath);
+
+    res.json({
+      success: true,
+      message: 'Data extracted successfully',
+      extractedData,
+      uploadedFile: {
+        name: req.file.originalname,
+        url: fileUrl,
+        type: 'invoice'
+      }
+    });
+  } catch (error) {
+    console.error('AI extraction error:', error);
+    // Still return the file URL even if AI extraction fails
+    res.json({
+      success: true,
+      message: 'File uploaded but AI extraction failed. Please fill in details manually.',
+      extractedData: null,
+      uploadedFile: {
+        name: req.file.originalname,
+        url: fileUrl,
+        type: 'invoice'
+      },
+      error: error.message
+    });
+  }
+}));
+
 // @route   PUT /api/maintenance/:id
 // @desc    Update maintenance record
 // @access  Private
@@ -608,52 +654,6 @@ router.delete('/:id/documents/:docId', asyncHandler(async (req, res) => {
     success: true,
     message: 'Document deleted successfully'
   });
-}));
-
-// ============================================
-// AI SMART UPLOAD ENDPOINT
-// ============================================
-
-// @route   POST /api/maintenance/smart-upload
-// @desc    Upload invoice/work order and extract data using AI
-// @access  Private
-router.post('/smart-upload', uploadSingle('file'), asyncHandler(async (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ success: false, message: 'No file uploaded' });
-  }
-
-  const fileUrl = getFileUrl(req.file.path);
-  const filePath = req.file.path;
-
-  try {
-    // Use OpenAI Vision to extract data from the invoice/work order
-    const extractedData = await openaiVisionService.extractMaintenanceData(filePath);
-
-    res.json({
-      success: true,
-      message: 'Data extracted successfully',
-      extractedData,
-      uploadedFile: {
-        name: req.file.originalname,
-        url: fileUrl,
-        type: 'invoice'
-      }
-    });
-  } catch (error) {
-    console.error('AI extraction error:', error);
-    // Still return the file URL even if AI extraction fails
-    res.json({
-      success: true,
-      message: 'File uploaded but AI extraction failed. Please fill in details manually.',
-      extractedData: null,
-      uploadedFile: {
-        name: req.file.originalname,
-        url: fileUrl,
-        type: 'invoice'
-      },
-      error: error.message
-    });
-  }
 }));
 
 module.exports = router;

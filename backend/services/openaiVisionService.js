@@ -463,29 +463,68 @@ Return a JSON object with this structure:
     }
 
     const prompt = EXTRACTION_PROMPTS.maintenance_invoice;
-    const base64Image = await this._getBase64Image(imageInput);
+    const base64Data = await this._getBase64Image(imageInput);
     const mimeType = this._getMimeType(imageInput);
+    const isPdf = mimeType === 'application/pdf';
 
     try {
-      const response = await openai.chat.completions.create({
-        model: 'gpt-4o',
-        messages: [{
-          role: 'user',
-          content: [
-            { type: 'text', text: prompt },
-            {
-              type: 'image_url',
-              image_url: {
-                url: `data:${mimeType};base64,${base64Image}`,
-                detail: 'high'
-              }
-            }
-          ]
-        }],
-        max_tokens: 3000
-      });
+      let content;
+      let usage = null;
 
-      const content = response.choices[0].message.content;
+      if (isPdf) {
+        // PDFs require the Responses API with input_file content type
+        const response = await openai.responses.create({
+          model: 'gpt-4o',
+          input: [{
+            role: 'user',
+            content: [
+              { type: 'input_text', text: prompt },
+              {
+                type: 'input_file',
+                filename: typeof imageInput === 'string' ? path.basename(imageInput) : 'document.pdf',
+                file_data: `data:application/pdf;base64,${base64Data}`
+              }
+            ]
+          }]
+        });
+
+        content = response.output_text;
+        if (response.usage) {
+          usage = {
+            promptTokens: response.usage.input_tokens || 0,
+            completionTokens: response.usage.output_tokens || 0,
+            totalTokens: (response.usage.input_tokens || 0) + (response.usage.output_tokens || 0)
+          };
+        }
+      } else {
+        // Images use the Chat Completions API with image_url
+        const response = await openai.chat.completions.create({
+          model: 'gpt-4o',
+          messages: [{
+            role: 'user',
+            content: [
+              { type: 'text', text: prompt },
+              {
+                type: 'image_url',
+                image_url: {
+                  url: `data:${mimeType};base64,${base64Data}`,
+                  detail: 'high'
+                }
+              }
+            ]
+          }],
+          max_tokens: 3000
+        });
+
+        content = response.choices[0].message.content;
+        if (response.usage) {
+          usage = {
+            promptTokens: response.usage.prompt_tokens,
+            completionTokens: response.usage.completion_tokens,
+            totalTokens: response.usage.total_tokens
+          };
+        }
+      }
 
       // Parse JSON from response
       const jsonMatch = content.match(/\{[\s\S]*\}/);
@@ -498,11 +537,7 @@ Return a JSON object with this structure:
       return {
         success: true,
         data: extracted,
-        usage: {
-          promptTokens: response.usage.prompt_tokens,
-          completionTokens: response.usage.completion_tokens,
-          totalTokens: response.usage.total_tokens
-        }
+        ...(usage && { usage })
       };
     } catch (error) {
       console.error('Error extracting maintenance data:', error);
