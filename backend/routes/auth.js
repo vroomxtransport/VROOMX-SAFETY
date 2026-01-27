@@ -441,6 +441,29 @@ router.put('/updatepassword', protect, [
   });
 }));
 
+// @route   PUT /api/auth/profile
+// @desc    Update user profile (name, phone)
+// @access  Private
+router.put('/profile', protect, asyncHandler(async (req, res) => {
+  const { firstName, lastName, phone } = req.body;
+
+  const updateFields = {};
+  if (firstName) updateFields.firstName = firstName;
+  if (lastName) updateFields.lastName = lastName;
+  if (phone) updateFields.phone = phone;
+
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    updateFields,
+    { new: true, runValidators: true }
+  ).select('-password');
+
+  res.json({
+    success: true,
+    user
+  });
+}));
+
 // @route   POST /api/auth/users
 // @desc    Create new user for company (legacy - use company invite instead)
 // @access  Private (Admin only)

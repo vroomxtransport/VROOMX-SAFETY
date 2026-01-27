@@ -27,12 +27,12 @@ const companyInvitationSchema = new mongoose.Schema({
   },
   token: {
     type: String,
-    required: true,
     unique: true
+    // Not required - auto-generated in pre-save hook
   },
   expiresAt: {
-    type: Date,
-    required: true
+    type: Date
+    // Not required - auto-generated in pre-save hook
   },
   acceptedAt: {
     type: Date

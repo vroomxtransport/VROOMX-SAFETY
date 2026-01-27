@@ -351,13 +351,14 @@ router.post('/:id/invite', [
     });
   }
 
-  // Create invitation
-  const invitation = await CompanyInvitation.create({
+  // Create invitation (use new + save to ensure pre-save hook runs before validation)
+  const invitation = new CompanyInvitation({
     companyId,
     email,
     role,
     invitedBy: req.user._id
   });
+  await invitation.save();
 
   // Get company name for response
   const company = await Company.findById(companyId).select('name');
