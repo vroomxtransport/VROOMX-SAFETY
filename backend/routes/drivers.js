@@ -7,6 +7,12 @@ const { uploadSingle, getFileUrl } = require('../middleware/upload');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const { checkDriverLimit } = require('../middleware/subscriptionLimits');
 
+// Escape regex special characters to prevent NoSQL injection
+const escapeRegex = (str) => {
+  if (typeof str !== 'string') return '';
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
+
 // Apply authentication and company restriction to all routes
 router.use(protect);
 router.use(restrictToCompany);
@@ -23,11 +29,12 @@ router.get('/', checkPermission('drivers', 'view'), asyncHandler(async (req, res
   if (status) queryObj.status = status;
   if (complianceStatus) queryObj['complianceStatus.overall'] = complianceStatus;
   if (search) {
+    const safeSearch = escapeRegex(search);
     queryObj.$or = [
-      { firstName: { $regex: search, $options: 'i' } },
-      { lastName: { $regex: search, $options: 'i' } },
-      { employeeId: { $regex: search, $options: 'i' } },
-      { 'cdl.number': { $regex: search, $options: 'i' } }
+      { firstName: { $regex: safeSearch, $options: 'i' } },
+      { lastName: { $regex: safeSearch, $options: 'i' } },
+      { employeeId: { $regex: safeSearch, $options: 'i' } },
+      { 'cdl.number': { $regex: safeSearch, $options: 'i' } }
     ];
   }
 
@@ -136,7 +143,7 @@ router.get('/:id', checkPermission('drivers', 'view'), asyncHandler(async (req, 
   const driver = await Driver.findOne({
     _id: req.params.id,
     ...req.companyFilter
-  });
+  }).select('-ssn');
 
   if (!driver) {
     throw new AppError('Driver not found', 404);
@@ -205,12 +212,23 @@ router.put('/:id', checkPermission('drivers', 'edit'), asyncHandler(async (req, 
     throw new AppError('Driver not found', 404);
   }
 
-  // Don't allow changing companyId
-  delete req.body.companyId;
+  // Whitelist allowed update fields to prevent mass assignment
+  const allowedFields = [
+    'firstName', 'lastName', 'dateOfBirth', 'phone', 'email', 'address',
+    'hireDate', 'terminationDate', 'status', 'employeeId', 'notes',
+    'cdl', 'medicalCard', 'mvrReview', 'clearinghouse',
+    'emergencyContact', 'employmentHistory', 'complianceStatus'
+  ];
+  const updateData = {};
+  for (const key of allowedFields) {
+    if (req.body[key] !== undefined) {
+      updateData[key] = req.body[key];
+    }
+  }
 
   driver = await Driver.findByIdAndUpdate(
     req.params.id,
-    req.body,
+    updateData,
     { new: true, runValidators: true }
   );
 

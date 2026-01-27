@@ -183,10 +183,10 @@ npm run dev  # Starts on port 5173
 
 ---
 
-## Current Status (Jan 2025)
+## Current Status (Jan 2026)
 
 ### Completed
-- Full authentication system
+- Full authentication system with RBAC
 - Driver/Vehicle/Violation management
 - Document management with expiration alerts
 - CSA score tracking and estimation
@@ -194,17 +194,26 @@ npm run dev  # Starts on port 5173
 - Landing page + public CSA Checker
 - Dark/light mode theming
 - All P0-P4 API tests passing
+- Free trial limits (1 driver, 1 vehicle, 1 company)
+- **Full security audit & remediation (32 vulnerabilities fixed)**
+  - Rate limiting, NoSQL injection prevention, XSS sanitization
+  - Helmet security headers, CORS hardening, JWT algorithm pinning
+  - File upload security, admin audit logging, error sanitization
 
 ### In Progress
 - Marketing and user acquisition
 - Email notification system
 - Mobile responsiveness improvements
+- Authenticated file download endpoint (replaces static /uploads)
 
 ### Future
 - SMS alerts
 - Full Clearinghouse integration
 - Document OCR
 - Mobile app
+- httpOnly cookie JWT storage (replaces localStorage)
+- Email verification on registration
+- Refresh token rotation
 
 ---
 
@@ -221,3 +230,76 @@ npm run dev  # Starts on port 5173
   - File: `frontend/src/components/settings/BillingTab.jsx`
   - Lines 48, 60, 72: Changed `currentUsage?.companies` to `currentUsage?.companies?.owned`, etc.
 - **Added:** PROJECT.md - Comprehensive project documentation
+
+### 2026-01-26
+- **Fix:** Free trial usage display showed ∞ instead of 1 for driver/vehicle limits
+  - File: `backend/middleware/subscriptionLimits.js` (lines 234, 238)
+  - Changed `plan === 'solo'` to `(plan === 'solo' || plan === 'free_trial')`
+- **Security Audit:** Full-stack security audit performed (32 vulnerabilities found)
+  - **7 CRITICAL:** Exposed credentials in .env, NoSQL injection via regex, unprotected seed endpoint, Puppeteer HTTPS bypass, XSS via dangerouslySetInnerHTML, JWT in localStorage, Stripe webhook validation
+  - **12 HIGH:** Missing rate limiting, weak passwords, file upload path traversal, unauth file access, long JWT expiry, admin impersonation gaps, RBAC bypass, mass assignment, unhashed reset tokens, no email verification, no brute force protection, privilege escalation
+  - **13 MEDIUM:** CORS config, incomplete Helmet, debug logs, error info leak, no magic bytes validation, SSN exposure, no HIPAA controls, no audit trail, subscription gaps, Morgan header logging, no CSRF, no data retention policy
+  - **Full remediation applied** - all 15 code fixes implemented and verified
+
+#### Security Fixes Applied (2026-01-26 / 2026-01-27)
+
+**CRITICAL Fixes:**
+1. **JWT Secret Rotated** - Replaced weak predictable secret with 128-char cryptographic hex string; reduced expiry from 7d to 1h
+   - Files: `backend/.env`
+2. **NoSQL Injection Fixed** - Added `escapeRegex()` to all search endpoints to prevent regex injection attacks
+   - Files: `backend/routes/drivers.js`, `backend/routes/documents.js`, `backend/routes/vehicles.js`
+3. **Seed Endpoint Protected** - Added `protect` + `requireSuperAdmin` middleware; blocked entirely in production
+   - File: `backend/routes/seed.js`
+4. **Puppeteer HTTPS Fixed** - `ignoreHTTPSErrors` now only `true` in development, `false` in production
+   - File: `backend/services/fmcsaService.js`
+5. **XSS Prevention** - Added DOMPurify sanitization for `dangerouslySetInnerHTML` in blog content
+   - File: `frontend/src/components/blog/ArticleModal.jsx`
+   - Package added: `dompurify`
+6. **Stripe Webhook Hardened** - Explicit `StripeSignatureVerificationError` handling; generic error messages
+   - File: `backend/routes/billing.js`
+
+**HIGH Fixes:**
+7. **Rate Limiting Added** - Global: 200 req/15min on `/api`; Auth: 15 req/15min on login/register
+   - File: `backend/server.js`
+   - Package added: `express-rate-limit`
+8. **Password Strength** - Now requires uppercase, lowercase, number, and special character
+   - File: `backend/models/User.js`
+9. **File Upload Security** - Path traversal prevention, upload folder whitelist, MIME+extension validation, filename sanitization
+   - File: `backend/middleware/upload.js`
+10. **Static Uploads Removed** - `express.static('/uploads')` removed to prevent unauthorized file access
+    - File: `backend/server.js`
+11. **Admin Security** - Self-modification blocked, impersonation reduced to 30min, super admin impersonation blocked, audit logging added
+    - File: `backend/routes/admin.js`
+12. **Auth Middleware Hardened** - JWT algorithm restricted to HS256, legacy RBAC role fallback removed
+    - File: `backend/middleware/auth.js`
+13. **Mass Assignment Prevention** - Driver update endpoint now uses field whitelist; SSN excluded from detail views
+    - File: `backend/routes/drivers.js`
+
+**MEDIUM Fixes:**
+14. **Debug Logs Removed** - Removed 4 console.log statements leaking subscription/registration info
+    - File: `backend/routes/auth.js`
+15. **Error Sanitization** - Duplicate key and validation errors use generic messages in production; 404 handler hides URL path in production
+    - File: `backend/middleware/errorHandler.js`
+16. **Server Hardening** - Full Helmet config (CSP, HSTS, X-Frame-Options), CORS fails closed without FRONTEND_URL, env var validation at startup, custom Morgan format excludes auth headers
+    - File: `backend/server.js`
+
+#### Security Test Results (2026-01-27)
+
+| Test | Expected | Result |
+|------|----------|--------|
+| Login auth (wrong creds) | 401 | PASS |
+| Seed endpoint (no auth) | 401 | PASS |
+| Seed endpoint (regular user) | 403 | PASS |
+| Uploads directory | 404 | PASS |
+| Health endpoint | 200 | PASS |
+| NoSQL injection (`search=.*`) | 0 results | PASS |
+| X-Content-Type-Options header | Present | PASS |
+| HSTS header | Present | PASS |
+| X-Frame-Options header | Present | PASS |
+| CORS (evil origin) | Blocked | PASS |
+
+#### Remaining Manual Actions
+- Rotate MongoDB credentials in Atlas dashboard
+- Rotate OpenAI API key in OpenAI dashboard
+- Remove `.env` from git history (`git filter-branch` or BFG)
+- Add authenticated file download endpoint to replace static `/uploads`

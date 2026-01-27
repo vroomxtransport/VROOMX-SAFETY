@@ -10,17 +10,18 @@
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.21.0",
     "axios": "^1.6.2",
-    "recharts": "^2.10.3",
-    "react-icons": "^4.12.0",
-    "react-datepicker": "^4.25.0",
-    "react-hot-toast": "^2.4.1",
     "date-fns": "^3.0.6",
+    "dompurify": "^3.3.1",
     "jspdf": "^2.5.1",
-    "jspdf-autotable": "^3.8.1"
+    "jspdf-autotable": "^3.8.1",
+    "react": "^18.2.0",
+    "react-datepicker": "^4.25.0",
+    "react-dom": "^18.2.0",
+    "react-hot-toast": "^2.4.1",
+    "react-icons": "^4.12.0",
+    "react-router-dom": "^6.21.0",
+    "recharts": "^2.10.3"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",

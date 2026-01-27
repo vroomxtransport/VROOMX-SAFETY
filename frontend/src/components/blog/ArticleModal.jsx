@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { FiX, FiClock, FiArrowRight } from 'react-icons/fi';
+import DOMPurify from 'dompurify';
 
 const ArticleModal = ({ article, onClose }) => {
   if (!article) return null;
@@ -54,7 +55,7 @@ const ArticleModal = ({ article, onClose }) => {
         {/* Article Content */}
         <div
           className="p-8 md:p-12 prose prose-slate max-w-none"
-          dangerouslySetInnerHTML={{ __html: article.content }}
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(article.content) }}
         />
 
         {/* Article Footer */}

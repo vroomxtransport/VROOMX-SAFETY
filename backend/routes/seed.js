@@ -6,6 +6,18 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
+const { protect, requireSuperAdmin } = require('../middleware/auth');
+
+// Block seed routes in production
+if (process.env.NODE_ENV === 'production') {
+  router.use((req, res) => {
+    return res.status(404).json({ success: false, message: 'Not found' });
+  });
+}
+
+// Require authentication and super admin for seed operations
+router.use(protect);
+router.use(requireSuperAdmin);
 
 // Import models
 const Company = require('../models/Company');

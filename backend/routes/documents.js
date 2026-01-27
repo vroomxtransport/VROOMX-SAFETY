@@ -8,6 +8,12 @@ const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const documentIntelligenceService = require('../services/documentIntelligenceService');
 const openaiVisionService = require('../services/openaiVisionService');
 
+// Escape regex special characters to prevent NoSQL injection
+const escapeRegex = (str) => {
+  if (typeof str !== 'string') return '';
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
+
 router.use(protect);
 router.use(restrictToCompany);
 
@@ -25,10 +31,11 @@ router.get('/', checkPermission('documents', 'view'), asyncHandler(async (req, r
   if (driverId) queryObj.driverId = driverId;
   if (vehicleId) queryObj.vehicleId = vehicleId;
   if (search) {
+    const safeSearch = escapeRegex(search);
     queryObj.$or = [
-      { name: { $regex: search, $options: 'i' } },
-      { description: { $regex: search, $options: 'i' } },
-      { tags: { $in: [new RegExp(search, 'i')] } }
+      { name: { $regex: safeSearch, $options: 'i' } },
+      { description: { $regex: safeSearch, $options: 'i' } },
+      { tags: { $in: [new RegExp(safeSearch, 'i')] } }
     ];
   }
 

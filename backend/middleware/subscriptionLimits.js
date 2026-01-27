@@ -231,11 +231,11 @@ const getUsageStats = async (user) => {
       extra: extraDrivers,
       extraPrice: planConfig.extraDriverPrice,
       extraCost: extraDriverCost,
-      limit: plan === 'solo' ? 1 : 'unlimited'
+      limit: (plan === 'solo' || plan === 'free_trial') ? 1 : 'unlimited'
     },
     vehicles: {
       current: vehicleCount,
-      limit: plan === 'solo' ? 1 : 'unlimited'
+      limit: (plan === 'solo' || plan === 'free_trial') ? 1 : 'unlimited'
     }
   };
 };

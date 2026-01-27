@@ -18,8 +18,10 @@ const protect = async (req, res, next) => {
       });
     }
 
-    // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // Verify token with explicit algorithm
+    const decoded = jwt.verify(token, process.env.JWT_SECRET, {
+      algorithms: ['HS256']
+    });
 
     // Get user from token with populated company data
     const user = await User.findById(decoded.id)
@@ -72,13 +74,20 @@ const protect = async (req, res, next) => {
 // Authorize by role (using active company's role)
 const authorize = (...roles) => {
   return (req, res, next) => {
-    // Get user's role for active company
-    const userRole = req.userRole || req.user.role; // Fallback to legacy role
+    // Use company-specific role; require restrictToCompany to be called first
+    const userRole = req.userRole;
+
+    if (!userRole) {
+      return res.status(403).json({
+        success: false,
+        message: 'No role assigned. Company context required.'
+      });
+    }
 
     if (!roles.includes(userRole)) {
       return res.status(403).json({
         success: false,
-        message: `Role '${userRole}' is not authorized to access this route`
+        message: 'You are not authorized to access this route'
       });
     }
     next();

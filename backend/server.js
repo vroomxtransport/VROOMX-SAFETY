@@ -5,10 +5,24 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const path = require('path');
 const cron = require('node-cron');
+const rateLimit = require('express-rate-limit');
 const connectDB = require('./config/database');
 const routes = require('./routes');
 const { errorHandler, notFound } = require('./middleware/errorHandler');
 const alertService = require('./services/alertService');
+
+// Validate required environment variables at startup
+const requiredEnvVars = ['JWT_SECRET', 'MONGODB_URI'];
+const missingEnvVars = requiredEnvVars.filter(v => !process.env[v]);
+if (missingEnvVars.length > 0) {
+  console.error(`FATAL: Missing required environment variables: ${missingEnvVars.join(', ')}`);
+  process.exit(1);
+}
+
+// Warn about weak JWT secret
+if (process.env.JWT_SECRET && process.env.JWT_SECRET.length < 32) {
+  console.warn('WARNING: JWT_SECRET is too short. Use at least 32 characters for production.');
+}
 
 // Initialize express
 const app = express();
@@ -16,30 +30,89 @@ const app = express();
 // Connect to database
 connectDB();
 
-// Security middleware
+// Security middleware - full Helmet configuration
 app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" }
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  contentSecurityPolicy: process.env.NODE_ENV === 'production' ? {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'", "https://api.stripe.com"],
+      frameSrc: ["'self'", "https://js.stripe.com"]
+    }
+  } : false,
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true
+  },
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
 }));
 
-// CORS configuration
+// CORS configuration - fail closed if FRONTEND_URL not set in production
+const getAllowedOrigins = () => {
+  if (process.env.NODE_ENV === 'production') {
+    const frontendUrl = process.env.FRONTEND_URL;
+    if (!frontendUrl) {
+      console.error('WARNING: FRONTEND_URL not set in production. CORS will reject all origins.');
+      return [];
+    }
+    return frontendUrl.split(',').map(url => url.trim()).filter(Boolean);
+  }
+  return ['http://localhost:3000', 'http://localhost:5173'];
+};
+
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production'
-    ? process.env.FRONTEND_URL
-    : ['http://localhost:3000', 'http://localhost:5173'],
-  credentials: true
+  origin: function(origin, callback) {
+    const allowedOrigins = getAllowedOrigins();
+    // Allow requests with no origin (server-to-server, curl)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+// Global rate limiting - 100 requests per 15 min per IP
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many requests. Please try again later.' }
+});
+app.use('/api', globalLimiter);
+
+// Stricter rate limit for auth endpoints
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 15,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many authentication attempts. Please try again later.' }
+});
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/register', authLimiter);
 
 // Body parsing
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Logging
+// Logging - custom format that excludes Authorization headers
 if (process.env.NODE_ENV === 'development') {
-  app.use(morgan('dev'));
+  morgan.token('user-id', (req) => req.user?.id || 'anonymous');
+  app.use(morgan(':method :url :status :response-time ms - :user-id'));
 }
 
-// Static files (for uploaded documents)
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Static files - uploaded documents served through authenticated endpoint only
+// SECURITY: Removed express.static for /uploads to prevent unauthorized access
+// Files are now served through /api/documents/:id/download with auth checks
 
 // Health check endpoint
 app.get('/health', (req, res) => {

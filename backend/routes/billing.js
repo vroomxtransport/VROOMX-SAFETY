@@ -300,7 +300,11 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
     res.json({ received: true });
   } catch (error) {
     console.error('Webhook error:', error.message);
-    res.status(400).json({ error: `Webhook Error: ${error.message}` });
+    // Don't expose error details - could leak signature info
+    if (error.type === 'StripeSignatureVerificationError') {
+      return res.status(401).json({ error: 'Webhook signature verification failed' });
+    }
+    res.status(400).json({ error: 'Webhook processing failed' });
   }
 });
 

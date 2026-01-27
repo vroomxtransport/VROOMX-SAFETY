@@ -303,7 +303,7 @@ const fmcsaService = {
           defaultViewport: chromium.defaultViewport || { width: 1920, height: 1080 },
           executablePath,
           headless: chromium.headless ?? true,
-          ignoreHTTPSErrors: true
+          ignoreHTTPSErrors: process.env.NODE_ENV === 'development'
         });
         console.log('[FMCSA] Browser launched successfully');
       } catch (launchError) {

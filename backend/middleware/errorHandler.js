@@ -24,17 +24,18 @@ const errorHandler = (err, req, res, next) => {
     error = new AppError(message, 404);
   }
 
-  // Mongoose duplicate key
+  // Mongoose duplicate key - sanitize field names
   if (err.code === 11000) {
-    const field = Object.keys(err.keyValue)[0];
-    const message = `Duplicate field value: ${field}. Please use another value`;
+    const message = 'A record with this value already exists. Please use a different value.';
     error = new AppError(message, 400);
   }
 
-  // Mongoose validation error
+  // Mongoose validation error - use generic messages in production
   if (err.name === 'ValidationError') {
     const messages = Object.values(err.errors).map(val => val.message);
-    const message = messages.join('. ');
+    const message = process.env.NODE_ENV === 'production'
+      ? 'Validation error. Please check your input.'
+      : messages.join('. ');
     error = new AppError(message, 400);
   }
 
@@ -63,7 +64,10 @@ const asyncHandler = (fn) => (req, res, next) => {
 
 // Not found handler
 const notFound = (req, res, next) => {
-  const error = new AppError(`Not found - ${req.originalUrl}`, 404);
+  const message = process.env.NODE_ENV === 'production'
+    ? 'Not found'
+    : `Not found - ${req.originalUrl}`;
+  const error = new AppError(message, 404);
   next(error);
 };
 

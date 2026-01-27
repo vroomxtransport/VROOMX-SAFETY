@@ -33,10 +33,6 @@ router.post('/register', [
 
   const { email, password, firstName, lastName, companyName, dotNumber, mcNumber, phone, address, selectedPlan } = req.body;
 
-  console.log('=== REGISTRATION DEBUG ===');
-  console.log('selectedPlan received:', selectedPlan);
-  console.log('typeof selectedPlan:', typeof selectedPlan);
-
   // Check if user exists
   const existingUser = await User.findOne({ email });
   if (existingUser) {
@@ -58,7 +54,6 @@ router.post('/register', [
   // Determine subscription based on selected plan
   let subscription;
   if (selectedPlan === 'solo') {
-    console.log('>>> SOLO PLAN DETECTED - No trial');
     // Solo plan: No trial, requires payment to activate
     subscription = {
       plan: 'solo',
@@ -66,7 +61,6 @@ router.post('/register', [
       trialEndsAt: null
     };
   } else {
-    console.log('>>> NON-SOLO PLAN - Creating 3-day trial');
     // Fleet/Pro plans: 3-day free trial
     subscription = {
       plan: 'free_trial',
@@ -74,8 +68,6 @@ router.post('/register', [
       trialEndsAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) // 3 days from now
     };
   }
-  console.log('Subscription to be created:', JSON.stringify(subscription));
-
   // Create user first (needed for ownerId)
   const user = await User.create({
     email,

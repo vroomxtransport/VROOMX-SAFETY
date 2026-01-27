@@ -7,6 +7,12 @@ const { uploadSingle, getFileUrl } = require('../middleware/upload');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const { checkVehicleLimit } = require('../middleware/subscriptionLimits');
 
+// Escape regex special characters to prevent NoSQL injection
+const escapeRegex = (str) => {
+  if (typeof str !== 'string') return '';
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
+
 router.use(protect);
 router.use(restrictToCompany);
 
@@ -22,11 +28,12 @@ router.get('/', checkPermission('vehicles', 'view'), asyncHandler(async (req, re
   if (vehicleType) queryObj.vehicleType = vehicleType;
   if (complianceStatus) queryObj['complianceStatus.overall'] = complianceStatus;
   if (search) {
+    const safeSearch = escapeRegex(search);
     queryObj.$or = [
-      { unitNumber: { $regex: search, $options: 'i' } },
-      { vin: { $regex: search, $options: 'i' } },
-      { make: { $regex: search, $options: 'i' } },
-      { model: { $regex: search, $options: 'i' } }
+      { unitNumber: { $regex: safeSearch, $options: 'i' } },
+      { vin: { $regex: safeSearch, $options: 'i' } },
+      { make: { $regex: safeSearch, $options: 'i' } },
+      { model: { $regex: safeSearch, $options: 'i' } }
     ];
   }
 

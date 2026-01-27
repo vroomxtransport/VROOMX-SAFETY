@@ -27,6 +27,12 @@ const createUploadDirs = () => {
 
 createUploadDirs();
 
+// Whitelist of allowed upload categories to prevent path traversal
+const ALLOWED_UPLOAD_FOLDERS = [
+  'documents', 'drivers', 'vehicles', 'violations',
+  'drug-alcohol', 'accidents', 'maintenance', 'temp'
+];
+
 // Configure storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -39,9 +45,20 @@ const storage = multer.diskStorage({
     else if (req.baseUrl.includes('drug-alcohol')) folder = 'drug-alcohol';
     else if (req.baseUrl.includes('accidents')) folder = 'accidents';
     else if (req.baseUrl.includes('maintenance')) folder = 'maintenance';
-    else if (req.body.category) folder = req.body.category;
+    else if (req.body.category && ALLOWED_UPLOAD_FOLDERS.includes(req.body.category)) {
+      folder = req.body.category;
+    }
+    // Ignore user-supplied category if not in whitelist (prevents path traversal)
 
     const uploadPath = path.join(process.cwd(), 'uploads', folder);
+
+    // Verify the resolved path is within the uploads directory
+    const uploadsBase = path.resolve(path.join(process.cwd(), 'uploads'));
+    const resolvedPath = path.resolve(uploadPath);
+    if (!resolvedPath.startsWith(uploadsBase)) {
+      return cb(new Error('Invalid upload path'));
+    }
+
     cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
@@ -52,27 +69,32 @@ const storage = multer.diskStorage({
   }
 });
 
-// File filter - allowed types
-const fileFilter = (req, file, cb) => {
-  const allowedTypes = [
-    'application/pdf',
-    'image/jpeg',
-    'image/jpg',
-    'image/png',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'application/vnd.ms-excel',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-  ];
+// File filter - allowed types (require BOTH mime and extension match)
+const MIME_TO_EXT = {
+  'application/pdf': ['.pdf'],
+  'image/jpeg': ['.jpg', '.jpeg'],
+  'image/png': ['.png'],
+  'application/msword': ['.doc'],
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+  'application/vnd.ms-excel': ['.xls'],
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx']
+};
 
-  const allowedExtensions = ['.pdf', '.jpg', '.jpeg', '.png', '.doc', '.docx', '.xls', '.xlsx'];
+const fileFilter = (req, file, cb) => {
   const ext = path.extname(file.originalname).toLowerCase();
 
-  if (allowedTypes.includes(file.mimetype) || allowedExtensions.includes(ext)) {
-    cb(null, true);
-  } else {
-    cb(new Error(`File type not allowed. Allowed types: ${allowedExtensions.join(', ')}`), false);
+  // Reject filenames with path traversal attempts
+  if (file.originalname.includes('..') || file.originalname.includes('/') || file.originalname.includes('\\')) {
+    return cb(new Error('Invalid filename'), false);
   }
+
+  // Require BOTH valid mime type AND matching extension
+  const allowedExts = MIME_TO_EXT[file.mimetype];
+  if (!allowedExts || !allowedExts.includes(ext)) {
+    return cb(new Error('File type not allowed. Allowed: .pdf, .jpg, .jpeg, .png, .doc, .docx, .xls, .xlsx'), false);
+  }
+
+  cb(null, true);
 };
 
 // Create multer instance
@@ -150,14 +172,21 @@ const getFileUrl = (filePath) => {
   return relativePath;
 };
 
-// Helper to delete file
+// Helper to delete file (with path traversal protection)
 const deleteFile = (filePath) => {
   return new Promise((resolve, reject) => {
     if (!filePath) return resolve(true);
 
     const fullPath = filePath.startsWith('/') ? path.join(process.cwd(), filePath) : filePath;
+    const resolvedPath = path.resolve(fullPath);
+    const uploadsBase = path.resolve(path.join(process.cwd(), 'uploads'));
 
-    fs.unlink(fullPath, (err) => {
+    // Prevent deletion of files outside uploads directory
+    if (!resolvedPath.startsWith(uploadsBase)) {
+      return reject(new Error('Cannot delete files outside uploads directory'));
+    }
+
+    fs.unlink(resolvedPath, (err) => {
       if (err && err.code !== 'ENOENT') {
         reject(err);
       } else {

@@ -208,11 +208,17 @@ router.patch('/users/:id', async (req, res) => {
     }
 
     // Prevent self-modification of admin status
-    if (req.params.id === req.user._id.toString() && isSuperAdmin === false) {
+    if (req.params.id === req.user._id.toString()) {
       return res.status(400).json({
         success: false,
-        message: 'You cannot remove your own super admin privileges'
+        message: 'You cannot modify your own admin account through this endpoint'
       });
+    }
+
+    // Restrict isSuperAdmin changes - only existing super admins can grant it
+    // and require explicit confirmation
+    if (typeof isSuperAdmin === 'boolean' && isSuperAdmin === true) {
+      console.warn(`[ADMIN AUDIT] Super admin grant attempted: ${req.user.email} -> ${user.email} at ${new Date().toISOString()}`);
     }
 
     // Update fields
@@ -220,12 +226,15 @@ router.patch('/users/:id', async (req, res) => {
       user.isSuspended = isSuspended;
       user.suspendedAt = isSuspended ? new Date() : null;
       user.suspendedReason = isSuspended ? suspendedReason : null;
+      console.warn(`[ADMIN AUDIT] User ${isSuspended ? 'suspended' : 'unsuspended'}: ${user.email} by ${req.user.email} at ${new Date().toISOString()}`);
     }
     if (typeof isActive === 'boolean') {
       user.isActive = isActive;
+      console.warn(`[ADMIN AUDIT] User ${isActive ? 'activated' : 'deactivated'}: ${user.email} by ${req.user.email} at ${new Date().toISOString()}`);
     }
     if (typeof isSuperAdmin === 'boolean') {
       user.isSuperAdmin = isSuperAdmin;
+      console.warn(`[ADMIN AUDIT] Super admin ${isSuperAdmin ? 'granted' : 'revoked'}: ${user.email} by ${req.user.email} at ${new Date().toISOString()}`);
     }
 
     await user.save();
@@ -303,15 +312,23 @@ router.post('/users/:id/impersonate', async (req, res) => {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    // Generate impersonation token with limited expiry
+    // Prevent impersonating other super admins
+    if (user.isSuperAdmin) {
+      return res.status(403).json({
+        success: false,
+        message: 'Cannot impersonate other super admin accounts'
+      });
+    }
+
+    // Generate impersonation token with short expiry (30 min)
     const token = jwt.sign(
       { id: user._id, impersonatedBy: req.user._id },
       process.env.JWT_SECRET,
-      { expiresIn: '1h' }
+      { expiresIn: '30m' }
     );
 
-    // Log the impersonation
-    console.log(`[ADMIN] User ${req.user.email} impersonated user ${user.email} at ${new Date().toISOString()}`);
+    // Audit log the impersonation
+    console.warn(`[ADMIN AUDIT] IMPERSONATION: ${req.user.email} (${req.user._id}) impersonated ${user.email} (${user._id}) at ${new Date().toISOString()} from IP ${req.ip}`);
 
     res.json({
       success: true,
@@ -322,7 +339,7 @@ router.post('/users/:id/impersonate', async (req, res) => {
         firstName: user.firstName,
         lastName: user.lastName
       },
-      message: 'Impersonation token valid for 1 hour'
+      message: 'Impersonation token valid for 30 minutes'
     });
   } catch (error) {
     console.error('Admin impersonate error:', error);
