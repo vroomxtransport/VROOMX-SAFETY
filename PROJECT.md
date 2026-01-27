@@ -8,6 +8,11 @@
 - Frontend: https://vroomxsafety.com (Netlify)
 - Backend: https://vroomx-safety-api.onrender.com (Render)
 
+**Email:** Google Workspace on `vroomxsafety.com` domain
+- Admin: admin@vroomxsafety.com
+- Transactional (Resend): noreply@vroomxsafety.com
+- Support (reply-to): support@vroomxsafety.com
+
 **Status:** MVP Production-Ready
 
 ---
@@ -31,7 +36,7 @@
 - **AI Integration:** Anthropic Claude API, OpenAI API
 - **Payments:** Stripe (live mode with metered billing)
 - **File Uploads:** Multer (10MB limit)
-- **Email:** Resend SDK (transactional + notification emails)
+- **Email:** Resend SDK (transactional + notification emails) via Google Workspace domain
 - **Scheduling:** node-cron
 
 ---
@@ -173,6 +178,9 @@ npm run dev  # Starts on port 5173
 - ANTHROPIC_API_KEY
 - OPENAI_API_KEY
 - FRONTEND_URL
+- RESEND_API_KEY
+- EMAIL_FROM (default: `VroomX Safety <noreply@vroomxsafety.com>`)
+- EMAIL_REPLY_TO (default: `support@vroomxsafety.com`)
 
 ---
 
@@ -234,6 +242,12 @@ npm run dev  # Starts on port 5173
   - File: `frontend/src/components/settings/BillingTab.jsx`
   - Lines 48, 60, 72: Changed `currentUsage?.companies` to `currentUsage?.companies?.owned`, etc.
 - **Added:** PROJECT.md - Comprehensive project documentation
+
+### 2026-01-27 (Google Workspace Email)
+- **Infra:** Connected `vroomxsafety.com` domain to Google Workspace
+  - Admin email: `admin@vroomxsafety.com`
+  - Resend domain verified for transactional email delivery
+  - Recommended aliases: `noreply@vroomxsafety.com` (FROM), `support@vroomxsafety.com` (REPLY_TO)
 
 ### 2026-01-27 (Email Notification System)
 - **Feature:** Full email notification system using Resend SDK
