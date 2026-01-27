@@ -285,6 +285,13 @@ npm run dev  # Starts on port 5173
   3. Missing emailStats: backend `/admin/system` didn't include email counts — added sent/delivered/failed (24h)
   - Files: `frontend/src/pages/admin/AdminDashboard.jsx`, `backend/routes/admin.js`
 
+### 2026-01-27 (Stripe Webhook Fix)
+- **Fix:** Stripe webhooks failing (8/8 failed) — subscriptions not updating after payment
+  - Root cause: `express.json()` middleware parsed the request body before the webhook route's `express.raw()` could capture it. Stripe's `constructEvent()` needs the raw Buffer for HMAC signature verification, but received a parsed JS object instead → signature verification failed → all webhooks rejected → subscription never synced to MongoDB
+  - Fix: Skip `express.json()` for `/api/billing/webhook` path so `express.raw()` in the billing route can capture the raw body
+  - File: `backend/server.js`
+- **Fix:** Manually synced test user `safety@horizonstartransport.com` subscription from `free_trial` to `solo/active` in MongoDB after confirming Stripe charge went through
+
 ### 2026-01-27 (Audit Log & Rate Limiting)
 - **Feature:** Full audit log system with route instrumentation across all API endpoints
   - New files: `backend/models/AuditLog.js`, `backend/services/auditService.js`, `backend/routes/audit.js`
