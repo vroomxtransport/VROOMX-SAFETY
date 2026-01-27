@@ -52,5 +52,7 @@ const emailLogSchema = new mongoose.Schema({
 emailLogSchema.index({ userId: 1, createdAt: -1 });
 emailLogSchema.index({ category: 1, createdAt: -1 });
 emailLogSchema.index({ resendId: 1 });
+emailLogSchema.index({ to: 1, createdAt: -1 });
+emailLogSchema.index({ status: 1, createdAt: -1 });
 
 module.exports = mongoose.model('EmailLog', emailLogSchema);

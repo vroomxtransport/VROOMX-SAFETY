@@ -9,6 +9,7 @@ const rateLimit = require('express-rate-limit');
 const connectDB = require('./config/database');
 const routes = require('./routes');
 const { errorHandler, notFound } = require('./middleware/errorHandler');
+const maintenanceMode = require('./middleware/maintenance');
 const alertService = require('./services/alertService');
 const emailService = require('./services/emailService');
 
@@ -134,6 +135,9 @@ app.get('/health', (req, res) => {
     environment: process.env.NODE_ENV
   });
 });
+
+// Maintenance mode check (before API routes)
+app.use(maintenanceMode);
 
 // API routes
 app.use('/api', routes);

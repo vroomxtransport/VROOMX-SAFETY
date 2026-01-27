@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const mongoose = require('mongoose');
 const User = require('../models/User');
 const Company = require('../models/Company');
@@ -8,6 +9,13 @@ const Driver = require('../models/Driver');
 const Vehicle = require('../models/Vehicle');
 const { protect, requireSuperAdmin } = require('../middleware/auth');
 const auditService = require('../services/auditService');
+const emailService = require('../services/emailService');
+const AuditLog = require('../models/AuditLog');
+const Announcement = require('../models/Announcement');
+const FeatureFlag = require('../models/FeatureFlag');
+const SystemConfig = require('../models/SystemConfig');
+const EmailLog = require('../models/EmailLog');
+const maintenanceMiddleware = require('../middleware/maintenance');
 
 // All admin routes require authentication and superadmin role
 router.use(protect);
@@ -62,6 +70,7 @@ async function cascadeDeleteCompany(companyId) {
 // Allowed values for subscription validation
 const VALID_PLANS = ['free_trial', 'solo', 'fleet', 'starter', 'professional'];
 const VALID_STATUSES = ['trialing', 'active', 'past_due', 'canceled', 'unpaid', 'pending_payment'];
+const PLAN_PRICES = { free_trial: 0, solo: 29, starter: 49, fleet: 79, professional: 149 };
 
 // Helper to escape regex special characters
 const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -172,6 +181,150 @@ router.get('/users', async (req, res) => {
     });
   } catch (error) {
     console.error('Admin list users error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// @route   POST /api/admin/users
+// @desc    Create a new user (admin power tool)
+// @access  Super Admin
+router.post('/users', async (req, res) => {
+  try {
+    const { email, firstName, lastName, password, companyId, plan } = req.body;
+
+    if (!email || !firstName || !lastName || !password) {
+      return res.status(400).json({ success: false, message: 'email, firstName, lastName, and password are required' });
+    }
+
+    // Check duplicate email
+    const existing = await User.findOne({ email: email.toLowerCase().trim() });
+    if (existing) {
+      return res.status(409).json({ success: false, message: 'A user with this email already exists' });
+    }
+
+    const userData = {
+      email: email.toLowerCase().trim(),
+      firstName,
+      lastName,
+      password,
+      subscription: {
+        plan: plan && VALID_PLANS.includes(plan) ? plan : 'free_trial',
+        status: 'trialing',
+        trialEndsAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
+      }
+    };
+
+    const user = await User.create(userData);
+
+    // If companyId provided, add to user's companies
+    if (companyId) {
+      const company = await Company.findById(companyId);
+      if (company) {
+        user.companies = [{
+          companyId: company._id,
+          role: 'viewer',
+          permissions: User.getDefaultPermissionsForRole('viewer'),
+          joinedAt: new Date()
+        }];
+        user.activeCompanyId = company._id;
+        await user.save({ validateBeforeSave: false });
+      }
+    }
+
+    auditService.log(req, 'create', 'user', user._id, { email: user.email, plan: userData.subscription.plan, summary: 'Admin created user' });
+
+    res.status(201).json({
+      success: true,
+      message: 'User created successfully',
+      user: {
+        _id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        subscription: user.subscription
+      }
+    });
+  } catch (error) {
+    console.error('Admin create user error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// @route   POST /api/admin/users/bulk
+// @desc    Bulk action on users (suspend, unsuspend, delete)
+// @access  Super Admin
+router.post('/users/bulk', async (req, res) => {
+  try {
+    const { action, userIds } = req.body;
+
+    if (!action || !userIds || !Array.isArray(userIds)) {
+      return res.status(400).json({ success: false, message: 'action and userIds array are required' });
+    }
+
+    if (!['suspend', 'unsuspend', 'delete'].includes(action)) {
+      return res.status(400).json({ success: false, message: 'action must be suspend, unsuspend, or delete' });
+    }
+
+    if (userIds.length > 50) {
+      return res.status(400).json({ success: false, message: 'Maximum 50 users per bulk action' });
+    }
+
+    // Filter out self
+    const selfId = req.user._id.toString();
+    const filteredIds = userIds.filter(id => id !== selfId);
+
+    if (filteredIds.length === 0) {
+      return res.status(400).json({ success: false, message: 'No valid user IDs to process (cannot perform bulk actions on yourself)' });
+    }
+
+    let result = { processed: 0 };
+
+    if (action === 'suspend') {
+      const updateResult = await User.updateMany(
+        { _id: { $in: filteredIds } },
+        { $set: { isSuspended: true, suspendedAt: new Date(), suspendedReason: 'Bulk suspended by admin' } }
+      );
+      result.processed = updateResult.modifiedCount;
+    } else if (action === 'unsuspend') {
+      const updateResult = await User.updateMany(
+        { _id: { $in: filteredIds } },
+        { $set: { isSuspended: false }, $unset: { suspendedAt: '', suspendedReason: '' } }
+      );
+      result.processed = updateResult.modifiedCount;
+    } else if (action === 'delete') {
+      let deleted = 0;
+      for (const userId of filteredIds) {
+        try {
+          const user = await User.findById(userId).populate('companies.companyId');
+          if (!user) continue;
+
+          // Cascade delete owned companies
+          const ownedCompanies = user.companies?.filter(c => c.role === 'owner') || [];
+          for (const membership of ownedCompanies) {
+            const compId = membership.companyId?._id || membership.companyId;
+            if (compId) {
+              await cascadeDeleteCompany(compId.toString());
+            }
+          }
+
+          await User.findByIdAndDelete(userId);
+          deleted++;
+        } catch (err) {
+          console.error(`[ADMIN] Bulk delete error for user ${userId}:`, err.message);
+        }
+      }
+      result.processed = deleted;
+    }
+
+    auditService.log(req, 'bulk_action', 'user', null, { action, userIds: filteredIds, processed: result.processed, summary: `Admin bulk ${action} users` });
+
+    res.json({
+      success: true,
+      message: `Bulk ${action} completed`,
+      result
+    });
+  } catch (error) {
+    console.error('Admin bulk action error:', error);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });
@@ -350,6 +503,64 @@ router.post('/users/:id/impersonate', async (req, res) => {
     });
   } catch (error) {
     console.error('Admin impersonate error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// @route   POST /api/admin/users/:id/force-reset
+// @desc    Force password reset for a user
+// @access  Super Admin
+router.post('/users/:id/force-reset', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    user.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    user.passwordResetExpires = Date.now() + 30 * 60 * 1000; // 30 minutes
+    await user.save({ validateBeforeSave: false });
+
+    await emailService.sendPasswordReset(user, resetToken);
+
+    auditService.log(req, 'force_reset', 'user', req.params.id, { email: user.email, summary: 'Admin forced password reset' });
+
+    res.json({ success: true, message: `Password reset email sent to ${user.email}` });
+  } catch (error) {
+    console.error('Admin force reset error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// @route   GET /api/admin/users/:id/login-history
+// @desc    Get user login history
+// @access  Super Admin
+router.get('/users/:id/login-history', async (req, res) => {
+  try {
+    const logs = await AuditLog.find({ userId: req.params.id, action: 'login' })
+      .sort({ timestamp: -1 })
+      .limit(20);
+
+    res.json({ success: true, loginHistory: logs });
+  } catch (error) {
+    console.error('Admin login history error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// @route   GET /api/admin/users/:id/audit-log
+// @desc    Get user audit log
+// @access  Super Admin
+router.get('/users/:id/audit-log', async (req, res) => {
+  try {
+    const logs = await AuditLog.find({ userId: req.params.id })
+      .sort({ timestamp: -1 })
+      .limit(50);
+
+    res.json({ success: true, auditLog: logs });
+  } catch (error) {
+    console.error('Admin user audit log error:', error);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });
@@ -535,6 +746,654 @@ router.get('/companies/:id', async (req, res) => {
     });
   } catch (error) {
     console.error('Admin get company error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// @route   PATCH /api/admin/companies/:id
+// @desc    Update company details
+// @access  Super Admin
+router.patch('/companies/:id', async (req, res) => {
+  try {
+    const { name, mcNumber, phone, address, email, isActive } = req.body;
+    const company = await Company.findById(req.params.id);
+
+    if (!company) {
+      return res.status(404).json({ success: false, message: 'Company not found' });
+    }
+
+    // Explicitly ignore dotNumber
+    if (name !== undefined) company.name = name;
+    if (mcNumber !== undefined) company.mcNumber = mcNumber;
+    if (phone !== undefined) company.phone = phone;
+    if (address !== undefined) company.address = address;
+    if (email !== undefined) company.email = email;
+    if (typeof isActive === 'boolean') company.isActive = isActive;
+
+    await company.save();
+
+    auditService.log(req, 'update', 'company', req.params.id, { changes: { name, mcNumber, phone, address, email, isActive }, summary: 'Admin updated company' });
+
+    res.json({ success: true, message: 'Company updated successfully', company });
+  } catch (error) {
+    console.error('Admin update company error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// @route   DELETE /api/admin/companies/:companyId/members/:userId
+// @desc    Remove a member from a company
+// @access  Super Admin
+router.delete('/companies/:companyId/members/:userId', async (req, res) => {
+  try {
+    const { companyId, userId } = req.params;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    // Pull companyId from companies array
+    user.companies = user.companies.filter(
+      c => (c.companyId?._id || c.companyId).toString() !== companyId
+    );
+
+    // Clear activeCompanyId if it matches
+    if (user.activeCompanyId && user.activeCompanyId.toString() === companyId) {
+      user.activeCompanyId = user.companies.length > 0
+        ? (user.companies[0].companyId?._id || user.companies[0].companyId)
+        : undefined;
+    }
+
+    await user.save({ validateBeforeSave: false });
+
+    auditService.log(req, 'delete', 'company', companyId, { userId, summary: 'Admin removed member from company' });
+
+    res.json({ success: true, message: 'Member removed from company' });
+  } catch (error) {
+    console.error('Admin remove company member error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// @route   PATCH /api/admin/companies/:companyId/members/:userId
+// @desc    Update a member's role in a company
+// @access  Super Admin
+router.patch('/companies/:companyId/members/:userId', async (req, res) => {
+  try {
+    const { companyId, userId } = req.params;
+    const { role } = req.body;
+
+    if (!role) {
+      return res.status(400).json({ success: false, message: 'role is required' });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const membership = user.companies.find(
+      c => (c.companyId?._id || c.companyId).toString() === companyId
+    );
+
+    if (!membership) {
+      return res.status(404).json({ success: false, message: 'User is not a member of this company' });
+    }
+
+    membership.role = role;
+    membership.permissions = User.getDefaultPermissionsForRole(role);
+    await user.save({ validateBeforeSave: false });
+
+    auditService.log(req, 'update', 'company', companyId, { userId, role, summary: 'Admin updated member role' });
+
+    res.json({ success: true, message: 'Member role updated', role });
+  } catch (error) {
+    console.error('Admin update company member error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// ============================================================
+// Analytics
+// ============================================================
+
+// @route   GET /api/admin/analytics
+// @desc    Get platform analytics
+// @access  Super Admin
+router.get('/analytics', async (req, res) => {
+  try {
+    const now = new Date();
+    const ninetyDaysAgo = new Date(now - 90 * 24 * 60 * 60 * 1000);
+    const thirtyDaysAgo = new Date(now - 30 * 24 * 60 * 60 * 1000);
+
+    const [signupsByDay, activeUsersByDay, subscriptionRevenue, churnData, topCompanies] = await Promise.all([
+      // 1. Signups by day (last 90 days)
+      User.aggregate([
+        { $match: { createdAt: { $gte: ninetyDaysAgo } } },
+        {
+          $group: {
+            _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+            count: { $sum: 1 }
+          }
+        },
+        { $sort: { _id: 1 } }
+      ]),
+
+      // 2. Active users by day (last 30 days)
+      User.aggregate([
+        { $match: { lastLogin: { $gte: thirtyDaysAgo } } },
+        {
+          $group: {
+            _id: { $dateToString: { format: '%Y-%m-%d', date: '$lastLogin' } },
+            count: { $sum: 1 }
+          }
+        },
+        { $sort: { _id: 1 } }
+      ]),
+
+      // 3. Subscription revenue (MRR)
+      User.aggregate([
+        {
+          $match: {
+            'subscription.status': { $in: ['active', 'trialing'] }
+          }
+        },
+        {
+          $group: {
+            _id: '$subscription.plan',
+            count: { $sum: 1 }
+          }
+        }
+      ]),
+
+      // 4. Churn: canceled last 30 days vs total active
+      Promise.all([
+        User.countDocuments({ 'subscription.status': 'canceled', updatedAt: { $gte: thirtyDaysAgo } }),
+        User.countDocuments({ 'subscription.status': { $in: ['active', 'trialing'] } })
+      ]),
+
+      // 5. Top companies by driver count
+      Driver.aggregate([
+        {
+          $group: {
+            _id: '$companyId',
+            driverCount: { $sum: 1 }
+          }
+        },
+        { $sort: { driverCount: -1 } },
+        { $limit: 5 },
+        {
+          $lookup: {
+            from: 'companies',
+            localField: '_id',
+            foreignField: '_id',
+            as: 'company'
+          }
+        },
+        { $unwind: { path: '$company', preserveNullAndEmptyArrays: true } },
+        {
+          $project: {
+            _id: 1,
+            driverCount: 1,
+            companyName: '$company.name',
+            dotNumber: '$company.dotNumber'
+          }
+        }
+      ])
+    ]);
+
+    // Post-process MRR
+    let mrr = 0;
+    const planBreakdown = {};
+    subscriptionRevenue.forEach(item => {
+      const price = PLAN_PRICES[item._id] || 0;
+      const revenue = price * item.count;
+      mrr += revenue;
+      planBreakdown[item._id] = { count: item.count, revenue };
+    });
+
+    // Process churn
+    const [canceledLast30, totalActive] = churnData;
+    const churnRate = totalActive > 0 ? ((canceledLast30 / totalActive) * 100).toFixed(2) : 0;
+
+    res.json({
+      success: true,
+      analytics: {
+        signupsByDay,
+        activeUsersByDay,
+        revenue: { mrr, planBreakdown },
+        churn: { canceledLast30Days: canceledLast30, totalActive, churnRate: parseFloat(churnRate) },
+        topCompanies
+      }
+    });
+  } catch (error) {
+    console.error('Admin analytics error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// ============================================================
+// System & Operations
+// ============================================================
+
+// @route   GET /api/admin/system
+// @desc    Get system health info
+// @access  Super Admin
+router.get('/system', async (req, res) => {
+  try {
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const recentEmailFailures = await EmailLog.countDocuments({ status: 'failed', createdAt: { $gte: oneDayAgo } });
+
+    const dbStates = { 0: 'disconnected', 1: 'connected', 2: 'connecting', 3: 'disconnecting' };
+
+    res.json({
+      success: true,
+      system: {
+        database: {
+          status: dbStates[mongoose.connection.readyState] || 'unknown',
+          readyState: mongoose.connection.readyState
+        },
+        uptime: process.uptime(),
+        memory: process.memoryUsage(),
+        services: {
+          resend: !!process.env.RESEND_API_KEY,
+          stripe: !!process.env.STRIPE_SECRET_KEY,
+          openai: !!process.env.OPENAI_API_KEY
+        },
+        recentEmailFailures
+      }
+    });
+  } catch (error) {
+    console.error('Admin system info error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// @route   GET /api/admin/emails/stats
+// @desc    Get email statistics
+// @access  Super Admin
+// NOTE: This must be before /emails/:id to avoid treating 'stats' as an ID
+router.get('/emails/stats', async (req, res) => {
+  try {
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+    const [totalSent, totalFailed, last24hSent, last24hFailed, byCategory] = await Promise.all([
+      EmailLog.countDocuments({ status: 'sent' }),
+      EmailLog.countDocuments({ status: 'failed' }),
+      EmailLog.countDocuments({ status: 'sent', createdAt: { $gte: oneDayAgo } }),
+      EmailLog.countDocuments({ status: 'failed', createdAt: { $gte: oneDayAgo } }),
+      EmailLog.aggregate([
+        { $group: { _id: '$category', count: { $sum: 1 } } }
+      ])
+    ]);
+
+    const categoryBreakdown = {};
+    byCategory.forEach(item => {
+      categoryBreakdown[item._id || 'unknown'] = item.count;
+    });
+
+    res.json({
+      success: true,
+      stats: {
+        totalSent,
+        totalFailed,
+        last24h: { sent: last24hSent, failed: last24hFailed },
+        byCategory: categoryBreakdown
+      }
+    });
+  } catch (error) {
+    console.error('Admin email stats error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// @route   GET /api/admin/emails
+// @desc    List email logs with pagination, search, filters
+// @access  Super Admin
+router.get('/emails', async (req, res) => {
+  try {
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(MAX_LIMIT, Math.max(1, parseInt(req.query.limit) || DEFAULT_LIMIT));
+    const skip = (page - 1) * limit;
+    const { search, status, category, startDate, endDate } = req.query;
+
+    const query = {};
+    if (search) {
+      const escapedSearch = escapeRegex(search);
+      query.to = { $regex: escapedSearch, $options: 'i' };
+    }
+    if (status) query.status = status;
+    if (category) query.category = category;
+    if (startDate || endDate) {
+      query.createdAt = {};
+      if (startDate) query.createdAt.$gte = new Date(startDate);
+      if (endDate) query.createdAt.$lte = new Date(endDate);
+    }
+
+    const [emails, total] = await Promise.all([
+      EmailLog.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      EmailLog.countDocuments(query)
+    ]);
+
+    res.json({
+      success: true,
+      emails,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit)
+      }
+    });
+  } catch (error) {
+    console.error('Admin list emails error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// @route   GET /api/admin/emails/:id
+// @desc    Get single email log
+// @access  Super Admin
+router.get('/emails/:id', async (req, res) => {
+  try {
+    const email = await EmailLog.findById(req.params.id);
+    if (!email) {
+      return res.status(404).json({ success: false, message: 'Email log not found' });
+    }
+    res.json({ success: true, email });
+  } catch (error) {
+    console.error('Admin get email error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// ============================================================
+// Announcements CRUD
+// ============================================================
+
+// @route   GET /api/admin/announcements
+// @desc    List all announcements (paginated)
+// @access  Super Admin
+router.get('/announcements', async (req, res) => {
+  try {
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(MAX_LIMIT, Math.max(1, parseInt(req.query.limit) || DEFAULT_LIMIT));
+    const skip = (page - 1) * limit;
+
+    const [announcements, total] = await Promise.all([
+      Announcement.find().sort({ createdAt: -1 }).skip(skip).limit(limit).populate('createdBy', 'email firstName lastName'),
+      Announcement.countDocuments()
+    ]);
+
+    res.json({
+      success: true,
+      announcements,
+      pagination: { page, limit, total, pages: Math.ceil(total / limit) }
+    });
+  } catch (error) {
+    console.error('Admin list announcements error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// @route   POST /api/admin/announcements
+// @desc    Create announcement
+// @access  Super Admin
+router.post('/announcements', async (req, res) => {
+  try {
+    const { message, type, isActive, startDate, endDate, targetAudience, linkUrl, linkText } = req.body;
+
+    if (!message) {
+      return res.status(400).json({ success: false, message: 'message is required' });
+    }
+
+    const announcement = await Announcement.create({
+      message,
+      type,
+      isActive,
+      startDate,
+      endDate,
+      targetAudience,
+      linkUrl,
+      linkText,
+      createdBy: req.user._id
+    });
+
+    auditService.log(req, 'create', 'announcement', announcement._id, { summary: 'Admin created announcement' });
+
+    res.status(201).json({ success: true, announcement });
+  } catch (error) {
+    console.error('Admin create announcement error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// @route   PUT /api/admin/announcements/:id
+// @desc    Update announcement
+// @access  Super Admin
+router.put('/announcements/:id', async (req, res) => {
+  try {
+    const { message, type, isActive, startDate, endDate, targetAudience, linkUrl, linkText } = req.body;
+
+    const announcement = await Announcement.findById(req.params.id);
+    if (!announcement) {
+      return res.status(404).json({ success: false, message: 'Announcement not found' });
+    }
+
+    if (message !== undefined) announcement.message = message;
+    if (type !== undefined) announcement.type = type;
+    if (typeof isActive === 'boolean') announcement.isActive = isActive;
+    if (startDate !== undefined) announcement.startDate = startDate;
+    if (endDate !== undefined) announcement.endDate = endDate;
+    if (targetAudience !== undefined) announcement.targetAudience = targetAudience;
+    if (linkUrl !== undefined) announcement.linkUrl = linkUrl;
+    if (linkText !== undefined) announcement.linkText = linkText;
+
+    await announcement.save();
+
+    auditService.log(req, 'update', 'announcement', req.params.id, { summary: 'Admin updated announcement' });
+
+    res.json({ success: true, announcement });
+  } catch (error) {
+    console.error('Admin update announcement error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// @route   PATCH /api/admin/announcements/:id/toggle
+// @desc    Toggle announcement active status
+// @access  Super Admin
+router.patch('/announcements/:id/toggle', async (req, res) => {
+  try {
+    const announcement = await Announcement.findById(req.params.id);
+    if (!announcement) {
+      return res.status(404).json({ success: false, message: 'Announcement not found' });
+    }
+
+    announcement.isActive = !announcement.isActive;
+    await announcement.save();
+
+    auditService.log(req, 'toggle', 'announcement', req.params.id, { isActive: announcement.isActive, summary: 'Admin toggled announcement' });
+
+    res.json({ success: true, announcement });
+  } catch (error) {
+    console.error('Admin toggle announcement error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// @route   DELETE /api/admin/announcements/:id
+// @desc    Delete announcement
+// @access  Super Admin
+router.delete('/announcements/:id', async (req, res) => {
+  try {
+    const announcement = await Announcement.findByIdAndDelete(req.params.id);
+    if (!announcement) {
+      return res.status(404).json({ success: false, message: 'Announcement not found' });
+    }
+
+    auditService.log(req, 'delete', 'announcement', req.params.id, { summary: 'Admin deleted announcement' });
+
+    res.json({ success: true, message: 'Announcement deleted' });
+  } catch (error) {
+    console.error('Admin delete announcement error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// ============================================================
+// Feature Flags CRUD
+// ============================================================
+
+// @route   GET /api/admin/features
+// @desc    List all feature flags
+// @access  Super Admin
+router.get('/features', async (req, res) => {
+  try {
+    const features = await FeatureFlag.find().sort({ key: 1 });
+    res.json({ success: true, features });
+  } catch (error) {
+    console.error('Admin list features error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// @route   POST /api/admin/features
+// @desc    Create feature flag
+// @access  Super Admin
+router.post('/features', async (req, res) => {
+  try {
+    const { key, description, enabled } = req.body;
+
+    if (!key || !description) {
+      return res.status(400).json({ success: false, message: 'key and description are required' });
+    }
+
+    const feature = await FeatureFlag.create({ key, description, enabled });
+
+    auditService.log(req, 'create', 'feature_flag', feature._id, { key, summary: 'Admin created feature flag' });
+
+    res.status(201).json({ success: true, feature });
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(409).json({ success: false, message: 'Feature flag with this key already exists' });
+    }
+    console.error('Admin create feature error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// @route   PUT /api/admin/features/:id
+// @desc    Update feature flag
+// @access  Super Admin
+router.put('/features/:id', async (req, res) => {
+  try {
+    const { key, description, enabled } = req.body;
+    const feature = await FeatureFlag.findById(req.params.id);
+
+    if (!feature) {
+      return res.status(404).json({ success: false, message: 'Feature flag not found' });
+    }
+
+    if (key !== undefined) feature.key = key;
+    if (description !== undefined) feature.description = description;
+    if (typeof enabled === 'boolean') feature.enabled = enabled;
+
+    await feature.save();
+
+    auditService.log(req, 'update', 'feature_flag', req.params.id, { key: feature.key, summary: 'Admin updated feature flag' });
+
+    res.json({ success: true, feature });
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(409).json({ success: false, message: 'Feature flag with this key already exists' });
+    }
+    console.error('Admin update feature error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// @route   PATCH /api/admin/features/:id/toggle
+// @desc    Toggle feature flag enabled status
+// @access  Super Admin
+router.patch('/features/:id/toggle', async (req, res) => {
+  try {
+    const feature = await FeatureFlag.findById(req.params.id);
+    if (!feature) {
+      return res.status(404).json({ success: false, message: 'Feature flag not found' });
+    }
+
+    feature.enabled = !feature.enabled;
+    await feature.save();
+
+    auditService.log(req, 'toggle', 'feature_flag', req.params.id, { key: feature.key, enabled: feature.enabled, summary: 'Admin toggled feature flag' });
+
+    res.json({ success: true, feature });
+  } catch (error) {
+    console.error('Admin toggle feature error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// @route   DELETE /api/admin/features/:id
+// @desc    Delete feature flag
+// @access  Super Admin
+router.delete('/features/:id', async (req, res) => {
+  try {
+    const feature = await FeatureFlag.findByIdAndDelete(req.params.id);
+    if (!feature) {
+      return res.status(404).json({ success: false, message: 'Feature flag not found' });
+    }
+
+    auditService.log(req, 'delete', 'feature_flag', req.params.id, { key: feature.key, summary: 'Admin deleted feature flag' });
+
+    res.json({ success: true, message: 'Feature flag deleted' });
+  } catch (error) {
+    console.error('Admin delete feature error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// ============================================================
+// Maintenance Mode
+// ============================================================
+
+// @route   GET /api/admin/maintenance
+// @desc    Get maintenance mode status
+// @access  Super Admin
+router.get('/maintenance', async (req, res) => {
+  try {
+    const value = await SystemConfig.getValue('maintenance_mode', { enabled: false, message: '' });
+    res.json({ success: true, maintenance: value });
+  } catch (error) {
+    console.error('Admin get maintenance error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// @route   POST /api/admin/maintenance
+// @desc    Toggle maintenance mode
+// @access  Super Admin
+router.post('/maintenance', async (req, res) => {
+  try {
+    const { enabled, message } = req.body;
+
+    if (typeof enabled !== 'boolean') {
+      return res.status(400).json({ success: false, message: 'enabled (boolean) is required' });
+    }
+
+    const value = { enabled, message: message || 'System is under maintenance. Please try again later.' };
+    await SystemConfig.setValue('maintenance_mode', value, req.user._id);
+
+    // Bust the middleware cache so the change takes effect immediately
+    maintenanceMiddleware.bustCache();
+
+    auditService.log(req, 'update', 'system_config', null, { key: 'maintenance_mode', enabled, summary: `Admin ${enabled ? 'enabled' : 'disabled'} maintenance mode` });
+
+    res.json({ success: true, maintenance: value });
+  } catch (error) {
+    console.error('Admin set maintenance error:', error);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });

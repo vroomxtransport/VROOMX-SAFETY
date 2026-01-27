@@ -4,10 +4,11 @@ import { adminAPI } from '../../utils/api';
 import {
   FiSearch, FiUser, FiMail, FiCalendar, FiMoreVertical,
   FiUserX, FiUserCheck, FiLogIn, FiCreditCard, FiTrash2,
-  FiChevronLeft, FiChevronRight, FiShield
+  FiChevronLeft, FiChevronRight, FiShield, FiKey, FiPlus, FiX
 } from 'react-icons/fi';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import Modal from '../../components/Modal';
+import UserDetailDrawer from './UserDetailDrawer';
 import toast from 'react-hot-toast';
 
 const AdminUsers = () => {
@@ -22,6 +23,17 @@ const AdminUsers = () => {
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [subscriptionForm, setSubscriptionForm] = useState({ plan: '', status: '' });
   const [subscriptionLoading, setSubscriptionLoading] = useState(false);
+
+  // Add User modal
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [addUserForm, setAddUserForm] = useState({ email: '', firstName: '', lastName: '', password: '', plan: 'free_trial' });
+  const [addUserLoading, setAddUserLoading] = useState(false);
+
+  // Bulk actions
+  const [selectedUsers, setSelectedUsers] = useState(new Set());
+
+  // User detail drawer
+  const [drawerUserId, setDrawerUserId] = useState(null);
 
   useEffect(() => {
     fetchUsers();
@@ -162,6 +174,73 @@ const AdminUsers = () => {
     setActionMenuOpen(null);
   };
 
+  const handleForcePasswordReset = async (user) => {
+    if (!window.confirm(`Force password reset for ${user.email}? They will receive a reset email.`)) {
+      return;
+    }
+    try {
+      await adminAPI.forcePasswordReset(user._id);
+      toast.success(`Password reset email sent to ${user.email}`);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to force password reset');
+    }
+    setActionMenuOpen(null);
+  };
+
+  const handleCreateUser = async () => {
+    try {
+      setAddUserLoading(true);
+      await adminAPI.createUser(addUserForm);
+      toast.success('User created successfully');
+      setShowAddUserModal(false);
+      setAddUserForm({ email: '', firstName: '', lastName: '', password: '', plan: 'free_trial' });
+      fetchUsers();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to create user');
+    } finally {
+      setAddUserLoading(false);
+    }
+  };
+
+  const handleSelectAll = () => {
+    if (selectedUsers.size === users.length) {
+      setSelectedUsers(new Set());
+    } else {
+      setSelectedUsers(new Set(users.map(u => u._id)));
+    }
+  };
+
+  const handleSelectUser = (userId) => {
+    const next = new Set(selectedUsers);
+    if (next.has(userId)) {
+      next.delete(userId);
+    } else {
+      next.add(userId);
+    }
+    setSelectedUsers(next);
+  };
+
+  const handleBulkAction = async (action) => {
+    const userIds = Array.from(selectedUsers);
+    const count = userIds.length;
+
+    if (action === 'delete') {
+      if (!window.confirm(`Are you sure you want to DELETE ${count} user(s)? This cannot be undone.`)) return;
+      if (!window.confirm(`FINAL WARNING: This will permanently delete ${count} user(s) and all their data. Proceed?`)) return;
+    } else {
+      if (!window.confirm(`Apply "${action}" to ${count} user(s)?`)) return;
+    }
+
+    try {
+      await adminAPI.bulkAction({ action, userIds });
+      toast.success(`Bulk ${action} applied to ${count} user(s)`);
+      setSelectedUsers(new Set());
+      fetchUsers();
+    } catch (err) {
+      toast.error(err.response?.data?.message || `Bulk ${action} failed`);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -173,23 +252,67 @@ const AdminUsers = () => {
           </p>
         </div>
 
-        {/* Search */}
-        <form onSubmit={handleSearch} className="flex gap-2">
-          <div className="relative">
-            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 w-5 h-5" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by email or name..."
-              className="pl-10 pr-4 py-2 w-64 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
-            />
-          </div>
-          <button type="submit" className="btn btn-primary">
-            Search
+        {/* Search + Add User */}
+        <div className="flex gap-2">
+          <form onSubmit={handleSearch} className="flex gap-2">
+            <div className="relative">
+              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 w-5 h-5" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search by email or name..."
+                className="pl-10 pr-4 py-2 w-64 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              />
+            </div>
+            <button type="submit" className="btn btn-primary">
+              Search
+            </button>
+          </form>
+          <button
+            onClick={() => setShowAddUserModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
+          >
+            <FiPlus className="w-4 h-4" />
+            Add User
           </button>
-        </form>
+        </div>
       </div>
+
+      {/* Bulk Action Bar */}
+      {selectedUsers.size > 0 && (
+        <div className="flex items-center gap-3 p-3 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/30 rounded-xl">
+          <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+            {selectedUsers.size} selected
+          </span>
+          <div className="flex gap-2 ml-auto">
+            <button
+              onClick={() => handleBulkAction('suspend')}
+              className="px-3 py-1.5 text-sm font-medium bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 rounded-lg hover:bg-amber-200 dark:hover:bg-amber-500/30 transition-colors"
+            >
+              Suspend
+            </button>
+            <button
+              onClick={() => handleBulkAction('unsuspend')}
+              className="px-3 py-1.5 text-sm font-medium bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 rounded-lg hover:bg-green-200 dark:hover:bg-green-500/30 transition-colors"
+            >
+              Unsuspend
+            </button>
+            <button
+              onClick={() => handleBulkAction('delete')}
+              className="px-3 py-1.5 text-sm font-medium bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-400 rounded-lg hover:bg-red-200 dark:hover:bg-red-500/30 transition-colors"
+            >
+              Delete
+            </button>
+            <button
+              onClick={() => setSelectedUsers(new Set())}
+              className="px-3 py-1.5 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
+            >
+              Clear
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Users Table */}
       <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
@@ -202,6 +325,14 @@ const AdminUsers = () => {
             <table className="w-full">
               <thead className="bg-zinc-100 dark:bg-zinc-800 border-b-2 border-zinc-300 dark:border-zinc-600">
                 <tr>
+                  <th className="px-4 py-4 w-10">
+                    <input
+                      type="checkbox"
+                      checked={users.length > 0 && selectedUsers.size === users.length}
+                      onChange={handleSelectAll}
+                      className="w-4 h-4 rounded border-zinc-300 dark:border-zinc-600 text-red-600 focus:ring-red-500"
+                    />
+                  </th>
                   <th className="text-left px-4 py-4 text-sm font-bold text-zinc-800 dark:text-white uppercase tracking-wide">User</th>
                   <th className="text-left px-4 py-4 text-sm font-bold text-zinc-800 dark:text-white uppercase tracking-wide">Subscription</th>
                   <th className="text-left px-4 py-4 text-sm font-bold text-zinc-800 dark:text-white uppercase tracking-wide">Companies</th>
@@ -214,13 +345,24 @@ const AdminUsers = () => {
                 {users.map((user) => (
                   <tr key={user._id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50">
                     <td className="px-4 py-4">
+                      <input
+                        type="checkbox"
+                        checked={selectedUsers.has(user._id)}
+                        onChange={() => handleSelectUser(user._id)}
+                        className="w-4 h-4 rounded border-zinc-300 dark:border-zinc-600 text-red-600 focus:ring-red-500"
+                      />
+                    </td>
+                    <td className="px-4 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center">
                           <FiUser className="w-5 h-5 text-zinc-600 dark:text-zinc-400" />
                         </div>
-                        <div>
+                        <div
+                          className="cursor-pointer"
+                          onClick={() => setDrawerUserId(user._id)}
+                        >
                           <div className="flex items-center gap-2">
-                            <p className="font-medium text-zinc-900 dark:text-white">
+                            <p className="font-medium text-zinc-900 dark:text-white hover:text-red-600 dark:hover:text-red-400 transition-colors">
                               {user.firstName} {user.lastName}
                             </p>
                             {user.isSuperAdmin && (
@@ -229,7 +371,7 @@ const AdminUsers = () => {
                               </span>
                             )}
                           </div>
-                          <p className="text-sm text-zinc-600 dark:text-zinc-400">{user.email}</p>
+                          <p className="text-sm text-zinc-600 dark:text-zinc-400 hover:text-red-500 dark:hover:text-red-300 transition-colors">{user.email}</p>
                         </div>
                       </div>
                     </td>
@@ -298,6 +440,13 @@ const AdminUsers = () => {
                             {user.isSuperAdmin ? 'Remove Admin' : 'Make Admin'}
                           </button>
                           <button
+                            onClick={() => handleForcePasswordReset(user)}
+                            className="w-full flex items-center gap-2 px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700"
+                          >
+                            <FiKey className="w-4 h-4" />
+                            Force Reset Password
+                          </button>
+                          <button
                             onClick={() => handleSuspend(user)}
                             className="w-full flex items-center gap-2 px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700"
                           >
@@ -356,6 +505,91 @@ const AdminUsers = () => {
           </div>
         )}
       </div>
+
+      {/* Add User Modal */}
+      <Modal
+        isOpen={showAddUserModal}
+        onClose={() => { setShowAddUserModal(false); setAddUserForm({ email: '', firstName: '', lastName: '', password: '', plan: 'free_trial' }); }}
+        title="Create New User"
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Email</label>
+            <input
+              type="email"
+              value={addUserForm.email}
+              onChange={(e) => setAddUserForm({ ...addUserForm, email: e.target.value })}
+              className="form-input"
+              placeholder="user@example.com"
+              disabled={addUserLoading}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">First Name</label>
+              <input
+                type="text"
+                value={addUserForm.firstName}
+                onChange={(e) => setAddUserForm({ ...addUserForm, firstName: e.target.value })}
+                className="form-input"
+                disabled={addUserLoading}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Last Name</label>
+              <input
+                type="text"
+                value={addUserForm.lastName}
+                onChange={(e) => setAddUserForm({ ...addUserForm, lastName: e.target.value })}
+                className="form-input"
+                disabled={addUserLoading}
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Password</label>
+            <input
+              type="password"
+              value={addUserForm.password}
+              onChange={(e) => setAddUserForm({ ...addUserForm, password: e.target.value })}
+              className="form-input"
+              placeholder="Min 8 characters"
+              disabled={addUserLoading}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Plan</label>
+            <select
+              value={addUserForm.plan}
+              onChange={(e) => setAddUserForm({ ...addUserForm, plan: e.target.value })}
+              className="form-input"
+              disabled={addUserLoading}
+            >
+              <option value="free_trial">Free Trial</option>
+              <option value="solo">Solo</option>
+              <option value="starter">Starter</option>
+              <option value="fleet">Fleet</option>
+              <option value="professional">Professional</option>
+            </select>
+          </div>
+          <div className="flex justify-end gap-3 pt-4">
+            <button
+              onClick={() => { setShowAddUserModal(false); setAddUserForm({ email: '', firstName: '', lastName: '', password: '', plan: 'free_trial' }); }}
+              className="btn btn-secondary"
+              disabled={addUserLoading}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleCreateUser}
+              className="btn btn-primary"
+              disabled={addUserLoading || !addUserForm.email || !addUserForm.firstName || !addUserForm.lastName || !addUserForm.password}
+            >
+              {addUserLoading ? 'Creating...' : 'Create User'}
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       {/* Subscription Modal */}
       <Modal
@@ -429,6 +663,18 @@ const AdminUsers = () => {
           </div>
         </div>
       </Modal>
+
+      {/* User Detail Drawer */}
+      {drawerUserId && (
+        <UserDetailDrawer
+          userId={drawerUserId}
+          onClose={() => setDrawerUserId(null)}
+          onUserUpdated={() => {
+            fetchUsers();
+            setDrawerUserId(null);
+          }}
+        />
+      )}
     </div>
   );
 };

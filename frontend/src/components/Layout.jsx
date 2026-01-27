@@ -3,6 +3,7 @@ import { Outlet, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import CompanySwitcher from './CompanySwitcher';
+import AnnouncementBanner from './AnnouncementBanner';
 import VroomXLogo from './VroomXLogo';
 import api from '../utils/api';
 import {
@@ -395,6 +396,9 @@ const Layout = () => {
             </div>
           </div>
         </header>
+
+        {/* Announcement Banner */}
+        <AnnouncementBanner />
 
         {/* Page content */}
         <main className="p-4 sm:p-6 lg:p-8">

@@ -29,6 +29,11 @@ api.interceptors.response.use(
       localStorage.removeItem('token');
       window.location.href = '/login';
     }
+    if (error.response?.status === 503 && error.response?.data?.code === 'MAINTENANCE_MODE') {
+      window.__maintenanceMode = true;
+      window.__maintenanceMessage = error.response.data.message;
+      window.dispatchEvent(new CustomEvent('maintenance-mode'));
+    }
     return Promise.reject(error);
   }
 );
@@ -370,6 +375,9 @@ export const adminAPI = {
   // Stats
   getStats: () => api.get('/admin/stats'),
 
+  // Analytics
+  getAnalytics: () => api.get('/admin/analytics'),
+
   // Users
   getUsers: (params) => api.get('/admin/users', { params }),
   getUser: (id) => api.get(`/admin/users/${id}`),
@@ -378,10 +386,46 @@ export const adminAPI = {
   impersonateUser: (id) => api.post(`/admin/users/${id}/impersonate`),
   updateSubscription: (id, data) => api.patch(`/admin/users/${id}/subscription`, data),
 
+  // User Power Tools
+  createUser: (data) => api.post('/admin/users', data),
+  forcePasswordReset: (id) => api.post(`/admin/users/${id}/force-reset`),
+  getLoginHistory: (id) => api.get(`/admin/users/${id}/login-history`),
+  getUserAuditLog: (id) => api.get(`/admin/users/${id}/audit-log`),
+  bulkAction: (data) => api.post('/admin/users/bulk', data),
+
   // Companies
   getCompanies: (params) => api.get('/admin/companies', { params }),
   getCompany: (id) => api.get(`/admin/companies/${id}`),
   deleteCompany: (id) => api.delete(`/admin/companies/${id}`),
+
+  // Company Power Tools
+  updateCompany: (id, data) => api.patch(`/admin/companies/${id}`, data),
+  removeCompanyMember: (companyId, userId) => api.delete(`/admin/companies/${companyId}/members/${userId}`),
+  updateCompanyMemberRole: (companyId, userId, data) => api.patch(`/admin/companies/${companyId}/members/${userId}`, data),
+
+  // System & Operations
+  getSystemHealth: () => api.get('/admin/system'),
+  getEmails: (params) => api.get('/admin/emails', { params }),
+  getEmail: (id) => api.get(`/admin/emails/${id}`),
+  getEmailStats: () => api.get('/admin/emails/stats'),
+
+  // Announcements
+  getAnnouncements: (params) => api.get('/admin/announcements', { params }),
+  createAnnouncement: (data) => api.post('/admin/announcements', data),
+  updateAnnouncement: (id, data) => api.put(`/admin/announcements/${id}`, data),
+  toggleAnnouncement: (id) => api.patch(`/admin/announcements/${id}/toggle`),
+  deleteAnnouncement: (id) => api.delete(`/admin/announcements/${id}`),
+
+  // Feature Flags
+  getFeatureFlags: () => api.get('/admin/features'),
+  createFeatureFlag: (data) => api.post('/admin/features', data),
+  updateFeatureFlag: (id, data) => api.put(`/admin/features/${id}`, data),
+  toggleFeatureFlag: (id) => api.patch(`/admin/features/${id}/toggle`),
+  deleteFeatureFlag: (id) => api.delete(`/admin/features/${id}`),
+
+  // Maintenance
+  getMaintenanceStatus: () => api.get('/admin/maintenance'),
+  setMaintenanceMode: (data) => api.post('/admin/maintenance', data),
 
   // Audit Logs
   getAuditLogs: (params) => api.get('/audit', { params }),
@@ -392,4 +436,9 @@ export const adminAPI = {
 export const auditAPI = {
   getLogs: (params) => api.get('/audit', { params }),
   exportLogs: (params) => api.get('/audit/export', { params, responseType: 'blob' }),
+};
+
+// Announcements API - Public announcements
+export const announcementsAPI = {
+  getActive: () => api.get('/announcements/active'),
 };

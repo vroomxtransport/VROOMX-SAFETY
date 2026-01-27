@@ -4,12 +4,12 @@ const auditLogSchema = new mongoose.Schema({
   action: {
     type: String,
     required: true,
-    enum: ['create', 'update', 'delete', 'login', 'logout', 'password_change', 'role_change', 'impersonate', 'invite', 'export', 'upload']
+    enum: ['create', 'update', 'delete', 'login', 'logout', 'password_change', 'role_change', 'impersonate', 'invite', 'export', 'upload', 'bulk_action', 'force_reset', 'toggle']
   },
   resource: {
     type: String,
     required: true,
-    enum: ['driver', 'vehicle', 'violation', 'document', 'drug_alcohol_test', 'accident', 'ticket', 'damage_claim', 'maintenance', 'checklist', 'task', 'user', 'company', 'alert', 'invitation', 'subscription']
+    enum: ['driver', 'vehicle', 'violation', 'document', 'drug_alcohol_test', 'accident', 'ticket', 'damage_claim', 'maintenance', 'checklist', 'task', 'user', 'company', 'alert', 'invitation', 'subscription', 'announcement', 'feature_flag', 'system_config', 'email']
   },
   resourceId: {
     type: mongoose.Schema.Types.ObjectId

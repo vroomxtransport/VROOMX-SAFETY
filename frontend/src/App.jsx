@@ -1,6 +1,7 @@
 import { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
+import { FeatureFlagProvider } from './context/FeatureFlagContext';
 import Layout from './components/Layout';
 import Landing from './pages/Landing';
 import Blog from './pages/Blog';
@@ -45,6 +46,9 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminCompanies from './pages/admin/AdminCompanies';
 import AdminAuditLogs from './pages/admin/AdminAuditLogs';
+import AdminEmails from './pages/admin/AdminEmails';
+import AdminAnnouncements from './pages/admin/AdminAnnouncements';
+import AdminFeatureFlags from './pages/admin/AdminFeatureFlags';
 
 // Design Demos
 import EnterpriseDemo from './pages/designs/EnterpriseDemo';
@@ -131,7 +135,7 @@ function App() {
   const { isAuthenticated } = useAuth();
 
   return (
-    <>
+    <FeatureFlagProvider>
       <Routes>
         {/* Landing page - public, redirects to dashboard if logged in */}
         <Route
@@ -252,6 +256,9 @@ function App() {
           <Route index element={<AdminDashboard />} />
           <Route path="users" element={<AdminUsers />} />
           <Route path="companies" element={<AdminCompanies />} />
+          <Route path="emails" element={<AdminEmails />} />
+          <Route path="announcements" element={<AdminAnnouncements />} />
+          <Route path="features" element={<AdminFeatureFlags />} />
           <Route path="audit-logs" element={<AdminAuditLogs />} />
         </Route>
 
@@ -261,7 +268,7 @@ function App() {
 
       {/* Floating AI Chat Widget - only show when authenticated */}
       {isAuthenticated && <ChatWidget />}
-    </>
+    </FeatureFlagProvider>
   );
 }
 

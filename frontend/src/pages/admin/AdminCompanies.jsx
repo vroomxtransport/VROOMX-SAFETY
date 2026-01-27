@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { adminAPI } from '../../utils/api';
 import {
   FiSearch, FiBriefcase, FiUsers, FiTruck, FiUserCheck,
-  FiChevronLeft, FiChevronRight, FiExternalLink, FiTrash2
+  FiChevronLeft, FiChevronRight, FiExternalLink, FiTrash2,
+  FiEdit, FiUserMinus, FiToggleLeft, FiToggleRight
 } from 'react-icons/fi';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import Modal from '../../components/Modal';
@@ -17,6 +18,15 @@ const AdminCompanies = () => {
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
+
+  // Edit company modal
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editForm, setEditForm] = useState({ name: '', mcNumber: '', phone: '', address: '' });
+  const [editLoading, setEditLoading] = useState(false);
+
+  // Member management
+  const [memberRoleLoading, setMemberRoleLoading] = useState(null);
+  const [memberRemoveLoading, setMemberRemoveLoading] = useState(null);
 
   useEffect(() => {
     fetchCompanies();
@@ -68,6 +78,81 @@ const AdminCompanies = () => {
   const closeDetailModal = () => {
     setShowDetailModal(false);
     setSelectedCompany(null);
+  };
+
+  const openEditModal = (company) => {
+    setEditForm({
+      name: company.name || '',
+      mcNumber: company.mcNumber || '',
+      phone: company.phone || '',
+      address: company.address || ''
+    });
+    setShowEditModal(true);
+  };
+
+  const handleEditCompany = async () => {
+    try {
+      setEditLoading(true);
+      await adminAPI.updateCompany(selectedCompany._id, editForm);
+      toast.success('Company updated successfully');
+      setShowEditModal(false);
+      // Refresh the detail modal data
+      const response = await adminAPI.getCompany(selectedCompany._id);
+      setSelectedCompany(response.data.company);
+      fetchCompanies();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to update company');
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  const handleToggleCompanyStatus = async (company) => {
+    const newActive = !company.isActive;
+    if (!window.confirm(`Are you sure you want to ${newActive ? 'activate' : 'deactivate'} "${company.name}"?`)) return;
+
+    try {
+      await adminAPI.updateCompany(company._id, { isActive: newActive });
+      toast.success(`Company ${newActive ? 'activated' : 'deactivated'} successfully`);
+      // Refresh detail modal data
+      const response = await adminAPI.getCompany(company._id);
+      setSelectedCompany(response.data.company);
+      fetchCompanies();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to update company status');
+    }
+  };
+
+  const handleMemberRoleChange = async (memberId, newRole) => {
+    try {
+      setMemberRoleLoading(memberId);
+      await adminAPI.updateCompanyMemberRole(selectedCompany._id, memberId, { role: newRole });
+      toast.success('Member role updated');
+      // Refresh
+      const response = await adminAPI.getCompany(selectedCompany._id);
+      setSelectedCompany(response.data.company);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to update role');
+    } finally {
+      setMemberRoleLoading(null);
+    }
+  };
+
+  const handleRemoveMember = async (memberId, memberEmail) => {
+    if (!window.confirm(`Are you sure you want to remove ${memberEmail} from this company?`)) return;
+
+    try {
+      setMemberRemoveLoading(memberId);
+      await adminAPI.removeCompanyMember(selectedCompany._id, memberId);
+      toast.success('Member removed from company');
+      // Refresh
+      const response = await adminAPI.getCompany(selectedCompany._id);
+      setSelectedCompany(response.data.company);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to remove member');
+    } finally {
+      setMemberRemoveLoading(null);
+    }
   };
 
   const handleDeleteCompany = async (company) => {
@@ -131,6 +216,7 @@ const AdminCompanies = () => {
                   <th className="text-left px-4 py-4 text-sm font-bold text-zinc-800 dark:text-white uppercase tracking-wide">Drivers</th>
                   <th className="text-left px-4 py-4 text-sm font-bold text-zinc-800 dark:text-white uppercase tracking-wide">Vehicles</th>
                   <th className="text-left px-4 py-4 text-sm font-bold text-zinc-800 dark:text-white uppercase tracking-wide">Created</th>
+                  <th className="text-left px-4 py-4 text-sm font-bold text-zinc-800 dark:text-white uppercase tracking-wide">Status</th>
                   <th className="text-right px-4 py-4 text-sm font-bold text-zinc-800 dark:text-white uppercase tracking-wide">Actions</th>
                 </tr>
               </thead>
@@ -175,6 +261,15 @@ const AdminCompanies = () => {
                     </td>
                     <td className="px-4 py-4 text-sm text-zinc-600 dark:text-zinc-400">
                       {new Date(company.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-4 py-4">
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        company.isActive !== false
+                          ? 'bg-green-100 dark:bg-green-500/20 text-green-600 dark:text-green-400'
+                          : 'bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400'
+                      }`}>
+                        {company.isActive !== false ? 'Active' : 'Inactive'}
+                      </span>
                     </td>
                     <td className="px-4 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
@@ -237,26 +332,62 @@ const AdminCompanies = () => {
       >
         {selectedCompany ? (
           <div className="space-y-6">
-            {/* Company Info */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm text-zinc-600 dark:text-zinc-400">Company Name</label>
-                <p className="font-medium text-zinc-900 dark:text-white">{selectedCompany.name}</p>
+            {/* Company Info + Edit/Status Actions */}
+            <div className="flex items-start justify-between">
+              <div className="grid grid-cols-2 gap-4 flex-1">
+                <div>
+                  <label className="text-sm text-zinc-600 dark:text-zinc-400">Company Name</label>
+                  <p className="font-medium text-zinc-900 dark:text-white">{selectedCompany.name}</p>
+                </div>
+                <div>
+                  <label className="text-sm text-zinc-600 dark:text-zinc-400">DOT Number</label>
+                  <p className="font-mono font-medium text-zinc-900 dark:text-white">{selectedCompany.dotNumber || '-'}</p>
+                </div>
+                <div>
+                  <label className="text-sm text-zinc-600 dark:text-zinc-400">MC Number</label>
+                  <p className="font-mono font-medium text-zinc-900 dark:text-white">{selectedCompany.mcNumber || '-'}</p>
+                </div>
+                <div>
+                  <label className="text-sm text-zinc-600 dark:text-zinc-400">Created</label>
+                  <p className="font-medium text-zinc-900 dark:text-white">
+                    {new Date(selectedCompany.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
               </div>
-              <div>
-                <label className="text-sm text-zinc-600 dark:text-zinc-400">DOT Number</label>
-                <p className="font-mono font-medium text-zinc-900 dark:text-white">{selectedCompany.dotNumber || '-'}</p>
+              <div className="flex flex-col gap-2 ml-4">
+                <button
+                  onClick={() => openEditModal(selectedCompany)}
+                  className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-500/30 transition-colors"
+                >
+                  <FiEdit className="w-4 h-4" />
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleToggleCompanyStatus(selectedCompany)}
+                  className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                    selectedCompany.isActive !== false
+                      ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-500/30'
+                      : 'bg-green-100 dark:bg-green-500/20 text-green-600 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-500/30'
+                  }`}
+                >
+                  {selectedCompany.isActive !== false ? (
+                    <><FiToggleRight className="w-4 h-4" /> Deactivate</>
+                  ) : (
+                    <><FiToggleLeft className="w-4 h-4" /> Activate</>
+                  )}
+                </button>
               </div>
-              <div>
-                <label className="text-sm text-zinc-600 dark:text-zinc-400">MC Number</label>
-                <p className="font-mono font-medium text-zinc-900 dark:text-white">{selectedCompany.mcNumber || '-'}</p>
-              </div>
-              <div>
-                <label className="text-sm text-zinc-600 dark:text-zinc-400">Created</label>
-                <p className="font-medium text-zinc-900 dark:text-white">
-                  {new Date(selectedCompany.createdAt).toLocaleDateString()}
-                </p>
-              </div>
+            </div>
+
+            {/* Status Badge */}
+            <div>
+              <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${
+                selectedCompany.isActive !== false
+                  ? 'bg-green-100 dark:bg-green-500/20 text-green-600 dark:text-green-400'
+                  : 'bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400'
+              }`}>
+                {selectedCompany.isActive !== false ? 'Active' : 'Inactive'}
+              </span>
             </div>
 
             {/* Stats */}
@@ -275,7 +406,7 @@ const AdminCompanies = () => {
               </div>
             </div>
 
-            {/* Members List */}
+            {/* Members List with Role Management */}
             {selectedCompany.members && selectedCompany.members.length > 0 && (
               <div>
                 <h3 className="font-semibold text-zinc-900 dark:text-white mb-3">Members</h3>
@@ -285,17 +416,35 @@ const AdminCompanies = () => {
                       key={member._id}
                       className="flex items-center justify-between p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800"
                     >
-                      <div>
+                      <div className="min-w-0 flex-1">
                         <p className="font-medium text-zinc-900 dark:text-white">{member.name}</p>
-                        <p className="text-sm text-zinc-600 dark:text-zinc-400">{member.email}</p>
-                      </div>
-                      <div className="text-right">
-                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 capitalize">
-                          {member.role}
-                        </span>
-                        <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1">
+                        <p className="text-sm text-zinc-600 dark:text-zinc-400 truncate">{member.email}</p>
+                        <p className="text-xs text-zinc-500 dark:text-zinc-500 mt-0.5">
                           {member.subscription?.plan || 'no plan'} / {member.subscription?.status || 'none'}
                         </p>
+                      </div>
+                      <div className="flex items-center gap-2 ml-3">
+                        <select
+                          value={member.role || 'viewer'}
+                          onChange={(e) => handleMemberRoleChange(member._id, e.target.value)}
+                          disabled={memberRoleLoading === member._id}
+                          className="text-xs px-2 py-1 rounded border border-zinc-200 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300 focus:ring-1 focus:ring-red-500"
+                        >
+                          <option value="owner">Owner</option>
+                          <option value="admin">Admin</option>
+                          <option value="safety_manager">Safety Manager</option>
+                          <option value="dispatcher">Dispatcher</option>
+                          <option value="driver">Driver</option>
+                          <option value="viewer">Viewer</option>
+                        </select>
+                        <button
+                          onClick={() => handleRemoveMember(member._id, member.email)}
+                          disabled={memberRemoveLoading === member._id}
+                          className="p-1.5 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-500/10 rounded transition-colors disabled:opacity-50"
+                          title="Remove member"
+                        >
+                          <FiUserMinus className="w-4 h-4" />
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -319,6 +468,84 @@ const AdminCompanies = () => {
             <LoadingSpinner size="lg" />
           </div>
         )}
+      </Modal>
+
+      {/* Edit Company Modal */}
+      <Modal
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        title="Edit Company"
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Company Name</label>
+            <input
+              type="text"
+              value={editForm.name}
+              onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+              className="form-input"
+              disabled={editLoading}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">DOT Number</label>
+            <input
+              type="text"
+              value={selectedCompany?.dotNumber || ''}
+              className="form-input bg-zinc-100 dark:bg-zinc-800 cursor-not-allowed"
+              disabled
+            />
+            <p className="text-xs text-zinc-500 dark:text-zinc-500 mt-1">DOT number cannot be changed after creation.</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">MC Number</label>
+            <input
+              type="text"
+              value={editForm.mcNumber}
+              onChange={(e) => setEditForm({ ...editForm, mcNumber: e.target.value })}
+              className="form-input"
+              disabled={editLoading}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Phone</label>
+            <input
+              type="text"
+              value={editForm.phone}
+              onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+              className="form-input"
+              placeholder="(555) 123-4567"
+              disabled={editLoading}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Address</label>
+            <input
+              type="text"
+              value={editForm.address}
+              onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+              className="form-input"
+              placeholder="123 Main St, City, State"
+              disabled={editLoading}
+            />
+          </div>
+          <div className="flex justify-end gap-3 pt-4">
+            <button
+              onClick={() => setShowEditModal(false)}
+              className="btn btn-secondary"
+              disabled={editLoading}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleEditCompany}
+              className="btn btn-primary"
+              disabled={editLoading || !editForm.name}
+            >
+              {editLoading ? 'Saving...' : 'Save Changes'}
+            </button>
+          </div>
+        </div>
       </Modal>
     </div>
   );
