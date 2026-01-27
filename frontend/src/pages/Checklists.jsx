@@ -95,7 +95,6 @@ const Checklists = () => {
       const response = await checklistsAPI.getStats();
       setStats(response.data.stats);
     } catch (error) {
-      console.error('Failed to fetch stats');
     }
   };
 
@@ -112,7 +111,6 @@ const Checklists = () => {
         setTemplates(templatesRes.data.templates);
       }
     } catch (error) {
-      console.error('Failed to fetch related data');
     }
   };
 

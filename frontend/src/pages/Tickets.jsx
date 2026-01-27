@@ -62,7 +62,6 @@ const Tickets = () => {
       const response = await ticketsAPI.getStats();
       setStats(response.data.stats);
     } catch (error) {
-      console.error('Failed to fetch stats');
     }
   };
 
@@ -71,7 +70,6 @@ const Tickets = () => {
       const response = await ticketsAPI.getUpcomingCourt();
       setUpcomingCourt(response.data.tickets);
     } catch (error) {
-      console.error('Failed to fetch upcoming court dates');
     }
   };
 
@@ -80,7 +78,6 @@ const Tickets = () => {
       const response = await driversAPI.getAll({ status: 'active', limit: 100 });
       setDrivers(response.data.drivers);
     } catch (error) {
-      console.error('Failed to fetch drivers');
     }
   };
 

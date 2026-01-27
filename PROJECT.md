@@ -231,6 +231,24 @@ npm run dev  # Starts on port 5173
   - Lines 48, 60, 72: Changed `currentUsage?.companies` to `currentUsage?.companies?.owned`, etc.
 - **Added:** PROJECT.md - Comprehensive project documentation
 
+### 2026-01-27 (Bug Fixes & Polish)
+- **Fix:** Restored `database.js` crash-on-failure behavior - was silently continuing without MongoDB connection
+  - File: `backend/config/database.js`
+- **Fix:** Accidents route using wrong permission module (`violations` instead of `accidents`) across all 6 handlers
+  - File: `backend/routes/accidents.js`
+- **Fix:** Dynamic Tailwind classes on Landing page badges not compiling (`bg-${var}-50` pattern)
+  - File: `frontend/src/pages/Landing.jsx` - replaced with static class maps
+- **Fix:** Auth redirect pointing to `/dashboard` instead of `/app/dashboard`
+  - File: `frontend/src/App.jsx`
+- **Cleanup:** Removed 35 console.log/console.error statements leaking debug info in production
+  - Files: 16 frontend files (AuthContext, Reports, Register, Tickets, Tasks, Maintenance, CSAEstimator, DrugAlcohol, Settings, Documents, Accidents, AlertsDashboard, Violations, Checklists, DamageClaims, CompanySwitcher)
+- **Polish:** Search input now responsive (`w-40 lg:w-64` instead of fixed `w-64`)
+  - File: `frontend/src/components/Layout.jsx`
+- **A11y:** Added ARIA labels to search input and notifications button
+  - File: `frontend/src/components/Layout.jsx`
+- **Docs:** Updated `.env.example` with 11 missing production variables (Stripe, AI, JWT refresh, frontend URL)
+  - File: `backend/.env.example`
+
 ### 2026-01-26
 - **Fix:** Free trial usage display showed ∞ instead of 1 for driver/vehicle limits
   - File: `backend/middleware/subscriptionLimits.js` (lines 234, 238)

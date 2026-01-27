@@ -12,7 +12,7 @@ router.use(restrictToCompany);
 // @route   GET /api/accidents
 // @desc    Get all accidents
 // @access  Private
-router.get('/', checkPermission('violations', 'view'), asyncHandler(async (req, res) => {
+router.get('/', checkPermission('accidents', 'view'), asyncHandler(async (req, res) => {
   const { severity, isDotRecordable, driverId, startDate, endDate, page = 1, limit = 20, sort = '-accidentDate' } = req.query;
 
   const queryObj = { ...req.companyFilter };
@@ -50,7 +50,7 @@ router.get('/', checkPermission('violations', 'view'), asyncHandler(async (req, 
 // @route   GET /api/accidents/stats
 // @desc    Get accident statistics
 // @access  Private
-router.get('/stats', checkPermission('violations', 'view'), asyncHandler(async (req, res) => {
+router.get('/stats', checkPermission('accidents', 'view'), asyncHandler(async (req, res) => {
   const threeYearsAgo = new Date();
   threeYearsAgo.setFullYear(threeYearsAgo.getFullYear() - 3);
 
@@ -90,7 +90,7 @@ router.get('/stats', checkPermission('violations', 'view'), asyncHandler(async (
 // @route   GET /api/accidents/:id
 // @desc    Get single accident
 // @access  Private
-router.get('/:id', checkPermission('violations', 'view'), asyncHandler(async (req, res) => {
+router.get('/:id', checkPermission('accidents', 'view'), asyncHandler(async (req, res) => {
   const accident = await Accident.findOne({
     _id: req.params.id,
     ...req.companyFilter
@@ -112,7 +112,7 @@ router.get('/:id', checkPermission('violations', 'view'), asyncHandler(async (re
 // @route   POST /api/accidents
 // @desc    Create new accident record
 // @access  Private
-router.post('/', checkPermission('violations', 'edit'), [
+router.post('/', checkPermission('accidents', 'edit'), [
   body('accidentDate').isISO8601(),
   body('driverId').isMongoId(),
   body('vehicleId').isMongoId(),
@@ -140,7 +140,7 @@ router.post('/', checkPermission('violations', 'edit'), [
 // @route   PUT /api/accidents/:id
 // @desc    Update accident
 // @access  Private
-router.put('/:id', checkPermission('violations', 'edit'), asyncHandler(async (req, res) => {
+router.put('/:id', checkPermission('accidents', 'edit'), asyncHandler(async (req, res) => {
   let accident = await Accident.findOne({
     _id: req.params.id,
     ...req.companyFilter
@@ -167,7 +167,7 @@ router.put('/:id', checkPermission('violations', 'edit'), asyncHandler(async (re
 // @route   POST /api/accidents/:id/documents
 // @desc    Upload accident documents
 // @access  Private
-router.post('/:id/documents', checkPermission('violations', 'edit'),
+router.post('/:id/documents', checkPermission('accidents', 'edit'),
   uploadMultiple('documents', 10),
   asyncHandler(async (req, res) => {
     const accident = await Accident.findOne({
@@ -199,7 +199,7 @@ router.post('/:id/documents', checkPermission('violations', 'edit'),
 // @route   POST /api/accidents/:id/investigation
 // @desc    Record investigation findings
 // @access  Private
-router.post('/:id/investigation', checkPermission('violations', 'edit'), asyncHandler(async (req, res) => {
+router.post('/:id/investigation', checkPermission('accidents', 'edit'), asyncHandler(async (req, res) => {
   const accident = await Accident.findOne({
     _id: req.params.id,
     ...req.companyFilter

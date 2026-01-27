@@ -72,7 +72,6 @@ const Tasks = () => {
       const response = await tasksAPI.getStats();
       setStats(response.data.stats);
     } catch (error) {
-      console.error('Failed to fetch stats');
     }
   };
 
@@ -85,7 +84,6 @@ const Tasks = () => {
       setDrivers(driversRes.data.drivers);
       setVehicles(vehiclesRes.data.vehicles);
     } catch (error) {
-      console.error('Failed to fetch related data');
     }
   };
 

@@ -63,7 +63,6 @@ const DrugAlcohol = () => {
       const response = await drugAlcoholAPI.getStats();
       setStats(response.data.stats);
     } catch (error) {
-      console.error('Failed to fetch stats');
     }
   };
 
@@ -72,7 +71,6 @@ const DrugAlcohol = () => {
       const response = await driversAPI.getAll({ status: 'active', limit: 100 });
       setDrivers(response.data.drivers);
     } catch (error) {
-      console.error('Failed to fetch drivers');
     }
   };
 

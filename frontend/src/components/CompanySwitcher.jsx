@@ -34,7 +34,6 @@ const CompanySwitcher = () => {
       // Reload the page to refresh all data
       window.location.reload();
     } catch (error) {
-      console.error('Failed to switch company:', error);
     } finally {
       setSwitching(false);
     }

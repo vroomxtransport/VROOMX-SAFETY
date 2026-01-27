@@ -49,7 +49,6 @@ const AlertsDashboard = () => {
       await alertsAPI.generate();
       await fetchData();
     } catch (err) {
-      console.error('Failed to refresh alerts:', err);
     } finally {
       setRefreshing(false);
     }
@@ -65,7 +64,6 @@ const AlertsDashboard = () => {
       setDismissReason('');
       await fetchData();
     } catch (err) {
-      console.error('Failed to dismiss alert:', err);
     } finally {
       setDismissingId(null);
     }

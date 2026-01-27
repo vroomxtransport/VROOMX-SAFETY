@@ -54,7 +54,6 @@ const CSAEstimator = () => {
       const response = await csaAPI.projectImpact(whatIfData);
       setWhatIfResult(response.data);
     } catch (err) {
-      console.error('Failed to project impact:', err);
     } finally {
       setProjecting(false);
     }

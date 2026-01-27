@@ -84,7 +84,6 @@ const Maintenance = () => {
             setSearchParams({});
           }
         } catch (error) {
-          console.error('Error fetching record:', error);
           toast.error('Could not find the maintenance record');
           setSearchParams({});
         }
@@ -118,7 +117,6 @@ const Maintenance = () => {
       const response = await maintenanceAPI.getStats();
       setStats(response.data.stats);
     } catch (error) {
-      console.error('Failed to fetch stats');
     }
   };
 
@@ -127,7 +125,6 @@ const Maintenance = () => {
       const response = await vehiclesAPI.getAll({ limit: 100 });
       setVehicles(response.data.vehicles);
     } catch (error) {
-      console.error('Failed to fetch vehicles');
     }
   };
 
@@ -236,7 +233,6 @@ const Maintenance = () => {
         toast.error('Could not extract data from the document');
       }
     } catch (error) {
-      console.error('Smart upload error:', error);
       toast.error('Failed to process document');
     } finally {
       setSmartUploading(false);

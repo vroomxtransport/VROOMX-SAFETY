@@ -68,7 +68,6 @@ const Reports = () => {
         toast.success('Report downloaded successfully');
       } else {
         // JSON preview could be shown in a modal
-        console.log(response.data);
         toast.success('Report data retrieved');
       }
     } catch (error) {

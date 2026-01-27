@@ -63,7 +63,6 @@ const DamageClaims = () => {
       const response = await damageClaimsAPI.getStats();
       setStats(response.data.stats);
     } catch (error) {
-      console.error('Failed to fetch stats');
     }
   };
 
@@ -72,7 +71,6 @@ const DamageClaims = () => {
       const response = await driversAPI.getAll({ status: 'active', limit: 100 });
       setDrivers(response.data.drivers);
     } catch (error) {
-      console.error('Failed to fetch drivers');
     }
   };
 
@@ -81,7 +79,6 @@ const DamageClaims = () => {
       const response = await vehiclesAPI.getAll({ status: 'active', limit: 100 });
       setVehicles(response.data.vehicles);
     } catch (error) {
-      console.error('Failed to fetch vehicles');
     }
   };
 

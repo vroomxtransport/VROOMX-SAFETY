@@ -66,7 +66,6 @@ const Documents = () => {
       const response = await documentsAPI.getStats();
       setStats(response.data.stats);
     } catch (error) {
-      console.error('Failed to fetch stats');
     }
   };
 
@@ -75,7 +74,6 @@ const Documents = () => {
       const response = await documentsAPI.getExpiring(30);
       setExpiring(response.data);
     } catch (error) {
-      console.error('Failed to fetch expiring docs');
     }
   };
 

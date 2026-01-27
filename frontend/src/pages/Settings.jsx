@@ -95,7 +95,6 @@ const Settings = () => {
       setSentInvitations(sentRes.data.invitations || []);
       setPendingInvitations(pendingRes.data.invitations || []);
     } catch (error) {
-      console.error('Failed to load company data:', error);
     }
   };
 
@@ -104,7 +103,6 @@ const Settings = () => {
       const response = await billingAPI.getSubscription();
       setCurrentUsage(response.data.usage);
     } catch (error) {
-      console.error('Failed to load billing data:', error);
     }
   };
 

@@ -81,7 +81,6 @@ const Violations = () => {
       const response = await violationsAPI.getStats();
       setStats(response.data.stats);
     } catch (error) {
-      console.error('Failed to fetch stats');
     }
   };
 
@@ -94,7 +93,6 @@ const Violations = () => {
       setDrivers(driversRes.data.drivers);
       setVehicles(vehiclesRes.data.vehicles);
     } catch (error) {
-      console.error('Failed to fetch drivers/vehicles');
     }
   };
 

@@ -64,14 +64,14 @@ const Landing = () => {
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16">
             {[
-              { Icon: FiLock, title: 'SSL Secure', subtitle: '256-bit encryption', bg: 'success' },
-              { Icon: FiDatabase, title: 'FMCSA Data', subtitle: 'Official SMS source', bg: 'primary' },
-              { Icon: FiAward, title: 'SOC2 Compliant', subtitle: 'Enterprise security', bg: 'cta' },
-              { Icon: FiHeadphones, title: 'US Support', subtitle: 'Real humans, fast', bg: 'purple' }
+              { Icon: FiLock, title: 'SSL Secure', subtitle: '256-bit encryption', bgClass: 'bg-green-50', textClass: 'text-green-500' },
+              { Icon: FiDatabase, title: 'FMCSA Data', subtitle: 'Official SMS source', bgClass: 'bg-blue-50', textClass: 'text-blue-500' },
+              { Icon: FiAward, title: 'SOC2 Compliant', subtitle: 'Enterprise security', bgClass: 'bg-orange-50', textClass: 'text-orange-500' },
+              { Icon: FiHeadphones, title: 'US Support', subtitle: 'Real humans, fast', bgClass: 'bg-purple-50', textClass: 'text-purple-500' }
             ].map((badge, i) => (
               <div key={i} className="flex items-center gap-3 text-zinc-600">
-                <div className={`w-10 h-10 rounded-full bg-${badge.bg}-50 flex items-center justify-center`}>
-                  <badge.Icon className={`w-5 h-5 text-${badge.bg}-500`} />
+                <div className={`w-10 h-10 rounded-full ${badge.bgClass} flex items-center justify-center`}>
+                  <badge.Icon className={`w-5 h-5 ${badge.textClass}`} />
                 </div>
                 <div>
                   <div className="text-sm font-bold text-zinc-800">{badge.title}</div>

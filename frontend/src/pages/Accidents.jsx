@@ -130,7 +130,6 @@ const Accidents = () => {
       const response = await accidentsAPI.getStats();
       setStats(response.data.stats);
     } catch (error) {
-      console.error('Failed to fetch stats');
     }
   };
 
@@ -143,7 +142,6 @@ const Accidents = () => {
       setDrivers(driversRes.data.drivers);
       setVehicles(vehiclesRes.data.vehicles);
     } catch (error) {
-      console.error('Failed to fetch related data');
     }
   };
 

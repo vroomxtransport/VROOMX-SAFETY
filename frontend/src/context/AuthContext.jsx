@@ -35,7 +35,6 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
       setCompanies(userData.companies || []);
       setActiveCompany(userData.activeCompany || userData.company);
-      console.log('fetchUser - subscription from backend:', userData.subscription);
       setSubscription({
         plan: userData.subscription?.plan || null,
         status: userData.subscription?.status || null,
@@ -47,7 +46,6 @@ export const AuthProvider = ({ children }) => {
         usage: userData.usage
       });
     } catch (error) {
-      console.error('Failed to fetch user:', error);
       logout();
     } finally {
       setLoading(false);
@@ -64,7 +62,6 @@ export const AuthProvider = ({ children }) => {
     setUser(userData);
     setCompanies(userData.companies || []);
     setActiveCompany(userData.activeCompany || userData.company);
-    console.log('login - subscription from backend:', userData.subscription);
     setSubscription({
       plan: userData.subscription?.plan || null,
       status: userData.subscription?.status || null,
@@ -93,7 +90,6 @@ export const AuthProvider = ({ children }) => {
     setUser(userData);
     setCompanies(userData.companies || []);
     setActiveCompany(userData.activeCompany || userData.company);
-    console.log('register - subscription from backend:', userData.subscription);
     setSubscription({
       plan: userData.subscription?.plan || null,
       status: userData.subscription?.status || null,
@@ -135,7 +131,6 @@ export const AuthProvider = ({ children }) => {
 
       return company;
     } catch (error) {
-      console.error('Failed to switch company:', error);
       throw error;
     }
   }, []);

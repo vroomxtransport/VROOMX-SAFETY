@@ -69,7 +69,6 @@ const Register = () => {
         setFmcsaData(null);
       }
     } catch (error) {
-      console.error('DOT lookup error:', error);
       if (error.response?.status === 404) {
         setDotLookupStatus('not_found');
       } else {
