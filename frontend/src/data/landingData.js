@@ -184,16 +184,16 @@ export const pricingPlans = [
   {
     name: 'Pro',
     subtitle: 'For Growing Fleets (10-50 drivers)',
-    monthlyPrice: 79,
-    annualPrice: 63,
+    monthlyPrice: 89,
+    annualPrice: 71,
     drivers: '10 drivers included',
     extraDriver: '+$5/driver after 10',
     features: [
       'Everything in Fleet',
       '10 drivers included',
+      'Unlimited Companies',
       'Advanced CSA Analytics',
-      'Custom Reports',
-      'API Access',
+      'Custom Reports & API Access',
       'Dedicated Support'
     ],
     popular: false,
