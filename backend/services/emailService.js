@@ -108,6 +108,29 @@ const emailService = {
 
       const result = await resend.emails.send(payload);
 
+      // Resend SDK v2+ returns { data, error } without throwing
+      if (result?.error) {
+        const errMsg = result.error.message || JSON.stringify(result.error);
+        console.error(`[EmailService] Resend rejected "${subject}" to ${to}:`, errMsg);
+        try {
+          await EmailLog.create({
+            to: Array.isArray(to) ? to.join(', ') : to,
+            from: FROM,
+            subject,
+            templateName,
+            category,
+            userId,
+            companyId,
+            metadata,
+            status: 'failed',
+            error: errMsg,
+          });
+        } catch (logErr) {
+          console.error('[EmailService] Failed to write EmailLog:', logErr.message);
+        }
+        return null;
+      }
+
       // Log success
       try {
         await EmailLog.create({
@@ -374,7 +397,7 @@ const emailService = {
 
     const recipient = toEmail || user.email;
 
-    return this.send({
+    const emailPayload = {
       to: recipient,
       subject: `Your Report: ${reportName}`,
       templateName: 'report',
@@ -384,13 +407,18 @@ const emailService = {
       },
       category: 'report',
       userId: user._id,
-      attachments: [
+    };
+
+    if (pdfBuffer) {
+      emailPayload.attachments = [
         {
           filename: `${reportName.replace(/[^a-zA-Z0-9_-]/g, '_')}.pdf`,
           content: pdfBuffer,
         },
-      ],
-    });
+      ];
+    }
+
+    return this.send(emailPayload);
   },
 
   /**
