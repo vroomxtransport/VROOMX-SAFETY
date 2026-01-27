@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authAPI } from '../utils/api';
 import toast from 'react-hot-toast';
-import { FiMail, FiLock, FiEye, FiEyeOff, FiShield, FiCheckCircle, FiArrowRight, FiTruck } from 'react-icons/fi';
+import { FiMail, FiLock, FiEye, FiEyeOff, FiShield, FiCheckCircle, FiArrowRight, FiTruck, FiClock } from 'react-icons/fi';
 import LoadingSpinner from '../components/LoadingSpinner';
 import VroomXLogo from '../components/VroomXLogo';
 
@@ -13,8 +13,34 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [forgotLoading, setForgotLoading] = useState(false);
+  const [lockoutSeconds, setLockoutSeconds] = useState(0);
+  const lockoutTimer = useRef(null);
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  // Countdown timer for rate limit lockout
+  useEffect(() => {
+    if (lockoutSeconds > 0) {
+      lockoutTimer.current = setInterval(() => {
+        setLockoutSeconds((prev) => {
+          if (prev <= 1) {
+            clearInterval(lockoutTimer.current);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(lockoutTimer.current);
+  }, [lockoutSeconds > 0]);
+
+  const formatCountdown = (totalSeconds) => {
+    const mins = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
+    return mins > 0
+      ? `${mins}:${secs.toString().padStart(2, '0')}`
+      : `${secs}s`;
+  };
 
   const handleForgotPassword = async () => {
     if (!email) {
@@ -41,7 +67,21 @@ const Login = () => {
       toast.success('Welcome back!');
       navigate('/app/dashboard');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Login failed');
+      if (error.response?.status === 429) {
+        const resetHeader = error.response.headers['ratelimit-reset'];
+        let seconds = 15 * 60; // fallback: 15 minutes
+        if (resetHeader) {
+          const resetTime = Number(resetHeader);
+          // express-rate-limit standardHeaders sends seconds remaining
+          seconds = resetTime > Date.now() / 1000
+            ? Math.ceil(resetTime - Date.now() / 1000)
+            : Math.max(resetTime, 1);
+        }
+        setLockoutSeconds(seconds);
+        toast.error(`Too many attempts. Try again in ${formatCountdown(seconds)}`);
+      } else {
+        toast.error(error.response?.data?.message || 'Login failed');
+      }
     } finally {
       setLoading(false);
     }
@@ -157,14 +197,31 @@ const Login = () => {
                   </div>
                 </div>
 
+                {/* Rate limit warning */}
+                {lockoutSeconds > 0 && (
+                  <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
+                    <FiClock className="w-4 h-4 flex-shrink-0" />
+                    <span>Too many attempts. Try again in <strong>{formatCountdown(lockoutSeconds)}</strong></span>
+                  </div>
+                )}
+
                 {/* Submit button */}
                 <button
                   type="submit"
-                  className="btn-glow w-full py-4 mt-3 rounded-xl font-bold text-white text-base tracking-wide flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all duration-300"
-                  disabled={loading}
+                  className={`w-full py-4 mt-3 rounded-xl font-bold text-white text-base tracking-wide flex items-center justify-center gap-2 shadow-lg transition-all duration-300 ${
+                    lockoutSeconds > 0
+                      ? 'bg-zinc-400 cursor-not-allowed'
+                      : 'btn-glow hover:shadow-xl'
+                  }`}
+                  disabled={loading || lockoutSeconds > 0}
                 >
                   {loading ? (
                     <LoadingSpinner size="sm" />
+                  ) : lockoutSeconds > 0 ? (
+                    <>
+                      <FiClock className="w-5 h-5" />
+                      Locked ({formatCountdown(lockoutSeconds)})
+                    </>
                   ) : (
                     <>
                       Sign In
