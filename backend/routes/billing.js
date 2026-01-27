@@ -9,17 +9,18 @@ const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const PRICING = {
   solo: {
     name: 'Solo',
+    description: 'For Owner-Operators',
     price: 19,
     priceId: process.env.STRIPE_SOLO_PRICE_ID,
+    includedDrivers: 1,
+    extraDriverPrice: null, // No extra drivers allowed
     features: [
-      '1 Company',
-      '1 Driver',
-      '1 Vehicle',
+      '1 driver included',
       'Full DQF Management',
+      'AI Regulation Assistant',
       'CSA Score Tracking',
-      'Violation Tracking',
-      'Document Management',
-      'Email Support'
+      'Document Expiry Alerts',
+      '100 AI queries/month'
     ],
     limits: {
       maxCompanies: 1,
@@ -27,39 +28,45 @@ const PRICING = {
       maxVehiclesPerCompany: 1
     }
   },
-  starter: {
-    name: 'Starter',
+  fleet: {
+    name: 'Fleet',
+    description: 'For Small Fleets (2-10 drivers)',
     price: 39,
-    priceId: process.env.STRIPE_STARTER_PRICE_ID,
+    priceId: process.env.STRIPE_FLEET_PRICE_ID,
+    extraDriverPriceId: process.env.STRIPE_FLEET_EXTRA_DRIVER_PRICE_ID,
+    includedDrivers: 3,
+    extraDriverPrice: 6,
     features: [
-      '1 Company',
-      'Up to 3 Drivers',
-      'Up to 3 Vehicles',
-      'All Compliance Features',
-      'AI Regulation Assistant',
-      'Document Management',
-      'Email Support'
+      '3 drivers included',
+      '+$6/driver after 3',
+      'Everything in Solo',
+      'AI Violation Reader',
+      'DataQ Draft Generator',
+      'Multi-user Access',
+      'Priority Support'
     ],
     limits: {
       maxCompanies: 1,
-      maxDriversPerCompany: 3,
-      maxVehiclesPerCompany: 3
+      maxDriversPerCompany: 'unlimited', // Unlimited but charges per driver
+      maxVehiclesPerCompany: 'unlimited'
     }
   },
-  professional: {
-    name: 'Professional',
-    price: 79,
-    priceId: process.env.STRIPE_PROFESSIONAL_PRICE_ID,
+  pro: {
+    name: 'Pro',
+    description: 'For Growing Fleets (10-50 drivers)',
+    price: 89,
+    priceId: process.env.STRIPE_PRO_PRICE_ID,
+    extraDriverPriceId: process.env.STRIPE_PRO_EXTRA_DRIVER_PRICE_ID,
+    includedDrivers: 10,
+    extraDriverPrice: 5,
     features: [
-      'Unlimited Companies',
-      'Unlimited Drivers',
-      'Unlimited Vehicles',
-      'All Compliance Features',
-      'AI Regulation Assistant',
-      'Document Management',
-      'Priority Support',
-      'Team Management',
-      'Advanced Reports'
+      '10 drivers included',
+      '+$5/driver after 10',
+      'Everything in Fleet',
+      'Advanced CSA Analytics',
+      'Custom Reports',
+      'API Access',
+      'Dedicated Support'
     ],
     limits: {
       maxCompanies: 'unlimited',
@@ -123,7 +130,7 @@ router.get('/subscription', protect, asyncHandler(async (req, res) => {
 router.post('/create-checkout-session', protect, asyncHandler(async (req, res) => {
   const { plan } = req.body;
 
-  if (!['solo', 'starter', 'professional'].includes(plan)) {
+  if (!['solo', 'fleet', 'pro'].includes(plan)) {
     throw new AppError('Invalid plan selected', 400);
   }
 

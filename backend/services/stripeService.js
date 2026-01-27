@@ -13,8 +13,14 @@ if (!STRIPE_ENABLED) {
 // Price IDs from environment
 const PRICE_IDS = {
   solo: process.env.STRIPE_SOLO_PRICE_ID,
-  starter: process.env.STRIPE_STARTER_PRICE_ID,
-  professional: process.env.STRIPE_PROFESSIONAL_PRICE_ID
+  fleet: process.env.STRIPE_FLEET_PRICE_ID,
+  pro: process.env.STRIPE_PRO_PRICE_ID
+};
+
+// Extra driver metered price IDs
+const EXTRA_DRIVER_PRICE_IDS = {
+  fleet: process.env.STRIPE_FLEET_EXTRA_DRIVER_PRICE_ID,
+  pro: process.env.STRIPE_PRO_EXTRA_DRIVER_PRICE_ID
 };
 
 // Plan metadata mapping
@@ -23,19 +29,25 @@ const PLAN_METADATA = {
     plan: 'solo',
     maxCompanies: 1,
     maxDriversPerCompany: 1,
-    maxVehiclesPerCompany: 1
+    maxVehiclesPerCompany: 1,
+    includedDrivers: 1,
+    extraDriverPrice: null
   },
-  starter: {
-    plan: 'starter',
+  fleet: {
+    plan: 'fleet',
     maxCompanies: 1,
-    maxDriversPerCompany: 3,
-    maxVehiclesPerCompany: 3
+    maxDriversPerCompany: -1, // unlimited but charged per driver
+    maxVehiclesPerCompany: -1,
+    includedDrivers: 3,
+    extraDriverPrice: 6
   },
-  professional: {
-    plan: 'professional',
+  pro: {
+    plan: 'pro',
     maxCompanies: -1, // unlimited
     maxDriversPerCompany: -1,
-    maxVehiclesPerCompany: -1
+    maxVehiclesPerCompany: -1,
+    includedDrivers: 10,
+    extraDriverPrice: 5
   }
 };
 
@@ -354,9 +366,95 @@ const stripeService = {
    */
   getPlanFromPriceId(priceId) {
     if (priceId === PRICE_IDS.solo) return 'solo';
-    if (priceId === PRICE_IDS.starter) return 'starter';
-    if (priceId === PRICE_IDS.professional) return 'professional';
+    if (priceId === PRICE_IDS.fleet) return 'fleet';
+    if (priceId === PRICE_IDS.pro) return 'pro';
     return 'free_trial';
+  },
+
+  /**
+   * Report metered driver usage to Stripe
+   * Call this when driver count changes or at billing cycle
+   */
+  async reportDriverUsage(user, driverCount) {
+    if (!STRIPE_ENABLED) {
+      console.log('Stripe not enabled, skipping usage report');
+      return null;
+    }
+
+    const plan = user.subscription?.plan;
+    const subscriptionId = user.subscription?.stripeSubscriptionId;
+
+    if (!subscriptionId || !['fleet', 'pro'].includes(plan)) {
+      return null; // Solo plan doesn't have metered billing
+    }
+
+    const planConfig = PLAN_METADATA[plan];
+    const extraDrivers = Math.max(0, driverCount - planConfig.includedDrivers);
+
+    if (extraDrivers === 0) {
+      return null; // No extra drivers to bill
+    }
+
+    try {
+      // Get the subscription to find the metered price item
+      const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+      const extraDriverPriceId = EXTRA_DRIVER_PRICE_IDS[plan];
+
+      // Find the metered subscription item
+      const meteredItem = subscription.items.data.find(
+        item => item.price.id === extraDriverPriceId
+      );
+
+      if (!meteredItem) {
+        console.log(`No metered item found for plan ${plan}, adding it...`);
+        // Add the metered price to the subscription if not present
+        await stripe.subscriptionItems.create({
+          subscription: subscriptionId,
+          price: extraDriverPriceId
+        });
+        // Re-fetch subscription
+        const updatedSub = await stripe.subscriptions.retrieve(subscriptionId);
+        const newMeteredItem = updatedSub.items.data.find(
+          item => item.price.id === extraDriverPriceId
+        );
+        if (newMeteredItem) {
+          return await this.createUsageRecord(newMeteredItem.id, extraDrivers);
+        }
+      } else {
+        return await this.createUsageRecord(meteredItem.id, extraDrivers);
+      }
+    } catch (error) {
+      console.error('Error reporting driver usage:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Create a usage record for metered billing
+   */
+  async createUsageRecord(subscriptionItemId, quantity) {
+    try {
+      const usageRecord = await stripe.subscriptionItems.createUsageRecord(
+        subscriptionItemId,
+        {
+          quantity: quantity,
+          action: 'set', // 'set' replaces the usage, 'increment' adds to it
+          timestamp: Math.floor(Date.now() / 1000)
+        }
+      );
+      console.log(`Usage record created: ${quantity} extra drivers`);
+      return usageRecord;
+    } catch (error) {
+      console.error('Error creating usage record:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Get plan metadata
+   */
+  getPlanMetadata(plan) {
+    return PLAN_METADATA[plan] || PLAN_METADATA.solo;
   },
 
   /**
