@@ -6,6 +6,7 @@ const { Company, User, CompanyInvitation, Driver, Vehicle } = require('../models
 const { protect, restrictToCompany, requireCompanyAdmin, requireCompanyOwner } = require('../middleware/auth');
 const { checkCompanyLimit } = require('../middleware/subscriptionLimits');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
+const emailService = require('../services/emailService');
 
 // Apply auth middleware to all routes
 router.use(protect);
@@ -363,8 +364,8 @@ router.post('/:id/invite', [
   // Get company name for response
   const company = await Company.findById(companyId).select('name');
 
-  // TODO: Send email notification with invitation link
-  // For now, just return the invitation
+  // Send invitation email
+  emailService.sendCompanyInvitation(invitation, company, req.user).catch(() => {});
 
   res.status(201).json({
     success: true,

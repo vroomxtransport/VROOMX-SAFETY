@@ -10,6 +10,7 @@ const connectDB = require('./config/database');
 const routes = require('./routes');
 const { errorHandler, notFound } = require('./middleware/errorHandler');
 const alertService = require('./services/alertService');
+const emailService = require('./services/emailService');
 
 // Validate required environment variables at startup
 const requiredEnvVars = ['JWT_SECRET', 'MONGODB_URI'];
@@ -149,6 +150,14 @@ app.listen(PORT, () => {
     try {
       const result = await alertService.generateAlertsForAllCompanies();
       console.log('[Cron] Daily alert generation complete:', result);
+
+      // Send daily alert digest emails
+      try {
+        await emailService.sendDailyAlertDigests();
+        console.log('[Cron] Daily alert digest emails sent');
+      } catch (emailError) {
+        console.error('[Cron] Error sending alert digest emails:', emailError);
+      }
     } catch (error) {
       console.error('[Cron] Error in daily alert generation:', error);
     }
@@ -165,7 +174,29 @@ app.listen(PORT, () => {
     }
   });
 
-  console.log('[Cron] Scheduled: Daily alerts at 6 AM, Escalation check every 6 hours');
+  // Schedule trial ending notifications at 9:00 AM
+  cron.schedule('0 9 * * *', async () => {
+    console.log('[Cron] Checking for trials ending soon...');
+    try {
+      const User = require('./models/User');
+      const threeDaysFromNow = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
+      const twoDaysFromNow = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
+
+      const users = await User.find({
+        'subscription.status': 'trialing',
+        'subscription.trialEndsAt': { $gte: twoDaysFromNow, $lte: threeDaysFromNow }
+      });
+
+      for (const user of users) {
+        await emailService.sendTrialEnding(user);
+      }
+      console.log(`[Cron] Sent ${users.length} trial ending notifications`);
+    } catch (error) {
+      console.error('[Cron] Error checking trials:', error);
+    }
+  });
+
+  console.log('[Cron] Scheduled: Daily alerts at 6 AM, Alert digest emails, Escalation check every 6 hours, Trial ending check at 9 AM');
 });
 
 // Handle unhandled promise rejections

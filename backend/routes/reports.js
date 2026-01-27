@@ -4,6 +4,7 @@ const { Driver, Vehicle, Violation, DrugAlcoholTest, Document, Accident, Company
 const { protect, checkPermission, restrictToCompany } = require('../middleware/auth');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const pdf = require('../utils/pdfGenerator');
+const emailService = require('../services/emailService');
 
 router.use(protect);
 router.use(restrictToCompany);
@@ -465,6 +466,37 @@ router.get('/audit', checkPermission('reports', 'export'), asyncHandler(async (r
   }
 
   return res.json({ success: true, report: auditData });
+}));
+
+// @route   POST /api/reports/:type/email
+// @desc    Send a report to email
+// @access  Private
+router.post('/:type/email', protect, asyncHandler(async (req, res) => {
+  const { type } = req.params;
+  const { email } = req.body;
+  const toEmail = email || req.user.email;
+
+  const validTypes = ['dqf', 'vehicle-maintenance', 'violations', 'audit'];
+  if (!validTypes.includes(type)) {
+    throw new AppError('Invalid report type', 400);
+  }
+
+  const reportNames = {
+    'dqf': 'Driver Qualification File Report',
+    'vehicle-maintenance': 'Vehicle Maintenance Report',
+    'violations': 'Violations Report',
+    'audit': 'Audit Report'
+  };
+
+  // For now, send a notification email (PDF generation to buffer can be added later)
+  await emailService.sendReport(
+    req.user,
+    reportNames[type] || type,
+    null, // PDF buffer - to be implemented with PDF-to-buffer refactor
+    toEmail
+  );
+
+  res.json({ success: true, message: `Report notification sent to ${toEmail}` });
 }));
 
 module.exports = router;

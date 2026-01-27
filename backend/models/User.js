@@ -162,7 +162,18 @@ const userSchema = new mongoose.Schema({
     type: Date
   },
   passwordResetToken: String, // Stored as SHA-256 hash
-  passwordResetExpires: Date
+  passwordResetExpires: Date,
+
+  // Email preferences and verification
+  emailPreferences: {
+    compliance_alerts: { type: Boolean, default: true },
+    billing: { type: Boolean, default: true },
+    reports: { type: Boolean, default: true },
+    product_updates: { type: Boolean, default: true }
+  },
+  emailVerified: { type: Boolean, default: false },
+  emailVerificationToken: { type: String },
+  emailVerificationExpires: { type: Date }
 }, {
   timestamps: true,
   toJSON: { virtuals: true },

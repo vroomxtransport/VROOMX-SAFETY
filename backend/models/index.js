@@ -14,6 +14,7 @@ const Task = require('./Task');
 const ChecklistTemplate = require('./ChecklistTemplate');
 const ChecklistAssignment = require('./ChecklistAssignment');
 const MaintenanceRecord = require('./MaintenanceRecord');
+const EmailLog = require('./EmailLog');
 
 module.exports = {
   User,
@@ -31,5 +32,6 @@ module.exports = {
   Task,
   ChecklistTemplate,
   ChecklistAssignment,
-  MaintenanceRecord
+  MaintenanceRecord,
+  EmailLog
 };

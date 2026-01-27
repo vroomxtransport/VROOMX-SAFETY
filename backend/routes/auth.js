@@ -1,12 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const { body, validationResult } = require('express-validator');
 const { User, Company } = require('../models');
 const { protect, restrictToCompany } = require('../middleware/auth');
-const { asyncHandler } = require('../middleware/errorHandler');
+const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const { getUsageStats } = require('../middleware/subscriptionLimits');
 const fmcsaSyncService = require('../services/fmcsaSyncService');
+const emailService = require('../services/emailService');
 
 // Generate JWT token
 const generateToken = (id) => {
@@ -112,6 +114,10 @@ router.post('/register', [
   }
 
   const token = generateToken(user._id);
+
+  // Send welcome + verification emails (fire-and-forget)
+  emailService.sendWelcome(user).catch(() => {});
+  emailService.sendEmailVerification(user).catch(() => {});
 
   res.status(201).json({
     success: true,
@@ -598,6 +604,96 @@ router.get('/users', protect, restrictToCompany, asyncHandler(async (req, res) =
     count: usersWithRoles.length,
     users: usersWithRoles
   });
+}));
+
+// @route   POST /api/auth/forgot-password
+// @desc    Send password reset email
+// @access  Public
+router.post('/forgot-password', asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+
+  // Always return success (don't reveal if email exists)
+  if (!user) {
+    return res.json({ success: true, message: 'If that email exists, a reset link has been sent' });
+  }
+
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  user.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+  user.passwordResetExpires = Date.now() + 30 * 60 * 1000; // 30 minutes
+  await user.save({ validateBeforeSave: false });
+
+  emailService.sendPasswordReset(user, resetToken).catch(() => {});
+
+  res.json({ success: true, message: 'If that email exists, a reset link has been sent' });
+}));
+
+// @route   POST /api/auth/reset-password/:token
+// @desc    Reset password with token
+// @access  Public
+router.post('/reset-password/:token', asyncHandler(async (req, res) => {
+  const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
+
+  const user = await User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpires: { $gt: Date.now() }
+  });
+
+  if (!user) {
+    throw new AppError('Invalid or expired reset token', 400);
+  }
+
+  user.password = req.body.password;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+  await user.save();
+
+  res.json({ success: true, message: 'Password has been reset successfully' });
+}));
+
+// @route   GET /api/auth/verify-email/:token
+// @desc    Verify email address
+// @access  Public
+router.get('/verify-email/:token', asyncHandler(async (req, res) => {
+  const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
+
+  const user = await User.findOne({
+    emailVerificationToken: hashedToken,
+    emailVerificationExpires: { $gt: Date.now() }
+  });
+
+  if (!user) {
+    throw new AppError('Invalid or expired verification token', 400);
+  }
+
+  user.emailVerified = true;
+  user.emailVerificationToken = undefined;
+  user.emailVerificationExpires = undefined;
+  await user.save({ validateBeforeSave: false });
+
+  res.json({ success: true, message: 'Email verified successfully' });
+}));
+
+// @route   PUT /api/auth/email-preferences
+// @desc    Update email notification preferences
+// @access  Private
+router.put('/email-preferences', protect, asyncHandler(async (req, res) => {
+  const { compliance_alerts, billing, reports, product_updates } = req.body;
+  const user = await User.findById(req.user.id);
+
+  if (!user) {
+    throw new AppError('User not found', 404);
+  }
+
+  user.emailPreferences = {
+    compliance_alerts: compliance_alerts !== undefined ? compliance_alerts : user.emailPreferences?.compliance_alerts,
+    billing: billing !== undefined ? billing : user.emailPreferences?.billing,
+    reports: reports !== undefined ? reports : user.emailPreferences?.reports,
+    product_updates: product_updates !== undefined ? product_updates : user.emailPreferences?.product_updates
+  };
+  await user.save({ validateBeforeSave: false });
+
+  res.json({ success: true, emailPreferences: user.emailPreferences });
 }));
 
 module.exports = router;

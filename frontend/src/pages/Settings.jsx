@@ -4,11 +4,12 @@ import { useTheme } from '../context/ThemeContext';
 import { useSearchParams } from 'react-router-dom';
 import { authAPI, companiesAPI, invitationsAPI, billingAPI } from '../utils/api';
 import toast from 'react-hot-toast';
-import { FiUser, FiLock, FiUsers, FiBriefcase, FiCreditCard, FiMoon } from 'react-icons/fi';
+import { FiUser, FiLock, FiUsers, FiBriefcase, FiCreditCard, FiMoon, FiBell } from 'react-icons/fi';
 import {
   ProfileTab,
   AppearanceTab,
   SecurityTab,
+  NotificationsTab,
   BillingTab,
   UsersTab,
   CompaniesTab,
@@ -62,7 +63,7 @@ const Settings = () => {
   // Update tab from URL params
   useEffect(() => {
     const tab = searchParams.get('tab');
-    if (tab && ['profile', 'appearance', 'security', 'users', 'companies', 'billing'].includes(tab)) {
+    if (tab && ['profile', 'appearance', 'security', 'notifications', 'users', 'companies', 'billing'].includes(tab)) {
       setActiveTab(tab);
     }
   }, [searchParams]);
@@ -245,6 +246,7 @@ const Settings = () => {
     { id: 'profile', label: 'Profile', icon: FiUser },
     { id: 'appearance', label: 'Appearance', icon: FiMoon },
     { id: 'security', label: 'Security', icon: FiLock },
+    { id: 'notifications', label: 'Notifications', icon: FiBell },
     { id: 'companies', label: 'Companies', icon: FiBriefcase },
     { id: 'billing', label: 'Billing', icon: FiCreditCard },
     ...(user?.role === 'admin' || activeCompany?.role === 'owner' || activeCompany?.role === 'admin'
@@ -305,6 +307,10 @@ const Settings = () => {
             handlePasswordChange={handlePasswordChange}
             loading={loading}
           />
+        )}
+
+        {activeTab === 'notifications' && (
+          <NotificationsTab user={user} />
         )}
 
         {activeTab === 'companies' && (

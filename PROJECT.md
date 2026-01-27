@@ -31,6 +31,7 @@
 - **AI Integration:** Anthropic Claude API, OpenAI API
 - **Payments:** Stripe (live mode with metered billing)
 - **File Uploads:** Multer (10MB limit)
+- **Email:** Resend SDK (transactional + notification emails)
 - **Scheduling:** node-cron
 
 ---
@@ -199,10 +200,13 @@ npm run dev  # Starts on port 5173
   - Rate limiting, NoSQL injection prevention, XSS sanitization
   - Helmet security headers, CORS hardening, JWT algorithm pinning
   - File upload security, admin audit logging, error sanitization
+- **Email notification system (Resend)** - 9 email types with branded templates
+  - Welcome, email verification, password reset, payment success/failure
+  - Trial ending, company invitation, compliance alert digest, report email
+  - Email preferences UI in Settings, EmailLog audit trail
 
 ### In Progress
 - Marketing and user acquisition
-- Email notification system
 - Mobile responsiveness improvements
 - Authenticated file download endpoint (replaces static /uploads)
 
@@ -230,6 +234,21 @@ npm run dev  # Starts on port 5173
   - File: `frontend/src/components/settings/BillingTab.jsx`
   - Lines 48, 60, 72: Changed `currentUsage?.companies` to `currentUsage?.companies?.owned`, etc.
 - **Added:** PROJECT.md - Comprehensive project documentation
+
+### 2026-01-27 (Email Notification System)
+- **Feature:** Full email notification system using Resend SDK
+  - New files: `backend/services/emailService.js`, `backend/models/EmailLog.js`, 10 HTML templates in `backend/templates/`
+  - 9 email types: welcome, email verification, password reset, payment success/failure, trial ending, company invitation, compliance alert digest, report email
+  - Branded HTML templates with VroomX Safety navy/orange theme, inline CSS for email client compatibility
+  - Fire-and-forget pattern — emails never block app flow
+  - Graceful degradation — works without Resend API key configured
+  - EmailLog model for audit trail (tracks every send with Resend message ID)
+  - User email preferences (compliance_alerts, billing, reports, product_updates)
+  - New auth routes: forgot-password, reset-password, verify-email, email-preferences
+  - Wired into: registration (welcome + verification), Stripe webhooks (payment success/failure), company invitations, daily 6 AM alert digest cron, 9 AM trial ending cron, report email route
+  - Frontend: NotificationsTab in Settings with toggle switches per category
+  - Modified files: `auth.js`, `stripeService.js`, `companies.js`, `server.js`, `reports.js`, `Settings.jsx`, `api.js`
+  - Package: `resend` added to backend
 
 ### 2026-01-27 (Bug Fixes & Polish)
 - **Fix:** Restored `database.js` crash-on-failure behavior - was silently continuing without MongoDB connection

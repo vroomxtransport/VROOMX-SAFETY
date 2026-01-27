@@ -1,5 +1,6 @@
 const Stripe = require('stripe');
 const User = require('../models/User');
+const emailService = require('./emailService');
 
 // Initialize Stripe with secret key (handle missing key for development)
 const STRIPE_ENABLED = !!process.env.STRIPE_SECRET_KEY;
@@ -340,6 +341,10 @@ const stripeService = {
         await user.save({ validateBeforeSave: false });
         console.log(`Payment succeeded, subscription reactivated for user ${user._id}`);
       }
+
+      if (user) {
+        emailService.sendPaymentSuccess(user, { amount_paid: invoice.amount_paid, plan: user.subscription?.plan, created: invoice.created }).catch(() => {});
+      }
     }
   },
 
@@ -356,7 +361,7 @@ const stripeService = {
         user.subscription.status = 'past_due';
         await user.save({ validateBeforeSave: false });
         console.log(`Payment failed for user ${user._id}`);
-        // TODO: Send email notification about failed payment
+        emailService.sendPaymentFailed(user).catch(() => {});
       }
     }
   },
