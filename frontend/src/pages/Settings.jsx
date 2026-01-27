@@ -4,7 +4,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useSearchParams } from 'react-router-dom';
 import { authAPI, companiesAPI, invitationsAPI, billingAPI } from '../utils/api';
 import toast from 'react-hot-toast';
-import { FiUser, FiLock, FiUsers, FiBriefcase, FiCreditCard, FiMoon, FiBell } from 'react-icons/fi';
+import { FiUser, FiLock, FiUsers, FiBriefcase, FiCreditCard, FiMoon, FiBell, FiClipboard } from 'react-icons/fi';
 import {
   ProfileTab,
   AppearanceTab,
@@ -15,7 +15,8 @@ import {
   CompaniesTab,
   AddUserModal,
   AddCompanyModal,
-  InviteMemberModal
+  InviteMemberModal,
+  AuditLogTab
 } from '../components/settings';
 
 const Settings = () => {
@@ -63,7 +64,7 @@ const Settings = () => {
   // Update tab from URL params
   useEffect(() => {
     const tab = searchParams.get('tab');
-    if (tab && ['profile', 'appearance', 'security', 'notifications', 'users', 'companies', 'billing'].includes(tab)) {
+    if (tab && ['profile', 'appearance', 'security', 'notifications', 'users', 'companies', 'billing', 'audit'].includes(tab)) {
       setActiveTab(tab);
     }
   }, [searchParams]);
@@ -251,6 +252,9 @@ const Settings = () => {
     { id: 'billing', label: 'Billing', icon: FiCreditCard },
     ...(user?.role === 'admin' || activeCompany?.role === 'owner' || activeCompany?.role === 'admin'
       ? [{ id: 'users', label: 'Team', icon: FiUsers }]
+      : []),
+    ...(user?.role === 'admin' || activeCompany?.role === 'owner' || activeCompany?.role === 'admin'
+      ? [{ id: 'audit', label: 'Audit Log', icon: FiClipboard }]
       : [])
   ];
 
@@ -344,6 +348,10 @@ const Settings = () => {
 
         {activeTab === 'users' && (user?.role === 'admin' || activeCompany?.role === 'owner' || activeCompany?.role === 'admin') && (
           <UsersTab users={users} setShowAddUserModal={setShowAddUserModal} />
+        )}
+
+        {activeTab === 'audit' && (user?.role === 'admin' || activeCompany?.role === 'owner' || activeCompany?.role === 'admin') && (
+          <AuditLogTab />
         )}
       </div>
 
