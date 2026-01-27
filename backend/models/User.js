@@ -184,8 +184,8 @@ userSchema.virtual('fullName').get(function() {
 // Virtual for subscription limits based on plan
 userSchema.virtual('limits').get(function() {
   const plans = {
-    free_trial: { maxCompanies: 1, maxDriversPerCompany: 3, maxVehiclesPerCompany: 3 },
-    starter: { maxCompanies: 1, maxDriversPerCompany: 3, maxVehiclesPerCompany: 3 },
+    free_trial: { maxCompanies: 1, maxDriversPerCompany: 1, maxVehiclesPerCompany: 1 },
+    starter: { maxCompanies: 1, maxDriversPerCompany: 1, maxVehiclesPerCompany: 1 },
     professional: { maxCompanies: Infinity, maxDriversPerCompany: Infinity, maxVehiclesPerCompany: Infinity }
   };
   return plans[this.subscription?.plan] || plans.free_trial;

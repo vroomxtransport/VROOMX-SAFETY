@@ -72,13 +72,13 @@ const checkDriverLimit = async (req, res, next) => {
       });
     }
 
-    // Free trial - limited to 3 drivers
-    if (plan === 'free_trial' && driverCount >= 3) {
+    // Free trial - limited to 1 driver
+    if (plan === 'free_trial' && driverCount >= 1) {
       return res.status(403).json({
         success: false,
-        message: 'Free trial is limited to 3 drivers. Subscribe to continue adding drivers.',
+        message: 'Free trial is limited to 1 driver. Subscribe to continue adding drivers.',
         code: 'DRIVER_LIMIT_REACHED',
-        limit: 3,
+        limit: 1,
         current: driverCount
       });
     }
@@ -164,13 +164,13 @@ const checkVehicleLimit = async (req, res, next) => {
       });
     }
 
-    // Free trial - limited to 3 vehicles
-    if (plan === 'free_trial' && vehicleCount >= 3) {
+    // Free trial - limited to 1 vehicle
+    if (plan === 'free_trial' && vehicleCount >= 1) {
       return res.status(403).json({
         success: false,
-        message: 'Free trial is limited to 3 vehicles. Subscribe to continue adding vehicles.',
+        message: 'Free trial is limited to 1 vehicle. Subscribe to continue adding vehicles.',
         code: 'VEHICLE_LIMIT_REACHED',
-        limit: 3,
+        limit: 1,
         current: vehicleCount
       });
     }

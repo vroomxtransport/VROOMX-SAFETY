@@ -211,6 +211,9 @@ npm run dev  # Starts on port 5173
 ## Changelog
 
 ### 2025-01-26
+- **Limits:** Restricted free trial to 1 driver, 1 vehicle, 1 company (was 3/3/1)
+  - Files: `backend/middleware/subscriptionLimits.js`, `backend/models/User.js`
+  - Users on trial must subscribe to add more resources
 - **UI:** Changed "Start Free Trial" to "Subscribe" on Billing page plan buttons
   - File: `frontend/src/pages/Billing.jsx`
   - Affected: Solo, Fleet, and Pro plan cards
