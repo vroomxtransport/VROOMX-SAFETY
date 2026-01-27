@@ -33,7 +33,7 @@ const AdminFeatureFlags = () => {
     try {
       setLoading(true);
       const response = await adminAPI.getFeatureFlags();
-      setFlags(response.data.flags || response.data || []);
+      setFlags(response.data.features || response.data.flags || []);
     } catch (err) {
       toast.error('Failed to load feature flags');
     } finally {
