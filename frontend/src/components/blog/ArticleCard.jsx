@@ -6,7 +6,16 @@ const ArticleCard = ({ article, onClick }) => {
       className="bg-white rounded-2xl overflow-hidden flex flex-col border border-[#E2E8F0] shadow-md hover:shadow-lg hover:border-cta-500/30 group cursor-pointer transition-all duration-300"
       onClick={() => onClick(article)}
     >
-      <div className="h-48 bg-gradient-to-br from-primary-400 to-primary-500 relative">
+      <div className="h-48 relative overflow-hidden">
+        {article.image ? (
+          <img
+            src={article.image}
+            alt={article.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-primary-400 to-primary-500" />
+        )}
         <div className="absolute inset-0 bg-gradient-to-tr from-primary-600/30 to-transparent group-hover:from-cta-500/30 transition-colors duration-300" />
         <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] text-primary-500 font-mono uppercase font-bold">
           {article.tag}

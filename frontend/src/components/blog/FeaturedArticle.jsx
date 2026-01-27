@@ -7,13 +7,17 @@ const FeaturedArticle = ({ article, onClick }) => {
       onClick={() => onClick(article)}
     >
       <div className="grid md:grid-cols-2 gap-0">
-        <div className="h-64 md:h-auto bg-gradient-to-br from-primary-500 to-primary-600 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-tr from-primary-600/40 to-primary-400/40 group-hover:scale-105 transition-transform duration-700" />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <svg className="w-24 h-24 text-white/20" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-            </svg>
-          </div>
+        <div className="h-64 md:h-auto min-h-[300px] relative overflow-hidden">
+          {article.image ? (
+            <img
+              src={article.image}
+              alt={article.title}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-primary-500 to-primary-600" />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-tr from-primary-600/40 to-transparent group-hover:from-cta-500/30 transition-colors duration-500" />
         </div>
         <div className="p-8 md:p-12 flex flex-col justify-center">
           <div className="flex items-center gap-4 mb-4">

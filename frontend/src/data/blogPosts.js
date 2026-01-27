@@ -17,6 +17,7 @@ export const featuredArticle = {
   description: 'The FMCSA has proposed new technical specifications for Electronic Logging Devices. Here is what every safety director needs to know to stay compliant.',
   tag: 'Featured',
   readTime: '8 min read',
+  image: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=800&h=600&fit=crop',
   content: `
     <p class="text-lg text-[#475569] mb-6">The Federal Motor Carrier Safety Administration (FMCSA) has announced significant updates to the Electronic Logging Device (ELD) mandate, set to take effect in 2026. These changes aim to enhance data accuracy, improve cybersecurity, and streamline compliance processes for motor carriers.</p>
 
@@ -77,6 +78,7 @@ export const articles = [
     description: 'Clarifying the confusion around short-haul exemptions and time records.',
     tag: 'Regulation',
     readTime: '5 min read',
+    image: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&h=600&fit=crop',
     content: `
       <p class="text-lg text-[#475569] mb-6">One of the most misunderstood areas of Hours of Service regulations is the short-haul exemption. Many carriers incorrectly assume they qualify, leading to violations during roadside inspections.</p>
 
@@ -125,6 +127,7 @@ export const articles = [
     description: 'How your safety rating impacts insurance premiums and broker relationships.',
     tag: 'Safety',
     readTime: '6 min read',
+    image: 'https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?w=800&h=600&fit=crop',
     content: `
       <p class="text-lg text-[#475569] mb-6">A "Conditional" safety rating might seem like just a warning, but the financial and operational impacts can be devastating. Understanding these costs is crucial for prioritizing compliance efforts.</p>
 
@@ -189,6 +192,7 @@ export const articles = [
     description: 'Why sticking to paper filings is costing you more than just storage space.',
     tag: 'Tech',
     readTime: '4 min read',
+    image: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800&h=600&fit=crop',
     content: `
       <p class="text-lg text-[#475569] mb-6">In an era where compliance reviews can be conducted remotely, maintaining paper-based Driver Qualification files creates unnecessary risk and inefficiency.</p>
 
@@ -246,6 +250,7 @@ export const articles = [
     description: 'Step-by-step checklist to ensure your digital records pass inspection.',
     tag: 'Audit',
     readTime: '7 min read',
+    image: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&h=600&fit=crop',
     content: `
       <p class="text-lg text-[#475569] mb-6">Remote compliance reviews have become standard practice since the FMCSA modernized its audit procedures. Being prepared for a virtual inspection is now just as important as an on-site review.</p>
 
@@ -308,6 +313,7 @@ export const articles = [
     description: 'Strategies for keeping your best drivers happy and compliant.',
     tag: 'Career',
     readTime: '5 min read',
+    image: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800&h=600&fit=crop',
     content: `
       <p class="text-lg text-[#475569] mb-6">Driver turnover remains one of the trucking industry's biggest challenges, with annual rates exceeding 90% at many carriers. Retaining experienced, safety-conscious drivers directly impacts your compliance scores and bottom line.</p>
 
@@ -358,6 +364,7 @@ export const articles = [
     description: 'How artificial intelligence is changing the way we handle compliance and routing.',
     tag: 'Tech',
     readTime: '6 min read',
+    image: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800&h=600&fit=crop',
     content: `
       <p class="text-lg text-[#475569] mb-6">Artificial intelligence is revolutionizing fleet management, from predictive maintenance to automated compliance monitoring. Understanding these technologies helps carriers stay competitive.</p>
 

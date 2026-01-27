@@ -16,10 +16,22 @@ const ArticleModal = ({ article, onClose }) => {
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-[#F1F5F9] border border-[#E2E8F0] flex items-center justify-center text-zinc-600 hover:text-primary-500 hover:bg-[#E2E8F0] transition-colors"
+          className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/90 backdrop-blur-md border border-[#E2E8F0] flex items-center justify-center text-zinc-600 hover:text-primary-500 hover:bg-white transition-colors shadow-sm"
         >
           <FiX className="w-5 h-5" />
         </button>
+
+        {/* Hero Image */}
+        {article.image && (
+          <div className="h-64 md:h-80 relative overflow-hidden">
+            <img
+              src={article.image}
+              alt={article.title}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+          </div>
+        )}
 
         {/* Article Header */}
         <div className="p-8 md:p-12 border-b border-[#E2E8F0]">
