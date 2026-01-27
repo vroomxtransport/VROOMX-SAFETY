@@ -6,7 +6,7 @@
 
 **Live URLs:**
 - Frontend: https://vroomxsafety.com (Netlify)
-- Backend: https://vroomx-safety-api.onrender.com (Render)
+- Backend: https://vroomx-safety.onrender.com (Render)
 
 **Email:** Google Workspace on `vroomxsafety.com` domain
 - Admin: admin@vroomxsafety.com
@@ -229,6 +229,12 @@ npm run dev  # Starts on port 5173
 ---
 
 ## Changelog
+
+### 2026-01-27 (Production Fixes)
+- **Fix:** Added `trust proxy` setting for Render deployment — `express-rate-limit` was throwing `ERR_ERL_UNEXPECTED_X_FORWARDED_FOR` on every request because Render's reverse proxy sets `X-Forwarded-For` but Express wasn't configured to trust it
+  - File: `backend/server.js`
+- **Fix:** Corrected production backend URL in PROJECT.md from `vroomx-safety-api.onrender.com` to `vroomx-safety.onrender.com`
+- **Note:** `RESEND_API_KEY` environment variable must be added to Render dashboard for email delivery to work — emails are silently skipped without it
 
 ### 2025-01-26
 - **Limits:** Restricted free trial to 1 driver, 1 vehicle, 1 company (was 3/3/1)

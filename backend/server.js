@@ -28,6 +28,11 @@ if (process.env.JWT_SECRET && process.env.JWT_SECRET.length < 32) {
 // Initialize express
 const app = express();
 
+// Trust first proxy (Render, Heroku, etc.) so express-rate-limit gets real client IPs
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
 // Connect to database
 connectDB();
 

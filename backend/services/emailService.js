@@ -112,6 +112,7 @@ const emailService = {
       try {
         await EmailLog.create({
           to: Array.isArray(to) ? to.join(', ') : to,
+          from: FROM,
           subject,
           templateName,
           category,
@@ -133,6 +134,7 @@ const emailService = {
       try {
         await EmailLog.create({
           to: Array.isArray(to) ? to.join(', ') : to,
+          from: FROM,
           subject,
           templateName,
           category,
