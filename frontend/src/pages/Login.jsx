@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { authAPI } from '../utils/api';
 import toast from 'react-hot-toast';
 import { FiMail, FiLock, FiEye, FiEyeOff, FiShield, FiCheckCircle, FiArrowRight, FiTruck } from 'react-icons/fi';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -11,8 +12,25 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [forgotLoading, setForgotLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast.error('Enter your email address first');
+      return;
+    }
+    setForgotLoading(true);
+    try {
+      await authAPI.forgotPassword(email);
+      toast.success('If that email exists, a reset link has been sent');
+    } catch (error) {
+      toast.success('If that email exists, a reset link has been sent');
+    } finally {
+      setForgotLoading(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -125,6 +143,16 @@ const Login = () => {
                       onClick={() => setShowPassword(!showPassword)}
                     >
                       {showPassword ? <FiEyeOff className="w-5 h-5" /> : <FiEye className="w-5 h-5" />}
+                    </button>
+                  </div>
+                  <div className="flex justify-end mt-1.5">
+                    <button
+                      type="button"
+                      onClick={handleForgotPassword}
+                      disabled={forgotLoading}
+                      className="text-sm text-primary-500 hover:text-primary-600 font-medium transition-colors disabled:opacity-50"
+                    >
+                      {forgotLoading ? 'Sending...' : 'Forgot password?'}
                     </button>
                   </div>
                 </div>

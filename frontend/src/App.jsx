@@ -10,6 +10,9 @@ import TermsOfService from './pages/TermsOfService';
 import Platform from './pages/Platform';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import VerifyEmail from './pages/VerifyEmail';
+import ResetPassword from './pages/ResetPassword';
+import AcceptInvitation from './pages/AcceptInvitation';
 import Drivers from './pages/Drivers';
 import DriverDetail from './pages/DriverDetail';
 import Vehicles from './pages/Vehicles';
@@ -152,6 +155,11 @@ function App() {
             </PublicRoute>
           }
         />
+
+        {/* Email token flow pages - public */}
+        <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/accept-invitation" element={<AcceptInvitation />} />
 
         {/* Design Demos (Public for preview) */}
         <Route path="/design/enterprise" element={<EnterpriseDemo />} />

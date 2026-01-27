@@ -224,7 +224,6 @@ npm run dev  # Starts on port 5173
 - Document OCR
 - Mobile app
 - httpOnly cookie JWT storage (replaces localStorage)
-- Email verification on registration
 - Refresh token rotation
 
 ---
@@ -242,6 +241,20 @@ npm run dev  # Starts on port 5173
   - File: `frontend/src/components/settings/BillingTab.jsx`
   - Lines 48, 60, 72: Changed `currentUsage?.companies` to `currentUsage?.companies?.owned`, etc.
 - **Added:** PROJECT.md - Comprehensive project documentation
+
+### 2026-01-27 (Email System Completion)
+- **Feature:** Added 3 missing frontend pages for email token flows
+  - `frontend/src/pages/VerifyEmail.jsx` — handles `/verify-email?token=xxx` from verification emails
+  - `frontend/src/pages/ResetPassword.jsx` — handles `/reset-password?token=xxx` from password reset emails
+  - `frontend/src/pages/AcceptInvitation.jsx` — handles `/accept-invitation?token=xxx` from company invite emails
+- **Feature:** "Forgot password?" link on Login page — sends reset email inline
+  - File: `frontend/src/pages/Login.jsx`
+- **Fix:** Email preferences field name mismatch — NotificationsTab was sending camelCase keys (`complianceAlerts`) but backend expects snake_case (`compliance_alerts`). Now aligned.
+  - File: `frontend/src/components/settings/NotificationsTab.jsx`
+- **Added:** API client methods for `forgotPassword`, `resetPassword`, `verifyEmail`
+  - File: `frontend/src/utils/api.js`
+- **Added:** Routes in App.jsx for verify-email, reset-password, accept-invitation
+  - File: `frontend/src/App.jsx`
 
 ### 2026-01-27 (Google Workspace Email)
 - **Infra:** Connected `vroomxsafety.com` domain to Google Workspace

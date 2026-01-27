@@ -3,24 +3,25 @@ import { FiBell } from 'react-icons/fi';
 import { authAPI } from '../../utils/api';
 import toast from 'react-hot-toast';
 
+// Keys match backend User.emailPreferences field names (snake_case)
 const PREFERENCE_OPTIONS = [
   {
-    key: 'complianceAlerts',
+    key: 'compliance_alerts',
     label: 'Compliance Alerts',
     description: 'Daily digest of critical compliance alerts and deadlines'
   },
   {
-    key: 'billingNotifications',
+    key: 'billing',
     label: 'Billing Notifications',
     description: 'Payment success/failure and trial ending reminders'
   },
   {
-    key: 'reportEmails',
+    key: 'reports',
     label: 'Report Emails',
     description: 'Receive generated reports directly to your email'
   },
   {
-    key: 'productUpdates',
+    key: 'product_updates',
     label: 'Product Updates',
     description: 'New features, improvements, and announcements'
   }
@@ -28,10 +29,10 @@ const PREFERENCE_OPTIONS = [
 
 const NotificationsTab = ({ user }) => {
   const [emailPreferences, setEmailPreferences] = useState({
-    complianceAlerts: true,
-    billingNotifications: true,
-    reportEmails: true,
-    productUpdates: false
+    compliance_alerts: true,
+    billing: true,
+    reports: true,
+    product_updates: false
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(null);
