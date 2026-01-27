@@ -259,6 +259,22 @@ const emailService = {
   },
 
   /**
+   * Password reset confirmation (sent after password is successfully changed).
+   */
+  async sendPasswordResetConfirmation(user) {
+    return this.send({
+      to: user.email,
+      subject: 'Your Password Has Been Changed',
+      templateName: 'password-reset-confirmation',
+      variables: {
+        firstName: user.firstName,
+      },
+      category: 'transactional',
+      userId: user._id,
+    });
+  },
+
+  /**
    * Payment success / invoice receipt.
    */
   async sendPaymentSuccess(user, invoice) {

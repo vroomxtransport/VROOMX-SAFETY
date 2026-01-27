@@ -648,6 +648,9 @@ router.post('/reset-password/:token', asyncHandler(async (req, res) => {
   user.passwordResetExpires = undefined;
   await user.save();
 
+  // Send confirmation email (fire-and-forget)
+  emailService.sendPasswordResetConfirmation(user).catch(() => {});
+
   res.json({ success: true, message: 'Password has been reset successfully' });
 }));
 
