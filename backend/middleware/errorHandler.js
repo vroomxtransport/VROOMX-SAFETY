@@ -30,10 +30,11 @@ const errorHandler = (err, req, res, next) => {
     error = new AppError(message, 400);
   }
 
-  // Mongoose validation error - use generic messages in production
+  // Mongoose validation error - show password messages, sanitize others in production
   if (err.name === 'ValidationError') {
     const messages = Object.values(err.errors).map(val => val.message);
-    const message = process.env.NODE_ENV === 'production'
+    const hasPasswordError = Object.keys(err.errors).includes('password');
+    const message = (process.env.NODE_ENV === 'production' && !hasPasswordError)
       ? 'Validation error. Please check your input.'
       : messages.join('. ');
     error = new AppError(message, 400);
