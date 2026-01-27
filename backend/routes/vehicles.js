@@ -6,6 +6,7 @@ const { protect, checkPermission, restrictToCompany } = require('../middleware/a
 const { uploadSingle, getFileUrl } = require('../middleware/upload');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const { checkVehicleLimit } = require('../middleware/subscriptionLimits');
+const auditService = require('../services/auditService');
 
 // Escape regex special characters to prevent NoSQL injection
 const escapeRegex = (str) => {
@@ -174,6 +175,8 @@ router.post('/', checkPermission('vehicles', 'edit'), checkVehicleLimit, [
     companyId: req.user.companyId._id || req.user.companyId
   });
 
+  auditService.log(req, 'create', 'vehicle', vehicle._id, { unitNumber: req.body.unitNumber, vin: req.body.vin });
+
   res.status(201).json({
     success: true,
     vehicle
@@ -200,6 +203,8 @@ router.put('/:id', checkPermission('vehicles', 'edit'), asyncHandler(async (req,
     req.body,
     { new: true, runValidators: true }
   );
+
+  auditService.log(req, 'update', 'vehicle', req.params.id, { summary: 'Vehicle updated' });
 
   res.json({
     success: true,
@@ -257,6 +262,8 @@ router.post('/:id/maintenance', checkPermission('vehicles', 'edit'), [
 
   await vehicle.save();
 
+  auditService.log(req, 'create', 'maintenance', null, { vehicleId: req.params.id, type: req.body.maintenanceType });
+
   res.json({
     success: true,
     message: 'Maintenance record added successfully',
@@ -297,6 +304,8 @@ router.post('/:id/inspection', checkPermission('vehicles', 'edit'),
     };
 
     await vehicle.save();
+
+    auditService.log(req, 'create', 'vehicle', req.params.id, { summary: 'Inspection recorded' });
 
     res.json({
       success: true,
@@ -348,6 +357,8 @@ router.delete('/:id', checkPermission('vehicles', 'delete'), asyncHandler(async 
   vehicle.status = 'sold';
   vehicle.outOfServiceDate = new Date();
   await vehicle.save();
+
+  auditService.log(req, 'delete', 'vehicle', req.params.id, { unitNumber: vehicle.unitNumber });
 
   res.json({
     success: true,

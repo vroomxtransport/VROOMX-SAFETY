@@ -6,6 +6,7 @@ const { protect, checkPermission, restrictToCompany } = require('../middleware/a
 const { uploadSingle, getFileUrl } = require('../middleware/upload');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const { DRUG_ALCOHOL_REQUIREMENTS } = require('../config/fmcsaCompliance');
+const auditService = require('../services/auditService');
 
 router.use(protect);
 router.use(restrictToCompany);
@@ -186,6 +187,8 @@ router.post('/', checkPermission('drugAlcohol', 'edit'), [
     createdBy: req.user._id
   });
 
+  auditService.log(req, 'create', 'drug_alcohol_test', test._id, { testType: req.body.testType, driverId: req.body.driverId });
+
   res.status(201).json({
     success: true,
     test
@@ -212,6 +215,8 @@ router.put('/:id', checkPermission('drugAlcohol', 'edit'), asyncHandler(async (r
     req.body,
     { new: true, runValidators: true }
   );
+
+  auditService.log(req, 'update', 'drug_alcohol_test', req.params.id, { summary: 'Test record updated' });
 
   res.json({
     success: true,
@@ -243,6 +248,8 @@ router.post('/:id/clearinghouse', checkPermission('drugAlcohol', 'edit'), [
   };
 
   await test.save();
+
+  auditService.log(req, 'update', 'drug_alcohol_test', req.params.id, { summary: 'Clearinghouse report recorded' });
 
   res.json({
     success: true,
@@ -278,6 +285,8 @@ router.post('/:id/documents', checkPermission('drugAlcohol', 'edit'),
     });
 
     await test.save();
+
+    auditService.log(req, 'upload', 'drug_alcohol_test', req.params.id, { documentName: req.body.name });
 
     res.json({
       success: true,

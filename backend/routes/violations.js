@@ -6,6 +6,7 @@ const { protect, checkPermission, restrictToCompany } = require('../middleware/a
 const { uploadMultiple, getFileUrl } = require('../middleware/upload');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const { VIOLATION_SEVERITY_WEIGHTS, calculateSeverityPoints } = require('../config/fmcsaCompliance');
+const auditService = require('../services/auditService');
 
 router.use(protect);
 router.use(restrictToCompany);
@@ -154,6 +155,8 @@ router.post('/', checkPermission('violations', 'edit'), [
     }]
   });
 
+  auditService.log(req, 'create', 'violation', violation._id, { basic: req.body.basic, inspectionNumber: req.body.inspectionNumber });
+
   res.status(201).json({
     success: true,
     violation
@@ -189,6 +192,8 @@ router.put('/:id', checkPermission('violations', 'edit'), asyncHandler(async (re
     req.body,
     { new: true, runValidators: true }
   );
+
+  auditService.log(req, 'update', 'violation', req.params.id, { summary: 'Violation updated' });
 
   res.json({
     success: true,
@@ -239,6 +244,8 @@ router.post('/:id/dataq', checkPermission('violations', 'edit'),
 
     await violation.save();
 
+    auditService.log(req, 'update', 'violation', req.params.id, { summary: 'DataQ challenge submitted' });
+
     res.json({
       success: true,
       message: 'DataQ challenge submitted successfully',
@@ -288,6 +295,8 @@ router.put('/:id/dataq/status', checkPermission('violations', 'edit'), [
 
   await violation.save();
 
+  auditService.log(req, 'update', 'violation', req.params.id, { dataqStatus: req.body.status });
+
   res.json({
     success: true,
     violation
@@ -325,6 +334,8 @@ router.post('/:id/resolve', checkPermission('violations', 'edit'), [
 
   await violation.save();
 
+  auditService.log(req, 'update', 'violation', req.params.id, { summary: 'Violation resolved' });
+
   res.json({
     success: true,
     message: 'Violation marked as resolved',
@@ -356,6 +367,8 @@ router.post('/:id/documents', checkPermission('violations', 'edit'),
 
     violation.documents.push(...newDocs);
     await violation.save();
+
+    auditService.log(req, 'upload', 'violation', req.params.id, { count: req.files?.length });
 
     res.json({
       success: true,

@@ -5,6 +5,7 @@ const ChecklistTemplate = require('../models/ChecklistTemplate');
 const ChecklistAssignment = require('../models/ChecklistAssignment');
 const { protect, restrictToCompany, checkPermission } = require('../middleware/auth');
 const { asyncHandler } = require('../middleware/errorHandler');
+const auditService = require('../services/auditService');
 
 // Apply authentication to all routes
 router.use(protect);
@@ -83,6 +84,8 @@ router.post('/templates', [
 
   const template = await ChecklistTemplate.create(templateData);
 
+  auditService.log(req, 'create', 'checklist', template._id, { name: req.body.name, category: req.body.category });
+
   res.status(201).json({
     success: true,
     message: 'Template created successfully',
@@ -112,6 +115,8 @@ router.put('/templates/:id', asyncHandler(async (req, res) => {
     { new: true, runValidators: true }
   );
 
+  auditService.log(req, 'update', 'checklist', req.params.id, { summary: 'Template updated' });
+
   res.json({
     success: true,
     message: 'Template updated successfully',
@@ -136,6 +141,8 @@ router.delete('/templates/:id', asyncHandler(async (req, res) => {
   template.isActive = false;
   template.lastUpdatedBy = req.user._id;
   await template.save();
+
+  auditService.log(req, 'delete', 'checklist', req.params.id, { summary: 'Template deleted' });
 
   res.json({
     success: true,
@@ -261,6 +268,8 @@ router.post('/assignments', [
   const populatedAssignment = await ChecklistAssignment.findById(assignment._id)
     .populate('createdBy', 'firstName lastName');
 
+  auditService.log(req, 'create', 'checklist', assignment._id, { templateId: req.body.templateId, summary: 'Checklist assigned' });
+
   res.status(201).json({
     success: true,
     message: 'Checklist assigned successfully',
@@ -358,6 +367,8 @@ router.delete('/assignments/:id', asyncHandler(async (req, res) => {
   }
 
   await ChecklistAssignment.findByIdAndDelete(req.params.id);
+
+  auditService.log(req, 'delete', 'checklist', req.params.id, { summary: 'Assignment deleted' });
 
   res.json({
     success: true,

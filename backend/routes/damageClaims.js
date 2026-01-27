@@ -6,6 +6,7 @@ const { Driver, Vehicle } = require('../models');
 const { protect, checkPermission, restrictToCompany } = require('../middleware/auth');
 const { uploadMultiple, getFileUrl } = require('../middleware/upload');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
+const auditService = require('../services/auditService');
 
 router.use(protect);
 router.use(restrictToCompany);
@@ -202,6 +203,8 @@ router.post('/', [
   await claim.populate('driverId', 'firstName lastName employeeId');
   await claim.populate('vehicleId', 'unitNumber vin');
 
+  auditService.log(req, 'create', 'damage_claim', claim._id, { damageType: req.body.damageType, claimAmount: req.body.claimAmount });
+
   res.status(201).json({
     success: true,
     claim
@@ -256,6 +259,8 @@ router.put('/:id', asyncHandler(async (req, res) => {
   await claim.populate('driverId', 'firstName lastName employeeId');
   await claim.populate('vehicleId', 'unitNumber vin');
 
+  auditService.log(req, 'update', 'damage_claim', req.params.id, { summary: 'Claim updated' });
+
   res.json({
     success: true,
     claim
@@ -276,6 +281,8 @@ router.delete('/:id', asyncHandler(async (req, res) => {
   }
 
   await DamageClaim.findByIdAndDelete(req.params.id);
+
+  auditService.log(req, 'delete', 'damage_claim', req.params.id, { claimNumber: claim.claimNumber });
 
   res.json({
     success: true,
@@ -323,6 +330,8 @@ router.put('/:id/settle', [
   });
 
   await claim.save();
+
+  auditService.log(req, 'update', 'damage_claim', req.params.id, { settlementAmount: req.body.settlementAmount, summary: 'Claim settled' });
 
   res.json({
     success: true,

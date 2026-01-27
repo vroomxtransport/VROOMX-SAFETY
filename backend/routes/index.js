@@ -26,6 +26,7 @@ const adminRoutes = require('./admin');
 const taskRoutes = require('./tasks');
 const checklistRoutes = require('./checklists');
 const maintenanceRoutes = require('./maintenance');
+const auditRoutes = require('./audit');
 
 // Mount routes
 router.use('/auth', authRoutes);
@@ -53,5 +54,6 @@ router.use('/admin', adminRoutes);
 router.use('/tasks', taskRoutes);
 router.use('/checklists', checklistRoutes);
 router.use('/maintenance', maintenanceRoutes);
+router.use('/audit', auditRoutes);
 
 module.exports = router;

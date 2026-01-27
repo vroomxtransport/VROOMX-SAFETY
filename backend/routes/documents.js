@@ -7,6 +7,7 @@ const { uploadSingle, uploadMultiple, getFileUrl, deleteFile } = require('../mid
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const documentIntelligenceService = require('../services/documentIntelligenceService');
 const openaiVisionService = require('../services/openaiVisionService');
+const auditService = require('../services/auditService');
 
 // Escape regex special characters to prevent NoSQL injection
 const escapeRegex = (str) => {
@@ -224,6 +225,8 @@ router.post('/', checkPermission('documents', 'upload'),
       uploadedBy: req.user._id
     });
 
+    auditService.log(req, 'create', 'document', document._id, { category, documentType, name: document.name });
+
     res.status(201).json({
       success: true,
       document
@@ -284,6 +287,8 @@ router.post('/smart-upload', checkPermission('documents', 'upload'),
         uploadedBy: req.user._id,
         aiProcessed: false
       });
+
+      auditService.log(req, 'upload', 'document', document._id, { aiProcessed: result.success, name: req.file.originalname });
 
       return res.status(201).json({
         success: true,
@@ -350,6 +355,8 @@ router.post('/smart-upload', checkPermission('documents', 'upload'),
         }
       );
     }
+
+    auditService.log(req, 'upload', 'document', document._id, { aiProcessed: result.success, name: req.file.originalname });
 
     res.status(201).json({
       success: true,
@@ -447,6 +454,8 @@ router.post('/bulk', checkPermission('documents', 'upload'),
       });
     }));
 
+    auditService.log(req, 'upload', 'document', null, { count: documents.length });
+
     res.status(201).json({
       success: true,
       count: documents.length,
@@ -481,6 +490,8 @@ router.put('/:id', checkPermission('documents', 'upload'), asyncHandler(async (r
     { new: true, runValidators: true }
   );
 
+  auditService.log(req, 'update', 'document', req.params.id, { summary: 'Document metadata updated' });
+
   res.json({
     success: true,
     document
@@ -505,6 +516,8 @@ router.post('/:id/verify', checkPermission('documents', 'upload'), asyncHandler(
   document.verifiedBy = req.user._id;
   document.verifiedDate = new Date();
   await document.save();
+
+  auditService.log(req, 'update', 'document', req.params.id, { summary: 'Document verified' });
 
   res.json({
     success: true,
@@ -558,6 +571,8 @@ router.post('/:id/replace', checkPermission('documents', 'upload'),
 
     await document.save();
 
+    auditService.log(req, 'update', 'document', req.params.id, { version: document.version, summary: 'Document replaced' });
+
     res.json({
       success: true,
       message: 'Document replaced successfully',
@@ -584,6 +599,8 @@ router.delete('/:id', checkPermission('documents', 'delete'), asyncHandler(async
   document.deletedAt = new Date();
   document.deletedBy = req.user._id;
   await document.save();
+
+  auditService.log(req, 'delete', 'document', req.params.id, { name: document.name });
 
   res.json({
     success: true,

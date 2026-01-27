@@ -4,6 +4,7 @@ const { body, validationResult } = require('express-validator');
 const Task = require('../models/Task');
 const { protect, restrictToCompany, checkPermission } = require('../middleware/auth');
 const { asyncHandler } = require('../middleware/errorHandler');
+const auditService = require('../services/auditService');
 
 // Apply authentication to all routes
 router.use(protect);
@@ -189,6 +190,8 @@ router.post('/', [
     .populate('assignedTo', 'firstName lastName email')
     .populate('createdBy', 'firstName lastName');
 
+  auditService.log(req, 'create', 'task', task._id, { title: req.body.title });
+
   res.status(201).json({
     success: true,
     message: 'Task created successfully',
@@ -224,6 +227,8 @@ router.put('/:id', asyncHandler(async (req, res) => {
     .populate('assignedTo', 'firstName lastName email')
     .populate('createdBy', 'firstName lastName')
     .populate('completedBy', 'firstName lastName');
+
+  auditService.log(req, 'update', 'task', req.params.id, { summary: 'Task updated' });
 
   res.json({
     success: true,
@@ -262,6 +267,8 @@ router.patch('/:id/complete', asyncHandler(async (req, res) => {
     .populate('assignedTo', 'firstName lastName email')
     .populate('createdBy', 'firstName lastName')
     .populate('completedBy', 'firstName lastName');
+
+  auditService.log(req, 'update', 'task', req.params.id, { summary: 'Task completed' });
 
   res.json({
     success: true,
@@ -349,6 +356,8 @@ router.delete('/:id', asyncHandler(async (req, res) => {
   }
 
   await Task.findByIdAndDelete(req.params.id);
+
+  auditService.log(req, 'delete', 'task', req.params.id, { title: task.title });
 
   res.json({
     success: true,

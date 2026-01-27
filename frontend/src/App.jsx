@@ -44,6 +44,7 @@ import AdminLayout from './pages/admin/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminCompanies from './pages/admin/AdminCompanies';
+import AdminAuditLogs from './pages/admin/AdminAuditLogs';
 
 // Design Demos
 import EnterpriseDemo from './pages/designs/EnterpriseDemo';
@@ -251,6 +252,7 @@ function App() {
           <Route index element={<AdminDashboard />} />
           <Route path="users" element={<AdminUsers />} />
           <Route path="companies" element={<AdminCompanies />} />
+          <Route path="audit-logs" element={<AdminAuditLogs />} />
         </Route>
 
         {/* 404 */}

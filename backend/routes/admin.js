@@ -7,6 +7,7 @@ const Company = require('../models/Company');
 const Driver = require('../models/Driver');
 const Vehicle = require('../models/Vehicle');
 const { protect, requireSuperAdmin } = require('../middleware/auth');
+const auditService = require('../services/auditService');
 
 // All admin routes require authentication and superadmin role
 router.use(protect);
@@ -239,6 +240,8 @@ router.patch('/users/:id', async (req, res) => {
 
     await user.save();
 
+    auditService.log(req, 'update', 'user', req.params.id, { changes: { isSuspended, isActive, isSuperAdmin }, summary: 'Admin updated user' });
+
     res.json({
       success: true,
       message: 'User updated successfully',
@@ -291,6 +294,8 @@ router.delete('/users/:id', async (req, res) => {
     // Delete the user
     await User.findByIdAndDelete(req.params.id);
 
+    auditService.log(req, 'delete', 'user', req.params.id, { email: user.email, ownedCompanies: ownedCompanies.length, summary: 'Admin deleted user' });
+
     res.json({
       success: true,
       message: `User deleted successfully along with ${ownedCompanies.length} owned company(ies)`
@@ -329,6 +334,8 @@ router.post('/users/:id/impersonate', async (req, res) => {
 
     // Audit log the impersonation
     console.warn(`[ADMIN AUDIT] IMPERSONATION: ${req.user.email} (${req.user._id}) impersonated ${user.email} (${user._id}) at ${new Date().toISOString()} from IP ${req.ip}`);
+
+    auditService.log(req, 'impersonate', 'user', req.params.id, { targetEmail: user.email, summary: 'Admin impersonated user' });
 
     res.json({
       success: true,
@@ -389,6 +396,8 @@ router.patch('/users/:id/subscription', async (req, res) => {
 
     // Log the override
     console.log(`[ADMIN] User ${req.user.email} modified subscription for ${user.email}: plan=${plan}, status=${status}`);
+
+    auditService.log(req, 'update', 'subscription', req.params.id, { plan, status, summary: 'Admin overrode subscription' });
 
     res.json({
       success: true,
@@ -477,6 +486,8 @@ router.delete('/companies/:id', async (req, res) => {
     await cascadeDeleteCompany(req.params.id);
 
     console.log(`[ADMIN] User ${req.user.email} deleted company ${company.name} (${company.dotNumber})`);
+
+    auditService.log(req, 'delete', 'company', req.params.id, { companyName: company.name, dotNumber: company.dotNumber, summary: 'Admin deleted company' });
 
     res.json({
       success: true,

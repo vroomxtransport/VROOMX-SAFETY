@@ -6,6 +6,7 @@ const { protect, checkPermission, restrictToCompany } = require('../middleware/a
 const { uploadSingle, getFileUrl } = require('../middleware/upload');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const { checkDriverLimit } = require('../middleware/subscriptionLimits');
+const auditService = require('../services/auditService');
 
 // Escape regex special characters to prevent NoSQL injection
 const escapeRegex = (str) => {
@@ -193,6 +194,8 @@ router.post('/', checkPermission('drivers', 'edit'), checkDriverLimit, [
     companyId: req.user.companyId._id || req.user.companyId
   });
 
+  auditService.log(req, 'create', 'driver', driver._id, { name: req.body.firstName + ' ' + req.body.lastName, employeeId: req.body.employeeId });
+
   res.status(201).json({
     success: true,
     driver
@@ -231,6 +234,8 @@ router.put('/:id', checkPermission('drivers', 'edit'), asyncHandler(async (req, 
     updateData,
     { new: true, runValidators: true }
   );
+
+  auditService.log(req, 'update', 'driver', req.params.id, { fields: Object.keys(updateData) });
 
   res.json({
     success: true,
@@ -292,6 +297,8 @@ router.post('/:id/documents',
 
     await driver.save();
 
+    auditService.log(req, 'upload', 'driver', req.params.id, { documentType: req.body.documentType });
+
     res.json({
       success: true,
       message: 'Document uploaded successfully',
@@ -347,6 +354,8 @@ router.delete('/:id', checkPermission('drivers', 'delete'), asyncHandler(async (
   driver.status = 'terminated';
   driver.terminationDate = new Date();
   await driver.save();
+
+  auditService.log(req, 'delete', 'driver', req.params.id, { name: driver.firstName + ' ' + driver.lastName });
 
   res.json({
     success: true,

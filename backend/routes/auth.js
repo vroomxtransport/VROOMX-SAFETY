@@ -9,6 +9,7 @@ const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const { getUsageStats } = require('../middleware/subscriptionLimits');
 const fmcsaSyncService = require('../services/fmcsaSyncService');
 const emailService = require('../services/emailService');
+const auditService = require('../services/auditService');
 
 // Generate JWT token
 const generateToken = (id) => {
@@ -118,6 +119,8 @@ router.post('/register', [
   // Send welcome + verification emails (fire-and-forget)
   emailService.sendWelcome(user).catch(() => {});
   emailService.sendEmailVerification(user).catch(() => {});
+
+  auditService.logAuth(req, 'create', { email, userId: user._id, companyId: company._id, summary: 'User registered' });
 
   res.status(201).json({
     success: true,
@@ -282,6 +285,8 @@ router.post('/login', [
     isActive: m.isActive
   })) || [];
 
+  auditService.logAuth(req, 'login', { email, userId: user._id, companyId: activeCompany?._id });
+
   res.json({
     success: true,
     token,
@@ -432,6 +437,8 @@ router.put('/updatepassword', protect, [
 
   const token = generateToken(user._id);
 
+  auditService.log(req, 'password_change', 'user', req.user._id, { summary: 'Password changed' });
+
   res.json({
     success: true,
     token,
@@ -455,6 +462,8 @@ router.put('/profile', protect, asyncHandler(async (req, res) => {
     updateFields,
     { new: true, runValidators: true }
   ).select('-password');
+
+  auditService.log(req, 'update', 'user', req.user._id, { fields: Object.keys(updateFields) });
 
   res.json({
     success: true,
@@ -514,6 +523,8 @@ router.post('/users', protect, restrictToCompany, [
     });
     await existingUser.save();
 
+    auditService.log(req, 'create', 'user', existingUser._id, { email, role, summary: 'User created for company' });
+
     return res.status(201).json({
       success: true,
       user: {
@@ -553,6 +564,8 @@ router.post('/users', protect, restrictToCompany, [
     permissions: defaultPermissions,
     companyId: req.companyFilter.companyId
   });
+
+  auditService.log(req, 'create', 'user', user._id, { email, role, summary: 'User created for company' });
 
   res.status(201).json({
     success: true,
@@ -625,6 +638,8 @@ router.post('/forgot-password', asyncHandler(async (req, res) => {
 
   emailService.sendPasswordReset(user, resetToken).catch(() => {});
 
+  auditService.logAuth(req, 'password_change', { email, summary: 'Password reset requested' });
+
   res.json({ success: true, message: 'If that email exists, a reset link has been sent' });
 }));
 
@@ -650,6 +665,8 @@ router.post('/reset-password/:token', asyncHandler(async (req, res) => {
 
   // Send confirmation email (fire-and-forget)
   emailService.sendPasswordResetConfirmation(user).catch(() => {});
+
+  auditService.logAuth(req, 'password_change', { userId: user._id, email: user.email, summary: 'Password reset completed' });
 
   res.json({ success: true, message: 'Password has been reset successfully' });
 }));

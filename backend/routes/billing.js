@@ -4,6 +4,7 @@ const { protect } = require('../middleware/auth');
 const { getUsageStats } = require('../middleware/subscriptionLimits');
 const stripeService = require('../services/stripeService');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
+const auditService = require('../services/auditService');
 
 // Price configuration for display
 const PRICING = {
@@ -141,6 +142,8 @@ router.post('/create-checkout-session', protect, asyncHandler(async (req, res) =
 
   const session = await stripeService.createCheckoutSession(req.user, plan);
 
+  auditService.log(req, 'create', 'subscription', null, { plan, summary: 'Checkout session created' });
+
   res.json({
     success: true,
     sessionId: session.sessionId,
@@ -176,6 +179,8 @@ router.post('/cancel', protect, asyncHandler(async (req, res) => {
 
   await stripeService.cancelSubscription(req.user);
 
+  auditService.log(req, 'update', 'subscription', null, { summary: 'Subscription cancellation requested' });
+
   res.json({
     success: true,
     message: 'Subscription will be canceled at the end of the current billing period',
@@ -196,6 +201,8 @@ router.post('/reactivate', protect, asyncHandler(async (req, res) => {
   }
 
   await stripeService.reactivateSubscription(req.user);
+
+  auditService.log(req, 'update', 'subscription', null, { summary: 'Subscription reactivated' });
 
   res.json({
     success: true,

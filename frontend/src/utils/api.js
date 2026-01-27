@@ -381,5 +381,9 @@ export const adminAPI = {
   // Companies
   getCompanies: (params) => api.get('/admin/companies', { params }),
   getCompany: (id) => api.get(`/admin/companies/${id}`),
-  deleteCompany: (id) => api.delete(`/admin/companies/${id}`)
+  deleteCompany: (id) => api.delete(`/admin/companies/${id}`),
+
+  // Audit Logs
+  getAuditLogs: (params) => api.get('/audit', { params }),
+  exportAuditLogs: (params) => api.get('/audit/export', { params, responseType: 'blob' }),
 };

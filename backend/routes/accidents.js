@@ -5,6 +5,7 @@ const { Accident, Driver, Vehicle } = require('../models');
 const { protect, checkPermission, restrictToCompany } = require('../middleware/auth');
 const { uploadMultiple, getFileUrl } = require('../middleware/upload');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
+const auditService = require('../services/auditService');
 
 router.use(protect);
 router.use(restrictToCompany);
@@ -131,6 +132,8 @@ router.post('/', checkPermission('accidents', 'edit'), [
     createdBy: req.user._id
   });
 
+  auditService.log(req, 'create', 'accident', accident._id, { severity: req.body.severity, driverId: req.body.driverId });
+
   res.status(201).json({
     success: true,
     accident
@@ -157,6 +160,8 @@ router.put('/:id', checkPermission('accidents', 'edit'), asyncHandler(async (req
     req.body,
     { new: true, runValidators: true }
   );
+
+  auditService.log(req, 'update', 'accident', req.params.id, { summary: 'Accident updated' });
 
   res.json({
     success: true,
@@ -188,6 +193,8 @@ router.post('/:id/documents', checkPermission('accidents', 'edit'),
 
     accident.documents.push(...newDocs);
     await accident.save();
+
+    auditService.log(req, 'upload', 'accident', req.params.id, { count: req.files?.length });
 
     res.json({
       success: true,
@@ -221,6 +228,8 @@ router.post('/:id/investigation', checkPermission('accidents', 'edit'), asyncHan
   }
 
   await accident.save();
+
+  auditService.log(req, 'update', 'accident', req.params.id, { summary: 'Investigation recorded' });
 
   res.json({
     success: true,

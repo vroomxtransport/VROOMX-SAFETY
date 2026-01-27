@@ -15,6 +15,7 @@ const ChecklistTemplate = require('./ChecklistTemplate');
 const ChecklistAssignment = require('./ChecklistAssignment');
 const MaintenanceRecord = require('./MaintenanceRecord');
 const EmailLog = require('./EmailLog');
+const AuditLog = require('./AuditLog');
 
 module.exports = {
   User,
@@ -33,5 +34,6 @@ module.exports = {
   ChecklistTemplate,
   ChecklistAssignment,
   MaintenanceRecord,
-  EmailLog
+  EmailLog,
+  AuditLog
 };

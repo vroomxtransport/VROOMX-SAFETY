@@ -5,6 +5,7 @@ const Ticket = require('../models/Ticket');
 const { Driver, Vehicle } = require('../models');
 const { protect, checkPermission, restrictToCompany } = require('../middleware/auth');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
+const auditService = require('../services/auditService');
 
 router.use(protect);
 router.use(restrictToCompany);
@@ -178,6 +179,8 @@ router.post('/', checkPermission('violations', 'edit'), [
 
   await ticket.populate('driverId', 'firstName lastName employeeId');
 
+  auditService.log(req, 'create', 'ticket', ticket._id, { driverId: req.body.driverId, description: req.body.description?.substring(0, 100) });
+
   res.status(201).json({
     success: true,
     ticket
@@ -208,6 +211,8 @@ router.put('/:id', checkPermission('violations', 'edit'), asyncHandler(async (re
     req.body,
     { new: true, runValidators: true }
   ).populate('driverId', 'firstName lastName employeeId');
+
+  auditService.log(req, 'update', 'ticket', req.params.id, { summary: 'Ticket updated' });
 
   res.json({
     success: true,
@@ -282,6 +287,8 @@ router.put('/:id/court-decision', checkPermission('violations', 'edit'), [
 
   await ticket.save();
 
+  auditService.log(req, 'update', 'ticket', req.params.id, { courtDecision: req.body.courtDecision });
+
   res.json({
     success: true,
     ticket
@@ -312,6 +319,8 @@ router.put('/:id/payment', checkPermission('violations', 'edit'), asyncHandler(a
   ticket.lastUpdatedBy = req.user._id;
   await ticket.save();
 
+  auditService.log(req, 'update', 'ticket', req.params.id, { summary: 'Payment recorded' });
+
   res.json({
     success: true,
     message: 'Payment recorded successfully',
@@ -333,6 +342,8 @@ router.delete('/:id', checkPermission('violations', 'delete'), asyncHandler(asyn
   }
 
   await ticket.deleteOne();
+
+  auditService.log(req, 'delete', 'ticket', req.params.id, { summary: 'Ticket deleted' });
 
   res.json({
     success: true,

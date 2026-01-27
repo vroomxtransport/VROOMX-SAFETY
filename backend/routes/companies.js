@@ -7,6 +7,7 @@ const { protect, restrictToCompany, requireCompanyAdmin, requireCompanyOwner } =
 const { checkCompanyLimit } = require('../middleware/subscriptionLimits');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const emailService = require('../services/emailService');
+const auditService = require('../services/auditService');
 
 // Apply auth middleware to all routes
 router.use(protect);
@@ -99,6 +100,8 @@ router.post('/', [
 
   await req.user.save();
 
+  auditService.log(req, 'create', 'company', company._id, { name, dotNumber, summary: 'Company created' });
+
   res.status(201).json({
     success: true,
     company: {
@@ -180,6 +183,8 @@ router.put('/:id', asyncHandler(async (req, res) => {
     { new: true, runValidators: true }
   );
 
+  auditService.log(req, 'update', 'company', req.params.id, { fields: Object.keys(updates), summary: 'Company updated' });
+
   res.json({
     success: true,
     company
@@ -215,6 +220,8 @@ router.delete('/:id', asyncHandler(async (req, res) => {
 
   await req.user.save();
 
+  auditService.log(req, 'delete', 'company', req.params.id, { summary: 'Company deleted' });
+
   res.json({
     success: true,
     message: 'Company deleted successfully'
@@ -245,6 +252,8 @@ router.post('/:id/switch', asyncHandler(async (req, res) => {
 
   // Generate new token (keeps same user, new context)
   const token = generateToken(req.user._id);
+
+  auditService.log(req, 'update', 'company', companyId, { summary: 'Switched active company' });
 
   res.json({
     success: true,
@@ -367,6 +376,8 @@ router.post('/:id/invite', [
   // Send invitation email
   emailService.sendCompanyInvitation(invitation, company, req.user).catch(() => {});
 
+  auditService.log(req, 'invite', 'invitation', invitation._id, { email, role, companyName: company.name, summary: 'User invited to company' });
+
   res.status(201).json({
     success: true,
     message: 'Invitation sent successfully',
@@ -435,6 +446,8 @@ router.delete('/:id/members/:userId', asyncHandler(async (req, res) => {
   }
 
   await userToRemove.save();
+
+  auditService.log(req, 'delete', 'user', userIdToRemove, { summary: 'Member removed from company' });
 
   res.json({
     success: true,

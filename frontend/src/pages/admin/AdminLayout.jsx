@@ -5,13 +5,14 @@ import { useTheme } from '../../context/ThemeContext';
 import VroomXLogo from '../../components/VroomXLogo';
 import {
   FiHome, FiUsers, FiBriefcase, FiSettings, FiLogOut,
-  FiArrowLeft, FiSun, FiMoon, FiShield
+  FiArrowLeft, FiSun, FiMoon, FiShield, FiActivity
 } from 'react-icons/fi';
 
 const adminNavigation = [
   { name: 'Dashboard', path: '/admin', icon: FiHome },
   { name: 'Users', path: '/admin/users', icon: FiUsers },
   { name: 'Companies', path: '/admin/companies', icon: FiBriefcase },
+  { name: 'Audit Logs', path: '/admin/audit-logs', icon: FiActivity },
 ];
 
 const AdminLayout = () => {

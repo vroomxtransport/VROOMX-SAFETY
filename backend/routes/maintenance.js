@@ -7,6 +7,7 @@ const { protect, restrictToCompany, checkPermission } = require('../middleware/a
 const { asyncHandler } = require('../middleware/errorHandler');
 const { uploadSingle, getFileUrl, deleteFile } = require('../middleware/upload');
 const openaiVisionService = require('../services/openaiVisionService');
+const auditService = require('../services/auditService');
 
 // Apply authentication to all routes
 router.use(protect);
@@ -340,6 +341,8 @@ router.post('/', [
     .populate('vehicleId', 'unitNumber type make model year')
     .populate('createdBy', 'firstName lastName');
 
+  auditService.log(req, 'create', 'maintenance', record._id, { recordType: req.body.recordType, vehicleId: req.body.vehicleId });
+
   res.status(201).json({
     success: true,
     message: 'Maintenance record created successfully',
@@ -414,6 +417,8 @@ router.put('/:id', asyncHandler(async (req, res) => {
     }
   }
 
+  auditService.log(req, 'update', 'maintenance', req.params.id, { summary: 'Maintenance record updated' });
+
   res.json({
     success: true,
     message: 'Maintenance record updated successfully',
@@ -444,6 +449,8 @@ router.delete('/:id', asyncHandler(async (req, res) => {
   }
 
   await MaintenanceRecord.findByIdAndDelete(req.params.id);
+
+  auditService.log(req, 'delete', 'maintenance', req.params.id, { vehicleId: record.vehicleId });
 
   res.json({
     success: true,
