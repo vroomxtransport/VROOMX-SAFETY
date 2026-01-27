@@ -417,6 +417,46 @@ const stripeService = {
   },
 
   /**
+   * Get customer invoices from Stripe
+   */
+  async getInvoices(user, options = {}) {
+    if (!STRIPE_ENABLED) {
+      throw new Error('Stripe is not configured');
+    }
+    if (!user.stripeCustomerId) {
+      return { data: [], has_more: false };
+    }
+
+    try {
+      const invoices = await stripe.invoices.list({
+        customer: user.stripeCustomerId,
+        limit: options.limit || 20
+      });
+      return invoices;
+    } catch (error) {
+      console.error('Error retrieving invoices:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Get a specific invoice by ID
+   */
+  async getInvoice(invoiceId) {
+    if (!STRIPE_ENABLED) {
+      throw new Error('Stripe is not configured');
+    }
+
+    try {
+      const invoice = await stripe.invoices.retrieve(invoiceId);
+      return invoice;
+    } catch (error) {
+      console.error('Error retrieving invoice:', error);
+      throw error;
+    }
+  },
+
+  /**
    * Verify webhook signature
    */
   constructEvent(payload, signature) {

@@ -196,6 +196,88 @@ router.post('/reactivate', protect, asyncHandler(async (req, res) => {
   });
 }));
 
+// @route   GET /api/billing/invoices
+// @desc    Get user's invoice history
+// @access  Private
+router.get('/invoices', protect, asyncHandler(async (req, res) => {
+  const { limit = 20 } = req.query;
+  const user = req.user;
+
+  if (!user.stripeCustomerId) {
+    return res.json({
+      success: true,
+      invoices: [],
+      count: 0,
+      hasMore: false,
+      message: 'No billing account found'
+    });
+  }
+
+  const invoices = await stripeService.getInvoices(user, {
+    limit: Math.min(parseInt(limit), 100)
+  });
+
+  const invoiceList = invoices.data.map(inv => ({
+    id: inv.id,
+    invoiceNumber: inv.number,
+    status: inv.status,
+    amountDue: inv.amount_due / 100,
+    amountPaid: inv.amount_paid / 100,
+    total: inv.total / 100,
+    currency: inv.currency?.toUpperCase() || 'USD',
+    issueDate: new Date(inv.created * 1000),
+    dueDate: inv.due_date ? new Date(inv.due_date * 1000) : null,
+    paidDate: inv.status_transitions?.paid_at ? new Date(inv.status_transitions.paid_at * 1000) : null,
+    pdfUrl: inv.invoice_pdf,
+    hostedUrl: inv.hosted_invoice_url
+  }));
+
+  res.json({
+    success: true,
+    invoices: invoiceList,
+    count: invoiceList.length,
+    hasMore: invoices.has_more
+  });
+}));
+
+// @route   GET /api/billing/invoices/:invoiceId
+// @desc    Get a specific invoice
+// @access  Private
+router.get('/invoices/:invoiceId', protect, asyncHandler(async (req, res) => {
+  const invoice = await stripeService.getInvoice(req.params.invoiceId);
+
+  // Verify invoice belongs to current user
+  if (invoice.customer !== req.user.stripeCustomerId) {
+    throw new AppError('Unauthorized to access this invoice', 403);
+  }
+
+  res.json({
+    success: true,
+    invoice: {
+      id: invoice.id,
+      invoiceNumber: invoice.number,
+      status: invoice.status,
+      amountDue: invoice.amount_due / 100,
+      amountPaid: invoice.amount_paid / 100,
+      total: invoice.total / 100,
+      currency: invoice.currency?.toUpperCase() || 'USD',
+      issueDate: new Date(invoice.created * 1000),
+      dueDate: invoice.due_date ? new Date(invoice.due_date * 1000) : null,
+      paidDate: invoice.status_transitions?.paid_at ? new Date(invoice.status_transitions.paid_at * 1000) : null,
+      pdfUrl: invoice.invoice_pdf,
+      hostedUrl: invoice.hosted_invoice_url,
+      lineItems: invoice.lines?.data?.map(line => ({
+        description: line.description,
+        amount: line.amount / 100,
+        period: line.period ? {
+          start: new Date(line.period.start * 1000),
+          end: new Date(line.period.end * 1000)
+        } : null
+      })) || []
+    }
+  });
+}));
+
 // @route   POST /api/billing/webhook
 // @desc    Handle Stripe webhook events
 // @access  Public (verified by Stripe signature)
