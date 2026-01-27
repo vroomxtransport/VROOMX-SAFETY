@@ -33,7 +33,7 @@
 - **Framework:** Express.js
 - **Database:** MongoDB with Mongoose ODM
 - **Authentication:** JWT + bcryptjs
-- **AI Integration:** Anthropic Claude API, OpenAI API
+- **AI Integration:** Anthropic Claude API, OpenAI API (Chat Completions + Responses API for PDF)
 - **Payments:** Stripe (live mode with metered billing)
 - **File Uploads:** Multer (10MB limit)
 - **Email:** Resend SDK (transactional + notification emails) via Google Workspace domain
@@ -105,7 +105,8 @@ TRUCKING COMPLIANCE HUB1/
 ### AI Features
 - **VroomX AI Assistant** - Natural language compliance Q&A (Claude AI)
 - **Regulation Assistant** - FMCSA regulation lookup
-- **Document Intelligence** - Auto-classification via OpenAI Vision
+- **Document Intelligence** - Auto-classification via OpenAI Vision (images + PDF support)
+- **Smart Maintenance Upload** - AI extracts invoice/work order data from photos and PDFs (OpenAI Responses API)
 - **CSA Estimator** - Calculate potential CSA impact
 
 ### Business Features
@@ -261,6 +262,21 @@ npm run dev  # Starts on port 5173
 ---
 
 ## Changelog
+
+### 2026-01-27 (Maintenance AI Smart Upload Fix)
+- **Fix:** AI smart upload not extracting data from PDF invoices — maintenance form fields stayed empty after upload
+  - Root cause: `extractMaintenanceData()` used OpenAI Chat Completions API with `image_url` content type, which only supports images (JPEG, PNG, GIF, WebP). PDF invoices sent as `data:application/pdf;base64,...` were rejected by OpenAI.
+  - Fix: Added PDF detection — PDFs now use OpenAI Responses API (`openai.responses.create()`) with `input_file` content type. Images continue using the existing Chat Completions `image_url` approach.
+  - File: `backend/services/openaiVisionService.js`
+- **Fix:** Moved `POST /smart-upload` route before parameterized `/:id` routes in Express — best practice to prevent route matching conflicts
+  - File: `backend/routes/maintenance.js`
+- **Fix:** Silent failure when AI extraction fails — user saw no feedback. Now shows error toast: "Could not extract data from document. Please fill in details manually."
+  - File: `frontend/src/pages/Maintenance.jsx`
+
+### 2026-01-27 (Dashboard Layout)
+- **UI:** Compacted Compliance Score card — reduced gauge from 224px to 160px, score text from 6xl to 5xl, tightened padding/margins throughout
+- **UI:** Moved Compliance Trend chart from middle of dashboard to bottom (after alerts/birthdays/status row)
+  - File: `frontend/src/pages/Dashboard.jsx`
 
 ### 2026-01-27 (Admin Panel Overhaul)
 - **Feature:** Comprehensive admin panel overhaul with analytics, power tools, and system operations
