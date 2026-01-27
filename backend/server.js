@@ -95,12 +95,17 @@ const globalLimiter = rateLimit({
 });
 app.use('/api', globalLimiter);
 
-// Stricter rate limit for auth endpoints
+// Stricter rate limit for auth endpoints - keyed on IP + email so
+// blocking one email doesn't block login attempts for other accounts
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 15,
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: (req) => {
+    const email = (req.body && req.body.email) ? req.body.email.toLowerCase().trim() : '';
+    return `${req.ip}:${email}`;
+  },
   message: { success: false, message: 'Too many authentication attempts. Please try again later.' }
 });
 app.use('/api/auth/login', authLimiter);
