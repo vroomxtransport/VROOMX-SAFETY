@@ -5,6 +5,7 @@ const { Vehicle } = require('../models');
 const { protect, checkPermission, restrictToCompany } = require('../middleware/auth');
 const { uploadSingle, getFileUrl } = require('../middleware/upload');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
+const { checkVehicleLimit } = require('../middleware/subscriptionLimits');
 
 router.use(protect);
 router.use(restrictToCompany);
@@ -135,7 +136,7 @@ router.get('/:id', checkPermission('vehicles', 'view'), asyncHandler(async (req,
 // @route   POST /api/vehicles
 // @desc    Create new vehicle
 // @access  Private
-router.post('/', checkPermission('vehicles', 'edit'), [
+router.post('/', checkPermission('vehicles', 'edit'), checkVehicleLimit, [
   body('unitNumber').trim().notEmpty().withMessage('Unit number is required'),
   body('vin').trim().isLength({ min: 17, max: 17 }).withMessage('VIN must be 17 characters'),
   body('vehicleType').isIn(['tractor', 'trailer', 'straight_truck', 'bus', 'van']).withMessage('Invalid vehicle type')

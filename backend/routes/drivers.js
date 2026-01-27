@@ -5,6 +5,7 @@ const { Driver } = require('../models');
 const { protect, checkPermission, restrictToCompany } = require('../middleware/auth');
 const { uploadSingle, getFileUrl } = require('../middleware/upload');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
+const { checkDriverLimit } = require('../middleware/subscriptionLimits');
 
 // Apply authentication and company restriction to all routes
 router.use(protect);
@@ -150,7 +151,7 @@ router.get('/:id', checkPermission('drivers', 'view'), asyncHandler(async (req, 
 // @route   POST /api/drivers
 // @desc    Create new driver
 // @access  Private
-router.post('/', checkPermission('drivers', 'edit'), [
+router.post('/', checkPermission('drivers', 'edit'), checkDriverLimit, [
   body('firstName').trim().notEmpty().withMessage('First name is required'),
   body('lastName').trim().notEmpty().withMessage('Last name is required'),
   body('dateOfBirth').isISO8601().withMessage('Valid date of birth is required'),
