@@ -418,7 +418,7 @@ const Billing = () => {
 
             <div className="mb-6">
               <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-bold text-zinc-900 dark:text-zinc-100">$29</span>
+                <span className="text-4xl font-bold text-zinc-900 dark:text-zinc-100">$39</span>
                 <span className="text-zinc-600 dark:text-zinc-300">/month</span>
               </div>
             </div>
@@ -514,7 +514,7 @@ const Billing = () => {
 
             <div className="mb-6">
               <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-bold text-zinc-900 dark:text-zinc-100">$49</span>
+                <span className="text-4xl font-bold text-zinc-900 dark:text-zinc-100">$79</span>
                 <span className="text-zinc-600 dark:text-zinc-300">/month</span>
               </div>
             </div>

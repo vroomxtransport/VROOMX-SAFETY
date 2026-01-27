@@ -29,7 +29,7 @@ const PRICING = {
   },
   starter: {
     name: 'Starter',
-    price: 29,
+    price: 39,
     priceId: process.env.STRIPE_STARTER_PRICE_ID,
     features: [
       '1 Company',
@@ -48,7 +48,7 @@ const PRICING = {
   },
   professional: {
     name: 'Professional',
-    price: 49,
+    price: 79,
     priceId: process.env.STRIPE_PROFESSIONAL_PRICE_ID,
     features: [
       'Unlimited Companies',
