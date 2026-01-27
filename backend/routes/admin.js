@@ -983,7 +983,11 @@ router.get('/analytics', async (req, res) => {
 router.get('/system', async (req, res) => {
   try {
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const recentEmailFailures = await EmailLog.countDocuments({ status: 'failed', createdAt: { $gte: oneDayAgo } });
+    const [recentEmailFailures, emailsSent24h, emailsDelivered24h] = await Promise.all([
+      EmailLog.countDocuments({ status: 'failed', createdAt: { $gte: oneDayAgo } }),
+      EmailLog.countDocuments({ status: 'sent', createdAt: { $gte: oneDayAgo } }),
+      EmailLog.countDocuments({ status: 'delivered', createdAt: { $gte: oneDayAgo } })
+    ]);
 
     const dbStates = { 0: 'disconnected', 1: 'connected', 2: 'connecting', 3: 'disconnecting' };
 
@@ -1001,7 +1005,12 @@ router.get('/system', async (req, res) => {
           stripe: !!process.env.STRIPE_SECRET_KEY,
           openai: !!process.env.OPENAI_API_KEY
         },
-        recentEmailFailures
+        recentEmailFailures,
+        emailStats: {
+          sent: emailsSent24h,
+          delivered: emailsDelivered24h,
+          failed: recentEmailFailures
+        }
       }
     });
   } catch (error) {

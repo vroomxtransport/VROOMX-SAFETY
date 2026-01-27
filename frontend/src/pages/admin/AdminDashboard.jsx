@@ -41,7 +41,7 @@ const AdminDashboard = () => {
   const fetchSystemHealth = async () => {
     try {
       const response = await adminAPI.getSystemHealth();
-      setSystemHealth(response.data);
+      setSystemHealth(response.data.system || response.data);
     } catch (err) {
       console.error('Failed to load system health:', err);
     } finally {
@@ -390,19 +390,16 @@ const AdminDashboard = () => {
               <h3 className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">Services</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {[
-                  { name: 'Email', key: 'email', icon: FiMail },
+                  { name: 'Email', key: 'resend', icon: FiMail },
                   { name: 'Stripe', key: 'stripe', icon: FiCreditCard },
                   { name: 'OpenAI', key: 'openai', icon: FiCpu },
                 ].map(({ name, key, icon: Icon }) => {
                   const service = systemHealth.services?.[key];
+                  const isUp = service === true || service?.status === 'operational' || service?.status === 'connected';
                   return (
                     <div key={key} className="flex items-center gap-2 p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800">
                       <span className={`w-2.5 h-2.5 rounded-full ${
-                        service?.status === 'operational' || service?.status === 'connected'
-                          ? 'bg-green-500'
-                          : service?.status === 'degraded'
-                            ? 'bg-yellow-500'
-                            : 'bg-red-500'
+                        isUp ? 'bg-green-500' : 'bg-red-500'
                       }`} />
                       <Icon className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
                       <span className="text-sm text-zinc-700 dark:text-zinc-300">{name}</span>
