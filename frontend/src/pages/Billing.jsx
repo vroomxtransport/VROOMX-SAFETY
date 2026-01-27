@@ -489,7 +489,7 @@ const Billing = () => {
                 'Current Plan'
               ) : (
                 <>
-                  Start Free Trial
+                  Subscribe
                   <FiArrowRight className="w-4 h-4" />
                 </>
               )}
@@ -587,7 +587,7 @@ const Billing = () => {
                 'Current Plan'
               ) : (
                 <>
-                  Start Free Trial
+                  Subscribe
                   <FiArrowRight className="w-4 h-4" />
                 </>
               )}
@@ -695,7 +695,7 @@ const Billing = () => {
                 </>
               ) : (
                 <>
-                  Start Free Trial
+                  Subscribe
                   <FiArrowRight className="w-4 h-4" />
                 </>
               )}

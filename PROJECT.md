@@ -211,6 +211,9 @@ npm run dev  # Starts on port 5173
 ## Changelog
 
 ### 2025-01-26
+- **UI:** Changed "Start Free Trial" to "Subscribe" on Billing page plan buttons
+  - File: `frontend/src/pages/Billing.jsx`
+  - Affected: Solo, Fleet, and Pro plan cards
 - **Fix:** React Error #31 in BillingTab.jsx - Objects were being rendered directly instead of accessing nested properties (`.owned`, `.current`)
   - File: `frontend/src/components/settings/BillingTab.jsx`
   - Lines 48, 60, 72: Changed `currentUsage?.companies` to `currentUsage?.companies?.owned`, etc.
