@@ -279,6 +279,11 @@ npm run dev  # Starts on port 5173
   - Files modified: 26 files, 3,927 lines added
 - **Fix:** Feature flags page crash — `TypeError: t.map is not a function` because frontend read `response.data.flags` but backend returns `response.data.features`
   - File: `frontend/src/pages/admin/AdminFeatureFlags.jsx`
+- **Fix:** System Health panel showing all red dots, "Unknown" database, "N/A" uptime/memory — 3 bugs:
+  1. Data nesting mismatch: frontend stored `response.data` but needed `response.data.system`
+  2. Service key mismatch: frontend used `email` but backend returns `resend`; also checked `.status === 'operational'` but backend returns booleans
+  3. Missing emailStats: backend `/admin/system` didn't include email counts — added sent/delivered/failed (24h)
+  - Files: `frontend/src/pages/admin/AdminDashboard.jsx`, `backend/routes/admin.js`
 
 ### 2026-01-27 (Audit Log & Rate Limiting)
 - **Feature:** Full audit log system with route instrumentation across all API endpoints
