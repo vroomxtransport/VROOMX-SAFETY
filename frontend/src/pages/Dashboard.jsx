@@ -242,8 +242,8 @@ const Dashboard = () => {
       <div className="grid grid-cols-12 gap-6">
         {/* Compliance Score Card (Main Feature) */}
         <div className="col-span-12 lg:col-span-5 bg-white dark:bg-gradient-to-br dark:from-zinc-900 dark:to-zinc-950 rounded-2xl border border-zinc-200 dark:border-white/5 overflow-hidden shadow-sm">
-          <div className="p-6">
-            <div className="flex items-center justify-between mb-6">
+          <div className="p-5">
+            <div className="flex items-center justify-between mb-3">
               <div>
                 <h3 className="text-lg font-semibold text-zinc-900 dark:text-white">Compliance Score</h3>
                 <p className="text-sm text-zinc-600 dark:text-zinc-300">Overall fleet health</p>
@@ -254,8 +254,8 @@ const Dashboard = () => {
             </div>
 
             {/* Score Gauge */}
-            <div className="flex flex-col items-center py-4">
-              <div className="relative w-56 h-56">
+            <div className="flex flex-col items-center py-2">
+              <div className="relative w-40 h-40">
                 <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
                   {/* Background arc */}
                   <circle
@@ -306,21 +306,21 @@ const Dashboard = () => {
                   <span className={`text-xs font-semibold mb-1 ${complianceScore >= 50 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                     {complianceScore >= 50 ? '+' : ''}{complianceScore - 80} pts
                   </span>
-                  <span className="text-6xl font-bold text-zinc-900 dark:text-white">{complianceScore}</span>
+                  <span className="text-5xl font-bold text-zinc-900 dark:text-white">{complianceScore}</span>
                   <span className="text-sm text-zinc-600 dark:text-zinc-300 mt-1">out of 100</span>
                 </div>
               </div>
 
               {/* Score status label */}
-              <div className={`mt-4 px-4 py-2 rounded-full text-sm font-semibold border ${scoreStatus.bgClass} ${scoreStatus.textClass} ${scoreStatus.borderClass}`}>
+              <div className={`mt-2 px-4 py-1.5 rounded-full text-sm font-semibold border ${scoreStatus.bgClass} ${scoreStatus.textClass} ${scoreStatus.borderClass}`}>
                 {scoreStatus.label}
               </div>
             </div>
 
             {/* Score factors */}
-            <div className="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-zinc-100 dark:border-white/5">
+            <div className="grid grid-cols-2 gap-2.5 mt-3 pt-3 border-t border-zinc-100 dark:border-white/5">
               {scoreFactors.map((factor, index) => (
-                <div key={index} className="p-3 rounded-xl bg-zinc-50 dark:bg-white/5 border border-zinc-100 dark:border-white/5">
+                <div key={index} className="p-2.5 rounded-xl bg-zinc-50 dark:bg-white/5 border border-zinc-100 dark:border-white/5">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-xs text-zinc-600 dark:text-zinc-300">{factor.label}</span>
                     <span className={`text-xs font-semibold ${factor.value >= 80 ? 'text-green-600 dark:text-green-400' : factor.value >= 60 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}`}>
@@ -527,62 +527,6 @@ const Dashboard = () => {
               )}
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Compliance Trend Chart */}
-      <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl overflow-hidden shadow-sm">
-        {/* Navy header bar */}
-        <div className="bg-[#1E3A5F] px-5 py-4">
-          <h3 className="text-white font-semibold">
-            COMPLIANCE TREND <span className="font-normal opacity-80">(Last 30 Days)</span>
-          </h3>
-        </div>
-
-        {/* Chart area */}
-        <div className="p-5">
-          <ResponsiveContainer width="100%" height={250}>
-            <LineChart data={complianceTrendData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:opacity-20" />
-              <XAxis
-                dataKey="day"
-                tick={{ fill: '#6b7280', fontSize: 12 }}
-                tickLine={{ stroke: '#e5e7eb' }}
-                axisLine={{ stroke: '#e5e7eb' }}
-              />
-              <YAxis
-                domain={['dataMin - 2', 'dataMax + 2']}
-                tick={{ fill: '#6b7280', fontSize: 12 }}
-                tickLine={{ stroke: '#e5e7eb' }}
-                axisLine={{ stroke: '#e5e7eb' }}
-                tickFormatter={(value) => `${value}%`}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: 'var(--color-surface, #fff)',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                }}
-                formatter={(value) => [`${value}%`, 'Overall Score']}
-                labelFormatter={(label) => `Day ${label}`}
-              />
-              <Legend
-                verticalAlign="top"
-                align="right"
-                wrapperStyle={{ paddingBottom: '10px' }}
-              />
-              <Line
-                type="monotone"
-                dataKey="score"
-                name="Overall Score"
-                stroke="#4A90D9"
-                strokeWidth={2}
-                dot={{ fill: '#4A90D9', r: 4, strokeWidth: 0 }}
-                activeDot={{ r: 6, stroke: '#4A90D9', strokeWidth: 2, fill: '#fff' }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
         </div>
       </div>
 
@@ -849,6 +793,62 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Compliance Trend Chart */}
+      <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl overflow-hidden shadow-sm">
+        {/* Navy header bar */}
+        <div className="bg-[#1E3A5F] px-5 py-4">
+          <h3 className="text-white font-semibold">
+            COMPLIANCE TREND <span className="font-normal opacity-80">(Last 30 Days)</span>
+          </h3>
+        </div>
+
+        {/* Chart area */}
+        <div className="p-5">
+          <ResponsiveContainer width="100%" height={250}>
+            <LineChart data={complianceTrendData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:opacity-20" />
+              <XAxis
+                dataKey="day"
+                tick={{ fill: '#6b7280', fontSize: 12 }}
+                tickLine={{ stroke: '#e5e7eb' }}
+                axisLine={{ stroke: '#e5e7eb' }}
+              />
+              <YAxis
+                domain={['dataMin - 2', 'dataMax + 2']}
+                tick={{ fill: '#6b7280', fontSize: 12 }}
+                tickLine={{ stroke: '#e5e7eb' }}
+                axisLine={{ stroke: '#e5e7eb' }}
+                tickFormatter={(value) => `${value}%`}
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: 'var(--color-surface, #fff)',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                }}
+                formatter={(value) => [`${value}%`, 'Overall Score']}
+                labelFormatter={(label) => `Day ${label}`}
+              />
+              <Legend
+                verticalAlign="top"
+                align="right"
+                wrapperStyle={{ paddingBottom: '10px' }}
+              />
+              <Line
+                type="monotone"
+                dataKey="score"
+                name="Overall Score"
+                stroke="#4A90D9"
+                strokeWidth={2}
+                dot={{ fill: '#4A90D9', r: 4, strokeWidth: 0 }}
+                activeDot={{ r: 6, stroke: '#4A90D9', strokeWidth: 2, fill: '#fff' }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
       </div>
 
