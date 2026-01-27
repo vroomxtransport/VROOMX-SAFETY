@@ -53,13 +53,7 @@ const HeroSection = ({ heroTextIndex, heroTexts }) => {
             predictive alerts that keep you off the radar.
           </p>
 
-          <p className="text-white drop-shadow-md text-lg md:text-xl max-w-2xl mb-4 leading-relaxed animate-fade-in-up mx-auto lg:mx-0" style={{ animationDelay: '0.12s' }}>
-            <span className="text-cta-400 font-semibold">Avoid failed audits</span>,{' '}
-            <span className="text-white font-semibold">spot missing documents</span>, and{' '}
-            <span className="font-semibold">stay AUDIT-ready</span>.
-          </p>
-
-          <p className="text-white/80 drop-shadow-md text-base md:text-lg max-w-xl mb-8 italic animate-fade-in-up mx-auto lg:mx-0" style={{ animationDelay: '0.14s' }}>
+          <p className="text-white/80 drop-shadow-md text-base md:text-lg max-w-xl mb-8 italic animate-fade-in-up mx-auto lg:mx-0" style={{ animationDelay: '0.12s' }}>
             We empower small carriers to take control of compliance — not outsource it.
           </p>
 
