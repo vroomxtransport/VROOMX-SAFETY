@@ -600,17 +600,6 @@ const stripeService = {
     let credit = 0;          // Unused time on old plan (negative line = credit)
     let prorationCharge = 0; // Remaining time on new plan (positive line)
 
-    // Debug: log all line items to understand structure
-    console.log('[previewUpgrade] Invoice lines:', JSON.stringify(
-      (preview.lines?.data || []).map(l => ({
-        amount: l.amount,
-        proration: l.proration,
-        type: l.type,
-        description: l.description
-      }))
-    ));
-    console.log('[previewUpgrade] amount_due:', preview.amount_due, 'subtotal:', preview.subtotal, 'total:', preview.total);
-
     if (preview.lines && preview.lines.data) {
       for (const line of preview.lines.data) {
         if (line.proration) {
