@@ -22,7 +22,7 @@ const FooterSection = () => {
             <h4 className="text-white font-bold mb-4">Product</h4>
             <ul className="space-y-3">
               <li><a href="#features" className="text-white/70 text-sm hover:text-white transition-colors">Features</a></li>
-              <li><a href="#pricing" className="text-white/70 text-sm hover:text-white transition-colors">Pricing</a></li>
+              <li><Link to="/pricing" className="text-white/70 text-sm hover:text-white transition-colors">Pricing</Link></li>
               <li><a href="#csa-checker" className="text-white/70 text-sm hover:text-white transition-colors">Free CSA Checker</a></li>
               <li><Link to="/api" className="text-white/70 text-sm hover:text-white transition-colors">API</Link></li>
             </ul>

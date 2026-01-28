@@ -1392,6 +1392,11 @@ h1, h2, h3, h4, h5, h6 {
   transform: perspective(1000px) rotateY(-2deg) rotateX(1deg);
   transform-style: preserve-3d;
   transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Fix for blurry text caused by 3D transforms */
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform;
+  -webkit-font-smoothing: subpixel-antialiased;
 }
 
 .csa-card-3d:hover {

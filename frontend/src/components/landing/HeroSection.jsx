@@ -76,13 +76,13 @@ const HeroSection = ({ heroTextIndex, heroTexts }) => {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-5 justify-center lg:justify-start animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-            <a
-              href="#pricing"
+            <Link
+              to="/pricing"
               className="btn-glow px-8 py-4 rounded-xl font-bold text-white text-base tracking-wide flex items-center justify-center gap-3"
             >
               Get Started
               <FiArrowRight className="w-5 h-5" />
-            </a>
+            </Link>
             <a
               href="#features"
               className="px-8 py-4 rounded-xl font-bold text-white text-base tracking-wide border-2 border-white/40 bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all flex items-center justify-center gap-3 group"

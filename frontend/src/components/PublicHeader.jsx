@@ -10,7 +10,7 @@ const PublicHeader = ({ activePage = 'landing', variant = 'light' }) => {
   const navLinks = [
     { to: '/csa-checker', label: 'Free CSA Check', icon: FiSearch, isLink: true, highlight: true },
     { href: activePage === 'landing' ? '#features' : '/#features', label: 'Features', isLink: false },
-    { href: activePage === 'landing' ? '#pricing' : '/#pricing', label: 'Pricing', isLink: false },
+    { to: '/pricing', label: 'Pricing', isLink: true },
     { to: '/platform', label: 'Platform', isLink: true },
     { to: '/blog', label: 'Blog', isLink: true },
     { to: '/login', label: 'Login', isLink: true },
@@ -37,12 +37,12 @@ const PublicHeader = ({ activePage = 'landing', variant = 'light' }) => {
           >
             Features
           </a>
-          <a
-            href={activePage === 'landing' ? '#pricing' : '/#pricing'}
-            className={`${isLight ? 'text-[#475569]' : 'text-white/70'} text-sm font-medium hover:text-primary-500 transition-colors`}
+          <Link
+            to="/pricing"
+            className={`${activePage === 'pricing' ? 'text-cta-500 font-bold' : isLight ? 'text-[#475569]' : 'text-white/70'} text-sm font-medium hover:text-primary-500 transition-colors`}
           >
             Pricing
-          </a>
+          </Link>
           <Link
             to="/platform"
             className={`${activePage === 'platform' ? 'text-cta-500 font-bold' : isLight ? 'text-[#475569]' : 'text-white/70'} text-sm font-medium hover:text-primary-500 transition-colors`}
@@ -64,9 +64,9 @@ const PublicHeader = ({ activePage = 'landing', variant = 'light' }) => {
         </div>
 
         {/* Desktop CTA Button */}
-        <a href="#pricing" className="hidden md:block btn-glow px-6 py-2.5 rounded-lg font-bold text-white text-sm tracking-wide shadow-lg">
+        <Link to="/pricing" className="hidden md:block btn-glow px-6 py-2.5 rounded-lg font-bold text-white text-sm tracking-wide shadow-lg">
           Get Started
-        </a>
+        </Link>
 
         {/* Mobile Menu Button */}
         <button
@@ -117,13 +117,13 @@ const PublicHeader = ({ activePage = 'landing', variant = 'light' }) => {
             ))}
 
             {/* Mobile CTA Button */}
-            <a
-              href="#pricing"
+            <Link
+              to="/pricing"
               onClick={() => setMobileMenuOpen(false)}
               className="block mt-3 btn-glow px-6 py-3 rounded-xl font-bold text-white text-base tracking-wide shadow-lg text-center"
             >
               Get Started
-            </a>
+            </Link>
           </div>
         </div>
       )}

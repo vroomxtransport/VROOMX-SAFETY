@@ -9,6 +9,7 @@ import CSACheckerPage from './pages/CSACheckerPage';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import Platform from './pages/Platform';
+import Pricing from './pages/Pricing';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import VerifyEmail from './pages/VerifyEmail';
@@ -184,6 +185,9 @@ function App() {
 
         {/* Platform Page - public showcase */}
         <Route path="/platform" element={<Platform />} />
+
+        {/* Pricing Page - public */}
+        <Route path="/pricing" element={<Pricing />} />
 
         {/* Billing route - allows pending_payment users */}
         <Route
