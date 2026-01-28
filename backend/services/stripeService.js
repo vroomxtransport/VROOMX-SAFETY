@@ -595,19 +595,28 @@ const stripeService = {
 
     // Calculate proration details
     const currentPlan = user.subscription.plan;
-    const currentPrice = PLAN_METADATA[currentPlan]?.plan === 'solo' ? 19 : PLAN_METADATA[currentPlan]?.plan === 'fleet' ? 39 : 89;
-    const newPrice = PLAN_METADATA[newPlan]?.plan === 'solo' ? 19 : PLAN_METADATA[newPlan]?.plan === 'fleet' ? 39 : 89;
+    const PLAN_PRICES = { solo: 19, fleet: 39, pro: 89 };
 
     // The preview total is the prorated amount due immediately
     const immediateCharge = Math.max(0, preview.amount_due) / 100; // Convert from cents
 
+    // Safely handle period end (unix timestamp in seconds)
+    let periodEnd = null;
+    if (subscription.current_period_end) {
+      try {
+        periodEnd = new Date(subscription.current_period_end * 1000).toISOString();
+      } catch (e) {
+        periodEnd = user.subscription.currentPeriodEnd?.toISOString() || null;
+      }
+    }
+
     return {
       currentPlan,
       newPlan,
-      currentMonthlyPrice: currentPrice,
-      newMonthlyPrice: newPrice,
+      currentMonthlyPrice: PLAN_PRICES[currentPlan] || 0,
+      newMonthlyPrice: PLAN_PRICES[newPlan] || 0,
       immediateCharge,
-      periodEnd: new Date(subscription.current_period_end * 1000).toISOString(),
+      periodEnd,
       effectiveNow: true
     };
   },
