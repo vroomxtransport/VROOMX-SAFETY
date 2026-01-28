@@ -23,7 +23,7 @@ function setTokenCookie(res, token, maxAgeMs) {
   res.cookie('token', token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    sameSite: 'lax',
     maxAge: maxAgeMs || 60 * 60 * 1000, // Default 1 hour
     path: '/'
   });
@@ -179,7 +179,7 @@ router.post('/logout', (req, res) => {
   res.cookie('token', '', {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    sameSite: 'lax',
     maxAge: 0,
     path: '/'
   });
