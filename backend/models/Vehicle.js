@@ -22,8 +22,8 @@ const vehicleSchema = new mongoose.Schema({
     type: String,
     required: [true, 'VIN is required'],
     uppercase: true,
-    minlength: [17, 'VIN must be 17 characters'],
-    maxlength: [17, 'VIN must be 17 characters']
+    minlength: [16, 'VIN must be 16-17 characters'],
+    maxlength: [17, 'VIN must be 16-17 characters']
   },
   vehicleType: {
     type: String,

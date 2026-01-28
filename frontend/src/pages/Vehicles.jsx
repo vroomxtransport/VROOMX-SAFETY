@@ -455,12 +455,12 @@ const Vehicles = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">VIN (17 characters) *</label>
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">VIN (16-17 characters) *</label>
             <input
               type="text"
               className="form-input font-mono"
               required
-              minLength={17}
+              minLength={16}
               maxLength={17}
               placeholder="1XP5DB9X6YD527178"
               value={formData.vin}

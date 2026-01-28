@@ -147,7 +147,7 @@ router.get('/:id', checkPermission('vehicles', 'view'), asyncHandler(async (req,
 // @access  Private
 router.post('/', checkPermission('vehicles', 'edit'), checkVehicleLimit, [
   body('unitNumber').trim().notEmpty().withMessage('Unit number is required'),
-  body('vin').trim().isLength({ min: 17, max: 17 }).withMessage('VIN must be 17 characters'),
+  body('vin').trim().isLength({ min: 16, max: 17 }).withMessage('VIN must be 16-17 characters'),
   body('vehicleType').isIn(['tractor', 'trailer', 'straight_truck', 'bus', 'van']).withMessage('Invalid vehicle type')
 ], asyncHandler(async (req, res) => {
   const errors = validationResult(req);
