@@ -593,14 +593,29 @@ const stripeService = {
       }
     });
 
-    // Calculate proration details
+    // Extract proration line items (credit for old plan + charge for new plan)
     const currentPlan = user.subscription.plan;
     const PLAN_PRICES = { solo: 19, fleet: 39, pro: 89 };
 
-    // The preview total is the prorated amount due immediately
-    const immediateCharge = Math.max(0, preview.amount_due) / 100; // Convert from cents
+    let credit = 0;          // Unused time on old plan (negative line = credit)
+    let prorationCharge = 0; // Remaining time on new plan (positive line)
 
-    // Safely handle period end (unix timestamp in seconds)
+    if (preview.lines && preview.lines.data) {
+      for (const line of preview.lines.data) {
+        if (line.proration) {
+          if (line.amount < 0) {
+            credit += Math.abs(line.amount);
+          } else {
+            prorationCharge += line.amount;
+          }
+        }
+      }
+    }
+
+    // Net immediate charge = new plan prorated minus credit for unused old plan
+    const immediateCharge = Math.max(0, prorationCharge - credit) / 100;
+
+    // Safely handle period end
     let periodEnd = null;
     if (subscription.current_period_end) {
       try {
@@ -616,6 +631,8 @@ const stripeService = {
       currentMonthlyPrice: PLAN_PRICES[currentPlan] || 0,
       newMonthlyPrice: PLAN_PRICES[newPlan] || 0,
       immediateCharge,
+      credit: credit / 100,
+      prorationCharge: prorationCharge / 100,
       periodEnd,
       effectiveNow: true
     };

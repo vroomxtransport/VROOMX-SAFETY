@@ -822,10 +822,26 @@ const Billing = () => {
                       {upgradeModal.preview.newPlan} — ${upgradeModal.preview.newMonthlyPrice}/mo
                     </span>
                   </div>
+                  {upgradeModal.preview.credit > 0 && (
+                    <div className="flex items-center justify-between p-2 px-3 rounded-lg bg-success-50 dark:bg-success-900/10">
+                      <span className="text-xs text-success-700 dark:text-success-400">Credit for unused {upgradeModal.preview.currentPlan} time</span>
+                      <span className="text-sm font-medium text-success-700 dark:text-success-400">
+                        -${upgradeModal.preview.credit.toFixed(2)}
+                      </span>
+                    </div>
+                  )}
+                  {upgradeModal.preview.prorationCharge > 0 && (
+                    <div className="flex items-center justify-between p-2 px-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/50">
+                      <span className="text-xs text-zinc-600 dark:text-zinc-400">Prorated {upgradeModal.preview.newPlan} for remaining period</span>
+                      <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                        +${upgradeModal.preview.prorationCharge.toFixed(2)}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex items-center justify-between p-3 rounded-lg bg-primary-50 dark:bg-zinc-800 border border-primary-200 dark:border-zinc-700">
                     <div>
-                      <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">Charge Today</span>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400">Prorated for remaining billing period</p>
+                      <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">Net Charge Today</span>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400">Prorated difference applied now</p>
                     </div>
                     <span className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
                       ${upgradeModal.preview.immediateCharge.toFixed(2)}
