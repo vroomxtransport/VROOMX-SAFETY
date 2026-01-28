@@ -52,6 +52,19 @@ const vehicleSchema = new mongoose.Schema({
     enum: ['diesel', 'gasoline', 'electric', 'cng', 'lng', 'hybrid']
   },
   color: String,
+  tireSize: {
+    type: String,
+    trim: true
+  },
+  ownership: {
+    type: String,
+    enum: ['leased', 'owned', 'financed'],
+    default: 'owned'
+  },
+  iftaDecalNumber: {
+    type: String,
+    trim: true
+  },
   marketPrice: {
     type: Number,
     min: 0
@@ -60,6 +73,14 @@ const vehicleSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Driver'
   },
+
+  // Fleet Dates
+  dateAddedToFleet: Date,
+  dateRemovedFromFleet: Date,
+
+  // Expiry Dates
+  cabCardExpiry: Date,
+  annualExpiry: Date, // Separate from annualInspection.nextDueDate
 
   // Status
   status: {

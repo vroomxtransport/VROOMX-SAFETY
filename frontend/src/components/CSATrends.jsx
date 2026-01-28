@@ -3,7 +3,7 @@ import { csaAPI } from '../utils/api';
 import {
   FiTrendingUp, FiTrendingDown, FiMinus, FiDownload,
   FiCalendar, FiAlertTriangle, FiCheckCircle, FiRefreshCw,
-  FiChevronDown
+  FiChevronDown, FiClock
 } from 'react-icons/fi';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -24,6 +24,7 @@ const CSATrends = () => {
   const [showCompare, setShowCompare] = useState(false);
   const [compareData, setCompareData] = useState(null);
   const [compareLoading, setCompareLoading] = useState(false);
+  const [timeDecay, setTimeDecay] = useState(null);
 
   const basicColors = {
     unsafeDriving: '#ef4444',
@@ -51,15 +52,19 @@ const CSATrends = () => {
     try {
       setLoading(true);
       setError(null);
-      const [historyRes, summaryRes, alertsRes] = await Promise.all([
+      const [historyRes, summaryRes, alertsRes, timeDecayRes] = await Promise.all([
         csaAPI.getHistory(dateRange),
         csaAPI.getTrendSummary(dateRange),
-        csaAPI.getAlerts()
+        csaAPI.getAlerts(),
+        csaAPI.getTimeDecay(24).catch(() => null)
       ]);
 
       setHistory(historyRes.data.history || []);
       setSummary(summaryRes.data);
       setAlerts(alertsRes.data.alerts || []);
+      if (timeDecayRes?.data) {
+        setTimeDecay(timeDecayRes.data);
+      }
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to load trend data');
     } finally {
@@ -429,6 +434,83 @@ const CSATrends = () => {
                 ))}
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 24-Month Score Projection */}
+      {timeDecay && timeDecay.projections && (
+        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 overflow-hidden">
+          <div className="p-4 sm:p-6 border-b border-zinc-100 dark:border-zinc-800">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center">
+                <FiClock className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">24-Month Score Projection</h3>
+                <p className="text-sm text-zinc-600 dark:text-zinc-400">How your scores will improve as violations age out</p>
+              </div>
+            </div>
+          </div>
+          <div className="p-4 sm:p-6">
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart
+                  data={timeDecay.projections?.map(p => ({
+                    month: p.month,
+                    date: p.date,
+                    unsafeDriving: p.scores?.unsafe_driving?.estimatedPercentile || 0,
+                    hoursOfService: p.scores?.hours_of_service?.estimatedPercentile || 0,
+                    vehicleMaintenance: p.scores?.vehicle_maintenance?.estimatedPercentile || 0
+                  })) || []}
+                  margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--glass-border)" />
+                  <XAxis
+                    dataKey="month"
+                    tick={{ fontSize: 11, fill: 'var(--text-muted)' }}
+                    tickFormatter={(v) => `+${v}mo`}
+                  />
+                  <YAxis
+                    domain={[0, 100]}
+                    tick={{ fontSize: 11, fill: 'var(--text-muted)' }}
+                    tickFormatter={(v) => `${v}%`}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: '8px',
+                      border: '1px solid var(--glass-border)',
+                      boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                      backgroundColor: 'var(--color-surface)',
+                      color: 'var(--text-primary)',
+                      fontSize: '12px'
+                    }}
+                  />
+                  <ReferenceLine y={65} stroke="#f59e0b" strokeDasharray="5 5" label={{ value: 'Alert 65%', fill: '#f59e0b', fontSize: 10 }} />
+                  <ReferenceLine y={80} stroke="#ef4444" strokeDasharray="5 5" label={{ value: 'Critical 80%', fill: '#ef4444', fontSize: 10 }} />
+                  <Line type="monotone" dataKey="unsafeDriving" stroke="#ef4444" name="Unsafe Driving" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="hoursOfService" stroke="#f59e0b" name="Hours of Service" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="vehicleMaintenance" stroke="#3b82f6" name="Vehicle Maintenance" strokeWidth={2} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* Improvement Summary */}
+            {timeDecay.insights?.improvements && (
+              <div className="mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-800">
+                <h4 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-3">Projected Improvements (24 months)</h4>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+                  {Object.entries(timeDecay.insights.improvements).map(([key, data]) => (
+                    <div key={key} className="text-center p-2 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate capitalize">{key.replace(/_/g, ' ')}</p>
+                      <p className={`text-sm font-bold ${data.change < 0 ? 'text-emerald-600 dark:text-emerald-400' : data.change > 0 ? 'text-red-600 dark:text-red-400' : 'text-zinc-600 dark:text-zinc-400'}`}>
+                        {data.change < 0 ? '' : data.change > 0 ? '+' : ''}{data.change?.toFixed(0) || 0}%
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -33,13 +33,13 @@ const ChatWidget = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Add welcome message when chat opens
+  // Add welcome message when chat opens (once per session)
   useEffect(() => {
     if (isOpen && messages.length === 0) {
       setMessages([
         {
           id: 'welcome',
-          content: `Hi! I'm your FMCSA compliance assistant. I can help you with questions about:
+          content: `Welcome back! I'm your VroomX Safety Compliance Assistant. I can help you with questions about:
 
 - **Driver Qualifications** (49 CFR Part 391)
 - **Drug & Alcohol Testing** (49 CFR Part 382)
@@ -48,7 +48,7 @@ const ChatWidget = () => {
 - **CSA/SMS Scoring**
 - **DataQ Challenges**
 
-What would you like to know?`,
+How can I help you today?`,
           isUser: false,
           timestamp: new Date()
         }

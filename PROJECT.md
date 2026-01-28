@@ -276,6 +276,20 @@ npm run dev  # Starts on port 5173
 
 ## Changelog
 
+### 2026-01-28 (UI Changes — Driver/Vehicle Forms, CSA Charts, Archives)
+- **UI:** Moved 24-Month Score Projection chart from CSA Estimator and Compliance Overview tab into the Score Trends module (CSATrends.jsx). Cleaned up unused imports and state from source files.
+  - Files: `frontend/src/pages/CSAEstimator.jsx`, `frontend/src/pages/Compliance.jsx`, `frontend/src/components/CSATrends.jsx`
+- **UI:** Moved "Welcome back!" toast notification into AI Chat panel as a system welcome message
+  - Files: `frontend/src/pages/Login.jsx`, `frontend/src/components/AIChat/ChatWidget.jsx`
+- **Feature:** Driver form overhaul — removed Employee ID (now optional), added: Driver Type (Company Driver / Owner-Operator), Address (street/city/state/zip), CDL Endorsements (multi-checkbox: H/N/P/S/T/X), CDL Restrictions (comma-separated text), MVR Expiry Date, Clearinghouse Expiry Date, Termination Date (shown only for terminated drivers)
+  - Files: `backend/models/Driver.js`, `backend/routes/drivers.js`, `frontend/src/pages/Drivers.jsx`
+- **Feature:** Driver Archive system — terminated drivers auto-archive with 3-year DQF retention countdown. "Archived" tab on Drivers page shows terminated drivers with "Can be deleted after MM/DD/YYYY" or "Safe to delete" badges. Restore button to unarchive.
+  - Backend: `isArchived`, `archivedAt`, `retentionExpiresAt` fields, pre-save hook on status→terminated, `PATCH /api/drivers/:id/restore` endpoint, `?archived=true` query filter
+  - Frontend: Active/Archived tab bar, archived table with retention info, restore handler
+  - Files: `backend/models/Driver.js`, `backend/routes/drivers.js`, `frontend/src/pages/Drivers.jsx`
+- **Feature:** Vehicle form expansion — added: Color, GVWR, Tire Size, Ownership (Owned/Leased/Financed), IFTA Decal #, Date Added to Fleet, Date Removed from Fleet, Cab Card Expiry, Annual Expiry
+  - Files: `backend/models/Vehicle.js`, `frontend/src/pages/Vehicles.jsx`
+
 ### 2026-01-28 (Secret Rotation & Env Var Verification)
 - **Security:** Rotated MongoDB Atlas password (`info_db_user`) — new password generated, `MONGODB_URI` updated in Render
 - **Security:** Rotated OpenAI API key — new key created, old key deleted, `OPENAI_API_KEY` updated in Render

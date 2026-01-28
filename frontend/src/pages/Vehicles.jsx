@@ -29,6 +29,15 @@ const Vehicles = () => {
     marketPrice: '',
     licensePlate: { number: '', state: '' },
     status: 'active',
+    color: '',
+    dateAddedToFleet: '',
+    dateRemovedFromFleet: '',
+    cabCardExpiry: '',
+    annualExpiry: '',
+    gvwr: '',
+    tireSize: '',
+    ownership: 'owned',
+    iftaDecalNumber: '',
   });
   const [submitting, setSubmitting] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
@@ -45,6 +54,15 @@ const Vehicles = () => {
     marketPrice: '',
     licensePlate: { number: '', state: '' },
     status: 'active',
+    color: '',
+    dateAddedToFleet: '',
+    dateRemovedFromFleet: '',
+    cabCardExpiry: '',
+    annualExpiry: '',
+    gvwr: '',
+    tireSize: '',
+    ownership: 'owned',
+    iftaDecalNumber: '',
   };
 
   useEffect(() => {
@@ -115,6 +133,15 @@ const Vehicles = () => {
         state: vehicle.licensePlate?.state || ''
       },
       status: vehicle.status || 'active',
+      color: vehicle.color || '',
+      dateAddedToFleet: vehicle.dateAddedToFleet ? vehicle.dateAddedToFleet.slice(0, 10) : '',
+      dateRemovedFromFleet: vehicle.dateRemovedFromFleet ? vehicle.dateRemovedFromFleet.slice(0, 10) : '',
+      cabCardExpiry: vehicle.cabCardExpiry ? vehicle.cabCardExpiry.slice(0, 10) : '',
+      annualExpiry: vehicle.annualExpiry ? vehicle.annualExpiry.slice(0, 10) : '',
+      gvwr: vehicle.gvwr || '',
+      tireSize: vehicle.tireSize || '',
+      ownership: vehicle.ownership || 'owned',
+      iftaDecalNumber: vehicle.iftaDecalNumber || '',
     });
     setShowAddModal(true);
   };
@@ -517,6 +544,106 @@ const Vehicles = () => {
                   maxLength={2}
                   value={formData.licensePlate.state}
                   onChange={(e) => setFormData({ ...formData, licensePlate: { ...formData.licensePlate, state: e.target.value.toUpperCase() } })}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Color</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="White"
+                  value={formData.color}
+                  onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">GVWR (lbs)</label>
+                <input
+                  type="number"
+                  className="form-input"
+                  placeholder="80000"
+                  value={formData.gvwr}
+                  onChange={(e) => setFormData({ ...formData, gvwr: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Tire Size</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="e.g. 295/75R22.5"
+                  value={formData.tireSize}
+                  onChange={(e) => setFormData({ ...formData, tireSize: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Ownership</label>
+                <select
+                  className="form-select"
+                  value={formData.ownership}
+                  onChange={(e) => setFormData({ ...formData, ownership: e.target.value })}
+                >
+                  <option value="owned">Owned</option>
+                  <option value="leased">Leased</option>
+                  <option value="financed">Financed</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">IFTA Decal #</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  value={formData.iftaDecalNumber}
+                  onChange={(e) => setFormData({ ...formData, iftaDecalNumber: e.target.value })}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Fleet & Compliance Dates Section */}
+          <div className="col-span-2 border-t border-zinc-200 dark:border-zinc-700 pt-4 mt-2">
+            <h4 className="text-sm font-semibold text-zinc-700 dark:text-zinc-200 mb-3">Fleet & Compliance Dates</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Date Added to Fleet</label>
+                <input
+                  type="date"
+                  className="form-input"
+                  value={formData.dateAddedToFleet}
+                  onChange={(e) => setFormData({ ...formData, dateAddedToFleet: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Date Removed from Fleet</label>
+                <input
+                  type="date"
+                  className="form-input"
+                  value={formData.dateRemovedFromFleet}
+                  onChange={(e) => setFormData({ ...formData, dateRemovedFromFleet: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Cab Card Expiry</label>
+                <input
+                  type="date"
+                  className="form-input"
+                  value={formData.cabCardExpiry}
+                  onChange={(e) => setFormData({ ...formData, cabCardExpiry: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Annual Expiry</label>
+                <input
+                  type="date"
+                  className="form-input"
+                  value={formData.annualExpiry}
+                  onChange={(e) => setFormData({ ...formData, annualExpiry: e.target.value })}
                 />
               </div>
             </div>

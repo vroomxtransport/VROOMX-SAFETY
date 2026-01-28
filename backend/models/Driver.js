@@ -45,8 +45,7 @@ const driverSchema = new mongoose.Schema({
 
   // Employment Information
   employeeId: {
-    type: String,
-    required: true
+    type: String
   },
   hireDate: {
     type: Date,
@@ -58,6 +57,14 @@ const driverSchema = new mongoose.Schema({
     enum: ['active', 'inactive', 'terminated', 'suspended'],
     default: 'active'
   },
+  driverType: {
+    type: String,
+    enum: ['company_driver', 'owner_operator'],
+    default: 'company_driver'
+  },
+
+  // MVR Expiry Date
+  mvrExpiryDate: Date,
 
   // CDL Information (49 CFR 391.23)
   cdl: {
@@ -179,6 +186,7 @@ const driverSchema = new mongoose.Schema({
     queryType: { type: String, enum: ['full', 'limited'] },
     status: { type: String, enum: ['clear', 'violation_found', 'pending'] },
     consentDate: Date,
+    expiryDate: Date,
     documentUrl: String
   },
 
@@ -230,7 +238,15 @@ const driverSchema = new mongoose.Schema({
     content: String,
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     createdAt: { type: Date, default: Date.now }
-  }]
+  }],
+
+  // Archive fields
+  isArchived: {
+    type: Boolean,
+    default: false
+  },
+  archivedAt: Date,
+  retentionExpiresAt: Date
 }, {
   timestamps: true,
   toJSON: { virtuals: true },
@@ -256,6 +272,20 @@ driverSchema.virtual('daysUntilMedicalExpiry').get(function() {
   const now = new Date();
   const expiry = new Date(this.medicalCard.expiryDate);
   return Math.ceil((expiry - now) / (1000 * 60 * 60 * 24));
+});
+
+// Handle archiving when status changes to terminated
+driverSchema.pre('save', function(next) {
+  if (this.isModified('status') && this.status === 'terminated') {
+    this.isArchived = true;
+    this.archivedAt = new Date();
+    if (!this.terminationDate) {
+      this.terminationDate = new Date();
+    }
+    const termDate = new Date(this.terminationDate);
+    this.retentionExpiresAt = new Date(termDate.getTime() + 3 * 365.25 * 24 * 60 * 60 * 1000);
+  }
+  next();
 });
 
 // Update compliance status before save
@@ -321,5 +351,6 @@ driverSchema.index({ companyId: 1, status: 1 });
 driverSchema.index({ 'cdl.expiryDate': 1 });
 driverSchema.index({ 'medicalCard.expiryDate': 1 });
 driverSchema.index({ 'complianceStatus.overall': 1 });
+driverSchema.index({ companyId: 1, isArchived: 1 });
 
 module.exports = mongoose.model('Driver', driverSchema);

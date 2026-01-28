@@ -23,10 +23,17 @@ router.use(restrictToCompany);
 // @desc    Get all drivers with filtering and pagination
 // @access  Private
 router.get('/', checkPermission('drivers', 'view'), asyncHandler(async (req, res) => {
-  const { status, complianceStatus, search, page = 1, limit = 20, sort = '-createdAt' } = req.query;
+  const { status, complianceStatus, search, page = 1, limit = 20, sort = '-createdAt', archived } = req.query;
 
   // Build query
   const queryObj = { ...req.companyFilter };
+
+  // Filter by archived status (default: show only non-archived)
+  if (archived === 'true') {
+    queryObj.isArchived = true;
+  } else {
+    queryObj.isArchived = { $ne: true };
+  }
 
   if (status) queryObj.status = status;
   if (complianceStatus) queryObj['complianceStatus.overall'] = complianceStatus;
@@ -165,12 +172,14 @@ router.post('/', checkPermission('drivers', 'edit'), checkDriverLimit, [
   body('lastName').trim().notEmpty().withMessage('Last name is required'),
   body('dateOfBirth').isISO8601().withMessage('Valid date of birth is required'),
   body('hireDate').isISO8601().withMessage('Valid hire date is required'),
-  body('employeeId').trim().notEmpty().withMessage('Employee ID is required'),
   body('cdl.number').trim().notEmpty().withMessage('CDL number is required'),
   body('cdl.state').trim().isLength({ min: 2, max: 2 }).withMessage('CDL state must be 2 characters'),
   body('cdl.class').isIn(['A', 'B', 'C']).withMessage('CDL class must be A, B, or C'),
   body('cdl.expiryDate').isISO8601().withMessage('CDL expiry date is required'),
-  body('medicalCard.expiryDate').isISO8601().withMessage('Medical card expiry date is required')
+  body('medicalCard.expiryDate').isISO8601().withMessage('Medical card expiry date is required'),
+  body('mvrExpiryDate').optional().isISO8601().withMessage('MVR expiry date must be a valid date'),
+  body('driverType').optional().isIn(['company_driver', 'owner_operator']).withMessage('Driver type must be company_driver or owner_operator'),
+  body('clearinghouse.expiryDate').optional().isISO8601().withMessage('Clearinghouse expiry date must be a valid date')
 ], asyncHandler(async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -207,19 +216,21 @@ router.post('/', checkPermission('drivers', 'edit'), checkDriverLimit, [
       });
     }
 
-    // Check for duplicate employee ID
-    const existingDriver = await Driver.findOne({
-      ...req.companyFilter,
-      employeeId: req.body.employeeId
-    }).session(session);
+    // Check for duplicate employee ID (only if provided)
+    if (req.body.employeeId) {
+      const existingDriver = await Driver.findOne({
+        ...req.companyFilter,
+        employeeId: req.body.employeeId
+      }).session(session);
 
-    if (existingDriver) {
-      await session.abortTransaction();
-      session.endSession();
-      return res.status(400).json({
-        success: false,
-        message: 'A driver with this employee ID already exists'
-      });
+      if (existingDriver) {
+        await session.abortTransaction();
+        session.endSession();
+        return res.status(400).json({
+          success: false,
+          message: 'A driver with this employee ID already exists'
+        });
+      }
     }
 
     const driver = await Driver.create([{
@@ -261,7 +272,8 @@ router.put('/:id', checkPermission('drivers', 'edit'), asyncHandler(async (req, 
     'firstName', 'lastName', 'dateOfBirth', 'phone', 'email', 'address',
     'hireDate', 'terminationDate', 'status', 'employeeId', 'notes',
     'cdl', 'medicalCard', 'mvrReview', 'clearinghouse',
-    'emergencyContact', 'employmentHistory', 'complianceStatus'
+    'emergencyContact', 'employmentHistory', 'complianceStatus',
+    'mvrExpiryDate', 'driverType'
   ];
   const updateData = {};
   for (const key of allowedFields) {
@@ -374,6 +386,35 @@ router.post('/:id/mvr', checkPermission('drivers', 'edit'), [
   res.json({
     success: true,
     message: 'MVR review added successfully',
+    driver
+  });
+}));
+
+// @route   PATCH /api/drivers/:id/restore
+// @desc    Restore an archived driver
+// @access  Private
+router.patch('/:id/restore', checkPermission('drivers', 'edit'), asyncHandler(async (req, res) => {
+  const driver = await Driver.findOne({
+    _id: req.params.id,
+    ...req.companyFilter
+  });
+
+  if (!driver) {
+    throw new AppError('Driver not found', 404);
+  }
+
+  driver.isArchived = false;
+  driver.archivedAt = null;
+  driver.retentionExpiresAt = null;
+  driver.status = 'inactive';
+
+  await driver.save();
+
+  auditService.log(req, 'update', 'driver', req.params.id, { action: 'restore', name: driver.firstName + ' ' + driver.lastName });
+
+  res.json({
+    success: true,
+    message: 'Driver restored successfully',
     driver
   });
 }));

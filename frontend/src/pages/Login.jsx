@@ -64,7 +64,6 @@ const Login = () => {
 
     try {
       await login(email, password);
-      toast.success('Welcome back!');
       navigate('/app/dashboard');
     } catch (error) {
       if (error.response?.status === 429) {

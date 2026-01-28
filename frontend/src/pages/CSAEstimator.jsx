@@ -2,15 +2,13 @@ import { useState, useEffect } from 'react';
 import { csaAPI } from '../utils/api';
 import {
   FiShield, FiAlertTriangle, FiAlertCircle, FiCheckCircle, FiTrendingDown,
-  FiClock, FiRefreshCw, FiInfo, FiChevronRight, FiActivity, FiTarget
+  FiRefreshCw, FiInfo, FiChevronRight, FiActivity, FiTarget
 } from 'react-icons/fi';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const CSAEstimator = () => {
   const [scores, setScores] = useState(null);
   const [summary, setSummary] = useState(null);
-  const [timeDecay, setTimeDecay] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedBasic, setSelectedBasic] = useState(null);
@@ -32,15 +30,13 @@ const CSAEstimator = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [scoresRes, summaryRes, decayRes] = await Promise.all([
+      const [scoresRes, summaryRes] = await Promise.all([
         csaAPI.getCurrent(),
-        csaAPI.getSummary(),
-        csaAPI.getTimeDecay(24)
+        csaAPI.getSummary()
       ]);
 
       setScores(scoresRes.data.basics);
       setSummary(summaryRes.data);
-      setTimeDecay(decayRes.data);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to load CSA scores');
     } finally {
@@ -408,85 +404,6 @@ const CSAEstimator = () => {
         ))}
       </div>
 
-      {/* Time Decay Chart */}
-      {timeDecay && (
-        <div
-          className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 overflow-hidden"
-          style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}
-        >
-          <div
-            className="px-5 py-4 border-b border-zinc-100 dark:border-zinc-700 dark:bg-zinc-800/50"
-            style={{ background: 'linear-gradient(to bottom, #fafbfc, #f8fafc)' }}
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-primary-100 dark:bg-primary-500/20 flex items-center justify-center">
-                <FiClock className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-              </div>
-              <div>
-                <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">24-Month Score Projection</h2>
-                <p className="text-xs text-zinc-600 dark:text-zinc-300">How your scores will improve as violations age out</p>
-              </div>
-            </div>
-          </div>
-          <div className="p-5">
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart
-                data={timeDecay.projections?.map(p => ({
-                  month: p.month,
-                  date: p.date,
-                  unsafeDriving: p.scores.unsafe_driving?.estimatedPercentile || 0,
-                  hoursOfService: p.scores.hours_of_service?.estimatedPercentile || 0,
-                  vehicleMaintenance: p.scores.vehicle_maintenance?.estimatedPercentile || 0
-                })) || []}
-                margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--glass-border)" />
-                <XAxis
-                  dataKey="month"
-                  tick={{ fontSize: 11, fill: 'var(--text-muted)' }}
-                  tickFormatter={(v) => `+${v}mo`}
-                />
-                <YAxis
-                  domain={[0, 100]}
-                  tick={{ fontSize: 11, fill: 'var(--text-muted)' }}
-                  tickFormatter={(v) => `${v}%`}
-                />
-                <Tooltip
-                  contentStyle={{
-                    borderRadius: '8px',
-                    border: '1px solid var(--glass-border)',
-                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-                    backgroundColor: 'var(--color-surface)',
-                    color: 'var(--text-primary)'
-                  }}
-                />
-                <ReferenceLine y={65} stroke="#f59e0b" strokeDasharray="5 5" label={{ value: 'Alert', fill: '#f59e0b', fontSize: 10 }} />
-                <ReferenceLine y={80} stroke="#ef4444" strokeDasharray="5 5" label={{ value: 'Critical', fill: '#ef4444', fontSize: 10 }} />
-                <Line type="monotone" dataKey="unsafeDriving" stroke="#ef4444" name="Unsafe Driving" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="hoursOfService" stroke="#f59e0b" name="Hours of Service" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="vehicleMaintenance" stroke="#3b82f6" name="Vehicle Maintenance" strokeWidth={2} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-
-            {/* Improvement Summary */}
-            {timeDecay.insights?.improvements && (
-              <div className="mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-700">
-                <h4 className="text-sm font-semibold text-zinc-700 dark:text-zinc-200 mb-3">Projected Improvements (24 months)</h4>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
-                  {Object.entries(timeDecay.insights.improvements).map(([key, data]) => (
-                    <div key={key} className="text-center p-2 bg-primary-50 dark:bg-zinc-800 rounded-lg">
-                      <p className="text-xs text-zinc-600 dark:text-zinc-300 truncate">{key.replace(/_/g, ' ')}</p>
-                      <p className={`text-sm font-bold ${data.change < 0 ? 'text-success-600 dark:text-success-400' : 'text-zinc-700 dark:text-zinc-300'}`}>
-                        {data.change < 0 ? '' : '+'}{data.change}%
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 };
