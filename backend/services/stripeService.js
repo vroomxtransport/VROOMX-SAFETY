@@ -550,6 +550,135 @@ const stripeService = {
   },
 
   /**
+   * Preview proration for a plan upgrade
+   * Returns the prorated amount the user would be charged immediately
+   */
+  async previewUpgrade(user, newPlan) {
+    if (!STRIPE_ENABLED) {
+      throw new Error('Stripe is not configured');
+    }
+
+    const subscriptionId = user.subscription?.stripeSubscriptionId;
+    if (!subscriptionId) {
+      throw new Error('No active subscription found');
+    }
+
+    const newPriceId = PRICE_IDS[newPlan];
+    if (!newPriceId) {
+      throw new Error(`Invalid plan: ${newPlan}`);
+    }
+
+    // Get current subscription
+    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+
+    // Find the base price item (not metered/extra-driver items)
+    const baseItem = subscription.items.data.find(
+      item => Object.values(PRICE_IDS).includes(item.price.id)
+    );
+
+    if (!baseItem) {
+      throw new Error('Could not find base subscription item');
+    }
+
+    // Preview the upcoming invoice with the plan change
+    const preview = await stripe.invoices.createPreview({
+      customer: user.stripeCustomerId,
+      subscription: subscriptionId,
+      subscription_items: [{
+        id: baseItem.id,
+        price: newPriceId
+      }],
+      subscription_proration_behavior: 'create_prorations'
+    });
+
+    // Calculate proration details
+    const currentPlan = user.subscription.plan;
+    const currentPrice = PLAN_METADATA[currentPlan]?.plan === 'solo' ? 19 : PLAN_METADATA[currentPlan]?.plan === 'fleet' ? 39 : 89;
+    const newPrice = PLAN_METADATA[newPlan]?.plan === 'solo' ? 19 : PLAN_METADATA[newPlan]?.plan === 'fleet' ? 39 : 89;
+
+    // The preview total is the prorated amount due immediately
+    const immediateCharge = Math.max(0, preview.amount_due) / 100; // Convert from cents
+
+    return {
+      currentPlan,
+      newPlan,
+      currentMonthlyPrice: currentPrice,
+      newMonthlyPrice: newPrice,
+      immediateCharge,
+      periodEnd: new Date(subscription.current_period_end * 1000).toISOString(),
+      effectiveNow: true
+    };
+  },
+
+  /**
+   * Upgrade subscription to a higher plan with proration
+   */
+  async upgradePlan(user, newPlan) {
+    if (!STRIPE_ENABLED) {
+      throw new Error('Stripe is not configured');
+    }
+
+    const PLAN_ORDER = { solo: 1, fleet: 2, pro: 3 };
+    const currentPlan = user.subscription?.plan;
+
+    if (!PLAN_ORDER[currentPlan] || !PLAN_ORDER[newPlan]) {
+      throw new Error('Invalid plan');
+    }
+
+    if (PLAN_ORDER[newPlan] <= PLAN_ORDER[currentPlan]) {
+      throw new Error('Can only upgrade to a higher plan');
+    }
+
+    const subscriptionId = user.subscription?.stripeSubscriptionId;
+    if (!subscriptionId) {
+      throw new Error('No active subscription found');
+    }
+
+    const newPriceId = PRICE_IDS[newPlan];
+    if (!newPriceId) {
+      throw new Error(`Price ID not configured for plan: ${newPlan}`);
+    }
+
+    // Get current subscription
+    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+
+    // Find the base price item
+    const baseItem = subscription.items.data.find(
+      item => Object.values(PRICE_IDS).includes(item.price.id)
+    );
+
+    if (!baseItem) {
+      throw new Error('Could not find base subscription item');
+    }
+
+    // Update the subscription with the new price (Stripe handles proration)
+    const updatedSubscription = await stripe.subscriptions.update(subscriptionId, {
+      items: [{
+        id: baseItem.id,
+        price: newPriceId
+      }],
+      proration_behavior: 'create_prorations',
+      metadata: {
+        ...subscription.metadata,
+        plan: newPlan,
+        upgradedFrom: currentPlan,
+        upgradedAt: new Date().toISOString()
+      }
+    });
+
+    // Update user's local subscription data
+    user.subscription.plan = newPlan;
+    user.subscription.stripePriceId = newPriceId;
+    await user.save({ validateBeforeSave: false });
+
+    return {
+      plan: newPlan,
+      status: updatedSubscription.status,
+      currentPeriodEnd: new Date(updatedSubscription.current_period_end * 1000).toISOString()
+    };
+  },
+
+  /**
    * Verify webhook signature
    */
   constructEvent(payload, signature) {

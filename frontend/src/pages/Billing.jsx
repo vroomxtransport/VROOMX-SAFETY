@@ -4,7 +4,7 @@ import { billingAPI } from '../utils/api';
 import toast from 'react-hot-toast';
 import {
   FiCreditCard, FiCheck, FiX, FiStar, FiTruck, FiUsers, FiBriefcase,
-  FiArrowRight, FiZap, FiShield, FiExternalLink, FiAlertCircle, FiUser
+  FiArrowRight, FiArrowUp, FiZap, FiShield, FiExternalLink, FiAlertCircle, FiUser
 } from 'react-icons/fi';
 import LoadingSpinner from '../components/LoadingSpinner';
 import VroomXLogo from '../components/VroomXLogo';
@@ -17,6 +17,7 @@ const Billing = () => {
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [plans, setPlans] = useState([]);
   const [currentUsage, setCurrentUsage] = useState(null);
+  const [upgradeModal, setUpgradeModal] = useState({ open: false, plan: null, preview: null, loading: false });
 
   useEffect(() => {
     loadBillingData();
@@ -81,6 +82,44 @@ const Billing = () => {
       toast.error(error.response?.data?.message || 'Failed to reactivate subscription');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const PLAN_ORDER = { solo: 1, fleet: 2, pro: 3 };
+
+  const canUpgradeTo = (targetPlan) => {
+    if (subscription?.status !== 'active' || subscription?.cancelAtPeriodEnd) return false;
+    const current = PLAN_ORDER[subscription?.plan];
+    const target = PLAN_ORDER[targetPlan];
+    return current && target && target > current;
+  };
+
+  const isCurrentPlan = (plan) => {
+    return subscription?.plan === plan && subscription?.status !== 'trialing';
+  };
+
+  const handleUpgradeClick = async (plan) => {
+    setUpgradeModal({ open: true, plan, preview: null, loading: true });
+    try {
+      const response = await billingAPI.previewUpgrade(plan);
+      setUpgradeModal(prev => ({ ...prev, preview: response.data.preview, loading: false }));
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to load upgrade preview');
+      setUpgradeModal({ open: false, plan: null, preview: null, loading: false });
+    }
+  };
+
+  const handleConfirmUpgrade = async () => {
+    setUpgradeModal(prev => ({ ...prev, loading: true }));
+    try {
+      const response = await billingAPI.upgradePlan(upgradeModal.plan);
+      toast.success(response.data.message || 'Plan upgraded successfully!');
+      await refreshUser();
+      await loadBillingData();
+      setUpgradeModal({ open: false, plan: null, preview: null, loading: false });
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to upgrade plan');
+      setUpgradeModal(prev => ({ ...prev, loading: false }));
     }
   };
 
@@ -474,18 +513,22 @@ const Billing = () => {
             </ul>
 
             <button
-              onClick={() => handleSubscribe('solo')}
-              disabled={loading || (subscription?.plan === 'solo' && subscription?.status !== 'trialing')}
+              onClick={() => !isCurrentPlan('solo') && !PLAN_ORDER[subscription?.plan] && handleSubscribe('solo')}
+              disabled={loading || isCurrentPlan('solo') || (PLAN_ORDER[subscription?.plan] > PLAN_ORDER.solo)}
               className={`w-full py-3 px-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${
-                subscription?.plan === 'solo' && subscription?.status !== 'trialing'
+                isCurrentPlan('solo')
                   ? 'bg-primary-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 cursor-not-allowed'
+                  : PLAN_ORDER[subscription?.plan] > PLAN_ORDER.solo
+                  ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 cursor-not-allowed'
                   : 'bg-zinc-800 dark:bg-zinc-700 text-white hover:bg-zinc-900 dark:hover:bg-zinc-600'
               }`}
             >
               {loading ? (
                 <LoadingSpinner size="sm" />
-              ) : subscription?.plan === 'solo' && subscription?.status !== 'trialing' ? (
+              ) : isCurrentPlan('solo') ? (
                 'Current Plan'
+              ) : PLAN_ORDER[subscription?.plan] > PLAN_ORDER.solo ? (
+                'Included in your plan'
               ) : (
                 <>
                   Subscribe
@@ -572,18 +615,29 @@ const Billing = () => {
             </ul>
 
             <button
-              onClick={() => handleSubscribe('fleet')}
-              disabled={loading || (subscription?.plan === 'fleet' && subscription?.status !== 'trialing')}
+              onClick={() => canUpgradeTo('fleet') ? handleUpgradeClick('fleet') : handleSubscribe('fleet')}
+              disabled={loading || isCurrentPlan('fleet') || (PLAN_ORDER[subscription?.plan] > PLAN_ORDER.fleet)}
               className={`w-full py-3 px-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${
-                subscription?.plan === 'fleet' && subscription?.status !== 'trialing'
+                isCurrentPlan('fleet')
                   ? 'bg-primary-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 cursor-not-allowed'
+                  : PLAN_ORDER[subscription?.plan] > PLAN_ORDER.fleet
+                  ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 cursor-not-allowed'
+                  : canUpgradeTo('fleet')
+                  ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white hover:from-primary-700 hover:to-primary-800'
                   : 'bg-primary-900 dark:bg-primary-600 text-white hover:bg-primary-800 dark:hover:bg-primary-700'
               }`}
             >
               {loading ? (
                 <LoadingSpinner size="sm" />
-              ) : subscription?.plan === 'fleet' && subscription?.status !== 'trialing' ? (
+              ) : isCurrentPlan('fleet') ? (
                 'Current Plan'
+              ) : PLAN_ORDER[subscription?.plan] > PLAN_ORDER.fleet ? (
+                'Included in your plan'
+              ) : canUpgradeTo('fleet') ? (
+                <>
+                  <FiArrowUp className="w-4 h-4" />
+                  Upgrade to Fleet
+                </>
               ) : (
                 <>
                   Subscribe
@@ -675,22 +729,24 @@ const Billing = () => {
             </ul>
 
             <button
-              onClick={() => handleSubscribe('pro')}
-              disabled={loading || (subscription?.plan === 'pro' && subscription?.status !== 'trialing')}
+              onClick={() => canUpgradeTo('pro') ? handleUpgradeClick('pro') : handleSubscribe('pro')}
+              disabled={loading || isCurrentPlan('pro')}
               className={`w-full py-3 px-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${
-                subscription?.plan === 'pro' && subscription?.status !== 'trialing'
+                isCurrentPlan('pro')
                   ? 'bg-accent-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 cursor-not-allowed'
+                  : canUpgradeTo('pro')
+                  ? 'bg-gradient-to-r from-accent-500 to-accent-600 text-white hover:from-accent-600 hover:to-accent-700 shadow-lg shadow-accent-500/25'
                   : 'bg-gradient-to-r from-accent-500 to-accent-600 text-white hover:from-accent-600 hover:to-accent-700'
               }`}
             >
               {loading ? (
                 <LoadingSpinner size="sm" />
-              ) : subscription?.plan === 'pro' && subscription?.status !== 'trialing' ? (
+              ) : isCurrentPlan('pro') ? (
                 'Current Plan'
-              ) : subscription?.plan === 'fleet' ? (
+              ) : canUpgradeTo('pro') ? (
                 <>
-                  Upgrade Now
-                  <FiArrowRight className="w-4 h-4" />
+                  <FiArrowUp className="w-4 h-4" />
+                  Upgrade to Pro
                 </>
               ) : (
                 <>
@@ -733,6 +789,82 @@ const Billing = () => {
           </div>
         </div>
       </div>
+
+      {/* Upgrade Confirmation Modal */}
+      {upgradeModal.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => !upgradeModal.loading && setUpgradeModal({ open: false, plan: null, preview: null, loading: false })} />
+          <div className="relative bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-2xl max-w-md w-full p-6">
+            <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 mb-1">
+              Upgrade to {upgradeModal.plan?.charAt(0).toUpperCase() + upgradeModal.plan?.slice(1)}
+            </h3>
+            <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-5">
+              Your plan will be upgraded immediately with prorated billing.
+            </p>
+
+            {upgradeModal.loading && !upgradeModal.preview ? (
+              <div className="flex items-center justify-center py-8">
+                <LoadingSpinner size="lg" />
+                <span className="ml-3 text-zinc-600 dark:text-zinc-300">Calculating proration...</span>
+              </div>
+            ) : upgradeModal.preview ? (
+              <>
+                <div className="space-y-3 mb-6">
+                  <div className="flex items-center justify-between p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800">
+                    <span className="text-sm text-zinc-600 dark:text-zinc-300">Current Plan</span>
+                    <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 capitalize">
+                      {upgradeModal.preview.currentPlan} — ${upgradeModal.preview.currentMonthlyPrice}/mo
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 rounded-lg bg-accent-50 dark:bg-accent-900/20 border border-accent-200 dark:border-accent-700">
+                    <span className="text-sm text-zinc-600 dark:text-zinc-300">New Plan</span>
+                    <span className="text-sm font-semibold text-accent-700 dark:text-accent-400 capitalize">
+                      {upgradeModal.preview.newPlan} — ${upgradeModal.preview.newMonthlyPrice}/mo
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 rounded-lg bg-primary-50 dark:bg-zinc-800 border border-primary-200 dark:border-zinc-700">
+                    <div>
+                      <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">Charge Today</span>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400">Prorated for remaining billing period</p>
+                    </div>
+                    <span className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                      ${upgradeModal.preview.immediateCharge.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-5">
+                  Starting next billing cycle, you'll be charged ${upgradeModal.preview.newMonthlyPrice}/month.
+                </p>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setUpgradeModal({ open: false, plan: null, preview: null, loading: false })}
+                    disabled={upgradeModal.loading}
+                    className="flex-1 py-2.5 px-4 rounded-xl font-medium border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleConfirmUpgrade}
+                    disabled={upgradeModal.loading}
+                    className="flex-1 py-2.5 px-4 rounded-xl font-semibold bg-gradient-to-r from-accent-500 to-accent-600 text-white hover:from-accent-600 hover:to-accent-700 transition-all flex items-center justify-center gap-2"
+                  >
+                    {upgradeModal.loading ? (
+                      <LoadingSpinner size="sm" />
+                    ) : (
+                      <>
+                        <FiArrowUp className="w-4 h-4" />
+                        Confirm Upgrade
+                      </>
+                    )}
+                  </button>
+                </div>
+              </>
+            ) : null}
+          </div>
+        </div>
+      )}
 
       <ConfirmDialog
         isOpen={showCancelConfirm}

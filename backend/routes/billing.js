@@ -210,6 +210,69 @@ router.post('/reactivate', protect, asyncHandler(async (req, res) => {
   });
 }));
 
+// @route   POST /api/billing/preview-upgrade
+// @desc    Preview proration for upgrading to a higher plan
+// @access  Private
+router.post('/preview-upgrade', protect, asyncHandler(async (req, res) => {
+  const { plan } = req.body;
+  const PLAN_ORDER = { solo: 1, fleet: 2, pro: 3 };
+
+  if (!['solo', 'fleet', 'pro'].includes(plan)) {
+    throw new AppError('Invalid plan selected', 400);
+  }
+
+  if (req.user.subscription?.status !== 'active') {
+    throw new AppError('You must have an active subscription to upgrade', 400);
+  }
+
+  const currentPlan = req.user.subscription?.plan;
+  if (!PLAN_ORDER[currentPlan] || PLAN_ORDER[plan] <= PLAN_ORDER[currentPlan]) {
+    throw new AppError('You can only upgrade to a higher plan', 400);
+  }
+
+  const preview = await stripeService.previewUpgrade(req.user, plan);
+
+  res.json({
+    success: true,
+    preview
+  });
+}));
+
+// @route   POST /api/billing/upgrade
+// @desc    Upgrade subscription to a higher plan with proration
+// @access  Private
+router.post('/upgrade', protect, asyncHandler(async (req, res) => {
+  const { plan } = req.body;
+  const PLAN_ORDER = { solo: 1, fleet: 2, pro: 3 };
+
+  if (!['solo', 'fleet', 'pro'].includes(plan)) {
+    throw new AppError('Invalid plan selected', 400);
+  }
+
+  if (req.user.subscription?.status !== 'active') {
+    throw new AppError('You must have an active subscription to upgrade', 400);
+  }
+
+  const currentPlan = req.user.subscription?.plan;
+  if (!PLAN_ORDER[currentPlan] || PLAN_ORDER[plan] <= PLAN_ORDER[currentPlan]) {
+    throw new AppError('You can only upgrade to a higher plan', 400);
+  }
+
+  const result = await stripeService.upgradePlan(req.user, plan);
+
+  auditService.log(req, 'update', 'subscription', null, {
+    summary: `Plan upgraded from ${currentPlan} to ${plan}`,
+    previousPlan: currentPlan,
+    newPlan: plan
+  });
+
+  res.json({
+    success: true,
+    message: `Successfully upgraded to ${plan} plan`,
+    subscription: result
+  });
+}));
+
 // @route   GET /api/billing/invoices
 // @desc    Get user's invoice history
 // @access  Private

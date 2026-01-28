@@ -223,7 +223,9 @@ export const billingAPI = {
   createCheckoutSession: (plan) => api.post('/billing/create-checkout-session', { plan }),
   createPortalSession: (returnUrl) => api.post('/billing/create-portal-session', { returnUrl }),
   cancelSubscription: () => api.post('/billing/cancel'),
-  reactivateSubscription: () => api.post('/billing/reactivate')
+  reactivateSubscription: () => api.post('/billing/reactivate'),
+  previewUpgrade: (plan) => api.post('/billing/preview-upgrade', { plan }),
+  upgradePlan: (plan) => api.post('/billing/upgrade', { plan })
 };
 
 // Invitations API - Company invitations
