@@ -112,11 +112,11 @@ router.get('/verify/:dotNumber', lookupLimiter, async (req, res) => {
 // AUTHENTICATED ROUTES - Require login and company context
 // =============================================================================
 
-// Rate limit for sync: 1 per hour per company
+// Rate limit for sync: 5 per hour per company
 const syncLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 2,
-  keyGenerator: (req) => req.companyId?.toString() || req.ip,
+  max: 5,
+  keyGenerator: (req) => req.companyFilter?.companyId?.toString() || req.ip,
   message: {
     success: false,
     message: 'Sync limit reached. You can sync again in 1 hour.'
@@ -132,7 +132,7 @@ router.get('/inspections', protect, restrictToCompany, async (req, res) => {
   try {
     const { page = 1, limit = 20, dateFrom, dateTo, state, hasViolations } = req.query;
 
-    const result = await fmcsaViolationService.getInspections(req.companyId, {
+    const result = await fmcsaViolationService.getInspections(req.companyFilter.companyId, {
       page: parseInt(page),
       limit: parseInt(limit),
       dateFrom,
@@ -161,7 +161,7 @@ router.get('/inspections', protect, restrictToCompany, async (req, res) => {
  */
 router.get('/inspections/summary', protect, restrictToCompany, async (req, res) => {
   try {
-    const summary = await fmcsaViolationService.getViolationSummary(req.companyId);
+    const summary = await fmcsaViolationService.getViolationSummary(req.companyFilter.companyId);
 
     res.json({
       success: true,
@@ -183,7 +183,7 @@ router.get('/inspections/summary', protect, restrictToCompany, async (req, res) 
  */
 router.get('/sync-status', protect, restrictToCompany, async (req, res) => {
   try {
-    const status = await fmcsaViolationService.getSyncStatus(req.companyId);
+    const status = await fmcsaViolationService.getSyncStatus(req.companyFilter.companyId);
 
     res.json({
       success: true,
@@ -208,7 +208,7 @@ router.post('/sync-violations', protect, restrictToCompany, syncLimiter, async (
     const { forceRefresh = false } = req.body;
 
     // Start sync (can take 30-60 seconds for large carriers)
-    const result = await fmcsaViolationService.syncViolationHistory(req.companyId, forceRefresh);
+    const result = await fmcsaViolationService.syncViolationHistory(req.companyFilter.companyId, forceRefresh);
 
     res.json({
       success: result.success,
