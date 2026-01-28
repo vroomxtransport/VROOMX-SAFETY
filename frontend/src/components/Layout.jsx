@@ -181,7 +181,7 @@ const Layout = () => {
               if (sidebarCollapsed) return null;
               return (
                 <div key={item.section} className="pt-4 pb-2 px-3">
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-white/40">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-300">
                     {item.section}
                   </span>
                 </div>
