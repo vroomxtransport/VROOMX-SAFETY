@@ -584,11 +584,13 @@ const stripeService = {
     const preview = await stripe.invoices.createPreview({
       customer: user.stripeCustomerId,
       subscription: subscriptionId,
-      subscription_items: [{
-        id: baseItem.id,
-        price: newPriceId
-      }],
-      subscription_proration_behavior: 'create_prorations'
+      subscription_details: {
+        items: [{
+          id: baseItem.id,
+          price: newPriceId
+        }],
+        proration_behavior: 'create_prorations'
+      }
     });
 
     // Calculate proration details
