@@ -107,8 +107,15 @@ const DriverDetail = () => {
                   </span>
                 </div>
                 <div>
-                  <p className="font-semibold text-lg text-zinc-900 dark:text-zinc-100">{driver.firstName} {driver.lastName}</p>
-                  <StatusBadge status={driver.status} />
+                  <p className="font-semibold text-lg text-zinc-900 dark:text-zinc-100">
+                    {driver.firstName} {driver.middleName ? `${driver.middleName} ` : ''}{driver.lastName}
+                  </p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <StatusBadge status={driver.status} />
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300">
+                      {driver.driverType === 'owner_operator' ? 'Owner Operator' : 'Company Driver'}
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -129,11 +136,31 @@ const DriverDetail = () => {
                   <FiCalendar className="w-4 h-4 mr-3" />
                   <span className="text-sm">Hired: {formatDate(driver.hireDate)}</span>
                 </div>
+                {driver.terminationDate && (
+                  <div className="flex items-center text-red-600 dark:text-red-400">
+                    <FiCalendar className="w-4 h-4 mr-3" />
+                    <span className="text-sm">Terminated: {formatDate(driver.terminationDate)}</span>
+                  </div>
+                )}
                 <div className="flex items-center text-zinc-600 dark:text-zinc-400">
                   <FiUser className="w-4 h-4 mr-3" />
                   <span className="text-sm">DOB: {formatDate(driver.dateOfBirth)}</span>
                 </div>
               </div>
+
+              {/* Address Section */}
+              {(driver.address?.street || driver.address?.city) && (
+                <div className="mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-700">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400 mb-2">Address</p>
+                  <div className="text-sm text-zinc-700 dark:text-zinc-300">
+                    {driver.address.street && <p>{driver.address.street}</p>}
+                    <p>
+                      {[driver.address.city, driver.address.state].filter(Boolean).join(', ')}
+                      {driver.address.zipCode && ` ${driver.address.zipCode}`}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -159,6 +186,12 @@ const DriverDetail = () => {
                 <span className="text-zinc-600 dark:text-zinc-300">Endorsements</span>
                 <span className="font-medium text-zinc-800 dark:text-zinc-200">
                   {driver.cdl?.endorsements?.length > 0 ? driver.cdl.endorsements.join(', ') : 'None'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-zinc-600 dark:text-zinc-300">Restrictions</span>
+                <span className="font-medium text-zinc-800 dark:text-zinc-200">
+                  {driver.cdl?.restrictions?.length > 0 ? driver.cdl.restrictions.join(', ') : 'None'}
                 </span>
               </div>
               <div className="flex justify-between items-center">

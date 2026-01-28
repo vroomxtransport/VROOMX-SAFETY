@@ -194,6 +194,37 @@ const Vehicles = () => {
       )
     },
     {
+      header: 'Plate',
+      render: (row) => (
+        <div>
+          <p className="text-sm text-zinc-700 dark:text-zinc-300">{row.licensePlate?.number || '-'}</p>
+          {row.licensePlate?.state && <p className="text-xs text-zinc-500 dark:text-zinc-400">{row.licensePlate.state}</p>}
+        </div>
+      )
+    },
+    {
+      header: 'Cab Card',
+      render: (row) => {
+        const days = daysUntilExpiry(row.cabCardExpiry);
+        return (
+          <div>
+            <p className="text-sm font-mono text-zinc-700 dark:text-zinc-300">{formatDate(row.cabCardExpiry)}</p>
+            {days !== null && (
+              <p className={`text-xs font-medium ${days < 0 ? 'text-danger-600 dark:text-danger-400' : days <= 30 ? 'text-warning-600 dark:text-warning-400' : 'text-zinc-600 dark:text-zinc-300'}`}>
+                {days < 0 ? `Overdue ${Math.abs(days)}d` : `${days}d left`}
+              </p>
+            )}
+          </div>
+        );
+      }
+    },
+    {
+      header: 'IFTA #',
+      render: (row) => (
+        <span className="text-sm text-zinc-700 dark:text-zinc-300">{row.iftaDecalNumber || '-'}</span>
+      )
+    },
+    {
       header: 'Annual Inspection',
       render: (row) => {
         const days = daysUntilExpiry(row.annualInspection?.nextDueDate);

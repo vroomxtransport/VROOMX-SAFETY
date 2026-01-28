@@ -117,11 +117,18 @@ router.post('/register', [
   user.companyId = company._id; // Legacy support
   await user.save({ validateBeforeSave: false });
 
-  // Auto-sync FMCSA data in background (non-blocking)
+  // Sync FMCSA data with timeout - wait up to 10 seconds for data to be available on first login
   if (company.dotNumber) {
-    fmcsaSyncService.syncCompanyData(company._id).catch(err => {
-      console.error('[Registration] Background FMCSA sync failed:', err.message);
-    });
+    try {
+      await Promise.race([
+        fmcsaSyncService.syncCompanyData(company._id),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 10000))
+      ]);
+      console.log('[Registration] FMCSA sync completed for DOT:', company.dotNumber);
+    } catch (err) {
+      // Registration still succeeds even if FMCSA sync times out or fails
+      console.warn('[Registration] FMCSA sync incomplete (will retry on next login):', err.message);
+    }
   }
 
   const token = generateToken(user._id);

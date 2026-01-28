@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
-import { Outlet, NavLink, useLocation } from 'react-router-dom';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import debounce from 'lodash/debounce';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import CompanySwitcher from './CompanySwitcher';
 import AnnouncementBanner from './AnnouncementBanner';
 import VroomXLogo from './VroomXLogo';
-import api from '../utils/api';
+import api, { driversAPI, vehiclesAPI, documentsAPI, violationsAPI, accidentsAPI } from '../utils/api';
 import {
   FiHome, FiUsers, FiTruck, FiAlertTriangle, FiDroplet,
   FiFolder, FiBarChart2, FiFileText, FiSettings, FiMenu,
@@ -52,24 +53,38 @@ const Layout = () => {
   });
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [alertCounts, setAlertCounts] = useState({ critical: 0, warning: 0, info: 0, total: 0 });
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [recentAlerts, setRecentAlerts] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState(null);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+  const searchRef = useRef(null);
   const location = useLocation();
+  const navigate = useNavigate();
 
-  // Fetch alert counts
+  // Fetch alert counts and recent alerts
   useEffect(() => {
-    const fetchAlertCounts = async () => {
+    const fetchAlerts = async () => {
       try {
-        const response = await api.get('/dashboard/alerts/counts');
-        if (response.data.success) {
-          setAlertCounts(response.data.counts);
+        const [countsRes, alertsRes] = await Promise.all([
+          api.get('/dashboard/alerts/counts'),
+          api.get('/dashboard/alerts?limit=8')
+        ]);
+        if (countsRes.data.success) {
+          setAlertCounts(countsRes.data.counts);
+        }
+        if (alertsRes.data.success) {
+          setRecentAlerts(alertsRes.data.alerts || []);
         }
       } catch (error) {
-        console.error('Failed to fetch alert counts:', error);
+        console.error('Failed to fetch alerts:', error);
       }
     };
 
-    fetchAlertCounts();
+    fetchAlerts();
     // Refresh every 5 minutes
-    const interval = setInterval(fetchAlertCounts, 5 * 60 * 1000);
+    const interval = setInterval(fetchAlerts, 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, [activeCompany]);
 
@@ -77,6 +92,93 @@ const Layout = () => {
   useEffect(() => {
     localStorage.setItem('sidebar-collapsed', sidebarCollapsed);
   }, [sidebarCollapsed]);
+
+  // Debounced search function
+  const performSearch = useCallback(async (query) => {
+    if (!query || query.length < 2) {
+      setSearchResults(null);
+      setShowSearchDropdown(false);
+      return;
+    }
+    setSearchLoading(true);
+    setShowSearchDropdown(true);
+    try {
+      const [driversRes, vehiclesRes, documentsRes, violationsRes, accidentsRes] = await Promise.all([
+        driversAPI.getAll({ search: query, limit: 5 }).catch(() => ({ data: { drivers: [] } })),
+        vehiclesAPI.getAll({ search: query, limit: 5 }).catch(() => ({ data: { vehicles: [] } })),
+        documentsAPI.getAll({ search: query, limit: 5 }).catch(() => ({ data: { documents: [] } })),
+        violationsAPI.getAll({ search: query, limit: 5 }).catch(() => ({ data: { violations: [] } })),
+        accidentsAPI.getAll({ search: query, limit: 5 }).catch(() => ({ data: { accidents: [] } }))
+      ]);
+      setSearchResults({
+        drivers: driversRes.data.drivers || [],
+        vehicles: vehiclesRes.data.vehicles || [],
+        documents: documentsRes.data.documents || [],
+        violations: violationsRes.data.violations || [],
+        accidents: accidentsRes.data.accidents || []
+      });
+    } catch (error) {
+      console.error('Search failed:', error);
+    } finally {
+      setSearchLoading(false);
+    }
+  }, []);
+
+  const debouncedSearch = useMemo(
+    () => debounce((query) => performSearch(query), 300),
+    [performSearch]
+  );
+
+  const handleSearchChange = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    debouncedSearch(query);
+  };
+
+  // Close search dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (searchRef.current && !searchRef.current.contains(e.target)) {
+        setShowSearchDropdown(false);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
+
+  // Navigate to search result
+  const handleResultClick = (type, item) => {
+    setShowSearchDropdown(false);
+    setSearchQuery('');
+    switch (type) {
+      case 'driver':
+        navigate(`/app/drivers/${item._id}`);
+        break;
+      case 'vehicle':
+        navigate(`/app/vehicles/${item._id}`);
+        break;
+      case 'document':
+        navigate('/app/documents');
+        break;
+      case 'violation':
+        navigate('/app/violations');
+        break;
+      case 'accident':
+        navigate('/app/accidents');
+        break;
+      default:
+        break;
+    }
+  };
+
+  const getTotalResults = () => {
+    if (!searchResults) return 0;
+    return (searchResults.drivers?.length || 0) +
+      (searchResults.vehicles?.length || 0) +
+      (searchResults.documents?.length || 0) +
+      (searchResults.violations?.length || 0) +
+      (searchResults.accidents?.length || 0);
+  };
 
   // Get subscription badge info
   const getSubscriptionBadge = () => {
@@ -128,16 +230,19 @@ const Layout = () => {
 
   const currentPage = navigation.find(item => location.pathname.startsWith(item.path))?.name || 'Dashboard';
 
-  // Close user menu when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (userMenuOpen && !e.target.closest('.user-menu')) {
         setUserMenuOpen(false);
       }
+      if (notificationsOpen && !e.target.closest('.notifications-dropdown')) {
+        setNotificationsOpen(false);
+      }
     };
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
-  }, [userMenuOpen]);
+  }, [userMenuOpen, notificationsOpen]);
 
   return (
     <div className="min-h-screen bg-zinc-100 dark:bg-black">
@@ -294,16 +399,157 @@ const Layout = () => {
             {/* Right side */}
             <div className="flex items-center gap-3">
               {/* Search */}
-              <div className="relative hidden md:block">
+              <div className="relative hidden md:block" ref={searchRef}>
                 <input
                   type="text"
-                  placeholder="Search..."
+                  placeholder="Search drivers, vehicles, documents..."
                   aria-label="Search"
-                  className="w-40 lg:w-64 pl-10 pr-4 py-2 bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-xl text-sm text-zinc-900 dark:text-white placeholder-zinc-500 focus:outline-none focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20"
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  onFocus={() => searchQuery.length >= 2 && setShowSearchDropdown(true)}
+                  className="w-40 lg:w-72 pl-10 pr-4 py-2 bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-xl text-sm text-zinc-900 dark:text-white placeholder-zinc-500 focus:outline-none focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20"
                 />
                 <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
+
+                {/* Search Results Dropdown */}
+                {showSearchDropdown && (
+                  <div className="absolute top-full left-0 right-0 mt-2 glass-card rounded-xl shadow-glass-lg z-50 overflow-hidden max-h-96 overflow-y-auto">
+                    {searchLoading ? (
+                      <div className="px-4 py-6 text-center">
+                        <div className="w-5 h-5 border-2 border-accent-500 border-t-transparent rounded-full animate-spin mx-auto" />
+                        <p className="text-sm text-zinc-500 mt-2">Searching...</p>
+                      </div>
+                    ) : getTotalResults() === 0 ? (
+                      <div className="px-4 py-6 text-center">
+                        <p className="text-sm text-zinc-500">No results found for "{searchQuery}"</p>
+                      </div>
+                    ) : (
+                      <>
+                        {/* Drivers */}
+                        {searchResults?.drivers?.length > 0 && (
+                          <div>
+                            <div className="px-3 py-2 bg-zinc-50 dark:bg-white/5 text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                              <FiUsers className="inline w-3 h-3 mr-1" /> Drivers ({searchResults.drivers.length})
+                            </div>
+                            {searchResults.drivers.map((driver) => (
+                              <button
+                                key={driver._id}
+                                onClick={() => handleResultClick('driver', driver)}
+                                className="w-full px-4 py-2.5 text-left hover:bg-zinc-50 dark:hover:bg-white/5 flex items-center gap-3"
+                              >
+                                <div className="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-500/20 flex items-center justify-center text-xs font-bold text-orange-600 dark:text-orange-400">
+                                  {driver.firstName?.[0]}{driver.lastName?.[0]}
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">{driver.firstName} {driver.lastName}</p>
+                                  <p className="text-xs text-zinc-500">{driver.cdl?.number || 'No CDL'}</p>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Vehicles */}
+                        {searchResults?.vehicles?.length > 0 && (
+                          <div>
+                            <div className="px-3 py-2 bg-zinc-50 dark:bg-white/5 text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                              <FiTruck className="inline w-3 h-3 mr-1" /> Vehicles ({searchResults.vehicles.length})
+                            </div>
+                            {searchResults.vehicles.map((vehicle) => (
+                              <button
+                                key={vehicle._id}
+                                onClick={() => handleResultClick('vehicle', vehicle)}
+                                className="w-full px-4 py-2.5 text-left hover:bg-zinc-50 dark:hover:bg-white/5 flex items-center gap-3"
+                              >
+                                <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center">
+                                  <FiTruck className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Unit #{vehicle.unitNumber}</p>
+                                  <p className="text-xs text-zinc-500">{vehicle.make} {vehicle.model} • {vehicle.vin}</p>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Documents */}
+                        {searchResults?.documents?.length > 0 && (
+                          <div>
+                            <div className="px-3 py-2 bg-zinc-50 dark:bg-white/5 text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                              <FiFolder className="inline w-3 h-3 mr-1" /> Documents ({searchResults.documents.length})
+                            </div>
+                            {searchResults.documents.map((doc) => (
+                              <button
+                                key={doc._id}
+                                onClick={() => handleResultClick('document', doc)}
+                                className="w-full px-4 py-2.5 text-left hover:bg-zinc-50 dark:hover:bg-white/5 flex items-center gap-3"
+                              >
+                                <div className="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-500/20 flex items-center justify-center">
+                                  <FiFolder className="w-4 h-4 text-green-600 dark:text-green-400" />
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">{doc.name || doc.originalName}</p>
+                                  <p className="text-xs text-zinc-500 capitalize">{doc.documentType?.replace(/_/g, ' ') || 'Document'}</p>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Violations */}
+                        {searchResults?.violations?.length > 0 && (
+                          <div>
+                            <div className="px-3 py-2 bg-zinc-50 dark:bg-white/5 text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                              <FiAlertTriangle className="inline w-3 h-3 mr-1" /> Violations ({searchResults.violations.length})
+                            </div>
+                            {searchResults.violations.map((violation) => (
+                              <button
+                                key={violation._id}
+                                onClick={() => handleResultClick('violation', violation)}
+                                className="w-full px-4 py-2.5 text-left hover:bg-zinc-50 dark:hover:bg-white/5 flex items-center gap-3"
+                              >
+                                <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-500/20 flex items-center justify-center">
+                                  <FiAlertTriangle className="w-4 h-4 text-red-600 dark:text-red-400" />
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">{violation.code || 'Violation'}</p>
+                                  <p className="text-xs text-zinc-500 truncate max-w-48">{violation.description}</p>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Accidents */}
+                        {searchResults?.accidents?.length > 0 && (
+                          <div>
+                            <div className="px-3 py-2 bg-zinc-50 dark:bg-white/5 text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                              <FiAlertOctagon className="inline w-3 h-3 mr-1" /> Accidents ({searchResults.accidents.length})
+                            </div>
+                            {searchResults.accidents.map((accident) => (
+                              <button
+                                key={accident._id}
+                                onClick={() => handleResultClick('accident', accident)}
+                                className="w-full px-4 py-2.5 text-left hover:bg-zinc-50 dark:hover:bg-white/5 flex items-center gap-3"
+                              >
+                                <div className="w-8 h-8 rounded-lg bg-yellow-100 dark:bg-yellow-500/20 flex items-center justify-center">
+                                  <FiAlertOctagon className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">{accident.reportNumber || 'Accident Report'}</p>
+                                  <p className="text-xs text-zinc-500">{accident.location}</p>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Theme toggle button */}
@@ -315,11 +561,80 @@ const Layout = () => {
                 {isDark ? <FiSun className="w-5 h-5" /> : <FiMoon className="w-5 h-5" />}
               </button>
 
-              {/* Notifications button */}
-              <button aria-label="Notifications" className="relative p-2.5 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-white dark:hover:bg-white/10 rounded-lg transition-colors">
-                <FiBell className="w-5 h-5" />
-                <span className="absolute top-2 right-2 w-2 h-2 bg-accent-500 rounded-full"></span>
-              </button>
+              {/* Notifications dropdown */}
+              <div className="relative notifications-dropdown">
+                <button
+                  aria-label="Notifications"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setNotificationsOpen(!notificationsOpen);
+                  }}
+                  className="relative p-2.5 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-white dark:hover:bg-white/10 rounded-lg transition-colors"
+                >
+                  <FiBell className="w-5 h-5" />
+                  {alertCounts.total > 0 && (
+                    <span className="absolute top-2 right-2 w-2 h-2 bg-accent-500 rounded-full"></span>
+                  )}
+                </button>
+
+                {notificationsOpen && (
+                  <div className="absolute right-0 mt-2 w-80 glass-card rounded-xl shadow-glass-lg animate-scale-in z-50 overflow-hidden">
+                    {/* Header */}
+                    <div className="px-4 py-3 border-b border-zinc-100 dark:border-white/5 flex items-center justify-between">
+                      <h3 className="font-semibold text-zinc-800 dark:text-white">Notifications</h3>
+                      {alertCounts.total > 0 && (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-accent-500/20 text-accent-600 dark:text-accent-400">
+                          {alertCounts.total} new
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Alert list */}
+                    <div className="max-h-80 overflow-y-auto">
+                      {recentAlerts.length > 0 ? (
+                        recentAlerts.map((alert, index) => (
+                          <div
+                            key={alert._id || index}
+                            className="px-4 py-3 hover:bg-zinc-50 dark:hover:bg-white/5 border-b border-zinc-100 dark:border-white/5 last:border-0 cursor-pointer"
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className={`w-2 h-2 mt-2 rounded-full flex-shrink-0 ${
+                                alert.severity === 'critical' ? 'bg-red-500' :
+                                alert.severity === 'warning' ? 'bg-yellow-500' : 'bg-blue-500'
+                              }`} />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200 truncate">
+                                  {alert.title}
+                                </p>
+                                <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">
+                                  {alert.message}
+                                </p>
+                                <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1">
+                                  {new Date(alert.createdAt).toLocaleDateString()}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="px-4 py-8 text-center">
+                          <FiBell className="w-8 h-8 text-zinc-300 dark:text-zinc-600 mx-auto mb-2" />
+                          <p className="text-sm text-zinc-500 dark:text-zinc-400">No notifications</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Footer */}
+                    <NavLink
+                      to="/app/alerts"
+                      onClick={() => setNotificationsOpen(false)}
+                      className="block px-4 py-3 text-center text-sm font-medium text-accent-600 dark:text-accent-400 hover:bg-zinc-50 dark:hover:bg-white/5 border-t border-zinc-100 dark:border-white/5"
+                    >
+                      View all alerts
+                    </NavLink>
+                  </div>
+                )}
+              </div>
 
               {/* User menu */}
               <div className="relative user-menu">
