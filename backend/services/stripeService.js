@@ -706,7 +706,7 @@ const stripeService = {
       }],
       proration_behavior: 'create_prorations',
       metadata: {
-        ...subscription.metadata,
+        ...(subscription.metadata || {}),
         plan: newPlan,
         upgradedFrom: currentPlan,
         upgradedAt: new Date().toISOString()
@@ -718,10 +718,20 @@ const stripeService = {
     user.subscription.stripePriceId = newPriceId;
     await user.save({ validateBeforeSave: false });
 
+    // Safely handle period end
+    let periodEnd = null;
+    try {
+      if (updatedSubscription.current_period_end) {
+        periodEnd = new Date(updatedSubscription.current_period_end * 1000).toISOString();
+      }
+    } catch (e) {
+      periodEnd = null;
+    }
+
     return {
       plan: newPlan,
       status: updatedSubscription.status,
-      currentPeriodEnd: new Date(updatedSubscription.current_period_end * 1000).toISOString()
+      currentPeriodEnd: periodEnd
     };
   },
 
