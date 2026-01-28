@@ -268,6 +268,50 @@ const Drivers = () => {
       }
     },
     {
+      header: 'Clearinghouse',
+      render: (row) => {
+        // Use expiryDate if available, otherwise calculate from lastQueryDate + 1 year
+        const expiryDate = row.clearinghouse?.expiryDate ||
+          (row.clearinghouse?.lastQueryDate ? new Date(new Date(row.clearinghouse.lastQueryDate).setFullYear(new Date(row.clearinghouse.lastQueryDate).getFullYear() + 1)) : null);
+        const days = daysUntilExpiry(expiryDate);
+        return (
+          <div>
+            <p className="text-sm font-mono text-zinc-700 dark:text-zinc-300">{formatDate(expiryDate)}</p>
+            {days !== null && (
+              <p className={`text-xs font-medium ${days < 0 ? 'text-danger-600 dark:text-danger-400' : days <= 30 ? 'text-warning-600 dark:text-warning-400' : 'text-zinc-500'}`}>
+                {days < 0 ? `Overdue ${Math.abs(days)}d` : `${days}d left`}
+              </p>
+            )}
+          </div>
+        );
+      }
+    },
+    {
+      header: 'MVR Due',
+      render: (row) => {
+        // MVR is annual - get latest review and add 1 year
+        const latestMvr = row.documents?.mvrReviews?.sort((a, b) => new Date(b.reviewDate) - new Date(a.reviewDate))?.[0];
+        const nextDue = latestMvr?.reviewDate ? new Date(new Date(latestMvr.reviewDate).setFullYear(new Date(latestMvr.reviewDate).getFullYear() + 1)) : null;
+        const days = daysUntilExpiry(nextDue);
+        return (
+          <div>
+            <p className="text-sm font-mono text-zinc-700 dark:text-zinc-300">{formatDate(nextDue)}</p>
+            {days !== null && (
+              <p className={`text-xs font-medium ${days < 0 ? 'text-danger-600 dark:text-danger-400' : days <= 30 ? 'text-warning-600 dark:text-warning-400' : 'text-zinc-500'}`}>
+                {days < 0 ? `Overdue ${Math.abs(days)}d` : `${days}d left`}
+              </p>
+            )}
+          </div>
+        );
+      }
+    },
+    {
+      header: 'Hire Date',
+      render: (row) => (
+        <span className="text-sm font-mono text-zinc-700 dark:text-zinc-300">{formatDate(row.hireDate)}</span>
+      )
+    },
+    {
       header: 'Status',
       render: (row) => <StatusBadge status={row.complianceStatus?.overall} size="sm" />
     },
