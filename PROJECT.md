@@ -32,7 +32,7 @@
 - **Runtime:** Node.js 18+
 - **Framework:** Express.js
 - **Database:** MongoDB with Mongoose ODM
-- **Authentication:** JWT + bcryptjs
+- **Authentication:** JWT (httpOnly cookie) + bcryptjs
 - **AI Integration:** Anthropic Claude API, OpenAI API (Chat Completions + Responses API for PDF)
 - **Payments:** Stripe (live mode with metered billing)
 - **File Uploads:** Multer (10MB limit)
@@ -275,6 +275,18 @@ npm run dev  # Starts on port 5173
 ---
 
 ## Changelog
+
+### 2026-01-28 (Audit Follow-Up — JWT Cookie Migration + 3 Fixes)
+- **Security:** Migrated JWT authentication from localStorage to httpOnly cookies. Eliminates XSS token theft vector.
+  - Backend: Added `cookie-parser` middleware, `setTokenCookie()` helper sets httpOnly/secure/sameSite cookie on login, register, password update, company switch, and admin impersonate. Added `POST /api/auth/logout` to clear cookie. Auth middleware checks `req.cookies.token` first, falls back to `Authorization` header.
+  - Frontend: Axios instance uses `withCredentials: true` (sends cookies automatically). Removed localStorage token storage, request interceptor, and Authorization header management. AuthContext validates session via `GET /api/auth/me` on mount.
+  - Files: `backend/server.js`, `backend/middleware/auth.js`, `backend/routes/auth.js`, `backend/routes/companies.js`, `backend/routes/admin.js`, `frontend/src/utils/api.js`, `frontend/src/context/AuthContext.jsx`
+- **Security:** Added `checkPermission('dashboard', 'edit')` to 6 remaining unprotected dashboard write routes: `/refresh-fmcsa`, `/alerts/:id/dismiss`, `/alerts/:id/resolve`, `/alerts/escalate`, `/alerts/dismiss-bulk`, `/compliance-score/calculate`.
+  - File: `backend/routes/dashboard.js`
+- **Security:** Added `escapeRegex()` to checklists search endpoint (was missed in prior fix).
+  - File: `backend/routes/checklists.js`
+- **Fix:** Document download UI now uses authenticated download endpoint instead of direct `fileUrl`. Added `downloadDocument()` helper with blob fetch and browser download trigger.
+  - File: `frontend/src/pages/Documents.jsx`
 
 ### 2026-01-28 (Static Analysis Audit Remediation — 9 Fixes)
 - **Security:** Fixed tenant isolation — replaced 44 occurrences of legacy `req.user.companyId._id || req.user.companyId` with `req.companyFilter.companyId` across 13 route files. Prevents multi-company users from writing data to stale/wrong company.

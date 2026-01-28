@@ -19,6 +19,17 @@ const generateToken = (id) => {
   });
 };
 
+// Set JWT as httpOnly cookie
+function setTokenCookie(res, token) {
+  res.cookie('token', token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 60 * 60 * 1000,
+    path: '/'
+  });
+}
+
 // @route   GET /api/companies
 // @desc    Get all companies the user has access to
 // @access  Private
@@ -252,6 +263,7 @@ router.post('/:id/switch', asyncHandler(async (req, res) => {
 
   // Generate new token (keeps same user, new context)
   const token = generateToken(req.user._id);
+  setTokenCookie(res, token);
 
   auditService.log(req, 'update', 'company', companyId, { summary: 'Switched active company' });
 

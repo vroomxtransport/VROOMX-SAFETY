@@ -6,6 +6,7 @@ const morgan = require('morgan');
 const path = require('path');
 const cron = require('node-cron');
 const rateLimit = require('express-rate-limit');
+const cookieParser = require('cookie-parser');
 const connectDB = require('./config/database');
 const routes = require('./routes');
 const { errorHandler, notFound } = require('./middleware/errorHandler');
@@ -136,6 +137,7 @@ app.use((req, res, next) => {
   }
 });
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(cookieParser());
 
 // Logging - custom format that excludes Authorization headers
 if (process.env.NODE_ENV === 'development') {

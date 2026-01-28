@@ -7,6 +7,10 @@ const { protect, restrictToCompany, checkPermission } = require('../middleware/a
 const { asyncHandler } = require('../middleware/errorHandler');
 const auditService = require('../services/auditService');
 
+function escapeRegex(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 // Apply authentication to all routes
 router.use(protect);
 router.use(restrictToCompany);
@@ -29,7 +33,7 @@ router.get('/templates', checkPermission('checklists', 'view'), asyncHandler(asy
 
   if (category) query.category = category;
   if (search) {
-    query.name = { $regex: search, $options: 'i' };
+    query.name = { $regex: escapeRegex(search), $options: 'i' };
   }
 
   const templates = await ChecklistTemplate.find(query)

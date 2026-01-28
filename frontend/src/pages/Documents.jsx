@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { documentsAPI } from '../utils/api';
+import api, { documentsAPI } from '../utils/api';
 import { formatDate, formatFileSize, daysUntilExpiry } from '../utils/helpers';
 import toast from 'react-hot-toast';
 import { FiPlus, FiSearch, FiFolder, FiFile, FiDownload, FiTrash2, FiEye, FiUpload, FiAlertCircle } from 'react-icons/fi';
@@ -112,6 +112,22 @@ const Documents = () => {
     fetchDocuments();
   };
 
+  const downloadDocument = async (docId, fileName) => {
+    try {
+      const response = await api.get(`/documents/${docId}/download`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', fileName || 'document');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      toast.error('Failed to download document');
+    }
+  };
+
   const columns = [
     {
       header: 'Document',
@@ -164,17 +180,13 @@ const Documents = () => {
       header: 'Actions',
       render: (row) => (
         <div className="flex items-center space-x-2">
-          {row.fileUrl && (
-            <a
-              href={row.fileUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 text-zinc-600 dark:text-zinc-300 hover:text-primary-600 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg"
-              title="View"
-            >
-              <FiEye className="w-4 h-4" />
-            </a>
-          )}
+          <button
+            onClick={() => downloadDocument(row._id, row.fileName)}
+            className="p-2 text-zinc-600 dark:text-zinc-300 hover:text-cta dark:hover:text-cta transition-colors"
+            title="Download"
+          >
+            <FiEye className="w-4 h-4" />
+          </button>
           <button
             onClick={(e) => {
               e.stopPropagation();

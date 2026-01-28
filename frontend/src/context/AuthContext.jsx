@@ -17,16 +17,19 @@ export const AuthProvider = ({ children }) => {
   const [activeCompany, setActiveCompany] = useState(null);
   const [subscription, setSubscription] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [token, setToken] = useState(localStorage.getItem('token'));
 
+  // On mount, check if we have a valid session via httpOnly cookie
   useEffect(() => {
-    if (token) {
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      fetchUser();
-    } else {
+    checkAuth();
+  }, []);
+
+  const checkAuth = async () => {
+    try {
+      await fetchUser();
+    } catch {
       setLoading(false);
     }
-  }, [token]);
+  };
 
   const fetchUser = async () => {
     try {
@@ -54,11 +57,9 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password, companyId = null) => {
     const response = await api.post('/auth/login', { email, password, companyId });
-    const { token: newToken, user: userData } = response.data;
+    const { user: userData } = response.data;
+    // Token is set as httpOnly cookie by the server — no localStorage needed
 
-    localStorage.setItem('token', newToken);
-    api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
-    setToken(newToken);
     setUser(userData);
     setCompanies(userData.companies || []);
     setActiveCompany(userData.activeCompany || userData.company);
@@ -72,7 +73,7 @@ export const AuthProvider = ({ children }) => {
       limits: userData.limits
     });
 
-    // Store last active company ID
+    // Store last active company ID (UX data, not a secret)
     if (userData.activeCompany?.id) {
       localStorage.setItem('lastActiveCompanyId', userData.activeCompany.id);
     }
@@ -82,11 +83,9 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (data) => {
     const response = await api.post('/auth/register', data);
-    const { token: newToken, user: userData } = response.data;
+    const { user: userData } = response.data;
+    // Token is set as httpOnly cookie by the server
 
-    localStorage.setItem('token', newToken);
-    api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
-    setToken(newToken);
     setUser(userData);
     setCompanies(userData.companies || []);
     setActiveCompany(userData.activeCompany || userData.company);
@@ -101,10 +100,12 @@ export const AuthProvider = ({ children }) => {
     return userData;
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    delete api.defaults.headers.common['Authorization'];
-    setToken(null);
+  const logout = async () => {
+    try {
+      await api.post('/auth/logout'); // Clears httpOnly cookie on server
+    } catch {
+      // Ignore errors — still clear local state
+    }
     setUser(null);
     setCompanies([]);
     setActiveCompany(null);
@@ -113,26 +114,19 @@ export const AuthProvider = ({ children }) => {
 
   // Switch to a different company
   const switchCompany = useCallback(async (companyId) => {
-    try {
-      const response = await companiesAPI.switch(companyId);
-      const { token: newToken, company } = response.data;
+    const response = await companiesAPI.switch(companyId);
+    const { company } = response.data;
+    // Token cookie is updated by the server
 
-      // Update token
-      localStorage.setItem('token', newToken);
-      localStorage.setItem('lastActiveCompanyId', companyId);
-      api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
-      setToken(newToken);
+    localStorage.setItem('lastActiveCompanyId', companyId);
 
-      // Update active company
-      setActiveCompany(company);
+    // Update active company
+    setActiveCompany(company);
 
-      // Dispatch event for other components to refresh their data
-      window.dispatchEvent(new CustomEvent('companySwitch', { detail: company }));
+    // Dispatch event for other components to refresh their data
+    window.dispatchEvent(new CustomEvent('companySwitch', { detail: company }));
 
-      return company;
-    } catch (error) {
-      throw error;
-    }
+    return company;
   }, []);
 
   // Check permission for a resource/action

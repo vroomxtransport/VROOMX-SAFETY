@@ -18,6 +18,17 @@ const generateToken = (id) => {
   });
 };
 
+// Set JWT as httpOnly cookie
+function setTokenCookie(res, token, maxAgeMs) {
+  res.cookie('token', token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: maxAgeMs || 60 * 60 * 1000, // Default 1 hour
+    path: '/'
+  });
+}
+
 // @route   POST /api/auth/register
 // @desc    Register user & company (creates owner)
 // @access  Public
@@ -114,6 +125,7 @@ router.post('/register', [
   }
 
   const token = generateToken(user._id);
+  setTokenCookie(res, token);
 
   // Send welcome + verification emails (fire-and-forget)
   emailService.sendWelcome(user).catch(() => {});
@@ -159,6 +171,20 @@ router.post('/register', [
     }
   });
 }));
+
+// @route   POST /api/auth/logout
+// @desc    Logout user (clear httpOnly cookie)
+// @access  Public
+router.post('/logout', (req, res) => {
+  res.cookie('token', '', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 0,
+    path: '/'
+  });
+  res.json({ success: true, message: 'Logged out successfully' });
+});
 
 // @route   POST /api/auth/login
 // @desc    Login user
@@ -274,6 +300,7 @@ router.post('/login', [
   });
 
   const token = generateToken(user._id);
+  setTokenCookie(res, token);
 
   // Build companies list for response
   const companiesList = user.companies?.map(m => ({
@@ -435,6 +462,7 @@ router.put('/updatepassword', protect, [
   await user.save();
 
   const token = generateToken(user._id);
+  setTokenCookie(res, token);
 
   auditService.log(req, 'password_change', 'user', req.user._id, { summary: 'Password changed' });
 

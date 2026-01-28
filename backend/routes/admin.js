@@ -482,6 +482,15 @@ router.post('/users/:id/impersonate', async (req, res) => {
       { expiresIn: '30m' }
     );
 
+    // Set httpOnly cookie with 30-minute expiry matching impersonation token
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 30 * 60 * 1000,
+      path: '/'
+    });
+
     // Audit log the impersonation
     console.warn(`[ADMIN AUDIT] IMPERSONATION: ${req.user.email} (${req.user._id}) impersonated ${user.email} (${user._id}) at ${new Date().toISOString()} from IP ${req.ip}`);
 

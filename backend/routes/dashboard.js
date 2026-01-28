@@ -352,7 +352,7 @@ router.put('/basics', checkPermission('dashboard', 'edit'), asyncHandler(async (
 // @route   POST /api/dashboard/refresh-fmcsa
 // @desc    Force refresh FMCSA data from SAFER (real CSA scores)
 // @access  Private
-router.post('/refresh-fmcsa', asyncHandler(async (req, res) => {
+router.post('/refresh-fmcsa', checkPermission('dashboard', 'edit'), asyncHandler(async (req, res) => {
   const companyId = req.companyFilter.companyId;
 
   const smsBasics = await fmcsaSyncService.forceRefresh(companyId);
@@ -558,7 +558,7 @@ router.post('/alerts/generate', checkPermission('dashboard', 'edit'), asyncHandl
 // @route   PUT /api/dashboard/alerts/:id/dismiss
 // @desc    Dismiss an alert
 // @access  Private
-router.put('/alerts/:id/dismiss', asyncHandler(async (req, res) => {
+router.put('/alerts/:id/dismiss', checkPermission('dashboard', 'edit'), asyncHandler(async (req, res) => {
   const { reason } = req.body;
 
   const alert = await alertService.dismissAlert(
@@ -577,7 +577,7 @@ router.put('/alerts/:id/dismiss', asyncHandler(async (req, res) => {
 // @route   PUT /api/dashboard/alerts/:id/resolve
 // @desc    Resolve an alert
 // @access  Private
-router.put('/alerts/:id/resolve', asyncHandler(async (req, res) => {
+router.put('/alerts/:id/resolve', checkPermission('dashboard', 'edit'), asyncHandler(async (req, res) => {
   const { notes } = req.body;
 
   const alert = await alertService.resolveAlert(
@@ -620,7 +620,7 @@ router.get('/alerts/grouped', asyncHandler(async (req, res) => {
 // @route   POST /api/dashboard/alerts/escalate
 // @desc    Trigger alert escalation check
 // @access  Private
-router.post('/alerts/escalate', asyncHandler(async (req, res) => {
+router.post('/alerts/escalate', checkPermission('dashboard', 'edit'), asyncHandler(async (req, res) => {
   const escalated = await alertService.escalateAlerts();
 
   res.json({
@@ -633,7 +633,7 @@ router.post('/alerts/escalate', asyncHandler(async (req, res) => {
 // @route   POST /api/dashboard/alerts/dismiss-bulk
 // @desc    Dismiss multiple alerts at once
 // @access  Private
-router.post('/alerts/dismiss-bulk', asyncHandler(async (req, res) => {
+router.post('/alerts/dismiss-bulk', checkPermission('dashboard', 'edit'), asyncHandler(async (req, res) => {
   const { alertIds, reason } = req.body;
 
   if (!alertIds || !Array.isArray(alertIds) || alertIds.length === 0) {
@@ -713,7 +713,7 @@ router.get('/compliance-score/breakdown', asyncHandler(async (req, res) => {
 // @route   POST /api/dashboard/compliance-score/calculate
 // @desc    Force recalculate compliance score
 // @access  Private
-router.post('/compliance-score/calculate', asyncHandler(async (req, res) => {
+router.post('/compliance-score/calculate', checkPermission('dashboard', 'edit'), asyncHandler(async (req, res) => {
   const companyId = req.companyFilter.companyId;
   const score = await complianceScoreService.calculateScore(companyId);
 
