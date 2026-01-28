@@ -145,9 +145,14 @@ router.get('/', asyncHandler(async (req, res) => {
     }).select('firstName lastName dateOfBirth')
   ]);
 
-  // Process SMS BASICs data
+  // Process SMS BASICs data with staleness indicator
   const basicsData = company?.smsBasics || {};
   const basicsWithStatus = {};
+
+  // Calculate if SMS BASICs data is stale (>30 days old)
+  const lastUpdated = basicsData.lastUpdated ? new Date(basicsData.lastUpdated) : null;
+  const daysSinceUpdate = lastUpdated ? Math.floor((now - lastUpdated) / (1000 * 60 * 60 * 24)) : 999;
+  const isEstimate = daysSinceUpdate > 30 || !lastUpdated;
 
   Object.keys(SMS_BASICS_THRESHOLDS).forEach(key => {
     const percentile = basicsData[key];
@@ -160,6 +165,13 @@ router.get('/', asyncHandler(async (req, res) => {
       status: percentile ? getComplianceStatus(percentile, key) : 'no_data'
     };
   });
+
+  // Add metadata to basics response
+  basicsWithStatus._meta = {
+    lastUpdated: lastUpdated,
+    daysSinceUpdate: daysSinceUpdate,
+    isEstimate: isEstimate
+  };
 
   // Build alerts array
   const alerts = [];

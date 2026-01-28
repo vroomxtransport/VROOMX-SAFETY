@@ -363,4 +363,15 @@ vehicleSchema.index({ vin: 1 });
 vehicleSchema.index({ 'annualInspection.nextDueDate': 1 });
 vehicleSchema.index({ 'complianceStatus.overall': 1 });
 
+// Post-save hook for real-time alert generation
+vehicleSchema.post('save', async function(doc) {
+  try {
+    // Lazy require to avoid circular dependency
+    const alertService = require('../services/alertService');
+    await alertService.generateVehicleAlerts(doc.companyId, doc._id);
+  } catch (err) {
+    console.error('[Vehicle] Alert generation failed:', err.message);
+  }
+});
+
 module.exports = mongoose.model('Vehicle', vehicleSchema);

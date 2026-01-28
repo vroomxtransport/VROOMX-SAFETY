@@ -353,4 +353,15 @@ driverSchema.index({ 'medicalCard.expiryDate': 1 });
 driverSchema.index({ 'complianceStatus.overall': 1 });
 driverSchema.index({ companyId: 1, isArchived: 1 });
 
+// Post-save hook for real-time alert generation
+driverSchema.post('save', async function(doc) {
+  try {
+    // Lazy require to avoid circular dependency
+    const alertService = require('../services/alertService');
+    await alertService.generateDriverAlerts(doc.companyId, doc._id);
+  } catch (err) {
+    console.error('[Driver] Alert generation failed:', err.message);
+  }
+});
+
 module.exports = mongoose.model('Driver', driverSchema);

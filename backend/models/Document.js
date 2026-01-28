@@ -152,6 +152,17 @@ documentSchema.index({ status: 1 });
 documentSchema.index({ tags: 1 });
 documentSchema.index({ isDeleted: 1 });
 
+// Post-save hook for real-time alert generation
+documentSchema.post('save', async function(doc) {
+  try {
+    // Lazy require to avoid circular dependency
+    const alertService = require('../services/alertService');
+    await alertService.generateDocumentAlerts(doc.companyId, doc._id);
+  } catch (err) {
+    console.error('[Document] Alert generation failed:', err.message);
+  }
+});
+
 // Document types by category
 documentSchema.statics.DOCUMENT_TYPES = {
   company: [

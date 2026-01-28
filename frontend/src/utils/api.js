@@ -56,7 +56,12 @@ export const dashboardAPI = {
   getAuditReadiness: () => api.get('/dashboard/audit-readiness'),
   updateBasics: (data) => api.put('/dashboard/basics', data),
   refreshFMCSA: () => api.post('/dashboard/refresh-fmcsa'),
-  getFMCSAStatus: () => api.get('/dashboard/fmcsa-status')
+  getFMCSAStatus: () => api.get('/dashboard/fmcsa-status'),
+  // Compliance score endpoints
+  getComplianceScore: () => api.get('/dashboard/compliance-score'),
+  getComplianceHistory: (days = 30) => api.get('/dashboard/compliance-score/history', { params: { days } }),
+  getComplianceBreakdown: () => api.get('/dashboard/compliance-score/breakdown'),
+  calculateComplianceScore: () => api.post('/dashboard/compliance-score/calculate')
 };
 
 export const driversAPI = {

@@ -633,6 +633,159 @@ const alertService = {
     return results;
   },
 
+  // ============================================
+  // SINGLE-RESOURCE ALERT GENERATION (Real-time)
+  // Called from model post-save hooks
+  // ============================================
+
+  /**
+   * Generate alerts for a single driver (called from Driver model post-save hook)
+   */
+  async generateDriverAlerts(companyId, driverId) {
+    const driver = await Driver.findById(driverId);
+    if (!driver || driver.status !== 'active') return { created: 0, updated: 0 };
+
+    const alertPromises = [];
+    const driverName = `${driver.firstName} ${driver.lastName}`;
+
+    // CDL expiration
+    if (driver.cdl?.expiryDate) {
+      const daysRemaining = this._getDaysRemaining(driver.cdl.expiryDate);
+      if (daysRemaining < 0) {
+        alertPromises.push(this.createAlert({
+          companyId, type: 'critical', category: 'driver',
+          title: 'CDL Expired',
+          message: `${driverName}'s CDL expired ${Math.abs(daysRemaining)} days ago`,
+          entityType: 'driver', entityId: driver._id, daysRemaining,
+          deduplicationKey: `driver-cdl-expired-${driver._id}`
+        }));
+      } else if (daysRemaining <= 30) {
+        alertPromises.push(this.createAlert({
+          companyId, type: 'warning', category: 'driver',
+          title: 'CDL Expiring Soon',
+          message: `${driverName}'s CDL expires in ${daysRemaining} days`,
+          entityType: 'driver', entityId: driver._id, daysRemaining,
+          deduplicationKey: `driver-cdl-expiring-${driver._id}`
+        }));
+      }
+    }
+
+    // Medical card expiration
+    if (driver.medicalCard?.expiryDate) {
+      const daysRemaining = this._getDaysRemaining(driver.medicalCard.expiryDate);
+      if (daysRemaining < 0) {
+        alertPromises.push(this.createAlert({
+          companyId, type: 'critical', category: 'driver',
+          title: 'Medical Card Expired',
+          message: `${driverName}'s medical card expired ${Math.abs(daysRemaining)} days ago`,
+          entityType: 'driver', entityId: driver._id, daysRemaining,
+          deduplicationKey: `driver-medical-expired-${driver._id}`
+        }));
+      } else if (daysRemaining <= 30) {
+        alertPromises.push(this.createAlert({
+          companyId, type: 'warning', category: 'driver',
+          title: 'Medical Card Expiring Soon',
+          message: `${driverName}'s medical card expires in ${daysRemaining} days`,
+          entityType: 'driver', entityId: driver._id, daysRemaining,
+          deduplicationKey: `driver-medical-expiring-${driver._id}`
+        }));
+      }
+    }
+
+    // Clearinghouse query
+    if (driver.clearinghouse?.lastQueryDate) {
+      const daysSinceQuery = this._getDaysSince(driver.clearinghouse.lastQueryDate);
+      if (daysSinceQuery > 365) {
+        alertPromises.push(this.createAlert({
+          companyId, type: 'critical', category: 'driver',
+          title: 'Clearinghouse Query Overdue',
+          message: `${driverName}'s annual clearinghouse query is ${daysSinceQuery - 365} days overdue`,
+          entityType: 'driver', entityId: driver._id, daysRemaining: -(daysSinceQuery - 365),
+          deduplicationKey: `driver-clearinghouse-overdue-${driver._id}`
+        }));
+      } else if (daysSinceQuery > 335) {
+        alertPromises.push(this.createAlert({
+          companyId, type: 'warning', category: 'driver',
+          title: 'Clearinghouse Query Due Soon',
+          message: `${driverName}'s annual clearinghouse query due in ${365 - daysSinceQuery} days`,
+          entityType: 'driver', entityId: driver._id, daysRemaining: 365 - daysSinceQuery,
+          deduplicationKey: `driver-clearinghouse-due-${driver._id}`
+        }));
+      }
+    }
+
+    const results = await Promise.all(alertPromises);
+    return { created: results.filter(r => r.created).length, updated: results.filter(r => !r.created).length };
+  },
+
+  /**
+   * Generate alerts for a single vehicle (called from Vehicle model post-save hook)
+   */
+  async generateVehicleAlerts(companyId, vehicleId) {
+    const vehicle = await Vehicle.findById(vehicleId);
+    if (!vehicle || vehicle.status === 'sold') return { created: 0, updated: 0 };
+
+    const alertPromises = [];
+    const vehicleName = vehicle.unitNumber || vehicle.vin;
+
+    // Annual inspection
+    if (vehicle.annualInspection?.nextDueDate) {
+      const daysRemaining = this._getDaysRemaining(vehicle.annualInspection.nextDueDate);
+      if (daysRemaining < 0) {
+        alertPromises.push(this.createAlert({
+          companyId, type: 'critical', category: 'vehicle',
+          title: 'Annual Inspection Overdue',
+          message: `${vehicleName}'s annual inspection is ${Math.abs(daysRemaining)} days overdue`,
+          entityType: 'vehicle', entityId: vehicle._id, daysRemaining,
+          deduplicationKey: `vehicle-inspection-overdue-${vehicle._id}`
+        }));
+      } else if (daysRemaining <= 30) {
+        alertPromises.push(this.createAlert({
+          companyId, type: 'warning', category: 'vehicle',
+          title: 'Annual Inspection Due Soon',
+          message: `${vehicleName}'s annual inspection due in ${daysRemaining} days`,
+          entityType: 'vehicle', entityId: vehicle._id, daysRemaining,
+          deduplicationKey: `vehicle-inspection-due-${vehicle._id}`
+        }));
+      }
+    }
+
+    const results = await Promise.all(alertPromises);
+    return { created: results.filter(r => r.created).length, updated: results.filter(r => !r.created).length };
+  },
+
+  /**
+   * Generate alerts for a single document (called from Document model post-save hook)
+   */
+  async generateDocumentAlerts(companyId, documentId) {
+    const doc = await Document.findById(documentId);
+    if (!doc || !doc.expiryDate) return { created: 0, updated: 0 };
+
+    const alertPromises = [];
+    const daysRemaining = this._getDaysRemaining(doc.expiryDate);
+
+    if (daysRemaining < 0) {
+      alertPromises.push(this.createAlert({
+        companyId, type: 'critical', category: 'document',
+        title: 'Document Expired',
+        message: `${doc.name} expired ${Math.abs(daysRemaining)} days ago`,
+        entityType: 'document', entityId: doc._id, daysRemaining,
+        deduplicationKey: `document-expired-${doc._id}`
+      }));
+    } else if (daysRemaining <= 30) {
+      alertPromises.push(this.createAlert({
+        companyId, type: 'warning', category: 'document',
+        title: 'Document Expiring Soon',
+        message: `${doc.name} expires in ${daysRemaining} days`,
+        entityType: 'document', entityId: doc._id, daysRemaining,
+        deduplicationKey: `document-expiring-${doc._id}`
+      }));
+    }
+
+    const results = await Promise.all(alertPromises);
+    return { created: results.filter(r => r.created).length, updated: results.filter(r => !r.created).length };
+  },
+
   // Helper methods
   _getDaysRemaining(date) {
     const now = new Date();

@@ -22,6 +22,8 @@ const Dashboard = () => {
   const [refreshingFMCSA, setRefreshingFMCSA] = useState(false);
   const [fmcsaMessage, setFmcsaMessage] = useState(null);
   const [trendData, setTrendData] = useState(null);
+  const [complianceData, setComplianceData] = useState(null);
+  const [complianceHistory, setComplianceHistory] = useState([]);
 
   useEffect(() => {
     fetchDashboard();
@@ -29,13 +31,21 @@ const Dashboard = () => {
 
   const fetchDashboard = async () => {
     try {
-      const [dashboardRes, trendRes] = await Promise.all([
+      const [dashboardRes, trendRes, complianceRes, historyRes] = await Promise.all([
         dashboardAPI.get(),
-        csaAPI.getTrendSummary(30).catch(() => null)
+        csaAPI.getTrendSummary(30).catch(() => null),
+        dashboardAPI.getComplianceScore().catch(() => null),
+        dashboardAPI.getComplianceHistory(30).catch(() => null)
       ]);
       setData(dashboardRes.data.dashboard);
       if (trendRes?.data) {
         setTrendData(trendRes.data);
+      }
+      if (complianceRes?.data?.score) {
+        setComplianceData(complianceRes.data.score);
+      }
+      if (historyRes?.data?.history) {
+        setComplianceHistory(historyRes.data.history);
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to load dashboard');
@@ -69,26 +79,8 @@ const Dashboard = () => {
     }
   };
 
-  // Calculate compliance score
-  const calculateComplianceScore = () => {
-    if (!data) return 0;
-
-    const driverScore = data?.drivers?.active > 0
-      ? ((data.drivers.compliant || 0) / data.drivers.active) * 100
-      : 100;
-
-    const vehicleScore = data?.vehicles?.active > 0
-      ? ((data.vehicles.active - (data.vehicles.outOfService || 0)) / data.vehicles.active) * 100
-      : 100;
-
-    const violationPenalty = (data?.recentViolations?.length || 0) * 2;
-
-    return Math.max(0, Math.min(100, Math.round(
-      (driverScore * 0.4 + vehicleScore * 0.3 + 100 * 0.3) - violationPenalty
-    )));
-  };
-
-  const complianceScore = calculateComplianceScore();
+  // Get compliance score from API data (real calculation from backend)
+  const complianceScore = complianceData?.overallScore || 0;
 
   // Get score color based on value
   const getScoreColor = (score) => {
@@ -115,23 +107,23 @@ const Dashboard = () => {
     year: 'numeric'
   });
 
-  // Calculate score factors
+  // Get score factors from API data (real calculation from backend)
   const getScoreFactors = () => {
-    const dqfScore = data?.drivers?.active > 0
-      ? Math.round(((data.drivers.compliant || 0) / data.drivers.active) * 100)
-      : 100;
-
-    const vehicleScore = data?.vehicles?.active > 0
-      ? Math.round(((data.vehicles.active - (data.vehicles.outOfService || 0)) / data.vehicles.active) * 100)
-      : 100;
-
-    const violationScore = 100 - Math.min(100, (data?.recentViolations?.length || 0) * 10);
-
+    if (complianceData?.components) {
+      const { documentStatus, violations, drugAlcohol, dqfCompleteness, vehicleInspection } = complianceData.components;
+      return [
+        { label: 'DQF Files', value: dqfCompleteness?.score || 0 },
+        { label: 'Documents', value: documentStatus?.score || 0 },
+        { label: 'Violations', value: violations?.score || 0 },
+        { label: 'D&A Testing', value: drugAlcohol?.score || 0 }
+      ];
+    }
+    // Fallback to basic calculation if API data not available
     return [
-      { label: 'DQF Files', value: dqfScore },
-      { label: 'Vehicles', value: vehicleScore },
-      { label: 'Violations', value: violationScore },
-      { label: 'D&A Testing', value: 100 }
+      { label: 'DQF Files', value: 0 },
+      { label: 'Documents', value: 0 },
+      { label: 'Violations', value: 0 },
+      { label: 'D&A Testing', value: 0 }
     ];
   };
 
@@ -205,17 +197,18 @@ const Dashboard = () => {
   const scoreFactors = getScoreFactors();
   const basicsData = getBasicsData();
 
-  // Generate compliance trend data for last 30 days
+  // Use real compliance history data for trend chart
   const complianceTrendData = (() => {
-    const baseScore = complianceScore;
-    // Generate sample data points simulating a gradual improvement trend
-    const points = [1, 7, 16, 24, 27, 30];
-    // Start lower and trend upward toward current score
-    const startScore = Math.max(0, baseScore - 3);
-    return points.map((day, i) => ({
-      day,
-      score: Math.round(startScore + ((baseScore - startScore) * (day / 30)) + (Math.sin(i) * 0.5))
-    }));
+    if (complianceHistory.length > 0) {
+      // Use real historical data from API
+      return complianceHistory.map((record, index) => ({
+        day: index + 1,
+        date: new Date(record.date || record.calculatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        score: record.overallScore || record.totalScore || 0
+      }));
+    }
+    // Fallback: show current score as single point if no history
+    return [{ day: 1, date: 'Today', score: complianceScore }];
   })();
 
   return (
@@ -812,7 +805,7 @@ const Dashboard = () => {
             <LineChart data={complianceTrendData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:opacity-20" />
               <XAxis
-                dataKey="day"
+                dataKey="date"
                 tick={{ fill: '#6b7280', fontSize: 12 }}
                 tickLine={{ stroke: '#e5e7eb' }}
                 axisLine={{ stroke: '#e5e7eb' }}
@@ -832,7 +825,7 @@ const Dashboard = () => {
                   boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                 }}
                 formatter={(value) => [`${value}%`, 'Overall Score']}
-                labelFormatter={(label) => `Day ${label}`}
+                labelFormatter={(label) => label}
               />
               <Legend
                 verticalAlign="top"
