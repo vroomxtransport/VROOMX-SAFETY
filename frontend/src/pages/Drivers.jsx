@@ -311,7 +311,7 @@ const Drivers = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -328,7 +328,7 @@ const Drivers = () => {
       </div>
 
       {/* Tab Bar */}
-      <div className="flex gap-1 mb-4 bg-zinc-100 dark:bg-zinc-800 rounded-lg p-1 w-fit">
+      <div className="flex overflow-x-auto gap-1 mb-4 bg-zinc-100 dark:bg-zinc-800 rounded-lg p-1 w-fit">
         <button onClick={() => setActiveTab('active')}
           className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${activeTab === 'active' ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'}`}>
           Active Drivers {drivers.length > 0 && <span className="ml-1.5 text-xs bg-zinc-200 dark:bg-zinc-600 px-1.5 py-0.5 rounded-full">{pagination?.total || drivers.length}</span>}
@@ -341,14 +341,14 @@ const Drivers = () => {
 
       {activeTab === 'active' && (<>
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <div className="group bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-4 hover:shadow-lg hover:-translate-y-1 hover:border-primary-300 dark:hover:border-primary-500/30 transition-all duration-300 cursor-pointer">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-primary-100 dark:bg-zinc-800 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
               <FiUsers className="w-5 h-5 text-primary-600 dark:text-zinc-300" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-zinc-900 dark:text-white font-mono">{drivers.length || 0}</p>
+              <p className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white font-mono">{drivers.length || 0}</p>
               <p className="text-xs text-zinc-600 dark:text-zinc-300">Total Drivers</p>
             </div>
           </div>
@@ -359,7 +359,7 @@ const Drivers = () => {
               <FiCheckCircle className="w-5 h-5 text-success-600 dark:text-success-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-success-600 dark:text-success-400 font-mono">
+              <p className="text-xl sm:text-2xl font-bold text-success-600 dark:text-success-400 font-mono">
                 {drivers.filter(d => d.complianceStatus?.overall === 'compliant').length}
               </p>
               <p className="text-xs text-zinc-600 dark:text-zinc-300">Compliant</p>
@@ -372,7 +372,7 @@ const Drivers = () => {
               <FiAlertTriangle className="w-5 h-5 text-warning-600 dark:text-warning-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-warning-600 dark:text-warning-400 font-mono">
+              <p className="text-xl sm:text-2xl font-bold text-warning-600 dark:text-warning-400 font-mono">
                 {drivers.filter(d => d.complianceStatus?.overall === 'warning').length}
               </p>
               <p className="text-xs text-zinc-600 dark:text-zinc-300">Expiring Soon</p>
@@ -385,7 +385,7 @@ const Drivers = () => {
               <FiAlertTriangle className="w-5 h-5 text-danger-600 dark:text-danger-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-danger-600 dark:text-danger-400 font-mono">
+              <p className="text-xl sm:text-2xl font-bold text-danger-600 dark:text-danger-400 font-mono">
                 {drivers.filter(d => d.complianceStatus?.overall === 'non_compliant').length}
               </p>
               <p className="text-xs text-zinc-600 dark:text-zinc-300">Non-Compliant</p>
@@ -623,7 +623,7 @@ const Drivers = () => {
             </div>
 
             {/* Address Section */}
-            <div className="col-span-2 border-t border-zinc-200 dark:border-zinc-700 pt-4 mt-2">
+            <div className="col-span-1 md:col-span-2 border-t border-zinc-200 dark:border-zinc-700 pt-4 mt-2">
               <h4 className="text-sm font-semibold text-zinc-700 dark:text-zinc-200 mb-3">Address</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
@@ -661,7 +661,7 @@ const Drivers = () => {
               <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">CDL Information</span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">CDL Number *</label>
                 <input

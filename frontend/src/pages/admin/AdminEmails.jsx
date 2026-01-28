@@ -100,7 +100,7 @@ const AdminEmails = () => {
   const hasActiveFilters = search || status || category || startDate || endDate;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -347,8 +347,8 @@ const AdminEmails = () => {
             </div>
 
             {/* Modal Content */}
-            <div className="px-6 py-5 overflow-y-auto max-h-[70vh] space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="px-4 sm:px-6 py-5 overflow-y-auto max-h-[70vh] space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">To</p>
                   <p className="text-sm text-zinc-900 dark:text-white">{selectedEmail.to}</p>
@@ -404,7 +404,7 @@ const AdminEmails = () => {
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-4 pt-2 border-t border-zinc-200 dark:border-zinc-800">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-zinc-200 dark:border-zinc-800">
                 <div>
                   <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Created At</p>
                   <p className="text-sm text-zinc-600 dark:text-zinc-400">

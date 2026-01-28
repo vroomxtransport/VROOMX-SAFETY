@@ -324,7 +324,7 @@ const Tasks = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -342,14 +342,14 @@ const Tasks = () => {
 
       {/* Stats Cards */}
       {stats && (
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-lg p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-500/10 rounded-lg">
                 <FiClock className="w-5 h-5 text-blue-500 dark:text-blue-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-zinc-900 dark:text-white">{stats.total || 0}</div>
+                <div className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">{stats.total || 0}</div>
                 <div className="text-sm text-zinc-500 dark:text-zinc-400">Total Tasks</div>
               </div>
             </div>
@@ -360,7 +360,7 @@ const Tasks = () => {
                 <FiClock className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-zinc-900 dark:text-white">{stats.inProgress || 0}</div>
+                <div className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">{stats.inProgress || 0}</div>
                 <div className="text-sm text-zinc-500 dark:text-zinc-400">In Progress</div>
               </div>
             </div>
@@ -371,7 +371,7 @@ const Tasks = () => {
                 <FiCheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-zinc-900 dark:text-white">{stats.completed || 0}</div>
+                <div className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">{stats.completed || 0}</div>
                 <div className="text-sm text-zinc-500 dark:text-zinc-400">Completed</div>
               </div>
             </div>
@@ -382,7 +382,7 @@ const Tasks = () => {
                 <FiAlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-zinc-900 dark:text-white">{stats.overdueCount || 0}</div>
+                <div className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">{stats.overdueCount || 0}</div>
                 <div className="text-sm text-zinc-500 dark:text-zinc-400">Overdue</div>
               </div>
             </div>
@@ -393,7 +393,7 @@ const Tasks = () => {
                 <FiCalendar className="w-5 h-5 text-orange-600 dark:text-orange-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-zinc-900 dark:text-white">{stats.dueThisWeek || 0}</div>
+                <div className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">{stats.dueThisWeek || 0}</div>
                 <div className="text-sm text-zinc-500 dark:text-zinc-400">Due This Week</div>
               </div>
             </div>
@@ -402,7 +402,7 @@ const Tasks = () => {
       )}
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-4">
+      <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
         <form onSubmit={handleSearch} className="flex-1 min-w-[200px]">
           <div className="relative">
             <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
@@ -484,7 +484,7 @@ const Tasks = () => {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-zinc-600 dark:text-zinc-300 mb-1">Due Date *</label>
               <input
@@ -511,7 +511,7 @@ const Tasks = () => {
 
           <div>
             <label className="block text-sm font-medium text-zinc-600 dark:text-zinc-300 mb-1">Link To</label>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <select
                 value={formData.linkedTo.type}
                 onChange={(e) => setFormData({
@@ -643,7 +643,7 @@ const Tasks = () => {
               {getStatusBadge(selectedTask.status)}
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-zinc-100 dark:bg-zinc-800/50 rounded-lg p-3">
                 <div className="text-sm text-zinc-500 dark:text-zinc-400">Due Date</div>
                 <div className={`font-medium ${selectedTask.isOverdue ? 'text-red-500 dark:text-red-400' : 'text-zinc-900 dark:text-white'}`}>

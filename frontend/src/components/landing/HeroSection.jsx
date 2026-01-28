@@ -34,7 +34,7 @@ const HeroSection = ({ heroTextIndex, heroTexts }) => {
             </span>
           </div>
 
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.1] tracking-tight mb-8 font-heading animate-fade-in-up text-white drop-shadow-lg">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-black leading-[1.1] tracking-tight mb-6 lg:mb-8 font-heading animate-fade-in-up text-white drop-shadow-lg">
             TOTAL<br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-cta-500 to-cta-600">COMPLIANCE.</span><br />
             <span className="inline-grid text-left">

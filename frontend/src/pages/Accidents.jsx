@@ -376,9 +376,9 @@ const Accidents = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Accident Register</h1>
           <p className="text-zinc-600 dark:text-zinc-300">Track accidents per FMCSA 49 CFR 390.15</p>
@@ -394,14 +394,14 @@ const Accidents = () => {
 
       {/* Stats Cards */}
       {stats && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           <div className="card p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-100 dark:bg-blue-500/10 rounded-lg">
                 <FiAlertOctagon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-zinc-900 dark:text-white">{stats.total || 0}</div>
+                <div className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">{stats.total || 0}</div>
                 <div className="text-sm text-zinc-500 dark:text-zinc-400">Total Accidents</div>
               </div>
             </div>
@@ -412,7 +412,7 @@ const Accidents = () => {
                 <FiAlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-zinc-900 dark:text-white">{stats.dotRecordable || 0}</div>
+                <div className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">{stats.dotRecordable || 0}</div>
                 <div className="text-sm text-zinc-500 dark:text-zinc-400">DOT Recordable</div>
               </div>
             </div>
@@ -423,7 +423,7 @@ const Accidents = () => {
                 <FiSearch className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-zinc-900 dark:text-white">{stats.underInvestigation || 0}</div>
+                <div className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">{stats.underInvestigation || 0}</div>
                 <div className="text-sm text-zinc-500 dark:text-zinc-400">Investigating</div>
               </div>
             </div>
@@ -434,7 +434,7 @@ const Accidents = () => {
                 <FiCheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-zinc-900 dark:text-white">{stats.closed || 0}</div>
+                <div className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">{stats.closed || 0}</div>
                 <div className="text-sm text-zinc-500 dark:text-zinc-400">Closed</div>
               </div>
             </div>
@@ -443,7 +443,7 @@ const Accidents = () => {
       )}
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-4">
+      <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
         <form onSubmit={handleSearch} className="flex-1 min-w-[200px]">
           <div className="relative">
             <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
@@ -502,7 +502,7 @@ const Accidents = () => {
       >
         <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
           {/* Date and Time */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Date *</label>
               <input
@@ -525,7 +525,7 @@ const Accidents = () => {
           </div>
 
           {/* Driver and Vehicle */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Driver *</label>
               <select
@@ -563,7 +563,7 @@ const Accidents = () => {
           {/* Location */}
           <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-4 space-y-3">
             <h4 className="text-sm font-medium text-zinc-700 dark:text-zinc-200">Location</h4>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               <input
                 type="text"
                 value={formData.location.city}
@@ -591,7 +591,7 @@ const Accidents = () => {
           </div>
 
           {/* Severity and Type */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Severity *</label>
               <select
@@ -682,7 +682,7 @@ const Accidents = () => {
           </div>
 
           {/* Conditions */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Weather Conditions</label>
               <select
@@ -820,7 +820,7 @@ const Accidents = () => {
             </div>
 
             {/* Driver and Vehicle */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3">
                 <div className="text-sm text-zinc-500 dark:text-zinc-400">Driver</div>
                 <div className="font-medium text-zinc-900 dark:text-white flex items-center gap-2">
@@ -838,7 +838,7 @@ const Accidents = () => {
             </div>
 
             {/* Accident Type and Conditions */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3">
                 <div className="text-sm text-zinc-500 dark:text-zinc-400">Type</div>
                 <div className="font-medium text-zinc-900 dark:text-white capitalize">

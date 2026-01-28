@@ -111,7 +111,7 @@ const CSAEstimator = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -161,7 +161,7 @@ const CSAEstimator = () => {
             </div>
             <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Critical BASICs</span>
           </div>
-          <p className="text-3xl font-bold text-danger-600 dark:text-danger-400">{summary?.criticalCount || 0}</p>
+          <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-danger-600 dark:text-danger-400">{summary?.criticalCount || 0}</p>
         </div>
 
         <div
@@ -174,7 +174,7 @@ const CSAEstimator = () => {
             </div>
             <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Alert BASICs</span>
           </div>
-          <p className="text-3xl font-bold text-warning-600 dark:text-warning-400">{summary?.alertCount || 0}</p>
+          <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-warning-600 dark:text-warning-400">{summary?.alertCount || 0}</p>
         </div>
 
         <div
@@ -187,7 +187,7 @@ const CSAEstimator = () => {
             </div>
             <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">OK BASICs</span>
           </div>
-          <p className="text-3xl font-bold text-success-600 dark:text-success-400">{summary?.okCount || 0}</p>
+          <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-success-600 dark:text-success-400">{summary?.okCount || 0}</p>
         </div>
 
         <div
@@ -200,7 +200,7 @@ const CSAEstimator = () => {
             </div>
             <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Avg Percentile</span>
           </div>
-          <p className="text-3xl font-bold text-zinc-700 dark:text-zinc-200">{summary?.averagePercentile || 0}%</p>
+          <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-zinc-700 dark:text-zinc-200">{summary?.averagePercentile || 0}%</p>
         </div>
       </div>
 
@@ -281,7 +281,7 @@ const CSAEstimator = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="text-center p-3 bg-white dark:bg-zinc-900 rounded-lg">
                     <p className="text-xs text-zinc-600 dark:text-zinc-300 mb-1">Before</p>
-                    <p className="text-2xl font-bold text-zinc-700 dark:text-zinc-200">{whatIfResult.impact.before.estimatedPercentile}%</p>
+                    <p className="text-xl sm:text-2xl font-bold text-zinc-700 dark:text-zinc-200">{whatIfResult.impact.before.estimatedPercentile}%</p>
                     <p className="text-xs text-zinc-600 dark:text-zinc-300">{whatIfResult.impact.before.rawPoints} pts</p>
                   </div>
                   <div className="text-center p-3 bg-white dark:bg-zinc-900 rounded-lg flex flex-col items-center justify-center">
@@ -292,7 +292,7 @@ const CSAEstimator = () => {
                   </div>
                   <div className="text-center p-3 bg-white dark:bg-zinc-900 rounded-lg">
                     <p className="text-xs text-zinc-600 dark:text-zinc-300 mb-1">After</p>
-                    <p className={`text-2xl font-bold ${
+                    <p className={`text-xl sm:text-2xl font-bold ${
                       whatIfResult.impact.exceedsCriticalThreshold ? 'text-danger-600 dark:text-danger-400' :
                       whatIfResult.impact.exceedsAlertThreshold ? 'text-warning-600 dark:text-warning-400' :
                       'text-success-600 dark:text-success-400'
@@ -338,7 +338,7 @@ const CSAEstimator = () => {
               {/* Score Gauge */}
               <div className="flex items-center gap-4">
                 <div className={`w-20 h-20 rounded-full flex items-center justify-center ${getScoreBgColor(basic.estimatedPercentile, basic.threshold)}`}>
-                  <span className={`text-2xl font-bold ${getScoreColor(basic.estimatedPercentile, basic.threshold)}`}>
+                  <span className={`text-xl sm:text-2xl font-bold ${getScoreColor(basic.estimatedPercentile, basic.threshold)}`}>
                     {basic.estimatedPercentile}%
                   </span>
                 </div>

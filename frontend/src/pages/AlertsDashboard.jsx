@@ -140,7 +140,7 @@ const AlertsDashboard = () => {
   const score = complianceScore?.score?.overall || 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -169,7 +169,7 @@ const AlertsDashboard = () => {
       </div>
 
       {/* Compliance Score & Stats Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
         {/* VroomX Score Card */}
         <div
           className="lg:col-span-1 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 p-5"
@@ -210,7 +210,7 @@ const AlertsDashboard = () => {
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className={`text-3xl font-bold ${getScoreColor(score)}`}>{score}</span>
+                <span className={`text-xl sm:text-2xl lg:text-3xl font-bold ${getScoreColor(score)}`}>{score}</span>
                 <span className="text-xs text-zinc-600 dark:text-zinc-400">/ 100</span>
               </div>
             </div>
@@ -236,7 +236,7 @@ const AlertsDashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-zinc-600 dark:text-zinc-300">Critical</p>
-              <p className="text-3xl font-bold text-danger-600 dark:text-danger-400">{alerts.critical.length}</p>
+              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-danger-600 dark:text-danger-400">{alerts.critical.length}</p>
             </div>
             <div className="w-12 h-12 rounded-xl bg-danger-100 dark:bg-danger-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
               <FiAlertCircle className="w-6 h-6 text-danger-600 dark:text-danger-400" />
@@ -252,7 +252,7 @@ const AlertsDashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-zinc-600 dark:text-zinc-300">Warning</p>
-              <p className="text-3xl font-bold text-warning-600 dark:text-warning-400">{alerts.warning.length}</p>
+              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-warning-600 dark:text-warning-400">{alerts.warning.length}</p>
             </div>
             <div className="w-12 h-12 rounded-xl bg-warning-100 dark:bg-warning-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
               <FiAlertTriangle className="w-6 h-6 text-warning-600 dark:text-warning-400" />
@@ -268,7 +268,7 @@ const AlertsDashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-zinc-600 dark:text-zinc-300">Info</p>
-              <p className="text-3xl font-bold text-info-600 dark:text-info-400">{alerts.info.length}</p>
+              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-info-600 dark:text-info-400">{alerts.info.length}</p>
             </div>
             <div className="w-12 h-12 rounded-xl bg-info-100 dark:bg-info-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
               <FiInfo className="w-6 h-6 text-info-600 dark:text-info-400" />
@@ -312,7 +312,7 @@ const AlertsDashboard = () => {
           <p className="text-zinc-600 dark:text-zinc-300">No active alerts at this time. Your fleet is running smoothly.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
           {/* Critical Alerts Column */}
           <AlertColumn
             title="Critical"

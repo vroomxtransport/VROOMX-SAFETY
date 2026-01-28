@@ -259,9 +259,9 @@ const Settings = () => {
   ];
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <div className="max-w-5xl mx-auto px-4 sm:px-0">
       {/* Page Header */}
-      <div className="mb-6">
+      <div className="mb-4 lg:mb-6">
         <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Settings</h1>
         <p className="text-zinc-600 dark:text-zinc-300 text-sm mt-1">Manage your account, companies, and subscription</p>
       </div>
@@ -271,7 +271,7 @@ const Settings = () => {
         className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800 mb-6 overflow-hidden"
         style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}
       >
-        <div className="flex border-b border-zinc-200 dark:border-zinc-800 overflow-x-auto scrollbar-thin">
+        <div className="flex border-b border-zinc-200 dark:border-zinc-800 overflow-x-auto scrollbar-thin flex-nowrap">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (

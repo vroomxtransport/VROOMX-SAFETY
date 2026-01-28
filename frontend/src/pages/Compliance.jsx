@@ -117,7 +117,7 @@ const Compliance = () => {
   ].filter(d => d.value > 0);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -150,10 +150,10 @@ const Compliance = () => {
           <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-1">Based on FMCSA Safety Measurement System methodology</p>
         </div>
         <div className="card-body">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
             {/* Bar Chart */}
             <div>
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer width="100%" height={250} className="sm:!h-[300px]">
                 <BarChart data={basicsData} layout="vertical" margin={{ left: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
                   <XAxis type="number" domain={[0, 100]} tickFormatter={(v) => `${v}%`} />
@@ -175,7 +175,7 @@ const Compliance = () => {
             </div>
 
             {/* BASIC Cards */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {basicsData.map((basic) => (
                 <div
                   key={basic.key}
@@ -188,7 +188,7 @@ const Compliance = () => {
                 >
                   <p className="text-sm font-medium text-zinc-700 dark:text-zinc-200 truncate">{basic.name}</p>
                   <div className="flex items-end justify-between mt-2">
-                    <span className={`text-2xl font-bold ${
+                    <span className={`text-xl sm:text-2xl font-bold ${
                       basic.status === 'critical' ? 'text-red-600 dark:text-red-400' :
                       basic.status === 'warning' ? 'text-yellow-600 dark:text-yellow-400' :
                       basic.status === 'compliant' ? 'text-green-600 dark:text-green-400' :
@@ -214,7 +214,7 @@ const Compliance = () => {
       </div>
 
       {/* Driver & Vehicle Compliance */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
         {/* Driver Compliance */}
         <div className="card">
           <div className="card-header">

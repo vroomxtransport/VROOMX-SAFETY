@@ -160,7 +160,7 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Admin Dashboard</h1>
@@ -168,7 +168,7 @@ const AdminDashboard = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4">
         {statCards.map((card) => {
           const CardWrapper = card.link ? Link : 'div';
           const wrapperProps = card.link ? { to: card.link } : {};
@@ -184,7 +184,7 @@ const AdminDashboard = () => {
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm text-zinc-600 dark:text-zinc-400">{card.title}</p>
-                  <p className="text-3xl font-bold text-zinc-900 dark:text-white mt-1">
+                  <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-zinc-900 dark:text-white mt-1">
                     {card.value.toLocaleString()}
                   </p>
                 </div>
@@ -203,13 +203,13 @@ const AdminDashboard = () => {
       {/* Subscription Breakdown */}
       <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6">
         <h2 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">Subscription Breakdown</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4">
           {Object.entries(stats?.subscriptions || {}).map(([plan, count]) => (
             <div
               key={plan}
               className="text-center p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800"
             >
-              <p className="text-2xl font-bold text-zinc-900 dark:text-white">{count}</p>
+              <p className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">{count}</p>
               <p className="text-sm text-zinc-600 dark:text-zinc-400 capitalize">{plan.replace('_', ' ')}</p>
             </div>
           ))}
@@ -413,17 +413,17 @@ const AdminDashboard = () => {
             {systemHealth.emailStats && (
               <div>
                 <h3 className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">Recent Email Stats</h3>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-3 gap-2 sm:gap-3">
                   <div className="text-center p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800">
-                    <p className="text-xl font-bold text-zinc-900 dark:text-white">{systemHealth.emailStats.sent || 0}</p>
+                    <p className="text-lg sm:text-xl font-bold text-zinc-900 dark:text-white">{systemHealth.emailStats.sent || 0}</p>
                     <p className="text-xs text-zinc-600 dark:text-zinc-400">Sent (24h)</p>
                   </div>
                   <div className="text-center p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800">
-                    <p className="text-xl font-bold text-zinc-900 dark:text-white">{systemHealth.emailStats.delivered || 0}</p>
+                    <p className="text-lg sm:text-xl font-bold text-zinc-900 dark:text-white">{systemHealth.emailStats.delivered || 0}</p>
                     <p className="text-xs text-zinc-600 dark:text-zinc-400">Delivered</p>
                   </div>
                   <div className="text-center p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800">
-                    <p className="text-xl font-bold text-red-600 dark:text-red-400">{systemHealth.emailStats.failed || 0}</p>
+                    <p className="text-lg sm:text-xl font-bold text-red-600 dark:text-red-400">{systemHealth.emailStats.failed || 0}</p>
                     <p className="text-xs text-zinc-600 dark:text-zinc-400">Failed</p>
                   </div>
                 </div>

@@ -1,12 +1,12 @@
 import React from 'react';
 
 const TabNav = ({ tabs, activeTab, onChange }) => (
-  <div className="flex border-b border-primary-200 mb-6">
+  <div className="flex overflow-x-auto flex-nowrap border-b border-primary-200 mb-4 lg:mb-6">
     {tabs.map(tab => (
       <button
         key={tab.key}
         onClick={() => onChange(tab.key)}
-        className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors
+        className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors whitespace-nowrap
           ${activeTab === tab.key
             ? 'border-accent-500 text-primary-800'
             : 'border-transparent text-primary-500 hover:text-primary-700 hover:border-primary-300'}`}

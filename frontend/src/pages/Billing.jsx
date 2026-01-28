@@ -294,7 +294,7 @@ const Billing = () => {
           )}
 
           {/* Subscription Details */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
             {/* Current Period */}
             <div className="p-4 rounded-xl bg-primary-50/50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700">
               <p className="text-xs font-medium text-zinc-600 dark:text-zinc-300 uppercase tracking-wider mb-1">
@@ -397,7 +397,7 @@ const Billing = () => {
         <p className="text-zinc-600 dark:text-zinc-300 text-sm mt-1">Choose the plan that fits your fleet size</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
         {/* Solo Plan */}
         <div
           className={`relative bg-white dark:bg-zinc-900 rounded-2xl border-2 overflow-hidden transition-all duration-300 cursor-pointer hover:shadow-xl hover:-translate-y-1 ${

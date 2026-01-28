@@ -274,7 +274,7 @@ const Layout = () => {
       </aside>
 
       {/* Main content */}
-      <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:pl-20' : 'lg:pl-64'}`}>
+      <div className={`min-w-0 overflow-x-hidden transition-all duration-300 ${sidebarCollapsed ? 'lg:pl-20' : 'lg:pl-64'}`}>
         {/* Top header */}
         <header className="sticky top-0 z-30 bg-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-zinc-200/60 dark:border-white/5">
           <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">

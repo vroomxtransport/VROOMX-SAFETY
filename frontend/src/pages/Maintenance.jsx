@@ -440,9 +440,9 @@ const Maintenance = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Maintenance Records</h1>
           <p className="text-zinc-600 dark:text-zinc-300">Track vehicle maintenance per FMCSA 49 CFR Part 396</p>
@@ -458,14 +458,14 @@ const Maintenance = () => {
 
       {/* Stats Cards */}
       {stats && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           <div className="card p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-100 dark:bg-blue-500/10 rounded-lg">
                 <FiFileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-zinc-900 dark:text-white">{stats.costs?.recordCount || 0}</div>
+                <div className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">{stats.costs?.recordCount || 0}</div>
                 <div className="text-sm text-zinc-500 dark:text-zinc-400">Total Records</div>
               </div>
             </div>
@@ -476,7 +476,7 @@ const Maintenance = () => {
                 <FiDollarSign className="w-5 h-5 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-zinc-900 dark:text-white">
+                <div className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">
                   ${((stats.costs?.grandTotal || 0) / 1000).toFixed(1)}k
                 </div>
                 <div className="text-sm text-zinc-500 dark:text-zinc-400">Total Spent</div>
@@ -489,7 +489,7 @@ const Maintenance = () => {
                 <FiClock className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-zinc-900 dark:text-white">{stats.upcomingServices || 0}</div>
+                <div className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">{stats.upcomingServices || 0}</div>
                 <div className="text-sm text-zinc-500 dark:text-zinc-400">Due in 30 Days</div>
               </div>
             </div>
@@ -500,7 +500,7 @@ const Maintenance = () => {
                 <FiAlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-zinc-900 dark:text-white">{stats.overdueServices || 0}</div>
+                <div className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">{stats.overdueServices || 0}</div>
                 <div className="text-sm text-zinc-500 dark:text-zinc-400">Overdue</div>
               </div>
             </div>
@@ -622,7 +622,7 @@ const Maintenance = () => {
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Vehicle *</label>
               <select
@@ -654,7 +654,7 @@ const Maintenance = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Service Date *</label>
               <input
@@ -691,7 +691,7 @@ const Maintenance = () => {
 
           <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-4 space-y-3">
             <h4 className="text-sm font-medium text-zinc-700 dark:text-zinc-200">Service Provider</h4>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <input
                 type="text"
                 value={formData.provider.name}
@@ -710,13 +710,13 @@ const Maintenance = () => {
                 type="text"
                 value={formData.provider.address}
                 onChange={(e) => setFormData({ ...formData, provider: { ...formData.provider, address: e.target.value } })}
-                className="col-span-2 w-full px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="col-span-1 md:col-span-2 w-full px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                 placeholder="Address"
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Labor Cost ($)</label>
               <input
@@ -741,7 +741,7 @@ const Maintenance = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Next Service Date</label>
               <input
@@ -846,7 +846,7 @@ const Maintenance = () => {
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3">
                 <div className="text-sm text-zinc-500 dark:text-zinc-400">Service Date</div>
                 <div className="font-medium text-zinc-900 dark:text-white">{formatDate(selectedRecord.serviceDate)}</div>

@@ -269,7 +269,7 @@ const DamageClaims = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -294,14 +294,14 @@ const DamageClaims = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <div className="group bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 p-4 hover:shadow-lg hover:-translate-y-1 hover:border-primary-300 dark:hover:border-primary-500/30 transition-all duration-300 cursor-pointer" style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-primary-100 dark:bg-zinc-700 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
               <FiDollarSign className="w-5 h-5 text-primary-600 dark:text-primary-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 font-mono">{formatCurrency(stats?.totalClaimAmount || 0)}</p>
+              <p className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-zinc-100 font-mono">{formatCurrency(stats?.totalClaimAmount || 0)}</p>
               <p className="text-xs text-zinc-600 dark:text-zinc-300">Total Claimed</p>
             </div>
           </div>
@@ -313,7 +313,7 @@ const DamageClaims = () => {
               <FiUser className="w-5 h-5 text-danger-600 dark:text-danger-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-danger-600 dark:text-danger-400 font-mono">{formatCurrency(stats?.driverFaultSettled || 0)}</p>
+              <p className="text-xl sm:text-2xl font-bold text-danger-600 dark:text-danger-400 font-mono">{formatCurrency(stats?.driverFaultSettled || 0)}</p>
               <p className="text-xs text-zinc-600 dark:text-zinc-300">Driver Fault (Paid)</p>
             </div>
           </div>
@@ -325,7 +325,7 @@ const DamageClaims = () => {
               <FiCheck className="w-5 h-5 text-success-600 dark:text-success-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-success-600 dark:text-success-400 font-mono">{formatCurrency(stats?.recovered || 0)}</p>
+              <p className="text-xl sm:text-2xl font-bold text-success-600 dark:text-success-400 font-mono">{formatCurrency(stats?.recovered || 0)}</p>
               <p className="text-xs text-zinc-600 dark:text-zinc-300">Recovered</p>
             </div>
           </div>
@@ -337,7 +337,7 @@ const DamageClaims = () => {
               <FiFileText className="w-5 h-5 text-warning-600 dark:text-warning-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-warning-600 dark:text-warning-400 font-mono">{stats?.openClaims || 0}</p>
+              <p className="text-xl sm:text-2xl font-bold text-warning-600 dark:text-warning-400 font-mono">{stats?.openClaims || 0}</p>
               <p className="text-xs text-zinc-600 dark:text-zinc-300">Open Claims</p>
             </div>
           </div>

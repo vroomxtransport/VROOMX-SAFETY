@@ -269,7 +269,7 @@ const Tickets = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -291,14 +291,14 @@ const Tickets = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         <div className="group bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 p-4 hover:shadow-lg hover:-translate-y-1 hover:border-warning-300 dark:hover:border-warning-500/30 transition-all duration-300 cursor-pointer" style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)' }}>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-warning-100 dark:bg-warning-900/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
               <FiFileText className="w-5 h-5 text-warning-600 dark:text-warning-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 font-mono">{stats?.openTickets || 0}</p>
+              <p className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-zinc-100 font-mono">{stats?.openTickets || 0}</p>
               <p className="text-xs text-zinc-600 dark:text-zinc-300">Open Tickets</p>
             </div>
           </div>
@@ -310,7 +310,7 @@ const Tickets = () => {
               <FiCalendar className="w-5 h-5 text-info-600 dark:text-info-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-info-600 dark:text-info-400 font-mono">{stats?.upcomingCourtDates || 0}</p>
+              <p className="text-xl sm:text-2xl font-bold text-info-600 dark:text-info-400 font-mono">{stats?.upcomingCourtDates || 0}</p>
               <p className="text-xs text-zinc-600 dark:text-zinc-300">Upcoming Court</p>
             </div>
           </div>
@@ -322,7 +322,7 @@ const Tickets = () => {
               <FiDollarSign className="w-5 h-5 text-danger-600 dark:text-danger-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-danger-600 dark:text-danger-400 font-mono">{formatCurrency(stats?.financials?.totalOutstanding || 0)}</p>
+              <p className="text-xl sm:text-2xl font-bold text-danger-600 dark:text-danger-400 font-mono">{formatCurrency(stats?.financials?.totalOutstanding || 0)}</p>
               <p className="text-xs text-zinc-600 dark:text-zinc-300">Outstanding</p>
             </div>
           </div>
@@ -334,7 +334,7 @@ const Tickets = () => {
               <FiCheck className="w-5 h-5 text-success-600 dark:text-success-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-success-600 dark:text-success-400 font-mono">{formatCurrency(stats?.financials?.totalPaid || 0)}</p>
+              <p className="text-xl sm:text-2xl font-bold text-success-600 dark:text-success-400 font-mono">{formatCurrency(stats?.financials?.totalPaid || 0)}</p>
               <p className="text-xs text-zinc-600 dark:text-zinc-300">Total Paid</p>
             </div>
           </div>
@@ -346,7 +346,7 @@ const Tickets = () => {
               <FiAlertCircle className="w-5 h-5 text-accent-600 dark:text-accent-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-accent-600 dark:text-accent-400 font-mono">{stats?.financials?.totalPoints || 0}</p>
+              <p className="text-xl sm:text-2xl font-bold text-accent-600 dark:text-accent-400 font-mono">{stats?.financials?.totalPoints || 0}</p>
               <p className="text-xs text-zinc-600 dark:text-zinc-300">Total Points</p>
             </div>
           </div>
@@ -360,7 +360,7 @@ const Tickets = () => {
             <FiCalendar className="w-5 h-5 text-info-600 dark:text-info-400" />
             <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">Upcoming Court Dates</h3>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {upcomingCourt.slice(0, 3).map((ticket) => (
               <div
                 key={ticket._id}

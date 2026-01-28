@@ -209,7 +209,7 @@ const DrugAlcohol = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -226,12 +226,12 @@ const DrugAlcohol = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <div className="group card p-4 hover:shadow-lg hover:-translate-y-1 hover:border-blue-300 dark:hover:border-blue-500/30 transition-all duration-300 cursor-pointer">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-zinc-600 dark:text-zinc-300 text-sm">Drivers in Pool</p>
-              <p className="text-2xl font-bold">{stats?.activeDriversInPool || 0}</p>
+              <p className="text-xl sm:text-2xl font-bold">{stats?.activeDriversInPool || 0}</p>
             </div>
             <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
               <FiDroplet className="w-6 h-6 text-blue-600" />
@@ -243,7 +243,7 @@ const DrugAlcohol = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-zinc-600 dark:text-zinc-300 text-sm">Random Tests (YTD)</p>
-              <p className="text-2xl font-bold">
+              <p className="text-xl sm:text-2xl font-bold">
                 {stats?.testsByType?.find(t => t._id === 'random')?.total || 0}
               </p>
             </div>
@@ -257,7 +257,7 @@ const DrugAlcohol = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-zinc-600 dark:text-zinc-300 text-sm">Compliance Rate</p>
-              <p className="text-2xl font-bold">
+              <p className="text-xl sm:text-2xl font-bold">
                 {stats?.randomTestingCompliance?.complianceRate || 0}%
               </p>
             </div>
@@ -277,7 +277,7 @@ const DrugAlcohol = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-zinc-600 dark:text-zinc-300 text-sm">Pending Queries</p>
-              <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+              <p className="text-xl sm:text-2xl font-bold text-orange-600 dark:text-orange-400">
                 {stats?.driversNeedingClearinghouseQuery || 0}
               </p>
             </div>
@@ -291,7 +291,7 @@ const DrugAlcohol = () => {
       {/* Compliance Info */}
       <div className="card p-4">
         <h3 className="font-semibold mb-3">Random Testing Requirements</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div className="text-sm">
             <span className="text-zinc-600 dark:text-zinc-300">Drug Tests Required (50%): </span>
             <span className="font-medium">{stats?.randomTestingCompliance?.drugTestsRequired || 0}</span>

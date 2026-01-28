@@ -129,7 +129,7 @@ const AdminAuditLogs = () => {
   const hasActiveFilters = action || resource || startDate || endDate || search;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>

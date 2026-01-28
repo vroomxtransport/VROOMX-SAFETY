@@ -219,29 +219,30 @@ const Dashboard = () => {
   })();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 sm:space-y-4 lg:space-y-6">
       {/* Welcome Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">Hello, {user?.firstName || 'there'}</h2>
-          <p className="text-zinc-600 dark:text-zinc-300 mt-1">Here's your compliance overview for today</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">Hello, {user?.firstName || 'there'}</h2>
+          <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-300 mt-1">Here's your compliance overview for today</p>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-sm text-zinc-600 dark:text-zinc-300">{currentDate}</span>
+          <span className="text-sm text-zinc-600 dark:text-zinc-300 hidden sm:inline">{currentDate}</span>
           <Link
             to="/app/reports"
             className="btn btn-primary"
           >
             <FiFileText className="w-4 h-4" />
-            Generate Report
+            <span className="hidden sm:inline">Generate Report</span>
+            <span className="sm:hidden">Report</span>
           </Link>
         </div>
       </div>
 
       {/* Main Grid - Score Section */}
-      <div className="grid grid-cols-12 gap-6">
+      <div className="grid grid-cols-12 gap-3 sm:gap-4 lg:gap-6">
         {/* Compliance Score Card (Main Feature) */}
-        <div className="col-span-12 lg:col-span-5 bg-white dark:bg-gradient-to-br dark:from-zinc-900 dark:to-zinc-950 rounded-2xl border border-zinc-200 dark:border-white/5 overflow-hidden shadow-sm">
+        <div className="col-span-12 md:col-span-6 lg:col-span-5 bg-white dark:bg-gradient-to-br dark:from-zinc-900 dark:to-zinc-950 rounded-2xl border border-zinc-200 dark:border-white/5 overflow-hidden shadow-sm">
           <div className="p-5">
             <div className="flex items-center justify-between mb-3">
               <div>
@@ -255,7 +256,7 @@ const Dashboard = () => {
 
             {/* Score Gauge */}
             <div className="flex flex-col items-center py-2">
-              <div className="relative w-40 h-40">
+              <div className="relative w-28 h-28 sm:w-36 sm:h-36 lg:w-40 lg:h-40">
                 <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
                   {/* Background arc */}
                   <circle
@@ -306,7 +307,7 @@ const Dashboard = () => {
                   <span className={`text-xs font-semibold mb-1 ${complianceScore >= 50 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                     {complianceScore >= 50 ? '+' : ''}{complianceScore - 80} pts
                   </span>
-                  <span className="text-5xl font-bold text-zinc-900 dark:text-white">{complianceScore}</span>
+                  <span className="text-3xl sm:text-4xl lg:text-5xl font-bold text-zinc-900 dark:text-white">{complianceScore}</span>
                   <span className="text-sm text-zinc-600 dark:text-zinc-300 mt-1">out of 100</span>
                 </div>
               </div>
@@ -340,35 +341,35 @@ const Dashboard = () => {
         </div>
 
         {/* Right Side Stats */}
-        <div className="col-span-12 lg:col-span-7 space-y-6">
+        <div className="col-span-12 md:col-span-6 lg:col-span-7 space-y-3 sm:space-y-4 lg:space-y-6">
           {/* Quick Stats Row */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
             {/* Drivers */}
-            <Link to="/app/drivers" className="group bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-blue-300 dark:hover:border-blue-500/30 transition-all duration-300 cursor-pointer">
+            <Link to="/app/drivers" className="group bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl p-3 sm:p-4 lg:p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-blue-300 dark:hover:border-blue-500/30 transition-all duration-300 cursor-pointer">
               <div className="flex items-center justify-between mb-3">
                 <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                   <FiUsers className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 </div>
                 <span className="text-xs text-green-600 dark:text-green-400 font-semibold">All active</span>
               </div>
-              <p className="text-3xl font-bold text-zinc-900 dark:text-white">{data?.drivers?.active || 0}</p>
+              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-zinc-900 dark:text-white">{data?.drivers?.active || 0}</p>
               <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-1">Active Drivers</p>
             </Link>
 
             {/* Vehicles */}
-            <Link to="/app/vehicles" className="group bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-purple-300 dark:hover:border-purple-500/30 transition-all duration-300 cursor-pointer">
+            <Link to="/app/vehicles" className="group bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl p-3 sm:p-4 lg:p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-purple-300 dark:hover:border-purple-500/30 transition-all duration-300 cursor-pointer">
               <div className="flex items-center justify-between mb-3">
                 <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                   <FiTruck className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                 </div>
                 <span className="text-xs text-zinc-600 dark:text-zinc-300">All active</span>
               </div>
-              <p className="text-3xl font-bold text-zinc-900 dark:text-white">{data?.vehicles?.active || 0}</p>
+              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-zinc-900 dark:text-white">{data?.vehicles?.active || 0}</p>
               <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-1">Fleet Vehicles</p>
             </Link>
 
             {/* Expiring Docs */}
-            <Link to="/app/documents" className="group bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-yellow-300 dark:hover:border-yellow-500/30 transition-all duration-300 cursor-pointer">
+            <Link to="/app/documents" className="group bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl p-3 sm:p-4 lg:p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-yellow-300 dark:hover:border-yellow-500/30 transition-all duration-300 cursor-pointer">
               <div className="flex items-center justify-between mb-3">
                 <div className="w-10 h-10 rounded-xl bg-yellow-100 dark:bg-yellow-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                   <FiClock className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
@@ -377,34 +378,34 @@ const Dashboard = () => {
                   <span className="text-xs text-yellow-600 dark:text-yellow-400 font-semibold">Action needed</span>
                 )}
               </div>
-              <p className={`text-3xl font-bold ${(data?.summary?.driversWithExpiringDocs || 0) > 0 ? 'text-yellow-600 dark:text-yellow-400' : 'text-zinc-900 dark:text-white'}`}>
+              <p className={`text-xl sm:text-2xl lg:text-3xl font-bold ${(data?.summary?.driversWithExpiringDocs || 0) > 0 ? 'text-yellow-600 dark:text-yellow-400' : 'text-zinc-900 dark:text-white'}`}>
                 {data?.summary?.driversWithExpiringDocs || 0}
               </p>
               <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-1">Expiring Soon</p>
             </Link>
 
             {/* Violations */}
-            <Link to="/app/violations" className="group bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-red-300 dark:hover:border-red-500/30 transition-all duration-300 cursor-pointer">
+            <Link to="/app/violations" className="group bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl p-3 sm:p-4 lg:p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-red-300 dark:hover:border-red-500/30 transition-all duration-300 cursor-pointer">
               <div className="flex items-center justify-between mb-3">
                 <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                   <FiAlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
                 </div>
                 <span className="text-xs text-green-600 dark:text-green-400 font-semibold">-2 this year</span>
               </div>
-              <p className="text-3xl font-bold text-zinc-900 dark:text-white">{data?.recentViolations?.length || 0}</p>
+              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-zinc-900 dark:text-white">{data?.recentViolations?.length || 0}</p>
               <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-1">Open Violations</p>
             </Link>
           </div>
 
           {/* SMS BASICs Overview */}
           <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl overflow-hidden shadow-sm">
-            <div className="p-5 border-b border-zinc-100 dark:border-white/5 flex items-center justify-between">
+            <div className="p-4 sm:p-5 border-b border-zinc-100 dark:border-white/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-accent-100 dark:bg-accent-500/10 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-accent-100 dark:bg-accent-500/10 flex items-center justify-center flex-shrink-0">
                   <FiShield className="w-5 h-5 text-accent-600 dark:text-accent-500" />
                 </div>
                 <div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <h3 className="font-semibold text-zinc-900 dark:text-white">SMS BASICs</h3>
                     {/* Overall Trend Badge */}
                     {trendData?.overallTrend && (
@@ -428,7 +429,7 @@ const Dashboard = () => {
                   <p className="text-xs text-zinc-600 dark:text-zinc-300">Safety Measurement System • 30-day trend</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3">
                 <button
                   onClick={handleRefreshFMCSA}
                   disabled={refreshingFMCSA}
@@ -457,7 +458,7 @@ const Dashboard = () => {
                 {fmcsaMessage.text}
               </div>
             )}
-            <div className="p-5 grid grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="p-3 sm:p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {basicsData.length > 0 ? basicsData.map((basic, index) => {
                 const trend = getTrendIndicator(basic.key);
                 return (
@@ -531,9 +532,9 @@ const Dashboard = () => {
       </div>
 
       {/* Bottom Row */}
-      <div className="grid grid-cols-12 gap-6">
+      <div className="grid grid-cols-12 gap-3 sm:gap-4 lg:gap-6">
         {/* Recent Alerts */}
-        <div className="col-span-12 lg:col-span-4 bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl overflow-hidden shadow-sm">
+        <div className="col-span-12 md:col-span-6 lg:col-span-4 bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl overflow-hidden shadow-sm">
           <div className="p-5 border-b border-zinc-100 dark:border-white/5 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-500/10 flex items-center justify-center">
@@ -592,7 +593,7 @@ const Dashboard = () => {
         </div>
 
         {/* Driver Birthdays */}
-        <div className="col-span-12 lg:col-span-3 bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl overflow-hidden shadow-sm">
+        <div className="col-span-12 md:col-span-6 lg:col-span-3 bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl overflow-hidden shadow-sm">
           <div className="p-5 border-b border-zinc-100 dark:border-white/5 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-pink-100 dark:bg-pink-500/10 flex items-center justify-center">
@@ -656,7 +657,7 @@ const Dashboard = () => {
         </div>
 
         {/* Driver & Vehicle Status */}
-        <div className="col-span-12 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="col-span-12 lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
           {/* Driver Status */}
           <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl overflow-hidden shadow-sm">
             <div className="p-5 border-b border-zinc-100 dark:border-white/5 flex items-center justify-between">
@@ -672,17 +673,17 @@ const Dashboard = () => {
             </div>
             <div className="p-5">
               {/* Status Grid */}
-              <div className="grid grid-cols-3 gap-2 mb-4">
+              <div className="grid grid-cols-3 gap-1.5 sm:gap-2 mb-4">
                 <div className="text-center p-3 rounded-xl bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 hover:shadow-md hover:-translate-y-0.5 hover:border-green-300 dark:hover:border-green-500/40 transition-all duration-200 cursor-pointer">
-                  <p className="text-2xl font-bold text-green-600 dark:text-green-400">{data?.drivers?.compliant || 0}</p>
+                  <p className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">{data?.drivers?.compliant || 0}</p>
                   <p className="text-xs text-zinc-600 dark:text-zinc-300 mt-1">Compliant</p>
                 </div>
                 <div className="text-center p-3 rounded-xl bg-yellow-50 dark:bg-yellow-500/10 border border-yellow-200 dark:border-yellow-500/20 hover:shadow-md hover:-translate-y-0.5 hover:border-yellow-300 dark:hover:border-yellow-500/40 transition-all duration-200 cursor-pointer">
-                  <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{data?.drivers?.warning || 0}</p>
+                  <p className="text-xl sm:text-2xl font-bold text-yellow-600 dark:text-yellow-400">{data?.drivers?.warning || 0}</p>
                   <p className="text-xs text-zinc-600 dark:text-zinc-300 mt-1">Warning</p>
                 </div>
                 <div className="text-center p-3 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 hover:shadow-md hover:-translate-y-0.5 hover:border-red-300 dark:hover:border-red-500/40 transition-all duration-200 cursor-pointer">
-                  <p className="text-2xl font-bold text-red-600 dark:text-red-400">{data?.drivers?.nonCompliant || 0}</p>
+                  <p className="text-xl sm:text-2xl font-bold text-red-600 dark:text-red-400">{data?.drivers?.nonCompliant || 0}</p>
                   <p className="text-xs text-zinc-600 dark:text-zinc-300 mt-1">Non-Compliant</p>
                 </div>
               </div>
@@ -806,8 +807,8 @@ const Dashboard = () => {
         </div>
 
         {/* Chart area */}
-        <div className="p-5">
-          <ResponsiveContainer width="100%" height={250}>
+        <div className="p-3 sm:p-5 h-48 sm:h-56 lg:h-64">
+          <ResponsiveContainer width="100%" height="100%">
             <LineChart data={complianceTrendData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:opacity-20" />
               <XAxis
@@ -855,7 +856,7 @@ const Dashboard = () => {
       {/* Floating AI Chat Button */}
       <Link
         to="/app/ai-assistant"
-        className="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-br from-accent-500 to-accent-600 hover:from-accent-400 hover:to-accent-500 rounded-full shadow-lg shadow-accent-500/30 flex items-center justify-center transition-all hover:scale-105 z-40"
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-accent-500 to-accent-600 hover:from-accent-400 hover:to-accent-500 rounded-full shadow-lg shadow-accent-500/30 flex items-center justify-center transition-all hover:scale-105 z-40"
       >
         <FiMessageCircle className="w-6 h-6 text-white" />
       </Link>

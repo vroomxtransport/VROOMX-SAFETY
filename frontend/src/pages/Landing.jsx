@@ -62,7 +62,7 @@ const Landing = () => {
       {/* Trust Badges Section */}
       <section className="relative z-10 py-8 border-y border-[#E2E8F0] bg-white/80 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16">
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 md:gap-16">
             {[
               { Icon: FiLock, title: 'SSL Secure', subtitle: '256-bit encryption', bgClass: 'bg-green-50', textClass: 'text-green-500' },
               { Icon: FiDatabase, title: 'FMCSA Data', subtitle: 'Official SMS source', bgClass: 'bg-blue-50', textClass: 'text-blue-500' },
@@ -93,7 +93,7 @@ const Landing = () => {
             <div className="inline-block px-3 py-1 rounded-full border border-primary-500/30 bg-primary-500/10 text-primary-500 font-mono text-xs mb-6">
               // THE PROBLEM
             </div>
-            <h2 className="text-4xl md:text-5xl font-heading font-bold tracking-tight mb-8 leading-tight text-primary-500">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold tracking-tight mb-6 lg:mb-8 leading-tight text-primary-500">
               Compliance is <span className="text-transparent bg-clip-text bg-gradient-to-r from-cta-500 to-cta-600">Complex.</span><br />
               <span className="text-zinc-600">VroomX Safety Isn't.</span>
             </h2>
@@ -226,7 +226,7 @@ const Landing = () => {
           <div className="flex justify-between items-end mb-12">
             <div>
               <span className="font-mono text-xs text-cta-500 uppercase tracking-widest">// Stay Informed</span>
-              <h2 className="text-3xl md:text-5xl font-heading font-bold text-primary-500 mt-4">
+              <h2 className="text-2xl sm:text-3xl md:text-5xl font-heading font-bold text-primary-500 mt-4">
                 Latest <span className="text-zinc-600">Updates</span>
               </h2>
             </div>
@@ -236,7 +236,7 @@ const Landing = () => {
             </Link>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {blogPosts.map((post, i) => (
               <Link key={i} to="/blog" className="group block">
                 <div className="bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden h-full flex flex-col hover:-translate-y-2 hover:border-primary-500/30 hover:shadow-lg transition-all duration-300">

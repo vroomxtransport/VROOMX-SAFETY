@@ -455,14 +455,14 @@ const Checklists = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Checklists</h1>
           <p className="text-zinc-600 dark:text-zinc-300">Manage compliance checklists and templates</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {activeTab === 'templates' ? (
             <>
               <button
@@ -494,14 +494,14 @@ const Checklists = () => {
 
       {/* Stats Cards (for assignments tab) */}
       {activeTab === 'assignments' && stats && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           <div className="card p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-100 dark:bg-blue-500/10 rounded-lg">
                 <FiClipboard className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-zinc-900 dark:text-white">{stats.total || 0}</div>
+                <div className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">{stats.total || 0}</div>
                 <div className="text-sm text-zinc-500 dark:text-zinc-400">Total</div>
               </div>
             </div>
@@ -512,7 +512,7 @@ const Checklists = () => {
                 <FiClock className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-zinc-900 dark:text-white">{stats.inProgress || 0}</div>
+                <div className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">{stats.inProgress || 0}</div>
                 <div className="text-sm text-zinc-500 dark:text-zinc-400">In Progress</div>
               </div>
             </div>
@@ -523,7 +523,7 @@ const Checklists = () => {
                 <FiCheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-zinc-900 dark:text-white">{stats.completed || 0}</div>
+                <div className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">{stats.completed || 0}</div>
                 <div className="text-sm text-zinc-500 dark:text-zinc-400">Completed</div>
               </div>
             </div>
@@ -534,7 +534,7 @@ const Checklists = () => {
                 <FiAlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-zinc-900 dark:text-white">{stats.overdue || 0}</div>
+                <div className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">{stats.overdue || 0}</div>
                 <div className="text-sm text-zinc-500 dark:text-zinc-400">Overdue</div>
               </div>
             </div>
@@ -547,7 +547,7 @@ const Checklists = () => {
 
       {/* Filters for assignments */}
       {activeTab === 'assignments' && (
-        <div className="flex gap-4">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
           <select
             value={statusFilter}
             onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
@@ -727,7 +727,7 @@ const Checklists = () => {
 
           <div>
             <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Assign To *</label>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <select
                 value={assignForm.assignedTo.type}
                 onChange={(e) => setAssignForm({

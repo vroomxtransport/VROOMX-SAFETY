@@ -32,10 +32,10 @@ const Modal = ({ isOpen, onClose, title, icon: Icon, children, size = 'md', foot
   if (!isOpen) return null;
 
   const sizeClasses = {
-    sm: 'max-w-md',
-    md: 'max-w-lg',
-    lg: 'max-w-2xl',
-    xl: 'max-w-4xl'
+    sm: 'max-w-[calc(100vw-2rem)] sm:max-w-md',
+    md: 'max-w-[calc(100vw-2rem)] sm:max-w-lg',
+    lg: 'max-w-[calc(100vw-2rem)] sm:max-w-xl md:max-w-2xl',
+    xl: 'max-w-[calc(100vw-2rem)] sm:max-w-2xl md:max-w-3xl lg:max-w-4xl'
   };
 
   return (
@@ -46,13 +46,13 @@ const Modal = ({ isOpen, onClose, title, icon: Icon, children, size = 'md', foot
       onClick={onClose}
     >
       <div
-        className={`bg-white dark:bg-primary-800 rounded-2xl w-full max-h-[90vh] overflow-hidden flex flex-col transition-all duration-300 shadow-2xl border border-primary-200/50 dark:border-primary-700 ${
+        className={`bg-white dark:bg-primary-800 rounded-2xl w-full max-h-[85vh] sm:max-h-[90vh] overflow-hidden flex flex-col transition-all duration-300 shadow-2xl border border-primary-200/50 dark:border-primary-700 ${
           sizeClasses[size]
         } ${isAnimating ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'}`}
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="relative flex items-center gap-3 px-6 py-4 border-b border-primary-100 dark:border-primary-700 bg-gradient-to-b from-white to-primary-50/50 dark:from-primary-800 dark:to-primary-900/50">
+        <div className="relative flex items-center gap-3 px-4 py-3 sm:px-6 sm:py-4 border-b border-primary-100 dark:border-primary-700 bg-gradient-to-b from-white to-primary-50/50 dark:from-primary-800 dark:to-primary-900/50">
           {/* Gradient line */}
           <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary-300/50 dark:via-primary-600/50 to-transparent" />
 
@@ -76,13 +76,13 @@ const Modal = ({ isOpen, onClose, title, icon: Icon, children, size = 'md', foot
         </div>
 
         {/* Content */}
-        <div className="flex-1 px-6 py-5 overflow-y-auto">
+        <div className="flex-1 px-4 py-4 sm:px-6 sm:py-5 overflow-y-auto">
           {children}
         </div>
 
         {/* Footer (optional) */}
         {footer && (
-          <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-primary-100 dark:border-primary-700 bg-primary-50/50 dark:bg-primary-900/50">
+          <div className="flex items-center justify-end gap-3 px-4 py-3 sm:px-6 sm:py-4 border-t border-primary-100 dark:border-primary-700 bg-primary-50/50 dark:bg-primary-900/50">
             {footer}
           </div>
         )}

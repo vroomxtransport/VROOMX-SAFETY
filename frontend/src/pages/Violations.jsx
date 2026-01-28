@@ -296,7 +296,7 @@ const Violations = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -321,14 +321,14 @@ const Violations = () => {
       {activeTab === 'list' ? (
         <>
         {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <div className="group bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-4 hover:shadow-lg hover:-translate-y-1 hover:border-zinc-300 dark:hover:border-zinc-600 transition-all duration-300 cursor-pointer">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
               <FiAlertTriangle className="w-5 h-5 text-zinc-600 dark:text-zinc-300" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-zinc-900 dark:text-white font-mono">
+              <p className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white font-mono">
                 {stats?.byBasic?.reduce((a, b) => a + b.count, 0) || 0}
               </p>
               <p className="text-xs text-zinc-600 dark:text-zinc-300">Total Violations</p>
@@ -341,7 +341,7 @@ const Violations = () => {
               <FiClock className="w-5 h-5 text-warning-600 dark:text-warning-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-warning-600 dark:text-warning-400 font-mono">
+              <p className="text-xl sm:text-2xl font-bold text-warning-600 dark:text-warning-400 font-mono">
                 {stats?.byStatus?.find(s => s._id === 'open')?.count || 0}
               </p>
               <p className="text-xs text-zinc-600 dark:text-zinc-300">Open</p>
@@ -354,7 +354,7 @@ const Violations = () => {
               <FiMessageSquare className="w-5 h-5 text-info-600 dark:text-info-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-info-600 dark:text-info-400 font-mono">{stats?.openDataQChallenges || 0}</p>
+              <p className="text-xl sm:text-2xl font-bold text-info-600 dark:text-info-400 font-mono">{stats?.openDataQChallenges || 0}</p>
               <p className="text-xs text-zinc-600 dark:text-zinc-300">DataQ In Progress</p>
             </div>
           </div>
@@ -365,7 +365,7 @@ const Violations = () => {
               <FiCheckCircle className="w-5 h-5 text-success-600 dark:text-success-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-success-600 dark:text-success-400 font-mono">
+              <p className="text-xl sm:text-2xl font-bold text-success-600 dark:text-success-400 font-mono">
                 {stats?.byStatus?.find(s => s._id === 'resolved')?.count || 0}
               </p>
               <p className="text-xs text-zinc-600 dark:text-zinc-300">Resolved</p>

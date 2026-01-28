@@ -171,7 +171,7 @@ const AdminCompanies = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -334,7 +334,7 @@ const AdminCompanies = () => {
           <div className="space-y-6">
             {/* Company Info + Edit/Status Actions */}
             <div className="flex items-start justify-between">
-              <div className="grid grid-cols-2 gap-4 flex-1">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">
                 <div>
                   <label className="text-sm text-zinc-600 dark:text-zinc-400">Company Name</label>
                   <p className="font-medium text-zinc-900 dark:text-white">{selectedCompany.name}</p>
@@ -391,17 +391,17 @@ const AdminCompanies = () => {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 gap-3 lg:gap-4">
               <div className="text-center p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800">
-                <p className="text-2xl font-bold text-zinc-900 dark:text-white">{selectedCompany.driverCount}</p>
+                <p className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">{selectedCompany.driverCount}</p>
                 <p className="text-sm text-zinc-600 dark:text-zinc-400">Drivers</p>
               </div>
               <div className="text-center p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800">
-                <p className="text-2xl font-bold text-zinc-900 dark:text-white">{selectedCompany.vehicleCount}</p>
+                <p className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">{selectedCompany.vehicleCount}</p>
                 <p className="text-sm text-zinc-600 dark:text-zinc-400">Vehicles</p>
               </div>
               <div className="text-center p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800">
-                <p className="text-2xl font-bold text-zinc-900 dark:text-white">{selectedCompany.members?.length || 0}</p>
+                <p className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">{selectedCompany.members?.length || 0}</p>
                 <p className="text-sm text-zinc-600 dark:text-zinc-400">Members</p>
               </div>
             </div>

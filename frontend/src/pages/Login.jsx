@@ -106,7 +106,7 @@ const Login = () => {
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-6 py-12">
+      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 py-12">
         {/* Logo */}
         <div className="mb-8 animate-fade-in-up">
           <VroomXLogo size="lg" showText={true} animate={true} linkToHome={true} />
@@ -124,7 +124,7 @@ const Login = () => {
 
         {/* Glassmorphic Form Card */}
         <div
-          className="w-full max-w-md animate-fade-in-up"
+          className="w-full max-w-md mx-auto animate-fade-in-up"
           style={{ animationDelay: '0.2s' }}
         >
           <div className="relative">

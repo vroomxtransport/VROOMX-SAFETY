@@ -253,7 +253,7 @@ const Vehicles = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -270,14 +270,14 @@ const Vehicles = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <div className="group bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-4 hover:shadow-lg hover:-translate-y-1 hover:border-accent-300 dark:hover:border-accent-500/30 transition-all duration-300 cursor-pointer">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-accent-100 dark:bg-accent-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
               <FiTruck className="w-5 h-5 text-accent-600 dark:text-accent-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-zinc-900 dark:text-white font-mono">{vehicles.length || 0}</p>
+              <p className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white font-mono">{vehicles.length || 0}</p>
               <p className="text-xs text-zinc-600 dark:text-zinc-300">Total Vehicles</p>
             </div>
           </div>
@@ -288,7 +288,7 @@ const Vehicles = () => {
               <FiCheckCircle className="w-5 h-5 text-success-600 dark:text-success-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-success-600 dark:text-success-400 font-mono">
+              <p className="text-xl sm:text-2xl font-bold text-success-600 dark:text-success-400 font-mono">
                 {vehicles.filter(v => v.status === 'active').length}
               </p>
               <p className="text-xs text-zinc-600 dark:text-zinc-300">Active</p>
@@ -301,7 +301,7 @@ const Vehicles = () => {
               <FiTool className="w-5 h-5 text-warning-600 dark:text-warning-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-warning-600 dark:text-warning-400 font-mono">
+              <p className="text-xl sm:text-2xl font-bold text-warning-600 dark:text-warning-400 font-mono">
                 {vehicles.filter(v => v.status === 'maintenance').length}
               </p>
               <p className="text-xs text-zinc-600 dark:text-zinc-300">Maintenance</p>
@@ -314,7 +314,7 @@ const Vehicles = () => {
               <FiAlertTriangle className="w-5 h-5 text-danger-600 dark:text-danger-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-danger-600 dark:text-danger-400 font-mono">
+              <p className="text-xl sm:text-2xl font-bold text-danger-600 dark:text-danger-400 font-mono">
                 {vehicles.filter(v => v.status === 'out_of_service').length}
               </p>
               <p className="text-xs text-zinc-600 dark:text-zinc-300">Out of Service</p>
@@ -477,7 +477,7 @@ const Vehicles = () => {
               <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Details</span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Make</label>
                 <input
@@ -512,7 +512,7 @@ const Vehicles = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
               <div>
                 <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Market Price ($)</label>
                 <input
@@ -548,7 +548,7 @@ const Vehicles = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
               <div>
                 <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Color</label>
                 <input
