@@ -24,7 +24,7 @@ const navigation = [
 
   // Management section
   { section: 'MANAGEMENT' },
-  { name: 'Compliance', path: '/app/compliance', icon: FiBarChart2 },
+  { name: 'FMCSA Dashboard', path: '/app/compliance', icon: FiBarChart2 },
   { name: 'Driver Files', path: '/app/drivers', icon: FiUsers },
   { name: 'Vehicle Files', path: '/app/vehicles', icon: FiTruck },
   { name: 'Maintenance', path: '/app/maintenance', icon: FiTool },

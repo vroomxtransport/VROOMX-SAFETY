@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
-import { dashboardAPI } from '../utils/api';
+import { dashboardAPI, fmcsaAPI } from '../utils/api';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, Legend } from 'recharts';
 import toast from 'react-hot-toast';
-import { FiEdit2, FiCheck, FiAlertTriangle, FiAlertCircle, FiInfo, FiBarChart2, FiTarget, FiTrendingUp, FiTrendingDown, FiMinus } from 'react-icons/fi';
+import { FiEdit2, FiCheck, FiAlertTriangle, FiAlertCircle, FiInfo, FiBarChart2, FiTarget, FiTrendingUp, FiTrendingDown, FiMinus, FiRefreshCw, FiFileText, FiList, FiMapPin, FiCalendar, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Modal from '../components/Modal';
 import TabNav from '../components/TabNav';
 import CSAEstimatorContent from '../components/CSAEstimatorContent';
 import CSATrends from '../components/CSATrends';
+import { formatDate } from '../utils/helpers';
 
 const Compliance = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -25,10 +26,20 @@ const Compliance = () => {
     crashIndicator: ''
   });
 
+  // FMCSA Inspection state
+  const [inspections, setInspections] = useState([]);
+  const [inspectionSummary, setInspectionSummary] = useState(null);
+  const [syncStatus, setSyncStatus] = useState(null);
+  const [syncing, setSyncing] = useState(false);
+  const [inspectionsLoading, setInspectionsLoading] = useState(false);
+  const [expandedInspection, setExpandedInspection] = useState(null);
+
   const tabs = [
-    { key: 'overview', label: 'SMS BASICs Overview', icon: FiBarChart2 },
-    { key: 'trends', label: 'Score Trends', icon: FiTrendingUp },
-    { key: 'estimator', label: 'CSA Estimator', icon: FiTarget, badge: 'BETA' }
+    { key: 'overview', label: 'SMS BASICs', icon: FiBarChart2 },
+    { key: 'inspections', label: 'Inspections', icon: FiFileText },
+    { key: 'violations', label: 'Violations', icon: FiAlertTriangle },
+    { key: 'trends', label: 'Trends', icon: FiTrendingUp },
+    { key: 'estimator', label: 'Estimator', icon: FiTarget, badge: 'BETA' }
   ];
 
   useEffect(() => {
@@ -85,6 +96,74 @@ const Compliance = () => {
     }
   };
 
+  // Fetch FMCSA inspections when tab changes
+  useEffect(() => {
+    if (activeTab === 'inspections' || activeTab === 'violations') {
+      fetchInspections();
+    }
+  }, [activeTab]);
+
+  const fetchInspections = async () => {
+    setInspectionsLoading(true);
+    try {
+      const [inspRes, summaryRes, statusRes] = await Promise.all([
+        fmcsaAPI.getInspections({ limit: 50 }),
+        fmcsaAPI.getSummary(),
+        fmcsaAPI.getSyncStatus()
+      ]);
+      setInspections(inspRes.data.inspections || []);
+      setInspectionSummary(summaryRes.data);
+      setSyncStatus(statusRes.data);
+    } catch (error) {
+      console.error('Failed to fetch inspections:', error);
+    } finally {
+      setInspectionsLoading(false);
+    }
+  };
+
+  const handleSyncViolations = async () => {
+    setSyncing(true);
+    try {
+      const result = await fmcsaAPI.syncViolations();
+      if (result.data.success) {
+        toast.success(`Synced ${result.data.imported} new inspections from FMCSA`);
+        fetchInspections();
+      } else {
+        toast.error(result.data.message || 'Sync failed');
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to sync with FMCSA');
+    } finally {
+      setSyncing(false);
+    }
+  };
+
+  const getBasicLabel = (basic) => {
+    const labels = {
+      unsafe_driving: 'Unsafe Driving',
+      hours_of_service: 'Hours of Service',
+      vehicle_maintenance: 'Vehicle Maintenance',
+      controlled_substances: 'Controlled Substances',
+      driver_fitness: 'Driver Fitness',
+      crash_indicator: 'Crash Indicator',
+      hazmat: 'Hazmat'
+    };
+    return labels[basic] || basic;
+  };
+
+  const getBasicColor = (basic) => {
+    const colors = {
+      unsafe_driving: 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400',
+      hours_of_service: 'bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400',
+      vehicle_maintenance: 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400',
+      controlled_substances: 'bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-400',
+      driver_fitness: 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400',
+      crash_indicator: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400',
+      hazmat: 'bg-pink-100 text-pink-700 dark:bg-pink-500/20 dark:text-pink-400'
+    };
+    return colors[basic] || 'bg-zinc-100 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-300';
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -123,8 +202,8 @@ const Compliance = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Compliance Dashboard</h1>
-          <p className="text-zinc-600 dark:text-zinc-300">SMS BASICs and compliance overview</p>
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">FMCSA Dashboard</h1>
+          <p className="text-zinc-600 dark:text-zinc-300">SMS BASICs, inspections, and violation tracking</p>
         </div>
         {activeTab === 'overview' && (
           <button
@@ -143,6 +222,206 @@ const Compliance = () => {
       {/* Tab Content */}
       {activeTab === 'trends' ? (
         <CSATrends />
+      ) : activeTab === 'inspections' ? (
+        /* Inspections Tab */
+        <div className="space-y-4">
+          {/* Sync Header */}
+          <div className="card">
+            <div className="card-body flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h3 className="font-semibold text-zinc-900 dark:text-white">FMCSA Inspection History</h3>
+                <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                  {syncStatus?.lastSync ? (
+                    <>Last synced: {formatDate(syncStatus.lastSync)} • {syncStatus.inspectionCount} inspections</>
+                  ) : (
+                    <>Click "Sync from FMCSA" to import your inspection history</>
+                  )}
+                </p>
+              </div>
+              <button
+                onClick={handleSyncViolations}
+                disabled={syncing}
+                className="btn btn-primary flex items-center gap-2"
+              >
+                <FiRefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
+                {syncing ? 'Syncing...' : 'Sync from FMCSA'}
+              </button>
+            </div>
+          </div>
+
+          {/* Inspection List */}
+          {inspectionsLoading ? (
+            <div className="flex items-center justify-center h-48">
+              <LoadingSpinner size="lg" />
+            </div>
+          ) : inspections.length === 0 ? (
+            <div className="card">
+              <div className="card-body text-center py-12">
+                <FiFileText className="w-12 h-12 text-zinc-300 dark:text-zinc-600 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-2">No Inspections Found</h3>
+                <p className="text-zinc-500 dark:text-zinc-400 mb-4">
+                  Sync with FMCSA to import your inspection history
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {inspections.map((insp) => (
+                <div key={insp._id} className="card hover:shadow-md transition-shadow">
+                  <div
+                    className="card-body cursor-pointer"
+                    onClick={() => setExpandedInspection(expandedInspection === insp._id ? null : insp._id)}
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <span className="font-mono text-sm font-medium text-zinc-900 dark:text-white">
+                            {insp.reportNumber}
+                          </span>
+                          <span className="text-sm text-zinc-500 dark:text-zinc-400 flex items-center gap-1">
+                            <FiCalendar className="w-3 h-3" />
+                            {formatDate(insp.inspectionDate)}
+                          </span>
+                          <span className="text-sm text-zinc-500 dark:text-zinc-400 flex items-center gap-1">
+                            <FiMapPin className="w-3 h-3" />
+                            {insp.state}
+                          </span>
+                          {insp.inspectionLevel && (
+                            <span className="px-2 py-0.5 text-xs rounded bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300">
+                              Level {insp.inspectionLevel}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-3 mt-2">
+                          {insp.totalViolations > 0 && (
+                            <span className="text-sm text-red-600 dark:text-red-400">
+                              {insp.totalViolations} violation{insp.totalViolations !== 1 ? 's' : ''}
+                            </span>
+                          )}
+                          {insp.vehicleOOS && (
+                            <span className="px-2 py-0.5 text-xs rounded bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-400">
+                              Vehicle OOS
+                            </span>
+                          )}
+                          {insp.driverOOS && (
+                            <span className="px-2 py-0.5 text-xs rounded bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-400">
+                              Driver OOS
+                            </span>
+                          )}
+                          {insp.totalViolations === 0 && !insp.vehicleOOS && !insp.driverOOS && (
+                            <span className="text-sm text-green-600 dark:text-green-400">Clean inspection</span>
+                          )}
+                        </div>
+                      </div>
+                      <button className="p-2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300">
+                        {expandedInspection === insp._id ? <FiChevronUp /> : <FiChevronDown />}
+                      </button>
+                    </div>
+
+                    {/* Expanded Violations */}
+                    {expandedInspection === insp._id && insp.violations?.length > 0 && (
+                      <div className="mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-700">
+                        <h4 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-3">Violations</h4>
+                        <div className="space-y-2">
+                          {insp.violations.map((v, idx) => (
+                            <div key={idx} className="flex items-start gap-3 p-2 rounded bg-zinc-50 dark:bg-zinc-800">
+                              <span className={`px-2 py-0.5 text-xs rounded ${getBasicColor(v.basic)}`}>
+                                {getBasicLabel(v.basic)}
+                              </span>
+                              <div className="flex-1">
+                                <p className="text-sm text-zinc-700 dark:text-zinc-300">
+                                  {v.code && <span className="font-mono mr-2">{v.code}</span>}
+                                  {v.description}
+                                </p>
+                                {v.oos && (
+                                  <span className="text-xs text-red-600 dark:text-red-400">Out of Service</span>
+                                )}
+                              </div>
+                              <span className="text-xs text-zinc-500">Severity: {v.severityWeight}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : activeTab === 'violations' ? (
+        /* Violations Summary Tab */
+        <div className="space-y-4">
+          {/* Summary Header */}
+          <div className="card">
+            <div className="card-body">
+              <h3 className="font-semibold text-zinc-900 dark:text-white mb-4">Violation Summary by BASIC Category</h3>
+
+              {inspectionsLoading ? (
+                <div className="flex items-center justify-center h-32">
+                  <LoadingSpinner />
+                </div>
+              ) : !inspectionSummary?.totals?.totalViolations ? (
+                <div className="text-center py-8">
+                  <FiAlertTriangle className="w-12 h-12 text-zinc-300 dark:text-zinc-600 mx-auto mb-4" />
+                  <p className="text-zinc-500 dark:text-zinc-400">No violation data. Sync with FMCSA first.</p>
+                </div>
+              ) : (
+                <>
+                  {/* Totals */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div className="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800 text-center">
+                      <p className="text-2xl font-bold text-zinc-900 dark:text-white">{inspectionSummary.totals.totalInspections}</p>
+                      <p className="text-sm text-zinc-500 dark:text-zinc-400">Total Inspections</p>
+                    </div>
+                    <div className="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800 text-center">
+                      <p className="text-2xl font-bold text-zinc-900 dark:text-white">{inspectionSummary.totals.totalViolations}</p>
+                      <p className="text-sm text-zinc-500 dark:text-zinc-400">Total Violations</p>
+                    </div>
+                    <div className="p-4 rounded-lg bg-red-50 dark:bg-red-500/10 text-center">
+                      <p className="text-2xl font-bold text-red-600 dark:text-red-400">{inspectionSummary.totals.vehicleOOSCount}</p>
+                      <p className="text-sm text-zinc-500 dark:text-zinc-400">Vehicle OOS</p>
+                    </div>
+                    <div className="p-4 rounded-lg bg-red-50 dark:bg-red-500/10 text-center">
+                      <p className="text-2xl font-bold text-red-600 dark:text-red-400">{inspectionSummary.totals.driverOOSCount}</p>
+                      <p className="text-sm text-zinc-500 dark:text-zinc-400">Driver OOS</p>
+                    </div>
+                  </div>
+
+                  {/* By BASIC */}
+                  <h4 className="font-semibold text-zinc-700 dark:text-zinc-300 mb-3">Violations by BASIC Category</h4>
+                  <div className="space-y-2">
+                    {inspectionSummary.byBasic?.map((item) => (
+                      <div key={item._id} className="flex items-center gap-4 p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800">
+                        <span className={`px-3 py-1 text-sm rounded ${getBasicColor(item._id)}`}>
+                          {getBasicLabel(item._id)}
+                        </span>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <div className="flex-1 h-2 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-accent-500 rounded-full"
+                                style={{ width: `${Math.min((item.count / (inspectionSummary.totals.totalViolations || 1)) * 100, 100)}%` }}
+                              />
+                            </div>
+                            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300 w-12 text-right">
+                              {item.count}
+                            </span>
+                          </div>
+                        </div>
+                        {item.oosCount > 0 && (
+                          <span className="px-2 py-0.5 text-xs rounded bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-400">
+                            {item.oosCount} OOS
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
       ) : activeTab === 'overview' ? (
         <>
       {/* BASICs Overview */}

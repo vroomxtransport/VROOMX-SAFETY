@@ -8,6 +8,7 @@ const { protect, restrictToCompany } = require('../middleware/auth');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const { getUsageStats } = require('../middleware/subscriptionLimits');
 const fmcsaSyncService = require('../services/fmcsaSyncService');
+const fmcsaViolationService = require('../services/fmcsaViolationService');
 const emailService = require('../services/emailService');
 const auditService = require('../services/auditService');
 
@@ -125,6 +126,11 @@ router.post('/register', [
         new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 10000))
       ]);
       console.log('[Registration] FMCSA sync completed for DOT:', company.dotNumber);
+
+      // Also sync violation/inspection history (fire-and-forget, non-blocking)
+      fmcsaViolationService.syncViolationHistory(company._id)
+        .then(result => console.log('[Registration] Violation sync:', result.message))
+        .catch(err => console.warn('[Registration] Violation sync incomplete:', err.message));
     } catch (err) {
       // Registration still succeeds even if FMCSA sync times out or fails
       console.warn('[Registration] FMCSA sync incomplete (will retry on next login):', err.message);

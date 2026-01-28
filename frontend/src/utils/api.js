@@ -283,6 +283,21 @@ export const csaAPI = {
   })
 };
 
+// FMCSA Inspection & Violation History API
+export const fmcsaAPI = {
+  // Get inspection history
+  getInspections: (params) => api.get('/fmcsa/inspections', { params }),
+  // Get violation summary by BASIC
+  getSummary: () => api.get('/fmcsa/inspections/summary'),
+  // Get sync status
+  getSyncStatus: () => api.get('/fmcsa/sync-status'),
+  // Trigger manual sync
+  syncViolations: (forceRefresh = false) => api.post('/fmcsa/sync-violations', { forceRefresh }),
+  // Public lookup (for registration)
+  lookup: (dotNumber) => api.get(`/fmcsa/lookup/${dotNumber}`),
+  verify: (dotNumber) => api.get(`/fmcsa/verify/${dotNumber}`)
+};
+
 // Inspections API - DOT Inspection Upload
 export const inspectionsAPI = {
   upload: (formData) => api.post('/inspections/upload', formData, {
