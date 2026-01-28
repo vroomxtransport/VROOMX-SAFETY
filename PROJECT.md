@@ -246,22 +246,66 @@ npm run dev  # Starts on port 5173
   - Maintenance mode with middleware, admin toggle, and auto-retry maintenance page
   - System health monitoring: DB status, uptime, memory, service status
 
+- **MVP Hardening (Tier 0+1)** — JWT 1h expiry, production env var validation, process error handlers, health check DB ping, driver/vehicle race condition fix, ErrorBoundary, 404 page, ConfirmDialog, Axios timeout, 45+ backend console.log removed
+- **Competitive Analysis** — Direct competitor deep dive (DOTDriverFiles, FleetDrive360, My Safety Manager, AvatarFleet) in roadmap.html
+
 ### In Progress
 - Marketing and user acquisition
 - Mobile responsiveness improvements
 - Authenticated file download endpoint (replaces static /uploads)
+- Secret rotation (MongoDB Atlas, OpenAI, Resend) — manual
+- Purge `.env` from git history — manual
 
-### Future
+### Future (Tier 2+)
+- Empty states for all list pages
+- Email preference enforcement (check opt-out before sending)
+- Database compound indexes (drivers, documents, users)
+- SEO meta tags (react-helmet-async, OG tags)
+- Accessibility improvements (ARIA labels, dialog roles)
+- Stripe webhook retry & dunning
+- Request ID logging
 - SMS alerts
 - Full Clearinghouse integration
-- Document OCR
-- Mobile app
+- ELD data import (Motive/Samsara API)
+- Mobile PWA
+- Safety training / LMS module
 - httpOnly cookie JWT storage (replaces localStorage)
 - Refresh token rotation
+- Sentry APM / error monitoring
 
 ---
 
 ## Changelog
+
+### 2026-01-28 (MVP Hardening — Tier 0+1 Deployment Fixes)
+- **Security:** Changed JWT expiry from 7d to 1h in `render.yaml`
+  - File: `render.yaml`
+- **Security:** Added production env var validation at startup — server exits with clear error if missing: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_SOLO_PRICE_ID`, `STRIPE_FLEET_PRICE_ID`, `STRIPE_PRO_PRICE_ID`, `RESEND_API_KEY`, `FRONTEND_URL`
+  - File: `backend/server.js`
+- **Security:** Added weak JWT_SECRET length warning (< 32 chars)
+  - File: `backend/server.js`
+- **Stability:** Added `process.on('uncaughtException')` handler — logs + exits in production
+- **Stability:** Updated `process.on('unhandledRejection')` — now exits in production (was log-only)
+  - File: `backend/server.js`
+- **Stability:** Health check (`/health`) now pings MongoDB and returns DB status; returns 503 if disconnected
+  - File: `backend/server.js`
+- **Fix:** Driver/vehicle creation race condition — wrapped in MongoDB transactions (`session.startTransaction` → `countDocuments` → `create` → `commit`) to prevent subscription limit bypass via concurrent requests
+  - Files: `backend/routes/drivers.js`, `backend/routes/vehicles.js`
+  - Added race condition warning comments to: `backend/middleware/subscriptionLimits.js`
+- **Cleanup:** Removed ~45 debug `console.log` statements from 9 backend files (sensitive data like webhook events, price IDs, user IDs, DOT sync data)
+  - Files: `stripeService.js` (13), `admin.js` (4), `fmcsaSyncService.js` (9), `fmcsaService.js` (12), `alertService.js` (2), `csaAlertService.js` (1), `emailService.js` (3), `dashboard.js` (1), `auth.js` (1)
+- **UX:** Created `ErrorBoundary.jsx` — React class component catching render errors with dark-themed fallback UI, "Try Again" and "Reload Page" buttons. Wrapped `<App />` in ErrorBoundary.
+  - Files: `frontend/src/components/ErrorBoundary.jsx` (new), `frontend/src/main.jsx`
+- **UX:** Created `NotFound.jsx` — 404 page with "Go Home" and "Go to Dashboard" links. Replaced catch-all redirect with proper 404 page.
+  - Files: `frontend/src/pages/NotFound.jsx` (new), `frontend/src/App.jsx`
+- **UX:** Created `ConfirmDialog.jsx` — reusable modal replacing browser `confirm()`. Supports danger/warning/info variants. Migrated Billing.jsx cancel subscription flow.
+  - Files: `frontend/src/components/ConfirmDialog.jsx` (new), `frontend/src/pages/Billing.jsx`
+- **Fix:** Added 15-second Axios request timeout to prevent indefinite hangs
+  - File: `frontend/src/utils/api.js`
+- **Docs:** Added dev-only comment to Vite proxy config
+  - File: `frontend/vite.config.js`
+- **Analysis:** Updated `roadmap.html` competitive landscape — replaced 16 broad competitors with 7 focused (VroomX + 4 direct competitors + Samsara/Motive/J.J. Keller for context). Added Direct Competitors Deep Dive section with DOTDriverFiles, FleetDrive360, My Safety Manager, AvatarFleet profiles. Updated feature matrix and gap analysis.
+  - File: `roadmap.html`
 
 ### 2026-01-27 (Maintenance AI Smart Upload Fix)
 - **Fix:** AI smart upload not extracting data from PDF invoices — maintenance form fields stayed empty after upload
