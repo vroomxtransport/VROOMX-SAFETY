@@ -589,7 +589,7 @@ const stripeService = {
           id: baseItem.id,
           price: newPriceId
         }],
-        proration_behavior: 'create_prorations'
+        proration_date: Math.floor(Date.now() / 1000)
       }
     });
 
