@@ -115,7 +115,7 @@ app.use('/api', globalLimiter);
 // Stricter rate limit for auth endpoints - keyed on IP + email so
 // blocking one email doesn't block login attempts for other accounts
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
+  windowMs: 30 * 1000,
   max: 15,
   standardHeaders: true,
   legacyHeaders: false,
