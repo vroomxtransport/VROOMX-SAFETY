@@ -3,10 +3,29 @@ import axios from 'axios';
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
   timeout: 15000,
-  withCredentials: true, // Send httpOnly cookies automatically
+  withCredentials: true, // Send httpOnly cookies as fallback
   headers: {
     'Content-Type': 'application/json'
   }
+});
+
+// In-memory token storage (primary auth mechanism)
+let authToken = null;
+
+export const setAuthToken = (token) => {
+  authToken = token;
+};
+
+export const clearAuthToken = () => {
+  authToken = null;
+};
+
+// Request interceptor — attach token to every request
+api.interceptors.request.use((config) => {
+  if (authToken) {
+    config.headers.Authorization = `Bearer ${authToken}`;
+  }
+  return config;
 });
 
 // Response interceptor

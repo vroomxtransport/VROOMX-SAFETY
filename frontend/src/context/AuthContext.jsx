@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import api, { companiesAPI } from '../utils/api';
+import api, { companiesAPI, setAuthToken, clearAuthToken } from '../utils/api';
 
 const AuthContext = createContext(null);
 
@@ -50,6 +50,7 @@ export const AuthProvider = ({ children }) => {
       });
     } catch (error) {
       // No session — just clear state (don't call logout API)
+      clearAuthToken();
       setUser(null);
       setCompanies([]);
       setActiveCompany(null);
@@ -61,8 +62,9 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password, companyId = null) => {
     const response = await api.post('/auth/login', { email, password, companyId });
-    const { user: userData } = response.data;
-    // Token is set as httpOnly cookie by the server — no localStorage needed
+    const { token, user: userData } = response.data;
+    // Store token in memory for Authorization header (works on all browsers/mobile)
+    if (token) setAuthToken(token);
 
     setUser(userData);
     setCompanies(userData.companies || []);
@@ -87,8 +89,9 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (data) => {
     const response = await api.post('/auth/register', data);
-    const { user: userData } = response.data;
-    // Token is set as httpOnly cookie by the server
+    const { token, user: userData } = response.data;
+    // Store token in memory for Authorization header
+    if (token) setAuthToken(token);
 
     setUser(userData);
     setCompanies(userData.companies || []);
@@ -110,6 +113,7 @@ export const AuthProvider = ({ children }) => {
     } catch {
       // Ignore errors — still clear local state
     }
+    clearAuthToken();
     setUser(null);
     setCompanies([]);
     setActiveCompany(null);
