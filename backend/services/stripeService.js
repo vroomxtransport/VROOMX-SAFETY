@@ -600,6 +600,17 @@ const stripeService = {
     let credit = 0;          // Unused time on old plan (negative line = credit)
     let prorationCharge = 0; // Remaining time on new plan (positive line)
 
+    // Debug: log all line items to understand structure
+    console.log('[previewUpgrade] Invoice lines:', JSON.stringify(
+      (preview.lines?.data || []).map(l => ({
+        amount: l.amount,
+        proration: l.proration,
+        type: l.type,
+        description: l.description
+      }))
+    ));
+    console.log('[previewUpgrade] amount_due:', preview.amount_due, 'subtotal:', preview.subtotal, 'total:', preview.total);
+
     if (preview.lines && preview.lines.data) {
       for (const line of preview.lines.data) {
         if (line.proration) {
@@ -613,7 +624,15 @@ const stripeService = {
     }
 
     // Net immediate charge = new plan prorated minus credit for unused old plan
-    const immediateCharge = Math.max(0, prorationCharge - credit) / 100;
+    // If no proration lines found, fall back to subtotal minus next cycle amount
+    let immediateCharge;
+    if (prorationCharge === 0 && credit === 0) {
+      // Fallback: subtract the full new plan price from the total
+      const nextCycleCents = (PLAN_PRICES[newPlan] || 0) * 100;
+      immediateCharge = Math.max(0, (preview.total || 0) - nextCycleCents) / 100;
+    } else {
+      immediateCharge = Math.max(0, prorationCharge - credit) / 100;
+    }
 
     // Safely handle period end
     let periodEnd = null;
