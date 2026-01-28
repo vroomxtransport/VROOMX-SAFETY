@@ -248,8 +248,6 @@ const fmcsaService = {
    */
   async getBrowser() {
     if (!browserInstance || !browserInstance.isConnected()) {
-      console.log('[FMCSA] Launching Puppeteer browser...');
-
       // Check if we're in a cloud environment (Render sets RENDER=true)
       // Also check for common cloud indicators
       const isCloud = process.env.RENDER === 'true' ||
@@ -274,15 +272,10 @@ const fmcsaService = {
           '--disable-dev-shm-usage',
           '--disable-gpu'
         ];
-        console.log('[FMCSA] Using local Chrome:', executablePath);
       } else {
         // Cloud environment - use @sparticuz/chromium (includes bundled binary)
-        console.log('[FMCSA] Cloud environment detected, using bundled Chromium...');
-        console.log('[FMCSA] Environment: RENDER=' + process.env.RENDER + ', NODE_ENV=' + process.env.NODE_ENV);
-
         try {
           executablePath = await chromium.executablePath();
-          console.log('[FMCSA] Chromium path:', executablePath);
         } catch (pathError) {
           console.error('[FMCSA] Failed to get Chromium path:', pathError.message);
           throw new Error('Chromium path error: ' + pathError.message);
@@ -305,7 +298,6 @@ const fmcsaService = {
           headless: chromium.headless ?? true,
           ignoreHTTPSErrors: process.env.NODE_ENV === 'development'
         });
-        console.log('[FMCSA] Browser launched successfully');
       } catch (launchError) {
         console.error('[FMCSA] Browser launch failed:', launchError.message);
         throw new Error('Browser launch failed: ' + launchError.message);
@@ -333,12 +325,8 @@ const fmcsaService = {
     ];
 
     try {
-      console.log(`[FMCSA] Fetching CSA scores for DOT ${dotNumber} via Puppeteer...`);
-
       browser = await this.getBrowser();
-      console.log('[FMCSA] Got browser instance, creating new page...');
       page = await browser.newPage();
-      console.log('[FMCSA] New page created successfully');
 
       // Set viewport and user agent
       await page.setViewport({ width: 1920, height: 1080 });
@@ -419,15 +407,12 @@ const fmcsaService = {
 
           if (percentile !== null) {
             basics[basic.key] = percentile;
-            console.log(`[FMCSA] ${basic.key}: ${percentile}%`);
           }
 
         } catch (err) {
-          console.log(`[FMCSA] Could not fetch ${basic.key}: ${err.message}`);
+          // Could not fetch this BASIC score
         }
       }
-
-      console.log(`[FMCSA] CSA scores extracted:`, JSON.stringify(basics));
 
       return { basics, inspections, crashes };
 
@@ -480,11 +465,8 @@ const fmcsaService = {
     const cacheKey = `fmcsa:${dotNumber}`;
     const cached = cache.get(cacheKey);
     if (cached) {
-      console.log(`[FMCSA] Cache hit for DOT ${dotNumber}`);
       return { ...cached, fromCache: true };
     }
-
-    console.log(`[FMCSA] Fetching real data for DOT ${dotNumber}`);
 
     try {
       // Fetch carrier snapshot and CSA scores in parallel

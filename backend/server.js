@@ -21,6 +21,20 @@ if (missingEnvVars.length > 0) {
   process.exit(1);
 }
 
+// In production, also validate service-specific env vars
+if (process.env.NODE_ENV === 'production') {
+  const productionEnvVars = [
+    'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET',
+    'STRIPE_SOLO_PRICE_ID', 'STRIPE_FLEET_PRICE_ID', 'STRIPE_PRO_PRICE_ID',
+    'RESEND_API_KEY', 'FRONTEND_URL'
+  ];
+  const missingProdVars = productionEnvVars.filter(v => !process.env[v]);
+  if (missingProdVars.length > 0) {
+    console.error(`FATAL: Missing production environment variables: ${missingProdVars.join(', ')}`);
+    process.exit(1);
+  }
+}
+
 // Warn about weak JWT secret
 if (process.env.JWT_SECRET && process.env.JWT_SECRET.length < 32) {
   console.warn('WARNING: JWT_SECRET is too short. Use at least 32 characters for production.');
@@ -133,13 +147,31 @@ if (process.env.NODE_ENV === 'development') {
 // SECURITY: Removed express.static for /uploads to prevent unauthorized access
 // Files are now served through /api/documents/:id/download with auth checks
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV
-  });
+// Health check endpoint with database connectivity check
+const mongoose = require('mongoose');
+app.get('/health', async (req, res) => {
+  try {
+    const dbState = mongoose.connection.readyState;
+    const dbStatus = dbState === 1 ? 'connected' : dbState === 2 ? 'connecting' : 'disconnected';
+    if (dbState === 1) {
+      await mongoose.connection.db.admin().ping();
+    }
+    const status = dbState === 1 ? 'healthy' : 'degraded';
+    res.status(dbState === 1 ? 200 : 503).json({
+      status,
+      database: dbStatus,
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV,
+      uptime: Math.floor(process.uptime())
+    });
+  } catch (err) {
+    res.status(503).json({
+      status: 'unhealthy',
+      database: 'error',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV
+    });
+  }
 });
 
 // Maintenance mode check (before API routes)
@@ -220,11 +252,20 @@ app.listen(PORT, () => {
   console.log('[Cron] Scheduled: Daily alerts at 6 AM, Alert digest emails, Escalation check every 6 hours, Trial ending check at 9 AM');
 });
 
-// Handle unhandled promise rejections
+// Handle uncaught exceptions — log and exit so process manager can restart
+process.on('uncaughtException', (err) => {
+  console.error('FATAL: Uncaught Exception:', err);
+  if (process.env.NODE_ENV === 'production') {
+    process.exit(1);
+  }
+});
+
+// Handle unhandled promise rejections — log and exit in production
 process.on('unhandledRejection', (err) => {
-  console.error('Unhandled Rejection:', err);
-  // In production, you might want to exit and let the process manager restart
-  // process.exit(1);
+  console.error('FATAL: Unhandled Rejection:', err);
+  if (process.env.NODE_ENV === 'production') {
+    process.exit(1);
+  }
 });
 
 module.exports = app;

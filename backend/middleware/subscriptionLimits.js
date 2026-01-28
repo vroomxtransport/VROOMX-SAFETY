@@ -39,6 +39,12 @@ const checkCompanyLimit = async (req, res, next) => {
 
 // Check if user can create another driver in the active company
 // For Fleet and Pro plans, allow unlimited drivers but track for billing
+//
+// RACE CONDITION NOTE: There is a potential race condition between this middleware check
+// and the actual driver/vehicle creation in the route handler. Two concurrent requests
+// could both pass the limit check before either creates a record, resulting in exceeding
+// the limit by one. For plans with hard limits (solo, free_trial), the route handlers
+// use MongoDB transactions to re-check the count atomically before creating the record.
 const checkDriverLimit = async (req, res, next) => {
   try {
     const user = req.user;
@@ -133,6 +139,9 @@ const reportDriverUsage = async (req, res, next) => {
 };
 
 // Check if user can create another vehicle in the active company
+//
+// RACE CONDITION NOTE: Same as checkDriverLimit above. See route handlers for
+// the transaction-based re-check that prevents exceeding hard limits.
 const checkVehicleLimit = async (req, res, next) => {
   try {
     const user = req.user;

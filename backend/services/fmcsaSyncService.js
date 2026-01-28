@@ -30,18 +30,14 @@ const fmcsaSyncService = {
     try {
       const company = await Company.findById(companyId);
       if (!company || !company.dotNumber) {
-        console.log('[FMCSA Sync] No DOT number for company:', companyId);
         return null;
       }
 
       // Check if data is fresh (less than 6 hours old)
       const lastSync = company.smsBasics?.lastUpdated;
       if (lastSync && (Date.now() - new Date(lastSync).getTime()) < CACHE_DURATION) {
-        console.log('[FMCSA Sync] Data is fresh, skipping sync for DOT:', company.dotNumber);
         return company.smsBasics;
       }
-
-      console.log(`[FMCSA Sync] Fetching data for DOT ${company.dotNumber}...`);
 
       // Use existing fmcsaService to fetch real data
       const fmcsaData = await fmcsaService.fetchCarrierData(company.dotNumber);
@@ -50,8 +46,6 @@ const fmcsaSyncService = {
         console.error('[FMCSA Sync] Failed to fetch:', fmcsaData.error);
         return null;
       }
-
-      console.log('[FMCSA Sync] Data fetched successfully:', JSON.stringify(fmcsaData.basics, null, 2));
 
       // Build the update object
       const updateData = {
@@ -107,8 +101,6 @@ const fmcsaSyncService = {
         updateData,
         { new: true }
       );
-
-      console.log(`[FMCSA Sync] Successfully updated company ${company.dotNumber} with FMCSA data`);
 
       // Record history snapshot for trend tracking
       await this.recordHistory(
@@ -227,8 +219,6 @@ const fmcsaSyncService = {
       }
 
       await historyRecord.save();
-      console.log(`[FMCSA Sync] History recorded for DOT ${dotNumber}`);
-
       return historyRecord;
     } catch (error) {
       console.error('[FMCSA Sync] Failed to record history:', error.message);
@@ -249,7 +239,6 @@ const fmcsaSyncService = {
       const user = await User.findById(userId);
 
       if (!user) {
-        console.log('[FMCSA Sync] User not found:', userId);
         return null;
       }
 
@@ -278,7 +267,6 @@ const fmcsaSyncService = {
     try {
       const company = await Company.findById(companyId);
       if (!company?.dotNumber) {
-        console.log('[FMCSA Sync] No DOT number for force refresh');
         return null;
       }
 
@@ -291,8 +279,6 @@ const fmcsaSyncService = {
       await Company.findByIdAndUpdate(companyId, {
         'smsBasics.lastUpdated': null
       });
-
-      console.log(`[FMCSA Sync] Force refresh initiated for DOT ${company.dotNumber}`);
 
       return await this.syncCompanyData(companyId);
     } catch (error) {

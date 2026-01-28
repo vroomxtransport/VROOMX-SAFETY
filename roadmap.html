@@ -1,0 +1,2510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VroomX Safety | Strategic Analysis Dashboard</title>
+<style>
+  :root {
+    --bg-deep: #060b18;
+    --bg-base: #0c1222;
+    --bg-card: #131c32;
+    --bg-card-hover: #182240;
+    --bg-sidebar: #090e1c;
+    --border: #1e2d4a;
+    --border-glow: #f9731640;
+    --text-primary: #e8ecf4;
+    --text-secondary: #8a96b0;
+    --text-muted: #5b6782;
+    --accent-orange: #f97316;
+    --accent-orange-dim: #f9731630;
+    --accent-blue: #3b82f6;
+    --accent-blue-dim: #3b82f620;
+    --accent-green: #22c55e;
+    --accent-green-dim: #22c55e20;
+    --accent-red: #ef4444;
+    --accent-red-dim: #ef444420;
+    --accent-purple: #a855f7;
+    --accent-purple-dim: #a855f720;
+    --accent-yellow: #eab308;
+    --accent-yellow-dim: #eab30820;
+    --sidebar-w: 260px;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) var(--bg-deep);
+  }
+
+  body {
+    font-family: 'SF Pro Display', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* === NOISE TEXTURE OVERLAY === */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* === SIDEBAR === */
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: var(--sidebar-w);
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .sidebar-brand {
+    padding: 28px 24px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-brand h1 {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--accent-orange);
+  }
+
+  .sidebar-brand p {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  .sidebar-nav {
+    padding: 16px 12px;
+    flex: 1;
+  }
+
+  .sidebar-nav a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: var(--radius-sm);
+    transition: all 0.2s ease;
+    margin-bottom: 2px;
+    position: relative;
+  }
+
+  .sidebar-nav a:hover {
+    color: var(--text-primary);
+    background: var(--bg-card);
+  }
+
+  .sidebar-nav a.active {
+    color: var(--accent-orange);
+    background: var(--accent-orange-dim);
+  }
+
+  .sidebar-nav a.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 20px;
+    background: var(--accent-orange);
+    border-radius: 0 3px 3px 0;
+  }
+
+  .nav-icon {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    opacity: 0.8;
+  }
+
+  .sidebar-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .sidebar-footer span {
+    color: var(--accent-orange);
+    font-weight: 600;
+  }
+
+  /* === MAIN === */
+  .main {
+    margin-left: var(--sidebar-w);
+    min-height: 100vh;
+  }
+
+  section {
+    padding: 60px 48px;
+    border-bottom: 1px solid var(--border);
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  section.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent-orange);
+    margin-bottom: 8px;
+  }
+
+  .section-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+  }
+
+  .section-subtitle {
+    font-size: 15px;
+    color: var(--text-secondary);
+    margin-bottom: 40px;
+    max-width: 600px;
+  }
+
+  /* === HERO === */
+  .hero {
+    padding: 80px 48px 60px;
+    background: linear-gradient(180deg, #0f172a 0%, var(--bg-deep) 100%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -200px;
+    right: -100px;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, var(--accent-orange-dim) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -150px;
+    left: -50px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, var(--accent-blue-dim) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--accent-orange);
+    background: var(--accent-orange-dim);
+    border: 1px solid var(--accent-orange);
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-size: 42px;
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    line-height: 1.15;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-orange) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-sub {
+    font-size: 17px;
+    color: var(--text-secondary);
+    max-width: 560px;
+    margin-bottom: 48px;
+    line-height: 1.7;
+  }
+
+  /* Stat Cards */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 48px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent-orange);
+  }
+
+  .stat-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+  }
+
+  .stat-card:nth-child(1)::after { background: var(--accent-blue); }
+  .stat-card:nth-child(2)::after { background: var(--accent-orange); }
+  .stat-card:nth-child(3)::after { background: var(--accent-green); }
+  .stat-card:nth-child(4)::after { background: var(--accent-purple); }
+
+  .stat-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .stat-value {
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stat-card:nth-child(1) .stat-value { color: var(--accent-blue); }
+  .stat-card:nth-child(2) .stat-value { color: var(--accent-orange); }
+  .stat-card:nth-child(3) .stat-value { color: var(--accent-green); }
+  .stat-card:nth-child(4) .stat-value { color: var(--accent-purple); }
+
+  .stat-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  /* Key Findings */
+  .findings-grid {
+    display: grid;
+    gap: 12px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .finding-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 22px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    transition: transform 0.2s ease;
+  }
+
+  .finding-card:hover { transform: translateX(4px); }
+
+  .finding-num {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 800;
+  }
+
+  .finding-card:nth-child(1) .finding-num { background: var(--accent-green-dim); color: var(--accent-green); }
+  .finding-card:nth-child(2) .finding-num { background: var(--accent-blue-dim); color: var(--accent-blue); }
+  .finding-card:nth-child(3) .finding-num { background: var(--accent-orange-dim); color: var(--accent-orange); }
+  .finding-card:nth-child(4) .finding-num { background: var(--accent-purple-dim); color: var(--accent-purple); }
+  .finding-card:nth-child(5) .finding-num { background: var(--accent-red-dim); color: var(--accent-red); }
+
+  .finding-text strong { color: var(--text-primary); }
+  .finding-text { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+
+  /* === QUADRANT MAP === */
+  .quadrant-wrap {
+    max-width: 720px;
+    margin: 0 auto 48px;
+  }
+
+  .quadrant {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1.4 / 1;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .quadrant-axis-x, .quadrant-axis-y {
+    position: absolute;
+    background: var(--border);
+  }
+
+  .quadrant-axis-x {
+    left: 10%;
+    right: 10%;
+    top: 50%;
+    height: 1px;
+  }
+
+  .quadrant-axis-y {
+    top: 8%;
+    bottom: 8%;
+    left: 50%;
+    width: 1px;
+  }
+
+  .quadrant-label {
+    position: absolute;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .ql-top { top: 12px; left: 50%; transform: translateX(-50%); }
+  .ql-bottom { bottom: 12px; left: 50%; transform: translateX(-50%); }
+  .ql-left { left: 16px; top: 50%; transform: translateY(-50%) rotate(-90deg); white-space: nowrap; }
+  .ql-right { right: 16px; top: 50%; transform: translateY(-50%) rotate(90deg); white-space: nowrap; }
+
+  .q-dot {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    transition: transform 0.3s ease;
+    cursor: default;
+  }
+
+  .q-dot:hover { transform: translate(-50%, -50%) scale(1.15); z-index: 5; }
+
+  .q-dot-circle {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    margin: 0 auto 5px;
+    border: 2px solid;
+  }
+
+  .q-dot-label {
+    font-size: 10px;
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--text-secondary);
+    line-height: 1.2;
+  }
+
+  .q-dot-label small {
+    display: block;
+    font-weight: 400;
+    font-size: 9px;
+    color: var(--text-muted);
+  }
+
+  .q-dot.vroomx .q-dot-circle {
+    width: 20px;
+    height: 20px;
+    background: var(--accent-orange);
+    border-color: var(--accent-orange);
+    box-shadow: 0 0 20px var(--accent-orange), 0 0 40px var(--accent-orange-dim);
+    animation: pulse-glow 2s infinite;
+  }
+
+  .q-dot.vroomx .q-dot-label {
+    color: var(--accent-orange);
+    font-weight: 700;
+    font-size: 11px;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 16px var(--accent-orange), 0 0 32px var(--accent-orange-dim); }
+    50% { box-shadow: 0 0 24px var(--accent-orange), 0 0 48px var(--accent-orange-dim); }
+  }
+
+  /* Tier Cards */
+  .tier-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .tier-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    transition: border-color 0.3s ease;
+  }
+
+  .tier-card:hover { border-color: var(--text-muted); }
+
+  .tier-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 4px;
+    margin-bottom: 14px;
+  }
+
+  .tier-1 .tier-badge { background: var(--accent-red-dim); color: var(--accent-red); }
+  .tier-2 .tier-badge { background: var(--accent-purple-dim); color: var(--accent-purple); }
+  .tier-3 .tier-badge { background: var(--accent-green-dim); color: var(--accent-green); }
+
+  /* Competitor Profile Cards */
+  .comp-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 32px; }
+  .comp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; transition: border-color 0.3s; }
+  .comp-card:hover { border-color: var(--accent-purple); }
+  .comp-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+  .comp-card-header h4 { font-size: 18px; font-weight: 700; color: var(--text-primary); }
+  .comp-card-header small { font-size: 12px; color: var(--text-muted); display: block; margin-top: 2px; }
+  .comp-price-tag { background: var(--accent-purple-dim); color: var(--accent-purple); padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+  .comp-tagline { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; font-style: italic; }
+  .comp-features { list-style: none; margin-bottom: 16px; }
+  .comp-features li { font-size: 13px; color: var(--text-secondary); padding: 3px 0; }
+  .comp-features li::before { content: "•"; color: var(--accent-purple); margin-right: 8px; }
+  .comp-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .comp-badge-green { background: var(--accent-green-dim); color: var(--accent-green); padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+  .comp-badge-red { background: var(--accent-red-dim); color: var(--accent-red); padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+  .comp-vroomx-edge { background: var(--accent-orange-dim); border: 1px solid var(--border-glow); border-radius: var(--radius-sm); padding: 12px 16px; margin-top: 14px; }
+  .comp-vroomx-edge strong { color: var(--accent-orange); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .comp-vroomx-edge p { color: var(--text-secondary); font-size: 13px; margin-top: 4px; }
+  .comp-positioning { background: linear-gradient(135deg, var(--accent-orange-dim), var(--accent-purple-dim)); border: 1px solid var(--border-glow); border-radius: var(--radius); padding: 28px; text-align: center; margin-top: 32px; }
+  .comp-positioning blockquote { font-size: 16px; font-weight: 600; color: var(--text-primary); line-height: 1.6; margin: 0; border: none; padding: 0; }
+
+  .tier-card h4 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+
+  .tier-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .tier-item:last-child { border-bottom: none; }
+  .tier-item-name { color: var(--text-primary); font-weight: 500; }
+  .tier-item-stat { color: var(--text-muted); font-size: 12px; }
+
+  /* === FEATURE MATRIX === */
+  .matrix-wrap {
+    overflow-x: auto;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+  }
+
+  .matrix-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    min-width: 800px;
+  }
+
+  .matrix-table thead th {
+    position: sticky;
+    top: 0;
+    background: #0d1526;
+    padding: 14px 16px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    border-bottom: 2px solid var(--border);
+    z-index: 2;
+  }
+
+  .matrix-table thead th:first-child {
+    text-align: left;
+    min-width: 180px;
+  }
+
+  .matrix-table thead th.highlight {
+    color: var(--accent-orange);
+    background: #1a1408;
+    border-bottom-color: var(--accent-orange);
+  }
+
+  .matrix-table tbody tr {
+    transition: background 0.15s ease;
+  }
+
+  .matrix-table tbody tr:hover { background: var(--bg-card-hover); }
+
+  .matrix-table td {
+    padding: 10px 16px;
+    text-align: center;
+    border-bottom: 1px solid #111b30;
+  }
+
+  .matrix-table td:first-child {
+    text-align: left;
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .matrix-table td.highlight {
+    background: #1a140808;
+  }
+
+  .matrix-table .cat-header td {
+    background: var(--bg-deep);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--accent-orange);
+    padding: 12px 16px;
+  }
+
+  .dot-full, .dot-partial, .dot-none {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  .dot-full { background: var(--accent-green); box-shadow: 0 0 6px var(--accent-green-dim); }
+  .dot-partial { background: var(--accent-yellow); box-shadow: 0 0 6px var(--accent-yellow-dim); }
+  .dot-none { background: var(--accent-red); opacity: 0.5; }
+
+  .matrix-legend {
+    display: flex;
+    gap: 24px;
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: var(--bg-card);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  /* === TAM/SAM/SOM CIRCLES === */
+  .tam-visual {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 0;
+  }
+
+  .concentric {
+    position: relative;
+    width: 400px;
+    height: 400px;
+  }
+
+  .c-ring {
+    position: absolute;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    transition: transform 0.3s ease;
+  }
+
+  .c-ring:hover { transform: scale(1.02); }
+
+  .c-tam {
+    inset: 0;
+    background: radial-gradient(circle, transparent 55%, var(--accent-blue-dim) 100%);
+    border: 2px solid var(--accent-blue);
+  }
+
+  .c-sam {
+    inset: 60px;
+    background: radial-gradient(circle, transparent 45%, var(--accent-orange-dim) 100%);
+    border: 2px solid var(--accent-orange);
+  }
+
+  .c-som {
+    inset: 130px;
+    background: radial-gradient(circle, transparent 20%, var(--accent-green-dim) 100%);
+    border: 2px solid var(--accent-green);
+  }
+
+  .c-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  .c-tam .c-label { color: var(--accent-blue); position: absolute; top: 16px; }
+  .c-sam .c-label { color: var(--accent-orange); position: absolute; top: 12px; }
+  .c-som .c-label { color: var(--accent-green); }
+
+  .c-value {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-top: 2px;
+  }
+
+  .c-tam .c-value { color: var(--accent-blue); position: absolute; top: 32px; }
+  .c-sam .c-value { color: var(--accent-orange); position: absolute; top: 28px; }
+  .c-som .c-value { color: var(--accent-green); font-size: 18px; }
+
+  .c-desc {
+    font-size: 10px;
+    color: var(--text-muted);
+    max-width: 80px;
+  }
+
+  /* Segment bars */
+  .seg-bars {
+    display: grid;
+    gap: 14px;
+    margin: 40px 0;
+  }
+
+  .seg-row {
+    display: grid;
+    grid-template-columns: 160px 1fr 100px;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .seg-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    text-align: right;
+  }
+
+  .seg-bar-track {
+    height: 28px;
+    background: var(--bg-card);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .seg-bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    padding-left: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    color: white;
+  }
+
+  .seg-bar-fill.zero { width: 0 !important; }
+
+  .seg-badge {
+    font-size: 11px;
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+
+  .badge-highest { background: var(--accent-green-dim); color: var(--accent-green); }
+  .badge-high { background: var(--accent-blue-dim); color: var(--accent-blue); }
+  .badge-medium { background: var(--accent-yellow-dim); color: var(--accent-yellow); }
+  .badge-low { background: var(--accent-red-dim); color: var(--accent-red); }
+
+  /* Winds */
+  .winds-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .wind-col {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+  }
+
+  .wind-col h4 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .wind-col.tailwinds h4 { color: var(--accent-green); }
+  .wind-col.headwinds h4 { color: var(--accent-red); }
+
+  .wind-item {
+    font-size: 13px;
+    color: var(--text-secondary);
+    padding: 6px 0 6px 20px;
+    position: relative;
+    line-height: 1.5;
+  }
+
+  .wind-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 13px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  .tailwinds .wind-item::before { background: var(--accent-green); opacity: 0.5; }
+  .headwinds .wind-item::before { background: var(--accent-red); opacity: 0.5; }
+
+  /* === GAP ANALYSIS === */
+  .gap-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 48px;
+  }
+
+  .gap-col {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+  }
+
+  .gap-col h4 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid;
+  }
+
+  .gap-col.behind h4 { color: var(--accent-red); border-color: var(--accent-red); }
+  .gap-col.ahead h4 { color: var(--accent-green); border-color: var(--accent-green); }
+
+  .gap-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .gap-item:last-child { border-bottom: none; }
+  .gap-item-name { color: var(--text-primary); font-weight: 500; }
+
+  .importance-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  .imp-critical { background: var(--accent-red-dim); color: var(--accent-red); }
+  .imp-high { background: var(--accent-orange-dim); color: var(--accent-orange); }
+  .imp-medium { background: var(--accent-yellow-dim); color: var(--accent-yellow); }
+  .imp-low { background: var(--accent-blue-dim); color: var(--accent-blue); }
+  .imp-built { background: var(--accent-green-dim); color: var(--accent-green); }
+  .imp-partial { background: var(--accent-purple-dim); color: var(--accent-purple); }
+
+  /* Feature recs table */
+  .recs-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .recs-table thead th {
+    background: var(--bg-card);
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--text-secondary);
+    border-bottom: 2px solid var(--border);
+  }
+
+  .recs-table tbody td {
+    padding: 10px 16px;
+    border-bottom: 1px solid #111b30;
+    color: var(--text-secondary);
+  }
+
+  .recs-table tbody tr:hover { background: var(--bg-card-hover); }
+
+  .recs-table .feat-name {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  .complexity-badge, .priority-badge, .phase-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+
+  .cx-low { background: var(--accent-green-dim); color: var(--accent-green); }
+  .cx-med { background: var(--accent-yellow-dim); color: var(--accent-yellow); }
+  .cx-high { background: var(--accent-red-dim); color: var(--accent-red); }
+
+  .pr-must { background: var(--accent-red-dim); color: var(--accent-red); }
+  .pr-should { background: var(--accent-orange-dim); color: var(--accent-orange); }
+  .pr-nice { background: var(--accent-blue-dim); color: var(--accent-blue); }
+
+  .ph-1 { background: var(--accent-blue-dim); color: var(--accent-blue); }
+  .ph-2 { background: var(--accent-green-dim); color: var(--accent-green); }
+  .ph-3 { background: var(--accent-orange-dim); color: var(--accent-orange); }
+  .ph-4 { background: var(--accent-purple-dim); color: var(--accent-purple); }
+
+  /* === REVENUE CHART === */
+  .revenue-chart {
+    display: flex;
+    gap: 32px;
+    align-items: flex-end;
+    height: 320px;
+    padding: 20px 0 0;
+    margin-bottom: 16px;
+  }
+
+  .rev-year-group {
+    flex: 1;
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    height: 100%;
+    position: relative;
+  }
+
+  .rev-year-label {
+    position: absolute;
+    bottom: -28px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .rev-bar-wrap {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+  }
+
+  .rev-bar {
+    width: 100%;
+    max-width: 60px;
+    border-radius: 6px 6px 0 0;
+    transition: height 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 8px;
+  }
+
+  .rev-bar-value {
+    font-size: 11px;
+    font-weight: 700;
+    color: white;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    white-space: nowrap;
+  }
+
+  .rev-bar.conservative { background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%); }
+  .rev-bar.moderate { background: linear-gradient(180deg, #f97316 0%, #c2410c 100%); }
+  .rev-bar.optimistic { background: linear-gradient(180deg, #22c55e 0%, #15803d 100%); }
+
+  .rev-legend {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    padding: 16px 0 32px;
+  }
+
+  .rev-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .rev-legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+  }
+
+  .assumptions-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent-orange);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  .assumption-item {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .assumption-item strong { color: var(--text-primary); }
+
+  .breakeven-box {
+    background: var(--accent-green-dim);
+    border: 1px solid var(--accent-green);
+    border-radius: var(--radius);
+    padding: 16px 24px;
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent-green);
+  }
+
+  /* === ROADMAP TIMELINE === */
+  .timeline {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    position: relative;
+    margin-bottom: 40px;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    top: 32px;
+    left: 12.5%;
+    right: 12.5%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent-blue), var(--accent-green), var(--accent-orange), var(--accent-purple));
+    border-radius: 3px;
+    z-index: 0;
+  }
+
+  .phase-card {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 0 12px;
+  }
+
+  .phase-dot {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    margin: 20px auto 20px;
+    border: 3px solid;
+    background: var(--bg-deep);
+    position: relative;
+    z-index: 2;
+  }
+
+  .phase-card:nth-child(1) .phase-dot { border-color: var(--accent-blue); box-shadow: 0 0 12px var(--accent-blue-dim); }
+  .phase-card:nth-child(2) .phase-dot { border-color: var(--accent-green); box-shadow: 0 0 12px var(--accent-green-dim); }
+  .phase-card:nth-child(3) .phase-dot { border-color: var(--accent-orange); box-shadow: 0 0 12px var(--accent-orange-dim); }
+  .phase-card:nth-child(4) .phase-dot { border-color: var(--accent-purple); box-shadow: 0 0 12px var(--accent-purple-dim); }
+
+  .phase-body {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 16px;
+    text-align: left;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+  }
+
+  .phase-card:hover .phase-body { transform: translateY(-4px); }
+  .phase-card:nth-child(1):hover .phase-body { border-color: var(--accent-blue); }
+  .phase-card:nth-child(2):hover .phase-body { border-color: var(--accent-green); }
+  .phase-card:nth-child(3):hover .phase-body { border-color: var(--accent-orange); }
+  .phase-card:nth-child(4):hover .phase-body { border-color: var(--accent-purple); }
+
+  .phase-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .phase-card:nth-child(1) .phase-label { color: var(--accent-blue); }
+  .phase-card:nth-child(2) .phase-label { color: var(--accent-green); }
+  .phase-card:nth-child(3) .phase-label { color: var(--accent-orange); }
+  .phase-card:nth-child(4) .phase-label { color: var(--accent-purple); }
+
+  .phase-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+  }
+
+  .phase-tasks {
+    list-style: none;
+  }
+
+  .phase-tasks li {
+    font-size: 12px;
+    color: var(--text-secondary);
+    padding: 3px 0 3px 16px;
+    position: relative;
+  }
+
+  .phase-tasks li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 9px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--border);
+  }
+
+  .phase-metric {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .phase-card:nth-child(1) .phase-metric { color: var(--accent-blue); }
+  .phase-card:nth-child(2) .phase-metric { color: var(--accent-green); }
+  .phase-card:nth-child(3) .phase-metric { color: var(--accent-orange); }
+  .phase-card:nth-child(4) .phase-metric { color: var(--accent-purple); }
+
+  /* === STRATEGY === */
+  .position-quote {
+    background: linear-gradient(135deg, var(--accent-orange-dim) 0%, transparent 60%);
+    border: 1px solid var(--accent-orange);
+    border-radius: var(--radius);
+    padding: 32px 36px;
+    margin-bottom: 40px;
+    position: relative;
+  }
+
+  .position-quote::before {
+    content: '\201C';
+    position: absolute;
+    top: -12px;
+    left: 20px;
+    font-size: 72px;
+    color: var(--accent-orange);
+    opacity: 0.3;
+    line-height: 1;
+    font-family: Georgia, serif;
+  }
+
+  .position-quote p {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.7;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* GTM Channels */
+  .gtm-list {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 40px;
+  }
+
+  .gtm-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 20px;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+
+  .gtm-item:hover {
+    transform: translateX(4px);
+    border-color: var(--accent-orange);
+  }
+
+  .gtm-rank {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--accent-orange-dim);
+    color: var(--accent-orange);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  .gtm-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .gtm-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* Pricing */
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  .price-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    text-align: center;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+  }
+
+  .price-card:hover { transform: translateY(-4px); }
+  .price-card.recommended { border-color: var(--accent-orange); }
+
+  .price-card.recommended::after {
+    content: 'MOST POPULAR';
+    display: block;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--accent-orange);
+    margin-bottom: 8px;
+  }
+
+  .price-plan {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+  }
+
+  .price-amount {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -1px;
+  }
+
+  .price-amount span {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+
+  .price-detail {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin: 8px 0 14px;
+  }
+
+  .price-rec {
+    font-size: 11px;
+    color: var(--accent-orange);
+    font-weight: 500;
+    padding: 6px 10px;
+    background: var(--accent-orange-dim);
+    border-radius: var(--radius-sm);
+    line-height: 1.4;
+  }
+
+  /* Decisions Grid */
+  .decisions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .decision-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+    transition: border-color 0.3s ease;
+  }
+
+  .decision-card:hover { border-color: var(--accent-green); }
+
+  .decision-q {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .decision-a {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent-green);
+    margin-bottom: 8px;
+  }
+
+  .decision-why {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  /* === MARKETPLACE === */
+  .mp-hero {
+    background: linear-gradient(135deg, var(--accent-orange-dim) 0%, var(--accent-purple-dim) 100%);
+    border: 1px solid var(--accent-orange);
+    border-radius: var(--radius);
+    padding: 32px;
+    margin-bottom: 40px;
+    display: flex;
+    gap: 32px;
+    align-items: center;
+  }
+
+  .mp-hero-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 16px;
+    background: var(--accent-orange);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    flex-shrink: 0;
+    box-shadow: 0 0 24px var(--accent-orange-dim);
+  }
+
+  .mp-hero-text h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+  }
+
+  .mp-hero-text p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .mp-flow {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  .mp-flow-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    text-align: center;
+    position: relative;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+  }
+
+  .mp-flow-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent-orange);
+  }
+
+  .mp-flow-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+
+  .mp-flow-card:nth-child(1)::after { background: var(--accent-blue); }
+  .mp-flow-card:nth-child(2)::after { background: var(--accent-orange); }
+  .mp-flow-card:nth-child(3)::after { background: var(--accent-green); }
+
+  .mp-flow-num {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 800;
+    margin: 0 auto 14px;
+  }
+
+  .mp-flow-card:nth-child(1) .mp-flow-num { background: var(--accent-blue-dim); color: var(--accent-blue); }
+  .mp-flow-card:nth-child(2) .mp-flow-num { background: var(--accent-orange-dim); color: var(--accent-orange); }
+  .mp-flow-card:nth-child(3) .mp-flow-num { background: var(--accent-green-dim); color: var(--accent-green); }
+
+  .mp-flow-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+
+  .mp-flow-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  .mp-arrow {
+    display: none;
+  }
+
+  .mp-services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 40px;
+  }
+
+  .mp-service {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    transition: border-color 0.2s ease;
+  }
+
+  .mp-service:hover { border-color: var(--accent-orange); }
+
+  .mp-service-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .mp-service-price {
+    font-size: 12px;
+    color: var(--accent-orange);
+    font-weight: 600;
+  }
+
+  .mp-revenue-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  .mp-rev-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+  }
+
+  .mp-rev-card h4 {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+
+  .mp-rev-value {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+  }
+
+  .mp-rev-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .mp-rollout {
+    display: grid;
+    gap: 12px;
+  }
+
+  .mp-rollout-step {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    transition: transform 0.2s ease;
+  }
+
+  .mp-rollout-step:hover { transform: translateX(4px); }
+
+  .mp-step-phase {
+    flex-shrink: 0;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  .mp-step-p2 { background: var(--accent-green-dim); color: var(--accent-green); }
+  .mp-step-p3 { background: var(--accent-orange-dim); color: var(--accent-orange); }
+
+  .mp-step-text {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  .mp-step-text strong { color: var(--text-primary); }
+
+  @media (max-width: 1024px) {
+    .mp-flow { grid-template-columns: 1fr; }
+    .mp-services-grid { grid-template-columns: repeat(2, 1fr); }
+    .mp-revenue-grid { grid-template-columns: 1fr; }
+    .mp-hero { flex-direction: column; text-align: center; }
+  }
+
+  /* === RESPONSIVE === */
+  @media (max-width: 1024px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; }
+    section { padding: 40px 24px; }
+    .hero { padding: 60px 24px 40px; }
+    .stat-grid { grid-template-columns: repeat(2, 1fr); }
+    .tier-grid { grid-template-columns: 1fr; }
+    .comp-grid { grid-template-columns: 1fr; }
+    .timeline { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+    .timeline::before { display: none; }
+    .pricing-grid { grid-template-columns: repeat(2, 1fr); }
+    .gap-grid { grid-template-columns: 1fr; }
+    .winds-grid { grid-template-columns: 1fr; }
+    .concentric { width: 300px; height: 300px; }
+    .c-sam { inset: 45px; }
+    .c-som { inset: 100px; }
+  }
+
+  @media (max-width: 640px) {
+    .hero h1 { font-size: 28px; }
+    .stat-grid { grid-template-columns: 1fr; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .timeline { grid-template-columns: 1fr; }
+    .revenue-chart { height: 220px; gap: 16px; }
+    .section-title { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-brand">
+    <h1>VroomX Safety</h1>
+    <p>Strategic Analysis 2026</p>
+  </div>
+  <div class="sidebar-nav">
+    <a href="#executive" class="active"><span class="nav-icon">&#9670;</span> Executive Summary</a>
+    <a href="#competitive"><span class="nav-icon">&#9733;</span> Competitive Landscape</a>
+    <a href="#direct-competitors"><span class="nav-icon">&#9733;</span> Direct Competitors</a>
+    <a href="#features"><span class="nav-icon">&#9635;</span> Feature Matrix</a>
+    <a href="#market"><span class="nav-icon">&#9711;</span> Market Size</a>
+    <a href="#gaps"><span class="nav-icon">&#9650;</span> Gap Analysis</a>
+    <a href="#revenue"><span class="nav-icon">&#9644;</span> Revenue Projections</a>
+    <a href="#roadmap"><span class="nav-icon">&#10148;</span> Product Roadmap</a>
+    <a href="#marketplace"><span class="nav-icon">&#9879;</span> Marketplace</a>
+    <a href="#strategy"><span class="nav-icon">&#9881;</span> Strategy</a>
+  </div>
+  <div class="sidebar-footer">
+    <span>CONFIDENTIAL</span> &middot; Jan 2026
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+
+  <!-- 1. EXECUTIVE SUMMARY -->
+  <section class="hero" id="executive">
+    <div class="hero-badge">Strategic Analysis Report</div>
+    <h1>VroomX Safety<br>Strategic Analysis</h1>
+    <p class="hero-sub">AI-powered FMCSA compliance platform for small-to-medium trucking fleets. A comprehensive competitive, market, and strategic analysis for investor readiness.</p>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Addressable Market</div>
+        <div class="stat-value" data-target="9.8">$9.8-16.4B</div>
+        <div class="stat-desc">Global trucking software (2024-2032)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Serviceable Market</div>
+        <div class="stat-value">$1.5-3.5B</div>
+        <div class="stat-desc">NA compliance segment, 24% CAGR</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Target Carriers</div>
+        <div class="stat-value">720K+</div>
+        <div class="stat-desc">US fleets with 2-10 trucks</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Success Probability</div>
+        <div class="stat-value">35-45%</div>
+        <div class="stat-desc">Reaching $50K+ ARR in 3 years</div>
+      </div>
+    </div>
+
+    <div class="findings-grid">
+      <div class="finding-card">
+        <div class="finding-num">1</div>
+        <div class="finding-text"><strong>Market timing is excellent.</strong> Feb 2026 CSA overhaul, MOTUS registration changes, and medical certification digitization create new compliance complexity that software must solve.</div>
+      </div>
+      <div class="finding-card">
+        <div class="finding-num">2</div>
+        <div class="finding-text"><strong>The gap is real.</strong> 97% of carriers have &le;10 trucks. Enterprise platforms ($25-33/vehicle) are overkill. Manual approaches don't scale. VroomX targets the exact middle.</div>
+      </div>
+      <div class="finding-card">
+        <div class="finding-num">3</div>
+        <div class="finding-text"><strong>AI is the differentiator.</strong> No competitor below $25/vehicle/month offers integrated AI compliance assistance. AI-native SaaS startups grow 3x faster than traditional SaaS.</div>
+      </div>
+      <div class="finding-card">
+        <div class="finding-num">4</div>
+        <div class="finding-text"><strong>Revenue potential is meaningful.</strong> Conservative 3-year: $59K ARR. Moderate: $173K ARR. Optimistic: $405K ARR. Break-even at ~27 customers.</div>
+      </div>
+      <div class="finding-card">
+        <div class="finding-num">5</div>
+        <div class="finding-text"><strong>Biggest risks:</strong> Customer acquisition cost in a tech-skeptical market, competing against funded incumbents on SEO/paid, and building trust with an audience that values longevity.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. COMPETITIVE LANDSCAPE -->
+  <section id="competitive">
+    <div class="section-label">Section 01</div>
+    <div class="section-title">Competitive Landscape</div>
+    <div class="section-subtitle">7 key competitors mapped across price and focus. VroomX occupies a unique low-price, compliance-focused, AI-differentiated position.</div>
+
+    <div class="quadrant-wrap">
+      <div class="quadrant">
+        <div class="quadrant-axis-x"></div>
+        <div class="quadrant-axis-y"></div>
+        <div class="quadrant-label ql-top">High Price ($50+/veh/mo)</div>
+        <div class="quadrant-label ql-bottom">Low Price ($5-25/veh/mo)</div>
+        <div class="quadrant-label ql-left">Compliance Focused</div>
+        <div class="quadrant-label ql-right">Fleet Ops Focused</div>
+
+        <!-- Top-left: High price, Compliance -->
+        <div class="q-dot" style="left:25%; top:20%">
+          <div class="q-dot-circle" style="border-color: var(--accent-red); background: var(--accent-red-dim);"></div>
+          <div class="q-dot-label">J.J. Keller<small>$25-59/veh</small></div>
+        </div>
+        <div class="q-dot" style="left:15%; top:30%">
+          <div class="q-dot-circle" style="border-color: var(--accent-purple); background: var(--accent-purple-dim);"></div>
+          <div class="q-dot-label">My Safety Mgr<small>$49/driver</small></div>
+        </div>
+
+        <!-- Top-right: High price, Fleet ops -->
+        <div class="q-dot" style="left:78%; top:15%">
+          <div class="q-dot-circle" style="border-color: var(--accent-red); background: var(--accent-red-dim);"></div>
+          <div class="q-dot-label">Samsara<small>$21.8B mkt cap</small></div>
+        </div>
+
+        <!-- Mid-left: Mid price, Compliance+Recruiting -->
+        <div class="q-dot" style="left:35%; top:45%">
+          <div class="q-dot-circle" style="border-color: var(--accent-purple); background: var(--accent-purple-dim);"></div>
+          <div class="q-dot-label">AvatarFleet<small>~$15/driver</small></div>
+        </div>
+
+        <!-- Bottom-left: Low price, Compliance -->
+        <div class="q-dot vroomx" style="left:22%; top:72%">
+          <div class="q-dot-circle"></div>
+          <div class="q-dot-label">VroomX Safety<small>$19-89/mo</small></div>
+        </div>
+        <div class="q-dot" style="left:28%; top:78%">
+          <div class="q-dot-circle" style="border-color: var(--accent-purple); background: var(--accent-purple-dim);"></div>
+          <div class="q-dot-label">FleetDrive360<small>$5/driver+</small></div>
+        </div>
+        <div class="q-dot" style="left:15%; top:82%">
+          <div class="q-dot-circle" style="border-color: var(--accent-purple); background: var(--accent-purple-dim);"></div>
+          <div class="q-dot-label">DOTDriverFiles<small>$5/driver</small></div>
+        </div>
+
+        <!-- Bottom-right: Low price, Fleet ops -->
+        <div class="q-dot" style="left:65%; top:58%">
+          <div class="q-dot-circle" style="border-color: var(--accent-blue); background: var(--accent-blue-dim);"></div>
+          <div class="q-dot-label">Motive<small>~$25/veh</small></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tier-grid">
+      <div class="tier-card tier-1">
+        <div class="tier-badge">Tier 1 &mdash; Enterprise</div>
+        <h4>Full-Stack Fleet Platforms</h4>
+        <div class="tier-item"><span class="tier-item-name">Samsara (NYSE: IOT)</span><span class="tier-item-stat">$21.8B mkt cap</span></div>
+        <div class="tier-item"><span class="tier-item-name">Motive (IPO filed)</span><span class="tier-item-stat">~$500M ARR</span></div>
+      </div>
+      <div class="tier-card tier-2">
+        <div class="tier-badge">Tier 2 &mdash; Direct Competitors</div>
+        <h4>Compliance-Focused SaaS</h4>
+        <div class="tier-item"><span class="tier-item-name">DOTDriverFiles</span><span class="tier-item-stat">$5/driver, DQF-only</span></div>
+        <div class="tier-item"><span class="tier-item-name">FleetDrive360</span><span class="tier-item-stat">$5/driver + add-ons</span></div>
+        <div class="tier-item"><span class="tier-item-name">My Safety Manager</span><span class="tier-item-stat">$49/driver, managed</span></div>
+        <div class="tier-item"><span class="tier-item-name">AvatarFleet</span><span class="tier-item-stat">~$15/driver, recruiting</span></div>
+      </div>
+      <div class="tier-card tier-3">
+        <div class="tier-badge">Tier 3 &mdash; Legacy</div>
+        <h4>Broad Market Context</h4>
+        <div class="tier-item"><span class="tier-item-name">J.J. Keller</span><span class="tier-item-stat">70yr legacy, ~$1B+</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DIRECT COMPETITORS DEEP DIVE -->
+  <section id="direct-competitors">
+    <div class="section-label">Section 01b</div>
+    <div class="section-title">Direct Competitors &mdash; Deep Dive</div>
+    <div class="section-subtitle">Detailed analysis of the 4 compliance-focused SaaS platforms competing directly with VroomX for small fleet customers.</div>
+
+    <div class="comp-grid">
+      <!-- DOTDriverFiles -->
+      <div class="comp-card">
+        <div class="comp-card-header">
+          <div>
+            <h4>DOTDriverFiles</h4>
+            <small>dotdriverfiles.com</small>
+          </div>
+          <span class="comp-price-tag">$5/driver/mo</span>
+        </div>
+        <div class="comp-tagline">Budget DQF management for micro and small fleets</div>
+        <ul class="comp-features">
+          <li>DQ File checklist &amp; dashboard</li>
+          <li>Automated renewal/expiration alerts</li>
+          <li>Electronic employment verifications</li>
+          <li>MVR &amp; PSP report ordering ($19.99/PSP)</li>
+          <li>Multi-organization management</li>
+          <li>Equipment maintenance (Premium Plus $7/driver)</li>
+          <li>Samsara telematics integration</li>
+        </ul>
+        <div class="comp-badges">
+          <span class="comp-badge-green">Lowest Price</span>
+          <span class="comp-badge-green">Free Tier</span>
+          <span class="comp-badge-green">Multi-Org</span>
+          <span class="comp-badge-red">No D&amp;A</span>
+          <span class="comp-badge-red">No CSA</span>
+          <span class="comp-badge-red">No AI</span>
+          <span class="comp-badge-red">DQF-Only Focus</span>
+        </div>
+        <div class="comp-vroomx-edge">
+          <strong>VroomX Advantage</strong>
+          <p>VroomX offers AI document intelligence, CSA score estimation, violation tracking, drug &amp; alcohol management, and a full compliance dashboard &mdash; all features DOTDriverFiles completely lacks. Our AI auto-classifies documents and extracts data from photos, saving hours of manual entry.</p>
+        </div>
+      </div>
+
+      <!-- FleetDrive360 -->
+      <div class="comp-card">
+        <div class="comp-card-header">
+          <div>
+            <h4>FleetDrive360</h4>
+            <small>fleetdrive360.com</small>
+          </div>
+          <span class="comp-price-tag">$5/driver + add-ons</span>
+        </div>
+        <div class="comp-tagline">New entrant carrier one-stop-shop with authority filing services</div>
+        <ul class="comp-features">
+          <li>DQ File management &amp; compliance dashboard</li>
+          <li>Drug &amp; Alcohol consortium ($185/driver/yr)</li>
+          <li>Clearinghouse registration ($249 one-time)</li>
+          <li>ELD integration for HOS monitoring</li>
+          <li>Vehicle maintenance &amp; equipment tracking</li>
+          <li>Accident registry with post-accident testing</li>
+          <li>Full Authority Package ($1,270 CDL / $821 existing)</li>
+        </ul>
+        <div class="comp-badges">
+          <span class="comp-badge-green">Authority Filing</span>
+          <span class="comp-badge-green">D&amp;A Consortium</span>
+          <span class="comp-badge-green">Clearinghouse</span>
+          <span class="comp-badge-red">No AI</span>
+          <span class="comp-badge-red">No CSA Tracking</span>
+          <span class="comp-badge-red">Hidden Costs</span>
+          <span class="comp-badge-red">No Free Trial</span>
+        </div>
+        <div class="comp-vroomx-edge">
+          <strong>VroomX Advantage</strong>
+          <p>FleetDrive360's $5/driver headline hides $185-$1,270 in add-on costs. VroomX offers transparent per-driver pricing with AI-powered features (document intelligence, compliance Q&amp;A, CSA estimation) that FleetDrive360 doesn't have at any price. We also provide a free CSA Checker for lead generation.</p>
+        </div>
+      </div>
+
+      <!-- My Safety Manager -->
+      <div class="comp-card">
+        <div class="comp-card-header">
+          <div>
+            <h4>My Safety Manager</h4>
+            <small>mysafetymanager.com</small>
+          </div>
+          <span class="comp-price-tag">$49/driver/mo</span>
+        </div>
+        <div class="comp-tagline">Fully managed outsourced safety department &mdash; hands-off compliance</div>
+        <ul class="comp-features">
+          <li>Driver qualification in 3 hours</li>
+          <li>D&amp;A testing, Clearinghouse, MVR monitoring (all included)</li>
+          <li>CSA BASIC score management + DataQ challenges</li>
+          <li>ELD record monitoring &amp; HOS auditing</li>
+          <li>Virtual DOT audit support</li>
+          <li>Video-based driver safety training</li>
+          <li>Personal compliance team assigned to each client</li>
+        </ul>
+        <div class="comp-badges">
+          <span class="comp-badge-green">All-Inclusive</span>
+          <span class="comp-badge-green">CSA Management</span>
+          <span class="comp-badge-green">Managed Service</span>
+          <span class="comp-badge-red">$49/driver (10x price)</span>
+          <span class="comp-badge-red">No AI/Automation</span>
+          <span class="comp-badge-red">No Self-Service</span>
+          <span class="comp-badge-red">No Free Trial</span>
+        </div>
+        <div class="comp-vroomx-edge">
+          <strong>VroomX Advantage</strong>
+          <p>At $49/driver, My Safety Manager costs 10x more and relies entirely on human consultants. VroomX delivers AI-powered automation (instant document classification, compliance Q&amp;A, predictive CSA scoring) at a fraction of the cost. A 10-driver fleet saves $4,710/year switching to VroomX Pro ($89/mo vs $490/mo).</p>
+        </div>
+      </div>
+
+      <!-- AvatarFleet -->
+      <div class="comp-card">
+        <div class="comp-card-header">
+          <div>
+            <h4>AvatarFleet</h4>
+            <small>avatarfleet.com</small>
+          </div>
+          <span class="comp-price-tag">~$15/driver (custom)</span>
+        </div>
+        <div class="comp-tagline">Recruiting-first compliance platform for mid-to-large fleets</div>
+        <ul class="comp-features">
+          <li>DQ File management (audit-ready)</li>
+          <li>Driver recruiting to 25+ job boards</li>
+          <li>Candidate screening &amp; landing pages</li>
+          <li>Incident management &amp; triage</li>
+          <li>MVR monitoring (SambaSafety integration)</li>
+          <li>E-signatures &amp; communication tools</li>
+          <li>Training marketplace &amp; ELDT registry</li>
+        </ul>
+        <div class="comp-badges">
+          <span class="comp-badge-green">Recruiting</span>
+          <span class="comp-badge-green">Incident Mgmt</span>
+          <span class="comp-badge-green">AI Assistant</span>
+          <span class="comp-badge-red">No D&amp;A</span>
+          <span class="comp-badge-red">No Clearinghouse</span>
+          <span class="comp-badge-red">No Maintenance</span>
+          <span class="comp-badge-red">Opaque Pricing</span>
+        </div>
+        <div class="comp-vroomx-edge">
+          <strong>VroomX Advantage</strong>
+          <p>AvatarFleet targets 50-3,000 driver fleets and requires a sales call. VroomX is self-service, affordable for 1-50 driver fleets, and offers deeper compliance tools (vehicle maintenance, D&amp;A tracking, CSA estimation, violation management) that AvatarFleet lacks entirely. Our AI features surpass their basic assistant.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="comp-positioning">
+      <blockquote>VroomX is the only compliance platform under $25/driver/month with integrated AI &mdash; document intelligence, compliance Q&amp;A, and CSA prediction. Competitors either lack AI entirely or charge 5-10x more for managed services.</blockquote>
+    </div>
+  </section>
+
+  <!-- 3. FEATURE COMPARISON MATRIX -->
+  <section id="features">
+    <div class="section-label">Section 02</div>
+    <div class="section-title">Feature Comparison Matrix</div>
+    <div class="section-subtitle">VroomX vs. 4 direct competitors + 2 enterprise players across 32 features in 7 categories.</div>
+
+    <div class="matrix-wrap">
+      <table class="matrix-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th class="highlight">VroomX</th>
+            <th>DOTDriver&shy;Files</th>
+            <th>FleetDrive&shy;360</th>
+            <th>MySafety&shy;Mgr</th>
+            <th>Avatar&shy;Fleet</th>
+            <th>Motive</th>
+            <th>J.J. Keller</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="cat-header"><td colspan="8">Compliance</td></tr>
+          <tr><td>Driver Qualification Files</td><td class="highlight"><span class="dot-full"></span></td><td><span class="dot-full"></span></td><td><span class="dot-full"></span></td><td><span class="dot-full"></span></td><td><span class="dot-full"></span></td><td><span class="dot-partial"></span></td><td><span class="dot-full"></span></td></tr>
+          <tr><td>CDL / Medical Card Tracking</td><td class="highlight"><span class="dot-full"></span></td><td><span class="dot-full"></span></td><td><span class="dot-full"></span></td><td><span class="dot-full"></span></td><td><span class="dot-full"></span></td><td><span class="dot-partial"></span></td><td><span class="dot-full"></span></td></tr>
+          <tr><td>Drug &amp; Alcohol Program</td><td class="highlight"><span class="dot-full"></span></td><td><span class="dot-none"></span></td><td><span class="dot-full"></span></td><td><span class="dot-full"></span></td><td><span class="dot-none"></span></td><td><span class="dot-partial"></span></td><td><span class="dot-full"></span></td></tr>
+          <tr><td>Clearinghouse Integration</td><td class="highlight"><span class="dot-partial"></span></td><td><span class="dot-none"></span></td><td><span class="dot-full"></span></td><td><span class="dot-full"></span></td><td><span class="dot-none"></span></td><td><span class="dot-full"></span></td><td><span class="dot-full"></span></td></tr>
+          <tr><td>CSA Score Tracking</td><td class="highlight"><span class="dot-full"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-full"></span></td><td><span class="dot-none"></span></td><td><span class="dot-full"></span></td><td><span class="dot-full"></span></td></tr>
+          <tr><td>Violation / DataQ Management</td><td class="highlight"><span class="dot-full"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-full"></span></td><td><span class="dot-none"></span></td><td><span class="dot-partial"></span></td><td><span class="dot-full"></span></td></tr>
+          <tr><td>Audit Readiness Dashboard</td><td class="highlight"><span class="dot-full"></span></td><td><span class="dot-none"></span></td><td><span class="dot-partial"></span></td><td><span class="dot-full"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-partial"></span></td></tr>
+
+          <tr class="cat-header"><td colspan="8">Fleet Operations</td></tr>
+          <tr><td>ELD / HOS Compliance</td><td class="highlight"><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-full"></span></td><td><span class="dot-full"></span></td><td><span class="dot-none"></span></td><td><span class="dot-full"></span></td><td><span class="dot-full"></span></td></tr>
+          <tr><td>GPS Tracking</td><td class="highlight"><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-full"></span></td><td><span class="dot-partial"></span></td></tr>
+          <tr><td>AI Dashcams</td><td class="highlight"><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-full"></span></td><td><span class="dot-none"></span></td></tr>
+          <tr><td>DVIR</td><td class="highlight"><span class="dot-partial"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-full"></span></td><td><span class="dot-full"></span></td></tr>
+          <tr><td>IFTA Reporting</td><td class="highlight"><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-full"></span></td><td><span class="dot-none"></span></td></tr>
+
+          <tr class="cat-header"><td colspan="8">Maintenance</td></tr>
+          <tr><td>Vehicle Maintenance Tracking</td><td class="highlight"><span class="dot-full"></span></td><td><span class="dot-partial"></span></td><td><span class="dot-full"></span></td><td><span class="dot-full"></span></td><td><span class="dot-none"></span></td><td><span class="dot-partial"></span></td><td><span class="dot-full"></span></td></tr>
+          <tr><td>PM Scheduling</td><td class="highlight"><span class="dot-partial"></span></td><td><span class="dot-partial"></span></td><td><span class="dot-partial"></span></td><td><span class="dot-full"></span></td><td><span class="dot-none"></span></td><td><span class="dot-partial"></span></td><td><span class="dot-full"></span></td></tr>
+          <tr><td>Recall Alerts</td><td class="highlight"><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td></tr>
+
+          <tr class="cat-header"><td colspan="8">AI / Automation</td></tr>
+          <tr><td>AI Compliance Assistant</td><td class="highlight"><span class="dot-full"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-partial"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td></tr>
+          <tr><td>AI Document Classification</td><td class="highlight"><span class="dot-full"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td></tr>
+          <tr><td>Smart Data Extraction</td><td class="highlight"><span class="dot-full"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td></tr>
+          <tr><td>CSA Score Estimation</td><td class="highlight"><span class="dot-full"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-partial"></span></td><td><span class="dot-none"></span></td><td><span class="dot-partial"></span></td><td><span class="dot-partial"></span></td></tr>
+
+          <tr class="cat-header"><td colspan="8">Platform</td></tr>
+          <tr><td>Multi-Company Support</td><td class="highlight"><span class="dot-full"></span></td><td><span class="dot-full"></span></td><td><span class="dot-partial"></span></td><td><span class="dot-none"></span></td><td><span class="dot-full"></span></td><td><span class="dot-full"></span></td><td><span class="dot-partial"></span></td></tr>
+          <tr><td>Role-Based Access (6 roles)</td><td class="highlight"><span class="dot-full"></span></td><td><span class="dot-partial"></span></td><td><span class="dot-partial"></span></td><td><span class="dot-none"></span></td><td><span class="dot-full"></span></td><td><span class="dot-full"></span></td><td><span class="dot-partial"></span></td></tr>
+          <tr><td>Custom Reports (PDF)</td><td class="highlight"><span class="dot-full"></span></td><td><span class="dot-partial"></span></td><td><span class="dot-partial"></span></td><td><span class="dot-partial"></span></td><td><span class="dot-full"></span></td><td><span class="dot-full"></span></td><td><span class="dot-full"></span></td></tr>
+          <tr><td>Dark Mode</td><td class="highlight"><span class="dot-full"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td></tr>
+          <tr><td>Mobile Responsive</td><td class="highlight"><span class="dot-partial"></span></td><td><span class="dot-partial"></span></td><td><span class="dot-full"></span></td><td><span class="dot-none"></span></td><td><span class="dot-full"></span></td><td><span class="dot-full"></span></td><td><span class="dot-partial"></span></td></tr>
+
+          <tr class="cat-header"><td colspan="8">Competitor-Specific</td></tr>
+          <tr><td>Driver Recruiting</td><td class="highlight"><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-full"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td></tr>
+          <tr><td>New Entrant Authority Filing</td><td class="highlight"><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-full"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td></tr>
+          <tr><td>Incident Management</td><td class="highlight"><span class="dot-partial"></span></td><td><span class="dot-none"></span></td><td><span class="dot-partial"></span></td><td><span class="dot-none"></span></td><td><span class="dot-full"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td></tr>
+          <tr><td>Safety Training / LMS</td><td class="highlight"><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-full"></span></td><td><span class="dot-partial"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td></tr>
+
+          <tr class="cat-header"><td colspan="8">Pricing Model</td></tr>
+          <tr><td>Per-Driver (not per-vehicle)</td><td class="highlight"><span class="dot-full"></span></td><td><span class="dot-full"></span></td><td><span class="dot-full"></span></td><td><span class="dot-full"></span></td><td><span class="dot-full"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td></tr>
+          <tr><td>No Hardware Required</td><td class="highlight"><span class="dot-full"></span></td><td><span class="dot-full"></span></td><td><span class="dot-full"></span></td><td><span class="dot-full"></span></td><td><span class="dot-full"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td></tr>
+          <tr><td>No Long-Term Contract</td><td class="highlight"><span class="dot-full"></span></td><td><span class="dot-full"></span></td><td><span class="dot-partial"></span></td><td><span class="dot-partial"></span></td><td><span class="dot-partial"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td></tr>
+          <tr><td>Free Public CSA Checker</td><td class="highlight"><span class="dot-full"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td><td><span class="dot-none"></span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="matrix-legend">
+      <div class="legend-item"><span class="dot-full"></span> Full Support</div>
+      <div class="legend-item"><span class="dot-partial"></span> Partial / Basic</div>
+      <div class="legend-item"><span class="dot-none"></span> Not Available</div>
+    </div>
+  </section>
+
+  <!-- 4. MARKET SIZE -->
+  <section id="market">
+    <div class="section-label">Section 03</div>
+    <div class="section-title">Market Size &amp; Opportunity</div>
+    <div class="section-subtitle">TAM/SAM/SOM analysis with market segmentation and trend assessment.</div>
+
+    <div class="tam-visual">
+      <div class="concentric">
+        <div class="c-ring c-tam">
+          <span class="c-label">TAM</span>
+          <span class="c-value">$9.8-16.4B</span>
+        </div>
+        <div class="c-ring c-sam">
+          <span class="c-label">SAM</span>
+          <span class="c-value">$1.5-3.5B</span>
+        </div>
+        <div class="c-ring c-som">
+          <span class="c-label">SOM</span>
+          <span class="c-value">$1.5-5M</span>
+          <span class="c-desc">Year 3 target</span>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="font-size:16px; font-weight:700; margin-bottom:20px; color:var(--text-primary)">Market Segmentation</h3>
+    <div class="seg-bars">
+      <div class="seg-row">
+        <div class="seg-name">Owner-operators</div>
+        <div class="seg-bar-track"><div class="seg-bar-fill zero" data-width="85%" style="background: linear-gradient(90deg, var(--accent-blue), #60a5fa);">350-587K carriers</div></div>
+        <div><span class="seg-badge badge-medium">Medium</span></div>
+      </div>
+      <div class="seg-row">
+        <div class="seg-name">Small fleets (2-10)</div>
+        <div class="seg-bar-track"><div class="seg-bar-fill zero" data-width="100%" style="background: linear-gradient(90deg, var(--accent-green), #4ade80);">720K+ carriers</div></div>
+        <div><span class="seg-badge badge-highest">Highest</span></div>
+      </div>
+      <div class="seg-row">
+        <div class="seg-name">Medium (11-100)</div>
+        <div class="seg-bar-track"><div class="seg-bar-fill zero" data-width="18%" style="background: linear-gradient(90deg, var(--accent-orange), #fb923c);">60-65K</div></div>
+        <div><span class="seg-badge badge-high">High</span></div>
+      </div>
+      <div class="seg-row">
+        <div class="seg-name">Large (100+)</div>
+        <div class="seg-bar-track"><div class="seg-bar-fill zero" data-width="5%" style="background: linear-gradient(90deg, var(--accent-red), #f87171);"></div></div>
+        <div><span class="seg-badge badge-low">Low</span></div>
+      </div>
+    </div>
+
+    <div class="winds-grid">
+      <div class="wind-col tailwinds">
+        <h4>&#9650; Tailwinds</h4>
+        <div class="wind-item">Feb 2026 CSA scoring overhaul creates urgent need for score tracking</div>
+        <div class="wind-item">MOTUS registration modernization (Dec 2025) adds complexity</div>
+        <div class="wind-item">Medical certification now electronic-only (Jan 2026)</div>
+        <div class="wind-item">Drug testing panel expansion (fentanyl) expected 2026</div>
+        <div class="wind-item">Private enforcement: Amazon Relay adding violation metrics</div>
+        <div class="wind-item">AI-native SaaS growing 3x faster than traditional SaaS</div>
+        <div class="wind-item">Fleet management market growing 16-20% CAGR</div>
+      </div>
+      <div class="wind-col headwinds">
+        <h4>&#9660; Headwinds</h4>
+        <div class="wind-item">Carrier contraction: 787K carriers in 2023, down 3.3% YoY</div>
+        <div class="wind-item">Freight recession pressuring small carrier margins</div>
+        <div class="wind-item">91.5% of carriers have &le;10 trucks = tech adoption barrier</div>
+        <div class="wind-item">Marginal cost of operating a truck increased 33% (2019-2023)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. GAP ANALYSIS -->
+  <section id="gaps">
+    <div class="section-label">Section 04</div>
+    <div class="section-title">Gap Analysis</div>
+    <div class="section-subtitle">Where VroomX trails and leads vs. direct competitors (DOTDriverFiles, FleetDrive360, My Safety Manager, AvatarFleet).</div>
+
+    <div class="gap-grid">
+      <div class="gap-col behind">
+        <h4>&#9660; Where We Trail</h4>
+        <div class="gap-item"><span class="gap-item-name">No ELD / HOS Integration</span><span class="importance-badge imp-critical">Critical</span><small style="display:block;color:var(--text-muted);font-size:11px;margin-top:2px">FleetDrive360 &amp; MySafetyMgr have it</small></div>
+        <div class="gap-item"><span class="gap-item-name">Limited Clearinghouse</span><span class="importance-badge imp-high">High</span><small style="display:block;color:var(--text-muted);font-size:11px;margin-top:2px">FleetDrive360 &amp; MySafetyMgr have full integration</small></div>
+        <div class="gap-item"><span class="gap-item-name">No D&amp;A Consortium</span><span class="importance-badge imp-high">High</span><small style="display:block;color:var(--text-muted);font-size:11px;margin-top:2px">FleetDrive360 ($185/yr) &amp; MySafetyMgr (included)</small></div>
+        <div class="gap-item"><span class="gap-item-name">No Mobile Native App</span><span class="importance-badge imp-high">High</span><small style="display:block;color:var(--text-muted);font-size:11px;margin-top:2px">AvatarFleet &amp; FleetDrive360 have mobile access</small></div>
+        <div class="gap-item"><span class="gap-item-name">No Safety Training / LMS</span><span class="importance-badge imp-medium">Medium</span><small style="display:block;color:var(--text-muted);font-size:11px;margin-top:2px">MySafetyMgr (video library) &amp; AvatarFleet (marketplace)</small></div>
+        <div class="gap-item"><span class="gap-item-name">No New Entrant Authority Services</span><span class="importance-badge imp-medium">Medium</span><small style="display:block;color:var(--text-muted);font-size:11px;margin-top:2px">FleetDrive360 offers full DOT#/MC# filing ($1,270)</small></div>
+        <div class="gap-item"><span class="gap-item-name">No Driver Recruiting</span><span class="importance-badge imp-low">Low</span><small style="display:block;color:var(--text-muted);font-size:11px;margin-top:2px">AvatarFleet only &mdash; targets 50+ driver fleets (not our market)</small></div>
+      </div>
+      <div class="gap-col ahead">
+        <h4>&#9650; Where We Lead</h4>
+        <div class="gap-item"><span class="gap-item-name">AI Compliance Q&amp;A</span><span class="importance-badge imp-built">Built</span><small style="display:block;color:var(--text-muted);font-size:11px;margin-top:2px">None of the 4 direct competitors offer this</small></div>
+        <div class="gap-item"><span class="gap-item-name">AI Document Intelligence</span><span class="importance-badge imp-built">Built</span><small style="display:block;color:var(--text-muted);font-size:11px;margin-top:2px">Auto-classify docs &mdash; no competitor has this</small></div>
+        <div class="gap-item"><span class="gap-item-name">AI Smart Data Extraction</span><span class="importance-badge imp-built">Built</span><small style="display:block;color:var(--text-muted);font-size:11px;margin-top:2px">Extract data from photos/PDFs &mdash; unique to VroomX</small></div>
+        <div class="gap-item"><span class="gap-item-name">CSA Score Estimation (AI)</span><span class="importance-badge imp-built">Built</span><small style="display:block;color:var(--text-muted);font-size:11px;margin-top:2px">MySafetyMgr has manual CSA mgmt; VroomX has AI prediction</small></div>
+        <div class="gap-item"><span class="gap-item-name">DataQ Challenge Support</span><span class="importance-badge imp-built">Built</span><small style="display:block;color:var(--text-muted);font-size:11px;margin-top:2px">Only MySafetyMgr offers this (managed); VroomX = self-service</small></div>
+        <div class="gap-item"><span class="gap-item-name">Free Public CSA Checker</span><span class="importance-badge imp-built">Built</span><small style="display:block;color:var(--text-muted);font-size:11px;margin-top:2px">No competitor has a free lead-gen tool like this</small></div>
+        <div class="gap-item"><span class="gap-item-name">Modern UI / Dark Mode</span><span class="importance-badge imp-built">Built</span><small style="display:block;color:var(--text-muted);font-size:11px;margin-top:2px">All 4 competitors have dated or basic UIs</small></div>
+        <div class="gap-item"><span class="gap-item-name">Transparent Pricing</span><span class="importance-badge imp-built">Built</span><small style="display:block;color:var(--text-muted);font-size:11px;margin-top:2px">FleetDrive360 hides costs in add-ons; AvatarFleet requires sales call</small></div>
+      </div>
+    </div>
+
+    <h3 style="font-size:16px; font-weight:700; margin-bottom:20px; color:var(--text-primary)">Prioritized Feature Recommendations</h3>
+    <div class="matrix-wrap">
+      <table class="recs-table">
+        <thead>
+          <tr><th>#</th><th>Feature</th><th>Why It Matters</th><th>Complexity</th><th>Priority</th><th>Phase</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td class="feat-name">ELD Data Integration (API)</td><td>Import HOS data from Motive/Samsara via API</td><td><span class="complexity-badge cx-med">Medium</span></td><td><span class="priority-badge pr-must">Must-have</span></td><td><span class="phase-badge ph-2">Phase 2</span></td></tr>
+          <tr><td>2</td><td class="feat-name">Mobile-Responsive PWA</td><td>Drivers need field doc uploads, DVIR</td><td><span class="complexity-badge cx-med">Medium</span></td><td><span class="priority-badge pr-must">Must-have</span></td><td><span class="phase-badge ph-1">Phase 1-2</span></td></tr>
+          <tr><td>3</td><td class="feat-name">Full Clearinghouse Integration</td><td>Auto-query and auto-report</td><td><span class="complexity-badge cx-high">High</span></td><td><span class="priority-badge pr-must">Must-have</span></td><td><span class="phase-badge ph-2">Phase 2</span></td></tr>
+          <tr><td>4</td><td class="feat-name">CSA 2026 Scoring Model</td><td>Feb 2026 overhaul, immediate need</td><td><span class="complexity-badge cx-med">Medium</span></td><td><span class="priority-badge pr-must">Must-have</span></td><td><span class="phase-badge ph-1">Phase 1</span></td></tr>
+          <tr><td>5</td><td class="feat-name">IFTA Reporting</td><td>Low-hanging fruit, small fleets hate IFTA</td><td><span class="complexity-badge cx-med">Medium</span></td><td><span class="priority-badge pr-should">Should-have</span></td><td><span class="phase-badge ph-2">Phase 2</span></td></tr>
+          <tr><td>6</td><td class="feat-name">SMS / Push Notifications</td><td>Critical compliance alerts via text</td><td><span class="complexity-badge cx-low">Low</span></td><td><span class="priority-badge pr-should">Should-have</span></td><td><span class="phase-badge ph-2">Phase 2</span></td></tr>
+          <tr><td>7</td><td class="feat-name">Training / LMS Module</td><td>Compliance training with tracking</td><td><span class="complexity-badge cx-med">Medium</span></td><td><span class="priority-badge pr-should">Should-have</span></td><td><span class="phase-badge ph-3">Phase 3</span></td></tr>
+          <tr><td>8</td><td class="feat-name">Insurance Document Mgmt</td><td>COI tracking and automation</td><td><span class="complexity-badge cx-low">Low</span></td><td><span class="priority-badge pr-should">Should-have</span></td><td><span class="phase-badge ph-2">Phase 2</span></td></tr>
+          <tr><td>9</td><td class="feat-name">Zapier / Webhook Integrations</td><td>Connect to QuickBooks, payroll, dispatch</td><td><span class="complexity-badge cx-med">Medium</span></td><td><span class="priority-badge pr-should">Should-have</span></td><td><span class="phase-badge ph-3">Phase 3</span></td></tr>
+          <tr><td>10</td><td class="feat-name">API for Third-Party Access</td><td>Fleet managers want data portability</td><td><span class="complexity-badge cx-med">Medium</span></td><td><span class="priority-badge pr-nice">Nice-to-have</span></td><td><span class="phase-badge ph-3">Phase 3</span></td></tr>
+          <tr><td>11</td><td class="feat-name">White-Label / Partner Program</td><td>Consultants/3PLs resell VroomX</td><td><span class="complexity-badge cx-high">High</span></td><td><span class="priority-badge pr-nice">Nice-to-have</span></td><td><span class="phase-badge ph-4">Phase 4</span></td></tr>
+          <tr><td>12</td><td class="feat-name">Automated DOT Audit Packet</td><td>One-click complete audit documentation</td><td><span class="complexity-badge cx-med">Medium</span></td><td><span class="priority-badge pr-should">Should-have</span></td><td><span class="phase-badge ph-2">Phase 2</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 6. REVENUE PROJECTIONS -->
+  <section id="revenue">
+    <div class="section-label">Section 05</div>
+    <div class="section-title">Revenue Projections</div>
+    <div class="section-subtitle">Three-year ARR forecast across conservative, moderate, and optimistic scenarios.</div>
+
+    <div class="revenue-chart" id="revChart">
+      <div class="rev-year-group">
+        <div class="rev-bar-wrap"><div class="rev-bar conservative" data-height="10" style="height:0"><span class="rev-bar-value">$16.2K</span></div></div>
+        <div class="rev-bar-wrap"><div class="rev-bar moderate" data-height="25" style="height:0"><span class="rev-bar-value">$40.5K</span></div></div>
+        <div class="rev-bar-wrap"><div class="rev-bar optimistic" data-height="53" style="height:0"><span class="rev-bar-value">$86.4K</span></div></div>
+        <div class="rev-year-label">Year 1</div>
+      </div>
+      <div class="rev-year-group">
+        <div class="rev-bar-wrap"><div class="rev-bar conservative" data-height="22" style="height:0"><span class="rev-bar-value">$35.1K</span></div></div>
+        <div class="rev-bar-wrap"><div class="rev-bar moderate" data-height="60" style="height:0"><span class="rev-bar-value">$97.2K</span></div></div>
+        <div class="rev-bar-wrap"><div class="rev-bar optimistic" data-height="78" style="height:0"><span class="rev-bar-value">$226.8K</span></div></div>
+        <div class="rev-year-label">Year 2</div>
+      </div>
+      <div class="rev-year-group">
+        <div class="rev-bar-wrap"><div class="rev-bar conservative" data-height="37" style="height:0"><span class="rev-bar-value">$59.4K</span></div></div>
+        <div class="rev-bar-wrap"><div class="rev-bar moderate" data-height="75" style="height:0"><span class="rev-bar-value">$172.8K</span></div></div>
+        <div class="rev-bar-wrap"><div class="rev-bar optimistic" data-height="100" style="height:0"><span class="rev-bar-value">$405K</span></div></div>
+        <div class="rev-year-label">Year 3</div>
+      </div>
+    </div>
+
+    <div class="rev-legend">
+      <div class="rev-legend-item"><div class="rev-legend-dot" style="background:var(--accent-blue)"></div> Conservative (Organic)</div>
+      <div class="rev-legend-item"><div class="rev-legend-dot" style="background:var(--accent-orange)"></div> Moderate (Content + Paid)</div>
+      <div class="rev-legend-item"><div class="rev-legend-dot" style="background:var(--accent-green)"></div> Optimistic (Seed Funded)</div>
+    </div>
+
+    <div class="assumptions-box">
+      <div class="assumption-item"><strong>Avg MRR/Customer:</strong> $45 (weighted)</div>
+      <div class="assumption-item"><strong>Monthly Churn:</strong> 3% (SMB market)</div>
+      <div class="assumption-item"><strong>CAC Range:</strong> $400 (organic) - $1,200 (paid)</div>
+      <div class="assumption-item"><strong>Trial Conversion:</strong> 3-5% of signups</div>
+    </div>
+
+    <div class="breakeven-box">
+      <span style="font-size:20px">&#9670;</span>
+      Break-even: ~27 customers &middot; $1,200/mo fixed costs &middot; $4,500 MRR target
+    </div>
+  </section>
+
+  <!-- 7. PRODUCT ROADMAP -->
+  <section id="roadmap">
+    <div class="section-label">Section 06</div>
+    <div class="section-title">Product Roadmap</div>
+
+    <div class="section-subtitle">Four-phase strategy from MVP validation through market leadership.</div>
+
+    <div class="timeline">
+      <div class="phase-card">
+        <div class="phase-dot"></div>
+        <div class="phase-body">
+          <div class="phase-label">Phase 1</div>
+          <div class="phase-name">Launch &amp; Validate</div>
+          <ul class="phase-tasks">
+            <li>Update CSA scoring for Feb 2026</li>
+            <li>Extend free trial to 14 days</li>
+            <li>Mobile-responsive MVP</li>
+            <li>SEO content campaign (10 articles)</li>
+            <li>Free CSA Checker optimization</li>
+            <li>Onboarding flow improvement</li>
+            <li>Product analytics integration</li>
+          </ul>
+          <div class="phase-metric">&#9733; 10+ paying customers</div>
+        </div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-dot"></div>
+        <div class="phase-body">
+          <div class="phase-label">Phase 2</div>
+          <div class="phase-name">Product-Market Fit</div>
+          <ul class="phase-tasks">
+            <li>ELD data import (API partnerships)</li>
+            <li>Full Clearinghouse integration</li>
+            <li>SMS / push notifications</li>
+            <li>IFTA reporting module</li>
+            <li>Insurance document management</li>
+            <li>Automated audit prep packet</li>
+            <li>Referral program ($50 credit)</li>
+          </ul>
+          <div class="phase-metric">&#9733; 50+ customers, &lt;5% churn</div>
+        </div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-dot"></div>
+        <div class="phase-body">
+          <div class="phase-label">Phase 3</div>
+          <div class="phase-name">Scale + Marketplace</div>
+          <ul class="phase-tasks">
+            <li><strong>Compliance Services Marketplace</strong></li>
+            <li>Consultant onboarding &amp; profiles</li>
+            <li>Stripe Connect (10-15% commission)</li>
+            <li>Smart matching from dashboard alerts</li>
+            <li>Rating &amp; review system</li>
+            <li>Enterprise plan ($149+/mo)</li>
+            <li>Training / LMS module</li>
+          </ul>
+          <div class="phase-metric">&#9733; 200+ customers, 50 consultants</div>
+        </div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-dot"></div>
+        <div class="phase-body">
+          <div class="phase-label">Phase 4</div>
+          <div class="phase-name">Maturity</div>
+          <ul class="phase-tasks">
+            <li>White-label platform</li>
+            <li>Advanced AI (predictive)</li>
+            <li>Hardware partnerships</li>
+            <li>International expansion (Canada)</li>
+            <li>SOC 2 certification</li>
+            <li>Acquisition readiness</li>
+          </ul>
+          <div class="phase-metric">&#9733; Market leadership</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARKETPLACE -->
+  <section id="marketplace">
+    <div class="section-label">Section 07</div>
+    <div class="section-title">Compliance Services Marketplace</div>
+    <div class="section-subtitle">A two-sided marketplace connecting VroomX users with independent safety managers and compliance consultants. VroomX earns 10-15% commission on every engagement.</div>
+
+    <div class="mp-hero">
+      <div class="mp-hero-icon">&#9879;</div>
+      <div class="mp-hero-text">
+        <h3>The Big Idea</h3>
+        <p>Small fleet owners know they need compliance help but can't afford a full-time safety manager ($60-80K/yr). They're already on VroomX seeing red alerts. The marketplace connects their pain (compliance gaps) with the solution (freelance consultants) &mdash; and VroomX takes a cut of every transaction.</p>
+      </div>
+    </div>
+
+    <h3 style="font-size:16px; font-weight:700; margin-bottom:16px; color:var(--text-primary)">How It Works</h3>
+    <div class="mp-flow">
+      <div class="mp-flow-card">
+        <div class="mp-flow-num">1</div>
+        <div class="mp-flow-title">User Sees Red Alerts</div>
+        <div class="mp-flow-desc">Dashboard shows compliance gaps: incomplete DQF, expiring medical cards, poor CSA score. Smart banner appears: <em>"Need help? Browse vetted compliance experts."</em></div>
+      </div>
+      <div class="mp-flow-card">
+        <div class="mp-flow-num">2</div>
+        <div class="mp-flow-title">Consultant Matched</div>
+        <div class="mp-flow-desc">User browses marketplace by specialty, location, price, and reviews. Requests a quote. Consultant responds with scope &amp; price. Both agree to engage.</div>
+      </div>
+      <div class="mp-flow-card">
+        <div class="mp-flow-num">3</div>
+        <div class="mp-flow-title">VroomX Earns Commission</div>
+        <div class="mp-flow-desc">Payment processed via Stripe Connect. Consultant gets 85-90%. VroomX keeps 10-15%. User rates the consultant. Everyone wins.</div>
+      </div>
+    </div>
+
+    <h3 style="font-size:16px; font-weight:700; margin-bottom:16px; color:var(--text-primary)">Service Listings</h3>
+    <div class="mp-services-grid">
+      <div class="mp-service">
+        <div class="mp-service-name">DOT Audit Preparation</div>
+        <div class="mp-service-price">$800 - $2,000</div>
+      </div>
+      <div class="mp-service">
+        <div class="mp-service-name">DQF File Review &amp; Cleanup</div>
+        <div class="mp-service-price">$300 - $800</div>
+      </div>
+      <div class="mp-service">
+        <div class="mp-service-name">CSA Score Improvement Plan</div>
+        <div class="mp-service-price">$500 - $1,500</div>
+      </div>
+      <div class="mp-service">
+        <div class="mp-service-name">Drug &amp; Alcohol Program Setup</div>
+        <div class="mp-service-price">$400 - $1,000</div>
+      </div>
+      <div class="mp-service">
+        <div class="mp-service-name">Mock DOT Audit</div>
+        <div class="mp-service-price">$600 - $1,500</div>
+      </div>
+      <div class="mp-service">
+        <div class="mp-service-name">New Entrant Safety Plan</div>
+        <div class="mp-service-price">$500 - $1,200</div>
+      </div>
+    </div>
+
+    <h3 style="font-size:16px; font-weight:700; margin-bottom:16px; color:var(--text-primary)">Revenue Model</h3>
+    <div class="mp-revenue-grid">
+      <div class="mp-rev-card">
+        <h4>Commission Revenue</h4>
+        <div class="mp-rev-value" style="color: var(--accent-orange);">$600 - $6,000<span style="font-size:14px;font-weight:500;color:var(--text-muted)">/mo</span></div>
+        <div class="mp-rev-desc">50 consultants &times; 20 monthly transactions &times; 10-15% of $300-2,000 avg fee</div>
+      </div>
+      <div class="mp-rev-card">
+        <h4>Featured Listings</h4>
+        <div class="mp-rev-value" style="color: var(--accent-purple);">$490 - $990<span style="font-size:14px;font-weight:500;color:var(--text-muted)">/mo</span></div>
+        <div class="mp-rev-desc">10-20% of consultants pay $49-99/mo for top placement and priority matching</div>
+      </div>
+      <div class="mp-rev-card">
+        <h4>Consultant Listing Fee</h4>
+        <div class="mp-rev-value" style="color: var(--accent-green);">Free</div>
+        <div class="mp-rev-desc">Zero friction to build supply side. Revenue comes from commissions, not listings.</div>
+      </div>
+      <div class="mp-rev-card">
+        <h4>Platform Stickiness</h4>
+        <div class="mp-rev-value" style="color: var(--accent-blue);">&#8734;</div>
+        <div class="mp-rev-desc">Users stay because they can get help. Consultants stay because VroomX sends clients. Ecosystem lock-in.</div>
+      </div>
+    </div>
+
+    <h3 style="font-size:16px; font-weight:700; margin-bottom:16px; color:var(--text-primary)">Rollout Strategy</h3>
+    <div class="mp-rollout">
+      <div class="mp-rollout-step">
+        <div class="mp-step-phase mp-step-p2">Phase 2</div>
+        <div class="mp-step-text"><strong>Static referral directory</strong> &mdash; Manually list 5-10 vetted consultants. Add "Need help?" banners on dashboard when compliance gaps detected. Track click-through rates. No payments, no commission &mdash; just demand validation.</div>
+      </div>
+      <div class="mp-rollout-step">
+        <div class="mp-step-phase mp-step-p3">Phase 3</div>
+        <div class="mp-step-text"><strong>Consultant onboarding flow</strong> &mdash; Self-serve sign-up with profile creation: specialties, certifications, service areas, pricing tiers, availability calendar.</div>
+      </div>
+      <div class="mp-rollout-step">
+        <div class="mp-step-phase mp-step-p3">Phase 3</div>
+        <div class="mp-step-text"><strong>Smart matching engine</strong> &mdash; When dashboard shows red alerts, contextually suggest relevant consultants. "Your DQF is 40% incomplete &mdash; 3 consultants specialize in DQF cleanup near you."</div>
+      </div>
+      <div class="mp-rollout-step">
+        <div class="mp-step-phase mp-step-p3">Phase 3</div>
+        <div class="mp-step-text"><strong>Stripe Connect integration</strong> &mdash; Split payments automatically. Consultant receives 85-90%, VroomX retains 10-15%. Leverage existing Stripe billing infrastructure.</div>
+      </div>
+      <div class="mp-rollout-step">
+        <div class="mp-step-phase mp-step-p3">Phase 3</div>
+        <div class="mp-step-text"><strong>Ratings &amp; reviews</strong> &mdash; Post-engagement reviews, verified completion badges, consultant leaderboard. Quality control through community feedback.</div>
+      </div>
+      <div class="mp-rollout-step">
+        <div class="mp-step-phase mp-step-p3">Phase 3</div>
+        <div class="mp-step-text"><strong>Consultant dashboard</strong> &mdash; Earnings tracker, active engagements, lead pipeline, availability management, performance analytics.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. STRATEGIC RECOMMENDATIONS -->
+  <section id="strategy">
+    <div class="section-label">Section 08</div>
+    <div class="section-title">Strategic Recommendations</div>
+    <div class="section-subtitle">Positioning, go-to-market, pricing, and key strategic decisions.</div>
+
+    <div class="position-quote">
+      <p>VroomX Safety is the AI-powered compliance platform built for small trucking companies. We handle your DQF files, CSA scores, drug testing, and DOT audit prep &mdash; so you can focus on driving and dispatching.</p>
+    </div>
+
+    <h3 style="font-size:16px; font-weight:700; margin-bottom:16px; color:var(--text-primary)">Go-to-Market Channels (Priority Order)</h3>
+    <div class="gtm-list">
+      <div class="gtm-item">
+        <div class="gtm-rank">1</div>
+        <div><div class="gtm-name">SEO / Content Marketing</div><div class="gtm-desc">Target long-tail compliance keywords. Highest ROI channel for this audience.</div></div>
+      </div>
+      <div class="gtm-item">
+        <div class="gtm-rank">2</div>
+        <div><div class="gtm-name">Free CSA Checker (Lead Magnet)</div><div class="gtm-desc">750K+ active carriers. 1% monthly checks = 7,500 leads/month.</div></div>
+      </div>
+      <div class="gtm-item">
+        <div class="gtm-rank">3</div>
+        <div><div class="gtm-name">Trucking Facebook Groups</div><div class="gtm-desc">50+ groups with 10-100K members. Be helpful, not salesy.</div></div>
+      </div>
+      <div class="gtm-item">
+        <div class="gtm-rank">4</div>
+        <div><div class="gtm-name">YouTube / Video Content</div><div class="gtm-desc">"How to read your CSA score", "DQF walkthrough". Truckers consume video.</div></div>
+      </div>
+      <div class="gtm-item">
+        <div class="gtm-rank">5</div>
+        <div><div class="gtm-name">Industry Partnerships</div><div class="gtm-desc">Safety consultants, insurance agents, OOIDA, truck stop providers.</div></div>
+      </div>
+      <div class="gtm-item">
+        <div class="gtm-rank">6</div>
+        <div><div class="gtm-name">Paid Ads (Later)</div><div class="gtm-desc">Google Ads for high-intent keywords once organic proves conversion. $500-1,500/mo.</div></div>
+      </div>
+    </div>
+
+    <h3 style="font-size:16px; font-weight:700; margin-bottom:16px; color:var(--text-primary)">Pricing Strategy</h3>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-plan">Solo</div>
+        <div class="price-amount">$19<span>/mo</span></div>
+        <div class="price-detail">1 driver included</div>
+        <div class="price-rec">Add annual option ($182/yr)</div>
+      </div>
+      <div class="price-card recommended">
+        <div class="price-plan">Fleet</div>
+        <div class="price-amount">$39<span>/mo</span></div>
+        <div class="price-detail">3 drivers (+$6/extra)</div>
+        <div class="price-rec">"Founder" $29/mo for first 50 customers</div>
+      </div>
+      <div class="price-card">
+        <div class="price-plan">Pro</div>
+        <div class="price-amount">$89<span>/mo</span></div>
+        <div class="price-detail">10 drivers (+$5/extra)</div>
+        <div class="price-rec">$79/mo annual to match psychology</div>
+      </div>
+      <div class="price-card">
+        <div class="price-plan">Enterprise</div>
+        <div class="price-amount">$149<span>+/mo</span></div>
+        <div class="price-detail">25+ drivers, SSO, SLA</div>
+        <div class="price-rec">Add in Phase 3</div>
+      </div>
+    </div>
+
+    <h3 style="font-size:16px; font-weight:700; margin-bottom:16px; color:var(--text-primary)">Key Strategic Decisions</h3>
+    <div class="decisions-grid">
+      <div class="decision-card">
+        <div class="decision-q">Build ELD or integrate?</div>
+        <div class="decision-a">&#10003; Integrate via API</div>
+        <div class="decision-why">ELD hardware is capital-intensive and commoditized. Partner with Motive/Samsara APIs instead.</div>
+      </div>
+      <div class="decision-card">
+        <div class="decision-q">Target owner-ops or small fleets?</div>
+        <div class="decision-a">&#10003; Small fleets first (2-10 trucks)</div>
+        <div class="decision-why">Higher ARPU, more pain points, can afford $39-89/mo. Owner-ops are too price-sensitive.</div>
+      </div>
+      <div class="decision-card">
+        <div class="decision-q">Raise funding or bootstrap?</div>
+        <div class="decision-a">&#10003; Bootstrap to $5K MRR, then decide</div>
+        <div class="decision-why">Prove PMF first. Raising too early dilutes equity and adds external pressure.</div>
+      </div>
+      <div class="decision-card">
+        <div class="decision-q">Free tier or trial only?</div>
+        <div class="decision-a">&#10003; 14-day trial + free CSA checker</div>
+        <div class="decision-why">Freemium has high support costs. Free tool as lead gen is more efficient.</div>
+      </div>
+      <div class="decision-card">
+        <div class="decision-q">Compliance or fleet ops focus?</div>
+        <div class="decision-a">&#10003; Stay compliance-focused</div>
+        <div class="decision-why">This is the moat. Fleet ops is a crowded red ocean dominated by Samsara and Motive.</div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  // Intersection Observer for section animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('section').forEach(s => observer.observe(s));
+
+  // Sidebar active state
+  const navLinks = document.querySelectorAll('.sidebar-nav a');
+  const sections = document.querySelectorAll('section');
+
+  const navObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(link => link.classList.remove('active'));
+        const id = entry.target.id;
+        const activeLink = document.querySelector(`.sidebar-nav a[href="#${id}"]`);
+        if (activeLink) activeLink.classList.add('active');
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '-80px 0px -60% 0px' });
+
+  sections.forEach(s => navObserver.observe(s));
+
+  // Animate segment bars
+  const barObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const bars = entry.target.querySelectorAll('.seg-bar-fill');
+        bars.forEach((bar, i) => {
+          setTimeout(() => {
+            bar.style.width = bar.dataset.width;
+            bar.classList.remove('zero');
+          }, i * 150);
+        });
+        barObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.3 });
+
+  const segBars = document.querySelector('.seg-bars');
+  if (segBars) barObserver.observe(segBars);
+
+  // Animate revenue bars
+  const revObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const bars = entry.target.querySelectorAll('.rev-bar');
+        bars.forEach((bar, i) => {
+          setTimeout(() => {
+            bar.style.height = bar.dataset.height + '%';
+          }, i * 80);
+        });
+        revObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.2 });
+
+  const revChart = document.getElementById('revChart');
+  if (revChart) revObserver.observe(revChart);
+</script>
+</body>
+</html>

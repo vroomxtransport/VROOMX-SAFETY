@@ -5,6 +5,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 3000,
+    // DEV ONLY: Proxy config is only used during local development (vite dev server). Not used in production builds.
     proxy: {
       '/api': {
         target: 'http://localhost:5001',

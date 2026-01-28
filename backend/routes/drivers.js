@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const { body, validationResult, query } = require('express-validator');
 const { Driver } = require('../models');
 const { protect, checkPermission, restrictToCompany } = require('../middleware/auth');
@@ -176,30 +177,70 @@ router.post('/', checkPermission('drivers', 'edit'), checkDriverLimit, [
     return res.status(400).json({ success: false, errors: errors.array() });
   }
 
-  // Check for duplicate employee ID
-  const existingDriver = await Driver.findOne({
-    ...req.companyFilter,
-    employeeId: req.body.employeeId
-  });
+  // Use a MongoDB transaction to prevent race conditions on driver limit checks.
+  // The middleware does an initial check, but two concurrent requests could both pass it.
+  // Re-checking within a transaction ensures atomicity.
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    // Re-check driver count within the transaction
+    const companyId = req.user.companyId._id || req.user.companyId;
+    const plan = req.user.subscription?.plan || 'free_trial';
 
-  if (existingDriver) {
-    return res.status(400).json({
-      success: false,
-      message: 'A driver with this employee ID already exists'
+    const driverCount = await Driver.countDocuments({
+      companyId,
+      status: { $ne: 'terminated' }
+    }).session(session);
+
+    // Enforce hard limits within the transaction
+    if ((plan === 'solo' || plan === 'free_trial') && driverCount >= 1) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(403).json({
+        success: false,
+        message: plan === 'solo'
+          ? 'Solo plan is limited to 1 driver. Upgrade to Fleet for more drivers.'
+          : 'Free trial is limited to 1 driver. Subscribe to continue adding drivers.',
+        code: 'DRIVER_LIMIT_REACHED',
+        limit: 1,
+        current: driverCount
+      });
+    }
+
+    // Check for duplicate employee ID
+    const existingDriver = await Driver.findOne({
+      ...req.companyFilter,
+      employeeId: req.body.employeeId
+    }).session(session);
+
+    if (existingDriver) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(400).json({
+        success: false,
+        message: 'A driver with this employee ID already exists'
+      });
+    }
+
+    const driver = await Driver.create([{
+      ...req.body,
+      companyId
+    }], { session });
+
+    await session.commitTransaction();
+
+    auditService.log(req, 'create', 'driver', driver[0]._id, { name: req.body.firstName + ' ' + req.body.lastName, employeeId: req.body.employeeId });
+
+    res.status(201).json({
+      success: true,
+      driver: driver[0]
     });
+  } catch (err) {
+    await session.abortTransaction();
+    throw err;
+  } finally {
+    session.endSession();
   }
-
-  const driver = await Driver.create({
-    ...req.body,
-    companyId: req.user.companyId._id || req.user.companyId
-  });
-
-  auditService.log(req, 'create', 'driver', driver._id, { name: req.body.firstName + ' ' + req.body.lastName, employeeId: req.body.employeeId });
-
-  res.status(201).json({
-    success: true,
-    driver
-  });
 }));
 
 // @route   PUT /api/drivers/:id

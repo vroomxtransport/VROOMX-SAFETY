@@ -111,7 +111,6 @@ router.post('/register', [
     fmcsaSyncService.syncCompanyData(company._id).catch(err => {
       console.error('[Registration] Background FMCSA sync failed:', err.message);
     });
-    console.log(`[Registration] FMCSA sync initiated for DOT ${company.dotNumber}`);
   }
 
   const token = generateToken(user._id);

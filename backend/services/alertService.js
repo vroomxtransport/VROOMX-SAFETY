@@ -603,8 +603,6 @@ const alertService = {
   async generateAlertsForAllCompanies() {
     const companies = await Company.find({ isDeleted: { $ne: true } }).select('_id name');
 
-    console.log(`[AlertService] Starting alert generation for ${companies.length} companies`);
-
     const results = {
       companiesProcessed: 0,
       totalCreated: 0,
@@ -631,8 +629,6 @@ const alertService = {
     } catch (error) {
       console.error('[AlertService] Error escalating alerts:', error.message);
     }
-
-    console.log(`[AlertService] Alert generation complete. Created: ${results.totalCreated}, Updated: ${results.totalUpdated}, Escalated: ${results.escalated || 0}`);
 
     return results;
   },

@@ -72,7 +72,6 @@ const csaAlertService = {
             });
 
             createdAlerts.push(newAlert);
-            console.log(`[CSA Alert] Created ${alert.type} alert for ${company.name}: ${alert.message}`);
           }
         } catch (err) {
           // Skip duplicate key errors (alert already exists)

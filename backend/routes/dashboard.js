@@ -355,8 +355,6 @@ router.put('/basics', asyncHandler(async (req, res) => {
 router.post('/refresh-fmcsa', asyncHandler(async (req, res) => {
   const companyId = req.user.companyId._id || req.user.companyId;
 
-  console.log('[Dashboard] Manual FMCSA refresh requested for company:', companyId);
-
   const smsBasics = await fmcsaSyncService.forceRefresh(companyId);
 
   if (!smsBasics) {

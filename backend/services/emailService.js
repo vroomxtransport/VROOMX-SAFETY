@@ -87,7 +87,6 @@ const emailService = {
    */
   async send({ to, subject, templateName, variables = {}, category, userId, companyId, metadata, attachments }) {
     if (!RESEND_ENABLED) {
-      console.log(`[EmailService] Skipping email (Resend not configured): ${subject} -> ${to}`);
       return null;
     }
 
@@ -452,8 +451,6 @@ const emailService = {
     const Alert = require('../models/Alert');
     const User = require('../models/User');
 
-    console.log('[EmailService] Starting daily alert digest job...');
-
     try {
       const companies = await Company.find({ isActive: { $ne: false } }).lean();
       let totalSent = 0;
@@ -484,7 +481,6 @@ const emailService = {
         }
       }
 
-      console.log(`[EmailService] Daily alert digest complete. Sent ${totalSent} emails.`);
       return totalSent;
     } catch (error) {
       console.error('[EmailService] Daily alert digest job failed:', error.message);

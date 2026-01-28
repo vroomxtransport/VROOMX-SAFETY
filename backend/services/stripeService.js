@@ -99,7 +99,7 @@ const stripeService = {
           return customer;
         }
       } catch (error) {
-        console.log('Customer not found, creating new one');
+        // Customer not found, will create new one
       }
     }
 
@@ -112,8 +112,6 @@ const stripeService = {
   async createCheckoutSession(user, planType) {
     try {
       const priceId = PRICE_IDS[planType];
-      console.log(`createCheckoutSession: planType=${planType}, priceId=${priceId}`);
-      console.log('Available PRICE_IDS:', JSON.stringify(PRICE_IDS));
       if (!priceId) {
         throw new Error(`Invalid plan type or missing price ID: ${planType}. Available: ${Object.keys(PRICE_IDS).filter(k => PRICE_IDS[k]).join(', ')}`);
       }
@@ -210,7 +208,7 @@ const stripeService = {
           break;
 
         default:
-          console.log(`Unhandled event type: ${event.type}`);
+          break;
       }
     } catch (error) {
       console.error(`Error handling webhook event ${event.type}:`, error);
@@ -251,7 +249,6 @@ const stripeService = {
     };
 
     await user.save({ validateBeforeSave: false });
-    console.log(`Subscription activated for user ${userId}: ${plan}`);
   },
 
   /**
@@ -295,7 +292,6 @@ const stripeService = {
     };
 
     await user.save({ validateBeforeSave: false });
-    console.log(`Subscription updated for user ${user._id}: ${plan} (${subscription.status})`);
   },
 
   /**
@@ -324,7 +320,6 @@ const stripeService = {
     };
 
     await user.save({ validateBeforeSave: false });
-    console.log(`Subscription canceled for user ${user._id}`);
   },
 
   /**
@@ -339,7 +334,6 @@ const stripeService = {
       if (user && user.subscription.status === 'past_due') {
         user.subscription.status = 'active';
         await user.save({ validateBeforeSave: false });
-        console.log(`Payment succeeded, subscription reactivated for user ${user._id}`);
       }
 
       if (user) {
@@ -360,7 +354,6 @@ const stripeService = {
       if (user) {
         user.subscription.status = 'past_due';
         await user.save({ validateBeforeSave: false });
-        console.log(`Payment failed for user ${user._id}`);
         emailService.sendPaymentFailed(user).catch(() => {});
       }
     }
@@ -382,7 +375,6 @@ const stripeService = {
    */
   async reportDriverUsage(user, driverCount) {
     if (!STRIPE_ENABLED) {
-      console.log('Stripe not enabled, skipping usage report');
       return null;
     }
 
@@ -411,7 +403,6 @@ const stripeService = {
       );
 
       if (!meteredItem) {
-        console.log(`No metered item found for plan ${plan}, adding it...`);
         // Add the metered price to the subscription if not present
         await stripe.subscriptionItems.create({
           subscription: subscriptionId,
@@ -447,7 +438,6 @@ const stripeService = {
           timestamp: Math.floor(Date.now() / 1000)
         }
       );
-      console.log(`Usage record created: ${quantity} extra drivers`);
       return usageRecord;
     } catch (error) {
       console.error('Error creating usage record:', error);

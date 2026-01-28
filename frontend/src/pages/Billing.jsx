@@ -8,11 +8,13 @@ import {
 } from 'react-icons/fi';
 import LoadingSpinner from '../components/LoadingSpinner';
 import VroomXLogo from '../components/VroomXLogo';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 const Billing = () => {
   const { subscription, refreshUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [plans, setPlans] = useState([]);
   const [currentUsage, setCurrentUsage] = useState(null);
 
@@ -57,9 +59,6 @@ const Billing = () => {
   };
 
   const handleCancelSubscription = async () => {
-    if (!confirm('Are you sure you want to cancel your subscription? You will lose access to premium features at the end of your billing period.')) {
-      return;
-    }
     setLoading(true);
     try {
       await billingAPI.cancelSubscription();
@@ -377,7 +376,7 @@ const Billing = () => {
                   </button>
                 ) : subscription?.stripeSubscriptionId ? (
                   <button
-                    onClick={handleCancelSubscription}
+                    onClick={() => setShowCancelConfirm(true)}
                     disabled={loading}
                     className="btn btn-secondary w-full text-sm text-danger-600 dark:text-danger-400 hover:text-danger-700 hover:bg-danger-50 dark:hover:bg-danger-900/20"
                   >
@@ -734,6 +733,16 @@ const Billing = () => {
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={showCancelConfirm}
+        onClose={() => setShowCancelConfirm(false)}
+        onConfirm={handleCancelSubscription}
+        title="Cancel Subscription"
+        message="Are you sure you want to cancel your subscription? You will lose access to premium features at the end of your billing period."
+        confirmText="Cancel Subscription"
+        variant="danger"
+      />
     </div>
   );
 };

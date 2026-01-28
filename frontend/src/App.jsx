@@ -35,6 +35,7 @@ import Maintenance from './pages/Maintenance';
 import Accidents from './pages/Accidents';
 import LoadingSpinner from './components/LoadingSpinner';
 import ChatWidget from './components/AIChat/ChatWidget';
+import NotFound from './pages/NotFound';
 
 // Lazy load chart-heavy pages to reduce initial bundle size
 const Dashboard = lazy(() => import('./pages/Dashboard'));
@@ -263,7 +264,7 @@ function App() {
         </Route>
 
         {/* 404 */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
 
       {/* Floating AI Chat Widget - only show when authenticated */}

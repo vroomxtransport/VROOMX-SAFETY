@@ -26,8 +26,6 @@ async function cascadeDeleteCompany(companyId) {
   const db = mongoose.connection.db;
   const objectId = new mongoose.Types.ObjectId(companyId);
 
-  console.log(`[ADMIN] Cascade deleting company ${companyId} and all related data...`);
-
   // Delete all related data in parallel
   const results = await Promise.all([
     db.collection('drivers').deleteMany({ companyId: objectId }),
@@ -63,7 +61,6 @@ async function cascadeDeleteCompany(companyId) {
   // Delete the company itself
   await db.collection('companies').deleteOne({ _id: objectId });
 
-  console.log(`[ADMIN] Company ${companyId} deleted with all related data`);
   return results;
 }
 
@@ -605,9 +602,6 @@ router.patch('/users/:id/subscription', async (req, res) => {
 
     await user.save();
 
-    // Log the override
-    console.log(`[ADMIN] User ${req.user.email} modified subscription for ${user.email}: plan=${plan}, status=${status}`);
-
     auditService.log(req, 'update', 'subscription', req.params.id, { plan, status, summary: 'Admin overrode subscription' });
 
     res.json({
@@ -695,8 +689,6 @@ router.delete('/companies/:id', async (req, res) => {
 
     // Cascade delete company and all related data
     await cascadeDeleteCompany(req.params.id);
-
-    console.log(`[ADMIN] User ${req.user.email} deleted company ${company.name} (${company.dotNumber})`);
 
     auditService.log(req, 'delete', 'company', req.params.id, { companyName: company.name, dotNumber: company.dotNumber, summary: 'Admin deleted company' });
 

@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const { body, validationResult } = require('express-validator');
 const { Vehicle } = require('../models');
 const { protect, checkPermission, restrictToCompany } = require('../middleware/auth');
@@ -154,33 +155,73 @@ router.post('/', checkPermission('vehicles', 'edit'), checkVehicleLimit, [
     return res.status(400).json({ success: false, errors: errors.array() });
   }
 
-  // Check for duplicate unit number or VIN
-  const existing = await Vehicle.findOne({
-    ...req.companyFilter,
-    $or: [
-      { unitNumber: req.body.unitNumber },
-      { vin: req.body.vin.toUpperCase() }
-    ]
-  });
+  // Use a MongoDB transaction to prevent race conditions on vehicle limit checks.
+  // The middleware does an initial check, but two concurrent requests could both pass it.
+  // Re-checking within a transaction ensures atomicity.
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    // Re-check vehicle count within the transaction
+    const companyId = req.user.companyId._id || req.user.companyId;
+    const plan = req.user.subscription?.plan || 'free_trial';
 
-  if (existing) {
-    return res.status(400).json({
-      success: false,
-      message: 'A vehicle with this unit number or VIN already exists'
+    const vehicleCount = await Vehicle.countDocuments({
+      companyId,
+      status: { $ne: 'out_of_service' }
+    }).session(session);
+
+    // Enforce hard limits within the transaction
+    if ((plan === 'solo' || plan === 'free_trial') && vehicleCount >= 1) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(403).json({
+        success: false,
+        message: plan === 'solo'
+          ? 'Solo plan is limited to 1 vehicle. Upgrade to Fleet for more vehicles.'
+          : 'Free trial is limited to 1 vehicle. Subscribe to continue adding vehicles.',
+        code: 'VEHICLE_LIMIT_REACHED',
+        limit: 1,
+        current: vehicleCount
+      });
+    }
+
+    // Check for duplicate unit number or VIN
+    const existing = await Vehicle.findOne({
+      ...req.companyFilter,
+      $or: [
+        { unitNumber: req.body.unitNumber },
+        { vin: req.body.vin.toUpperCase() }
+      ]
+    }).session(session);
+
+    if (existing) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(400).json({
+        success: false,
+        message: 'A vehicle with this unit number or VIN already exists'
+      });
+    }
+
+    const vehicle = await Vehicle.create([{
+      ...req.body,
+      companyId
+    }], { session });
+
+    await session.commitTransaction();
+
+    auditService.log(req, 'create', 'vehicle', vehicle[0]._id, { unitNumber: req.body.unitNumber, vin: req.body.vin });
+
+    res.status(201).json({
+      success: true,
+      vehicle: vehicle[0]
     });
+  } catch (err) {
+    await session.abortTransaction();
+    throw err;
+  } finally {
+    session.endSession();
   }
-
-  const vehicle = await Vehicle.create({
-    ...req.body,
-    companyId: req.user.companyId._id || req.user.companyId
-  });
-
-  auditService.log(req, 'create', 'vehicle', vehicle._id, { unitNumber: req.body.unitNumber, vin: req.body.vin });
-
-  res.status(201).json({
-    success: true,
-    vehicle
-  });
 }));
 
 // @route   PUT /api/vehicles/:id
