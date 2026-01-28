@@ -8,6 +8,7 @@ import {
 } from 'react-icons/fi';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import AnalyticsCharts from '../../components/admin/AnalyticsCharts';
+import DataIntegrityCard from '../../components/admin/DataIntegrityCard';
 import toast from 'react-hot-toast';
 
 const AdminDashboard = () => {
@@ -311,14 +312,21 @@ const AdminDashboard = () => {
         )}
       </div>
 
-      {/* System Health */}
-      <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-3 rounded-xl bg-green-100 dark:bg-green-500/20 text-green-600 dark:text-green-400">
-            <FiServer className="w-6 h-6" />
-          </div>
-          <h2 className="text-lg font-semibold text-zinc-900 dark:text-white">System Health</h2>
+      {/* System Health & Data Integrity Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Data Integrity Card */}
+        <div className="lg:col-span-1">
+          <DataIntegrityCard />
         </div>
+
+        {/* System Health */}
+        <div className="lg:col-span-2 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-3 rounded-xl bg-green-100 dark:bg-green-500/20 text-green-600 dark:text-green-400">
+              <FiServer className="w-6 h-6" />
+            </div>
+            <h2 className="text-lg font-semibold text-zinc-900 dark:text-white">System Health</h2>
+          </div>
 
         {healthLoading ? (
           <div className="flex items-center justify-center h-32">
@@ -433,6 +441,7 @@ const AdminDashboard = () => {
         ) : (
           <p className="text-zinc-600 dark:text-zinc-400">Unable to load system health data.</p>
         )}
+        </div>
       </div>
     </div>
   );

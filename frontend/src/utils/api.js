@@ -444,6 +444,11 @@ export const adminAPI = {
   getMaintenanceStatus: () => api.get('/admin/maintenance'),
   setMaintenanceMode: (data) => api.post('/admin/maintenance', data),
 
+  // Data Integrity
+  getDataIntegrity: () => api.get('/admin/data-integrity'),
+  getDataIntegrityFull: () => api.get('/admin/data-integrity/full'),
+  getDataIntegrityDetails: (resource) => api.get(`/admin/data-integrity/details/${resource}`),
+
   // Audit Logs
   getAuditLogs: (params) => api.get('/audit', { params }),
   exportAuditLogs: (params) => api.get('/audit/export', { params, responseType: 'blob' }),

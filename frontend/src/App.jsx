@@ -50,6 +50,7 @@ import AdminAuditLogs from './pages/admin/AdminAuditLogs';
 import AdminEmails from './pages/admin/AdminEmails';
 import AdminAnnouncements from './pages/admin/AdminAnnouncements';
 import AdminFeatureFlags from './pages/admin/AdminFeatureFlags';
+import AdminDataIntegrity from './pages/admin/AdminDataIntegrity';
 
 // Design Demos
 import EnterpriseDemo from './pages/designs/EnterpriseDemo';
@@ -260,6 +261,7 @@ function App() {
           <Route path="emails" element={<AdminEmails />} />
           <Route path="announcements" element={<AdminAnnouncements />} />
           <Route path="features" element={<AdminFeatureFlags />} />
+          <Route path="data-integrity" element={<AdminDataIntegrity />} />
           <Route path="audit-logs" element={<AdminAuditLogs />} />
         </Route>
 

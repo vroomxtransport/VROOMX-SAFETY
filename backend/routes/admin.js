@@ -16,6 +16,7 @@ const FeatureFlag = require('../models/FeatureFlag');
 const SystemConfig = require('../models/SystemConfig');
 const EmailLog = require('../models/EmailLog');
 const maintenanceMiddleware = require('../middleware/maintenance');
+const dataIntegrityService = require('../services/dataIntegrityService');
 
 // All admin routes require authentication and superadmin role
 router.use(protect);
@@ -1405,6 +1406,44 @@ router.post('/maintenance', async (req, res) => {
   } catch (error) {
     console.error('Admin set maintenance error:', error);
     res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// ============================================
+// DATA INTEGRITY MONITORING
+// ============================================
+
+// GET /api/admin/data-integrity - Quick health check (for dashboard card)
+router.get('/data-integrity', async (req, res) => {
+  try {
+    const result = await dataIntegrityService.runQuickCheck();
+    res.json(result);
+  } catch (error) {
+    console.error('Data integrity quick check error:', error);
+    res.status(500).json({ success: false, message: 'Failed to run integrity check' });
+  }
+});
+
+// GET /api/admin/data-integrity/full - Comprehensive check (for detail page)
+router.get('/data-integrity/full', async (req, res) => {
+  try {
+    const result = await dataIntegrityService.runFullCheck();
+    res.json(result);
+  } catch (error) {
+    console.error('Data integrity full check error:', error);
+    res.status(500).json({ success: false, message: 'Failed to run full integrity check' });
+  }
+});
+
+// GET /api/admin/data-integrity/details/:resource - Get issues for specific resource
+router.get('/data-integrity/details/:resource', async (req, res) => {
+  try {
+    const { resource } = req.params;
+    const result = await dataIntegrityService.getResourceDetails(resource);
+    res.json(result);
+  } catch (error) {
+    console.error('Data integrity details error:', error);
+    res.status(500).json({ success: false, message: 'Failed to get resource details' });
   }
 });
 

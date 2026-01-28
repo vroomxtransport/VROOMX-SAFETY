@@ -16,6 +16,7 @@ const adminNavigation = [
   { name: 'Emails', path: '/admin/emails', icon: FiMail },
   { name: 'Announcements', path: '/admin/announcements', icon: FiBell },
   { name: 'Features', path: '/admin/features', icon: FiToggleRight },
+  { name: 'Data Integrity', path: '/admin/data-integrity', icon: FiShield },
   { name: 'Audit Logs', path: '/admin/audit-logs', icon: FiActivity },
 ];
 
