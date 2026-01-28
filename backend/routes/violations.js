@@ -145,15 +145,20 @@ router.post('/', checkPermission('violations', 'edit'), [
     return res.status(400).json({ success: false, errors: errors.array() });
   }
 
-  const violation = await Violation.create({
-    ...req.body,
-    companyId: req.user.companyId._id || req.user.companyId,
+  const allowedFields = ['driverId', 'vehicleId', 'inspectionNumber', 'violationDate', 'basic', 'violationType', 'description', 'severityWeight', 'outOfService', 'status', 'notes', 'weightedSeverity', 'inspectionState', 'timeWeight'];
+  const violationData = {
+    companyId: req.companyFilter.companyId,
     history: [{
       action: 'created',
       userId: req.user._id,
       notes: 'Violation record created'
     }]
-  });
+  };
+  for (const key of allowedFields) {
+    if (req.body[key] !== undefined) violationData[key] = req.body[key];
+  }
+
+  const violation = await Violation.create(violationData);
 
   auditService.log(req, 'create', 'violation', violation._id, { basic: req.body.basic, inspectionNumber: req.body.inspectionNumber });
 
@@ -176,20 +181,23 @@ router.put('/:id', checkPermission('violations', 'edit'), asyncHandler(async (re
     throw new AppError('Violation not found', 404);
   }
 
-  delete req.body.companyId;
+  const allowedUpdateFields = ['driverId', 'vehicleId', 'inspectionNumber', 'violationDate', 'basic', 'violationType', 'description', 'severityWeight', 'outOfService', 'status', 'notes', 'weightedSeverity', 'inspectionState', 'timeWeight'];
+  const updateData = {};
+  for (const key of allowedUpdateFields) {
+    if (req.body[key] !== undefined) updateData[key] = req.body[key];
+  }
 
   // Add history entry
-  if (!req.body.history) req.body.history = [];
   violation.history.push({
     action: 'updated',
     userId: req.user._id,
     notes: 'Violation record updated'
   });
-  req.body.history = violation.history;
+  updateData.history = violation.history;
 
   violation = await Violation.findByIdAndUpdate(
     req.params.id,
-    req.body,
+    updateData,
     { new: true, runValidators: true }
   );
 

@@ -16,7 +16,7 @@ router.use(restrictToCompany);
 // @route   GET /api/checklists/templates
 // @desc    Get all checklist templates
 // @access  Private
-router.get('/templates', asyncHandler(async (req, res) => {
+router.get('/templates', checkPermission('checklists', 'view'), asyncHandler(async (req, res) => {
   const { category, search, includeDefaults = 'true' } = req.query;
 
   const query = {
@@ -46,7 +46,7 @@ router.get('/templates', asyncHandler(async (req, res) => {
 // @route   GET /api/checklists/templates/:id
 // @desc    Get single template
 // @access  Private
-router.get('/templates/:id', asyncHandler(async (req, res) => {
+router.get('/templates/:id', checkPermission('checklists', 'view'), asyncHandler(async (req, res) => {
   const template = await ChecklistTemplate.findOne({
     _id: req.params.id,
     $or: [
@@ -65,7 +65,7 @@ router.get('/templates/:id', asyncHandler(async (req, res) => {
 // @route   POST /api/checklists/templates
 // @desc    Create new template
 // @access  Private (Admin)
-router.post('/templates', [
+router.post('/templates', checkPermission('checklists', 'edit'), [
   body('name').trim().notEmpty().withMessage('Template name is required'),
   body('category').optional().isIn(['onboarding', 'audit', 'maintenance', 'file_review', 'custom']),
   body('items').isArray({ min: 1 }).withMessage('At least one item is required')
@@ -96,7 +96,7 @@ router.post('/templates', [
 // @route   PUT /api/checklists/templates/:id
 // @desc    Update template
 // @access  Private (Admin)
-router.put('/templates/:id', asyncHandler(async (req, res) => {
+router.put('/templates/:id', checkPermission('checklists', 'edit'), asyncHandler(async (req, res) => {
   let template = await ChecklistTemplate.findOne({
     _id: req.params.id,
     companyId: req.companyFilter.companyId,
@@ -127,7 +127,7 @@ router.put('/templates/:id', asyncHandler(async (req, res) => {
 // @route   DELETE /api/checklists/templates/:id
 // @desc    Delete template (soft delete by setting isActive = false)
 // @access  Private (Admin)
-router.delete('/templates/:id', asyncHandler(async (req, res) => {
+router.delete('/templates/:id', checkPermission('checklists', 'edit'), asyncHandler(async (req, res) => {
   const template = await ChecklistTemplate.findOne({
     _id: req.params.id,
     companyId: req.companyFilter.companyId,
@@ -155,7 +155,7 @@ router.delete('/templates/:id', asyncHandler(async (req, res) => {
 // @route   GET /api/checklists/assignments
 // @desc    Get all checklist assignments
 // @access  Private
-router.get('/assignments', asyncHandler(async (req, res) => {
+router.get('/assignments', checkPermission('checklists', 'view'), asyncHandler(async (req, res) => {
   const { status, assignedType, assignedId, templateId, page = 1, limit = 20 } = req.query;
 
   const query = { companyId: req.companyFilter.companyId };
@@ -190,7 +190,7 @@ router.get('/assignments', asyncHandler(async (req, res) => {
 // @route   GET /api/checklists/assignments/stats
 // @desc    Get assignment statistics
 // @access  Private
-router.get('/assignments/stats', asyncHandler(async (req, res) => {
+router.get('/assignments/stats', checkPermission('checklists', 'view'), asyncHandler(async (req, res) => {
   const companyId = req.companyFilter.companyId;
 
   const stats = await ChecklistAssignment.aggregate([
@@ -225,7 +225,7 @@ router.get('/assignments/stats', asyncHandler(async (req, res) => {
 // @route   GET /api/checklists/assignments/:id
 // @desc    Get single assignment with full details
 // @access  Private
-router.get('/assignments/:id', asyncHandler(async (req, res) => {
+router.get('/assignments/:id', checkPermission('checklists', 'view'), asyncHandler(async (req, res) => {
   const assignment = await ChecklistAssignment.findOne({
     _id: req.params.id,
     companyId: req.companyFilter.companyId
@@ -245,7 +245,7 @@ router.get('/assignments/:id', asyncHandler(async (req, res) => {
 // @route   POST /api/checklists/assignments
 // @desc    Create new assignment from template
 // @access  Private
-router.post('/assignments', [
+router.post('/assignments', checkPermission('checklists', 'edit'), [
   body('templateId').notEmpty().withMessage('Template ID is required'),
   body('assignedTo.type').isIn(['driver', 'vehicle', 'company', 'audit']).withMessage('Valid assigned type is required')
 ], asyncHandler(async (req, res) => {
@@ -280,7 +280,7 @@ router.post('/assignments', [
 // @route   PATCH /api/checklists/assignments/:id/items/:itemId
 // @desc    Toggle item completion status
 // @access  Private
-router.patch('/assignments/:id/items/:itemId', asyncHandler(async (req, res) => {
+router.patch('/assignments/:id/items/:itemId', checkPermission('checklists', 'edit'), asyncHandler(async (req, res) => {
   const assignment = await ChecklistAssignment.findOne({
     _id: req.params.id,
     companyId: req.companyFilter.companyId
@@ -322,7 +322,7 @@ router.patch('/assignments/:id/items/:itemId', asyncHandler(async (req, res) => 
 // @route   POST /api/checklists/assignments/:id/notes
 // @desc    Add note to assignment
 // @access  Private
-router.post('/assignments/:id/notes', [
+router.post('/assignments/:id/notes', checkPermission('checklists', 'edit'), [
   body('content').trim().notEmpty().withMessage('Note content is required')
 ], asyncHandler(async (req, res) => {
   const errors = validationResult(req);
@@ -356,7 +356,7 @@ router.post('/assignments/:id/notes', [
 // @route   DELETE /api/checklists/assignments/:id
 // @desc    Delete assignment
 // @access  Private
-router.delete('/assignments/:id', asyncHandler(async (req, res) => {
+router.delete('/assignments/:id', checkPermission('checklists', 'edit'), asyncHandler(async (req, res) => {
   const assignment = await ChecklistAssignment.findOne({
     _id: req.params.id,
     companyId: req.companyFilter.companyId
@@ -381,7 +381,7 @@ router.delete('/assignments/:id', asyncHandler(async (req, res) => {
 // @route   POST /api/checklists/seed-defaults
 // @desc    Seed default templates (admin only)
 // @access  Private (Super Admin)
-router.post('/seed-defaults', asyncHandler(async (req, res) => {
+router.post('/seed-defaults', checkPermission('checklists', 'edit'), asyncHandler(async (req, res) => {
   const existingDefaults = await ChecklistTemplate.countDocuments({ isDefault: true });
 
   if (existingDefaults > 0) {

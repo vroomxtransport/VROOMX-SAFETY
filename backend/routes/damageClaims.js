@@ -186,7 +186,7 @@ router.post('/', [
 
   const claimData = {
     ...req.body,
-    companyId: req.user.companyId._id || req.user.companyId
+    companyId: req.companyFilter.companyId
   };
 
   // Add initial history entry

@@ -193,7 +193,7 @@ router.post('/', checkPermission('drivers', 'edit'), checkDriverLimit, [
   session.startTransaction();
   try {
     // Re-check driver count within the transaction
-    const companyId = req.user.companyId._id || req.user.companyId;
+    const companyId = req.companyFilter.companyId;
     const plan = req.user.subscription?.plan || 'free_trial';
 
     const driverCount = await Driver.countDocuments({

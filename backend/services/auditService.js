@@ -20,7 +20,7 @@ const auditService = {
         resourceId: resourceId || undefined,
         userId: req.user?._id || req.user?.id,
         userEmail: req.user?.email,
-        companyId: req.activeCompanyId || activeCompany?.companyId || activeCompany?.id,
+        companyId: req.companyFilter?.companyId || req.activeCompanyId || activeCompany?.companyId || activeCompany?.id,
         details,
         ipAddress: req.ip || req.headers?.['x-forwarded-for'] || req.connection?.remoteAddress,
         userAgent: req.headers?.['user-agent'],

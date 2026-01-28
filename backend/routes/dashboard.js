@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { Driver, Vehicle, Violation, DrugAlcoholTest, Document, Accident, Company } = require('../models');
 const Alert = require('../models/Alert');
-const { protect, restrictToCompany } = require('../middleware/auth');
+const { protect, restrictToCompany, checkPermission } = require('../middleware/auth');
 const { asyncHandler } = require('../middleware/errorHandler');
 const { SMS_BASICS_THRESHOLDS, getComplianceStatus } = require('../config/fmcsaCompliance');
 const alertService = require('../services/alertService');
@@ -16,7 +16,7 @@ router.use(restrictToCompany);
 // @desc    Get comprehensive dashboard data
 // @access  Private
 router.get('/', asyncHandler(async (req, res) => {
-  const companyId = req.user.companyId._id || req.user.companyId;
+  const companyId = req.companyFilter.companyId;
   const now = new Date();
   const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
 
@@ -323,11 +323,11 @@ router.get('/', asyncHandler(async (req, res) => {
 // @route   PUT /api/dashboard/basics
 // @desc    Update SMS BASICs percentiles
 // @access  Private
-router.put('/basics', asyncHandler(async (req, res) => {
+router.put('/basics', checkPermission('dashboard', 'edit'), asyncHandler(async (req, res) => {
   const { unsafeDriving, hoursOfService, vehicleMaintenance, controlledSubstances, driverFitness, crashIndicator } = req.body;
 
   const company = await Company.findByIdAndUpdate(
-    req.user.companyId._id || req.user.companyId,
+    req.companyFilter.companyId,
     {
       smsBasics: {
         unsafeDriving,
@@ -353,7 +353,7 @@ router.put('/basics', asyncHandler(async (req, res) => {
 // @desc    Force refresh FMCSA data from SAFER (real CSA scores)
 // @access  Private
 router.post('/refresh-fmcsa', asyncHandler(async (req, res) => {
-  const companyId = req.user.companyId._id || req.user.companyId;
+  const companyId = req.companyFilter.companyId;
 
   const smsBasics = await fmcsaSyncService.forceRefresh(companyId);
 
@@ -379,7 +379,7 @@ router.post('/refresh-fmcsa', asyncHandler(async (req, res) => {
 // @desc    Get FMCSA data sync status
 // @access  Private
 router.get('/fmcsa-status', asyncHandler(async (req, res) => {
-  const companyId = req.user.companyId._id || req.user.companyId;
+  const companyId = req.companyFilter.companyId;
   const company = await Company.findById(companyId).select('smsBasics fmcsaData dotNumber');
 
   const isStale = await fmcsaSyncService.isDataStale(companyId);
@@ -398,7 +398,7 @@ router.get('/fmcsa-status', asyncHandler(async (req, res) => {
 // @desc    Get audit readiness checklist
 // @access  Private
 router.get('/audit-readiness', asyncHandler(async (req, res) => {
-  const companyId = req.user.companyId._id || req.user.companyId;
+  const companyId = req.companyFilter.companyId;
 
   // Check DQ files completeness
   const activeDrivers = await Driver.find({
@@ -493,7 +493,7 @@ router.get('/audit-readiness', asyncHandler(async (req, res) => {
 // @desc    Get all alerts with filtering
 // @access  Private
 router.get('/alerts', asyncHandler(async (req, res) => {
-  const companyId = req.user.companyId._id || req.user.companyId;
+  const companyId = req.companyFilter.companyId;
   const { type, category, status, page, limit } = req.query;
 
   const result = await alertService.getAlerts(companyId, {
@@ -514,7 +514,7 @@ router.get('/alerts', asyncHandler(async (req, res) => {
 // @desc    Get alert counts by type
 // @access  Private
 router.get('/alerts/counts', asyncHandler(async (req, res) => {
-  const companyId = req.user.companyId._id || req.user.companyId;
+  const companyId = req.companyFilter.companyId;
   const counts = await alertService.getAlertCounts(companyId);
 
   res.json({
@@ -527,7 +527,7 @@ router.get('/alerts/counts', asyncHandler(async (req, res) => {
 // @desc    Get dismissed alerts for audit
 // @access  Private
 router.get('/alerts/audit-trail', asyncHandler(async (req, res) => {
-  const companyId = req.user.companyId._id || req.user.companyId;
+  const companyId = req.companyFilter.companyId;
   const { limit } = req.query;
 
   const dismissedAlerts = await alertService.getDismissedAlerts(
@@ -544,8 +544,8 @@ router.get('/alerts/audit-trail', asyncHandler(async (req, res) => {
 // @route   POST /api/dashboard/alerts/generate
 // @desc    Generate/refresh alerts for the company
 // @access  Private
-router.post('/alerts/generate', asyncHandler(async (req, res) => {
-  const companyId = req.user.companyId._id || req.user.companyId;
+router.post('/alerts/generate', checkPermission('dashboard', 'edit'), asyncHandler(async (req, res) => {
+  const companyId = req.companyFilter.companyId;
   const result = await alertService.generateAlerts(companyId);
 
   res.json({
@@ -597,7 +597,7 @@ router.put('/alerts/:id/resolve', asyncHandler(async (req, res) => {
 // @desc    Get alerts grouped by type (critical, warning, info)
 // @access  Private
 router.get('/alerts/grouped', asyncHandler(async (req, res) => {
-  const companyId = req.user.companyId._id || req.user.companyId;
+  const companyId = req.companyFilter.companyId;
   const { status } = req.query;
 
   const result = await alertService.getAlerts(companyId, {
@@ -670,7 +670,7 @@ router.post('/alerts/dismiss-bulk', asyncHandler(async (req, res) => {
 // @desc    Get current compliance score with breakdown
 // @access  Private
 router.get('/compliance-score', asyncHandler(async (req, res) => {
-  const companyId = req.user.companyId._id || req.user.companyId;
+  const companyId = req.companyFilter.companyId;
   const score = await complianceScoreService.getScore(companyId);
 
   res.json({
@@ -683,7 +683,7 @@ router.get('/compliance-score', asyncHandler(async (req, res) => {
 // @desc    Get compliance score history
 // @access  Private
 router.get('/compliance-score/history', asyncHandler(async (req, res) => {
-  const companyId = req.user.companyId._id || req.user.companyId;
+  const companyId = req.companyFilter.companyId;
   const { days } = req.query;
 
   const history = await complianceScoreService.getHistory(
@@ -701,7 +701,7 @@ router.get('/compliance-score/history', asyncHandler(async (req, res) => {
 // @desc    Get detailed compliance score breakdown with recommendations
 // @access  Private
 router.get('/compliance-score/breakdown', asyncHandler(async (req, res) => {
-  const companyId = req.user.companyId._id || req.user.companyId;
+  const companyId = req.companyFilter.companyId;
   const breakdown = await complianceScoreService.getBreakdown(companyId);
 
   res.json({
@@ -714,7 +714,7 @@ router.get('/compliance-score/breakdown', asyncHandler(async (req, res) => {
 // @desc    Force recalculate compliance score
 // @access  Private
 router.post('/compliance-score/calculate', asyncHandler(async (req, res) => {
-  const companyId = req.user.companyId._id || req.user.companyId;
+  const companyId = req.companyFilter.companyId;
   const score = await complianceScoreService.calculateScore(companyId);
 
   res.json({

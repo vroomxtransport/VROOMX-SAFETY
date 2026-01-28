@@ -112,7 +112,7 @@ router.post('/confirm', checkPermission('violations', 'edit'),
       throw new AppError('Inspection data and violations are required', 400);
     }
 
-    const companyId = req.user.companyId._id || req.user.companyId;
+    const companyId = req.companyFilter.companyId;
 
     // Verify driver and vehicle belong to company
     if (driverId) {
@@ -198,7 +198,7 @@ router.post('/confirm', checkPermission('violations', 'edit'),
 router.post('/:violationId/dispute', checkPermission('violations', 'edit'),
   asyncHandler(async (req, res) => {
     const { reason, challengeType } = req.body;
-    const companyId = req.user.companyId._id || req.user.companyId;
+    const companyId = req.companyFilter.companyId;
 
     // Find the violation
     const violation = await Violation.findOne({

@@ -9,6 +9,10 @@ const { uploadSingle, getFileUrl, deleteFile } = require('../middleware/upload')
 const openaiVisionService = require('../services/openaiVisionService');
 const auditService = require('../services/auditService');
 
+function escapeRegex(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 // Apply authentication to all routes
 router.use(protect);
 router.use(restrictToCompany);
@@ -16,7 +20,7 @@ router.use(restrictToCompany);
 // @route   GET /api/maintenance
 // @desc    Get all maintenance records with filtering
 // @access  Private
-router.get('/', asyncHandler(async (req, res) => {
+router.get('/', checkPermission('maintenance', 'view'), asyncHandler(async (req, res) => {
   const {
     vehicleId,
     recordType,
@@ -44,9 +48,9 @@ router.get('/', asyncHandler(async (req, res) => {
 
   if (search) {
     query.$or = [
-      { description: { $regex: search, $options: 'i' } },
-      { 'provider.name': { $regex: search, $options: 'i' } },
-      { notes: { $regex: search, $options: 'i' } }
+      { description: { $regex: escapeRegex(search), $options: 'i' } },
+      { 'provider.name': { $regex: escapeRegex(search), $options: 'i' } },
+      { notes: { $regex: escapeRegex(search), $options: 'i' } }
     ];
   }
 
@@ -75,7 +79,7 @@ router.get('/', asyncHandler(async (req, res) => {
 // @route   GET /api/maintenance/stats
 // @desc    Get maintenance statistics
 // @access  Private
-router.get('/stats', asyncHandler(async (req, res) => {
+router.get('/stats', checkPermission('maintenance', 'view'), asyncHandler(async (req, res) => {
   const companyId = req.companyFilter.companyId;
 
   // Get counts by type
@@ -158,7 +162,7 @@ router.get('/stats', asyncHandler(async (req, res) => {
 // @route   GET /api/maintenance/upcoming
 // @desc    Get upcoming scheduled services
 // @access  Private
-router.get('/upcoming', asyncHandler(async (req, res) => {
+router.get('/upcoming', checkPermission('maintenance', 'view'), asyncHandler(async (req, res) => {
   const { days = 30 } = req.query;
   const companyId = req.companyFilter.companyId;
 
@@ -174,7 +178,7 @@ router.get('/upcoming', asyncHandler(async (req, res) => {
 // @route   GET /api/maintenance/overdue
 // @desc    Get overdue services
 // @access  Private
-router.get('/overdue', asyncHandler(async (req, res) => {
+router.get('/overdue', checkPermission('maintenance', 'view'), asyncHandler(async (req, res) => {
   const companyId = req.companyFilter.companyId;
 
   const records = await MaintenanceRecord.getOverdueServices(companyId);
@@ -189,7 +193,7 @@ router.get('/overdue', asyncHandler(async (req, res) => {
 // @route   GET /api/maintenance/vehicle/:vehicleId
 // @desc    Get maintenance history for a specific vehicle
 // @access  Private
-router.get('/vehicle/:vehicleId', asyncHandler(async (req, res) => {
+router.get('/vehicle/:vehicleId', checkPermission('maintenance', 'view'), asyncHandler(async (req, res) => {
   const { page = 1, limit = 50 } = req.query;
 
   // Verify vehicle belongs to company
@@ -246,7 +250,7 @@ router.get('/vehicle/:vehicleId', asyncHandler(async (req, res) => {
 // @route   GET /api/maintenance/:id
 // @desc    Get single maintenance record
 // @access  Private
-router.get('/:id', asyncHandler(async (req, res) => {
+router.get('/:id', checkPermission('maintenance', 'view'), asyncHandler(async (req, res) => {
   const record = await MaintenanceRecord.findOne({
     _id: req.params.id,
     companyId: req.companyFilter.companyId
@@ -265,7 +269,7 @@ router.get('/:id', asyncHandler(async (req, res) => {
 // @route   POST /api/maintenance
 // @desc    Create new maintenance record
 // @access  Private
-router.post('/', [
+router.post('/', checkPermission('maintenance', 'edit'), [
   body('vehicleId').notEmpty().withMessage('Vehicle is required'),
   body('recordType').isIn([
     'preventive_maintenance', 'annual_inspection', 'repair',
@@ -357,7 +361,7 @@ router.post('/', [
 // @route   POST /api/maintenance/smart-upload
 // @desc    Upload invoice/work order and extract data using AI
 // @access  Private
-router.post('/smart-upload', uploadSingle('file'), asyncHandler(async (req, res) => {
+router.post('/smart-upload', checkPermission('maintenance', 'edit'), uploadSingle('file'), asyncHandler(async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ success: false, message: 'No file uploaded' });
   }
@@ -399,7 +403,7 @@ router.post('/smart-upload', uploadSingle('file'), asyncHandler(async (req, res)
 // @route   PUT /api/maintenance/:id
 // @desc    Update maintenance record
 // @access  Private
-router.put('/:id', asyncHandler(async (req, res) => {
+router.put('/:id', checkPermission('maintenance', 'edit'), asyncHandler(async (req, res) => {
   let record = await MaintenanceRecord.findOne({
     _id: req.params.id,
     companyId: req.companyFilter.companyId
@@ -475,7 +479,7 @@ router.put('/:id', asyncHandler(async (req, res) => {
 // @route   DELETE /api/maintenance/:id
 // @desc    Delete maintenance record
 // @access  Private
-router.delete('/:id', asyncHandler(async (req, res) => {
+router.delete('/:id', checkPermission('maintenance', 'edit'), asyncHandler(async (req, res) => {
   const record = await MaintenanceRecord.findOne({
     _id: req.params.id,
     companyId: req.companyFilter.companyId
@@ -507,7 +511,7 @@ router.delete('/:id', asyncHandler(async (req, res) => {
 // @route   POST /api/maintenance/:id/defects/:defectIndex/correct
 // @desc    Mark a defect as corrected
 // @access  Private
-router.post('/:id/defects/:defectIndex/correct', asyncHandler(async (req, res) => {
+router.post('/:id/defects/:defectIndex/correct', checkPermission('maintenance', 'edit'), asyncHandler(async (req, res) => {
   const record = await MaintenanceRecord.findOne({
     _id: req.params.id,
     companyId: req.companyFilter.companyId
@@ -538,7 +542,7 @@ router.post('/:id/defects/:defectIndex/correct', asyncHandler(async (req, res) =
 // @route   GET /api/maintenance/export/vehicle/:vehicleId
 // @desc    Export maintenance history for a vehicle (CSV)
 // @access  Private
-router.get('/export/vehicle/:vehicleId', asyncHandler(async (req, res) => {
+router.get('/export/vehicle/:vehicleId', checkPermission('maintenance', 'view'), asyncHandler(async (req, res) => {
   // Verify vehicle belongs to company
   const vehicle = await Vehicle.findOne({
     _id: req.params.vehicleId,
@@ -586,7 +590,7 @@ router.get('/export/vehicle/:vehicleId', asyncHandler(async (req, res) => {
 // @route   POST /api/maintenance/:id/documents
 // @desc    Upload a document to a maintenance record
 // @access  Private
-router.post('/:id/documents', uploadSingle('file'), asyncHandler(async (req, res) => {
+router.post('/:id/documents', checkPermission('maintenance', 'edit'), uploadSingle('file'), asyncHandler(async (req, res) => {
   const record = await MaintenanceRecord.findOne({
     _id: req.params.id,
     companyId: req.companyFilter.companyId
@@ -622,7 +626,7 @@ router.post('/:id/documents', uploadSingle('file'), asyncHandler(async (req, res
 // @route   DELETE /api/maintenance/:id/documents/:docId
 // @desc    Delete a document from a maintenance record
 // @access  Private
-router.delete('/:id/documents/:docId', asyncHandler(async (req, res) => {
+router.delete('/:id/documents/:docId', checkPermission('maintenance', 'edit'), asyncHandler(async (req, res) => {
   const record = await MaintenanceRecord.findOne({
     _id: req.params.id,
     companyId: req.companyFilter.companyId

@@ -68,7 +68,7 @@ router.post('/:templateKey/preview', asyncHandler(async (req, res) => {
   const { templateKey } = req.params;
   const { data } = req.body;
 
-  const companyId = req.user.companyId._id || req.user.companyId;
+  const companyId = req.companyFilter.companyId;
   const company = await Company.findById(companyId);
 
   if (!company) {
@@ -105,7 +105,7 @@ router.post('/:templateKey/generate', asyncHandler(async (req, res) => {
   const { templateKey } = req.params;
   const { data, saveToDocuments, documentName, driverId, vehicleId } = req.body;
 
-  const companyId = req.user.companyId._id || req.user.companyId;
+  const companyId = req.companyFilter.companyId;
   const company = await Company.findById(companyId);
 
   if (!company) {

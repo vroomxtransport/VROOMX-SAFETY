@@ -14,7 +14,7 @@ router.use(restrictToCompany);
 // @access  Private
 router.get('/dqf', checkPermission('reports', 'view'), asyncHandler(async (req, res) => {
   const { driverId, format = 'json' } = req.query;
-  const companyId = req.user.companyId._id || req.user.companyId;
+  const companyId = req.companyFilter.companyId;
 
   const query = { companyId, status: 'active' };
   if (driverId) query._id = driverId;
@@ -120,7 +120,7 @@ router.get('/dqf', checkPermission('reports', 'view'), asyncHandler(async (req, 
 // @access  Private
 router.get('/vehicle-maintenance', checkPermission('reports', 'view'), asyncHandler(async (req, res) => {
   const { vehicleId, startDate, endDate, format = 'json' } = req.query;
-  const companyId = req.user.companyId._id || req.user.companyId;
+  const companyId = req.companyFilter.companyId;
 
   const query = { companyId };
   if (vehicleId) query._id = vehicleId;
@@ -214,7 +214,7 @@ router.get('/vehicle-maintenance', checkPermission('reports', 'view'), asyncHand
 // @access  Private
 router.get('/violations', checkPermission('reports', 'view'), asyncHandler(async (req, res) => {
   const { startDate, endDate, format = 'json' } = req.query;
-  const companyId = req.user.companyId._id || req.user.companyId;
+  const companyId = req.companyFilter.companyId;
 
   const query = { companyId };
   if (startDate || endDate) {
@@ -329,7 +329,7 @@ router.get('/violations', checkPermission('reports', 'view'), asyncHandler(async
 // @access  Private
 router.get('/audit', checkPermission('reports', 'export'), asyncHandler(async (req, res) => {
   const { format = 'json' } = req.query;
-  const companyId = req.user.companyId._id || req.user.companyId;
+  const companyId = req.companyFilter.companyId;
 
   const [company, drivers, vehicles, violations, drugTests, documents] = await Promise.all([
     Company.findById(companyId),

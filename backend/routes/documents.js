@@ -165,6 +165,45 @@ router.get('/ai-status', checkPermission('documents', 'view'), (req, res) => {
   });
 });
 
+// @route   GET /api/documents/:id/download
+// @desc    Download document file (authenticated)
+// @access  Private
+router.get('/:id/download', checkPermission('documents', 'view'), asyncHandler(async (req, res) => {
+  const path = require('path');
+  const fs = require('fs');
+
+  const document = await Document.findOne({
+    _id: req.params.id,
+    ...req.companyFilter,
+    isDeleted: false
+  });
+
+  if (!document) {
+    throw new AppError('Document not found', 404);
+  }
+
+  if (!document.filePath) {
+    throw new AppError('No file associated with this document', 404);
+  }
+
+  const absolutePath = path.resolve(document.filePath);
+  if (!fs.existsSync(absolutePath)) {
+    throw new AppError('File not found on server', 404);
+  }
+
+  // Set content disposition for download
+  const filename = document.fileName || path.basename(absolutePath);
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+  if (document.fileType) {
+    const mimeTypes = { '.pdf': 'application/pdf', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.doc': 'application/msword', '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' };
+    const mime = mimeTypes[document.fileType.toLowerCase()] || 'application/octet-stream';
+    res.setHeader('Content-Type', mime);
+  }
+
+  const fileStream = fs.createReadStream(absolutePath);
+  fileStream.pipe(res);
+}));
+
 // @route   GET /api/documents/:id
 // @desc    Get single document
 // @access  Private
@@ -208,7 +247,7 @@ router.post('/', checkPermission('documents', 'upload'),
     const fileExt = req.file.originalname.split('.').pop().toLowerCase();
 
     const document = await Document.create({
-      companyId: req.user.companyId._id || req.user.companyId,
+      companyId: req.companyFilter.companyId,
       category,
       documentType,
       name: name || req.file.originalname,
@@ -257,7 +296,7 @@ router.post('/smart-upload', checkPermission('documents', 'upload'),
       autoCreateRecords = 'false'
     } = req.body;
 
-    const companyId = req.user.companyId._id || req.user.companyId;
+    const companyId = req.companyFilter.companyId;
 
     // Process the document with AI
     const result = await documentIntelligenceService.processDocument(req.file.path, {
@@ -393,7 +432,7 @@ router.post('/:id/apply-extraction', checkPermission('documents', 'upload'),
     }
 
     const { driverId, vehicleId } = req.body;
-    const companyId = req.user.companyId._id || req.user.companyId;
+    const companyId = req.companyFilter.companyId;
 
     // Determine document type from category/documentType
     const typeMapping = {
@@ -441,7 +480,7 @@ router.post('/bulk', checkPermission('documents', 'upload'),
       const fileExt = file.originalname.split('.').pop().toLowerCase();
 
       return Document.create({
-        companyId: req.user.companyId._id || req.user.companyId,
+        companyId: req.companyFilter.companyId,
         category: category || 'other',
         documentType: documentType || 'other',
         name: file.originalname,
@@ -478,15 +517,15 @@ router.put('/:id', checkPermission('documents', 'upload'), asyncHandler(async (r
     throw new AppError('Document not found', 404);
   }
 
-  // Don't allow changing certain fields
-  delete req.body.companyId;
-  delete req.body.filePath;
-  delete req.body.fileUrl;
-  delete req.body.uploadedBy;
+  const allowedUpdateFields = ['name', 'description', 'category', 'documentType', 'expiryDate', 'driverId', 'vehicleId', 'tags', 'status', 'notes'];
+  const updateData = {};
+  for (const key of allowedUpdateFields) {
+    if (req.body[key] !== undefined) updateData[key] = req.body[key];
+  }
 
   document = await Document.findByIdAndUpdate(
     req.params.id,
-    req.body,
+    updateData,
     { new: true, runValidators: true }
   );
 

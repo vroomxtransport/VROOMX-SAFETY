@@ -12,7 +12,7 @@ router.use(restrictToCompany);
 // @desc    Get current BASIC scores for the company
 // @access  Private
 router.get('/current', asyncHandler(async (req, res) => {
-  const companyId = req.user.companyId._id || req.user.companyId;
+  const companyId = req.companyFilter.companyId;
 
   const results = await csaCalculatorService.calculateAllBasics(companyId);
 
@@ -28,7 +28,7 @@ router.get('/current', asyncHandler(async (req, res) => {
 // @desc    Get score summary with worst/best BASICs
 // @access  Private
 router.get('/summary', asyncHandler(async (req, res) => {
-  const companyId = req.user.companyId._id || req.user.companyId;
+  const companyId = req.companyFilter.companyId;
 
   const summary = await csaCalculatorService.getScoreSummary(companyId);
 
@@ -43,7 +43,7 @@ router.get('/summary', asyncHandler(async (req, res) => {
 // @desc    Get current scores (may use stored data if recent)
 // @access  Private
 router.get('/scores', asyncHandler(async (req, res) => {
-  const companyId = req.user.companyId._id || req.user.companyId;
+  const companyId = req.companyFilter.companyId;
 
   const { scores, source, lastUpdated } = await csaCalculatorService.getCurrentScores(companyId);
 
@@ -63,7 +63,7 @@ router.get('/scores', asyncHandler(async (req, res) => {
 // @desc    Project the impact of a hypothetical new violation
 // @access  Private
 router.post('/project-impact', asyncHandler(async (req, res) => {
-  const companyId = req.user.companyId._id || req.user.companyId;
+  const companyId = req.companyFilter.companyId;
   const { basic, severityWeight, violationCode, outOfService, violationDate } = req.body;
 
   if (!basic) {
@@ -104,7 +104,7 @@ router.post('/project-impact', asyncHandler(async (req, res) => {
 // @desc    Project how scores will change over time as violations age
 // @access  Private
 router.get('/time-decay', asyncHandler(async (req, res) => {
-  const companyId = req.user.companyId._id || req.user.companyId;
+  const companyId = req.companyFilter.companyId;
   const monthsAhead = Math.min(parseInt(req.query.months) || 24, 36);
 
   const projections = await csaCalculatorService.projectTimeDecay(companyId, monthsAhead);
@@ -256,7 +256,7 @@ router.get('/basics', (req, res) => {
 // @desc    Get CSA score history for trend charts
 // @access  Private
 router.get('/history', asyncHandler(async (req, res) => {
-  const companyId = req.user.companyId._id || req.user.companyId;
+  const companyId = req.companyFilter.companyId;
   const { days = 90, startDate, endDate } = req.query;
 
   const history = await CSAScoreHistory.getHistory(companyId, {
@@ -293,7 +293,7 @@ router.get('/history', asyncHandler(async (req, res) => {
 // @desc    Get trend summary with insights
 // @access  Private
 router.get('/trend-summary', asyncHandler(async (req, res) => {
-  const companyId = req.user.companyId._id || req.user.companyId;
+  const companyId = req.companyFilter.companyId;
   const { days = 30 } = req.query;
 
   const summary = await CSAScoreHistory.getTrendSummary(companyId, parseInt(days));
@@ -308,7 +308,7 @@ router.get('/trend-summary', asyncHandler(async (req, res) => {
 // @desc    Get CSA score alerts (threshold crossings, significant changes)
 // @access  Private
 router.get('/alerts', asyncHandler(async (req, res) => {
-  const companyId = req.user.companyId._id || req.user.companyId;
+  const companyId = req.companyFilter.companyId;
 
   const alerts = await CSAScoreHistory.checkForAlerts(companyId);
 
@@ -323,7 +323,7 @@ router.get('/alerts', asyncHandler(async (req, res) => {
 // @desc    Compare scores between two dates
 // @access  Private
 router.get('/compare', asyncHandler(async (req, res) => {
-  const companyId = req.user.companyId._id || req.user.companyId;
+  const companyId = req.companyFilter.companyId;
   const { startDate, endDate } = req.query;
 
   if (!startDate || !endDate) {
@@ -386,7 +386,7 @@ router.get('/compare', asyncHandler(async (req, res) => {
 // @desc    Export CSA history as CSV
 // @access  Private
 router.get('/export', asyncHandler(async (req, res) => {
-  const companyId = req.user.companyId._id || req.user.companyId;
+  const companyId = req.companyFilter.companyId;
   const { days = 365, format = 'csv' } = req.query;
 
   const history = await CSAScoreHistory.getHistory(companyId, { days: parseInt(days), limit: 500 });

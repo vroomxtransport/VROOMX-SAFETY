@@ -164,7 +164,7 @@ router.post('/', checkPermission('violations', 'edit'), [
   // Verify driver belongs to company
   const driver = await Driver.findOne({
     _id: req.body.driverId,
-    companyId: req.user.companyId._id || req.user.companyId
+    companyId: req.companyFilter.companyId
   });
 
   if (!driver) {
@@ -173,7 +173,7 @@ router.post('/', checkPermission('violations', 'edit'), [
 
   const ticket = await Ticket.create({
     ...req.body,
-    companyId: req.user.companyId._id || req.user.companyId,
+    companyId: req.companyFilter.companyId,
     createdBy: req.user._id
   });
 

@@ -162,7 +162,7 @@ router.post('/', checkPermission('vehicles', 'edit'), checkVehicleLimit, [
   session.startTransaction();
   try {
     // Re-check vehicle count within the transaction
-    const companyId = req.user.companyId._id || req.user.companyId;
+    const companyId = req.companyFilter.companyId;
     const plan = req.user.subscription?.plan || 'free_trial';
 
     const vehicleCount = await Vehicle.countDocuments({
@@ -203,10 +203,13 @@ router.post('/', checkPermission('vehicles', 'edit'), checkVehicleLimit, [
       });
     }
 
-    const vehicle = await Vehicle.create([{
-      ...req.body,
-      companyId
-    }], { session });
+    const allowedFields = ['unitNumber', 'vin', 'make', 'model', 'year', 'type', 'licensePlate', 'state', 'status', 'color', 'gvwr', 'tireSize', 'ownership', 'iftaDecalNumber', 'dateAddedToFleet', 'dateRemovedFromFleet', 'cabCardExpiry', 'annualExpiry', 'registration', 'insurance', 'annualInspection', 'notes', 'vehicleType'];
+    const vehicleData = { companyId };
+    for (const key of allowedFields) {
+      if (req.body[key] !== undefined) vehicleData[key] = req.body[key];
+    }
+
+    const vehicle = await Vehicle.create([vehicleData], { session });
 
     await session.commitTransaction();
 
@@ -237,11 +240,15 @@ router.put('/:id', checkPermission('vehicles', 'edit'), asyncHandler(async (req,
     throw new AppError('Vehicle not found', 404);
   }
 
-  delete req.body.companyId;
+  const allowedUpdateFields = ['unitNumber', 'vin', 'make', 'model', 'year', 'type', 'licensePlate', 'state', 'status', 'color', 'gvwr', 'tireSize', 'ownership', 'iftaDecalNumber', 'dateAddedToFleet', 'dateRemovedFromFleet', 'cabCardExpiry', 'annualExpiry', 'registration', 'insurance', 'annualInspection', 'notes', 'vehicleType'];
+  const updateData = {};
+  for (const key of allowedUpdateFields) {
+    if (req.body[key] !== undefined) updateData[key] = req.body[key];
+  }
 
   vehicle = await Vehicle.findByIdAndUpdate(
     req.params.id,
-    req.body,
+    updateData,
     { new: true, runValidators: true }
   );
 

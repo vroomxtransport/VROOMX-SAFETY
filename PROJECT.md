@@ -276,6 +276,25 @@ npm run dev  # Starts on port 5173
 
 ## Changelog
 
+### 2026-01-28 (Static Analysis Audit Remediation — 9 Fixes)
+- **Security:** Fixed tenant isolation — replaced 44 occurrences of legacy `req.user.companyId._id || req.user.companyId` with `req.companyFilter.companyId` across 13 route files. Prevents multi-company users from writing data to stale/wrong company.
+  - Files: `drivers.js`, `documents.js`, `vehicles.js`, `accidents.js`, `violations.js`, `damageClaims.js`, `drugAlcohol.js`, `tickets.js`, `inspections.js`, `dashboard.js`, `reports.js`, `csa.js`, `templates.js`
+- **Security:** Added `checkPermission()` middleware to all previously unprotected endpoints in tasks (10 routes), maintenance (14 routes), checklists (12 routes), and dashboard write endpoints (2 routes). Enforces role-based access control.
+  - Files: `backend/routes/tasks.js`, `backend/routes/maintenance.js`, `backend/routes/checklists.js`, `backend/routes/dashboard.js`
+- **Security:** Added field whitelists (`allowedFields` pattern) to prevent mass assignment in POST create and PUT update endpoints. Only explicitly listed fields are accepted from `req.body`.
+  - Files: `backend/routes/vehicles.js`, `backend/routes/tasks.js`, `backend/routes/accidents.js`, `backend/routes/violations.js`, `backend/routes/documents.js` (PUT only, POST already whitelisted)
+- **Security:** Added `escapeRegex()` to tasks.js and maintenance.js search endpoints to prevent regex DoS/injection. Drivers, vehicles, documents already had this fix.
+  - Files: `backend/routes/tasks.js`, `backend/routes/maintenance.js`
+- **Security:** Deleted `VROOMX-SAFETY.env` from disk (contained production secrets). File was never committed to git (`.gitignore` `*.env` pattern covered it).
+- **Feature:** Created authenticated document download route `GET /api/documents/:id/download` with company-scoped access control, file streaming, and proper Content-Type headers. Replaces direct `fileUrl` access pattern.
+  - File: `backend/routes/documents.js`
+- **Fix:** Audit log company attribution now uses `req.companyFilter?.companyId` (middleware-validated) as primary source instead of searching user's companies array. Falls back gracefully for admin-panel routes.
+  - File: `backend/services/auditService.js`
+- **Fix:** In-memory rate limit Maps in AI and CSA Checker routes now have periodic cleanup (every 5 minutes) to prevent unbounded memory growth.
+  - Files: `backend/routes/ai.js`, `backend/routes/csaChecker.js`
+- **Fix:** Subscription limits virtual now correctly maps `solo`, `fleet`, `pro` plans (replaced stale `starter`/`professional` mappings). Paying users were incorrectly falling back to `free_trial` limits.
+  - File: `backend/models/User.js`
+
 ### 2026-01-28 (UI Changes — Driver/Vehicle Forms, CSA Charts, Archives)
 - **UI:** Moved 24-Month Score Projection chart from CSA Estimator and Compliance Overview tab into the Score Trends module (CSATrends.jsx). Cleaned up unused imports and state from source files.
   - Files: `frontend/src/pages/CSAEstimator.jsx`, `frontend/src/pages/Compliance.jsx`, `frontend/src/components/CSATrends.jsx`

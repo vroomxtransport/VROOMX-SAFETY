@@ -6,6 +6,10 @@ const { protect, restrictToCompany, checkPermission } = require('../middleware/a
 const { asyncHandler } = require('../middleware/errorHandler');
 const auditService = require('../services/auditService');
 
+function escapeRegex(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 // Apply authentication to all routes
 router.use(protect);
 router.use(restrictToCompany);
@@ -13,7 +17,7 @@ router.use(restrictToCompany);
 // @route   GET /api/tasks
 // @desc    Get all tasks with filtering and pagination
 // @access  Private
-router.get('/', asyncHandler(async (req, res) => {
+router.get('/', checkPermission('tasks', 'view'), asyncHandler(async (req, res) => {
   const {
     status,
     priority,
@@ -48,8 +52,8 @@ router.get('/', asyncHandler(async (req, res) => {
 
   if (search) {
     query.$or = [
-      { title: { $regex: search, $options: 'i' } },
-      { description: { $regex: search, $options: 'i' } }
+      { title: { $regex: escapeRegex(search), $options: 'i' } },
+      { description: { $regex: escapeRegex(search), $options: 'i' } }
     ];
   }
 
@@ -79,7 +83,7 @@ router.get('/', asyncHandler(async (req, res) => {
 // @route   GET /api/tasks/stats
 // @desc    Get task statistics
 // @access  Private
-router.get('/stats', asyncHandler(async (req, res) => {
+router.get('/stats', checkPermission('tasks', 'view'), asyncHandler(async (req, res) => {
   const companyId = req.companyFilter.companyId;
 
   const stats = await Task.aggregate([
@@ -127,7 +131,7 @@ router.get('/stats', asyncHandler(async (req, res) => {
 // @route   GET /api/tasks/overdue
 // @desc    Get overdue tasks
 // @access  Private
-router.get('/overdue', asyncHandler(async (req, res) => {
+router.get('/overdue', checkPermission('tasks', 'view'), asyncHandler(async (req, res) => {
   const tasks = await Task.find({
     companyId: req.companyFilter.companyId,
     status: { $ne: 'completed' },
@@ -147,7 +151,7 @@ router.get('/overdue', asyncHandler(async (req, res) => {
 // @route   GET /api/tasks/:id
 // @desc    Get single task
 // @access  Private
-router.get('/:id', asyncHandler(async (req, res) => {
+router.get('/:id', checkPermission('tasks', 'view'), asyncHandler(async (req, res) => {
   const task = await Task.findOne({
     _id: req.params.id,
     companyId: req.companyFilter.companyId
@@ -167,7 +171,7 @@ router.get('/:id', asyncHandler(async (req, res) => {
 // @route   POST /api/tasks
 // @desc    Create new task
 // @access  Private
-router.post('/', [
+router.post('/', checkPermission('tasks', 'edit'), [
   body('title').trim().notEmpty().withMessage('Title is required'),
   body('dueDate').isISO8601().withMessage('Valid due date is required'),
   body('priority').optional().isIn(['low', 'medium', 'high']),
@@ -178,11 +182,11 @@ router.post('/', [
     return res.status(400).json({ success: false, errors: errors.array() });
   }
 
-  const taskData = {
-    ...req.body,
-    companyId: req.companyFilter.companyId,
-    createdBy: req.user._id
-  };
+  const allowedFields = ['title', 'description', 'dueDate', 'priority', 'assignedTo', 'category', 'status', 'notes', 'tags', 'assignedToType', 'linkedTo', 'recurring'];
+  const taskData = { companyId: req.companyFilter.companyId, createdBy: req.user._id };
+  for (const key of allowedFields) {
+    if (req.body[key] !== undefined) taskData[key] = req.body[key];
+  }
 
   const task = await Task.create(taskData);
 
@@ -202,7 +206,7 @@ router.post('/', [
 // @route   PUT /api/tasks/:id
 // @desc    Update task
 // @access  Private
-router.put('/:id', asyncHandler(async (req, res) => {
+router.put('/:id', checkPermission('tasks', 'edit'), asyncHandler(async (req, res) => {
   let task = await Task.findOne({
     _id: req.params.id,
     companyId: req.companyFilter.companyId
@@ -217,11 +221,15 @@ router.put('/:id', asyncHandler(async (req, res) => {
     // Allow updating other fields on completed tasks
   }
 
-  req.body.lastUpdatedBy = req.user._id;
+  const allowedUpdateFields = ['title', 'description', 'dueDate', 'priority', 'assignedTo', 'category', 'status', 'notes', 'tags', 'completedAt', 'assignedToType', 'linkedTo', 'recurring'];
+  const updateData = { lastUpdatedBy: req.user._id };
+  for (const key of allowedUpdateFields) {
+    if (req.body[key] !== undefined) updateData[key] = req.body[key];
+  }
 
   task = await Task.findByIdAndUpdate(
     req.params.id,
-    req.body,
+    updateData,
     { new: true, runValidators: true }
   )
     .populate('assignedTo', 'firstName lastName email')
@@ -240,7 +248,7 @@ router.put('/:id', asyncHandler(async (req, res) => {
 // @route   PATCH /api/tasks/:id/complete
 // @desc    Mark task as completed
 // @access  Private
-router.patch('/:id/complete', asyncHandler(async (req, res) => {
+router.patch('/:id/complete', checkPermission('tasks', 'edit'), asyncHandler(async (req, res) => {
   let task = await Task.findOne({
     _id: req.params.id,
     companyId: req.companyFilter.companyId
@@ -280,7 +288,7 @@ router.patch('/:id/complete', asyncHandler(async (req, res) => {
 // @route   PATCH /api/tasks/:id/reopen
 // @desc    Reopen a completed task
 // @access  Private
-router.patch('/:id/reopen', asyncHandler(async (req, res) => {
+router.patch('/:id/reopen', checkPermission('tasks', 'edit'), asyncHandler(async (req, res) => {
   let task = await Task.findOne({
     _id: req.params.id,
     companyId: req.companyFilter.companyId
@@ -307,7 +315,7 @@ router.patch('/:id/reopen', asyncHandler(async (req, res) => {
 // @route   POST /api/tasks/:id/notes
 // @desc    Add note to task
 // @access  Private
-router.post('/:id/notes', [
+router.post('/:id/notes', checkPermission('tasks', 'edit'), [
   body('content').trim().notEmpty().withMessage('Note content is required')
 ], asyncHandler(async (req, res) => {
   const errors = validationResult(req);
@@ -345,7 +353,7 @@ router.post('/:id/notes', [
 // @route   DELETE /api/tasks/:id
 // @desc    Delete task
 // @access  Private
-router.delete('/:id', asyncHandler(async (req, res) => {
+router.delete('/:id', checkPermission('tasks', 'edit'), asyncHandler(async (req, res) => {
   const task = await Task.findOne({
     _id: req.params.id,
     companyId: req.companyFilter.companyId

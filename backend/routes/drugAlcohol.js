@@ -183,7 +183,7 @@ router.post('/', checkPermission('drugAlcohol', 'edit'), [
 
   const test = await DrugAlcoholTest.create({
     ...req.body,
-    companyId: req.user.companyId._id || req.user.companyId,
+    companyId: req.companyFilter.companyId,
     createdBy: req.user._id
   });
 

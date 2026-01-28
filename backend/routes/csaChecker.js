@@ -32,6 +32,16 @@ function checkRateLimit(ip) {
   return true;
 }
 
+// Periodic cleanup of expired rate limit entries to prevent memory leak
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, value] of rateLimits) {
+    if (now - value.windowStart > RATE_LIMIT_WINDOW) {
+      rateLimits.delete(key);
+    }
+  }
+}, 5 * 60 * 1000); // Every 5 minutes
+
 /**
  * @route   POST /api/csa-checker/lookup
  * @desc    Look up carrier CSA data (preview - no email required)

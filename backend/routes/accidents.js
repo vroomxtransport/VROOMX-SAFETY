@@ -126,11 +126,13 @@ router.post('/', checkPermission('accidents', 'edit'), [
     return res.status(400).json({ success: false, errors: errors.array() });
   }
 
-  const accident = await Accident.create({
-    ...req.body,
-    companyId: req.user.companyId._id || req.user.companyId,
-    createdBy: req.user._id
-  });
+  const allowedFields = ['accidentDate', 'location', 'description', 'driverId', 'vehicleId', 'trailerId', 'severity', 'totalInjuries', 'totalFatalities', 'hazmatSpill', 'towRequired', 'citationIssued', 'reportNumber', 'insuranceClaim', 'notes', 'status', 'weatherConditions', 'roadConditions', 'isDotRecordable'];
+  const accidentData = { companyId: req.companyFilter.companyId, createdBy: req.user._id };
+  for (const key of allowedFields) {
+    if (req.body[key] !== undefined) accidentData[key] = req.body[key];
+  }
+
+  const accident = await Accident.create(accidentData);
 
   auditService.log(req, 'create', 'accident', accident._id, { severity: req.body.severity, driverId: req.body.driverId });
 
@@ -153,11 +155,15 @@ router.put('/:id', checkPermission('accidents', 'edit'), asyncHandler(async (req
     throw new AppError('Accident not found', 404);
   }
 
-  delete req.body.companyId;
+  const allowedUpdateFields = ['accidentDate', 'location', 'description', 'driverId', 'vehicleId', 'trailerId', 'severity', 'totalInjuries', 'totalFatalities', 'hazmatSpill', 'towRequired', 'citationIssued', 'reportNumber', 'insuranceClaim', 'notes', 'status', 'weatherConditions', 'roadConditions', 'isDotRecordable'];
+  const updateData = {};
+  for (const key of allowedUpdateFields) {
+    if (req.body[key] !== undefined) updateData[key] = req.body[key];
+  }
 
   accident = await Accident.findByIdAndUpdate(
     req.params.id,
-    req.body,
+    updateData,
     { new: true, runValidators: true }
   );
 

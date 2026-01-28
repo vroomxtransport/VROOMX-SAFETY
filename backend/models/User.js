@@ -203,8 +203,9 @@ userSchema.virtual('fullName').get(function() {
 userSchema.virtual('limits').get(function() {
   const plans = {
     free_trial: { maxCompanies: 1, maxDriversPerCompany: 1, maxVehiclesPerCompany: 1 },
-    starter: { maxCompanies: 1, maxDriversPerCompany: 1, maxVehiclesPerCompany: 1 },
-    professional: { maxCompanies: Infinity, maxDriversPerCompany: Infinity, maxVehiclesPerCompany: Infinity }
+    solo: { maxCompanies: 1, maxDriversPerCompany: 1, maxVehiclesPerCompany: Infinity },
+    fleet: { maxCompanies: 2, maxDriversPerCompany: Infinity, maxVehiclesPerCompany: Infinity },
+    pro: { maxCompanies: Infinity, maxDriversPerCompany: Infinity, maxVehiclesPerCompany: Infinity }
   };
   return plans[this.subscription?.plan] || plans.free_trial;
 });
