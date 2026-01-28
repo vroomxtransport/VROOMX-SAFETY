@@ -248,13 +248,12 @@ npm run dev  # Starts on port 5173
 
 - **MVP Hardening (Tier 0+1)** — JWT 1h expiry, production env var validation, process error handlers, health check DB ping, driver/vehicle race condition fix, ErrorBoundary, 404 page, ConfirmDialog, Axios timeout, 45+ backend console.log removed
 - **Competitive Analysis** — Direct competitor deep dive (DOTDriverFiles, FleetDrive360, My Safety Manager, AvatarFleet) in roadmap.html
+- **Secret Rotation (Tier 0)** — Rotated MongoDB Atlas password, OpenAI API key, Resend API key; all 13 env vars verified in Render; `.env` confirmed never committed to git history (purge not needed)
 
 ### In Progress
 - Marketing and user acquisition
 - Mobile responsiveness improvements
 - Authenticated file download endpoint (replaces static /uploads)
-- Secret rotation (MongoDB Atlas, OpenAI, Resend) — manual
-- Purge `.env` from git history — manual
 
 ### Future (Tier 2+)
 - Empty states for all list pages
@@ -276,6 +275,14 @@ npm run dev  # Starts on port 5173
 ---
 
 ## Changelog
+
+### 2026-01-28 (Secret Rotation & Env Var Verification)
+- **Security:** Rotated MongoDB Atlas password (`info_db_user`) — new password generated, `MONGODB_URI` updated in Render
+- **Security:** Rotated OpenAI API key — new key created, old key deleted, `OPENAI_API_KEY` updated in Render
+- **Security:** Rotated Resend API key — new key created, old key deleted, `RESEND_API_KEY` updated in Render
+- **Verified:** All 13 production env vars confirmed set in Render dashboard (`NODE_ENV`, `MONGODB_URI`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `FRONTEND_URL`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_SOLO_PRICE_ID`, `STRIPE_FLEET_PRICE_ID`, `STRIPE_PRO_PRICE_ID`, `RESEND_API_KEY`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`)
+- **Verified:** `.env` never committed to git history — BFG purge not needed
+- **Verified:** Post-redeploy health check passed — `{"status":"healthy","database":"connected"}` with 36s uptime
 
 ### 2026-01-28 (MVP Hardening — Tier 0+1 Deployment Fixes)
 - **Security:** Changed JWT expiry from 7d to 1h in `render.yaml`
@@ -535,7 +542,8 @@ All 6 testable email types verified on production with real Resend delivery:
 | CORS (evil origin) | Blocked | PASS |
 
 #### Remaining Manual Actions
-- Rotate MongoDB credentials in Atlas dashboard
-- Rotate OpenAI API key in OpenAI dashboard
-- Remove `.env` from git history (`git filter-branch` or BFG)
+- ~~Rotate MongoDB credentials in Atlas dashboard~~ — **Done 2026-01-28**
+- ~~Rotate OpenAI API key in OpenAI dashboard~~ — **Done 2026-01-28**
+- ~~Rotate Resend API key~~ — **Done 2026-01-28**
+- ~~Remove `.env` from git history~~ — **Not needed** (never committed)
 - Add authenticated file download endpoint to replace static `/uploads`
