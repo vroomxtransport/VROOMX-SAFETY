@@ -687,16 +687,17 @@ const stripeService = {
       throw new Error('Could not find base subscription item');
     }
 
-    // Update the subscription with the new price
-    // always_invoice: creates and charges proration invoice immediately
-    // pending_if_incomplete: if payment fails, upgrade stays pending (not applied for free)
+    // Update subscription with default_incomplete so it won't activate until paid
+    // always_invoice: creates a proration invoice immediately
+    // default_incomplete: subscription stays incomplete until invoice is paid
     const updatedSubscription = await stripe.subscriptions.update(subscriptionId, {
       items: [{
         id: baseItem.id,
         price: newPriceId
       }],
       proration_behavior: 'always_invoice',
-      payment_behavior: 'pending_if_incomplete',
+      payment_behavior: 'default_incomplete',
+      expand: ['latest_invoice'],
       metadata: {
         ...(subscription.metadata || {}),
         plan: newPlan,
@@ -705,28 +706,19 @@ const stripeService = {
       }
     });
 
-    // Only update MongoDB if Stripe accepted the upgrade (payment succeeded or no charge needed)
-    if (updatedSubscription.status === 'active') {
-      user.subscription.plan = newPlan;
-      user.subscription.stripePriceId = newPriceId;
-      await user.save({ validateBeforeSave: false });
-    }
-    // If status is 'past_due' or 'incomplete', the webhook will handle it
+    // Get the hosted invoice URL for the user to pay
+    const invoice = updatedSubscription.latest_invoice;
+    const paymentUrl = invoice?.hosted_invoice_url;
 
-    // Safely handle period end
-    let periodEnd = null;
-    try {
-      if (updatedSubscription.current_period_end) {
-        periodEnd = new Date(updatedSubscription.current_period_end * 1000).toISOString();
-      }
-    } catch (e) {
-      periodEnd = null;
+    if (!paymentUrl) {
+      throw new Error('Could not generate payment page for upgrade');
     }
 
+    // Don't update MongoDB plan yet — webhook will handle it after payment succeeds
     return {
+      url: paymentUrl,
       plan: newPlan,
-      status: updatedSubscription.status,
-      currentPeriodEnd: periodEnd
+      status: updatedSubscription.status
     };
   },
 

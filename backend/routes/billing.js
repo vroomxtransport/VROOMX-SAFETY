@@ -261,15 +261,14 @@ router.post('/upgrade', protect, asyncHandler(async (req, res) => {
   const result = await stripeService.upgradePlan(req.user, plan);
 
   auditService.log(req, 'update', 'subscription', null, {
-    summary: `Plan upgraded from ${currentPlan} to ${plan}`,
+    summary: `Plan upgrade initiated from ${currentPlan} to ${plan}`,
     previousPlan: currentPlan,
     newPlan: plan
   });
 
   res.json({
     success: true,
-    message: `Successfully upgraded to ${plan} plan`,
-    subscription: result
+    url: result.url
   });
 }));
 

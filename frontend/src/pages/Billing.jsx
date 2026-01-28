@@ -113,10 +113,8 @@ const Billing = () => {
     setUpgradeModal(prev => ({ ...prev, loading: true }));
     try {
       const response = await billingAPI.upgradePlan(upgradeModal.plan);
-      toast.success(response.data.message || 'Plan upgraded successfully!');
-      await refreshUser();
-      await loadBillingData();
-      setUpgradeModal({ open: false, plan: null, preview: null, loading: false });
+      // Redirect to Stripe payment page
+      window.location.href = response.data.url;
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to upgrade plan');
       setUpgradeModal(prev => ({ ...prev, loading: false }));
