@@ -49,7 +49,11 @@ export const AuthProvider = ({ children }) => {
         usage: userData.usage
       });
     } catch (error) {
-      logout();
+      // No session — just clear state (don't call logout API)
+      setUser(null);
+      setCompanies([]);
+      setActiveCompany(null);
+      setSubscription(null);
     } finally {
       setLoading(false);
     }

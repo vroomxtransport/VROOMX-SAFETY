@@ -14,8 +14,11 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Cookie is httpOnly — browser handles it; just redirect
-      window.location.href = '/login';
+      const url = error.config?.url || '';
+      // Don't redirect for session-check or if already on login page
+      if (!url.includes('/auth/me') && !window.location.pathname.startsWith('/login')) {
+        window.location.href = '/login';
+      }
     }
     if (error.response?.status === 503 && error.response?.data?.code === 'MAINTENANCE_MODE') {
       window.__maintenanceMode = true;
