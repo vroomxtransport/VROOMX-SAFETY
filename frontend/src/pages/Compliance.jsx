@@ -93,13 +93,15 @@ const Compliance = () => {
     );
   }
 
-  const basicsData = dashboard?.smsBasics ? Object.entries(dashboard.smsBasics).map(([key, value]) => ({
-    name: value.name,
-    percentile: value.percentile || 0,
-    threshold: value.threshold,
-    status: value.status,
-    key
-  })) : [];
+  const basicsData = dashboard?.smsBasics ? Object.entries(dashboard.smsBasics)
+    .filter(([key]) => key !== '_meta') // Exclude metadata
+    .map(([key, value]) => ({
+      name: value?.name,
+      percentile: value?.percentile || 0,
+      threshold: value?.threshold,
+      status: value?.status,
+      key
+    })) : [];
 
   const getBarColor = (status) => {
     switch (status) {

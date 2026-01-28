@@ -238,9 +238,9 @@ const CSATrends = () => {
       )}
 
       {/* Trend Summary Cards */}
-      {summary?.hasEnoughData && (
+      {summary?.hasEnoughData && summary?.basicTrends && (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-          {Object.entries(summary.trends).map(([key, data]) => (
+          {Object.entries(summary.basicTrends).map(([key, data]) => (
             <div
               key={key}
               className={`p-3 rounded-xl border cursor-pointer transition-all hover:shadow-md ${
@@ -414,7 +414,7 @@ const CSATrends = () => {
                 </span>
               </div>
               <div className="space-y-3">
-                {Object.entries(compareData.comparison).map(([key, data]) => (
+                {compareData.comparison && Object.entries(compareData.comparison).map(([key, data]) => (
                   <div
                     key={key}
                     className="flex items-center justify-between p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800"
