@@ -83,6 +83,14 @@ const csaScoreHistorySchema = new mongoose.Schema({
     type: String,
     enum: ['improving', 'stable', 'worsening'],
     default: 'stable'
+  },
+
+  // Data source indicator (for clear Real vs Estimated distinction)
+  source: {
+    type: String,
+    enum: ['fmcsa', 'estimated'],
+    default: 'estimated',
+    index: true
   }
 
 }, {
@@ -168,14 +176,18 @@ csaScoreHistorySchema.statics.getTrendSummary = async function(companyId, days =
     }
   }
 
+  // Check if any records are from real FMCSA data
+  const hasRealFmcsaData = history.some(h => h.source === 'fmcsa' || h.metadata?.dataSource === 'FMCSA_SAFER');
+
   return {
     hasEnoughData: true,
     dataPoints: history.length,
+    source: hasRealFmcsaData ? 'fmcsa' : 'estimated',
     dateRange: {
       start: first.recordedAt,
       end: last.recordedAt
     },
-    trends,
+    basicTrends: trends,
     summary: {
       improvingBasics: improvingCount,
       worseningBasics: worseningCount,

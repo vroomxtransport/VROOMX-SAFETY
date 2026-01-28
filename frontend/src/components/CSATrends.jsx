@@ -157,8 +157,24 @@ const CSATrends = () => {
       {/* Header with Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">CSA Score Trends</h2>
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">Track your BASIC percentiles over time</p>
+          <div className="flex items-center gap-3 flex-wrap">
+            <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">CSA Score Trends</h2>
+            {/* Data Source Badge */}
+            {summary?.source === 'fmcsa' ? (
+              <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-500/30">
+                FMCSA Data
+              </span>
+            ) : (
+              <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-yellow-100 dark:bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-500/30">
+                Estimated
+              </span>
+            )}
+          </div>
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+            {summary?.source === 'fmcsa'
+              ? 'Historical data from FMCSA SAFER system'
+              : 'Estimated scores based on violation records'}
+          </p>
         </div>
         <div className="flex flex-wrap gap-2">
           {/* Date Range Selector */}

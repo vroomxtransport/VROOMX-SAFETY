@@ -146,8 +146,26 @@ const Compliance = () => {
       {/* BASICs Overview */}
       <div className="card">
         <div className="card-header">
-          <h2 className="text-lg font-semibold text-zinc-900 dark:text-white">SMS BASICs Overview</h2>
-          <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-1">Based on FMCSA Safety Measurement System methodology</p>
+          <div className="flex items-center gap-3 flex-wrap">
+            <h2 className="text-lg font-semibold text-zinc-900 dark:text-white">SMS BASICs Overview</h2>
+            {/* Data Source Badge */}
+            {dashboard?.smsBasics?._meta?.isEstimate === false ? (
+              <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-500/30">
+                FMCSA Data
+              </span>
+            ) : (
+              <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-yellow-100 dark:bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-500/30">
+                Estimated
+              </span>
+            )}
+          </div>
+          <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-1">
+            {dashboard?.smsBasics?._meta?.lastUpdated ? (
+              <>Data synced {Math.floor(dashboard.smsBasics._meta.daysSinceUpdate)} days ago from FMCSA SAFER</>
+            ) : (
+              <>Estimated scores based on recorded violations. For official data, sync with FMCSA or enter manually.</>
+            )}
+          </p>
         </div>
         <div className="card-body">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">

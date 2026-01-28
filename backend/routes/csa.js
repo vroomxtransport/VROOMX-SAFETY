@@ -9,7 +9,7 @@ router.use(protect);
 router.use(restrictToCompany);
 
 // @route   GET /api/csa/current
-// @desc    Get current BASIC scores for the company
+// @desc    Get current BASIC scores for the company (always calculates estimates)
 // @access  Private
 router.get('/current', asyncHandler(async (req, res) => {
   const companyId = req.companyFilter.companyId;
@@ -18,9 +18,11 @@ router.get('/current', asyncHandler(async (req, res) => {
 
   res.json({
     success: true,
+    source: 'estimated',
+    isEstimate: true,
     basics: results,
     calculatedAt: new Date(),
-    disclaimer: 'These are ESTIMATED scores based on recorded violations. Actual FMCSA SMS scores require peer group comparisons using national data.'
+    disclaimer: 'These are ESTIMATED scores based on recorded violations. Actual FMCSA SMS scores require peer group comparisons using national data. Visit https://ai.fmcsa.dot.gov/sms for official scores.'
   });
 }));
 
