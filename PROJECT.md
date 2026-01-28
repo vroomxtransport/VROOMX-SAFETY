@@ -137,6 +137,8 @@ TRUCKING COMPLIANCE HUB1/
 | Fleet | $39/mo    | 3                | +$6/driver   |
 | Pro   | $89/mo    | 10               | +$5/driver   |
 
+**In-app upgrades:** Users can upgrade Solo→Fleet, Solo→Pro, or Fleet→Pro at any time. Stripe calculates prorated credit for unused time on the old plan and charges the difference immediately. Preview modal shows exact charge before confirming.
+
 ---
 
 ## Database Models (23)
@@ -275,6 +277,14 @@ npm run dev  # Starts on port 5173
 ---
 
 ## Changelog
+
+### 2026-01-28 (In-App Plan Upgrade with Stripe Proration)
+- **Feature:** Users can upgrade subscription plans (Solo→Fleet, Solo→Pro, Fleet→Pro) directly from the Billing page with automatic Stripe proration
+  - Backend: Added `previewUpgrade()` using `stripe.invoices.createPreview()` and `upgradePlan()` using `stripe.subscriptions.update()` with `proration_behavior: 'create_prorations'`
+  - Routes: `POST /api/billing/preview-upgrade` (returns prorated charge preview) and `POST /api/billing/upgrade` (executes the upgrade)
+  - Frontend: Plan card buttons now show "Upgrade to Fleet/Pro" when on a lower plan. Confirmation modal displays current plan, new plan, prorated charge today, and new monthly price
+  - Existing `customer.subscription.updated` webhook handler syncs plan changes automatically
+  - Files: `backend/services/stripeService.js`, `backend/routes/billing.js`, `frontend/src/utils/api.js`, `frontend/src/pages/Billing.jsx`
 
 ### 2026-01-28 (Audit Follow-Up — JWT Cookie Migration + 3 Fixes)
 - **Security:** Migrated JWT authentication from localStorage to httpOnly cookies. Eliminates XSS token theft vector.
