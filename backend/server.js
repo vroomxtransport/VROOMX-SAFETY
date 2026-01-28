@@ -102,10 +102,10 @@ app.use(cors({
   exposedHeaders: ['RateLimit-Policy', 'RateLimit-Limit', 'RateLimit-Remaining', 'RateLimit-Reset', 'Retry-After']
 }));
 
-// Global rate limiting - 100 requests per 15 min per IP
+// Global rate limiting - 100 requests per 30s per IP
 const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 200,
+  windowMs: 30 * 1000,
+  max: 100,
   standardHeaders: true,
   legacyHeaders: false,
   message: { success: false, message: 'Too many requests. Please try again later.' }
