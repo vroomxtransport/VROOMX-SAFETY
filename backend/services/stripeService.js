@@ -687,13 +687,16 @@ const stripeService = {
       throw new Error('Could not find base subscription item');
     }
 
-    // Update the subscription with the new price (Stripe handles proration)
+    // Update the subscription with the new price
+    // always_invoice: creates and charges proration invoice immediately
+    // pending_if_incomplete: if payment fails, upgrade stays pending (not applied for free)
     const updatedSubscription = await stripe.subscriptions.update(subscriptionId, {
       items: [{
         id: baseItem.id,
         price: newPriceId
       }],
-      proration_behavior: 'create_prorations',
+      proration_behavior: 'always_invoice',
+      payment_behavior: 'pending_if_incomplete',
       metadata: {
         ...(subscription.metadata || {}),
         plan: newPlan,
@@ -702,10 +705,13 @@ const stripeService = {
       }
     });
 
-    // Update user's local subscription data
-    user.subscription.plan = newPlan;
-    user.subscription.stripePriceId = newPriceId;
-    await user.save({ validateBeforeSave: false });
+    // Only update MongoDB if Stripe accepted the upgrade (payment succeeded or no charge needed)
+    if (updatedSubscription.status === 'active') {
+      user.subscription.plan = newPlan;
+      user.subscription.stripePriceId = newPriceId;
+      await user.save({ validateBeforeSave: false });
+    }
+    // If status is 'past_due' or 'incomplete', the webhook will handle it
 
     // Safely handle period end
     let periodEnd = null;
