@@ -203,7 +203,7 @@ router.post('/', checkPermission('vehicles', 'edit'), checkVehicleLimit, [
       });
     }
 
-    const allowedFields = ['unitNumber', 'vin', 'make', 'model', 'year', 'type', 'licensePlate', 'state', 'status', 'color', 'gvwr', 'tireSize', 'ownership', 'iftaDecalNumber', 'dateAddedToFleet', 'dateRemovedFromFleet', 'cabCardExpiry', 'annualExpiry', 'registration', 'insurance', 'annualInspection', 'notes', 'vehicleType'];
+    const allowedFields = ['unitNumber', 'nickname', 'vin', 'make', 'model', 'year', 'vehicleType', 'licensePlate', 'status', 'color', 'gvwr', 'tireSize', 'ownership', 'iftaDecalNumber', 'marketPrice', 'dateAddedToFleet', 'dateRemovedFromFleet', 'cabCardExpiry', 'annualExpiry', 'registration', 'insurance', 'annualInspection', 'notes'];
     const vehicleData = { companyId };
     for (const key of allowedFields) {
       if (req.body[key] !== undefined) vehicleData[key] = req.body[key];
@@ -240,7 +240,7 @@ router.put('/:id', checkPermission('vehicles', 'edit'), asyncHandler(async (req,
     throw new AppError('Vehicle not found', 404);
   }
 
-  const allowedUpdateFields = ['unitNumber', 'vin', 'make', 'model', 'year', 'type', 'licensePlate', 'state', 'status', 'color', 'gvwr', 'tireSize', 'ownership', 'iftaDecalNumber', 'dateAddedToFleet', 'dateRemovedFromFleet', 'cabCardExpiry', 'annualExpiry', 'registration', 'insurance', 'annualInspection', 'notes', 'vehicleType'];
+  const allowedUpdateFields = ['unitNumber', 'nickname', 'vin', 'make', 'model', 'year', 'vehicleType', 'licensePlate', 'status', 'color', 'gvwr', 'tireSize', 'ownership', 'iftaDecalNumber', 'marketPrice', 'dateAddedToFleet', 'dateRemovedFromFleet', 'cabCardExpiry', 'annualExpiry', 'registration', 'insurance', 'annualInspection', 'notes'];
   const updateData = {};
   for (const key of allowedUpdateFields) {
     if (req.body[key] !== undefined) updateData[key] = req.body[key];

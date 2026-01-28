@@ -252,6 +252,72 @@ const VehicleDetail = () => {
             </div>
           </div>
 
+          {/* Vehicle Specs */}
+          <div className="card">
+            <div className="card-header">
+              <h3 className="font-semibold">Vehicle Specs</h3>
+            </div>
+            <div className="card-body space-y-3">
+              <div className="flex justify-between">
+                <span className="text-zinc-600 dark:text-zinc-300">Color</span>
+                <span className="text-zinc-800 dark:text-zinc-200">{vehicle.color || '—'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-zinc-600 dark:text-zinc-300">GVWR</span>
+                <span className="text-zinc-800 dark:text-zinc-200">
+                  {vehicle.gvwr ? `${Number(vehicle.gvwr).toLocaleString()} lbs` : '—'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-zinc-600 dark:text-zinc-300">Tire Size</span>
+                <span className="text-zinc-800 dark:text-zinc-200">{vehicle.tireSize || '—'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-zinc-600 dark:text-zinc-300">Ownership</span>
+                <span className="capitalize text-zinc-800 dark:text-zinc-200">{vehicle.ownership || '—'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-zinc-600 dark:text-zinc-300">IFTA Decal #</span>
+                <span className="text-zinc-800 dark:text-zinc-200">{vehicle.iftaDecalNumber || '—'}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Fleet & Compliance Dates */}
+          <div className="card">
+            <div className="card-header">
+              <h3 className="font-semibold">Fleet & Compliance</h3>
+            </div>
+            <div className="card-body space-y-3">
+              <div className="flex justify-between">
+                <span className="text-zinc-600 dark:text-zinc-300">Added to Fleet</span>
+                <span className="text-zinc-800 dark:text-zinc-200">
+                  {vehicle.dateAddedToFleet ? formatDate(vehicle.dateAddedToFleet) : '—'}
+                </span>
+              </div>
+              {vehicle.dateRemovedFromFleet && (
+                <div className="flex justify-between">
+                  <span className="text-zinc-600 dark:text-zinc-300">Removed from Fleet</span>
+                  <span className="text-zinc-800 dark:text-zinc-200">
+                    {formatDate(vehicle.dateRemovedFromFleet)}
+                  </span>
+                </div>
+              )}
+              <div className="flex justify-between">
+                <span className="text-zinc-600 dark:text-zinc-300">Cab Card Expiry</span>
+                <span className="text-zinc-800 dark:text-zinc-200">
+                  {vehicle.cabCardExpiry ? formatDate(vehicle.cabCardExpiry) : '—'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-zinc-600 dark:text-zinc-300">Annual Expiry</span>
+                <span className="text-zinc-800 dark:text-zinc-200">
+                  {vehicle.annualExpiry ? formatDate(vehicle.annualExpiry) : '—'}
+                </span>
+              </div>
+            </div>
+          </div>
+
           {/* Annual Inspection */}
           <div className="card">
             <div className="card-header flex items-center justify-between">
