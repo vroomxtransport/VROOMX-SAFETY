@@ -9,6 +9,8 @@ const { body, validationResult } = require('express-validator');
 const Lead = require('../models/Lead');
 const fmcsaService = require('../services/fmcsaService');
 const aiService = require('../services/aiService');
+const emailService = require('../services/emailService');
+const pdfService = require('../services/pdfService');
 
 // Simple rate limiting for public endpoints (IP-based)
 const rateLimits = new Map();
@@ -86,6 +88,9 @@ router.post('/lookup', [
       });
     }
 
+    // Calculate risk level
+    const riskLevel = fmcsaService.calculateRiskLevel(carrierData.basics);
+
     // Return preview data (limited - no detailed violations)
     res.json({
       success: true,
@@ -101,6 +106,7 @@ router.post('/lookup', [
         },
         basics: carrierData.basics,
         alerts: carrierData.alerts,
+        riskLevel,
         inspections: carrierData.inspections,
         crashes: carrierData.crashes,
         dataSource: carrierData.dataSource,
@@ -213,12 +219,16 @@ Keep language simple and direct - written for truckers, not lawyers.`, { maxToke
       };
     }
 
+    // Calculate risk level
+    const riskLevel = fmcsaService.calculateRiskLevel(carrierData.basics);
+
     // Save or update lead
     if (lead) {
       // Update existing lead with new data
       lead.csaSnapshot = {
         ...carrierData.basics,
         alertCount: carrierData.alerts.count,
+        riskLevel,
         fetchedAt: new Date()
       };
       lead.aiAnalysis = {
@@ -237,6 +247,7 @@ Keep language simple and direct - written for truckers, not lawyers.`, { maxToke
         csaSnapshot: {
           ...carrierData.basics,
           alertCount: carrierData.alerts.count,
+          riskLevel,
           fetchedAt: new Date()
         },
         aiAnalysis: {
@@ -248,6 +259,41 @@ Keep language simple and direct - written for truckers, not lawyers.`, { maxToke
       });
     }
 
+    // Generate PDF and send email (fire-and-forget)
+    try {
+      const pdfBuffer = await pdfService.generateCSAReport({
+        carrier: carrierData.carrier,
+        basics: carrierData.basics,
+        riskLevel,
+        inspections: carrierData.inspections,
+        crashes: carrierData.crashes,
+        aiAnalysis: aiAnalysis.content
+      });
+
+      // Send email with PDF attachment
+      emailService.sendCSAReport(
+        email,
+        carrierData.carrier,
+        carrierData.basics,
+        aiAnalysis.content,
+        riskLevel,
+        { inspections: carrierData.inspections, crashes: carrierData.crashes },
+        pdfBuffer
+      ).catch(err => console.error('CSA Report email error:', err.message));
+    } catch (pdfError) {
+      console.error('PDF generation error:', pdfError.message);
+      // Still send email without PDF if PDF generation fails
+      emailService.sendCSAReport(
+        email,
+        carrierData.carrier,
+        carrierData.basics,
+        aiAnalysis.content,
+        riskLevel,
+        { inspections: carrierData.inspections, crashes: carrierData.crashes },
+        null
+      ).catch(err => console.error('CSA Report email error:', err.message));
+    }
+
     // Return full report
     res.json({
       success: true,
@@ -257,10 +303,12 @@ Keep language simple and direct - written for truckers, not lawyers.`, { maxToke
         alerts: carrierData.alerts,
         inspections: carrierData.inspections,
         crashes: carrierData.crashes,
+        riskLevel,
         aiAnalysis: aiAnalysis.content,
         dataSource: carrierData.dataSource,
         disclaimer: carrierData.disclaimer,
-        leadCaptured: true
+        leadCaptured: true,
+        emailSent: true
       }
     });
   } catch (error) {

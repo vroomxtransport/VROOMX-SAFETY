@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSA Score Report - {{carrierName}}</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, Helvetica, sans-serif; color: #1f2937; line-height: 1.5; padding: 40px; background: #fff; }
+    .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 2px solid #1a2744; }
+    .logo { font-size: 28px; font-weight: bold; color: #1a2744; }
+    .logo span { color: #f97316; }
+    .report-info { text-align: right; font-size: 12px; color: #6b7280; }
+    .carrier-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 24px; }
+    .carrier-name { font-size: 24px; font-weight: bold; color: #1a2744; margin-bottom: 12px; }
+    .carrier-details { display: flex; gap: 32px; font-size: 14px; color: #475569; }
+    .carrier-details span { display: inline-block; }
+    .carrier-details strong { color: #1f2937; }
+    .risk-banner { text-align: center; padding: 24px; border-radius: 8px; margin-bottom: 24px; }
+    .risk-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+    .risk-value { font-size: 36px; font-weight: bold; }
+    .section-title { font-size: 16px; font-weight: bold; color: #1f2937; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #e5e7eb; }
+    .basics-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+    .basics-table th, .basics-table td { padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; }
+    .basics-table th { background: #f9fafb; font-size: 12px; text-transform: uppercase; color: #6b7280; }
+    .bar-container { width: 200px; height: 20px; background: #f3f4f6; border-radius: 4px; position: relative; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 4px; }
+    .bar-threshold { position: absolute; top: 0; bottom: 0; width: 2px; background: #1f2937; }
+    .status-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
+    .status-ok { background: #f0fdf4; color: #16a34a; }
+    .status-warning { background: #fffbeb; color: #f97316; }
+    .status-critical { background: #fef2f2; color: #dc2626; }
+    .stats-row { display: flex; gap: 16px; margin-bottom: 24px; }
+    .stat-box { flex: 1; text-align: center; padding: 20px; border-radius: 8px; }
+    .stat-box.blue { background: #f0f9ff; border: 1px solid #bae6fd; }
+    .stat-box.red { background: #fef2f2; border: 1px solid #fecaca; }
+    .stat-value { font-size: 32px; font-weight: bold; margin-bottom: 4px; }
+    .stat-box.blue .stat-value { color: #0369a1; }
+    .stat-box.red .stat-value { color: #dc2626; }
+    .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #6b7280; }
+    .insights-box { background: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; padding: 20px; margin-bottom: 24px; }
+    .insights-title { font-size: 14px; font-weight: bold; color: #92400e; margin-bottom: 12px; }
+    .insights-text { font-size: 14px; color: #78350f; line-height: 1.6; }
+    .legend { font-size: 11px; color: #6b7280; margin-bottom: 24px; }
+    .legend span { display: inline-block; padding: 2px 6px; border-radius: 3px; margin-right: 8px; }
+    .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center; font-size: 11px; color: #9ca3af; }
+    .cta-section { text-align: center; margin-top: 32px; padding: 24px; background: #f8fafc; border-radius: 8px; }
+    .cta-title { font-size: 18px; font-weight: bold; color: #1a2744; margin-bottom: 8px; }
+    .cta-text { font-size: 14px; color: #6b7280; margin-bottom: 16px; }
+    .cta-url { font-size: 16px; color: #f97316; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">Vroom<span>X</span> Safety</div>
+    <div class="report-info">
+      <div><strong>CSA Score Report</strong></div>
+      <div>Generated: {{reportDate}}</div>
+    </div>
+  </div>
+
+  <div class="carrier-box">
+    <div class="carrier-name">{{carrierName}}</div>
+    <div class="carrier-details">
+      <span><strong>DOT#:</strong> {{dotNumber}}</span>
+      <span><strong>MC#:</strong> {{mcNumber}}</span>
+      <span><strong>Status:</strong> {{operatingStatus}}</span>
+      <span><strong>Fleet:</strong> {{fleetSize}} units</span>
+    </div>
+  </div>
+
+  <div class="risk-banner" style="background: {{riskBg}};">
+    <div class="risk-label" style="color: {{riskText}};">Overall Risk Level</div>
+    <div class="risk-value" style="color: {{riskText}};">{{riskLevel}} RISK</div>
+  </div>
+
+  <h3 class="section-title">BASIC Percentile Scores</h3>
+  <table class="basics-table">
+    <thead>
+      <tr>
+        <th>Category</th>
+        <th>Score</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{basicsRows}}
+    </tbody>
+  </table>
+
+  <div class="legend">
+    <strong>Threshold Legend:</strong>
+    <span class="status-ok">OK = Below threshold</span>
+    <span class="status-warning">WARNING = Within 10 points</span>
+    <span class="status-critical">CRITICAL = At or above threshold</span>
+    | <strong>Black line</strong> = FMCSA intervention threshold
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-box blue">
+      <div class="stat-value">{{inspections24}}</div>
+      <div class="stat-label">Inspections (Last 24 Months)</div>
+    </div>
+    <div class="stat-box red">
+      <div class="stat-value">{{crashes24}}</div>
+      <div class="stat-label">Crashes (Last 24 Months)</div>
+    </div>
+  </div>
+
+  <div class="insights-box">
+    <div class="insights-title">&#128161; Key Insights & Recommendations</div>
+    <div class="insights-text">{{aiAnalysis}}</div>
+  </div>
+
+  <div class="cta-section">
+    <div class="cta-title">Ready to Improve Your CSA Scores?</div>
+    <div class="cta-text">VroomX Safety helps you track violations, manage compliance documents, and stay ahead of FMCSA audits.</div>
+    <div class="cta-url">vroomxsafety.com/register</div>
+  </div>
+
+  <div class="footer">
+    <p>Data sourced from FMCSA SAFER System. BASIC percentiles update weekly.</p>
+    <p>&copy; {{currentYear}} VroomX Safety. All rights reserved.</p>
+  </div>
+</body>
+</html>

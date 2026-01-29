@@ -1,0 +1,97 @@
+<h2 style="margin: 0 0 8px 0; font-size: 24px; color: #1f2937; font-family: Arial, Helvetica, sans-serif;">Your CSA Score Report</h2>
+<p style="margin: 0 0 24px 0; font-size: 14px; color: #6b7280; font-family: Arial, Helvetica, sans-serif;">Generated on {{reportDate}}</p>
+
+<!-- Carrier Info Box -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 24px 0; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+  <tr>
+    <td style="padding: 20px;">
+      <h3 style="margin: 0 0 12px 0; font-size: 18px; color: #1a2744; font-family: Arial, Helvetica, sans-serif;">{{carrierName}}</h3>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td style="font-size: 14px; color: #475569; padding: 4px 0; font-family: Arial, Helvetica, sans-serif;"><strong>DOT#:</strong> {{dotNumber}}</td>
+          <td style="font-size: 14px; color: #475569; padding: 4px 0; font-family: Arial, Helvetica, sans-serif;"><strong>MC#:</strong> {{mcNumber}}</td>
+        </tr>
+        <tr>
+          <td style="font-size: 14px; color: #475569; padding: 4px 0; font-family: Arial, Helvetica, sans-serif;"><strong>Status:</strong> {{operatingStatus}}</td>
+          <td style="font-size: 14px; color: #475569; padding: 4px 0; font-family: Arial, Helvetica, sans-serif;"><strong>Fleet Size:</strong> {{fleetSize}} units</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<!-- Risk Level Badge -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 24px 0;">
+  <tr>
+    <td align="center" style="padding: 20px; background: {{riskBg}}; border-radius: 8px;">
+      <p style="margin: 0 0 4px 0; font-size: 14px; color: {{riskText}}; text-transform: uppercase; letter-spacing: 1px; font-family: Arial, Helvetica, sans-serif;">Overall Risk Level</p>
+      <p style="margin: 0; font-size: 32px; font-weight: bold; color: {{riskText}}; font-family: Arial, Helvetica, sans-serif;">{{riskLevel}} RISK</p>
+    </td>
+  </tr>
+</table>
+
+<!-- BASIC Scores -->
+<h3 style="margin: 0 0 16px 0; font-size: 16px; color: #1f2937; font-family: Arial, Helvetica, sans-serif;">BASIC Scores</h3>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 24px 0;">
+  {{basicsRows}}
+</table>
+
+<!-- Stats Summary -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 24px 0;">
+  <tr>
+    <td width="48%" style="padding: 16px; background-color: #f0f9ff; border-radius: 6px; text-align: center; border: 1px solid #bae6fd;">
+      <p style="margin: 0 0 4px 0; font-size: 28px; font-weight: bold; color: #0369a1; font-family: Arial, Helvetica, sans-serif;">{{inspections24}}</p>
+      <p style="margin: 0; font-size: 12px; color: #0c4a6e; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; font-family: Arial, Helvetica, sans-serif;">Inspections (24mo)</p>
+    </td>
+    <td width="4%"></td>
+    <td width="48%" style="padding: 16px; background-color: #fef2f2; border-radius: 6px; text-align: center; border: 1px solid #fecaca;">
+      <p style="margin: 0 0 4px 0; font-size: 28px; font-weight: bold; color: #dc2626; font-family: Arial, Helvetica, sans-serif;">{{crashes24}}</p>
+      <p style="margin: 0; font-size: 12px; color: #991b1b; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; font-family: Arial, Helvetica, sans-serif;">Crashes (24mo)</p>
+    </td>
+  </tr>
+</table>
+
+<!-- AI Insights -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 24px 0; background: #fffbeb; border-radius: 8px; border: 1px solid #fcd34d;">
+  <tr>
+    <td style="padding: 20px;">
+      <h4 style="margin: 0 0 12px 0; font-size: 14px; color: #92400e; font-family: Arial, Helvetica, sans-serif;">&#128161; Key Insights</h4>
+      <p style="margin: 0; font-size: 14px; color: #78350f; line-height: 1.6; font-family: Arial, Helvetica, sans-serif;">{{aiAnalysis}}</p>
+    </td>
+  </tr>
+</table>
+
+<!-- Legend -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 24px 0;">
+  <tr>
+    <td style="font-size: 12px; color: #6b7280; font-family: Arial, Helvetica, sans-serif;">
+      <strong>Score Legend:</strong>
+      <span style="display: inline-block; margin-left: 12px; padding: 2px 6px; background: #f0fdf4; color: #16a34a; border-radius: 3px;">OK = Below threshold</span>
+      <span style="display: inline-block; margin-left: 8px; padding: 2px 6px; background: #fffbeb; color: #f97316; border-radius: 3px;">WARNING = Within 10 pts</span>
+      <span style="display: inline-block; margin-left: 8px; padding: 2px 6px; background: #fef2f2; color: #dc2626; border-radius: 3px;">CRITICAL = At/Above threshold</span>
+    </td>
+  </tr>
+</table>
+
+<!-- CTA Buttons -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 24px 0 0 0;">
+  <tr>
+    <td align="center">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td style="border-radius: 6px; background-color: #f97316;">
+            <a href="{{frontendUrl}}/register" target="_blank" style="display: inline-block; padding: 14px 28px; font-size: 16px; font-weight: bold; color: #ffffff; text-decoration: none; font-family: Arial, Helvetica, sans-serif;">Start Free Trial</a>
+          </td>
+          <td width="16"></td>
+          <td style="border-radius: 6px; background-color: #1a2744;">
+            <a href="{{frontendUrl}}/csa-checker" target="_blank" style="display: inline-block; padding: 14px 28px; font-size: 16px; font-weight: bold; color: #ffffff; text-decoration: none; font-family: Arial, Helvetica, sans-serif;">Check Another DOT</a>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<p style="margin: 24px 0 0 0; font-size: 12px; color: #9ca3af; text-align: center; font-family: Arial, Helvetica, sans-serif;">
+  Data sourced from FMCSA SAFER System. Scores update weekly.
+</p>

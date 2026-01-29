@@ -331,6 +331,17 @@ const CSAChecker = () => {
               </div>
             </div>
 
+            {/* Risk Level Badge */}
+            {carrierData.riskLevel && (
+              <div className={`mb-3 px-3 py-2 rounded-lg text-center ${
+                carrierData.riskLevel === 'HIGH' ? 'bg-red-500' :
+                carrierData.riskLevel === 'MODERATE' ? 'bg-amber-500' : 'bg-emerald-500'
+              }`}>
+                <span className="text-[10px] text-white/80 uppercase tracking-wider">Risk Level</span>
+                <p className="text-lg font-bold text-white">{carrierData.riskLevel} RISK</p>
+              </div>
+            )}
+
             {/* Urgent Alert Banner */}
             {alertCount > 0 && (
               <div className="mb-3 px-3 py-2 rounded-lg bg-red-50 border border-red-200 flex items-center gap-2">
@@ -439,7 +450,24 @@ const CSAChecker = () => {
               </div>
               <h3 className="text-sm font-bold text-primary-500">AI Analysis Complete</h3>
               <p className="text-[10px] text-zinc-600 dark:text-zinc-300">{carrierData.carrier.legalName}</p>
+              {carrierData.emailSent && (
+                <p className="mt-1 text-[10px] text-emerald-600 flex items-center justify-center gap-1">
+                  <FiMail className="w-3 h-3" />
+                  Full report with PDF sent to your email!
+                </p>
+              )}
             </div>
+
+            {/* Risk Level in Full Report */}
+            {carrierData.riskLevel && (
+              <div className={`mb-4 px-3 py-2 rounded-lg text-center ${
+                carrierData.riskLevel === 'HIGH' ? 'bg-red-500' :
+                carrierData.riskLevel === 'MODERATE' ? 'bg-amber-500' : 'bg-emerald-500'
+              }`}>
+                <span className="text-[10px] text-white/80 uppercase tracking-wider">Overall Risk Level</span>
+                <p className="text-lg font-bold text-white">{carrierData.riskLevel} RISK</p>
+              </div>
+            )}
 
             {/* AI Analysis - Scrollable */}
             <div className="mb-4 p-3 rounded-lg bg-[#F1F5F9] border border-[#E2E8F0] max-h-40 overflow-y-auto">

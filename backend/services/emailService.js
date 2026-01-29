@@ -405,6 +405,126 @@ const emailService = {
   },
 
   /**
+   * Send CSA Score Report email with PDF attachment.
+   * Used by the free CSA checker lead magnet.
+   *
+   * @param {string} email - Recipient email
+   * @param {object} carrier - Carrier info (legalName, dotNumber, mcNumber, etc.)
+   * @param {object} basics - BASIC percentile scores
+   * @param {string} aiAnalysis - AI-generated analysis text
+   * @param {string} riskLevel - 'HIGH', 'MODERATE', or 'LOW'
+   * @param {object} stats - { inspections: { last24Months }, crashes: { last24Months } }
+   * @param {Buffer} [pdfBuffer] - Optional PDF attachment
+   */
+  async sendCSAReport(email, carrier, basics, aiAnalysis, riskLevel, stats, pdfBuffer) {
+    // Risk level colors for email
+    const riskColors = {
+      HIGH: { bg: '#dc2626', text: '#ffffff' },
+      MODERATE: { bg: '#f97316', text: '#ffffff' },
+      LOW: { bg: '#16a34a', text: '#ffffff' }
+    };
+
+    // BASIC thresholds
+    const thresholds = {
+      unsafeDriving: 65,
+      hosCompliance: 65,
+      vehicleMaintenance: 80,
+      controlledSubstances: 80,
+      hazmatCompliance: 80,
+      driverFitness: 80,
+      crashIndicator: 65
+    };
+
+    // BASIC display names
+    const basicNames = {
+      unsafeDriving: 'Unsafe Driving',
+      hosCompliance: 'HOS Compliance',
+      vehicleMaintenance: 'Vehicle Maintenance',
+      controlledSubstances: 'Controlled Substances',
+      hazmatCompliance: 'Hazmat Compliance',
+      driverFitness: 'Driver Fitness',
+      crashIndicator: 'Crash Indicator'
+    };
+
+    // Helper to get status
+    const getStatus = (score, threshold) => {
+      if (score === null || score === undefined) return { bg: '#f3f4f6', text: '#6b7280', label: 'N/A' };
+      if (score >= threshold) return { bg: '#fef2f2', text: '#dc2626', label: 'CRITICAL' };
+      if (score >= threshold - 10) return { bg: '#fffbeb', text: '#f97316', label: 'WARNING' };
+      return { bg: '#f0fdf4', text: '#16a34a', label: 'OK' };
+    };
+
+    // Generate BASIC rows HTML for email
+    let basicsRows = '';
+    for (const [key, name] of Object.entries(basicNames)) {
+      const score = basics[key];
+      const threshold = thresholds[key];
+      const status = getStatus(score, threshold);
+      const barWidth = score !== null && score !== undefined ? Math.min(score, 100) : 0;
+      const barColor = score >= threshold ? '#dc2626' : score >= threshold - 10 ? '#f97316' : '#16a34a';
+
+      basicsRows += `
+        <tr>
+          <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; font-size: 14px; font-family: Arial, Helvetica, sans-serif;">${name}</td>
+          <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td width="120" style="padding-right: 8px;">
+                  <div style="width: 120px; height: 16px; background: #f3f4f6; border-radius: 4px; overflow: hidden;">
+                    <div style="width: ${barWidth}%; height: 100%; background: ${barColor}; border-radius: 4px;"></div>
+                  </div>
+                </td>
+                <td style="font-size: 14px; font-weight: bold; font-family: Arial, Helvetica, sans-serif;">${score !== null && score !== undefined ? score + '%' : 'N/A'}</td>
+              </tr>
+            </table>
+          </td>
+          <td style="padding: 10px 8px; border-bottom: 1px solid #e5e7eb; text-align: center;">
+            <span style="display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; background: ${status.bg}; color: ${status.text}; font-family: Arial, Helvetica, sans-serif;">${status.label}</span>
+          </td>
+        </tr>
+      `;
+    }
+
+    const riskColor = riskColors[riskLevel] || riskColors.MODERATE;
+    const reportDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    const emailPayload = {
+      to: email,
+      subject: `CSA Score Report: ${carrier.legalName || 'Your Carrier'}`,
+      templateName: 'csa-report',
+      variables: {
+        carrierName: carrier.legalName || 'Unknown Carrier',
+        dotNumber: carrier.dotNumber || 'N/A',
+        mcNumber: carrier.mcNumber || 'N/A',
+        operatingStatus: carrier.operatingStatus || 'Unknown',
+        fleetSize: carrier.fleetSize?.powerUnits || 'N/A',
+        riskLevel,
+        riskBg: riskColor.bg,
+        riskText: riskColor.text,
+        basicsRows,
+        inspections24: stats?.inspections?.last24Months || 0,
+        crashes24: stats?.crashes?.last24Months || 0,
+        aiAnalysis: aiAnalysis || 'No analysis available.',
+        reportDate,
+      },
+      category: 'report',
+      metadata: { dotNumber: carrier.dotNumber, riskLevel },
+    };
+
+    if (pdfBuffer) {
+      const safeName = (carrier.legalName || 'CSA_Report').replace(/[^a-zA-Z0-9_-]/g, '_');
+      emailPayload.attachments = [
+        {
+          filename: `CSA_Report_${safeName}_${carrier.dotNumber || 'unknown'}.pdf`,
+          content: pdfBuffer,
+        },
+      ];
+    }
+
+    return this.send(emailPayload);
+  },
+
+  /**
    * Send a report with a PDF attachment.
    */
   async sendReport(user, reportName, pdfBuffer, toEmail) {

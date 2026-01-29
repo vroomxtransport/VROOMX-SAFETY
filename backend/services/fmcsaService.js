@@ -84,6 +84,43 @@ const fmcsaService = {
   },
 
   /**
+   * Calculate overall risk level based on BASIC scores
+   * @param {object} basics - BASIC percentile scores
+   * @returns {'HIGH'|'MODERATE'|'LOW'} Risk level
+   */
+  calculateRiskLevel(basics) {
+    if (!basics) return 'MODERATE';
+
+    let aboveThreshold = 0;
+    let nearThreshold = 0;
+    let above50 = 0;
+
+    for (const [basic, threshold] of Object.entries(BASIC_THRESHOLDS)) {
+      const score = basics[basic];
+      if (score === null || score === undefined) continue;
+
+      if (score >= threshold) {
+        aboveThreshold++;
+      } else if (score >= threshold - 10) {
+        nearThreshold++;
+      }
+
+      if (score >= 50) {
+        above50++;
+      }
+    }
+
+    // HIGH: Any BASIC at/above intervention threshold OR 3+ above 50%
+    if (aboveThreshold > 0 || above50 >= 3) return 'HIGH';
+
+    // MODERATE: Any BASIC within 10 points of threshold OR 2+ above 50%
+    if (nearThreshold > 0 || above50 >= 2) return 'MODERATE';
+
+    // LOW: All BASICs well below thresholds
+    return 'LOW';
+  },
+
+  /**
    * Fetch carrier snapshot from FMCSA SAFER
    */
   async fetchCarrierSnapshot(dotNumber) {
