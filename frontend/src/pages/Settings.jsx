@@ -257,7 +257,9 @@ const Settings = () => {
     ...(user?.role === 'admin' || activeCompany?.role === 'owner' || activeCompany?.role === 'admin'
       ? [{ id: 'audit', label: 'Audit Log', icon: FiClipboard }]
       : []),
-    { id: 'dataaudit', label: 'Data Audit', icon: FiDatabase }
+    ...(user?.role === 'admin' || activeCompany?.role === 'owner' || activeCompany?.role === 'admin'
+      ? [{ id: 'dataaudit', label: 'Data Audit', icon: FiDatabase }]
+      : [])
   ];
 
   return (
@@ -356,7 +358,7 @@ const Settings = () => {
           <AuditLogTab />
         )}
 
-        {activeTab === 'dataaudit' && (
+        {activeTab === 'dataaudit' && (user?.role === 'admin' || activeCompany?.role === 'owner' || activeCompany?.role === 'admin') && (
           <DataAuditTab />
         )}
       </div>
