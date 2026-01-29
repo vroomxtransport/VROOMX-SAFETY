@@ -172,6 +172,7 @@ export const pricingPlans = [
     features: [
       'Everything in Solo',
       '3 drivers included',
+      'Up to 3 Companies',
       'AI Violation Reader',
       'DataQ Draft Generator',
       'Multi-user Access',
@@ -191,7 +192,7 @@ export const pricingPlans = [
     features: [
       'Everything in Fleet',
       '10 drivers included',
-      'Unlimited Companies',
+      'Up to 10 Companies',
       'Advanced CSA Analytics',
       'Custom Reports & API Access',
       'Dedicated Support'
