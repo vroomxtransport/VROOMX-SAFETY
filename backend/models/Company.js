@@ -88,16 +88,40 @@ const companySchema = new mongoose.Schema({
     randomAlcoholTestRate: { type: Number, default: 10 }
   },
 
-  // Additional FMCSA data from scraper
+  // FMCSA data from SaferWebAPI
   fmcsaData: {
+    // Inspection summary from SaferWebAPI
     inspections: {
-      total: { type: Number, default: 0 },
-      last24Months: { type: Number, default: 0 }
+      vehicleInspections: { type: Number, default: 0 },
+      vehicleOOS: { type: Number, default: 0 },
+      vehicleOOSPercent: { type: Number, default: 0 },
+      vehicleNationalAvg: { type: Number, default: 0 },
+      driverInspections: { type: Number, default: 0 },
+      driverOOS: { type: Number, default: 0 },
+      driverOOSPercent: { type: Number, default: 0 },
+      driverNationalAvg: { type: Number, default: 0 },
+      hazmatInspections: { type: Number, default: 0 },
+      hazmatOOS: { type: Number, default: 0 },
+      iepInspections: { type: Number, default: 0 },
+      totalInspections: { type: Number, default: 0 },
+      crashes: {
+        fatal: { type: Number, default: 0 },
+        injury: { type: Number, default: 0 },
+        tow: { type: Number, default: 0 },
+        total: { type: Number, default: 0 }
+      },
+      carrier: {
+        legalName: { type: String },
+        dotNumber: { type: String },
+        safetyRating: { type: String },
+        operatingStatus: { type: String }
+      },
+      lastSync: { type: Date }
     },
-    crashes: {
-      total: { type: Number, default: 0 },
-      last24Months: { type: Number, default: 0 }
-    },
+    lastViolationSync: { type: Date },
+    // Raw API response for debugging
+    saferWebData: { type: mongoose.Schema.Types.Mixed },
+    // Legacy fields
     operatingStatus: { type: String },
     safetyRating: { type: String },
     outOfServiceRate: {
