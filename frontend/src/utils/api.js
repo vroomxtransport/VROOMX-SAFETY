@@ -463,6 +463,9 @@ export const adminAPI = {
   getDataIntegrity: () => api.get('/admin/data-integrity'),
   getDataIntegrityFull: () => api.get('/admin/data-integrity/full'),
   getDataIntegrityDetails: (resource) => api.get(`/admin/data-integrity/details/${resource}`),
+  deleteOrphanedRecords: (resource) => api.delete(`/admin/data-integrity/orphaned/${resource}`),
+  deleteAllOrphanedRecords: () => api.delete('/admin/data-integrity/orphaned'),
+  deleteInvalidReferences: (resource, field) => api.delete(`/admin/data-integrity/invalid-refs/${resource}/${field}`),
 
   // Audit Logs
   getAuditLogs: (params) => api.get('/audit', { params }),

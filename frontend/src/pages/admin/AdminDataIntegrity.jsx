@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import {
   FiShield, FiRefreshCw, FiAlertCircle, FiAlertTriangle, FiInfo,
   FiDatabase, FiUsers, FiTruck, FiFileText, FiChevronDown, FiChevronUp,
-  FiCheckCircle, FiClock
+  FiCheckCircle, FiClock, FiTrash2
 } from 'react-icons/fi';
 import { adminAPI } from '../../utils/api';
 import LoadingSpinner from '../../components/LoadingSpinner';
@@ -12,6 +12,8 @@ const AdminDataIntegrity = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [expandedSections, setExpandedSections] = useState({});
+  const [deleting, setDeleting] = useState({});
+  const [deleteResults, setDeleteResults] = useState({});
 
   const fetchData = async () => {
     try {
@@ -32,6 +34,82 @@ const AdminDataIntegrity = () => {
 
   const toggleSection = (key) => {
     setExpandedSections(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  // Delete orphaned records for a specific resource
+  const handleDeleteOrphaned = async (resource) => {
+    if (!window.confirm(`Are you sure you want to delete all orphaned ${resource} records? This action cannot be undone.`)) {
+      return;
+    }
+
+    setDeleting(prev => ({ ...prev, [resource]: true }));
+    try {
+      const response = await adminAPI.deleteOrphanedRecords(resource);
+      setDeleteResults(prev => ({
+        ...prev,
+        [resource]: { success: true, deleted: response.data.deletedCount }
+      }));
+      // Refresh data after deletion
+      await fetchData();
+    } catch (err) {
+      setDeleteResults(prev => ({
+        ...prev,
+        [resource]: { success: false, error: err.response?.data?.message || 'Delete failed' }
+      }));
+    } finally {
+      setDeleting(prev => ({ ...prev, [resource]: false }));
+    }
+  };
+
+  // Delete all orphaned records
+  const handleDeleteAllOrphaned = async () => {
+    if (!window.confirm('Are you sure you want to delete ALL orphaned records across all models? This action cannot be undone.')) {
+      return;
+    }
+
+    setDeleting(prev => ({ ...prev, all: true }));
+    try {
+      const response = await adminAPI.deleteAllOrphanedRecords();
+      setDeleteResults(prev => ({
+        ...prev,
+        all: { success: true, deleted: response.data.totalDeleted }
+      }));
+      // Refresh data after deletion
+      await fetchData();
+    } catch (err) {
+      setDeleteResults(prev => ({
+        ...prev,
+        all: { success: false, error: err.response?.data?.message || 'Delete failed' }
+      }));
+    } finally {
+      setDeleting(prev => ({ ...prev, all: false }));
+    }
+  };
+
+  // Delete records with invalid references
+  const handleDeleteInvalidRefs = async (resource, field) => {
+    if (!window.confirm(`Are you sure you want to delete all ${resource} records with invalid ${field}? This action cannot be undone.`)) {
+      return;
+    }
+
+    const key = `${resource}-${field}`;
+    setDeleting(prev => ({ ...prev, [key]: true }));
+    try {
+      const response = await adminAPI.deleteInvalidReferences(resource, field);
+      setDeleteResults(prev => ({
+        ...prev,
+        [key]: { success: true, deleted: response.data.deletedCount }
+      }));
+      // Refresh data after deletion
+      await fetchData();
+    } catch (err) {
+      setDeleteResults(prev => ({
+        ...prev,
+        [key]: { success: false, error: err.response?.data?.message || 'Delete failed' }
+      }));
+    } finally {
+      setDeleting(prev => ({ ...prev, [key]: false }));
+    }
   };
 
   const getHealthColor = (score) => {
@@ -258,45 +336,124 @@ const AdminDataIntegrity = () => {
             {/* Expanded Details */}
             {expandedSections[key] && check.details?.length > 0 && (
               <div className="border-t border-zinc-200 dark:border-zinc-700 p-4 bg-white/50 dark:bg-zinc-900/50">
-                <div className="space-y-3">
-                  {check.details.map((detail, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center justify-between p-3 bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700"
+                {/* Fix All Button for orphaned records */}
+                {key === 'orphanedRecords' && check.total > 0 && (
+                  <div className="mb-4 flex items-center justify-between p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                    <div className="flex items-center gap-2">
+                      <FiAlertCircle className="w-5 h-5 text-red-500" />
+                      <span className="text-sm text-red-700 dark:text-red-400">
+                        Delete all {check.total} orphaned records across all models
+                      </span>
+                    </div>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleDeleteAllOrphaned(); }}
+                      disabled={deleting.all}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white text-sm rounded-lg transition-colors"
                     >
-                      <div className="flex items-center gap-3">
-                        {getResourceIcon(detail.resource)}
-                        <div>
-                          <span className="font-medium text-zinc-900 dark:text-white">
-                            {detail.resource}
+                      {deleting.all ? (
+                        <FiRefreshCw className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <FiTrash2 className="w-4 h-4" />
+                      )}
+                      {deleting.all ? 'Deleting...' : 'Fix All'}
+                    </button>
+                  </div>
+                )}
+
+                {/* Delete result notification */}
+                {deleteResults.all && (
+                  <div className={`mb-4 p-3 rounded-lg ${deleteResults.all.success ? 'bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800' : 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800'}`}>
+                    <span className={`text-sm ${deleteResults.all.success ? 'text-emerald-700 dark:text-emerald-400' : 'text-red-700 dark:text-red-400'}`}>
+                      {deleteResults.all.success
+                        ? `Successfully deleted ${deleteResults.all.deleted} orphaned records`
+                        : `Error: ${deleteResults.all.error}`
+                      }
+                    </span>
+                  </div>
+                )}
+
+                <div className="space-y-3">
+                  {check.details.map((detail, idx) => {
+                    const deleteKey = key === 'invalidReferences'
+                      ? `${detail.resource}-${detail.reference}`
+                      : detail.resource;
+
+                    return (
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between p-3 bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700"
+                      >
+                        <div className="flex items-center gap-3">
+                          {getResourceIcon(detail.resource)}
+                          <div>
+                            <span className="font-medium text-zinc-900 dark:text-white">
+                              {detail.resource}
+                            </span>
+                            {detail.field && (
+                              <span className="text-zinc-500 dark:text-zinc-400 ml-1.5">
+                                - {detail.field}
+                              </span>
+                            )}
+                            {detail.reference && (
+                              <span className="text-zinc-500 dark:text-zinc-400 ml-1.5">
+                                - {detail.reference}
+                              </span>
+                            )}
+                            {detail.threshold && (
+                              <span className="text-zinc-500 dark:text-zinc-400 ml-1.5">
+                                (not updated in {detail.threshold})
+                              </span>
+                            )}
+                            {detail.criteria && (
+                              <span className="text-zinc-500 dark:text-zinc-400 ml-1.5">
+                                ({detail.criteria})
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          {/* Delete result for this specific resource */}
+                          {deleteResults[deleteKey] && (
+                            <span className={`text-xs ${deleteResults[deleteKey].success ? 'text-emerald-600' : 'text-red-600'}`}>
+                              {deleteResults[deleteKey].success
+                                ? `Deleted ${deleteResults[deleteKey].deleted}`
+                                : 'Failed'
+                              }
+                            </span>
+                          )}
+
+                          <span className="px-2.5 py-1 rounded-full text-sm font-medium bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300">
+                            {detail.count} record{detail.count !== 1 ? 's' : ''}
                           </span>
-                          {detail.field && (
-                            <span className="text-zinc-500 dark:text-zinc-400 ml-1.5">
-                              - {detail.field}
-                            </span>
-                          )}
-                          {detail.reference && (
-                            <span className="text-zinc-500 dark:text-zinc-400 ml-1.5">
-                              - {detail.reference}
-                            </span>
-                          )}
-                          {detail.threshold && (
-                            <span className="text-zinc-500 dark:text-zinc-400 ml-1.5">
-                              (not updated in {detail.threshold})
-                            </span>
-                          )}
-                          {detail.criteria && (
-                            <span className="text-zinc-500 dark:text-zinc-400 ml-1.5">
-                              ({detail.criteria})
-                            </span>
+
+                          {/* Show delete button for orphaned records and invalid references */}
+                          {(key === 'orphanedRecords' || key === 'invalidReferences') && detail.count > 0 && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (key === 'orphanedRecords') {
+                                  handleDeleteOrphaned(detail.resource);
+                                } else if (key === 'invalidReferences') {
+                                  handleDeleteInvalidRefs(detail.resource, detail.reference);
+                                }
+                              }}
+                              disabled={deleting[deleteKey]}
+                              className="flex items-center gap-1 px-2 py-1 bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 text-xs rounded transition-colors disabled:opacity-50"
+                              title={`Delete ${detail.count} ${detail.resource} record(s)`}
+                            >
+                              {deleting[deleteKey] ? (
+                                <FiRefreshCw className="w-3 h-3 animate-spin" />
+                              ) : (
+                                <FiTrash2 className="w-3 h-3" />
+                              )}
+                              Delete
+                            </button>
                           )}
                         </div>
                       </div>
-                      <span className="px-2.5 py-1 rounded-full text-sm font-medium bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300">
-                        {detail.count} record{detail.count !== 1 ? 's' : ''}
-                      </span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}

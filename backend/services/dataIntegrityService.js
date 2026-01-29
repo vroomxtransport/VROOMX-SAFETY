@@ -603,6 +603,118 @@ const dataIntegrityService = {
       MaintenanceRecord.countDocuments()
     ]);
     return counts.reduce((a, b) => a + b, 0);
+  },
+
+  // ============================================================
+  // CLEANUP METHODS
+  // ============================================================
+
+  /**
+   * Delete orphaned records for a specific model
+   * Returns count of deleted records
+   */
+  async deleteOrphanedRecords(resourceName) {
+    const Model = this._getModelByName(resourceName);
+    if (!Model) {
+      return { success: false, error: `Unknown resource: ${resourceName}` };
+    }
+
+    // Get all valid company IDs
+    const validCompanyIds = await Company.distinct('_id');
+    const validCompanyIdSet = new Set(validCompanyIds.map(id => id.toString()));
+
+    let deletedCount = 0;
+
+    // Delete records with null companyId
+    const nullResult = await Model.deleteMany({ companyId: null });
+    deletedCount += nullResult.deletedCount;
+
+    // Find and delete records with invalid companyId
+    const allRecords = await Model.find({ companyId: { $ne: null } }).select('_id companyId').lean();
+    const invalidIds = allRecords
+      .filter(r => r.companyId && !validCompanyIdSet.has(r.companyId.toString()))
+      .map(r => r._id);
+
+    if (invalidIds.length > 0) {
+      const invalidResult = await Model.deleteMany({ _id: { $in: invalidIds } });
+      deletedCount += invalidResult.deletedCount;
+    }
+
+    return {
+      success: true,
+      resource: resourceName,
+      deletedCount
+    };
+  },
+
+  /**
+   * Delete all orphaned records across all models
+   */
+  async deleteAllOrphanedRecords() {
+    const modelsToClean = ['Driver', 'Vehicle', 'Document', 'Violation', 'Accident',
+                          'DrugAlcoholTest', 'Ticket', 'DamageClaim', 'MaintenanceRecord'];
+
+    const results = [];
+    let totalDeleted = 0;
+
+    for (const modelName of modelsToClean) {
+      const result = await this.deleteOrphanedRecords(modelName);
+      if (result.success) {
+        results.push({ resource: modelName, deleted: result.deletedCount });
+        totalDeleted += result.deletedCount;
+      }
+    }
+
+    return {
+      success: true,
+      totalDeleted,
+      details: results
+    };
+  },
+
+  /**
+   * Delete records with invalid references for a specific model and reference field
+   */
+  async deleteInvalidReferences(resourceName, referenceField) {
+    const Model = this._getModelByName(resourceName);
+    if (!Model) {
+      return { success: false, error: `Unknown resource: ${resourceName}` };
+    }
+
+    // Determine which IDs are valid based on the reference field
+    let validIdSet;
+    if (referenceField === 'driverId') {
+      const validIds = await Driver.distinct('_id');
+      validIdSet = new Set(validIds.map(id => id.toString()));
+    } else if (referenceField === 'vehicleId') {
+      const validIds = await Vehicle.distinct('_id');
+      validIdSet = new Set(validIds.map(id => id.toString()));
+    } else if (referenceField === 'userId') {
+      const validIds = await User.distinct('_id');
+      validIdSet = new Set(validIds.map(id => id.toString()));
+    } else {
+      return { success: false, error: `Unknown reference field: ${referenceField}` };
+    }
+
+    // Find records with invalid references
+    const query = { [referenceField]: { $ne: null } };
+    const allRecords = await Model.find(query).select(`_id ${referenceField}`).lean();
+    const invalidIds = allRecords
+      .filter(r => r[referenceField] && !validIdSet.has(r[referenceField].toString()))
+      .map(r => r._id);
+
+    let deletedCount = 0;
+    if (invalidIds.length > 0) {
+      const result = await Model.deleteMany({ _id: { $in: invalidIds } });
+      deletedCount = result.deletedCount;
+    }
+
+    return {
+      success: true,
+      resource: resourceName,
+      referenceField,
+      deletedCount
+    };
   }
 };
 

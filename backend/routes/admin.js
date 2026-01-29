@@ -1447,4 +1447,69 @@ router.get('/data-integrity/details/:resource', async (req, res) => {
   }
 });
 
+// DELETE /api/admin/data-integrity/orphaned/:resource - Delete orphaned records for specific resource
+router.delete('/data-integrity/orphaned/:resource', async (req, res) => {
+  try {
+    const { resource } = req.params;
+    const result = await dataIntegrityService.deleteOrphanedRecords(resource);
+
+    if (!result.success) {
+      return res.status(400).json(result);
+    }
+
+    auditService.log(req, 'cleanup', 'data_integrity', null, {
+      resource,
+      deletedCount: result.deletedCount,
+      summary: `Admin deleted ${result.deletedCount} orphaned ${resource} records`
+    });
+
+    res.json(result);
+  } catch (error) {
+    console.error('Data integrity cleanup error:', error);
+    res.status(500).json({ success: false, message: 'Failed to delete orphaned records' });
+  }
+});
+
+// DELETE /api/admin/data-integrity/orphaned - Delete ALL orphaned records
+router.delete('/data-integrity/orphaned', async (req, res) => {
+  try {
+    const result = await dataIntegrityService.deleteAllOrphanedRecords();
+
+    auditService.log(req, 'cleanup', 'data_integrity', null, {
+      totalDeleted: result.totalDeleted,
+      details: result.details,
+      summary: `Admin deleted ${result.totalDeleted} total orphaned records`
+    });
+
+    res.json(result);
+  } catch (error) {
+    console.error('Data integrity cleanup all error:', error);
+    res.status(500).json({ success: false, message: 'Failed to delete orphaned records' });
+  }
+});
+
+// DELETE /api/admin/data-integrity/invalid-refs/:resource/:field - Delete invalid references
+router.delete('/data-integrity/invalid-refs/:resource/:field', async (req, res) => {
+  try {
+    const { resource, field } = req.params;
+    const result = await dataIntegrityService.deleteInvalidReferences(resource, field);
+
+    if (!result.success) {
+      return res.status(400).json(result);
+    }
+
+    auditService.log(req, 'cleanup', 'data_integrity', null, {
+      resource,
+      referenceField: field,
+      deletedCount: result.deletedCount,
+      summary: `Admin deleted ${result.deletedCount} ${resource} records with invalid ${field}`
+    });
+
+    res.json(result);
+  } catch (error) {
+    console.error('Data integrity invalid refs cleanup error:', error);
+    res.status(500).json({ success: false, message: 'Failed to delete records with invalid references' });
+  }
+});
+
 module.exports = router;
