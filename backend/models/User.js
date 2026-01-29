@@ -204,8 +204,8 @@ userSchema.virtual('limits').get(function() {
   const plans = {
     free_trial: { maxCompanies: 1, maxDriversPerCompany: 1, maxVehiclesPerCompany: 1 },
     solo: { maxCompanies: 1, maxDriversPerCompany: 1, maxVehiclesPerCompany: Infinity },
-    fleet: { maxCompanies: 2, maxDriversPerCompany: Infinity, maxVehiclesPerCompany: Infinity },
-    pro: { maxCompanies: Infinity, maxDriversPerCompany: Infinity, maxVehiclesPerCompany: Infinity }
+    fleet: { maxCompanies: 3, maxDriversPerCompany: Infinity, maxVehiclesPerCompany: Infinity },
+    pro: { maxCompanies: 10, maxDriversPerCompany: Infinity, maxVehiclesPerCompany: Infinity }
   };
   return plans[this.subscription?.plan] || plans.free_trial;
 });
