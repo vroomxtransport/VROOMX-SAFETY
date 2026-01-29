@@ -35,7 +35,7 @@ const fmcsaViolationService = {
     console.log(`[SaferWebAPI] Fetching data for DOT ${dotNumber}`);
 
     const response = await fetch(
-      `https://api.saferwebapi.com/v2/usdot/snapshot/${dotNumber}`,
+      `https://saferwebapi.com/v2/usdot/snapshot/${dotNumber}`,
       {
         headers: {
           'x-api-key': apiKey
@@ -63,11 +63,11 @@ const fmcsaViolationService = {
    * @returns {object} Normalized inspection data
    */
   parseInspectionData(apiData) {
-    // Handle different response structures
-    const usInspections = apiData.us_inspections || apiData.usInspections || {};
-    const usCrash = apiData.us_crash || apiData.usCrash || {};
+    // Handle different response structures - API uses both us_inspections and united_states_inspections
+    const usInspections = apiData.us_inspections || apiData.united_states_inspections || {};
+    const usCrash = apiData.united_states_crashes || apiData.us_crash || {};
 
-    // Parse OOS percentages (might be string like "13.33%" or number)
+    // Parse OOS percentages (API returns strings like "13.33%" or "0%")
     const parsePercent = (val) => {
       if (typeof val === 'number') return val;
       if (typeof val === 'string') {
@@ -77,25 +77,34 @@ const fmcsaViolationService = {
       return 0;
     };
 
+    // Parse inspection count (API returns strings like "0" or numbers)
+    const parseCount = (val) => {
+      if (typeof val === 'number') return val;
+      if (typeof val === 'string') return parseInt(val, 10) || 0;
+      return 0;
+    };
+
+    const vehicleInsp = parseCount(usInspections.vehicle?.inspections);
+    const driverInsp = parseCount(usInspections.driver?.inspections);
+    const hazmatInsp = parseCount(usInspections.hazmat?.inspections);
+
     return {
-      vehicleInspections: usInspections.vehicle?.count || usInspections.vehicle?.inspections || 0,
-      vehicleOOS: usInspections.vehicle?.out_of_service || usInspections.vehicle?.outOfService || 0,
-      vehicleOOSPercent: parsePercent(usInspections.vehicle?.out_of_service_percent || usInspections.vehicle?.outOfServicePercent),
-      vehicleNationalAvg: parsePercent(usInspections.vehicle?.national_average || usInspections.vehicle?.nationalAverage),
+      vehicleInspections: vehicleInsp,
+      vehicleOOS: parseCount(usInspections.vehicle?.out_of_service),
+      vehicleOOSPercent: parsePercent(usInspections.vehicle?.out_of_service_percent),
+      vehicleNationalAvg: parsePercent(usInspections.vehicle?.national_average),
 
-      driverInspections: usInspections.driver?.count || usInspections.driver?.inspections || 0,
-      driverOOS: usInspections.driver?.out_of_service || usInspections.driver?.outOfService || 0,
-      driverOOSPercent: parsePercent(usInspections.driver?.out_of_service_percent || usInspections.driver?.outOfServicePercent),
-      driverNationalAvg: parsePercent(usInspections.driver?.national_average || usInspections.driver?.nationalAverage),
+      driverInspections: driverInsp,
+      driverOOS: parseCount(usInspections.driver?.out_of_service),
+      driverOOSPercent: parsePercent(usInspections.driver?.out_of_service_percent),
+      driverNationalAvg: parsePercent(usInspections.driver?.national_average),
 
-      hazmatInspections: usInspections.hazmat?.count || usInspections.hazmat?.inspections || 0,
-      hazmatOOS: usInspections.hazmat?.out_of_service || usInspections.hazmat?.outOfService || 0,
+      hazmatInspections: hazmatInsp,
+      hazmatOOS: parseCount(usInspections.hazmat?.out_of_service),
 
-      iepInspections: usInspections.iep?.count || usInspections.iep?.inspections || 0,
+      iepInspections: parseCount(usInspections.iep?.inspections),
 
-      totalInspections: (usInspections.vehicle?.count || 0) +
-                        (usInspections.driver?.count || 0) +
-                        (usInspections.hazmat?.count || 0),
+      totalInspections: vehicleInsp + driverInsp + hazmatInsp,
 
       crashes: {
         fatal: usCrash.fatal || 0,
@@ -105,10 +114,10 @@ const fmcsaViolationService = {
       },
 
       carrier: {
-        legalName: apiData.legal_name || apiData.legalName,
-        dotNumber: apiData.usdot_number || apiData.usdotNumber || apiData.dot_number,
-        safetyRating: apiData.safety_rating || apiData.safetyRating,
-        operatingStatus: apiData.operating_status || apiData.operatingStatus
+        legalName: apiData.legal_name,
+        dotNumber: apiData.usdot,
+        safetyRating: apiData.safety_rating,
+        operatingStatus: apiData.operating_status
       }
     };
   },
