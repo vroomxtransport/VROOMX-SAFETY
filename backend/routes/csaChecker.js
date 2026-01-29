@@ -175,35 +175,47 @@ router.post('/full-report', [
     // Generate AI analysis
     let aiAnalysis = null;
     try {
-      const aiResponse = await aiService.query('csaAnalyzer', `Analyze this carrier's CSA profile for a potential customer:
+      const aiResponse = await aiService.query('csaAnalyzer', `Analyze this carrier's CSA profile and provide a structured report.
 
-Carrier: ${carrierData.carrier.legalName}
-DOT#: ${carrierData.carrier.dotNumber}
-Fleet Size: ${carrierData.carrier.fleetSize.powerUnits} power units, ${carrierData.carrier.fleetSize.drivers} drivers
-Safety Rating: ${carrierData.carrier.safetyRating}
+CARRIER DATA:
+- Name: ${carrierData.carrier.legalName}
+- DOT#: ${carrierData.carrier.dotNumber}
+- Fleet: ${carrierData.carrier.fleetSize.powerUnits} power units, ${carrierData.carrier.fleetSize.drivers} drivers
+- Safety Rating: ${carrierData.carrier.safetyRating}
 
-BASIC Percentiles:
-- Unsafe Driving: ${carrierData.basics.unsafeDriving ?? 'No Data'}%
-- HOS Compliance: ${carrierData.basics.hosCompliance ?? 'No Data'}%
-- Vehicle Maintenance: ${carrierData.basics.vehicleMaintenance ?? 'No Data'}%
-- Crash Indicator: ${carrierData.basics.crashIndicator ?? 'No Data'}%
-- Controlled Substances: ${carrierData.basics.controlledSubstances ?? 'No Data'}%
-- Hazmat Compliance: ${carrierData.basics.hazmatCompliance ?? 'No Data'}%
-- Driver Fitness: ${carrierData.basics.driverFitness ?? 'No Data'}%
+BASIC SCORES (threshold in parentheses):
+- Unsafe Driving: ${carrierData.basics.unsafeDriving ?? 'N/A'}% (65%)
+- HOS Compliance: ${carrierData.basics.hosCompliance ?? 'N/A'}% (65%)
+- Vehicle Maintenance: ${carrierData.basics.vehicleMaintenance ?? 'N/A'}% (80%)
+- Crash Indicator: ${carrierData.basics.crashIndicator ?? 'N/A'}% (65%)
+- Controlled Substances: ${carrierData.basics.controlledSubstances ?? 'N/A'}% (80%)
+- Hazmat Compliance: ${carrierData.basics.hazmatCompliance ?? 'N/A'}% (80%)
+- Driver Fitness: ${carrierData.basics.driverFitness ?? 'N/A'}% (80%)
 
-Inspections (24 months): ${carrierData.inspections.last24Months}
-Crashes (24 months): ${carrierData.crashes.last24Months}
-Alert Count: ${carrierData.alerts.count} BASICs above intervention threshold
+RECENT HISTORY:
+- Inspections (24mo): ${carrierData.inspections.last24Months}
+- Crashes (24mo): ${carrierData.crashes.last24Months}
+- BASICs Above Threshold: ${carrierData.alerts.count}
 
-Provide:
-1. A 2-3 sentence summary of their compliance status
-2. List any critical issues (BASICs above threshold)
-3. Top 3 recommendations to improve their scores
-4. If any BASICs are above threshold, suggest potential DataQ challenge opportunities
-5. A simple 3-step action plan they should take
+FORMAT YOUR RESPONSE EXACTLY LIKE THIS (use these exact headers):
 
-Format the response in a way that creates urgency but also demonstrates how VroomX Safety can help them.
-Keep language simple and direct - written for truckers, not lawyers.`, { maxTokens: 1500 });
+📊 QUICK SUMMARY
+[2-3 sentences about their overall compliance status and risk level]
+
+⚠️ ISSUES FOUND
+[Bullet list of specific problems - BASICs above threshold, concerning trends, etc. If no issues, say "No critical issues found"]
+
+✅ YOUR 3-STEP ACTION PLAN
+1. [First action - be specific]
+2. [Second action - be specific]
+3. [Third action - be specific]
+
+RULES:
+- Keep language simple - written for truckers, not lawyers
+- Be specific about which BASICs need attention
+- If any BASIC is above threshold, mention DataQ challenge opportunities
+- Create urgency but be helpful, not scary
+- Total response under 300 words`, { maxTokens: 800 });
 
       aiAnalysis = {
         content: aiResponse.content,
@@ -369,40 +381,35 @@ router.get('/basic-info', (req, res) => {
  */
 function generateFallbackAnalysis(carrierData) {
   const alerts = carrierData.alerts;
-  const basics = carrierData.basics;
 
-  let analysis = `## CSA Score Analysis for ${carrierData.carrier.legalName}\n\n`;
+  let analysis = `📊 QUICK SUMMARY\n`;
 
   // Summary
   if (alerts.count === 0) {
-    analysis += `**Good News!** Your carrier has no BASICs above FMCSA intervention thresholds. However, staying proactive about compliance is key to maintaining this status.\n\n`;
+    analysis += `Good news! Your carrier has no BASICs above FMCSA intervention thresholds. Staying proactive about compliance is key to maintaining this status.\n\n`;
   } else if (alerts.count === 1) {
-    analysis += `**Attention Needed!** Your carrier has 1 BASIC above the FMCSA intervention threshold. This means you could be subject to an investigation or audit. Taking action now can help reduce your risk.\n\n`;
+    analysis += `Attention needed. Your carrier has 1 BASIC above the FMCSA intervention threshold. This could trigger an investigation or audit. Taking action now can reduce your risk.\n\n`;
   } else {
-    analysis += `**Critical Action Required!** Your carrier has ${alerts.count} BASICs above intervention thresholds. FMCSA may prioritize your company for investigation. Immediate attention is recommended.\n\n`;
+    analysis += `Critical action required. Your carrier has ${alerts.count} BASICs above intervention thresholds. FMCSA may prioritize your company for investigation. Immediate attention is recommended.\n\n`;
   }
 
-  // Critical Issues
+  // Issues Found
+  analysis += `⚠️ ISSUES FOUND\n`;
   if (alerts.count > 0) {
-    analysis += `### Critical Issues\n`;
     alerts.details.forEach(alert => {
       const basicName = fmcsaService.getBasicInfo().find(b => b.key === alert.basic)?.name || alert.basic;
-      analysis += `- **${basicName}**: ${alert.score}% (threshold: ${alert.threshold}%)\n`;
+      analysis += `• ${basicName}: ${alert.score}% (threshold: ${alert.threshold}%) - Consider filing a DataQ challenge for any incorrect violations\n`;
     });
-    analysis += `\n`;
+  } else {
+    analysis += `• No critical issues found. All BASICs are below intervention thresholds.\n`;
   }
-
-  // Recommendations
-  analysis += `### Recommendations\n`;
-  analysis += `1. **Review Recent Inspections** - Check for any violations that may be eligible for DataQ challenge\n`;
-  analysis += `2. **Driver Training** - Focus on areas where violations occurred most frequently\n`;
-  analysis += `3. **Preventive Maintenance** - Ensure all vehicles pass pre-trip inspections\n\n`;
+  analysis += `\n`;
 
   // Action Plan
-  analysis += `### Your 3-Step Action Plan\n`;
-  analysis += `1. Sign up for VroomX Safety to get real-time alerts when your scores change\n`;
-  analysis += `2. Use our AI-powered DataQ assistant to identify challengeable violations\n`;
-  analysis += `3. Set up automated document expiration tracking to stay audit-ready\n`;
+  analysis += `✅ YOUR 3-STEP ACTION PLAN\n`;
+  analysis += `1. Review your recent inspections and identify any violations that may be incorrectly recorded or eligible for DataQ challenge.\n`;
+  analysis += `2. Set up automated alerts with VroomX Safety to get notified when your BASIC scores change.\n`;
+  analysis += `3. Implement a preventive maintenance program and ensure all drivers complete thorough pre-trip inspections.\n`;
 
   return analysis;
 }

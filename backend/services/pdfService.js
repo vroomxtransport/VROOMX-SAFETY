@@ -175,6 +175,54 @@ const pdfService = {
       `;
     }
 
+    // Format AI analysis as structured HTML
+    const formatAiAnalysisHtml = (text) => {
+      if (!text) return '<p style="margin: 0; font-size: 14px; color: #6b7280;">No analysis available.</p>';
+
+      const sections = text.split(/(?=📊|⚠️|✅)/);
+      let html = '';
+
+      sections.forEach((section) => {
+        section = section.trim();
+        if (!section) return;
+
+        if (section.startsWith('📊')) {
+          const content = section.replace(/^📊\s*QUICK SUMMARY\s*\n?/, '');
+          html += `
+            <div style="margin-bottom: 16px; padding: 12px; background: #eff6ff; border-radius: 6px; border-left: 4px solid #3b82f6;">
+              <p style="margin: 0 0 4px 0; font-size: 13px; font-weight: bold; color: #1e40af;">📊 QUICK SUMMARY</p>
+              <p style="margin: 0; font-size: 14px; color: #1e3a8a; line-height: 1.5;">${content.trim()}</p>
+            </div>`;
+        } else if (section.startsWith('⚠️')) {
+          const content = section.replace(/^⚠️\s*ISSUES FOUND\s*\n?/, '');
+          const bullets = content.trim().split('\n').filter(line => line.trim()).map(line => {
+            const cleanLine = line.replace(/^[•\-]\s*/, '').trim();
+            return `<li style="margin: 4px 0; font-size: 14px; color: #92400e;">${cleanLine}</li>`;
+          }).join('');
+          html += `
+            <div style="margin-bottom: 16px; padding: 12px; background: #fffbeb; border-radius: 6px; border-left: 4px solid #f59e0b;">
+              <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: bold; color: #92400e;">⚠️ ISSUES FOUND</p>
+              <ul style="margin: 0; padding-left: 20px;">${bullets}</ul>
+            </div>`;
+        } else if (section.startsWith('✅')) {
+          const content = section.replace(/^✅\s*YOUR 3-STEP ACTION PLAN\s*\n?/, '');
+          const steps = content.trim().split('\n').filter(line => line.trim()).map(line => {
+            const cleanLine = line.replace(/^\d+\.\s*/, '').trim();
+            return `<li style="margin: 6px 0; font-size: 14px; color: #166534;">${cleanLine}</li>`;
+          }).join('');
+          html += `
+            <div style="margin-bottom: 0; padding: 12px; background: #f0fdf4; border-radius: 6px; border-left: 4px solid #22c55e;">
+              <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: bold; color: #166534;">✅ YOUR 3-STEP ACTION PLAN</p>
+              <ol style="margin: 0; padding-left: 20px;">${steps}</ol>
+            </div>`;
+        } else {
+          html += `<p style="margin: 0 0 12px 0; font-size: 14px; color: #6b7280; line-height: 1.5;">${section.replace(/\n/g, '<br>')}</p>`;
+        }
+      });
+
+      return html || '<p style="margin: 0; font-size: 14px; color: #6b7280;">No analysis available.</p>';
+    };
+
     // Replace template variables
     const riskColor = riskColors[riskLevel] || riskColors.MODERATE;
     template = template
@@ -189,7 +237,7 @@ const pdfService = {
       .replace(/{{basicsRows}}/g, basicsHtml)
       .replace(/{{inspections24}}/g, inspections?.last24Months || 0)
       .replace(/{{crashes24}}/g, crashes?.last24Months || 0)
-      .replace(/{{aiAnalysis}}/g, aiAnalysis || 'No analysis available.')
+      .replace(/{{aiAnalysis}}/g, formatAiAnalysisHtml(aiAnalysis))
       .replace(/{{reportDate}}/g, new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }))
       .replace(/{{currentYear}}/g, new Date().getFullYear());
 

@@ -278,6 +278,88 @@ npm run dev  # Starts on port 5173
 
 ## Changelog
 
+### 2026-01-28 (CSA Score Analyzer UX Improvements)
+- **Feature:** Structured AI analysis format in email/PDF reports
+  - AI prompt now requests structured output with emoji headers: 📊 QUICK SUMMARY, ⚠️ ISSUES FOUND, ✅ YOUR 3-STEP ACTION PLAN
+  - Email template formats each section with color-coded boxes (blue summary, amber issues, green action plan)
+  - PDF template uses same formatting for consistent presentation
+  - Fallback analysis (when AI unavailable) also uses structured format
+  - Files: `backend/routes/csaChecker.js`, `backend/services/emailService.js`, `backend/services/pdfService.js`, `backend/templates/csa-report.html`, `backend/templates/csa-report-pdf.html`
+- **Feature:** Email consent checkbox for legal compliance
+  - Added required checkbox before "Send Free Report" button
+  - Text: "I consent to receive emails from VroomX Safety including this report and promotional content."
+  - Button disabled until consent given
+  - File: `frontend/src/components/CSAChecker.jsx`
+- **UI:** Simplified success view after email capture
+  - Replaced full inline report with clean "Report Sent!" confirmation
+  - Shows carrier name and "Check your inbox" message
+  - Directs users to email for full PDF report
+  - File: `frontend/src/components/CSAChecker.jsx`
+
+### 2026-01-28 (CSA Score Analyzer Email Reports)
+- **Feature:** CSA Score Analyzer now sends email reports with PDF attachment
+  - PDF generation using Puppeteer (@sparticuz/chromium for cloud deployment)
+  - Professional branded email template with BASIC scores, risk level, AI analysis
+  - Risk level calculation (HIGH/MODERATE/LOW) based on FMCSA thresholds
+  - Fire-and-forget email sending (doesn't block response)
+  - Files: `backend/services/pdfService.js` (new), `backend/templates/csa-report.html` (new), `backend/templates/csa-report-pdf.html` (new), `backend/services/emailService.js`, `backend/services/fmcsaService.js`, `backend/routes/csaChecker.js`, `frontend/src/components/CSAChecker.jsx`
+
+### 2026-01-28 (Text Visibility & Public Page Fixes)
+- **Fix:** Text invisible on mobile and other browsers with OS dark mode enabled
+  - Root cause: ThemeContext applies `dark` class based on OS preference, but public pages (Landing, Pricing) use hardcoded light colors that don't respond to dark class
+  - Fix: Added `useEffect` hook to force light mode on public pages by removing `dark` class on mount
+  - Files: `frontend/src/pages/Landing.jsx`, `frontend/src/pages/Pricing.jsx`
+- **Fix:** companyId reference error in FMCSA routes
+  - File: `backend/routes/fmcsa.js`
+
+### 2026-01-28 (FMCSA Import & Driver Enhancements)
+- **Feature:** FMCSA inspection/violation import
+  - Import inspections and violations from FMCSA SAFER system
+  - Files: Multiple FMCSA-related route and service files
+- **Feature:** Added Clearinghouse Expiry, MVR Due Date, and Hire Date columns to drivers list
+  - File: `frontend/src/pages/Drivers.jsx`
+- **Dependency:** Added lodash for search debounce functionality
+
+### 2026-01-28 (Standalone Pricing Page)
+- **Feature:** Created standalone Pricing page at `/pricing`
+  - 3 pricing tiers: Solo ($19/mo), Fleet ($39/mo), Pro ($89/mo)
+  - Feature comparison matrix
+  - FAQ accordion with billing questions
+  - Trust badges (FMCSA compliance, SSL secured, 99.9% uptime)
+  - File: `frontend/src/pages/Pricing.jsx`
+- **UI:** Updated "Get Started" header button to navigate to `/pricing` instead of scrolling to pricing section
+- **Fix:** Blurry text on CSA Score Analyzer section
+
+### 2026-01-28 (5 UX Bug Fixes)
+- **Fix:** Search functionality improvements with debounce
+- **Fix:** Notifications display issues
+- **Fix:** FMCSA sync error handling
+- **Fix:** Vehicle and driver detail views
+- Files: Multiple frontend components
+
+### 2026-01-28 (Admin Panel & Compliance Improvements)
+- **Feature:** Data Integrity Monitor in Admin Panel
+  - Identifies data inconsistencies across the system
+  - File: Admin panel routes and components
+- **UI:** Improved sidebar section header visibility
+  - File: `frontend/src/components/Layout.jsx`
+- **Fix:** Object.entries errors on Compliance page when data is null/undefined
+  - File: `frontend/src/pages/Compliance.jsx`
+
+### 2026-01-28 (CSA Scoring & Dashboard)
+- **Feature:** Improved CSA scoring with FMCSA methodology
+  - Real vs Estimated indicators for score accuracy
+  - Better threshold calculations
+  - File: `frontend/src/components/CSATrends.jsx`, related services
+- **Fix:** Dashboard metrics sync — 5 major fixes
+  - Corrected data aggregation for compliance metrics
+  - File: `frontend/src/pages/Dashboard.jsx`, backend routes
+- **Fix:** VIN validation now accepts 16-17 characters (was strictly 17)
+  - Some older vehicles have 16-character VINs
+  - File: `backend/models/Vehicle.js`
+- **Fix:** Vehicle details not showing in profile view
+  - File: `frontend/src/pages/Vehicles.jsx`
+
 ### 2026-01-28 (In-App Plan Upgrade with Stripe Proration)
 - **Feature:** Users can upgrade subscription plans (Solo→Fleet, Solo→Pro, Fleet→Pro) directly from the Billing page with automatic Stripe proration
   - Backend: Added `previewUpgrade()` using `stripe.invoices.createPreview()` and `upgradePlan()` using `stripe.subscriptions.update()` with `proration_behavior: 'create_prorations'`

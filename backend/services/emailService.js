@@ -488,6 +488,60 @@ const emailService = {
     const riskColor = riskColors[riskLevel] || riskColors.MODERATE;
     const reportDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
+    // Format AI analysis as structured HTML
+    const formatAiAnalysisHtml = (text) => {
+      if (!text) return '<p style="margin: 0; font-size: 14px; color: #78350f; line-height: 1.6;">No analysis available.</p>';
+
+      // Split into sections based on emoji headers
+      const sections = text.split(/(?=📊|⚠️|✅)/);
+      let html = '';
+
+      sections.forEach((section) => {
+        section = section.trim();
+        if (!section) return;
+
+        // Detect section type and style accordingly
+        if (section.startsWith('📊')) {
+          // Quick Summary - blue section
+          const content = section.replace(/^📊\s*QUICK SUMMARY\s*\n?/, '');
+          html += `
+            <div style="margin-bottom: 16px; padding: 12px; background: #eff6ff; border-radius: 6px; border-left: 4px solid #3b82f6;">
+              <p style="margin: 0 0 4px 0; font-size: 13px; font-weight: bold; color: #1e40af; font-family: Arial, sans-serif;">📊 QUICK SUMMARY</p>
+              <p style="margin: 0; font-size: 14px; color: #1e3a8a; line-height: 1.5; font-family: Arial, sans-serif;">${content.trim()}</p>
+            </div>`;
+        } else if (section.startsWith('⚠️')) {
+          // Issues Found - amber section
+          const content = section.replace(/^⚠️\s*ISSUES FOUND\s*\n?/, '');
+          const bullets = content.trim().split('\n').filter(line => line.trim()).map(line => {
+            const cleanLine = line.replace(/^[•\-]\s*/, '').trim();
+            return `<li style="margin: 4px 0; font-size: 14px; color: #92400e;">${cleanLine}</li>`;
+          }).join('');
+          html += `
+            <div style="margin-bottom: 16px; padding: 12px; background: #fffbeb; border-radius: 6px; border-left: 4px solid #f59e0b;">
+              <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: bold; color: #92400e; font-family: Arial, sans-serif;">⚠️ ISSUES FOUND</p>
+              <ul style="margin: 0; padding-left: 20px; font-family: Arial, sans-serif;">${bullets}</ul>
+            </div>`;
+        } else if (section.startsWith('✅')) {
+          // Action Plan - green section
+          const content = section.replace(/^✅\s*YOUR 3-STEP ACTION PLAN\s*\n?/, '');
+          const steps = content.trim().split('\n').filter(line => line.trim()).map(line => {
+            const cleanLine = line.replace(/^\d+\.\s*/, '').trim();
+            return `<li style="margin: 6px 0; font-size: 14px; color: #166534;">${cleanLine}</li>`;
+          }).join('');
+          html += `
+            <div style="margin-bottom: 0; padding: 12px; background: #f0fdf4; border-radius: 6px; border-left: 4px solid #22c55e;">
+              <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: bold; color: #166534; font-family: Arial, sans-serif;">✅ YOUR 3-STEP ACTION PLAN</p>
+              <ol style="margin: 0; padding-left: 20px; font-family: Arial, sans-serif;">${steps}</ol>
+            </div>`;
+        } else {
+          // Fallback for unrecognized sections
+          html += `<p style="margin: 0 0 12px 0; font-size: 14px; color: #78350f; line-height: 1.5; font-family: Arial, sans-serif;">${section.replace(/\n/g, '<br>')}</p>`;
+        }
+      });
+
+      return html || '<p style="margin: 0; font-size: 14px; color: #78350f; line-height: 1.6;">No analysis available.</p>';
+    };
+
     const emailPayload = {
       to: email,
       subject: `CSA Score Report: ${carrier.legalName || 'Your Carrier'}`,
@@ -504,7 +558,7 @@ const emailService = {
         basicsRows,
         inspections24: stats?.inspections?.last24Months || 0,
         crashes24: stats?.crashes?.last24Months || 0,
-        aiAnalysis: aiAnalysis || 'No analysis available.',
+        aiAnalysis: formatAiAnalysisHtml(aiAnalysis),
         reportDate,
       },
       category: 'report',
