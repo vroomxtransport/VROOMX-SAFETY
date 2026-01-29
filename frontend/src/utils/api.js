@@ -61,7 +61,12 @@ export const dashboardAPI = {
   getComplianceScore: () => api.get('/dashboard/compliance-score'),
   getComplianceHistory: (days = 30) => api.get('/dashboard/compliance-score/history', { params: { days } }),
   getComplianceBreakdown: () => api.get('/dashboard/compliance-score/breakdown'),
-  calculateComplianceScore: () => api.post('/dashboard/compliance-score/calculate')
+  calculateComplianceScore: () => api.post('/dashboard/compliance-score/calculate'),
+  // Data audit endpoints
+  runFullAudit: () => api.get('/dashboard/audit/full'),
+  auditFMCSA: () => api.get('/dashboard/audit/fmcsa'),
+  auditConsistency: () => api.get('/dashboard/audit/consistency'),
+  auditStats: () => api.get('/dashboard/audit/stats')
 };
 
 export const driversAPI = {

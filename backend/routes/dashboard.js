@@ -736,4 +736,62 @@ router.post('/compliance-score/calculate', checkPermission('dashboard', 'edit'),
   });
 }));
 
+// =============================================================================
+// DATA AUDIT ROUTES
+// =============================================================================
+
+const dataAuditService = require('../services/dataAuditService');
+
+// @route   GET /api/dashboard/audit/full
+// @desc    Run full data audit (FMCSA + Consistency + Dashboard)
+// @access  Private
+router.get('/audit/full', checkPermission('dashboard', 'view'), asyncHandler(async (req, res) => {
+  const companyId = req.companyFilter.companyId;
+  const result = await dataAuditService.runFullAudit(companyId);
+
+  res.json({
+    success: true,
+    ...result
+  });
+}));
+
+// @route   GET /api/dashboard/audit/fmcsa
+// @desc    Audit FMCSA data accuracy
+// @access  Private
+router.get('/audit/fmcsa', checkPermission('dashboard', 'view'), asyncHandler(async (req, res) => {
+  const companyId = req.companyFilter.companyId;
+  const result = await dataAuditService.auditFMCSAData(companyId);
+
+  res.json({
+    success: true,
+    ...result
+  });
+}));
+
+// @route   GET /api/dashboard/audit/consistency
+// @desc    Audit internal data consistency
+// @access  Private
+router.get('/audit/consistency', checkPermission('dashboard', 'view'), asyncHandler(async (req, res) => {
+  const companyId = req.companyFilter.companyId;
+  const result = await dataAuditService.auditInternalConsistency(companyId);
+
+  res.json({
+    success: true,
+    ...result
+  });
+}));
+
+// @route   GET /api/dashboard/audit/stats
+// @desc    Audit dashboard stats vs actual database counts
+// @access  Private
+router.get('/audit/stats', checkPermission('dashboard', 'view'), asyncHandler(async (req, res) => {
+  const companyId = req.companyFilter.companyId;
+  const result = await dataAuditService.auditDashboardStats(companyId);
+
+  res.json({
+    success: true,
+    ...result
+  });
+}));
+
 module.exports = router;

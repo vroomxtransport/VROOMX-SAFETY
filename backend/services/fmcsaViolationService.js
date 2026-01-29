@@ -184,8 +184,14 @@ const fmcsaViolationService = {
    * Get sync status for a company
    */
   async getSyncStatus(companyId) {
+    console.log(`[getSyncStatus] Fetching for companyId: ${companyId}`);
+
     const company = await Company.findById(companyId)
-      .select('fmcsaData.lastViolationSync fmcsaData.inspections');
+      .select('fmcsaData.lastViolationSync fmcsaData.inspections dotNumber');
+
+    console.log(`[getSyncStatus] Company found: ${!!company}, DOT: ${company?.dotNumber}`);
+    console.log(`[getSyncStatus] Has inspections: ${!!company?.fmcsaData?.inspections}`);
+    console.log(`[getSyncStatus] lastViolationSync: ${company?.fmcsaData?.lastViolationSync}`);
 
     return {
       lastSync: company?.fmcsaData?.lastViolationSync || null,
@@ -199,8 +205,16 @@ const fmcsaViolationService = {
    * Get inspection data for a company (from stored data)
    */
   async getInspections(companyId) {
+    console.log(`[getInspections] Fetching for companyId: ${companyId}`);
+
     const company = await Company.findById(companyId)
       .select('fmcsaData.inspections fmcsaData.lastViolationSync dotNumber');
+
+    console.log(`[getInspections] Company found: ${!!company}, DOT: ${company?.dotNumber}`);
+    console.log(`[getInspections] Has fmcsaData: ${!!company?.fmcsaData}`);
+    console.log(`[getInspections] Has inspections: ${!!company?.fmcsaData?.inspections}`);
+    console.log(`[getInspections] totalInspections: ${company?.fmcsaData?.inspections?.totalInspections}`);
+    console.log(`[getInspections] lastViolationSync: ${company?.fmcsaData?.lastViolationSync}`);
 
     return {
       inspections: company?.fmcsaData?.inspections || null,

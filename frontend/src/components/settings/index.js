@@ -9,3 +9,4 @@ export { default as AddUserModal } from './AddUserModal';
 export { default as AddCompanyModal } from './AddCompanyModal';
 export { default as InviteMemberModal } from './InviteMemberModal';
 export { default as AuditLogTab } from './AuditLogTab';
+export { default as DataAuditTab } from './DataAuditTab';

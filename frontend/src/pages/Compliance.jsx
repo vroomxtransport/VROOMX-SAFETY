@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { dashboardAPI, fmcsaAPI } from '../utils/api';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, Legend } from 'recharts';
 import toast from 'react-hot-toast';
@@ -32,6 +32,7 @@ const Compliance = () => {
   const [syncStatus, setSyncStatus] = useState(null);
   const [syncing, setSyncing] = useState(false);
   const [inspectionsLoading, setInspectionsLoading] = useState(false);
+  const autoSyncTriggered = useRef(false);
 
   const tabs = [
     { key: 'overview', label: 'SMS BASICs', icon: FiBarChart2 },
@@ -101,6 +102,35 @@ const Compliance = () => {
       fetchInspections();
     }
   }, [activeTab]);
+
+  // Auto-refresh FMCSA data if stale (> 6 hours old) or missing
+  useEffect(() => {
+    if (
+      (activeTab === 'inspections' || activeTab === 'violations') &&
+      !syncing &&
+      !autoSyncTriggered.current &&
+      syncStatus !== null
+    ) {
+      const shouldAutoSync = !syncStatus.lastSync || !inspectionData;
+
+      // Also auto-sync if data is older than 6 hours
+      if (!shouldAutoSync && syncStatus.lastSync) {
+        const hoursSinceSync = (Date.now() - new Date(syncStatus.lastSync).getTime()) / (1000 * 60 * 60);
+        if (hoursSinceSync > 6) {
+          console.log(`[Auto-Sync] Data is ${hoursSinceSync.toFixed(1)} hours old, triggering auto-refresh`);
+          autoSyncTriggered.current = true;
+          handleSyncViolations();
+          return;
+        }
+      }
+
+      if (shouldAutoSync) {
+        console.log('[Auto-Sync] No data found, triggering auto-refresh');
+        autoSyncTriggered.current = true;
+        handleSyncViolations();
+      }
+    }
+  }, [activeTab, syncStatus, inspectionData, syncing]);
 
   const fetchInspections = async () => {
     setInspectionsLoading(true);
@@ -197,6 +227,19 @@ const Compliance = () => {
     { name: 'Non-Compliant', value: dashboard?.drivers?.nonCompliant || 0, color: '#dc3545' }
   ].filter(d => d.value > 0);
 
+  // Helper to show time since last sync
+  const getTimeSinceSync = () => {
+    if (!syncStatus?.lastSync) return null;
+    const hours = (Date.now() - new Date(syncStatus.lastSync).getTime()) / (1000 * 60 * 60);
+    if (hours < 1) return 'less than 1 hour ago';
+    if (hours < 24) return `${Math.floor(hours)} hours ago`;
+    const days = Math.floor(hours / 24);
+    return `${days} day${days > 1 ? 's' : ''} ago`;
+  };
+
+  const isDataStale = syncStatus?.lastSync &&
+    (Date.now() - new Date(syncStatus.lastSync).getTime()) > 6 * 60 * 60 * 1000;
+
   return (
     <div className="space-y-4 lg:space-y-6">
       {/* Header */}
@@ -232,7 +275,14 @@ const Compliance = () => {
                 <h3 className="font-semibold text-zinc-900 dark:text-white">FMCSA Inspection Summary</h3>
                 <p className="text-sm text-zinc-500 dark:text-zinc-400">
                   {syncStatus?.lastSync ? (
-                    <>Last synced: {formatDate(syncStatus.lastSync)} • {inspectionData?.totalInspections || 0} inspections</>
+                    <>
+                      Last synced: {getTimeSinceSync()} • {inspectionData?.totalInspections || 0} inspections
+                      {isDataStale && (
+                        <span className="ml-2 text-yellow-600 dark:text-yellow-400">
+                          (auto-refreshing...)
+                        </span>
+                      )}
+                    </>
                   ) : (
                     <>Click "Sync from FMCSA" to fetch your inspection data</>
                   )}

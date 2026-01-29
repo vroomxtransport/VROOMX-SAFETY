@@ -4,7 +4,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useSearchParams } from 'react-router-dom';
 import { authAPI, companiesAPI, invitationsAPI, billingAPI } from '../utils/api';
 import toast from 'react-hot-toast';
-import { FiUser, FiLock, FiUsers, FiBriefcase, FiCreditCard, FiMoon, FiBell, FiClipboard } from 'react-icons/fi';
+import { FiUser, FiLock, FiUsers, FiBriefcase, FiCreditCard, FiMoon, FiBell, FiClipboard, FiDatabase } from 'react-icons/fi';
 import {
   ProfileTab,
   AppearanceTab,
@@ -16,7 +16,8 @@ import {
   AddUserModal,
   AddCompanyModal,
   InviteMemberModal,
-  AuditLogTab
+  AuditLogTab,
+  DataAuditTab
 } from '../components/settings';
 
 const Settings = () => {
@@ -64,7 +65,7 @@ const Settings = () => {
   // Update tab from URL params
   useEffect(() => {
     const tab = searchParams.get('tab');
-    if (tab && ['profile', 'appearance', 'security', 'notifications', 'users', 'companies', 'billing', 'audit'].includes(tab)) {
+    if (tab && ['profile', 'appearance', 'security', 'notifications', 'users', 'companies', 'billing', 'audit', 'dataaudit'].includes(tab)) {
       setActiveTab(tab);
     }
   }, [searchParams]);
@@ -255,7 +256,8 @@ const Settings = () => {
       : []),
     ...(user?.role === 'admin' || activeCompany?.role === 'owner' || activeCompany?.role === 'admin'
       ? [{ id: 'audit', label: 'Audit Log', icon: FiClipboard }]
-      : [])
+      : []),
+    { id: 'dataaudit', label: 'Data Audit', icon: FiDatabase }
   ];
 
   return (
@@ -352,6 +354,10 @@ const Settings = () => {
 
         {activeTab === 'audit' && (user?.role === 'admin' || activeCompany?.role === 'owner' || activeCompany?.role === 'admin') && (
           <AuditLogTab />
+        )}
+
+        {activeTab === 'dataaudit' && (
+          <DataAuditTab />
         )}
       </div>
 
