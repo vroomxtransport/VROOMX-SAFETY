@@ -48,6 +48,8 @@ const fmcsaSyncService = {
       }
 
       // Build the update object
+      // IMPORTANT: Use dot notation for fmcsaData fields to preserve inspection data
+      // from fmcsaViolationService (lastViolationSync, inspections, saferWebData)
       const updateData = {
         // Update SMS BASICs
         smsBasics: {
@@ -60,16 +62,15 @@ const fmcsaSyncService = {
           lastUpdated: new Date()
         },
 
-        // Store additional FMCSA data
-        fmcsaData: {
-          inspections: fmcsaData.inspections || {},
-          crashes: fmcsaData.crashes || {},
-          operatingStatus: fmcsaData.carrier?.operatingStatus || null,
-          safetyRating: fmcsaData.carrier?.safetyRating || null,
-          outOfServiceRate: fmcsaData.carrier?.outOfServiceRate || {},
-          lastFetched: new Date(),
-          dataSource: 'FMCSA_SAFER'
-        }
+        // Store additional FMCSA data (using dot notation to NOT overwrite inspections from SaferWebAPI)
+        'fmcsaData.crashes': fmcsaData.crashes || {},
+        'fmcsaData.operatingStatus': fmcsaData.carrier?.operatingStatus || null,
+        'fmcsaData.safetyRating': fmcsaData.carrier?.safetyRating || null,
+        'fmcsaData.outOfServiceRate': fmcsaData.carrier?.outOfServiceRate || {},
+        'fmcsaData.lastFetched': new Date(),
+        'fmcsaData.dataSource': 'FMCSA_SAFER'
+        // NOTE: Do NOT set fmcsaData.inspections, fmcsaData.lastViolationSync, or fmcsaData.saferWebData
+        // Those are managed by fmcsaViolationService (SaferWebAPI)
       };
 
       // Optionally update carrier info if available
@@ -103,10 +104,16 @@ const fmcsaSyncService = {
       );
 
       // Record history snapshot for trend tracking
+      // Build fmcsaData object for history (don't use updateData since it's now dot notation)
+      const fmcsaDataForHistory = {
+        crashes: fmcsaData.crashes || {},
+        operatingStatus: fmcsaData.carrier?.operatingStatus || null,
+        outOfServiceRate: fmcsaData.carrier?.outOfServiceRate || {}
+      };
       await this.recordHistory(
         companyId,
         updatedCompany.smsBasics,
-        updateData.fmcsaData,
+        fmcsaDataForHistory,
         company.dotNumber
       );
 
