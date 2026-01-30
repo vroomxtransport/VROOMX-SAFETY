@@ -175,9 +175,12 @@ const pdfService = {
       `;
     }
 
-    // Format AI analysis as structured HTML
+    // Format AI analysis as structured HTML with improved styling
     const formatAiAnalysisHtml = (text) => {
       if (!text) return '<p style="margin: 0; font-size: 14px; color: #6b7280;">No analysis available.</p>';
+
+      // Helper to convert **bold** markdown to HTML <strong> tags
+      const processBold = (str) => str.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
 
       const sections = text.split(/(?=📊|⚠️|✅)/);
       let html = '';
@@ -187,36 +190,40 @@ const pdfService = {
         if (!section) return;
 
         if (section.startsWith('📊')) {
-          const content = section.replace(/^📊\s*QUICK SUMMARY\s*\n?/, '');
+          const content = processBold(section.replace(/^📊\s*QUICK SUMMARY\s*\n?/, ''));
           html += `
-            <div style="margin-bottom: 16px; padding: 12px; background: #eff6ff; border-radius: 6px; border-left: 4px solid #3b82f6;">
-              <p style="margin: 0 0 4px 0; font-size: 13px; font-weight: bold; color: #1e40af;">📊 QUICK SUMMARY</p>
-              <p style="margin: 0; font-size: 14px; color: #1e3a8a; line-height: 1.5;">${content.trim()}</p>
+            <div style="margin-bottom: 20px; padding: 16px; background: linear-gradient(135deg, #fef9c3 0%, #fef08a 100%); border-radius: 8px; border-left: 5px solid #eab308; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+              <p style="margin: 0 0 10px 0; font-size: 14px; font-weight: bold; color: #854d0e; letter-spacing: 0.5px;">📊 QUICK SUMMARY</p>
+              <p style="margin: 0; font-size: 14px; color: #713f12; line-height: 1.7;">${content.trim()}</p>
             </div>`;
         } else if (section.startsWith('⚠️')) {
-          const content = section.replace(/^⚠️\s*ISSUES FOUND\s*\n?/, '');
+          const content = processBold(section.replace(/^⚠️\s*ISSUES FOUND\s*\n?/, ''));
           const bullets = content.trim().split('\n').filter(line => line.trim()).map(line => {
             const cleanLine = line.replace(/^[•\-]\s*/, '').trim();
-            return `<li style="margin: 4px 0; font-size: 14px; color: #92400e;">${cleanLine}</li>`;
+            return `<li style="margin: 10px 0; font-size: 14px; color: #92400e; line-height: 1.6;">${cleanLine}</li>`;
           }).join('');
           html += `
-            <div style="margin-bottom: 16px; padding: 12px; background: #fffbeb; border-radius: 6px; border-left: 4px solid #f59e0b;">
-              <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: bold; color: #92400e;">⚠️ ISSUES FOUND</p>
-              <ul style="margin: 0; padding-left: 20px;">${bullets}</ul>
+            <div style="margin-bottom: 20px; padding: 16px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 8px; border-left: 5px solid #f59e0b; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+              <p style="margin: 0 0 12px 0; font-size: 14px; font-weight: bold; color: #92400e; letter-spacing: 0.5px;">⚠️ ISSUES FOUND</p>
+              <ul style="margin: 0; padding-left: 24px; list-style-type: disc;">${bullets}</ul>
             </div>`;
         } else if (section.startsWith('✅')) {
-          const content = section.replace(/^✅\s*YOUR 3-STEP ACTION PLAN\s*\n?/, '');
-          const steps = content.trim().split('\n').filter(line => line.trim()).map(line => {
+          const content = processBold(section.replace(/^✅\s*YOUR 3-STEP ACTION PLAN\s*\n?/, ''));
+          const steps = content.trim().split('\n').filter(line => line.trim()).map((line, index) => {
             const cleanLine = line.replace(/^\d+\.\s*/, '').trim();
-            return `<li style="margin: 6px 0; font-size: 14px; color: #166534;">${cleanLine}</li>`;
+            return `
+              <li style="margin: 0 0 12px 0; padding: 14px; background: #ffffff; border-radius: 6px; border: 1px solid #bbf7d0; font-size: 14px; color: #166534; line-height: 1.6; list-style: none; display: flex; align-items: flex-start; gap: 12px;">
+                <span style="flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; border-radius: 50%; font-weight: bold; font-size: 13px;">${index + 1}</span>
+                <span style="flex: 1;">${cleanLine}</span>
+              </li>`;
           }).join('');
           html += `
-            <div style="margin-bottom: 0; padding: 12px; background: #f0fdf4; border-radius: 6px; border-left: 4px solid #22c55e;">
-              <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: bold; color: #166534;">✅ YOUR 3-STEP ACTION PLAN</p>
-              <ol style="margin: 0; padding-left: 20px;">${steps}</ol>
+            <div style="margin-bottom: 0; padding: 16px; background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); border-radius: 8px; border-left: 5px solid #22c55e; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+              <p style="margin: 0 0 14px 0; font-size: 14px; font-weight: bold; color: #166534; letter-spacing: 0.5px;">✅ YOUR 3-STEP ACTION PLAN</p>
+              <ol style="margin: 0; padding: 0;">${steps}</ol>
             </div>`;
         } else {
-          html += `<p style="margin: 0 0 12px 0; font-size: 14px; color: #6b7280; line-height: 1.5;">${section.replace(/\n/g, '<br>')}</p>`;
+          html += `<p style="margin: 0 0 12px 0; font-size: 14px; color: #6b7280; line-height: 1.6;">${processBold(section).replace(/\n/g, '<br>')}</p>`;
         }
       });
 
