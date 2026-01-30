@@ -2,12 +2,13 @@ import { useState, useEffect, useRef } from 'react';
 import { dashboardAPI, fmcsaAPI } from '../utils/api';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, Legend } from 'recharts';
 import toast from 'react-hot-toast';
-import { FiEdit2, FiCheck, FiAlertTriangle, FiAlertCircle, FiBarChart2, FiTarget, FiTrendingUp, FiRefreshCw, FiFileText } from 'react-icons/fi';
+import { FiEdit2, FiCheck, FiAlertTriangle, FiAlertCircle, FiBarChart2, FiTarget, FiTrendingUp, FiRefreshCw, FiFileText, FiClipboard } from 'react-icons/fi';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Modal from '../components/Modal';
 import TabNav from '../components/TabNav';
 import CSAEstimatorContent from '../components/CSAEstimatorContent';
 import CSATrends from '../components/CSATrends';
+import InspectionsTabContent from '../components/fmcsa/InspectionsTabContent';
 import { formatDate } from '../utils/helpers';
 
 const Compliance = () => {
@@ -36,8 +37,9 @@ const Compliance = () => {
 
   const tabs = [
     { key: 'overview', label: 'SMS BASICs', icon: FiBarChart2 },
-    { key: 'inspections', label: 'Inspections', icon: FiFileText },
-    { key: 'violations', label: 'Violations', icon: FiAlertTriangle },
+    { key: 'inspections', label: 'Inspection Records', icon: FiClipboard },
+    { key: 'summary', label: 'FMCSA Summary', icon: FiFileText },
+    { key: 'violations', label: 'By Category', icon: FiAlertTriangle },
     { key: 'trends', label: 'Trends', icon: FiTrendingUp },
     { key: 'estimator', label: 'Estimator', icon: FiTarget, badge: 'BETA' }
   ];
@@ -266,7 +268,10 @@ const Compliance = () => {
       {activeTab === 'trends' ? (
         <CSATrends />
       ) : activeTab === 'inspections' ? (
-        /* Inspections Tab - Summary Cards from SaferWebAPI */
+        /* Inspection Records Tab - Detailed records from DataHub */
+        <InspectionsTabContent />
+      ) : activeTab === 'summary' ? (
+        /* FMCSA Summary Tab - Summary Cards from SaferWebAPI */
         <div className="space-y-4">
           {/* Sync Header */}
           <div className="card">
