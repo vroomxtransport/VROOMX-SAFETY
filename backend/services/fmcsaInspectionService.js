@@ -523,14 +523,22 @@ const fmcsaInspectionService = {
 
     const basicCode = record.basic || record.basic_desc?.substring(0, 2)?.toUpperCase();
 
+    // Parse viol_unit to determine driver/vehicle/hazmat
+    let unit = 'vehicle';
+    if (record.viol_unit) {
+      const unitStr = String(record.viol_unit).toLowerCase();
+      if (unitStr.includes('driver') || unitStr === 'd') unit = 'driver';
+      else if (unitStr.includes('hazmat') || unitStr === 'hm') unit = 'hazmat';
+    }
+
     return {
-      code: record.violation_code || record.code,
-      description: record.description || record.violation_description || `Violation ${record.violation_code}`,
+      code: record.viol_code || record.violation_code || record.code,
+      description: record.section_desc || record.description || `Violation ${record.viol_code}`,
       basic: basicNames[basicCode] || record.basic_desc || basicCode || 'Unknown',
       severityWeight: parseInt(record.severity_weight, 10) || 5,
       timeWeight: parseFloat(record.time_weight) || 1.0,
-      oos: record.oos === 'Y' || record.oos === true || record.out_of_service === 'Y',
-      unit: record.unit_type || record.unit || 'vehicle',
+      oos: record.oos_indicator === 'Y' || record.oos === 'Y' || record.oos === true,
+      unit: unit,
       section: record.section_desc || null,
       group: record.group_desc || null
     };
