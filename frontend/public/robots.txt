@@ -1,0 +1,25 @@
+# VroomX Safety - robots.txt
+# https://vroomxsafety.com/robots.txt
+
+User-agent: *
+Allow: /
+
+# Disallow authenticated/private areas
+Disallow: /dashboard
+Disallow: /settings
+Disallow: /drivers
+Disallow: /vehicles
+Disallow: /documents
+Disallow: /compliance
+Disallow: /maintenance
+Disallow: /inspections
+Disallow: /violations
+Disallow: /alerts
+Disallow: /admin
+Disallow: /super-admin
+
+# Disallow API endpoints
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://vroomxsafety.com/sitemap.xml

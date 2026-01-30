@@ -23,8 +23,8 @@ const FooterSection = () => {
             <ul className="space-y-3">
               <li><a href="#features" className="text-white/70 text-sm hover:text-white transition-colors">Features</a></li>
               <li><Link to="/pricing" className="text-white/70 text-sm hover:text-white transition-colors">Pricing</Link></li>
-              <li><a href="#csa-checker" className="text-white/70 text-sm hover:text-white transition-colors">Free CSA Checker</a></li>
-              <li><Link to="/api" className="text-white/70 text-sm hover:text-white transition-colors">API</Link></li>
+              <li><Link to="/csa-checker" className="text-white/70 text-sm hover:text-white transition-colors">Free CSA Checker</Link></li>
+              <li><Link to="/platform" className="text-white/70 text-sm hover:text-white transition-colors">Platform</Link></li>
             </ul>
           </div>
 
@@ -33,9 +33,9 @@ const FooterSection = () => {
             <h4 className="text-white font-bold mb-4">Resources</h4>
             <ul className="space-y-3">
               <li><Link to="/blog" className="text-white/70 text-sm hover:text-white transition-colors">Blog</Link></li>
-              <li><Link to="/fmcsa-guide" className="text-white/70 text-sm hover:text-white transition-colors">FMCSA Guide</Link></li>
-              <li><Link to="/dataq-help" className="text-white/70 text-sm hover:text-white transition-colors">DataQ Help</Link></li>
-              <li><Link to="/support" className="text-white/70 text-sm hover:text-white transition-colors">Support</Link></li>
+              <li><a href="https://www.fmcsa.dot.gov/regulations" target="_blank" rel="noopener noreferrer" className="text-white/70 text-sm hover:text-white transition-colors">FMCSA Regulations</a></li>
+              <li><a href="https://dataqs.fmcsa.dot.gov/" target="_blank" rel="noopener noreferrer" className="text-white/70 text-sm hover:text-white transition-colors">DataQs Portal</a></li>
+              <li><a href="mailto:support@vroomxsafety.com" className="text-white/70 text-sm hover:text-white transition-colors">Support</a></li>
             </ul>
           </div>
 
@@ -43,7 +43,7 @@ const FooterSection = () => {
           <div>
             <h4 className="text-white font-bold mb-4">Company</h4>
             <ul className="space-y-3">
-              <li><Link to="/about" className="text-white/70 text-sm hover:text-white transition-colors">About</Link></li>
+              <li><a href="mailto:hello@vroomxsafety.com" className="text-white/70 text-sm hover:text-white transition-colors">About Us</a></li>
               <li><a href="mailto:support@vroomxsafety.com" className="text-white/70 text-sm hover:text-white transition-colors">Contact</a></li>
               <li><Link to="/privacy" className="text-white/70 text-sm hover:text-white transition-colors">Privacy Policy</Link></li>
               <li><Link to="/terms" className="text-white/70 text-sm hover:text-white transition-colors">Terms of Service</Link></li>

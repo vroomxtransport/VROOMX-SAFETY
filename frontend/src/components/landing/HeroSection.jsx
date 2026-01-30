@@ -10,7 +10,7 @@ const HeroSection = ({ heroTextIndex, heroTexts }) => {
         <img
           src="/images/hero-truck.webp"
           className="w-full h-full object-cover object-[center_70%]"
-          alt="American Truck Background"
+          alt="Commercial semi-truck on American highway - FMCSA compliant trucking fleet"
           fetchpriority="high"
           loading="eager"
           decoding="async"
@@ -25,9 +25,9 @@ const HeroSection = ({ heroTextIndex, heroTexts }) => {
           {/* Social Proof Badge */}
           <div className="inline-flex items-center gap-3 mb-6 px-4 py-2 rounded-full bg-white/90 border border-[#E2E8F0] shadow-sm animate-fade-in-up">
             <div className="flex -space-x-2">
-              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop&crop=face" className="w-8 h-8 rounded-full border-2 border-white" alt="" loading="lazy" decoding="async" />
-              <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=32&h=32&fit=crop&crop=face" className="w-8 h-8 rounded-full border-2 border-white" alt="" loading="lazy" decoding="async" />
-              <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face" className="w-8 h-8 rounded-full border-2 border-white" alt="" loading="lazy" decoding="async" />
+              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop&crop=face" className="w-8 h-8 rounded-full border-2 border-white" alt="VroomX customer" loading="lazy" decoding="async" />
+              <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=32&h=32&fit=crop&crop=face" className="w-8 h-8 rounded-full border-2 border-white" alt="VroomX customer" loading="lazy" decoding="async" />
+              <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face" className="w-8 h-8 rounded-full border-2 border-white" alt="VroomX customer" loading="lazy" decoding="async" />
             </div>
             <span className="text-sm text-zinc-600">
               <strong className="text-primary-500">500+</strong> carriers trust VroomX
