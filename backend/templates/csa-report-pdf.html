@@ -8,8 +8,9 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: Arial, Helvetica, sans-serif; color: #1f2937; line-height: 1.5; padding: 40px; background: #fff; }
     .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 2px solid #1a2744; }
-    .logo { font-size: 28px; font-weight: bold; color: #1a2744; }
-    .logo span { color: #f97316; }
+    .logo { font-size: 28px; font-weight: bold; color: #1a2744; font-style: italic; }
+    .logo .x-mark { color: #f97316; }
+    .logo .safety { display: block; font-size: 16px; font-weight: 500; letter-spacing: 0.05em; }
     .report-info { text-align: right; font-size: 12px; color: #6b7280; }
     .carrier-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 24px; }
     .carrier-name { font-size: 24px; font-weight: bold; color: #1a2744; margin-bottom: 12px; }
@@ -56,7 +57,7 @@
 </head>
 <body>
   <div class="header">
-    <div class="logo">Vroom<span>X</span> Safety</div>
+    <div class="logo">Vroom<span class="x-mark">X</span><span class="safety">Safety</span></div>
     <div class="report-info">
       <div><strong>CSA Score Report</strong></div>
       <div>Generated: {{reportDate}}</div>

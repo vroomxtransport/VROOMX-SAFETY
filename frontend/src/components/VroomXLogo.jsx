@@ -1,12 +1,16 @@
 import { Link } from 'react-router-dom';
-import { FiCheckCircle } from 'react-icons/fi';
 
 /**
  * VroomX Safety Logo Component
  *
- * @param {string} size - "sm" | "md" | "lg" | "xl" - Controls icon and text size
- * @param {boolean} showText - Whether to show "VroomX Safety" text
- * @param {boolean} animate - Whether to animate the spinner
+ * New design featuring:
+ * - Stylized "V" with speed lines
+ * - "roomX" with orange checkmark swoosh on the X
+ * - "Safety" text below in italic
+ *
+ * @param {string} size - "sm" | "md" | "lg" | "xl" - Controls logo size
+ * @param {boolean} showText - Whether to show full logo (false = icon only)
+ * @param {string} textColor - "default" | "light" - Color scheme
  * @param {boolean} linkToHome - Whether to wrap in Link to "/"
  * @param {string} className - Additional classes for the container
  */
@@ -14,85 +18,101 @@ const VroomXLogo = ({
   size = 'md',
   showText = true,
   textColor = 'default',
-  animate = true,
   linkToHome = true,
   className = ''
 }) => {
-  // Size configurations
+  // Size configurations for the SVG logo
   const sizes = {
-    sm: {
-      container: 'w-8 h-8',
-      svg: 'w-8 h-8',
-      inner: 'w-5 h-5',
-      icon: 'w-3 h-3',
-      text: 'text-base',
-      gap: 'gap-2'
-    },
-    md: {
-      container: 'w-10 h-10',
-      svg: 'w-10 h-10',
-      inner: 'w-6 h-6',
-      icon: 'w-4 h-4',
-      text: 'text-xl',
-      gap: 'gap-3'
-    },
-    lg: {
-      container: 'w-14 h-14',
-      svg: 'w-14 h-14',
-      inner: 'w-8 h-8',
-      icon: 'w-5 h-5',
-      text: 'text-2xl',
-      gap: 'gap-3'
-    },
-    xl: {
-      container: 'w-16 h-16',
-      svg: 'w-16 h-16',
-      inner: 'w-10 h-10',
-      icon: 'w-6 h-6',
-      text: 'text-3xl',
-      gap: 'gap-4'
-    }
+    sm: { width: 120, height: 40 },
+    md: { width: 160, height: 52 },
+    lg: { width: 200, height: 65 },
+    xl: { width: 260, height: 85 }
   };
 
   const sizeConfig = sizes[size] || sizes.md;
 
-  const LogoContent = () => (
-    <div className={`flex items-center ${sizeConfig.gap} ${className}`}>
-      {/* Animated Spinner + Checkmark Icon */}
-      <div className={`relative ${sizeConfig.container} flex items-center justify-center flex-shrink-0`}>
-        {/* Outer spinning ring */}
-        <svg
-          className={`${sizeConfig.svg} absolute ${textColor === 'light' ? 'text-white/30' : 'text-primary-500 dark:text-white'} ${animate ? 'animate-spin-slow' : ''}`}
-          viewBox="0 0 100 100"
-          fill="none"
-        >
-          <path
-            d="M50 10 L50 20 M50 80 L50 90 M10 50 L20 50 M80 50 L90 50"
-            stroke="currentColor"
-            strokeWidth="4"
-            strokeLinecap="round"
-          />
-          <circle
-            cx="50"
-            cy="50"
-            r="35"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeDasharray="4 6"
-          />
-        </svg>
-        {/* Center checkmark icon */}
-        <div className={`${sizeConfig.inner} bg-primary-500 rounded-full flex items-center justify-center shadow-glow`}>
-          <FiCheckCircle className={`${sizeConfig.icon} text-white`} />
-        </div>
-      </div>
+  // Determine fill colors based on textColor prop and dark mode
+  // textColor="light" forces white (for dark backgrounds like footer)
+  // textColor="default" uses navy for light mode, white for dark mode
+  const textFillClass = textColor === 'light'
+    ? 'fill-white'
+    : 'fill-[#1a2744] dark:fill-white';
 
-      {/* Text */}
-      {showText && (
-        <div className={`${sizeConfig.text} font-bold tracking-tight font-heading ${textColor === 'light' ? 'text-white' : 'text-primary-500 dark:text-white'}`}>
-          VroomX <span className="text-cta-500 dark:text-cta-400">Safety</span>
-        </div>
-      )}
+  const orangeFill = '#f97316';
+
+  const LogoContent = () => (
+    <div className={`flex items-center ${className}`}>
+      <svg
+        width={sizeConfig.width}
+        height={sizeConfig.height}
+        viewBox="0 0 260 85"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="flex-shrink-0"
+      >
+        {/* Speed lines on left of V */}
+        <g className={textFillClass}>
+          <rect x="0" y="22" width="12" height="3" rx="1.5" />
+          <rect x="0" y="29" width="18" height="3" rx="1.5" />
+          <rect x="0" y="36" width="12" height="3" rx="1.5" />
+        </g>
+
+        {/* V shape */}
+        <path
+          d="M18 15 L38 55 L58 15 L50 15 L38 42 L26 15 Z"
+          className={textFillClass}
+        />
+
+        {/* "room" text */}
+        <g className={textFillClass}>
+          {/* r */}
+          <path d="M62 28 L62 55 L69 55 L69 38 C69 33 72 30 77 30 L77 23 C72 23 68 26 66 30 L66 28 Z" />
+          {/* o */}
+          <path d="M80 41.5 C80 33 86 27 95 27 C104 27 110 33 110 41.5 C110 50 104 56 95 56 C86 56 80 50 80 41.5 Z M87 41.5 C87 46 90 49 95 49 C100 49 103 46 103 41.5 C103 37 100 34 95 34 C90 34 87 37 87 41.5 Z" />
+          {/* o */}
+          <path d="M114 41.5 C114 33 120 27 129 27 C138 27 144 33 144 41.5 C144 50 138 56 129 56 C120 56 114 50 114 41.5 Z M121 41.5 C121 46 124 49 129 49 C134 49 137 46 137 41.5 C137 37 134 34 129 34 C124 34 121 37 121 41.5 Z" />
+          {/* m */}
+          <path d="M148 28 L148 55 L155 55 L155 40 C155 36 157 33 162 33 C166 33 168 36 168 40 L168 55 L175 55 L175 40 C175 36 177 33 182 33 C186 33 188 36 188 40 L188 55 L195 55 L195 38 C195 31 191 27 184 27 C179 27 175 29 173 33 C171 29 167 27 162 27 C158 27 154 29 152 32 L152 28 Z" />
+        </g>
+
+        {/* X with orange checkmark swoosh */}
+        <g>
+          {/* X base - left part */}
+          <path
+            d="M200 15 L215 37 L200 55 L209 55 L220 40"
+            className={textFillClass}
+          />
+          {/* X base - right part (partial) */}
+          <path
+            d="M240 15 L232 15 L225 26"
+            className={textFillClass}
+          />
+          {/* Orange checkmark swoosh */}
+          <path
+            d="M218 45 L228 55 L255 20 L248 20 L228 46 L222 40 Z"
+            fill={orangeFill}
+          />
+        </g>
+
+        {/* "Safety" text - italic style */}
+        {showText && (
+          <text
+            x="135"
+            y="78"
+            className={textFillClass}
+            style={{
+              fontSize: '24px',
+              fontFamily: 'system-ui, -apple-system, sans-serif',
+              fontWeight: '500',
+              fontStyle: 'italic',
+              letterSpacing: '0.05em'
+            }}
+            textAnchor="middle"
+          >
+            Safety
+          </text>
+        )}
+      </svg>
     </div>
   );
 
