@@ -201,6 +201,8 @@ export const fmcsaInspectionsAPI = {
   getStats: () => api.get('/inspections/fmcsa/stats'),
   sync: () => api.post('/inspections/fmcsa/sync'),
   syncDataHub: () => api.post('/inspections/fmcsa/sync-datahub'),
+  syncViolations: () => api.post('/inspections/fmcsa/sync-violations'),
+  syncAll: () => api.post('/inspections/fmcsa/sync-all'),
   delete: (id) => api.delete(`/inspections/fmcsa/${id}`)
 };
 

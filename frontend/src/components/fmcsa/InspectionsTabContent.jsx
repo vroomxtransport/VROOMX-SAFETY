@@ -94,10 +94,12 @@ const InspectionsTabContent = ({ onRefresh }) => {
   const handleSync = async () => {
     setSyncing(true);
     try {
-      // Use FMCSA DataHub API for actual inspection records
-      const response = await fmcsaInspectionsAPI.syncDataHub();
+      // Use syncAll to fetch both inspections AND violation details from FMCSA DataHub
+      const response = await fmcsaInspectionsAPI.syncAll();
       if (response.data.success) {
-        toast.success(`Synced ${response.data.total} inspections from FMCSA`);
+        const inspCount = response.data.inspections?.total || 0;
+        const violCount = response.data.violations?.imported || 0;
+        toast.success(`Synced ${inspCount} inspections and ${violCount} violation records from FMCSA`);
         fetchInspections();
         fetchStats();
         onRefresh?.();
@@ -388,7 +390,7 @@ const InspectionsTabContent = ({ onRefresh }) => {
                           </div>
                         </td>
                         <td className="px-4 py-3">
-                          {insp.violations?.length > 0 && (
+                          {(insp.violations?.length > 0 || insp.totalViolations > 0) && (
                             <button
                               onClick={() => toggleRowExpand(insp._id)}
                               className="text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
@@ -399,43 +401,66 @@ const InspectionsTabContent = ({ onRefresh }) => {
                         </td>
                       </tr>
                       {/* Expanded row with violation details */}
-                      {expandedRows[insp._id] && insp.violations?.length > 0 && (
+                      {expandedRows[insp._id] && (
                         <tr key={`${insp._id}-expanded`}>
                           <td colSpan={7} className="px-4 py-3 bg-zinc-50 dark:bg-zinc-800/30">
                             <div className="pl-4">
                               <h4 className="font-medium text-sm mb-2 text-zinc-700 dark:text-zinc-200">Violations</h4>
-                              <div className="space-y-2">
-                                {insp.violations.map((v, idx) => (
-                                  <div key={idx} className="flex items-start space-x-4 p-2 bg-white dark:bg-zinc-800 rounded border border-zinc-200 dark:border-zinc-700">
-                                    <div className="flex-shrink-0">
-                                      {v.oos ? (
-                                        <FiXCircle className="w-5 h-5 text-red-500" />
-                                      ) : (
-                                        <FiAlertTriangle className="w-5 h-5 text-yellow-500" />
-                                      )}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                      <div className="flex items-center space-x-2">
-                                        <span className="font-mono text-sm font-medium text-zinc-800 dark:text-zinc-100">{v.code}</span>
-                                        {v.oos && (
-                                          <span className="px-1.5 py-0.5 text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 rounded">
-                                            OOS
-                                          </span>
-                                        )}
-                                        <span className="px-1.5 py-0.5 text-xs bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 rounded">
-                                          {getBasicLabel(v.basic)}
-                                        </span>
-                                        {v.severityWeight && (
-                                          <span className="text-xs text-zinc-500">
-                                            Severity: {v.severityWeight}
-                                          </span>
+                              {insp.violations?.length > 0 ? (
+                                <div className="space-y-2">
+                                  {insp.violations.map((v, idx) => (
+                                    <div key={idx} className="flex items-start space-x-4 p-2 bg-white dark:bg-zinc-800 rounded border border-zinc-200 dark:border-zinc-700">
+                                      <div className="flex-shrink-0">
+                                        {v.oos ? (
+                                          <FiXCircle className="w-5 h-5 text-red-500" />
+                                        ) : (
+                                          <FiAlertTriangle className="w-5 h-5 text-yellow-500" />
                                         )}
                                       </div>
-                                      <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-1">{v.description}</p>
+                                      <div className="flex-1 min-w-0">
+                                        <div className="flex items-center space-x-2 flex-wrap gap-1">
+                                          <span className="font-mono text-sm font-medium text-zinc-800 dark:text-zinc-100">{v.code}</span>
+                                          {v.oos && (
+                                            <span className="px-1.5 py-0.5 text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 rounded">
+                                              OOS
+                                            </span>
+                                          )}
+                                          <span className="px-1.5 py-0.5 text-xs bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 rounded">
+                                            {getBasicLabel(v.basic)}
+                                          </span>
+                                          {v.severityWeight && (
+                                            <span className="text-xs text-zinc-500">
+                                              Severity: {v.severityWeight}
+                                            </span>
+                                          )}
+                                          {v.timeWeight && (
+                                            <span className="text-xs text-zinc-500">
+                                              Time Weight: {v.timeWeight}x
+                                            </span>
+                                          )}
+                                        </div>
+                                        <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-1">{v.description}</p>
+                                        {v.section && (
+                                          <p className="text-xs text-zinc-500 mt-0.5">Section: {v.section}</p>
+                                        )}
+                                      </div>
                                     </div>
-                                  </div>
-                                ))}
-                              </div>
+                                  ))}
+                                </div>
+                              ) : insp.totalViolations > 0 ? (
+                                <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded">
+                                  <p className="text-sm text-amber-800 dark:text-amber-200">
+                                    <FiAlertTriangle className="inline w-4 h-4 mr-1" />
+                                    {insp.totalViolations} violation(s) found but details not yet loaded.
+                                    Click "Sync from FMCSA" to fetch violation codes and descriptions.
+                                  </p>
+                                </div>
+                              ) : (
+                                <p className="text-sm text-green-600 dark:text-green-400">
+                                  <FiCheckCircle className="inline w-4 h-4 mr-1" />
+                                  No violations on this inspection
+                                </p>
+                              )}
                             </div>
                           </td>
                         </tr>
