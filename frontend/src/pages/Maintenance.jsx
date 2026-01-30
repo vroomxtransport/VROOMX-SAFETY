@@ -60,7 +60,8 @@ const Maintenance = () => {
     inspectionResult: 'na',
     defectsFound: [],
     notes: '',
-    warranty: { covered: false, claimNumber: '', notes: '' }
+    warranty: { covered: false, claimNumber: '', notes: '' },
+    invoiceNumber: ''
   });
 
   useEffect(() => {
@@ -138,13 +139,33 @@ const Maintenance = () => {
     e.preventDefault();
     setSubmitting(true);
     try {
+      // Process partsUsed to ensure proper number types
+      const processedParts = formData.partsUsed?.map(part => ({
+        partName: part.partName || '',
+        partNumber: part.partNumber || '',
+        quantity: parseInt(part.quantity) || 1,
+        cost: parseFloat(part.cost) || 0
+      })).filter(part => part.partName || part.partNumber) || [];
+
       const submitData = {
         ...formData,
         odometerReading: formData.odometerReading ? parseInt(formData.odometerReading) : undefined,
         laborCost: parseFloat(formData.laborCost) || 0,
         partsCost: parseFloat(formData.partsCost) || 0,
-        nextServiceMileage: formData.nextServiceMileage ? parseInt(formData.nextServiceMileage) : undefined
+        nextServiceMileage: formData.nextServiceMileage ? parseInt(formData.nextServiceMileage) : undefined,
+        partsUsed: processedParts,
+        invoiceNumber: formData.invoiceNumber || undefined
       };
+
+      // If we have an uploaded file from smart upload, include it in documents
+      if (uploadedFile && uploadedFile.url && !selectedRecord) {
+        submitData.documents = [{
+          name: uploadedFile.name || 'Invoice',
+          url: uploadedFile.url,
+          type: 'invoice',
+          uploadedAt: new Date()
+        }];
+      }
 
       if (selectedRecord && !showDetailModal) {
         await maintenanceAPI.update(selectedRecord._id, submitData);
@@ -153,6 +174,7 @@ const Maintenance = () => {
         await maintenanceAPI.create(submitData);
         toast.success('Record created');
       }
+
       setShowAddModal(false);
       resetForm();
       fetchRecords();
@@ -204,9 +226,32 @@ const Maintenance = () => {
       if (response.data.success) {
         const data = response.data.extractedData?.data;
         if (data) {
-          // Auto-fill form with extracted data
+          // Auto-match vehicle by unitNumber, VIN, or licensePlate from extracted data
+          let matchedVehicleId = '';
+          if (data.vehicleInfo) {
+            const matchedVehicle = vehicles.find(v =>
+              (data.vehicleInfo.unitNumber && v.unitNumber?.toLowerCase() === data.vehicleInfo.unitNumber?.toLowerCase()) ||
+              (data.vehicleInfo.vin && v.vin?.toLowerCase() === data.vehicleInfo.vin?.toLowerCase()) ||
+              (data.vehicleInfo.licensePlate && v.licensePlate?.toLowerCase() === data.vehicleInfo.licensePlate?.toLowerCase())
+            );
+            if (matchedVehicle) {
+              matchedVehicleId = matchedVehicle._id;
+              toast.success(`Matched vehicle: ${matchedVehicle.unitNumber}`);
+            }
+          }
+
+          // Map extracted parts to form format
+          const mappedParts = data.partsUsed?.map(p => ({
+            partName: p.description || p.partName || '',
+            partNumber: p.partNumber || '',
+            quantity: p.quantity || 1,
+            cost: p.cost || 0
+          })) || [];
+
+          // Auto-fill form with ALL extracted data
           setFormData(prev => ({
             ...prev,
+            vehicleId: matchedVehicleId || prev.vehicleId,
             recordType: data.recordType || prev.recordType,
             serviceDate: data.serviceDate || prev.serviceDate,
             odometerReading: data.odometerReading || prev.odometerReading,
@@ -219,15 +264,26 @@ const Maintenance = () => {
             },
             laborCost: data.laborCost || prev.laborCost,
             partsCost: data.partsCost || prev.partsCost,
+            partsUsed: mappedParts.length > 0 ? mappedParts : prev.partsUsed,
             nextServiceDate: data.nextServiceDate || prev.nextServiceDate,
             nextServiceMileage: data.nextServiceMileage || prev.nextServiceMileage,
-            notes: data.notes || prev.notes
+            notes: data.notes || prev.notes,
+            invoiceNumber: data.invoiceNumber || prev.invoiceNumber
           }));
-          toast.success('Data extracted! Please review and complete the form.');
+
+          // Show confidence-based message
+          const confidence = data.confidence || 0;
+          if (confidence >= 0.8) {
+            toast.success('Data extracted with high confidence! Please review and complete the form.');
+          } else if (confidence >= 0.5) {
+            toast.success('Data extracted. Some fields may need verification.');
+          } else {
+            toast.success('Data extracted with low confidence. Please verify all fields.');
+          }
         } else {
           toast.error(response.data.error || 'Could not extract data from document. Please fill in details manually.');
         }
-        // Store uploaded file info
+        // Store uploaded file info for attachment
         if (response.data.uploadedFile) {
           setUploadedFile(response.data.uploadedFile);
         }
@@ -292,9 +348,11 @@ const Maintenance = () => {
       inspectionResult: 'na',
       defectsFound: [],
       notes: '',
-      warranty: { covered: false, claimNumber: '', notes: '' }
+      warranty: { covered: false, claimNumber: '', notes: '' },
+      invoiceNumber: ''
     });
     setSelectedRecord(null);
+    setUploadedFile(null);
   };
 
   const openEditModal = (record) => {
@@ -314,7 +372,8 @@ const Maintenance = () => {
       inspectionResult: record.inspectionResult || 'na',
       defectsFound: record.defectsFound || [],
       notes: record.notes || '',
-      warranty: record.warranty || { covered: false, claimNumber: '', notes: '' }
+      warranty: record.warranty || { covered: false, claimNumber: '', notes: '' },
+      invoiceNumber: record.invoiceNumber || ''
     });
     setShowAddModal(true);
   };

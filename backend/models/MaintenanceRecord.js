@@ -152,7 +152,13 @@ const maintenanceRecordSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   },
-  notes: String
+  notes: String,
+  // Invoice/work order number from repair shop
+  invoiceNumber: {
+    type: String,
+    trim: true,
+    maxlength: 100
+  }
 }, {
   timestamps: true
 });

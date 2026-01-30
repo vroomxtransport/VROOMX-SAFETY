@@ -249,7 +249,7 @@ const driverCSAService = {
     const driverViolationStats = await Violation.aggregate([
       {
         $match: {
-          companyId: require('mongoose').Types.ObjectId.createFromHexString(companyId),
+          companyId: companyId,
           driverId: { $ne: null },
           violationDate: { $gte: twoYearsAgo }
         }
