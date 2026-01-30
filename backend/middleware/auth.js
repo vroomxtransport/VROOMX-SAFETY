@@ -53,9 +53,8 @@ const protect = async (req, res, next) => {
       });
     }
 
-    // Check subscription status - allow access even if past_due for now
-    // Block only if unpaid or canceled
-    if (user.subscription?.status === 'unpaid') {
+    // Check subscription status - block unpaid and past_due
+    if (['unpaid', 'past_due'].includes(user.subscription?.status)) {
       return res.status(403).json({
         success: false,
         message: 'Your subscription payment has failed. Please update your payment method.',

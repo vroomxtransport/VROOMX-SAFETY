@@ -16,6 +16,14 @@ const ChecklistAssignment = require('./ChecklistAssignment');
 const MaintenanceRecord = require('./MaintenanceRecord');
 const EmailLog = require('./EmailLog');
 const AuditLog = require('./AuditLog');
+const Alert = require('./Alert');
+const Announcement = require('./Announcement');
+const ComplianceScore = require('./ComplianceScore');
+const FeatureFlag = require('./FeatureFlag');
+const FMCSAInspection = require('./FMCSAInspection');
+const ScheduledReport = require('./ScheduledReport');
+const SystemConfig = require('./SystemConfig');
+const Ticket = require('./Ticket');
 
 module.exports = {
   User,
@@ -35,5 +43,13 @@ module.exports = {
   ChecklistAssignment,
   MaintenanceRecord,
   EmailLog,
-  AuditLog
+  AuditLog,
+  Alert,
+  Announcement,
+  ComplianceScore,
+  FeatureFlag,
+  FMCSAInspection,
+  ScheduledReport,
+  SystemConfig,
+  Ticket
 };
