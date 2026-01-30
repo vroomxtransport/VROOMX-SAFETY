@@ -278,6 +278,21 @@ npm run dev  # Starts on port 5173
 
 ## Changelog
 
+### 2026-01-29 (Data Integrity Monitor Cleanup)
+- **Feature:** Added cleanup functionality to Data Integrity Monitor admin panel
+  - Delete orphaned records (records with missing/invalid companyId) by model or all at once
+  - Delete records with invalid foreign key references (driverId, vehicleId)
+  - Backend service methods: `deleteOrphanedRecords()`, `deleteAllOrphanedRecords()`, `deleteInvalidReferences()`
+  - API endpoints: `DELETE /api/admin/data-integrity/orphaned/:resource`, `DELETE /api/admin/data-integrity/orphaned`, `DELETE /api/admin/data-integrity/invalid-refs/:resource/:field`
+  - Files: `backend/services/dataIntegrityService.js`, `backend/routes/admin.js`
+- **UI:** Frontend cleanup buttons in Data Integrity Monitor
+  - "Fix All" button to delete all orphaned records across all models
+  - Individual "Delete" buttons for each resource with issues
+  - Confirmation dialogs before deletion (prevent accidental data loss)
+  - Success/error feedback messages with deletion counts
+  - Loading spinners during deletion operations
+  - File: `frontend/src/pages/admin/AdminDataIntegrity.jsx`, `frontend/src/utils/api.js`
+
 ### 2026-01-28 (CSA Score Analyzer UX Improvements)
 - **Feature:** Structured AI analysis format in email/PDF reports
   - AI prompt now requests structured output with emoji headers: 📊 QUICK SUMMARY, ⚠️ ISSUES FOUND, ✅ YOUR 3-STEP ACTION PLAN
