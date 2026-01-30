@@ -292,6 +292,10 @@ npm run dev  # Starts on port 5173
   - Success/error feedback messages with deletion counts
   - Loading spinners during deletion operations
   - File: `frontend/src/pages/admin/AdminDataIntegrity.jsx`, `frontend/src/utils/api.js`
+- **Fix:** IPv6 rate limiting warning (`ERR_ERL_KEY_GEN_IPV6`)
+  - Custom `keyGenerator` functions now use `ipKeyGenerator` helper from express-rate-limit
+  - Properly handles IPv6 addresses to prevent rate limit bypass
+  - Files: `backend/server.js` (authLimiter), `backend/routes/fmcsaLookup.js` (syncLimiter)
 
 ### 2026-01-28 (CSA Score Analyzer UX Improvements)
 - **Feature:** Structured AI analysis format in email/PDF reports
