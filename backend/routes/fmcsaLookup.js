@@ -6,6 +6,7 @@
 const express = require('express');
 const router = express.Router();
 const rateLimit = require('express-rate-limit');
+const { ipKeyGenerator } = require('express-rate-limit');
 const fmcsaService = require('../services/fmcsaService');
 const fmcsaViolationService = require('../services/fmcsaViolationService');
 const { protect, restrictToCompany } = require('../middleware/auth');
@@ -116,7 +117,7 @@ router.get('/verify/:dotNumber', lookupLimiter, async (req, res) => {
 const syncLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 5,
-  keyGenerator: (req) => req.companyFilter?.companyId?.toString() || req.ip,
+  keyGenerator: (req, res) => req.companyFilter?.companyId?.toString() || ipKeyGenerator(req, res),
   message: {
     success: false,
     message: 'Sync limit reached. You can sync again in 1 hour.'

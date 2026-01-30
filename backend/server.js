@@ -6,6 +6,7 @@ const morgan = require('morgan');
 const path = require('path');
 const cron = require('node-cron');
 const rateLimit = require('express-rate-limit');
+const { ipKeyGenerator } = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
 const connectDB = require('./config/database');
 const routes = require('./routes');
@@ -119,9 +120,10 @@ const authLimiter = rateLimit({
   max: 15,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => {
+  keyGenerator: (req, res) => {
     const email = (req.body && req.body.email) ? req.body.email.toLowerCase().trim() : '';
-    return `${req.ip}:${email}`;
+    const ip = ipKeyGenerator(req, res);
+    return `${ip}:${email}`;
   },
   message: { success: false, message: 'Too many authentication attempts. Please try again later.' }
 });
