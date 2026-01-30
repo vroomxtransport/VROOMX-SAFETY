@@ -31,7 +31,7 @@ const navigation = [
 
   // Tracking section
   { section: 'TRACKING' },
-  { name: 'Violations', path: '/app/violations', icon: FiAlertTriangle },
+  // Violations moved to FMCSA Dashboard - { name: 'Violations', path: '/app/violations', icon: FiAlertTriangle },
   { name: 'Tickets', path: '/app/tickets', icon: FiTag },
   { name: 'Accidents', path: '/app/accidents', icon: FiAlertOctagon },
   { name: 'Damage Claims', path: '/app/damage-claims', icon: FiDollarSign },

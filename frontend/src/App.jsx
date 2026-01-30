@@ -19,14 +19,14 @@ import Drivers from './pages/Drivers';
 import DriverDetail from './pages/DriverDetail';
 import Vehicles from './pages/Vehicles';
 import VehicleDetail from './pages/VehicleDetail';
-import Violations from './pages/Violations';
+// Violations page removed - consolidated into Compliance/FMCSA Dashboard
 import Tickets from './pages/Tickets';
 import DamageClaims from './pages/DamageClaims';
 import DrugAlcohol from './pages/DrugAlcohol';
 import Documents from './pages/Documents';
 import Reports from './pages/Reports';
 import ScheduledReports from './pages/ScheduledReports';
-import InspectionHistory from './pages/InspectionHistory';
+// InspectionHistory page removed - consolidated into Compliance/FMCSA Dashboard
 import Settings from './pages/Settings';
 import Billing from './pages/Billing';
 import RegulationAssistant from './pages/RegulationAssistant';
@@ -218,7 +218,7 @@ function App() {
           <Route path="drivers/:id" element={<DriverDetail />} />
           <Route path="vehicles" element={<Vehicles />} />
           <Route path="vehicles/:id" element={<VehicleDetail />} />
-          <Route path="violations" element={<Violations />} />
+          <Route path="violations" element={<Navigate to="/app/compliance?tab=violations" replace />} />
           <Route path="tickets" element={<Tickets />} />
           <Route path="damage-claims" element={<DamageClaims />} />
           <Route path="drug-alcohol" element={<DrugAlcohol />} />
@@ -226,12 +226,12 @@ function App() {
           <Route path="compliance" element={<Suspense fallback={<LoadingSpinner size="lg" />}><Compliance /></Suspense>} />
           <Route path="reports" element={<Reports />} />
           <Route path="scheduled-reports" element={<ScheduledReports />} />
-          <Route path="inspection-history" element={<InspectionHistory />} />
+          <Route path="inspection-history" element={<Navigate to="/app/compliance?tab=inspections" replace />} />
           <Route path="settings" element={<Settings />} />
           <Route path="ai-assistant" element={<RegulationAssistant />} />
           <Route path="alerts" element={<AlertsDashboard />} />
           <Route path="csa-estimator" element={<Navigate to="/app/compliance" replace />} />
-          <Route path="inspection-upload" element={<Navigate to="/app/violations" replace />} />
+          <Route path="inspection-upload" element={<Navigate to="/app/compliance?tab=violations" replace />} />
           <Route path="templates" element={<TemplateGenerator />} />
           <Route path="tasks" element={<Tasks />} />
           <Route path="checklists" element={<Checklists />} />
@@ -245,7 +245,7 @@ function App() {
         <Route path="/drivers/:id" element={<LegacyDriverRedirect />} />
         <Route path="/vehicles" element={<Navigate to="/app/vehicles" replace />} />
         <Route path="/vehicles/:id" element={<LegacyVehicleRedirect />} />
-        <Route path="/violations" element={<Navigate to="/app/violations" replace />} />
+        <Route path="/violations" element={<Navigate to="/app/compliance?tab=violations" replace />} />
         <Route path="/tickets" element={<Navigate to="/app/tickets" replace />} />
         <Route path="/damage-claims" element={<Navigate to="/app/damage-claims" replace />} />
         <Route path="/drug-alcohol" element={<Navigate to="/app/drug-alcohol" replace />} />

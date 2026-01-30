@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
-import { fmcsaInspectionsAPI } from '../utils/api';
+import { fmcsaInspectionsAPI } from '../../utils/api';
 import toast from 'react-hot-toast';
 import {
   FiSearch, FiFilter, FiRefreshCw, FiDownload, FiChevronDown, FiChevronUp,
   FiAlertTriangle, FiCheckCircle, FiXCircle, FiMapPin, FiCalendar, FiHash
 } from 'react-icons/fi';
-import LoadingSpinner from '../components/LoadingSpinner';
+import LoadingSpinner from '../LoadingSpinner';
 
-const InspectionHistory = () => {
+const InspectionsTabContent = ({ onRefresh }) => {
   const [inspections, setInspections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
@@ -63,7 +63,6 @@ const InspectionHistory = () => {
         ...filters
       };
 
-      // Remove empty filters
       Object.keys(params).forEach(key => {
         if (params[key] === '' || params[key] === false) {
           delete params[key];
@@ -100,6 +99,7 @@ const InspectionHistory = () => {
         toast.success(response.data.message);
         fetchInspections();
         fetchStats();
+        onRefresh?.();
       } else {
         toast.error(response.data.message);
       }
@@ -176,34 +176,28 @@ const InspectionHistory = () => {
   };
 
   return (
-    <div className="space-y-4 lg:space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-zinc-800 dark:text-zinc-100">FMCSA Inspection History</h1>
-          <p className="text-zinc-600 dark:text-zinc-300">View roadside inspections and violation details</p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={handleSync}
-            disabled={syncing}
-            className="btn btn-secondary flex items-center"
-          >
-            {syncing ? (
-              <LoadingSpinner size="sm" className="mr-2" />
-            ) : (
-              <FiRefreshCw className="w-4 h-4 mr-2" />
-            )}
-            Sync
-          </button>
-          <button
-            onClick={exportToCSV}
-            className="btn btn-secondary flex items-center"
-          >
-            <FiDownload className="w-4 h-4 mr-2" />
-            Export CSV
-          </button>
-        </div>
+    <div className="space-y-4">
+      {/* Header Actions */}
+      <div className="flex items-center justify-end space-x-2">
+        <button
+          onClick={handleSync}
+          disabled={syncing}
+          className="btn btn-secondary flex items-center"
+        >
+          {syncing ? (
+            <LoadingSpinner size="sm" className="mr-2" />
+          ) : (
+            <FiRefreshCw className="w-4 h-4 mr-2" />
+          )}
+          Sync from FMCSA
+        </button>
+        <button
+          onClick={exportToCSV}
+          className="btn btn-secondary flex items-center"
+        >
+          <FiDownload className="w-4 h-4 mr-2" />
+          Export CSV
+        </button>
       </div>
 
       {/* Stats Cards */}
@@ -485,4 +479,4 @@ const InspectionHistory = () => {
   );
 };
 
-export default InspectionHistory;
+export default InspectionsTabContent;
