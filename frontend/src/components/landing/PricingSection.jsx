@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
-import { FiCheck, FiX } from 'react-icons/fi';
+import { FiCheck } from 'react-icons/fi';
 import useInView from '../../hooks/useInView';
 
-const PricingSection = ({ isAnnual, setIsAnnual, pricingPlans, comparisonFeatures }) => {
+const PricingSection = ({ isAnnual, setIsAnnual, pricingPlans }) => {
   const [headerRef, headerInView] = useInView({ threshold: 0.3 });
   const [cardsRef, cardsInView] = useInView({ threshold: 0.1 });
 
@@ -133,81 +133,6 @@ const PricingSection = ({ isAnnual, setIsAnnual, pricingPlans, comparisonFeature
           ))}
         </div>
 
-        {/* Comparison Table */}
-        <div className="mt-24 max-w-4xl mx-auto">
-          <h3 className="text-2xl md:text-3xl font-heading font-bold text-gray-800 dark:text-white text-center mb-4">
-            VroomX vs <span className="text-cta-500">The Competition</span>
-          </h3>
-          <p className="text-gray-600 dark:text-gray-300 text-center mb-10">See why fleets are switching to VroomX</p>
-
-          <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-lg">
-            {/* Table Header */}
-            <div className="grid grid-cols-4 bg-gray-50 border-b border-gray-200">
-              <div className="p-4 font-bold text-gray-800 dark:text-white">Feature</div>
-              <div className="p-4 font-bold text-center text-cta-500 bg-cta-50">VroomX</div>
-              <div className="p-4 font-bold text-center text-gray-500 dark:text-gray-400">Spreadsheets</div>
-              <div className="p-4 font-bold text-center text-gray-500 dark:text-gray-400">Other Software</div>
-            </div>
-
-            {/* Table Body */}
-            {comparisonFeatures.map((row, i) => (
-              <div key={i} className={`grid grid-cols-4 ${i !== comparisonFeatures.length - 1 ? 'border-b border-gray-100' : ''}`}>
-                <div className="p-4 text-sm text-gray-700 dark:text-gray-200 font-medium">{row.feature}</div>
-                <div className="p-4 flex justify-center items-center bg-cta-50/50">
-                  {typeof row.vroomx === 'boolean' ? (
-                    row.vroomx ? (
-                      <span className="w-6 h-6 bg-emerald-50 rounded-lg flex items-center justify-center">
-                        <FiCheck className="w-4 h-4 text-emerald-500" />
-                      </span>
-                    ) : (
-                      <span className="w-6 h-6 bg-red-50 rounded-lg flex items-center justify-center">
-                        <FiX className="w-4 h-4 text-red-400" />
-                      </span>
-                    )
-                  ) : (
-                    <span className="text-sm font-bold text-cta-500">{row.vroomx}</span>
-                  )}
-                </div>
-                <div className="p-4 flex justify-center items-center">
-                  {typeof row.spreadsheets === 'boolean' ? (
-                    row.spreadsheets ? (
-                      <span className="w-6 h-6 bg-emerald-50 rounded-lg flex items-center justify-center">
-                        <FiCheck className="w-4 h-4 text-emerald-500" />
-                      </span>
-                    ) : (
-                      <span className="w-6 h-6 bg-red-50 rounded-lg flex items-center justify-center">
-                        <FiX className="w-4 h-4 text-red-400" />
-                      </span>
-                    )
-                  ) : row.spreadsheets === 'limited' ? (
-                    <span className="text-xs text-amber-600 font-medium bg-amber-50 px-2 py-1 rounded">Limited</span>
-                  ) : (
-                    <span className="text-sm text-gray-500 dark:text-gray-400">{row.spreadsheets}</span>
-                  )}
-                </div>
-                <div className="p-4 flex justify-center items-center">
-                  {typeof row.other === 'boolean' ? (
-                    row.other ? (
-                      <span className="w-6 h-6 bg-emerald-50 rounded-lg flex items-center justify-center">
-                        <FiCheck className="w-4 h-4 text-emerald-500" />
-                      </span>
-                    ) : (
-                      <span className="w-6 h-6 bg-red-50 rounded-lg flex items-center justify-center">
-                        <FiX className="w-4 h-4 text-red-400" />
-                      </span>
-                    )
-                  ) : row.other === 'limited' ? (
-                    <span className="text-xs text-amber-600 font-medium bg-amber-50 px-2 py-1 rounded">Limited</span>
-                  ) : (
-                    <span className="text-sm text-gray-500 dark:text-gray-400">{row.other}</span>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <p className="text-center text-xs text-gray-500 dark:text-gray-400 mt-4">*Spreadsheets require significant time investment and manual maintenance</p>
-        </div>
       </div>
     </section>
   );
