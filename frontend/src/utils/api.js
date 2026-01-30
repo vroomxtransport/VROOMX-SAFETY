@@ -200,6 +200,7 @@ export const fmcsaInspectionsAPI = {
   getRecent: (limit = 5) => api.get('/inspections/fmcsa/recent', { params: { limit } }),
   getStats: () => api.get('/inspections/fmcsa/stats'),
   sync: () => api.post('/inspections/fmcsa/sync'),
+  syncDataHub: () => api.post('/inspections/fmcsa/sync-datahub'),
   delete: (id) => api.delete(`/inspections/fmcsa/${id}`)
 };
 

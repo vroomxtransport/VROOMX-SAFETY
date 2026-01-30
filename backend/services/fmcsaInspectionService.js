@@ -472,6 +472,151 @@ const fmcsaInspectionService = {
       companyId
     });
     return !!result;
+  },
+
+  /**
+   * Sync inspection records from FMCSA DataHub (data.transportation.gov)
+   * This is a free public API that provides actual inspection records
+   * @param {string} companyId - Company ID
+   * @returns {object} Sync result
+   */
+  async syncFromDataHub(companyId) {
+    try {
+      const company = await Company.findById(companyId);
+      if (!company?.dotNumber) {
+        return { success: false, message: 'Company DOT number not found' };
+      }
+
+      const dotNumber = company.dotNumber.toString().replace(/^0+/, '');
+      console.log(`[FMCSA DataHub] Fetching inspections for DOT ${dotNumber}`);
+
+      // Fetch from data.transportation.gov Socrata API
+      // Get inspections from last 3 years (API provides 3 years of data)
+      const threeYearsAgo = new Date();
+      threeYearsAgo.setFullYear(threeYearsAgo.getFullYear() - 3);
+      const dateFilter = threeYearsAgo.toISOString().split('T')[0].replace(/-/g, '');
+
+      const url = `https://data.transportation.gov/resource/fx4q-ay7w.json?$where=dot_number='${dotNumber}'&$order=insp_date DESC&$limit=500`;
+
+      const response = await fetch(url, {
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`DataHub API error: ${response.status}`);
+      }
+
+      const inspections = await response.json();
+
+      if (!Array.isArray(inspections) || inspections.length === 0) {
+        return {
+          success: true,
+          message: 'No inspection records found in FMCSA DataHub',
+          imported: 0,
+          total: 0
+        };
+      }
+
+      console.log(`[FMCSA DataHub] Found ${inspections.length} inspections`);
+
+      let imported = 0;
+      let updated = 0;
+
+      for (const insp of inspections) {
+        const parsedInspection = this.parseDataHubRecord(insp, companyId);
+
+        // Upsert by report number (unique identifier)
+        const result = await FMCSAInspection.findOneAndUpdate(
+          { companyId, reportNumber: parsedInspection.reportNumber },
+          parsedInspection,
+          { upsert: true, new: true, setDefaultsOnInsert: true }
+        );
+
+        if (result.isNew || !result._id) {
+          imported++;
+        } else {
+          updated++;
+        }
+      }
+
+      // Update company's last sync timestamp
+      await Company.findByIdAndUpdate(companyId, {
+        'fmcsaData.lastDataHubSync': new Date()
+      });
+
+      console.log(`[FMCSA DataHub] Sync complete. New: ${imported}, Updated: ${updated}`);
+
+      return {
+        success: true,
+        message: `Synced ${inspections.length} inspection records from FMCSA DataHub`,
+        imported,
+        updated,
+        total: inspections.length
+      };
+
+    } catch (error) {
+      console.error('[FMCSA DataHub] Sync failed:', error.message);
+      return {
+        success: false,
+        message: error.message,
+        imported: 0
+      };
+    }
+  },
+
+  /**
+   * Parse a DataHub inspection record to model format
+   * @param {object} record - Raw DataHub API record
+   * @param {string} companyId - Company ID
+   * @returns {object} Formatted inspection for model
+   */
+  parseDataHubRecord(record, companyId) {
+    // Parse date from YYYYMMDD format
+    const inspDate = record.insp_date;
+    const year = inspDate.substring(0, 4);
+    const month = inspDate.substring(4, 6);
+    const day = inspDate.substring(6, 8);
+    const inspectionDate = new Date(`${year}-${month}-${day}`);
+
+    // Determine OOS status
+    const vehicleOOS = parseInt(record.vehicle_oos_total || 0) > 0;
+    const driverOOS = parseInt(record.driver_oos_total || 0) > 0;
+    const hazmatOOS = parseInt(record.hazmat_oos_total || 0) > 0;
+
+    return {
+      companyId,
+      reportNumber: record.report_number,
+      inspectionId: record.inspection_id,
+      inspectionDate,
+      state: record.report_state,
+      location: record.location_desc || record.location || '',
+      inspectionLevel: parseInt(record.insp_level_id) || 1,
+      inspectionType: record.insp_facility === 'R' ? 'roadside' :
+                      record.insp_facility === 'T' ? 'terminal' :
+                      record.post_acc_ind === 'Y' ? 'post_crash' : 'roadside',
+      vehicleOOS,
+      driverOOS,
+      hazmatOOS,
+      totalViolations: parseInt(record.viol_total) || 0,
+      vehicleViolations: parseInt(record.vehicle_viol_total) || 0,
+      driverViolations: parseInt(record.driver_viol_total) || 0,
+      hazmatViolations: parseInt(record.hazmat_viol_total) || 0,
+      oosTotal: parseInt(record.oos_total) || 0,
+      // Store carrier info from inspection
+      carrierName: record.insp_carrier_name,
+      carrierCity: record.insp_carrier_city,
+      carrierState: record.insp_carrier_state,
+      // Vehicle weight if available
+      grossWeight: parseInt(record.gross_comb_veh_wt) || null,
+      // Shipper info
+      shipperName: record.shipper_name || null,
+      // Source tracking
+      source: 'fmcsa_datahub',
+      importedAt: new Date(),
+      rawData: record
+    };
   }
 };
 

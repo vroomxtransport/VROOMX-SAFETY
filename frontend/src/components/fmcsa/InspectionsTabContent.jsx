@@ -94,9 +94,10 @@ const InspectionsTabContent = ({ onRefresh }) => {
   const handleSync = async () => {
     setSyncing(true);
     try {
-      const response = await fmcsaInspectionsAPI.sync();
+      // Use FMCSA DataHub API for actual inspection records
+      const response = await fmcsaInspectionsAPI.syncDataHub();
       if (response.data.success) {
-        toast.success(response.data.message);
+        toast.success(`Synced ${response.data.total} inspections from FMCSA`);
         fetchInspections();
         fetchStats();
         onRefresh?.();
@@ -104,7 +105,7 @@ const InspectionsTabContent = ({ onRefresh }) => {
         toast.error(response.data.message);
       }
     } catch (error) {
-      toast.error('Sync failed');
+      toast.error('Sync failed: ' + (error.response?.data?.message || error.message));
     } finally {
       setSyncing(false);
     }

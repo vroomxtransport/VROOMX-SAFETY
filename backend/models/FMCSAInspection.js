@@ -17,6 +17,7 @@ const fmcsaInspectionSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  inspectionId: String, // FMCSA's unique inspection ID from DataHub
   inspectionDate: {
     type: Date,
     required: true,
@@ -26,6 +27,11 @@ const fmcsaInspectionSchema = new mongoose.Schema({
   // Location
   state: String,
   location: String,
+
+  // Carrier Info (from inspection record)
+  carrierName: String,
+  carrierCity: String,
+  carrierState: String,
 
   // Inspection Type & Level
   inspectionLevel: {
@@ -58,6 +64,26 @@ const fmcsaInspectionSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  vehicleViolations: {
+    type: Number,
+    default: 0
+  },
+  driverViolations: {
+    type: Number,
+    default: 0
+  },
+  hazmatViolations: {
+    type: Number,
+    default: 0
+  },
+  oosTotal: {
+    type: Number,
+    default: 0
+  },
+
+  // Vehicle/Shipment Info
+  grossWeight: Number,
+  shipperName: String,
 
   // Individual Violations
   violations: [{

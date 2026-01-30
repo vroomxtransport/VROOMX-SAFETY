@@ -78,6 +78,22 @@ router.post('/fmcsa/sync', checkPermission('violations', 'edit'), asyncHandler(a
   });
 }));
 
+// @route   POST /api/inspections/fmcsa/sync-datahub
+// @desc    Sync inspection records from FMCSA DataHub (data.transportation.gov)
+// @access  Private
+router.post('/fmcsa/sync-datahub', checkPermission('violations', 'edit'), asyncHandler(async (req, res) => {
+  const companyId = req.companyFilter.companyId;
+  const result = await fmcsaInspectionService.syncFromDataHub(companyId);
+
+  res.json({
+    success: result.success,
+    message: result.message,
+    imported: result.imported,
+    updated: result.updated,
+    total: result.total
+  });
+}));
+
 // @route   GET /api/inspections/fmcsa/by-basic/:basic
 // @desc    Get inspections by BASIC category
 // @access  Private
