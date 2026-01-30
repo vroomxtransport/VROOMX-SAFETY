@@ -99,13 +99,15 @@ const InspectionsTabContent = () => {
         const { inspections, violations } = response.data;
         let message = '';
         if (inspections?.imported > 0) {
-          message += `Imported ${inspections.imported} inspections. `;
-        }
-        if (violations?.matched > 0) {
-          message += `Matched ${violations.matched} inspections with violation details.`;
-        }
-        if (!message) {
-          message = 'Sync complete. No new data found.';
+          message += `Synced ${inspections.imported} inspections`;
+          if (violations?.total > 0) {
+            message += ` with ${violations.total} violation records`;
+          }
+          message += '.';
+        } else if (violations?.total > 0) {
+          message = `Found ${violations.total} violation records but no inspections to match.`;
+        } else {
+          message = 'Sync complete. No FMCSA records found for this DOT number.';
         }
         toast.success(message);
         fetchInspections();

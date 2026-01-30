@@ -577,6 +577,7 @@ const fmcsaInspectionService = {
       }
 
       // Group violations by unique_id (inspection identifier in SMS dataset)
+      // Also capture inspection-level metadata from the first violation record
       const violationsByInspection = {};
       for (const v of violations) {
         const inspId = v.unique_id;
@@ -584,7 +585,10 @@ const fmcsaInspectionService = {
 
         if (!violationsByInspection[inspId]) {
           violationsByInspection[inspId] = {
+            reportNumber: inspId,
             date: this.parseSMSDate(v.insp_date),
+            state: v.insp_state || v.state || null,
+            inspectionLevel: parseInt(v.insp_level_id, 10) || null,
             violations: []
           };
         }
@@ -593,55 +597,75 @@ const fmcsaInspectionService = {
 
       console.log(`[FMCSA Violations] Grouped into ${Object.keys(violationsByInspection).length} inspections`);
 
-      // Match violations to stored inspections by date
+      // Process inspections - update existing or create new ones
       let matchedCount = 0;
+      let createdCount = 0;
       const inspectionIds = Object.keys(violationsByInspection);
 
       for (const inspId of inspectionIds) {
         const data = violationsByInspection[inspId];
         if (!data.date) continue;
 
-        // Query for inspection on the same date (UTC day)
-        const startOfDay = new Date(Date.UTC(
-          data.date.getUTCFullYear(),
-          data.date.getUTCMonth(),
-          data.date.getUTCDate(),
-          0, 0, 0, 0
-        ));
-        const endOfDay = new Date(Date.UTC(
-          data.date.getUTCFullYear(),
-          data.date.getUTCMonth(),
-          data.date.getUTCDate(),
-          23, 59, 59, 999
-        ));
+        // Check if any violations have OOS flags
+        const hasVehicleOOS = data.violations.some(v => v.oos && v.unit === 'vehicle');
+        const hasDriverOOS = data.violations.some(v => v.oos && v.unit === 'driver');
+        const hasHazmatOOS = data.violations.some(v => v.oos && v.unit === 'hazmat');
 
-        const inspection = await FMCSAInspection.findOne({
+        // Try to find existing inspection by reportNumber first
+        let inspection = await FMCSAInspection.findOne({
           companyId,
-          inspectionDate: { $gte: startOfDay, $lte: endOfDay }
+          reportNumber: data.reportNumber
         });
 
         if (inspection) {
-          // Update inspection with violation details
+          // Update existing inspection with violation details
           inspection.violations = data.violations;
           inspection.totalViolations = data.violations.length;
+          inspection.vehicleOOS = hasVehicleOOS || inspection.vehicleOOS;
+          inspection.driverOOS = hasDriverOOS || inspection.driverOOS;
+          inspection.hazmatOOS = hasHazmatOOS || inspection.hazmatOOS;
           inspection.violationsSource = 'datahub_sms';
           inspection.violationsSyncedAt = new Date();
 
-          // Recalculate time weights if the method exists
           if (typeof inspection.calculateTimeWeights === 'function') {
             inspection.calculateTimeWeights();
           }
 
           await inspection.save();
           matchedCount++;
+        } else {
+          // Create new inspection from DataHub data
+          inspection = new FMCSAInspection({
+            companyId,
+            reportNumber: data.reportNumber,
+            inspectionDate: data.date,
+            state: data.state,
+            inspectionLevel: data.inspectionLevel,
+            inspectionType: 'roadside',
+            vehicleOOS: hasVehicleOOS,
+            driverOOS: hasDriverOOS,
+            hazmatOOS: hasHazmatOOS,
+            totalViolations: data.violations.length,
+            violations: data.violations,
+            source: 'datahub_sms',
+            importedAt: new Date()
+          });
+
+          if (typeof inspection.calculateTimeWeights === 'function') {
+            inspection.calculateTimeWeights();
+          }
+
+          await inspection.save();
+          createdCount++;
         }
       }
 
-      console.log(`[FMCSA Violations] Matched ${matchedCount} of ${inspectionIds.length} inspections with violations`);
+      console.log(`[FMCSA Violations] Created ${createdCount} new inspections, updated ${matchedCount} existing`);
 
       return {
         success: true,
-        message: `Matched ${matchedCount} of ${inspectionIds.length} inspections with violation details`,
+        message: `Synced ${createdCount + matchedCount} inspections (${createdCount} new, ${matchedCount} updated) with ${violations.length} violations`,
+        created: createdCount,
         matched: matchedCount,
         total: inspectionIds.length,
         violationCount: violations.length
@@ -664,24 +688,27 @@ const fmcsaInspectionService = {
    */
   async syncAllFromDataHub(companyId) {
     try {
-      // First sync inspections
+      // First try SaferWebAPI for inspections (often returns 404)
       const inspResult = await this.syncFromSaferWebAPI(companyId);
 
-      // Then sync violation details
+      // Then sync from DataHub - this will create inspections if none exist
       const violResult = await this.syncViolationsFromDataHub(companyId);
+
+      // Combine counts: SaferWebAPI imports + DataHub-created inspections
+      const totalImported = (inspResult.imported || 0) + (violResult.created || 0);
 
       return {
         success: true,
         inspections: {
-          success: inspResult.success,
-          message: inspResult.message,
-          imported: inspResult.imported || 0
+          success: inspResult.success || violResult.success,
+          message: violResult.message || inspResult.message,
+          imported: totalImported
         },
         violations: {
           success: violResult.success,
           message: violResult.message,
-          matched: violResult.matched || 0,
-          total: violResult.total || 0
+          matched: (violResult.matched || 0) + (violResult.created || 0),
+          total: violResult.violationCount || 0
         }
       };
 
