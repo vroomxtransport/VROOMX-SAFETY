@@ -510,18 +510,37 @@ const fmcsaInspectionService = {
    * @returns {object} Formatted violation
    */
   parseDataHubViolation(record) {
-    // Map BASIC codes to names
-    const basicNames = {
-      'HM': 'Hazardous Materials',
-      'VC': 'Vehicle Maintenance',
-      'DL': 'Driver Fitness',
-      'DS': 'Unsafe Driving',
-      'HOS': 'Hours of Service',
-      'CF': 'Controlled Substances',
-      'CR': 'Crash Indicator'
+    // Map BASIC codes to enum values (must match FMCSAInspection schema)
+    const basicEnumMap = {
+      'HM': 'hazmat',
+      'VC': 'vehicle_maintenance',
+      'DL': 'driver_fitness',
+      'DS': 'unsafe_driving',
+      'HOS': 'hours_of_service',
+      'CF': 'controlled_substances',
+      'CR': 'crash_indicator'
     };
 
+    // Map basic_desc text to enum values
+    const basicDescMap = {
+      'vehicle maintenance': 'vehicle_maintenance',
+      'driver fitness': 'driver_fitness',
+      'unsafe driving': 'unsafe_driving',
+      'hours of service': 'hours_of_service',
+      'controlled substances': 'controlled_substances',
+      'hazardous materials': 'hazmat',
+      'crash indicator': 'crash_indicator'
+    };
+
+    // Try to get basic from code first, then from description
     const basicCode = record.basic || record.basic_desc?.substring(0, 2)?.toUpperCase();
+    let basic = basicEnumMap[basicCode];
+
+    // If not found by code, try matching the full description
+    if (!basic && record.basic_desc) {
+      const descLower = record.basic_desc.toLowerCase();
+      basic = basicDescMap[descLower] || Object.entries(basicDescMap).find(([k]) => descLower.includes(k))?.[1];
+    }
 
     // Parse viol_unit to determine driver/vehicle/hazmat
     let unit = 'vehicle';
@@ -534,7 +553,7 @@ const fmcsaInspectionService = {
     return {
       code: record.viol_code || record.violation_code || record.code,
       description: record.section_desc || record.description || `Violation ${record.viol_code}`,
-      basic: basicNames[basicCode] || record.basic_desc || basicCode || 'Unknown',
+      basic: basic || 'vehicle_maintenance', // Default to vehicle_maintenance if unknown
       severityWeight: parseInt(record.severity_weight, 10) || 5,
       timeWeight: parseFloat(record.time_weight) || 1.0,
       oos: record.oos_indicator === 'Y' || record.oos === 'Y' || record.oos === true,
