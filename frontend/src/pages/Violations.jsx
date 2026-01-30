@@ -1,21 +1,21 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { violationsAPI, driversAPI, vehiclesAPI } from '../../utils/api';
-import { formatDate, basicCategories, getSeverityColor } from '../../utils/helpers';
+import { violationsAPI, driversAPI, vehiclesAPI } from '../utils/api';
+import { formatDate, basicCategories, getSeverityColor } from '../utils/helpers';
 import toast from 'react-hot-toast';
 import {
   FiPlus, FiSearch, FiAlertTriangle, FiMessageSquare, FiCheck,
   FiCheckCircle, FiClock, FiX, FiFileText, FiUpload, FiList, FiEdit2, FiTrash2,
   FiUserPlus, FiLink
 } from 'react-icons/fi';
-import DataTable from '../DataTable';
-import StatusBadge from '../StatusBadge';
-import Modal from '../Modal';
-import LoadingSpinner from '../LoadingSpinner';
-import TabNav from '../TabNav';
-import InspectionUploadContent from '../InspectionUploadContent';
+import DataTable from '../components/DataTable';
+import StatusBadge from '../components/StatusBadge';
+import Modal from '../components/Modal';
+import LoadingSpinner from '../components/LoadingSpinner';
+import TabNav from '../components/TabNav';
+import InspectionUploadContent from '../components/InspectionUploadContent';
 
-const ViolationsTabContent = ({ onRefresh }) => {
+const Violations = () => {
   const [activeTab, setActiveTab] = useState('list');
   const [violations, setViolations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -65,6 +65,7 @@ const ViolationsTabContent = ({ onRefresh }) => {
   const fetchViolations = async () => {
     setLoading(true);
     try {
+      // Handle special "unassigned" filter
       if (driverFilter === 'unassigned') {
         const response = await violationsAPI.getUnassigned({
           page,
@@ -127,7 +128,6 @@ const ViolationsTabContent = ({ onRefresh }) => {
       handleCloseAddModal();
       fetchViolations();
       fetchStats();
-      onRefresh?.();
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to save violation');
     } finally {
@@ -160,7 +160,6 @@ const ViolationsTabContent = ({ onRefresh }) => {
       toast.success('Violation deleted');
       fetchViolations();
       fetchStats();
-      onRefresh?.();
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to delete violation');
     }
@@ -194,7 +193,6 @@ const ViolationsTabContent = ({ onRefresh }) => {
       await violationsAPI.resolve(violation._id, { action: 'Marked as resolved' });
       toast.success('Violation marked as resolved');
       fetchViolations();
-      onRefresh?.();
     } catch (error) {
       toast.error('Failed to resolve violation');
     }
@@ -300,6 +298,7 @@ const ViolationsTabContent = ({ onRefresh }) => {
       header: '',
       render: (row) => (
         <div className="flex items-center gap-1">
+          {/* Link/Unlink Driver Button */}
           {!row.driverId ? (
             <button
               onClick={(e) => {
@@ -382,14 +381,16 @@ const ViolationsTabContent = ({ onRefresh }) => {
     setActiveTab('list');
     fetchViolations();
     fetchStats();
-    onRefresh?.();
   };
 
   return (
-    <div className="space-y-4">
-      {/* Sub-tab header with Add button */}
+    <div className="space-y-4 lg:space-y-6">
+      {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <TabNav tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
+        <div>
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Violation Tracker</h1>
+          <p className="text-zinc-600 dark:text-zinc-300 text-sm mt-1">Track and manage violations with DataQ support</p>
+        </div>
         {activeTab === 'list' && (
           <button
             onClick={() => setShowAddModal(true)}
@@ -401,124 +402,128 @@ const ViolationsTabContent = ({ onRefresh }) => {
         )}
       </div>
 
+      {/* Tab Navigation */}
+      <TabNav tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
+
+      {/* Tab Content */}
       {activeTab === 'list' ? (
         <>
-          {/* Stats Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            <div className="group bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-4 hover:shadow-lg hover:-translate-y-1 hover:border-zinc-300 dark:hover:border-zinc-600 transition-all duration-300 cursor-pointer">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <FiAlertTriangle className="w-5 h-5 text-zinc-600 dark:text-zinc-300" />
-                </div>
-                <div>
-                  <p className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white font-mono">
-                    {stats?.byBasic?.reduce((a, b) => a + b.count, 0) || 0}
-                  </p>
-                  <p className="text-xs text-zinc-600 dark:text-zinc-300">Total Violations</p>
-                </div>
-              </div>
+        {/* Stats Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="group bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-4 hover:shadow-lg hover:-translate-y-1 hover:border-zinc-300 dark:hover:border-zinc-600 transition-all duration-300 cursor-pointer">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <FiAlertTriangle className="w-5 h-5 text-zinc-600 dark:text-zinc-300" />
             </div>
-            <div className="group bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-4 hover:shadow-lg hover:-translate-y-1 hover:border-warning-300 dark:hover:border-warning-500/30 transition-all duration-300 cursor-pointer">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-warning-100 dark:bg-warning-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <FiClock className="w-5 h-5 text-warning-600 dark:text-warning-400" />
-                </div>
-                <div>
-                  <p className="text-xl sm:text-2xl font-bold text-warning-600 dark:text-warning-400 font-mono">
-                    {stats?.byStatus?.find(s => s._id === 'open')?.count || 0}
-                  </p>
-                  <p className="text-xs text-zinc-600 dark:text-zinc-300">Open</p>
-                </div>
-              </div>
-            </div>
-            <div className="group bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-4 hover:shadow-lg hover:-translate-y-1 hover:border-info-300 dark:hover:border-info-500/30 transition-all duration-300 cursor-pointer">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-info-100 dark:bg-info-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <FiMessageSquare className="w-5 h-5 text-info-600 dark:text-info-400" />
-                </div>
-                <div>
-                  <p className="text-xl sm:text-2xl font-bold text-info-600 dark:text-info-400 font-mono">{stats?.openDataQChallenges || 0}</p>
-                  <p className="text-xs text-zinc-600 dark:text-zinc-300">DataQ In Progress</p>
-                </div>
-              </div>
-            </div>
-            <div className="group bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-4 hover:shadow-lg hover:-translate-y-1 hover:border-success-300 dark:hover:border-success-500/30 transition-all duration-300 cursor-pointer">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-success-100 dark:bg-success-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <FiCheckCircle className="w-5 h-5 text-success-600 dark:text-success-400" />
-                </div>
-                <div>
-                  <p className="text-xl sm:text-2xl font-bold text-success-600 dark:text-success-400 font-mono">
-                    {stats?.byStatus?.find(s => s._id === 'resolved')?.count || 0}
-                  </p>
-                  <p className="text-xs text-zinc-600 dark:text-zinc-300">Resolved</p>
-                </div>
-              </div>
+            <div>
+              <p className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white font-mono">
+                {stats?.byBasic?.reduce((a, b) => a + b.count, 0) || 0}
+              </p>
+              <p className="text-xs text-zinc-600 dark:text-zinc-300">Total Violations</p>
             </div>
           </div>
-
-          {/* Filters */}
-          <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-4">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <select
-                className="form-select"
-                value={statusFilter}
-                onChange={(e) => {
-                  setStatusFilter(e.target.value);
-                  setPage(1);
-                }}
-              >
-                <option value="">All Status</option>
-                <option value="open">Open</option>
-                <option value="dispute_in_progress">Dispute In Progress</option>
-                <option value="resolved">Resolved</option>
-                <option value="dismissed">Dismissed</option>
-                <option value="upheld">Upheld</option>
-              </select>
-              <select
-                className="form-select"
-                value={basicFilter}
-                onChange={(e) => {
-                  setBasicFilter(e.target.value);
-                  setPage(1);
-                }}
-              >
-                <option value="">All BASICs</option>
-                {Object.entries(basicCategories).map(([key, value]) => (
-                  <option key={key} value={key}>{value.label}</option>
-                ))}
-              </select>
-              <select
-                className="form-select"
-                value={driverFilter}
-                onChange={(e) => {
-                  setDriverFilter(e.target.value);
-                  setPage(1);
-                }}
-              >
-                <option value="">All Drivers</option>
-                <option value="unassigned">Unassigned Only</option>
-                {drivers.map((driver) => (
-                  <option key={driver._id} value={driver._id}>
-                    {driver.firstName} {driver.lastName}
-                  </option>
-                ))}
-              </select>
+        </div>
+        <div className="group bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-4 hover:shadow-lg hover:-translate-y-1 hover:border-warning-300 dark:hover:border-warning-500/30 transition-all duration-300 cursor-pointer">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-warning-100 dark:bg-warning-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <FiClock className="w-5 h-5 text-warning-600 dark:text-warning-400" />
+            </div>
+            <div>
+              <p className="text-xl sm:text-2xl font-bold text-warning-600 dark:text-warning-400 font-mono">
+                {stats?.byStatus?.find(s => s._id === 'open')?.count || 0}
+              </p>
+              <p className="text-xs text-zinc-600 dark:text-zinc-300">Open</p>
             </div>
           </div>
+        </div>
+        <div className="group bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-4 hover:shadow-lg hover:-translate-y-1 hover:border-info-300 dark:hover:border-info-500/30 transition-all duration-300 cursor-pointer">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-info-100 dark:bg-info-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <FiMessageSquare className="w-5 h-5 text-info-600 dark:text-info-400" />
+            </div>
+            <div>
+              <p className="text-xl sm:text-2xl font-bold text-info-600 dark:text-info-400 font-mono">{stats?.openDataQChallenges || 0}</p>
+              <p className="text-xs text-zinc-600 dark:text-zinc-300">DataQ In Progress</p>
+            </div>
+          </div>
+        </div>
+        <div className="group bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-4 hover:shadow-lg hover:-translate-y-1 hover:border-success-300 dark:hover:border-success-500/30 transition-all duration-300 cursor-pointer">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-success-100 dark:bg-success-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <FiCheckCircle className="w-5 h-5 text-success-600 dark:text-success-400" />
+            </div>
+            <div>
+              <p className="text-xl sm:text-2xl font-bold text-success-600 dark:text-success-400 font-mono">
+                {stats?.byStatus?.find(s => s._id === 'resolved')?.count || 0}
+              </p>
+              <p className="text-xs text-zinc-600 dark:text-zinc-300">Resolved</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
-          {/* Data Table */}
-          <DataTable
-            columns={columns}
-            data={violations}
-            loading={loading}
-            page={page}
-            totalPages={totalPages}
-            onPageChange={setPage}
-            emptyMessage="No violations found"
-            emptyIcon={FiAlertTriangle}
-          />
-        </>
+      {/* Filters */}
+      <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-4">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <select
+            className="form-select"
+            value={statusFilter}
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setPage(1);
+            }}
+          >
+            <option value="">All Status</option>
+            <option value="open">Open</option>
+            <option value="dispute_in_progress">Dispute In Progress</option>
+            <option value="resolved">Resolved</option>
+            <option value="dismissed">Dismissed</option>
+            <option value="upheld">Upheld</option>
+          </select>
+          <select
+            className="form-select"
+            value={basicFilter}
+            onChange={(e) => {
+              setBasicFilter(e.target.value);
+              setPage(1);
+            }}
+          >
+            <option value="">All BASICs</option>
+            {Object.entries(basicCategories).map(([key, value]) => (
+              <option key={key} value={key}>{value.label}</option>
+            ))}
+          </select>
+          <select
+            className="form-select"
+            value={driverFilter}
+            onChange={(e) => {
+              setDriverFilter(e.target.value);
+              setPage(1);
+            }}
+          >
+            <option value="">All Drivers</option>
+            <option value="unassigned">Unassigned Only</option>
+            {drivers.map((driver) => (
+              <option key={driver._id} value={driver._id}>
+                {driver.firstName} {driver.lastName}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Data Table */}
+      <DataTable
+        columns={columns}
+        data={violations}
+        loading={loading}
+        page={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
+        emptyMessage="No violations found"
+        emptyIcon={FiAlertTriangle}
+      />
+      </>
       ) : (
         <InspectionUploadContent onSuccess={handleUploadSuccess} />
       )}
@@ -532,6 +537,7 @@ const ViolationsTabContent = ({ onRefresh }) => {
         size="lg"
       >
         <form onSubmit={handleSubmitViolation} className="space-y-5">
+          {/* Inspection Details */}
           <div className="flex items-center gap-2 mb-3">
             <div className="w-6 h-6 rounded-md bg-danger-100 dark:bg-danger-500/20 flex items-center justify-center">
               <FiFileText className="w-3.5 h-3.5 text-danger-600 dark:text-danger-400" />
@@ -613,6 +619,7 @@ const ViolationsTabContent = ({ onRefresh }) => {
             />
           </div>
 
+          {/* Associated Records */}
           <div className="border-t border-zinc-200 dark:border-zinc-800 pt-5">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-6 h-6 rounded-md bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
@@ -819,4 +826,4 @@ const ViolationsTabContent = ({ onRefresh }) => {
   );
 };
 
-export default ViolationsTabContent;
+export default Violations;

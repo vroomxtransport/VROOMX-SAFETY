@@ -278,31 +278,6 @@ npm run dev  # Starts on port 5173
 
 ## Changelog
 
-### 2026-01-30 (FMCSA Violation Details Integration)
-- **Feature:** FMCSA DataHub Violations Dataset Integration
-  - New method `syncViolationsFromDataHub()` in `backend/services/fmcsaInspectionService.js`
-    - Fetches individual violation records from FMCSA DataHub Violations dataset (7fxe-3ztr)
-    - Provides: violation code, description, BASIC category, severity weight, OOS status, time weight
-    - Links violations to existing inspections via `reportNumber`
-    - Populates `FMCSAInspection.violations[]` array with full details
-  - New method `parseDataHubViolation()` - Parses raw DataHub violation records to model format
-  - New method `syncAllFromDataHub()` - Combined sync of inspections and violation details
-  - New Routes added to `backend/routes/inspections.js`:
-    - `POST /api/inspections/fmcsa/sync-violations` - Sync violation details only
-    - `POST /api/inspections/fmcsa/sync-all` - Sync both inspections and violations
-- **API Client:** New methods added to `frontend/src/utils/api.js`
-  - `fmcsaInspectionsAPI.syncViolations()` - Trigger violation details sync
-  - `fmcsaInspectionsAPI.syncAll()` - Trigger full sync (inspections + violations)
-- **UI:** Updated Inspection History (InspectionsTabContent.jsx)
-  - "Sync from FMCSA" button now fetches both inspections AND violation details
-  - Expandable rows show full violation information (code, description, BASIC, severity, time weight)
-  - Shows message when violations exist but details not yet loaded
-  - Added section info display for violations
-- **Data Source:** FMCSA SMS Input - Violation dataset (`https://datahub.transportation.gov/resource/8mt8-2mdr.json`)
-  - Free, no authentication required
-  - Monthly updated SMS input data with violation details
-  - Includes violation codes, descriptions, BASIC categories, severity weights, OOS indicators, time weights
-
 ### 2026-01-30 (Driver-Level CSA Attribution - Phase 4)
 - **Feature:** Driver-Level CSA Attribution - Link violations to drivers and track CSA impact
   - New Service: `backend/services/driverCSAService.js` - Driver linking, CSA calculations, risk scoring

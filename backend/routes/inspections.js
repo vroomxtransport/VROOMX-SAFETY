@@ -78,54 +78,6 @@ router.post('/fmcsa/sync', checkPermission('violations', 'edit'), asyncHandler(a
   });
 }));
 
-// @route   POST /api/inspections/fmcsa/sync-datahub
-// @desc    Sync inspection records from FMCSA DataHub (data.transportation.gov)
-// @access  Private
-router.post('/fmcsa/sync-datahub', checkPermission('violations', 'edit'), asyncHandler(async (req, res) => {
-  const companyId = req.companyFilter.companyId;
-  const result = await fmcsaInspectionService.syncFromDataHub(companyId);
-
-  res.json({
-    success: result.success,
-    message: result.message,
-    imported: result.imported,
-    updated: result.updated,
-    total: result.total
-  });
-}));
-
-// @route   POST /api/inspections/fmcsa/sync-violations
-// @desc    Sync violation details from FMCSA DataHub Violations dataset
-// @access  Private
-router.post('/fmcsa/sync-violations', checkPermission('violations', 'edit'), asyncHandler(async (req, res) => {
-  const companyId = req.companyFilter.companyId;
-  const result = await fmcsaInspectionService.syncViolationsFromDataHub(companyId);
-
-  res.json({
-    success: result.success,
-    message: result.message,
-    imported: result.imported,
-    updated: result.updated,
-    notFound: result.notFound,
-    total: result.total
-  });
-}));
-
-// @route   POST /api/inspections/fmcsa/sync-all
-// @desc    Sync both inspections and violation details from FMCSA DataHub
-// @access  Private
-router.post('/fmcsa/sync-all', checkPermission('violations', 'edit'), asyncHandler(async (req, res) => {
-  const companyId = req.companyFilter.companyId;
-  const result = await fmcsaInspectionService.syncAllFromDataHub(companyId);
-
-  res.json({
-    success: result.success,
-    message: result.message,
-    inspections: result.inspections,
-    violations: result.violations
-  });
-}));
-
 // @route   GET /api/inspections/fmcsa/by-basic/:basic
 // @desc    Get inspections by BASIC category
 // @access  Private
