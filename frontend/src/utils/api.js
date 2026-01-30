@@ -9,15 +9,21 @@ const api = axios.create({
   }
 });
 
-// In-memory token storage (primary auth mechanism)
-let authToken = null;
+// Token storage with localStorage persistence for session survival across page refresh
+let authToken = localStorage.getItem('authToken') || null;
 
 export const setAuthToken = (token) => {
   authToken = token;
+  if (token) {
+    localStorage.setItem('authToken', token);
+  } else {
+    localStorage.removeItem('authToken');
+  }
 };
 
 export const clearAuthToken = () => {
   authToken = null;
+  localStorage.removeItem('authToken');
 };
 
 // Request interceptor — attach token to every request
