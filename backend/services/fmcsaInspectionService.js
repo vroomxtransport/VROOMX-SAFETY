@@ -472,6 +472,226 @@ const fmcsaInspectionService = {
       companyId
     });
     return !!result;
+  },
+
+  /**
+   * Parse SMS date format "DD-MMM-YY" (e.g., "07-OCT-24") to UTC Date
+   * @param {string} dateStr - Date string in DD-MMM-YY format
+   * @returns {Date} UTC Date at midnight
+   */
+  parseSMSDate(dateStr) {
+    if (!dateStr) return null;
+
+    const months = {
+      JAN: 0, FEB: 1, MAR: 2, APR: 3, MAY: 4, JUN: 5,
+      JUL: 6, AUG: 7, SEP: 8, OCT: 9, NOV: 10, DEC: 11
+    };
+
+    const parts = dateStr.split('-');
+    if (parts.length !== 3) return null;
+
+    const day = parseInt(parts[0], 10);
+    const monthStr = parts[1].toUpperCase();
+    const yearStr = parts[2];
+
+    const month = months[monthStr];
+    if (month === undefined) return null;
+
+    // Assume 20xx for 2-digit years
+    const year = parseInt(yearStr, 10) + 2000;
+
+    // Return UTC date at midnight to avoid timezone issues
+    return new Date(Date.UTC(year, month, day, 0, 0, 0, 0));
+  },
+
+  /**
+   * Parse a DataHub SMS violation record to model format
+   * @param {object} record - Raw SMS violation record
+   * @returns {object} Formatted violation
+   */
+  parseDataHubViolation(record) {
+    // Map BASIC codes to names
+    const basicNames = {
+      'HM': 'Hazardous Materials',
+      'VC': 'Vehicle Maintenance',
+      'DL': 'Driver Fitness',
+      'DS': 'Unsafe Driving',
+      'HOS': 'Hours of Service',
+      'CF': 'Controlled Substances',
+      'CR': 'Crash Indicator'
+    };
+
+    const basicCode = record.basic || record.basic_desc?.substring(0, 2)?.toUpperCase();
+
+    return {
+      code: record.violation_code || record.code,
+      description: record.description || record.violation_description || `Violation ${record.violation_code}`,
+      basic: basicNames[basicCode] || record.basic_desc || basicCode || 'Unknown',
+      severityWeight: parseInt(record.severity_weight, 10) || 5,
+      timeWeight: parseFloat(record.time_weight) || 1.0,
+      oos: record.oos === 'Y' || record.oos === true || record.out_of_service === 'Y',
+      unit: record.unit_type || record.unit || 'vehicle',
+      section: record.section_desc || null,
+      group: record.group_desc || null
+    };
+  },
+
+  /**
+   * Sync violation details from FMCSA DataHub SMS dataset
+   * @param {string} companyId - Company ID
+   * @returns {object} Sync result
+   */
+  async syncViolationsFromDataHub(companyId) {
+    try {
+      const company = await Company.findById(companyId);
+      if (!company?.dotNumber) {
+        return { success: false, message: 'Company DOT number not found' };
+      }
+
+      const dotNumber = company.dotNumber;
+      console.log(`[FMCSA Violations] Fetching violations for DOT ${dotNumber} from DataHub SMS dataset`);
+
+      // Fetch from SMS Input - Violation dataset (8mt8-2mdr)
+      const url = `https://datahub.transportation.gov/resource/8mt8-2mdr.json?$where=dot_number='${dotNumber}'&$limit=2000`;
+
+      const response = await fetch(url, {
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`DataHub API error: ${response.status}`);
+      }
+
+      const violations = await response.json();
+      console.log(`[FMCSA Violations] Fetched ${violations.length} violation records`);
+
+      if (violations.length === 0) {
+        return {
+          success: true,
+          message: 'No violation records found in DataHub',
+          matched: 0,
+          total: 0
+        };
+      }
+
+      // Group violations by unique_id (inspection identifier in SMS dataset)
+      const violationsByInspection = {};
+      for (const v of violations) {
+        const inspId = v.unique_id;
+        if (!inspId) continue;
+
+        if (!violationsByInspection[inspId]) {
+          violationsByInspection[inspId] = {
+            date: this.parseSMSDate(v.insp_date),
+            violations: []
+          };
+        }
+        violationsByInspection[inspId].violations.push(this.parseDataHubViolation(v));
+      }
+
+      console.log(`[FMCSA Violations] Grouped into ${Object.keys(violationsByInspection).length} inspections`);
+
+      // Match violations to stored inspections by date
+      let matchedCount = 0;
+      const inspectionIds = Object.keys(violationsByInspection);
+
+      for (const inspId of inspectionIds) {
+        const data = violationsByInspection[inspId];
+        if (!data.date) continue;
+
+        // Query for inspection on the same date (UTC day)
+        const startOfDay = new Date(Date.UTC(
+          data.date.getUTCFullYear(),
+          data.date.getUTCMonth(),
+          data.date.getUTCDate(),
+          0, 0, 0, 0
+        ));
+        const endOfDay = new Date(Date.UTC(
+          data.date.getUTCFullYear(),
+          data.date.getUTCMonth(),
+          data.date.getUTCDate(),
+          23, 59, 59, 999
+        ));
+
+        const inspection = await FMCSAInspection.findOne({
+          companyId,
+          inspectionDate: { $gte: startOfDay, $lte: endOfDay }
+        });
+
+        if (inspection) {
+          // Update inspection with violation details
+          inspection.violations = data.violations;
+          inspection.totalViolations = data.violations.length;
+          inspection.violationsSource = 'datahub_sms';
+          inspection.violationsSyncedAt = new Date();
+
+          // Recalculate time weights if the method exists
+          if (typeof inspection.calculateTimeWeights === 'function') {
+            inspection.calculateTimeWeights();
+          }
+
+          await inspection.save();
+          matchedCount++;
+        }
+      }
+
+      console.log(`[FMCSA Violations] Matched ${matchedCount} of ${inspectionIds.length} inspections with violations`);
+
+      return {
+        success: true,
+        message: `Matched ${matchedCount} of ${inspectionIds.length} inspections with violation details`,
+        matched: matchedCount,
+        total: inspectionIds.length,
+        violationCount: violations.length
+      };
+
+    } catch (error) {
+      console.error('[FMCSA Violations] Sync failed:', error.message);
+      return {
+        success: false,
+        message: error.message,
+        matched: 0
+      };
+    }
+  },
+
+  /**
+   * Sync both inspections and violations from DataHub
+   * @param {string} companyId - Company ID
+   * @returns {object} Combined sync result
+   */
+  async syncAllFromDataHub(companyId) {
+    try {
+      // First sync inspections
+      const inspResult = await this.syncFromSaferWebAPI(companyId);
+
+      // Then sync violation details
+      const violResult = await this.syncViolationsFromDataHub(companyId);
+
+      return {
+        success: true,
+        inspections: {
+          success: inspResult.success,
+          message: inspResult.message,
+          imported: inspResult.imported || 0
+        },
+        violations: {
+          success: violResult.success,
+          message: violResult.message,
+          matched: violResult.matched || 0,
+          total: violResult.total || 0
+        }
+      };
+
+    } catch (error) {
+      console.error('[FMCSA Sync All] Failed:', error.message);
+      return {
+        success: false,
+        message: error.message
+      };
+    }
   }
 };
 

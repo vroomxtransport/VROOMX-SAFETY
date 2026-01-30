@@ -95,13 +95,24 @@ const InspectionHistory = () => {
   const handleSync = async () => {
     setSyncing(true);
     try {
-      const response = await fmcsaInspectionsAPI.sync();
+      const response = await fmcsaInspectionsAPI.syncAll();
       if (response.data.success) {
-        toast.success(response.data.message);
+        const { inspections, violations } = response.data;
+        let message = '';
+        if (inspections?.imported > 0) {
+          message += `Imported ${inspections.imported} inspections. `;
+        }
+        if (violations?.matched > 0) {
+          message += `Matched ${violations.matched} inspections with violation details.`;
+        }
+        if (!message) {
+          message = 'Sync complete. No new data found.';
+        }
+        toast.success(message);
         fetchInspections();
         fetchStats();
       } else {
-        toast.error(response.data.message);
+        toast.error(response.data.message || 'Sync failed');
       }
     } catch (error) {
       toast.error('Sync failed');

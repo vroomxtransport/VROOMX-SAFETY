@@ -78,6 +78,37 @@ router.post('/fmcsa/sync', checkPermission('violations', 'edit'), asyncHandler(a
   });
 }));
 
+// @route   POST /api/inspections/fmcsa/sync-violations
+// @desc    Sync violation details from FMCSA DataHub SMS dataset
+// @access  Private
+router.post('/fmcsa/sync-violations', checkPermission('violations', 'edit'), asyncHandler(async (req, res) => {
+  const companyId = req.companyFilter.companyId;
+  const result = await fmcsaInspectionService.syncViolationsFromDataHub(companyId);
+
+  res.json({
+    success: result.success,
+    message: result.message,
+    matched: result.matched,
+    total: result.total,
+    violationCount: result.violationCount
+  });
+}));
+
+// @route   POST /api/inspections/fmcsa/sync-all
+// @desc    Sync both inspections and violation details
+// @access  Private
+router.post('/fmcsa/sync-all', checkPermission('violations', 'edit'), asyncHandler(async (req, res) => {
+  const companyId = req.companyFilter.companyId;
+  const result = await fmcsaInspectionService.syncAllFromDataHub(companyId);
+
+  res.json({
+    success: result.success,
+    message: result.message,
+    inspections: result.inspections,
+    violations: result.violations
+  });
+}));
+
 // @route   GET /api/inspections/fmcsa/by-basic/:basic
 // @desc    Get inspections by BASIC category
 // @access  Private
