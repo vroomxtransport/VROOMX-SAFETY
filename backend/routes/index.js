@@ -29,6 +29,7 @@ const maintenanceRoutes = require('./maintenance');
 const auditRoutes = require('./audit');
 const announcementRoutes = require('./announcements');
 const featureRoutes = require('./features');
+const scheduledReportRoutes = require('./scheduledReports');
 
 // Mount routes
 router.use('/auth', authRoutes);
@@ -59,5 +60,6 @@ router.use('/maintenance', maintenanceRoutes);
 router.use('/audit', auditRoutes);
 router.use('/announcements', announcementRoutes);
 router.use('/features', featureRoutes);
+router.use('/scheduled-reports', scheduledReportRoutes);
 
 module.exports = router;

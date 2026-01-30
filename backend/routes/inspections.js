@@ -8,10 +8,146 @@ const openaiVisionService = require('../services/openaiVisionService');
 const documentIntelligenceService = require('../services/documentIntelligenceService');
 const aiService = require('../services/aiService');
 const { lookupViolationCode, getViolationsByBasic, getOOSViolations, VIOLATION_CODES } = require('../config/violationCodes');
+const fmcsaInspectionService = require('../services/fmcsaInspectionService');
 const fs = require('fs').promises;
 
 router.use(protect);
 router.use(restrictToCompany);
+
+// ============================================================================
+// FMCSA Inspection History Routes (from SaferWebAPI or stored records)
+// ============================================================================
+
+// @route   GET /api/inspections/fmcsa/stats
+// @desc    Get inspection statistics
+// @access  Private
+// NOTE: Named routes must come BEFORE parameterized routes
+router.get('/fmcsa/stats', checkPermission('violations', 'view'), asyncHandler(async (req, res) => {
+  const companyId = req.companyFilter.companyId;
+  const stats = await fmcsaInspectionService.getInspectionStats(companyId);
+
+  res.json({
+    success: true,
+    stats
+  });
+}));
+
+// @route   GET /api/inspections/fmcsa/violations
+// @desc    Get all violations from stored inspections
+// @access  Private
+router.get('/fmcsa/violations', checkPermission('violations', 'view'), asyncHandler(async (req, res) => {
+  const companyId = req.companyFilter.companyId;
+  const { page, limit, basic, oosOnly } = req.query;
+
+  const result = await fmcsaInspectionService.getViolations(companyId, {
+    page, limit, basic, oosOnly
+  });
+
+  res.json({
+    success: true,
+    ...result
+  });
+}));
+
+// @route   GET /api/inspections/fmcsa/recent
+// @desc    Get recent inspections (for dashboard)
+// @access  Private
+router.get('/fmcsa/recent', checkPermission('violations', 'view'), asyncHandler(async (req, res) => {
+  const companyId = req.companyFilter.companyId;
+  const limit = parseInt(req.query.limit) || 5;
+
+  const inspections = await fmcsaInspectionService.getRecentInspections(companyId, limit);
+
+  res.json({
+    success: true,
+    inspections
+  });
+}));
+
+// @route   POST /api/inspections/fmcsa/sync
+// @desc    Sync inspection records from SaferWebAPI
+// @access  Private
+router.post('/fmcsa/sync', checkPermission('violations', 'edit'), asyncHandler(async (req, res) => {
+  const companyId = req.companyFilter.companyId;
+  const result = await fmcsaInspectionService.syncFromSaferWebAPI(companyId);
+
+  res.json({
+    success: result.success,
+    message: result.message,
+    imported: result.imported
+  });
+}));
+
+// @route   GET /api/inspections/fmcsa/by-basic/:basic
+// @desc    Get inspections by BASIC category
+// @access  Private
+router.get('/fmcsa/by-basic/:basic', checkPermission('violations', 'view'), asyncHandler(async (req, res) => {
+  const companyId = req.companyFilter.companyId;
+  const inspections = await fmcsaInspectionService.getInspectionsByBasic(companyId, req.params.basic);
+
+  res.json({
+    success: true,
+    count: inspections.length,
+    inspections
+  });
+}));
+
+// @route   GET /api/inspections/fmcsa
+// @desc    Get all FMCSA inspections with filters and pagination
+// @access  Private
+router.get('/fmcsa', checkPermission('violations', 'view'), asyncHandler(async (req, res) => {
+  const companyId = req.companyFilter.companyId;
+  const {
+    page, limit, basic, oosOnly, startDate, endDate, level, sortBy, sortOrder
+  } = req.query;
+
+  const result = await fmcsaInspectionService.getInspections(companyId, {
+    page, limit, basic, oosOnly, startDate, endDate, level, sortBy, sortOrder
+  });
+
+  res.json({
+    success: true,
+    ...result
+  });
+}));
+
+// @route   GET /api/inspections/fmcsa/:id
+// @desc    Get a single FMCSA inspection by ID
+// @access  Private
+router.get('/fmcsa/:id', checkPermission('violations', 'view'), asyncHandler(async (req, res) => {
+  const companyId = req.companyFilter.companyId;
+  const inspection = await fmcsaInspectionService.getInspectionById(companyId, req.params.id);
+
+  if (!inspection) {
+    throw new AppError('Inspection not found', 404);
+  }
+
+  res.json({
+    success: true,
+    inspection
+  });
+}));
+
+// @route   DELETE /api/inspections/fmcsa/:id
+// @desc    Delete an FMCSA inspection record
+// @access  Private
+router.delete('/fmcsa/:id', checkPermission('violations', 'delete'), asyncHandler(async (req, res) => {
+  const companyId = req.companyFilter.companyId;
+  const success = await fmcsaInspectionService.deleteInspection(companyId, req.params.id);
+
+  if (!success) {
+    throw new AppError('Inspection not found', 404);
+  }
+
+  res.json({
+    success: true,
+    message: 'Inspection deleted'
+  });
+}));
+
+// ============================================================================
+// AI Upload Routes (existing)
+// ============================================================================
 
 // @route   POST /api/inspections/upload
 // @desc    Upload and process DOT inspection report with AI

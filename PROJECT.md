@@ -278,6 +278,110 @@ npm run dev  # Starts on port 5173
 
 ## Changelog
 
+### 2026-01-30 (Driver-Level CSA Attribution - Phase 4)
+- **Feature:** Driver-Level CSA Attribution - Link violations to drivers and track CSA impact
+  - New Service: `backend/services/driverCSAService.js` - Driver linking, CSA calculations, risk scoring
+    - `linkViolationToDriver()` - Link violation to driver with audit trail
+    - `unlinkViolation()` - Remove driver link with audit trail
+    - `bulkLinkViolations()` - Bulk link multiple violations to a driver
+    - `getDriverViolations()` - Get violations linked to a driver
+    - `getDriverCSAImpact()` - Calculate risk score, BASIC breakdown, total points
+    - `getTopRiskDrivers()` - Get drivers ranked by CSA impact
+    - `getUnassignedViolations()` - Get violations without driver links
+  - New Routes added to `backend/routes/violations.js`:
+    - `GET /api/violations/unassigned` - Get unassigned violations
+    - `POST /api/violations/bulk-link` - Bulk link violations to driver
+    - `PUT /api/violations/:id/link-driver` - Link driver to violation
+    - `DELETE /api/violations/:id/link-driver` - Unlink driver from violation
+  - New Routes added to `backend/routes/drivers.js`:
+    - `GET /api/drivers/risk-ranking` - Get top risk drivers by CSA impact
+    - `GET /api/drivers/:id/csa` - Get driver's CSA impact and risk score
+    - `GET /api/drivers/:id/violations` - Get driver's linked violations
+- **UI:** Violations page driver linking
+  - Link Driver button for unassigned violations
+  - Driver dropdown selector modal
+  - Unlink button for assigned violations
+  - Driver filter (All/Unassigned/Specific driver)
+  - Driver name now links to driver profile
+  - Files: `frontend/src/pages/Violations.jsx`
+- **UI:** DriverDetail CSA Impact section
+  - Risk score indicator (High/Medium/Low)
+  - Total violations, points, and OOS count
+  - BASIC category breakdown with weighted points
+  - Recent violations list with unlink button
+  - Link to all driver violations
+  - Files: `frontend/src/pages/DriverDetail.jsx`
+- **Dashboard:** Top Risk Drivers card
+  - Shows top 5 drivers by CSA impact
+  - Risk level badge, violation count, weighted points
+  - Link to driver profile
+  - Files: `frontend/src/pages/Dashboard.jsx`
+- **API Client:** New methods added to `frontend/src/utils/api.js`
+  - driversAPI: `getRiskRanking()`, `getCSAImpact()`, `getViolations()`
+  - violationsAPI: `linkDriver()`, `unlinkDriver()`, `getUnassigned()`, `bulkLink()`
+
+### 2026-01-30 (FMCSA Inspection History - Phase 3)
+- **Feature:** FMCSA Inspection History - View detailed inspection records
+  - New Service: `backend/services/fmcsaInspectionService.js` - CRUD operations, filtering, stats, SaferWebAPI sync
+  - New Routes: Added to `backend/routes/inspections.js`:
+    - `GET /api/inspections/fmcsa` - List inspections with pagination and filters
+    - `GET /api/inspections/fmcsa/:id` - Single inspection detail
+    - `GET /api/inspections/fmcsa/stats` - Statistics and breakdown
+    - `GET /api/inspections/fmcsa/violations` - All violations from inspections
+    - `GET /api/inspections/fmcsa/recent` - Recent inspections for dashboard
+    - `POST /api/inspections/fmcsa/sync` - Trigger SaferWebAPI sync
+  - Uses existing `FMCSAInspection` model
+- **UI:** New Inspection History page at `/app/inspection-history`
+  - Table with sortable columns (date, state, level, violations)
+  - Expandable rows showing violation details (code, description, BASIC, severity, OOS)
+  - Filters: BASIC category, inspection level, date range, OOS only
+  - Export to CSV functionality
+  - Stats cards showing totals and OOS counts
+  - Files: `frontend/src/pages/InspectionHistory.jsx`, `frontend/src/utils/api.js`
+- **Dashboard:** Recent Inspections card added
+  - Shows last 5 inspections with status indicators
+  - Link to full inspection history
+  - File: `frontend/src/pages/Dashboard.jsx`
+
+### 2026-01-30 (Bug Fixes - Phase 1 & 2)
+- **Fix:** Route ordering bug in `backend/routes/scheduledReports.js`
+  - Moved `/types/available` route BEFORE `/:id` parameterized route
+  - Prevents Express from matching `/types/available` as an ID
+- **Fix:** Invalid enum value in `backend/models/ScheduledReport.js`
+  - Removed `null` from `lastRunStatus` enum array
+  - Mongoose handles null via `default: null`, not as enum value
+
+### 2026-01-29 (Automated Report Scheduling)
+- **Feature:** Automated Report Scheduling - Schedule recurring reports delivered via email
+  - New Model: `backend/models/ScheduledReport.js` - Stores schedule configuration (frequency, recipients, report type, time, etc.)
+  - New Service: `backend/services/scheduledReportService.js` - Handles CRUD, PDF generation to buffer, email delivery with attachments
+  - New Routes: `backend/routes/scheduledReports.js` - CRUD endpoints + run-now + toggle active status
+  - Cron Job: Added hourly scheduled report processor to `backend/server.js`
+  - Email Template: `backend/templates/scheduled-report.html` - Customized template for scheduled reports
+  - Supported report types: DQF, Vehicle Maintenance, Violations, Audit, CSA/SMS BASICs
+  - Frequencies: Daily, Weekly (choose day), Monthly (choose date)
+- **UI:** New Scheduled Reports page at `/app/scheduled-reports`
+  - List view with schedule status, next run time, last run status
+  - Create/Edit modal with frequency, day/time, recipient configuration
+  - Run Now button to trigger immediate report delivery
+  - Pause/Resume toggle for each schedule
+  - Delete with confirmation
+  - Files: `frontend/src/pages/ScheduledReports.jsx`, `frontend/src/App.jsx`, `frontend/src/utils/api.js`
+
+### 2026-01-29 (Industry Benchmarking Feature)
+- **Feature:** Industry Benchmarking - Compare carrier OOS rates against national averages
+  - Backend: New `GET /api/csa/benchmark` endpoint returning vehicle/driver OOS rates vs. FMCSA national averages (20.72% vehicle, 5.51% driver)
+  - Calculates status (better/average/worse) based on comparison to national rates
+  - Includes peer group classification (small/medium/large/enterprise based on fleet size)
+  - File: `backend/routes/csa.js`
+- **UI:** Benchmark card added to Dashboard
+  - Visual comparison bars showing your OOS rate vs national average
+  - Color-coded status indicators (green=better, yellow=average, red=worse)
+  - Overall status badge (Above Average / Mixed / Below Average)
+  - Inspection and OOS counts displayed
+  - Link to detailed compliance view
+  - Files: `frontend/src/pages/Dashboard.jsx`, `frontend/src/utils/api.js`
+
 ### 2026-01-29 (Data Integrity Monitor Cleanup)
 - **Feature:** Added cleanup functionality to Data Integrity Monitor admin panel
   - Delete orphaned records (records with missing/invalid companyId) by model or all at once

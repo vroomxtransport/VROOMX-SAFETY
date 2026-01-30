@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { dashboardAPI, csaAPI } from '../utils/api';
+import { dashboardAPI, csaAPI, fmcsaInspectionsAPI, driversAPI } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import {
   FiUsers, FiTruck, FiAlertTriangle, FiClock,
   FiCheckCircle, FiAlertCircle, FiFileText, FiShield,
   FiMessageCircle, FiArrowRight, FiRefreshCw, FiTrendingUp, FiTrendingDown, FiMinus,
-  FiGift
+  FiGift, FiBarChart2
 } from 'react-icons/fi';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
@@ -24,6 +24,9 @@ const Dashboard = () => {
   const [trendData, setTrendData] = useState(null);
   const [complianceData, setComplianceData] = useState(null);
   const [complianceHistory, setComplianceHistory] = useState([]);
+  const [benchmarkData, setBenchmarkData] = useState(null);
+  const [recentInspections, setRecentInspections] = useState([]);
+  const [topRiskDrivers, setTopRiskDrivers] = useState([]);
 
   useEffect(() => {
     fetchDashboard();
@@ -31,11 +34,14 @@ const Dashboard = () => {
 
   const fetchDashboard = async () => {
     try {
-      const [dashboardRes, trendRes, complianceRes, historyRes] = await Promise.all([
+      const [dashboardRes, trendRes, complianceRes, historyRes, benchmarkRes, inspectionsRes, riskDriversRes] = await Promise.all([
         dashboardAPI.get(),
         csaAPI.getTrendSummary(30).catch(() => null),
         dashboardAPI.getComplianceScore().catch(() => null),
-        dashboardAPI.getComplianceHistory(30).catch(() => null)
+        dashboardAPI.getComplianceHistory(30).catch(() => null),
+        csaAPI.getBenchmark().catch(() => null),
+        fmcsaInspectionsAPI.getRecent(5).catch(() => null),
+        driversAPI.getRiskRanking(5).catch(() => null)
       ]);
       setData(dashboardRes.data.dashboard);
       if (trendRes?.data) {
@@ -46,6 +52,15 @@ const Dashboard = () => {
       }
       if (historyRes?.data?.history) {
         setComplianceHistory(historyRes.data.history);
+      }
+      if (benchmarkRes?.data?.benchmark) {
+        setBenchmarkData(benchmarkRes.data.benchmark);
+      }
+      if (inspectionsRes?.data?.inspections) {
+        setRecentInspections(inspectionsRes.data.inspections);
+      }
+      if (riskDriversRes?.data?.drivers) {
+        setTopRiskDrivers(riskDriversRes.data.drivers);
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to load dashboard');
@@ -789,6 +804,266 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Industry Benchmark Card */}
+      {benchmarkData && (
+        <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl overflow-hidden shadow-sm">
+          <div className="p-5 border-b border-zinc-100 dark:border-white/5 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-500/10 flex items-center justify-center">
+                <FiBarChart2 className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-zinc-900 dark:text-white">Industry Benchmark</h3>
+                <p className="text-xs text-zinc-600 dark:text-zinc-300">Your OOS rates vs. national average</p>
+              </div>
+            </div>
+            <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${
+              benchmarkData.summary?.overallStatus === 'above_average'
+                ? 'bg-green-100 dark:bg-green-500/20 text-green-600 dark:text-green-400'
+                : benchmarkData.summary?.overallStatus === 'below_average'
+                ? 'bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400'
+                : 'bg-yellow-100 dark:bg-yellow-500/20 text-yellow-600 dark:text-yellow-400'
+            }`}>
+              {benchmarkData.summary?.overallStatus === 'above_average' ? 'Above Average' :
+               benchmarkData.summary?.overallStatus === 'below_average' ? 'Below Average' : 'Mixed'}
+            </span>
+          </div>
+          <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Vehicle OOS Rate */}
+            <div className="p-4 rounded-xl bg-zinc-50 dark:bg-white/5 border border-zinc-100 dark:border-white/5">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <FiTruck className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
+                  <span className="text-sm font-medium text-zinc-900 dark:text-white">Vehicle OOS Rate</span>
+                </div>
+                {benchmarkData.vehicle?.status === 'better' ? (
+                  <FiCheckCircle className="w-5 h-5 text-green-500" />
+                ) : benchmarkData.vehicle?.status === 'average' ? (
+                  <FiMinus className="w-5 h-5 text-yellow-500" />
+                ) : (
+                  <FiAlertTriangle className="w-5 h-5 text-red-500" />
+                )}
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-zinc-600 dark:text-zinc-400">You</span>
+                  <span className={`text-lg font-bold ${
+                    benchmarkData.vehicle?.status === 'better' ? 'text-green-600 dark:text-green-400' :
+                    benchmarkData.vehicle?.status === 'average' ? 'text-yellow-600 dark:text-yellow-400' :
+                    'text-red-600 dark:text-red-400'
+                  }`}>
+                    {benchmarkData.vehicle?.yourRate?.toFixed(1) || 0}%
+                  </span>
+                </div>
+                <div className="relative h-2 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden">
+                  <div
+                    className={`absolute top-0 left-0 h-full rounded-full ${
+                      benchmarkData.vehicle?.status === 'better' ? 'bg-green-500' :
+                      benchmarkData.vehicle?.status === 'average' ? 'bg-yellow-500' : 'bg-red-500'
+                    }`}
+                    style={{ width: `${Math.min(benchmarkData.vehicle?.yourRate || 0, 100)}%` }}
+                  />
+                  <div
+                    className="absolute top-0 h-full w-0.5 bg-zinc-800 dark:bg-white"
+                    style={{ left: `${Math.min(benchmarkData.vehicle?.nationalAverage || 20.72, 100)}%` }}
+                    title={`National Avg: ${benchmarkData.vehicle?.nationalAverage}%`}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-zinc-600 dark:text-zinc-400">National Avg</span>
+                  <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                    {benchmarkData.vehicle?.nationalAverage?.toFixed(1) || 20.72}%
+                  </span>
+                </div>
+              </div>
+              <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                {benchmarkData.vehicle?.inspections || 0} inspections, {benchmarkData.vehicle?.oosCount || 0} OOS
+              </p>
+            </div>
+
+            {/* Driver OOS Rate */}
+            <div className="p-4 rounded-xl bg-zinc-50 dark:bg-white/5 border border-zinc-100 dark:border-white/5">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <FiUsers className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
+                  <span className="text-sm font-medium text-zinc-900 dark:text-white">Driver OOS Rate</span>
+                </div>
+                {benchmarkData.driver?.status === 'better' ? (
+                  <FiCheckCircle className="w-5 h-5 text-green-500" />
+                ) : benchmarkData.driver?.status === 'average' ? (
+                  <FiMinus className="w-5 h-5 text-yellow-500" />
+                ) : (
+                  <FiAlertTriangle className="w-5 h-5 text-red-500" />
+                )}
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-zinc-600 dark:text-zinc-400">You</span>
+                  <span className={`text-lg font-bold ${
+                    benchmarkData.driver?.status === 'better' ? 'text-green-600 dark:text-green-400' :
+                    benchmarkData.driver?.status === 'average' ? 'text-yellow-600 dark:text-yellow-400' :
+                    'text-red-600 dark:text-red-400'
+                  }`}>
+                    {benchmarkData.driver?.yourRate?.toFixed(1) || 0}%
+                  </span>
+                </div>
+                <div className="relative h-2 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden">
+                  <div
+                    className={`absolute top-0 left-0 h-full rounded-full ${
+                      benchmarkData.driver?.status === 'better' ? 'bg-green-500' :
+                      benchmarkData.driver?.status === 'average' ? 'bg-yellow-500' : 'bg-red-500'
+                    }`}
+                    style={{ width: `${Math.min((benchmarkData.driver?.yourRate || 0) * 5, 100)}%` }}
+                  />
+                  <div
+                    className="absolute top-0 h-full w-0.5 bg-zinc-800 dark:bg-white"
+                    style={{ left: `${Math.min((benchmarkData.driver?.nationalAverage || 5.51) * 5, 100)}%` }}
+                    title={`National Avg: ${benchmarkData.driver?.nationalAverage}%`}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-zinc-600 dark:text-zinc-400">National Avg</span>
+                  <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                    {benchmarkData.driver?.nationalAverage?.toFixed(1) || 5.51}%
+                  </span>
+                </div>
+              </div>
+              <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                {benchmarkData.driver?.inspections || 0} inspections, {benchmarkData.driver?.oosCount || 0} OOS
+              </p>
+            </div>
+          </div>
+          {benchmarkData.summary?.lastUpdated && (
+            <div className="px-5 pb-4">
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 text-center">
+                Data synced: {new Date(benchmarkData.summary.lastUpdated).toLocaleDateString()} •{' '}
+                <Link to="/app/compliance" className="text-accent-500 hover:text-accent-600 dark:hover:text-accent-400">
+                  View Details
+                </Link>
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Recent Inspections Card */}
+      {recentInspections.length > 0 && (
+        <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl overflow-hidden shadow-sm">
+          <div className="bg-[#1E3A5F] px-5 py-4 flex items-center justify-between">
+            <h3 className="text-white font-semibold">RECENT INSPECTIONS</h3>
+            <Link to="/app/inspection-history" className="text-white/80 hover:text-white text-sm flex items-center">
+              View All <FiArrowRight className="ml-1 w-4 h-4" />
+            </Link>
+          </div>
+          <div className="divide-y divide-zinc-200 dark:divide-zinc-700">
+            {recentInspections.map((insp) => (
+              <div key={insp._id} className="px-5 py-3 flex items-center justify-between hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
+                <div className="flex items-center space-x-3">
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                    insp.vehicleOOS || insp.driverOOS
+                      ? 'bg-red-100 dark:bg-red-900/30'
+                      : (insp.totalViolations || 0) > 0
+                        ? 'bg-yellow-100 dark:bg-yellow-900/30'
+                        : 'bg-green-100 dark:bg-green-900/30'
+                  }`}>
+                    {insp.vehicleOOS || insp.driverOOS ? (
+                      <FiAlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+                    ) : (insp.totalViolations || 0) > 0 ? (
+                      <FiAlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+                    ) : (
+                      <FiCheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-zinc-800 dark:text-zinc-100">
+                      {insp.state || 'Unknown'} - Level {insp.inspectionLevel || '?'}
+                    </p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                      {new Date(insp.inspectionDate).toLocaleDateString()} • {insp.reportNumber}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className={`text-sm font-medium ${
+                    (insp.totalViolations || 0) > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'
+                  }`}>
+                    {insp.totalViolations || 0} violation{(insp.totalViolations || 0) !== 1 ? 's' : ''}
+                  </span>
+                  {(insp.vehicleOOS || insp.driverOOS) && (
+                    <p className="text-xs text-red-500">
+                      {insp.vehicleOOS && 'Vehicle OOS'}
+                      {insp.vehicleOOS && insp.driverOOS && ' • '}
+                      {insp.driverOOS && 'Driver OOS'}
+                    </p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Top Risk Drivers Card */}
+      {topRiskDrivers.length > 0 && (
+        <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl overflow-hidden shadow-sm">
+          <div className="bg-[#1E3A5F] px-5 py-4 flex items-center justify-between">
+            <h3 className="text-white font-semibold">TOP RISK DRIVERS</h3>
+            <Link to="/app/drivers" className="text-white/80 hover:text-white text-sm flex items-center">
+              View All <FiArrowRight className="ml-1 w-4 h-4" />
+            </Link>
+          </div>
+          <div className="divide-y divide-zinc-200 dark:divide-zinc-700">
+            {topRiskDrivers.map((driver) => (
+              <Link
+                key={driver._id}
+                to={`/app/drivers/${driver._id}`}
+                className="px-5 py-3 flex items-center justify-between hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors block"
+              >
+                <div className="flex items-center space-x-3">
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                    driver.riskLevel === 'High'
+                      ? 'bg-red-100 dark:bg-red-900/30'
+                      : driver.riskLevel === 'Medium'
+                        ? 'bg-yellow-100 dark:bg-yellow-900/30'
+                        : 'bg-green-100 dark:bg-green-900/30'
+                  }`}>
+                    <FiAlertTriangle className={`w-5 h-5 ${
+                      driver.riskLevel === 'High'
+                        ? 'text-red-600 dark:text-red-400'
+                        : driver.riskLevel === 'Medium'
+                          ? 'text-yellow-600 dark:text-yellow-400'
+                          : 'text-green-600 dark:text-green-400'
+                    }`} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-zinc-800 dark:text-zinc-100">
+                      {driver.fullName || `${driver.firstName} ${driver.lastName}`}
+                    </p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                      {driver.totalViolations} violation{driver.totalViolations !== 1 ? 's' : ''} • {driver.basicsAffected || 0} BASIC{(driver.basicsAffected || 0) !== 1 ? 's' : ''} affected
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className={`text-sm font-semibold px-2 py-1 rounded-full ${
+                    driver.riskLevel === 'High'
+                      ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+                      : driver.riskLevel === 'Medium'
+                        ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
+                        : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                  }`}>
+                    {Math.round(driver.totalWeightedPoints)} pts
+                  </span>
+                  {driver.oosCount > 0 && (
+                    <p className="text-xs text-red-500 mt-1">{driver.oosCount} OOS</p>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Compliance Trend Chart */}
       <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl overflow-hidden shadow-sm">

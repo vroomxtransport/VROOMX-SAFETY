@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { violationsAPI, driversAPI, vehiclesAPI } from '../utils/api';
 import { formatDate, basicCategories, getSeverityColor } from '../utils/helpers';
 import toast from 'react-hot-toast';
 import {
   FiPlus, FiSearch, FiAlertTriangle, FiMessageSquare, FiCheck,
-  FiCheckCircle, FiClock, FiX, FiFileText, FiUpload, FiList, FiEdit2, FiTrash2
+  FiCheckCircle, FiClock, FiX, FiFileText, FiUpload, FiList, FiEdit2, FiTrash2,
+  FiUserPlus, FiLink
 } from 'react-icons/fi';
 import DataTable from '../components/DataTable';
 import StatusBadge from '../components/StatusBadge';
@@ -24,10 +26,13 @@ const Violations = () => {
   const [stats, setStats] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDataQModal, setShowDataQModal] = useState(false);
+  const [showLinkDriverModal, setShowLinkDriverModal] = useState(false);
   const [selectedViolation, setSelectedViolation] = useState(null);
   const [drivers, setDrivers] = useState([]);
   const [vehicles, setVehicles] = useState([]);
   const [submitting, setSubmitting] = useState(false);
+  const [selectedDriverId, setSelectedDriverId] = useState('');
+  const [driverFilter, setDriverFilter] = useState('');
 
   const tabs = [
     { key: 'list', label: 'Violations List', icon: FiList },
@@ -55,20 +60,33 @@ const Violations = () => {
     fetchViolations();
     fetchStats();
     fetchDriversAndVehicles();
-  }, [page, statusFilter, basicFilter]);
+  }, [page, statusFilter, basicFilter, driverFilter]);
 
   const fetchViolations = async () => {
     setLoading(true);
     try {
-      const params = {
-        page,
-        limit: 15,
-        ...(statusFilter && { status: statusFilter }),
-        ...(basicFilter && { basic: basicFilter })
-      };
-      const response = await violationsAPI.getAll(params);
-      setViolations(response.data.violations);
-      setTotalPages(response.data.pages);
+      // Handle special "unassigned" filter
+      if (driverFilter === 'unassigned') {
+        const response = await violationsAPI.getUnassigned({
+          page,
+          limit: 15,
+          ...(statusFilter && { status: statusFilter }),
+          ...(basicFilter && { basic: basicFilter })
+        });
+        setViolations(response.data.violations);
+        setTotalPages(response.data.pagination?.pages || 1);
+      } else {
+        const params = {
+          page,
+          limit: 15,
+          ...(statusFilter && { status: statusFilter }),
+          ...(basicFilter && { basic: basicFilter }),
+          ...(driverFilter && driverFilter !== 'unassigned' && { driverId: driverFilter })
+        };
+        const response = await violationsAPI.getAll(params);
+        setViolations(response.data.violations);
+        setTotalPages(response.data.pages);
+      }
     } catch (error) {
       toast.error('Failed to fetch violations');
     } finally {
@@ -180,6 +198,44 @@ const Violations = () => {
     }
   };
 
+  const handleLinkDriver = async (e) => {
+    e.preventDefault();
+    if (!selectedDriverId) {
+      toast.error('Please select a driver');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await violationsAPI.linkDriver(selectedViolation._id, selectedDriverId);
+      toast.success('Driver linked to violation');
+      setShowLinkDriverModal(false);
+      setSelectedViolation(null);
+      setSelectedDriverId('');
+      fetchViolations();
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to link driver');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleUnlinkDriver = async (violation) => {
+    if (!confirm('Unlink driver from this violation?')) return;
+    try {
+      await violationsAPI.unlinkDriver(violation._id);
+      toast.success('Driver unlinked from violation');
+      fetchViolations();
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to unlink driver');
+    }
+  };
+
+  const openLinkDriverModal = (violation) => {
+    setSelectedViolation(violation);
+    setSelectedDriverId(violation.driverId?._id || '');
+    setShowLinkDriverModal(true);
+  };
+
   const columns = [
     {
       header: 'Date',
@@ -221,9 +277,17 @@ const Violations = () => {
     {
       header: 'Driver',
       render: (row) => (
-        <span className="text-sm text-zinc-700 dark:text-zinc-300">
-          {row.driverId ? `${row.driverId.firstName} ${row.driverId.lastName}` : 'N/A'}
-        </span>
+        row.driverId ? (
+          <Link
+            to={`/app/drivers/${row.driverId._id}`}
+            className="text-sm text-accent-600 dark:text-accent-400 hover:text-accent-700 dark:hover:text-accent-300 hover:underline"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {row.driverId.firstName} {row.driverId.lastName}
+          </Link>
+        ) : (
+          <span className="text-sm text-zinc-400 dark:text-zinc-500 italic">Unassigned</span>
+        )
       )
     },
     {
@@ -234,6 +298,30 @@ const Violations = () => {
       header: '',
       render: (row) => (
         <div className="flex items-center gap-1">
+          {/* Link/Unlink Driver Button */}
+          {!row.driverId ? (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                openLinkDriverModal(row);
+              }}
+              className="p-2 text-accent-600 dark:text-accent-400 hover:text-accent-700 dark:hover:text-accent-300 hover:bg-accent-50 dark:hover:bg-accent-500/20 rounded-lg transition-colors"
+              title="Link Driver"
+            >
+              <FiUserPlus className="w-4 h-4" />
+            </button>
+          ) : (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleUnlinkDriver(row);
+              }}
+              className="p-2 text-zinc-500 dark:text-zinc-400 hover:text-warning-600 dark:hover:text-warning-400 hover:bg-warning-50 dark:hover:bg-warning-500/20 rounded-lg transition-colors"
+              title="Unlink Driver"
+            >
+              <FiLink className="w-4 h-4" />
+            </button>
+          )}
           {row.status === 'open' && (
             <>
               <button
@@ -403,6 +491,22 @@ const Violations = () => {
             <option value="">All BASICs</option>
             {Object.entries(basicCategories).map(([key, value]) => (
               <option key={key} value={key}>{value.label}</option>
+            ))}
+          </select>
+          <select
+            className="form-select"
+            value={driverFilter}
+            onChange={(e) => {
+              setDriverFilter(e.target.value);
+              setPage(1);
+            }}
+          >
+            <option value="">All Drivers</option>
+            <option value="unassigned">Unassigned Only</option>
+            {drivers.map((driver) => (
+              <option key={driver._id} value={driver._id}>
+                {driver.firstName} {driver.lastName}
+              </option>
             ))}
           </select>
         </div>
@@ -650,6 +754,70 @@ const Violations = () => {
             </button>
             <button type="submit" className="btn btn-primary" disabled={submitting}>
               {submitting ? <LoadingSpinner size="sm" /> : 'Submit Challenge'}
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Link Driver Modal */}
+      <Modal
+        isOpen={showLinkDriverModal}
+        onClose={() => {
+          setShowLinkDriverModal(false);
+          setSelectedViolation(null);
+          setSelectedDriverId('');
+        }}
+        title="Link Driver to Violation"
+        icon={FiUserPlus}
+      >
+        <form onSubmit={handleLinkDriver} className="space-y-5">
+          <div className="p-4 rounded-xl bg-accent-50 dark:bg-accent-500/10 border border-accent-200 dark:border-accent-500/30">
+            <div className="flex items-start gap-3">
+              <FiAlertTriangle className="w-5 h-5 text-accent-600 dark:text-accent-400 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-accent-800 dark:text-accent-300">Violation:</p>
+                <p className="text-sm text-accent-700 dark:text-accent-400">{selectedViolation?.violationType}</p>
+                <p className="text-xs text-accent-600 dark:text-accent-500 mt-1">
+                  {selectedViolation?.violationDate && formatDate(selectedViolation.violationDate)} | {selectedViolation?.basic?.replace('_', ' ')}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Select Driver *</label>
+            <select
+              className="form-select"
+              required
+              value={selectedDriverId}
+              onChange={(e) => setSelectedDriverId(e.target.value)}
+            >
+              <option value="">Select a driver...</option>
+              {drivers.map((driver) => (
+                <option key={driver._id} value={driver._id}>
+                  {driver.firstName} {driver.lastName} {driver.employeeId && `(${driver.employeeId})`}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+              The selected driver will be associated with this violation for CSA impact tracking.
+            </p>
+          </div>
+
+          <div className="flex justify-end gap-3 pt-4 border-t border-zinc-100 dark:border-zinc-800">
+            <button
+              type="button"
+              onClick={() => {
+                setShowLinkDriverModal(false);
+                setSelectedViolation(null);
+                setSelectedDriverId('');
+              }}
+              className="btn btn-secondary"
+            >
+              Cancel
+            </button>
+            <button type="submit" className="btn btn-primary" disabled={submitting || !selectedDriverId}>
+              {submitting ? <LoadingSpinner size="sm" /> : 'Link Driver'}
             </button>
           </div>
         </form>

@@ -25,6 +25,8 @@ import DamageClaims from './pages/DamageClaims';
 import DrugAlcohol from './pages/DrugAlcohol';
 import Documents from './pages/Documents';
 import Reports from './pages/Reports';
+import ScheduledReports from './pages/ScheduledReports';
+import InspectionHistory from './pages/InspectionHistory';
 import Settings from './pages/Settings';
 import Billing from './pages/Billing';
 import RegulationAssistant from './pages/RegulationAssistant';
@@ -223,6 +225,8 @@ function App() {
           <Route path="documents" element={<Documents />} />
           <Route path="compliance" element={<Suspense fallback={<LoadingSpinner size="lg" />}><Compliance /></Suspense>} />
           <Route path="reports" element={<Reports />} />
+          <Route path="scheduled-reports" element={<ScheduledReports />} />
+          <Route path="inspection-history" element={<InspectionHistory />} />
           <Route path="settings" element={<Settings />} />
           <Route path="ai-assistant" element={<RegulationAssistant />} />
           <Route path="alerts" element={<AlertsDashboard />} />

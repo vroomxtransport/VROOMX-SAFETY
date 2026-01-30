@@ -253,7 +253,21 @@ app.listen(PORT, () => {
     }
   });
 
-  console.log('[Cron] Scheduled: Daily alerts at 6 AM, Alert digest emails, Escalation check every 6 hours, Trial ending check at 9 AM');
+  // Schedule report processing every hour
+  cron.schedule('0 * * * *', async () => {
+    console.log('[Cron] Processing scheduled reports...');
+    try {
+      const scheduledReportService = require('./services/scheduledReportService');
+      const result = await scheduledReportService.processAllDueReports();
+      if (result.total > 0) {
+        console.log(`[Cron] Scheduled reports: ${result.success} success, ${result.failed} failed`);
+      }
+    } catch (error) {
+      console.error('[Cron] Error processing scheduled reports:', error);
+    }
+  });
+
+  console.log('[Cron] Scheduled: Daily alerts at 6 AM, Alert digest emails, Escalation check every 6 hours, Trial ending check at 9 AM, Scheduled reports every hour');
 });
 
 // Handle uncaught exceptions — log and exit so process manager can restart

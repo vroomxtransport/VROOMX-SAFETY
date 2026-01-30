@@ -384,6 +384,74 @@ router.get('/compare', asyncHandler(async (req, res) => {
   });
 }));
 
+// @route   GET /api/csa/benchmark
+// @desc    Get industry benchmark comparison (OOS rates vs national averages)
+// @access  Private
+router.get('/benchmark', asyncHandler(async (req, res) => {
+  const companyId = req.companyFilter.companyId;
+  const Company = require('../models/Company');
+
+  const company = await Company.findById(companyId)
+    .select('fmcsaData.inspections fmcsaData.lastViolationSync fleetSize name');
+
+  if (!company) {
+    throw new AppError('Company not found', 404);
+  }
+
+  const inspections = company.fmcsaData?.inspections || {};
+
+  // Calculate benchmark comparisons
+  const vehicleOOS = inspections.vehicleOOSPercent || 0;
+  const vehicleNatl = inspections.vehicleNationalAvg || 20.72; // FMCSA 2024 national avg
+  const driverOOS = inspections.driverOOSPercent || 0;
+  const driverNatl = inspections.driverNationalAvg || 5.51; // FMCSA 2024 national avg
+
+  // Determine fleet size category for peer comparison
+  const powerUnits = company.fleetSize?.powerUnits || 1;
+  let peerGroup = 'small';
+  if (powerUnits > 200) peerGroup = 'enterprise';
+  else if (powerUnits > 50) peerGroup = 'large';
+  else if (powerUnits > 10) peerGroup = 'medium';
+
+  const benchmark = {
+    vehicle: {
+      yourRate: vehicleOOS,
+      nationalAverage: vehicleNatl,
+      difference: parseFloat((vehicleOOS - vehicleNatl).toFixed(2)),
+      status: vehicleOOS <= vehicleNatl ? 'better' : vehicleOOS <= vehicleNatl * 1.2 ? 'average' : 'worse',
+      inspections: inspections.vehicleInspections || 0,
+      oosCount: inspections.vehicleOOS || 0
+    },
+    driver: {
+      yourRate: driverOOS,
+      nationalAverage: driverNatl,
+      difference: parseFloat((driverOOS - driverNatl).toFixed(2)),
+      status: driverOOS <= driverNatl ? 'better' : driverOOS <= driverNatl * 1.2 ? 'average' : 'worse',
+      inspections: inspections.driverInspections || 0,
+      oosCount: inspections.driverOOS || 0
+    },
+    hazmat: {
+      inspections: inspections.hazmatInspections || 0,
+      oosCount: inspections.hazmatOOS || 0
+    },
+    summary: {
+      totalInspections: inspections.totalInspections || 0,
+      peerGroup,
+      fleetSize: powerUnits,
+      lastUpdated: company.fmcsaData?.lastViolationSync || null,
+      overallStatus: (vehicleOOS <= vehicleNatl && driverOOS <= driverNatl) ? 'above_average' :
+                     (vehicleOOS > vehicleNatl && driverOOS > driverNatl) ? 'below_average' : 'mixed'
+    }
+  };
+
+  res.json({
+    success: true,
+    benchmark,
+    companyName: company.name,
+    disclaimer: 'National averages are based on FMCSA published data. Your rates are from your most recent inspection data sync.'
+  });
+}));
+
 // @route   GET /api/csa/export
 // @desc    Export CSA history as CSV
 // @access  Private

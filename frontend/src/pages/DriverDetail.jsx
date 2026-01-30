@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { driversAPI } from '../utils/api';
-import { formatDate, daysUntilExpiry, getStatusConfig, formatPhone } from '../utils/helpers';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { driversAPI, violationsAPI } from '../utils/api';
+import { formatDate, daysUntilExpiry, getStatusConfig, formatPhone, basicCategories } from '../utils/helpers';
 import toast from 'react-hot-toast';
-import { FiArrowLeft, FiUpload, FiEdit2, FiFileText, FiCalendar, FiUser, FiPhone, FiMail, FiCheck, FiAlertCircle } from 'react-icons/fi';
+import { FiArrowLeft, FiUpload, FiEdit2, FiFileText, FiCalendar, FiUser, FiPhone, FiMail, FiCheck, FiAlertCircle, FiAlertTriangle, FiShield, FiLink } from 'react-icons/fi';
 import LoadingSpinner from '../components/LoadingSpinner';
 import StatusBadge from '../components/StatusBadge';
 import Modal from '../components/Modal';
@@ -15,9 +15,12 @@ const DriverDetail = () => {
   const [loading, setLoading] = useState(true);
   const [uploadModal, setUploadModal] = useState({ open: false, type: '' });
   const [uploading, setUploading] = useState(false);
+  const [csaData, setCsaData] = useState(null);
+  const [csaLoading, setCsaLoading] = useState(true);
 
   useEffect(() => {
     fetchDriver();
+    fetchCSAData();
   }, [id]);
 
   const fetchDriver = async () => {
@@ -29,6 +32,39 @@ const DriverDetail = () => {
       navigate('/app/drivers');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchCSAData = async () => {
+    setCsaLoading(true);
+    try {
+      const response = await driversAPI.getCSAImpact(id);
+      setCsaData(response.data);
+    } catch (error) {
+      // CSA data may not exist, that's okay
+      setCsaData(null);
+    } finally {
+      setCsaLoading(false);
+    }
+  };
+
+  const handleUnlinkViolation = async (violationId) => {
+    if (!confirm('Unlink this violation from the driver?')) return;
+    try {
+      await violationsAPI.unlinkDriver(violationId);
+      toast.success('Violation unlinked');
+      fetchCSAData();
+    } catch (error) {
+      toast.error('Failed to unlink violation');
+    }
+  };
+
+  const getRiskColor = (riskLevel) => {
+    switch (riskLevel) {
+      case 'High': return 'text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-500/20';
+      case 'Medium': return 'text-yellow-600 dark:text-yellow-400 bg-yellow-100 dark:bg-yellow-500/20';
+      case 'Low': return 'text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-500/20';
+      default: return 'text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-700';
     }
   };
 
@@ -344,6 +380,111 @@ const DriverDetail = () => {
                 </div>
               ) : (
                 <p className="text-zinc-600 dark:text-zinc-300 text-center py-4">No Clearinghouse query on file</p>
+              )}
+            </div>
+          </div>
+
+          {/* CSA Impact */}
+          <div className="card">
+            <div className="card-header flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <FiShield className="w-5 h-5 text-accent-600 dark:text-accent-400" />
+                <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">CSA Impact</h3>
+              </div>
+              {csaData && (
+                <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getRiskColor(csaData.riskLevel)}`}>
+                  {csaData.riskLevel} Risk
+                </span>
+              )}
+            </div>
+            <div className="card-body">
+              {csaLoading ? (
+                <div className="flex justify-center py-6">
+                  <LoadingSpinner size="sm" />
+                </div>
+              ) : csaData && csaData.totalViolations > 0 ? (
+                <div className="space-y-4">
+                  {/* Summary Stats */}
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="text-center p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg">
+                      <p className="text-2xl font-bold text-zinc-900 dark:text-white">{csaData.totalViolations}</p>
+                      <p className="text-xs text-zinc-600 dark:text-zinc-400">Violations</p>
+                    </div>
+                    <div className="text-center p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg">
+                      <p className="text-2xl font-bold text-zinc-900 dark:text-white">{Math.round(csaData.totalPoints)}</p>
+                      <p className="text-xs text-zinc-600 dark:text-zinc-400">Total Points</p>
+                    </div>
+                    <div className="text-center p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg">
+                      <p className="text-2xl font-bold text-red-600 dark:text-red-400">{csaData.oosViolations}</p>
+                      <p className="text-xs text-zinc-600 dark:text-zinc-400">OOS</p>
+                    </div>
+                  </div>
+
+                  {/* BASIC Breakdown */}
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400 mb-2">BASIC Categories</p>
+                    <div className="space-y-2">
+                      {Object.entries(csaData.basicBreakdown || {})
+                        .filter(([, data]) => data.count > 0)
+                        .sort((a, b) => b[1].weightedPoints - a[1].weightedPoints)
+                        .map(([basic, data]) => (
+                          <div key={basic} className="flex items-center justify-between p-2 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg">
+                            <span className="text-sm text-zinc-700 dark:text-zinc-300">{data.name}</span>
+                            <div className="flex items-center gap-3">
+                              <span className="text-xs text-zinc-500 dark:text-zinc-400">{data.count} violations</span>
+                              <span className="font-mono text-sm font-medium text-zinc-900 dark:text-white">{Math.round(data.weightedPoints)} pts</span>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+
+                  {/* Recent Violations */}
+                  {csaData.recentViolations?.length > 0 && (
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400 mb-2">Recent Violations</p>
+                      <div className="space-y-2">
+                        {csaData.recentViolations.map((violation) => (
+                          <div key={violation._id} className="flex items-center justify-between p-3 border border-zinc-200 dark:border-zinc-700 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
+                            <div className="flex-1">
+                              <p className="text-sm font-medium text-zinc-900 dark:text-white truncate">{violation.description}</p>
+                              <div className="flex items-center gap-2 mt-1">
+                                <span className="text-xs text-zinc-500 dark:text-zinc-400">{formatDate(violation.date)}</span>
+                                <span className="text-xs text-zinc-500 dark:text-zinc-400">•</span>
+                                <span className="text-xs text-zinc-500 dark:text-zinc-400 capitalize">{basicCategories?.[violation.basic]?.label || violation.basic?.replace('_', ' ')}</span>
+                                {violation.outOfService && (
+                                  <span className="text-xs px-1.5 py-0.5 bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-400 rounded">OOS</span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 ml-3">
+                              <span className="font-mono text-sm text-zinc-600 dark:text-zinc-300">{violation.severityWeight} pts</span>
+                              <button
+                                onClick={() => handleUnlinkViolation(violation._id)}
+                                className="p-1.5 text-zinc-400 hover:text-warning-600 dark:hover:text-warning-400 hover:bg-warning-50 dark:hover:bg-warning-500/20 rounded transition-colors"
+                                title="Unlink violation"
+                              >
+                                <FiLink className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <Link
+                        to={`/app/violations?driverId=${id}`}
+                        className="mt-3 block text-center text-sm text-accent-600 dark:text-accent-400 hover:text-accent-700 dark:hover:text-accent-300"
+                      >
+                        View all violations →
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-6">
+                  <FiShield className="w-12 h-12 text-green-500 mx-auto mb-3" />
+                  <p className="text-zinc-600 dark:text-zinc-300">No violations linked to this driver</p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Clean CSA record</p>
+                </div>
               )}
             </div>
           </div>

@@ -7,6 +7,7 @@ const { uploadMultiple, getFileUrl } = require('../middleware/upload');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const { VIOLATION_SEVERITY_WEIGHTS, calculateSeverityPoints } = require('../config/fmcsaCompliance');
 const auditService = require('../services/auditService');
+const driverCSAService = require('../services/driverCSAService');
 
 router.use(protect);
 router.use(restrictToCompany);
@@ -107,6 +108,58 @@ router.get('/severity-weights', checkPermission('violations', 'view'), (req, res
     severityWeights: VIOLATION_SEVERITY_WEIGHTS
   });
 });
+
+// @route   GET /api/violations/unassigned
+// @desc    Get violations without a linked driver
+// @access  Private
+// NOTE: This route MUST be before /:id to prevent Express from matching 'unassigned' as an ID
+router.get('/unassigned', checkPermission('violations', 'view'), asyncHandler(async (req, res) => {
+  const { page = 1, limit = 20, basic, sortBy = 'violationDate', sortOrder = 'desc' } = req.query;
+
+  const result = await driverCSAService.getUnassignedViolations(
+    req.companyFilter.companyId,
+    { page, limit, basic, sortBy, sortOrder }
+  );
+
+  res.json({
+    success: true,
+    ...result
+  });
+}));
+
+// @route   POST /api/violations/bulk-link
+// @desc    Bulk link multiple violations to a driver
+// @access  Private
+// NOTE: This route MUST be before /:id to prevent Express from matching 'bulk-link' as an ID
+router.post('/bulk-link', checkPermission('violations', 'edit'), [
+  body('violationIds').isArray({ min: 1 }).withMessage('At least one violation ID is required'),
+  body('violationIds.*').isMongoId().withMessage('Invalid violation ID'),
+  body('driverId').notEmpty().withMessage('Driver ID is required').isMongoId().withMessage('Invalid driver ID')
+], asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ success: false, errors: errors.array() });
+  }
+
+  const result = await driverCSAService.bulkLinkViolations(
+    req.body.violationIds,
+    req.body.driverId,
+    req.user._id,
+    req.companyFilter.companyId
+  );
+
+  auditService.log(req, 'update', 'violation', null, {
+    summary: 'Bulk driver link',
+    count: result.success,
+    driverId: req.body.driverId
+  });
+
+  res.json({
+    success: true,
+    message: `${result.success} violations linked successfully`,
+    ...result
+  });
+}));
 
 // @route   GET /api/violations/:id
 // @desc    Get single violation
@@ -385,5 +438,56 @@ router.post('/:id/documents', checkPermission('violations', 'edit'),
     });
   })
 );
+
+// @route   PUT /api/violations/:id/link-driver
+// @desc    Link a driver to a violation
+// @access  Private
+router.put('/:id/link-driver', checkPermission('violations', 'edit'), [
+  body('driverId').notEmpty().withMessage('Driver ID is required').isMongoId().withMessage('Invalid driver ID')
+], asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ success: false, errors: errors.array() });
+  }
+
+  const violation = await driverCSAService.linkViolationToDriver(
+    req.params.id,
+    req.body.driverId,
+    req.user._id,
+    req.companyFilter.companyId
+  );
+
+  auditService.log(req, 'update', 'violation', req.params.id, {
+    summary: 'Driver linked to violation',
+    driverId: req.body.driverId
+  });
+
+  res.json({
+    success: true,
+    message: 'Driver linked to violation successfully',
+    violation
+  });
+}));
+
+// @route   DELETE /api/violations/:id/link-driver
+// @desc    Unlink a driver from a violation
+// @access  Private
+router.delete('/:id/link-driver', checkPermission('violations', 'edit'), asyncHandler(async (req, res) => {
+  const violation = await driverCSAService.unlinkViolation(
+    req.params.id,
+    req.user._id,
+    req.companyFilter.companyId
+  );
+
+  auditService.log(req, 'update', 'violation', req.params.id, {
+    summary: 'Driver unlinked from violation'
+  });
+
+  res.json({
+    success: true,
+    message: 'Driver unlinked from violation successfully',
+    violation
+  });
+}));
 
 module.exports = router;

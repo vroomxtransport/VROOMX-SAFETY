@@ -80,7 +80,11 @@ export const driversAPI = {
   uploadDocument: (id, formData) => api.post(`/drivers/${id}/documents`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),
-  addMvr: (id, data) => api.post(`/drivers/${id}/mvr`, data)
+  addMvr: (id, data) => api.post(`/drivers/${id}/mvr`, data),
+  // CSA impact methods
+  getRiskRanking: (limit = 5) => api.get('/drivers/risk-ranking', { params: { limit } }),
+  getCSAImpact: (id) => api.get(`/drivers/${id}/csa`),
+  getViolations: (id, params) => api.get(`/drivers/${id}/violations`, { params })
 };
 
 export const vehiclesAPI = {
@@ -113,7 +117,12 @@ export const violationsAPI = {
   resolve: (id, data) => api.post(`/violations/${id}/resolve`, data),
   uploadDocuments: (id, formData) => api.post(`/violations/${id}/documents`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
-  })
+  }),
+  // Driver linking methods
+  linkDriver: (id, driverId) => api.put(`/violations/${id}/link-driver`, { driverId }),
+  unlinkDriver: (id) => api.delete(`/violations/${id}/link-driver`),
+  getUnassigned: (params) => api.get('/violations/unassigned', { params }),
+  bulkLink: (violationIds, driverId) => api.post('/violations/bulk-link', { violationIds, driverId })
 };
 
 export const drugAlcoholAPI = {
@@ -170,6 +179,28 @@ export const reportsAPI = {
   getVehicleMaintenanceReport: (params) => api.get('/reports/vehicle-maintenance', { params, responseType: params.format === 'pdf' ? 'blob' : 'json' }),
   getViolationsReport: (params) => api.get('/reports/violations', { params, responseType: params.format === 'pdf' ? 'blob' : 'json' }),
   getAuditReport: (params) => api.get('/reports/audit', { params, responseType: params.format === 'pdf' ? 'blob' : 'json' })
+};
+
+export const scheduledReportsAPI = {
+  getAll: (params) => api.get('/scheduled-reports', { params }),
+  getById: (id) => api.get(`/scheduled-reports/${id}`),
+  create: (data) => api.post('/scheduled-reports', data),
+  update: (id, data) => api.put(`/scheduled-reports/${id}`, data),
+  delete: (id, permanent = false) => api.delete(`/scheduled-reports/${id}`, { params: { permanent } }),
+  run: (id) => api.post(`/scheduled-reports/${id}/run`),
+  toggle: (id) => api.post(`/scheduled-reports/${id}/toggle`),
+  getAvailableTypes: () => api.get('/scheduled-reports/types/available')
+};
+
+export const fmcsaInspectionsAPI = {
+  getAll: (params) => api.get('/inspections/fmcsa', { params }),
+  getById: (id) => api.get(`/inspections/fmcsa/${id}`),
+  getByBasic: (basic) => api.get(`/inspections/fmcsa/by-basic/${basic}`),
+  getViolations: (params) => api.get('/inspections/fmcsa/violations', { params }),
+  getRecent: (limit = 5) => api.get('/inspections/fmcsa/recent', { params: { limit } }),
+  getStats: () => api.get('/inspections/fmcsa/stats'),
+  sync: () => api.post('/inspections/fmcsa/sync'),
+  delete: (id) => api.delete(`/inspections/fmcsa/${id}`)
 };
 
 export const ticketsAPI = {
@@ -285,7 +316,9 @@ export const csaAPI = {
   exportHistory: (days = 365, format = 'csv') => api.get('/csa/export', {
     params: { days, format },
     responseType: format === 'csv' ? 'blob' : 'json'
-  })
+  }),
+  // Industry benchmarking
+  getBenchmark: () => api.get('/csa/benchmark')
 };
 
 // FMCSA Inspection & Violation History API

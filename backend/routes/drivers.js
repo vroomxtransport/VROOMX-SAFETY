@@ -8,6 +8,7 @@ const { uploadSingle, getFileUrl } = require('../middleware/upload');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const { checkDriverLimit } = require('../middleware/subscriptionLimits');
 const auditService = require('../services/auditService');
+const driverCSAService = require('../services/driverCSAService');
 
 // Escape regex special characters to prevent NoSQL injection
 const escapeRegex = (str) => {
@@ -145,6 +146,24 @@ router.get('/stats', checkPermission('drivers', 'view'), asyncHandler(async (req
   });
 }));
 
+// @route   GET /api/drivers/risk-ranking
+// @desc    Get top risk drivers by CSA impact
+// @access  Private
+// NOTE: This route MUST be before /:id to prevent Express from matching 'risk-ranking' as an ID
+router.get('/risk-ranking', checkPermission('drivers', 'view'), asyncHandler(async (req, res) => {
+  const { limit = 5 } = req.query;
+
+  const drivers = await driverCSAService.getTopRiskDrivers(
+    req.companyFilter.companyId,
+    parseInt(limit)
+  );
+
+  res.json({
+    success: true,
+    drivers
+  });
+}));
+
 // @route   GET /api/drivers/:id
 // @desc    Get single driver
 // @access  Private
@@ -161,6 +180,39 @@ router.get('/:id', checkPermission('drivers', 'view'), asyncHandler(async (req, 
   res.json({
     success: true,
     driver
+  });
+}));
+
+// @route   GET /api/drivers/:id/csa
+// @desc    Get driver's CSA impact and risk score
+// @access  Private
+router.get('/:id/csa', checkPermission('drivers', 'view'), asyncHandler(async (req, res) => {
+  const impact = await driverCSAService.getDriverCSAImpact(
+    req.params.id,
+    req.companyFilter.companyId
+  );
+
+  res.json({
+    success: true,
+    ...impact
+  });
+}));
+
+// @route   GET /api/drivers/:id/violations
+// @desc    Get driver's linked violations
+// @access  Private
+router.get('/:id/violations', checkPermission('violations', 'view'), asyncHandler(async (req, res) => {
+  const { page = 1, limit = 20, basic, status, sortBy = 'violationDate', sortOrder = 'desc' } = req.query;
+
+  const result = await driverCSAService.getDriverViolations(
+    req.params.id,
+    req.companyFilter.companyId,
+    { page, limit, basic, status, sortBy, sortOrder }
+  );
+
+  res.json({
+    success: true,
+    ...result
   });
 }));
 
