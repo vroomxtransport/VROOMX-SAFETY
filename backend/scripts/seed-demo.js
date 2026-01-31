@@ -58,12 +58,34 @@ async function seedDemo() {
       console.log('Cleaned up existing demo data');
     }
 
-    // 1. Create Demo Company
+    // 1. Create Demo User first (company requires ownerId)
+    console.log('\nCreating demo user...');
+    const hashedPassword = await bcrypt.hash(DEMO_PASSWORD, 12);
+    const user = await User.create({
+      email: DEMO_EMAIL,
+      password: hashedPassword,
+      firstName: 'Demo',
+      lastName: 'User',
+      isDemo: true, // Special flag for demo accounts
+      isActive: true,
+      emailVerified: true,
+      companies: [], // Will be updated after company creation
+      subscription: {
+        plan: 'fleet',
+        status: 'active',
+        trialEndsAt: daysFromNow(30),
+        currentPeriodEnd: daysFromNow(30)
+      }
+    });
+    console.log(`Created user: ${user.email}`);
+
+    // 2. Create Demo Company with user as owner
     console.log('\nCreating demo company...');
     const company = await Company.create({
       name: DEMO_COMPANY_NAME,
       dotNumber: DEMO_DOT_NUMBER,
       mcNumber: 'MC-999999',
+      ownerId: user._id,
       phone: '(555) 123-4567',
       email: 'demo@demotrucking.com',
       address: '1234 Highway Drive, Dallas, TX 75001',
@@ -109,44 +131,25 @@ async function seedDemo() {
     });
     console.log(`Created company: ${company.name} (DOT# ${company.dotNumber})`);
 
-    // 2. Create Demo User
-    console.log('\nCreating demo user...');
-    const hashedPassword = await bcrypt.hash(DEMO_PASSWORD, 12);
-    const user = await User.create({
-      email: DEMO_EMAIL,
-      password: hashedPassword,
-      firstName: 'Demo',
-      lastName: 'User',
-      isDemo: true, // Special flag for demo accounts
+    // 3. Update user with company membership
+    console.log('\nLinking user to company...');
+    user.companies = [{
+      companyId: company._id,
+      role: 'admin',
       isActive: true,
-      emailVerified: true,
-      companies: [{
-        companyId: company._id,
-        role: 'admin',
-        isActive: true,
-        joinedAt: new Date(),
-        permissions: {
-          drivers: { view: true, edit: true, delete: true },
-          vehicles: { view: true, edit: true, delete: true },
-          violations: { view: true, edit: true, delete: true },
-          drugAlcohol: { view: true, edit: true, delete: true },
-          documents: { view: true, upload: true, delete: true },
-          reports: { view: true, export: true }
-        }
-      }],
-      activeCompanyId: company._id,
-      subscription: {
-        plan: 'fleet',
-        status: 'active',
-        trialEndsAt: daysFromNow(30),
-        currentPeriodEnd: daysFromNow(30)
+      joinedAt: new Date(),
+      permissions: {
+        drivers: { view: true, edit: true, delete: true },
+        vehicles: { view: true, edit: true, delete: true },
+        violations: { view: true, edit: true, delete: true },
+        drugAlcohol: { view: true, edit: true, delete: true },
+        documents: { view: true, upload: true, delete: true },
+        reports: { view: true, export: true }
       }
-    });
-
-    // Update company with owner
-    company.ownerId = user._id;
-    await company.save();
-    console.log(`Created user: ${user.email}`);
+    }];
+    user.activeCompanyId = company._id;
+    await user.save();
+    console.log(`Linked user to company: ${company.name}`);
 
     // 3. Create Demo Drivers
     console.log('\nCreating demo drivers...');
@@ -542,7 +545,8 @@ async function seedDemo() {
         entityType: 'driver',
         entityId: drivers[1]._id,
         status: 'active',
-        daysRemaining: -15
+        daysRemaining: -15,
+        deduplicationKey: `demo_driver_medical_${drivers[1]._id}`
       },
       {
         companyId: company._id,
@@ -553,7 +557,8 @@ async function seedDemo() {
         entityType: 'driver',
         entityId: drivers[0]._id,
         status: 'active',
-        daysRemaining: 45
+        daysRemaining: 45,
+        deduplicationKey: `demo_driver_cdl_${drivers[0]._id}`
       },
       {
         companyId: company._id,
@@ -564,7 +569,8 @@ async function seedDemo() {
         entityType: 'vehicle',
         entityId: vehicles[1]._id,
         status: 'active',
-        daysRemaining: -35
+        daysRemaining: -35,
+        deduplicationKey: `demo_vehicle_inspection_${vehicles[1]._id}`
       },
       {
         companyId: company._id,
@@ -575,7 +581,8 @@ async function seedDemo() {
         entityType: 'vehicle',
         entityId: vehicles[0]._id,
         status: 'active',
-        daysRemaining: 65
+        daysRemaining: 65,
+        deduplicationKey: `demo_vehicle_inspection_${vehicles[0]._id}`
       },
       {
         companyId: company._id,
@@ -583,7 +590,8 @@ async function seedDemo() {
         category: 'csa_score',
         title: 'Vehicle Maintenance BASIC Alert',
         message: 'Your Vehicle Maintenance BASIC is at 78%, above the 65% intervention threshold.',
-        status: 'active'
+        status: 'active',
+        deduplicationKey: 'demo_csa_vehicle_maintenance'
       },
       {
         companyId: company._id,
@@ -593,7 +601,8 @@ async function seedDemo() {
         message: 'The HOS violation from TX2024001234 may be eligible for DataQ challenge. Review details.',
         entityType: 'violation',
         entityId: violations[0]._id,
-        status: 'active'
+        status: 'active',
+        deduplicationKey: `demo_violation_challenge_${violations[0]._id}`
       },
       {
         companyId: company._id,
@@ -603,7 +612,8 @@ async function seedDemo() {
         message: 'Robert Wilson has a violation in the FMCSA Drug & Alcohol Clearinghouse. Review required.',
         entityType: 'driver',
         entityId: drivers[4]._id,
-        status: 'active'
+        status: 'active',
+        deduplicationKey: `demo_driver_clearinghouse_${drivers[4]._id}`
       }
     ]);
     console.log(`Created ${alerts.length} alerts`);
