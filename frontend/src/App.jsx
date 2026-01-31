@@ -3,68 +3,61 @@ import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import { FeatureFlagProvider } from './context/FeatureFlagContext';
 import Layout from './components/Layout';
+import Landing from './pages/Landing';
+import Blog from './pages/Blog';
+import CSACheckerPage from './pages/CSACheckerPage';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
+import Platform from './pages/Platform';
+import Pricing from './pages/Pricing';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import VerifyEmail from './pages/VerifyEmail';
+import ResetPassword from './pages/ResetPassword';
+import AcceptInvitation from './pages/AcceptInvitation';
+import Drivers from './pages/Drivers';
+import DriverDetail from './pages/DriverDetail';
+import Vehicles from './pages/Vehicles';
+import VehicleDetail from './pages/VehicleDetail';
+import Violations from './pages/Violations';
+import Tickets from './pages/Tickets';
+import DamageClaims from './pages/DamageClaims';
+import DrugAlcohol from './pages/DrugAlcohol';
+import Documents from './pages/Documents';
+import Reports from './pages/Reports';
+import ScheduledReports from './pages/ScheduledReports';
+import InspectionHistory from './pages/InspectionHistory';
+import Settings from './pages/Settings';
+import Billing from './pages/Billing';
+import RegulationAssistant from './pages/RegulationAssistant';
+import AlertsDashboard from './pages/AlertsDashboard';
+import TemplateGenerator from './pages/TemplateGenerator';
+import Tasks from './pages/Tasks';
+import Checklists from './pages/Checklists';
+import Maintenance from './pages/Maintenance';
+import Accidents from './pages/Accidents';
 import LoadingSpinner from './components/LoadingSpinner';
 import ChatWidget from './components/AIChat/ChatWidget';
+import NotFound from './pages/NotFound';
 
-// Lazy load all pages to reduce initial bundle size
-// Public pages
-const Landing = lazy(() => import('./pages/Landing'));
-const Blog = lazy(() => import('./pages/Blog'));
-const CSACheckerPage = lazy(() => import('./pages/CSACheckerPage'));
-const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
-const TermsOfService = lazy(() => import('./pages/TermsOfService'));
-const Platform = lazy(() => import('./pages/Platform'));
-const Pricing = lazy(() => import('./pages/Pricing'));
-
-// Auth pages
-const Login = lazy(() => import('./pages/Login'));
-const Register = lazy(() => import('./pages/Register'));
-const VerifyEmail = lazy(() => import('./pages/VerifyEmail'));
-const ResetPassword = lazy(() => import('./pages/ResetPassword'));
-const AcceptInvitation = lazy(() => import('./pages/AcceptInvitation'));
-
-// App pages
-const Drivers = lazy(() => import('./pages/Drivers'));
-const DriverDetail = lazy(() => import('./pages/DriverDetail'));
-const Vehicles = lazy(() => import('./pages/Vehicles'));
-const VehicleDetail = lazy(() => import('./pages/VehicleDetail'));
-const Violations = lazy(() => import('./pages/Violations'));
-const Tickets = lazy(() => import('./pages/Tickets'));
-const DamageClaims = lazy(() => import('./pages/DamageClaims'));
-const DrugAlcohol = lazy(() => import('./pages/DrugAlcohol'));
-const Documents = lazy(() => import('./pages/Documents'));
-const Reports = lazy(() => import('./pages/Reports'));
-const ScheduledReports = lazy(() => import('./pages/ScheduledReports'));
-const InspectionHistory = lazy(() => import('./pages/InspectionHistory'));
-const Settings = lazy(() => import('./pages/Settings'));
-const Billing = lazy(() => import('./pages/Billing'));
-const RegulationAssistant = lazy(() => import('./pages/RegulationAssistant'));
-const AlertsDashboard = lazy(() => import('./pages/AlertsDashboard'));
-const TemplateGenerator = lazy(() => import('./pages/TemplateGenerator'));
-const Tasks = lazy(() => import('./pages/Tasks'));
-const Checklists = lazy(() => import('./pages/Checklists'));
-const Maintenance = lazy(() => import('./pages/Maintenance'));
-const Accidents = lazy(() => import('./pages/Accidents'));
-const NotFound = lazy(() => import('./pages/NotFound'));
-
-// Chart-heavy pages
+// Lazy load chart-heavy pages to reduce initial bundle size
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Compliance = lazy(() => import('./pages/Compliance'));
 
 // Admin pages
-const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
-const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
-const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
-const AdminCompanies = lazy(() => import('./pages/admin/AdminCompanies'));
-const AdminAuditLogs = lazy(() => import('./pages/admin/AdminAuditLogs'));
-const AdminEmails = lazy(() => import('./pages/admin/AdminEmails'));
-const AdminAnnouncements = lazy(() => import('./pages/admin/AdminAnnouncements'));
-const AdminFeatureFlags = lazy(() => import('./pages/admin/AdminFeatureFlags'));
-const AdminDataIntegrity = lazy(() => import('./pages/admin/AdminDataIntegrity'));
+import AdminLayout from './pages/admin/AdminLayout';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminUsers from './pages/admin/AdminUsers';
+import AdminCompanies from './pages/admin/AdminCompanies';
+import AdminAuditLogs from './pages/admin/AdminAuditLogs';
+import AdminEmails from './pages/admin/AdminEmails';
+import AdminAnnouncements from './pages/admin/AdminAnnouncements';
+import AdminFeatureFlags from './pages/admin/AdminFeatureFlags';
+import AdminDataIntegrity from './pages/admin/AdminDataIntegrity';
 
-// Design demos
-const EnterpriseDemo = lazy(() => import('./pages/designs/EnterpriseDemo'));
-const MinimalistDemo = lazy(() => import('./pages/designs/MinimalistDemo'));
+// Design Demos
+import EnterpriseDemo from './pages/designs/EnterpriseDemo';
+import MinimalistDemo from './pages/designs/MinimalistDemo';
 
 // Protected route wrapper
 const ProtectedRoute = ({ children, allowPendingPayment = false }) => {
@@ -148,8 +141,7 @@ function App() {
 
   return (
     <FeatureFlagProvider>
-      <Suspense fallback={<LoadingSpinner size="lg" />}>
-        <Routes>
+      <Routes>
         {/* Landing page - public, redirects to dashboard if logged in */}
         <Route
           path="/"
@@ -221,7 +213,7 @@ function App() {
           }
         >
           <Route index element={<Navigate to="/app/dashboard" replace />} />
-          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="dashboard" element={<Suspense fallback={<LoadingSpinner size="lg" />}><Dashboard /></Suspense>} />
           <Route path="drivers" element={<Drivers />} />
           <Route path="drivers/:id" element={<DriverDetail />} />
           <Route path="vehicles" element={<Vehicles />} />
@@ -231,7 +223,7 @@ function App() {
           <Route path="damage-claims" element={<DamageClaims />} />
           <Route path="drug-alcohol" element={<DrugAlcohol />} />
           <Route path="documents" element={<Documents />} />
-          <Route path="compliance" element={<Compliance />} />
+          <Route path="compliance" element={<Suspense fallback={<LoadingSpinner size="lg" />}><Compliance /></Suspense>} />
           <Route path="reports" element={<Reports />} />
           <Route path="scheduled-reports" element={<ScheduledReports />} />
           <Route path="inspection-history" element={<Navigate to="/app/compliance" replace />} />
@@ -283,8 +275,7 @@ function App() {
 
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Suspense>
+      </Routes>
 
       {/* Floating AI Chat Widget - only show when authenticated */}
       {isAuthenticated && <ChatWidget />}
