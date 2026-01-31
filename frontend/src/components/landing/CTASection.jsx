@@ -13,10 +13,13 @@ const CTASection = () => {
         className={`max-w-3xl mx-auto relative z-10 transition-all duration-700 ${sectionInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
       >
         <h2 className="text-4xl md:text-6xl font-black text-white mb-8 tracking-tight font-heading">
-          Ready to Simplify <span className="text-transparent bg-clip-text bg-gradient-to-r from-cta-400 to-cta-500">Compliance?</span>
+          Stop Overpaying for <span className="text-transparent bg-clip-text bg-gradient-to-r from-cta-400 to-cta-500">Features You Don't Use.</span>
         </h2>
-        <p className="text-xl text-white/80 mb-10 max-w-xl mx-auto">
-          Join hundreds of owner-operators and small fleets who trust VroomX to keep them FMCSA compliant.
+        <p className="text-xl text-white/80 mb-4 max-w-xl mx-auto">
+          VroomX does document compliance. That's it.
+        </p>
+        <p className="text-lg text-white/60 mb-10 max-w-xl mx-auto">
+          No telematics you don't need. No enterprise pricing. Just audit-ready paperwork at a price that makes sense.
         </p>
         <Link
           to="/pricing"

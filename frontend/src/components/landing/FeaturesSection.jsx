@@ -227,11 +227,12 @@ const FeaturesSection = () => {
           className={`text-center mb-8 transition-all duration-700 ${headerInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         >
           <h2 className="font-serif text-4xl md:text-5xl font-semibold text-gray-800 mb-4 tracking-tight">
-            Compliance made <em className="italic text-[#FF6B4A]">simple</em>,
-            <br />so you can focus on the road.
+            Everything You Need for <em className="italic text-[#FF6B4A]">Compliance</em>.
+            <br />Nothing You Don't.
           </h2>
           <p className="text-lg text-gray-600 max-w-xl mx-auto">
-            Powerful tools for owner-operators and small fleets to stay DOT compliant without the headache.
+            No dashcams. No GPS tracking. No fuel cards. No dispatch software.
+            Just the tools that keep you audit-ready and off the FMCSA's radar.
           </p>
         </div>
 

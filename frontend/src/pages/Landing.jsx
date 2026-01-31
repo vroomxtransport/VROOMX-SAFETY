@@ -94,6 +94,60 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* Differentiation Section */}
+      <section className="py-20 px-6 md:px-16 relative z-10 bg-gradient-to-b from-white to-[#F8FAFC]">
+        <div className="max-w-5xl mx-auto text-center">
+          <div className="inline-block px-3 py-1 rounded-full border border-cta-500/30 bg-cta-500/10 text-cta-600 font-mono text-xs mb-6">
+            // WHAT MAKES US DIFFERENT
+          </div>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold tracking-tight mb-6 text-primary-500">
+            We're Not Trying to Replace Your ELD.
+          </h2>
+          <p className="text-lg text-zinc-600 leading-relaxed mb-12 max-w-3xl mx-auto">
+            The big telematics platforms are great at fleet tracking and GPS. But when the DOT auditor shows up asking for your driver's medical card from 18 months ago? When your CDL expires and nobody noticed? <span className="font-semibold text-primary-500">That's where they fall short. And that's ALL we do.</span>
+          </p>
+
+          {/* Comparison Grid */}
+          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            {/* What We Don't Do */}
+            <div className="bg-zinc-100 border border-zinc-200 rounded-2xl p-6 text-left">
+              <h3 className="text-lg font-bold text-zinc-500 mb-4 flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-zinc-300 flex items-center justify-center text-zinc-600 text-sm">✗</span>
+                What We Don't Do
+              </h3>
+              <ul className="space-y-3">
+                {['GPS Tracking', 'ELD / HOS Logging', 'Fuel Card Integration', 'Dashcams', 'Dispatch Software'].map((item, i) => (
+                  <li key={i} className="flex items-center gap-3 text-zinc-500">
+                    <span className="w-5 h-5 rounded-full bg-zinc-200 flex items-center justify-center text-xs">—</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* What We Do */}
+            <div className="bg-primary-500 border border-primary-600 rounded-2xl p-6 text-left">
+              <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-cta-500 flex items-center justify-center text-white text-sm">✓</span>
+                What We Do
+              </h3>
+              <ul className="space-y-3">
+                {['DQF File Management', 'Document Expiration Alerts', 'CSA Score Monitoring', 'DataQ Challenge Letters', 'Audit Prep & Compliance'].map((item, i) => (
+                  <li key={i} className="flex items-center gap-3 text-white">
+                    <span className="w-5 h-5 rounded-full bg-cta-500 flex items-center justify-center text-xs">✓</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <p className="mt-10 text-xl font-semibold text-zinc-700">
+            We do one thing. We do it well. We charge fairly for it.
+          </p>
+        </div>
+      </section>
+
       {/* Features Section */}
       <FeaturesSection features={features} />
 
@@ -105,20 +159,21 @@ const Landing = () => {
               // THE PROBLEM
             </div>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold tracking-tight mb-6 lg:mb-8 leading-tight text-primary-500">
-              Compliance is <span className="text-transparent bg-clip-text bg-gradient-to-r from-cta-500 to-cta-600">Complex.</span><br />
-              <span className="text-zinc-600">VroomX Safety Isn't.</span>
+              The DOT Doesn't Care<br />
+              <span className="text-zinc-600">That You're Busy.</span>
             </h2>
             <p className="text-lg text-zinc-600 leading-relaxed mb-10">
-              You're running a trucking business, not a filing cabinet. FMCSA requirements are complex, but your software
-              shouldn't be. Stop juggling spreadsheets and start automating your safety.
+              You've got loads to haul, drivers to manage, and a business to run. But FMCSA doesn't care.
+              Miss one expiration? Fine. Can't find a document during audit? Fine. The big carriers have entire compliance departments.
+              You have... a filing cabinet?
             </p>
 
             <div className="grid sm:grid-cols-2 gap-4">
               {[
-                { icon: FiAlertTriangle, title: 'Missed Expirations', desc: 'Medical cards and CDLs expiring without notice cost thousands in fines.', color: 'red' },
-                { icon: FiBarChart2, title: 'Rising BASICs', desc: 'One bad inspection can ruin your safety score for 24 months.', color: 'amber' },
-                { icon: FiFileText, title: 'Scattered Docs', desc: 'Driver files in one place, maintenance in another. Audit chaos.', color: 'primary' },
-                { icon: FiClipboard, title: 'Unfiled DataQs', desc: 'Wrong violations staying on your record because challenges are hard.', color: 'purple' }
+                { icon: FiAlertTriangle, title: '"I thought it was valid until June"', desc: 'One expired document = $16,000 fine. One driver out-of-service = $1,000/day.', color: 'red' },
+                { icon: FiBarChart2, title: '"My CSA went up and I don\'t know why"', desc: 'Violations stay on record 24 months. Every point costs you freight.', color: 'amber' },
+                { icon: FiFileText, title: '"The auditor asked for 2024 records"', desc: 'Paper gets lost. Email gets buried. Auditors don\'t care.', color: 'primary' },
+                { icon: FiClipboard, title: '"I could challenge it but no time"', desc: 'DataQ process is confusing on purpose. Most carriers just accept bad violations.', color: 'purple' }
               ].map((item, i) => (
                 <div key={i} className="bg-white border border-[#E2E8F0] p-4 rounded-xl flex items-start gap-4 hover:border-primary-500/30 hover:shadow-md transition-all">
                   <div className={`p-2 rounded-lg mt-1 ${

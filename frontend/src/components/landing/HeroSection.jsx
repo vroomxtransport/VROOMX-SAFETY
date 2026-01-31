@@ -35,10 +35,10 @@ const HeroSection = ({ heroTextIndex, heroTexts }) => {
           </div>
 
           <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-black leading-[1.1] tracking-tight mb-6 lg:mb-8 font-heading animate-fade-in-up text-white drop-shadow-lg">
-            TOTAL<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cta-500 to-cta-600">COMPLIANCE.</span><br />
+            STOP DROWNING IN<br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cta-500 to-cta-600">COMPLIANCE</span><br />
             <span className="inline-grid text-left">
-              <span className="invisible col-start-1 row-start-1">ZERO STRESS.</span>
+              <span className="invisible col-start-1 row-start-1">PAPERWORK.</span>
               <span
                 key={heroTextIndex}
                 className="typewriter-text col-start-1 row-start-1 text-white/90 drop-shadow-lg"
@@ -49,12 +49,11 @@ const HeroSection = ({ heroTextIndex, heroTexts }) => {
           </h1>
 
           <p className="text-white drop-shadow-md text-lg md:text-xl max-w-2xl mb-4 leading-relaxed font-medium animate-fade-in-up mx-auto lg:mx-0" style={{ animationDelay: '0.1s' }}>
-            The all-in-one platform for 49 CFR compliance. Track DQF files, maintenance, and SMS BASICs with
-            predictive alerts that keep you off the radar.
+            You're a trucker, not a filing clerk. VroomX handles DQF files, expirations, and audit prep — so you can focus on the road.
           </p>
 
           <p className="text-white/80 drop-shadow-md text-base md:text-lg max-w-xl mb-8 italic animate-fade-in-up mx-auto lg:mx-0" style={{ animationDelay: '0.12s' }}>
-            We empower small carriers to take control of compliance — not outsource it.
+            Not telematics. Not fleet management. Just the document compliance that keeps you out of trouble.
           </p>
 
           {/* Stats inline */}

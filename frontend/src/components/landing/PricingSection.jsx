@@ -21,10 +21,13 @@ const PricingSection = ({ isAnnual, setIsAnnual, pricingPlans }) => {
           className={`text-center max-w-3xl mx-auto mb-12 transition-all duration-700 ${headerInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         >
           <h2 className="text-3xl md:text-5xl font-heading font-extrabold text-gray-800 dark:text-white mb-4">
-            Choose Your <span className="text-cta-500">Plan</span>
+            Pricing That <span className="text-cta-500">Makes Sense</span>
           </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-300 mb-10">
-            No hidden fees. No long contracts. Cancel anytime.
+          <p className="text-lg text-gray-600 dark:text-gray-300 mb-4">
+            Enterprise telematics platforms charge $30-50/truck/month for features you'll never use.
+          </p>
+          <p className="text-base text-gray-500 dark:text-gray-400 mb-10">
+            We charge for what you actually need: document compliance. Nothing more.
           </p>
 
           {/* Toggle Pills */}

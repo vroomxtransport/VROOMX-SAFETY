@@ -1,6 +1,6 @@
 // Landing Page Data - Extracted from Landing.jsx for maintainability
 
-export const heroTexts = ['ZERO STRESS.', 'NO MESS.'];
+export const heroTexts = ['PAPERWORK.', 'AUDIT READY.', 'DOT READY.'];
 
 export const chatQA = [
   {
@@ -56,11 +56,19 @@ export const chatQA = [
 
 export const testimonials = [
   {
+    quote: 'I was paying $45/truck/month for a telematics platform and only using the compliance features. Switched to VroomX for <span class="text-primary-500 font-bold">$39/month total</span> for my 5-truck fleet. Same compliance tools, $180/month savings.',
+    name: 'James Mitchell',
+    role: 'Fleet Owner',
+    fleet: '5 Trucks',
+    featured: true,
+    image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&h=150&fit=crop&crop=face'
+  },
+  {
     quote: 'We went from missing expirations every month to <span class="text-primary-500 font-bold">zero compliance violations</span> in the past year. The SMS BASICs tracking alone has saved us from an intervention.',
     name: 'Sarah Jenkins',
     role: 'Safety Director',
     fleet: '45 Trucks',
-    featured: true,
+    featured: false,
     image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face'
   },
   {
@@ -119,6 +127,14 @@ export const blogPosts = [
 
 export const faqData = [
   {
+    question: "How is VroomX different from telematics platforms?",
+    answer: "Telematics platforms do fleet tracking, ELDs, dashcams, and dozens of other things — with compliance features bolted on. We ONLY do document compliance: DQF files, expiration tracking, CSA monitoring, and audit prep. If you already have an ELD you like, you don't need to replace it. We work alongside it. If you're paying $30-50/truck/month and only using the compliance features, you're overpaying."
+  },
+  {
+    question: "Do I need to switch from my current ELD?",
+    answer: "Nope. We're not an ELD. We're not trying to replace your telematics. Think of us as your compliance filing cabinet in the cloud. Your ELD tracks hours. We track documents. They work great together."
+  },
+  {
     question: "How does the free trial work?",
     answer: "Start your 3-day free trial with no credit card required. You get full access to all features in your chosen plan. If you love it, simply add your payment method to continue. If not, your account automatically pauses—no charges, no hassle."
   },
@@ -133,10 +149,6 @@ export const faqData = [
   {
     question: "What happens if I add more drivers?",
     answer: "Our pricing scales with your fleet. Solo plan includes 1 driver, Fleet includes 3 drivers (+$6/driver after), and Pro includes 10 drivers (+$5/driver after). You can add or remove drivers anytime from your dashboard."
-  },
-  {
-    question: "Do you integrate with ELD providers?",
-    answer: "Yes, we integrate with most major ELD providers including KeepTruckin, Samsara, and Omnitracs. This allows automatic Hours of Service data sync and violation monitoring."
   },
   {
     question: "How accurate is the CSA score checker?",
