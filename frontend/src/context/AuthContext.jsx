@@ -87,6 +87,26 @@ export const AuthProvider = ({ children }) => {
     return userData;
   };
 
+  const demoLogin = async () => {
+    const response = await api.post('/auth/demo-login');
+    const { token, user: userData } = response.data;
+    // Store token in memory for Authorization header
+    if (token) setAuthToken(token);
+
+    setUser({ ...userData, isDemo: true });
+    setCompanies(userData.companies || []);
+    setActiveCompany(userData.activeCompany || userData.company);
+    setSubscription({
+      plan: userData.subscription?.plan || 'fleet',
+      status: userData.subscription?.status || 'active',
+      trialEndsAt: userData.subscription?.trialEndsAt || null,
+      trialDaysRemaining: userData.subscription?.trialDaysRemaining || 30,
+      limits: userData.limits
+    });
+
+    return userData;
+  };
+
   const register = async (data) => {
     const response = await api.post('/auth/register', data);
     const { token, user: userData } = response.data;
@@ -187,7 +207,9 @@ export const AuthProvider = ({ children }) => {
     subscription,
     loading,
     isAuthenticated: !!user,
+    isDemo: user?.isDemo || false,
     login,
+    demoLogin,
     register,
     logout,
     switchCompany,

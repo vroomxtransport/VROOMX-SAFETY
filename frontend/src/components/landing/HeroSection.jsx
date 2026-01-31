@@ -1,8 +1,26 @@
-import { Link } from 'react-router-dom';
-import { FiArrowRight, FiPlay } from 'react-icons/fi';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { FiArrowRight, FiPlay, FiLoader } from 'react-icons/fi';
 import CSAChecker from '../CSAChecker';
+import { useAuth } from '../../context/AuthContext';
 
 const HeroSection = ({ heroTextIndex, heroTexts }) => {
+  const navigate = useNavigate();
+  const { demoLogin } = useAuth();
+  const [demoLoading, setDemoLoading] = useState(false);
+
+  const handleTryDemo = async () => {
+    setDemoLoading(true);
+    try {
+      await demoLogin();
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Demo login failed:', error);
+      alert('Demo is temporarily unavailable. Please try again later.');
+    } finally {
+      setDemoLoading(false);
+    }
+  };
   return (
     <section className="relative z-10 min-h-screen flex items-center justify-center pt-32 pb-24 px-6 md:px-16 overflow-hidden">
       {/* Background Image */}
@@ -82,13 +100,23 @@ const HeroSection = ({ heroTextIndex, heroTexts }) => {
               Get Started
               <FiArrowRight className="w-5 h-5" />
             </Link>
-            <a
-              href="#features"
-              className="px-8 py-4 rounded-xl font-bold text-white text-base tracking-wide border-2 border-white/40 bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all flex items-center justify-center gap-3 group"
+            <button
+              onClick={handleTryDemo}
+              disabled={demoLoading}
+              className="px-8 py-4 rounded-xl font-bold text-white text-base tracking-wide border-2 border-white/40 bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all flex items-center justify-center gap-3 group disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              View Demo
-              <FiPlay className="w-5 h-5 group-hover:translate-x-1 transition-transform text-white" />
-            </a>
+              {demoLoading ? (
+                <>
+                  <FiLoader className="w-5 h-5 animate-spin" />
+                  Loading Demo...
+                </>
+              ) : (
+                <>
+                  Try Live Demo
+                  <FiPlay className="w-5 h-5 group-hover:translate-x-1 transition-transform text-white" />
+                </>
+              )}
+            </button>
           </div>
         </div>
 

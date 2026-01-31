@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { demoGuard } = require('../middleware/demoGuard');
 
 const authRoutes = require('./auth');
 const driverRoutes = require('./drivers');
@@ -30,6 +31,9 @@ const auditRoutes = require('./audit');
 const announcementRoutes = require('./announcements');
 const featureRoutes = require('./features');
 const scheduledReportRoutes = require('./scheduledReports');
+
+// Apply demo guard globally - blocks write operations for demo users
+router.use(demoGuard);
 
 // Mount routes
 router.use('/auth', authRoutes);

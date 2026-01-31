@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import CompanySwitcher from './CompanySwitcher';
 import AnnouncementBanner from './AnnouncementBanner';
+import DemoBanner from './DemoBanner';
 import VroomXLogo from './VroomXLogo';
 import api, { driversAPI, vehiclesAPI, documentsAPI, violationsAPI, accidentsAPI } from '../utils/api';
 import {
@@ -713,6 +714,9 @@ const Layout = () => {
 
         {/* Announcement Banner */}
         <AnnouncementBanner />
+
+        {/* Demo Mode Banner */}
+        <DemoBanner />
 
         {/* Page content */}
         <main className="p-4 sm:p-6 lg:p-8">

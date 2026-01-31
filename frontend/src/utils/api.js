@@ -227,6 +227,7 @@ export const ticketsAPI = {
 export const authAPI = {
   login: (data) => api.post('/auth/login', data),
   register: (data) => api.post('/auth/register', data),
+  demoLogin: () => api.post('/auth/demo-login'),
   getMe: () => api.get('/auth/me'),
   updatePassword: (data) => api.put('/auth/updatepassword', data),
   updateEmailPreferences: (data) => api.put('/auth/email-preferences', data),

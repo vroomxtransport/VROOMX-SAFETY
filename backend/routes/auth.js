@@ -364,6 +364,88 @@ router.post('/login', [
   });
 }));
 
+// @route   POST /api/auth/demo-login
+// @desc    Login with demo account (read-only access)
+// @access  Public
+router.post('/demo-login', asyncHandler(async (req, res) => {
+  const DEMO_EMAIL = 'demo@vroomxsafety.com';
+
+  // Find demo user
+  const user = await User.findOne({ email: DEMO_EMAIL, isDemo: true })
+    .populate('companies.companyId')
+    .populate('activeCompanyId');
+
+  if (!user) {
+    return res.status(404).json({
+      success: false,
+      message: 'Demo account not available. Please try again later.'
+    });
+  }
+
+  // Get active company info
+  let activeCompany = null;
+  let activeRole = null;
+  let activePermissions = null;
+
+  if (user.companies && user.companies.length > 0) {
+    const firstActive = user.companies.find(c => c.isActive);
+    if (firstActive) {
+      activeCompany = firstActive.companyId;
+      activeRole = firstActive.role;
+      activePermissions = firstActive.permissions;
+    }
+  }
+
+  // Update last login
+  user.lastLogin = new Date();
+  await user.save({ validateBeforeSave: false });
+
+  const token = generateToken(user._id);
+  setTokenCookie(res, token);
+
+  // Build companies list for response
+  const companiesList = user.companies?.map(m => ({
+    id: m.companyId._id || m.companyId,
+    name: m.companyId.name,
+    dotNumber: m.companyId.dotNumber,
+    role: m.role,
+    isActive: m.isActive
+  })) || [];
+
+  auditService.logAuth(req, 'demo_login', { email: DEMO_EMAIL, userId: user._id });
+
+  res.json({
+    success: true,
+    token,
+    isDemo: true,
+    user: {
+      id: user._id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      isDemo: true,
+      isSuperAdmin: false,
+      subscription: {
+        plan: user.subscription?.plan || 'fleet',
+        status: 'active',
+        trialEndsAt: user.subscription?.trialEndsAt,
+        trialDaysRemaining: 30
+      },
+      limits: user.limits,
+      companies: companiesList,
+      activeCompany: activeCompany ? {
+        id: activeCompany._id,
+        name: activeCompany.name,
+        dotNumber: activeCompany.dotNumber,
+        mcNumber: activeCompany.mcNumber,
+        role: activeRole
+      } : null,
+      role: activeRole,
+      permissions: activePermissions
+    }
+  });
+}));
+
 // @route   GET /api/auth/me
 // @desc    Get current user with all company data
 // @access  Private
@@ -416,6 +498,7 @@ router.get('/me', protect, asyncHandler(async (req, res) => {
       firstName: user.firstName,
       lastName: user.lastName,
       isSuperAdmin: user.isSuperAdmin || false,
+      isDemo: user.isDemo || false,
       subscription: {
         plan: user.subscription?.plan || 'free_trial',
         status: user.subscription?.status || 'trialing',
