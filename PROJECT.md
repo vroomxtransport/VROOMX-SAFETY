@@ -296,6 +296,18 @@ npm run dev  # Starts on port 5173
   - Removed `engineStates` (least critical) to stay within Samsara's 4-type limit
   - Removed engine status display from Vehicle Detail telematics card
   - Files: `backend/services/samsaraService.js`, `frontend/src/pages/VehicleDetail.jsx`
+- **Feature:** Automatic Samsara data fetching
+  - **On page load**: Vehicle telematics auto-refresh when viewing a Samsara-linked vehicle detail page
+    - Silent background fetch (no loading spinner, errors logged but not shown)
+    - Manual refresh button still available as fallback
+    - File: `frontend/src/pages/VehicleDetail.jsx`
+  - **Hourly cron job**: Syncs all Samsara integrations with `autoSync: true`
+    - Runs at :30 past every hour
+    - Updates drivers, vehicles, DVIRs, and HOS data
+    - Updates `lastSyncAt` timestamp on success
+    - Logs errors per-integration without stopping other syncs
+    - File: `backend/server.js`
+  - Users can toggle auto-sync on/off from the Integrations page settings
 
 ### 2026-02-02 (Samsara Vehicle Telematics)
 - **Feature:** Samsara Vehicle Telematics - Pull real-time vehicle data from Samsara
