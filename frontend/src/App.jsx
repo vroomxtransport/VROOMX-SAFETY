@@ -224,7 +224,7 @@ function App() {
           <Route path="drivers/:id" element={<DriverDetail />} />
           <Route path="vehicles" element={<Vehicles />} />
           <Route path="vehicles/:id" element={<VehicleDetail />} />
-          <Route path="violations" element={<Navigate to="/app/compliance" replace />} />
+          <Route path="violations" element={<Violations />} />
           <Route path="tickets" element={<Tickets />} />
           <Route path="damage-claims" element={<DamageClaims />} />
           <Route path="drug-alcohol" element={<DrugAlcohol />} />
@@ -254,7 +254,7 @@ function App() {
         <Route path="/drivers/:id" element={<LegacyDriverRedirect />} />
         <Route path="/vehicles" element={<Navigate to="/app/vehicles" replace />} />
         <Route path="/vehicles/:id" element={<LegacyVehicleRedirect />} />
-        <Route path="/violations" element={<Navigate to="/app/compliance" replace />} />
+        <Route path="/violations" element={<Navigate to="/app/violations" replace />} />
         <Route path="/tickets" element={<Navigate to="/app/tickets" replace />} />
         <Route path="/damage-claims" element={<Navigate to="/app/damage-claims" replace />} />
         <Route path="/drug-alcohol" element={<Navigate to="/app/drug-alcohol" replace />} />

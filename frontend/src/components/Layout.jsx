@@ -27,6 +27,7 @@ const navigation = [
   // Management section
   { section: 'MANAGEMENT' },
   { name: 'FMCSA Dashboard', path: '/app/compliance', icon: FiBarChart2 },
+  { name: 'Violations', path: '/app/violations', icon: FiAlertTriangle },
   { name: 'DataQ Challenges', path: '/app/dataq-dashboard', icon: FiTarget, isAI: true },
   { name: 'Driver Files', path: '/app/drivers', icon: FiUsers },
   { name: 'Vehicle Files', path: '/app/vehicles', icon: FiTruck },
