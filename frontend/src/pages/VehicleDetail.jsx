@@ -109,6 +109,9 @@ const VehicleDetail = () => {
     totalCost: ''
   });
   const [refreshingTelematics, setRefreshingTelematics] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editFormData, setEditFormData] = useState(null);
+  const [editSubmitting, setEditSubmitting] = useState(false);
 
   useEffect(() => {
     fetchVehicle();
@@ -198,6 +201,50 @@ const VehicleDetail = () => {
     }
   };
 
+  const openEditModal = () => {
+    if (!vehicle) return;
+    setEditFormData({
+      unitNumber: vehicle.unitNumber || '',
+      nickname: vehicle.nickname || '',
+      vin: vehicle.vin || '',
+      vehicleType: vehicle.vehicleType || 'tractor',
+      make: vehicle.make || '',
+      model: vehicle.model || '',
+      year: vehicle.year || '',
+      marketPrice: vehicle.marketPrice || '',
+      licensePlate: {
+        number: vehicle.licensePlate?.number || '',
+        state: vehicle.licensePlate?.state || ''
+      },
+      status: vehicle.status || 'active',
+      color: vehicle.color || '',
+      dateAddedToFleet: vehicle.dateAddedToFleet ? vehicle.dateAddedToFleet.slice(0, 10) : '',
+      dateRemovedFromFleet: vehicle.dateRemovedFromFleet ? vehicle.dateRemovedFromFleet.slice(0, 10) : '',
+      cabCardExpiry: vehicle.cabCardExpiry ? vehicle.cabCardExpiry.slice(0, 10) : '',
+      annualExpiry: vehicle.annualExpiry ? vehicle.annualExpiry.slice(0, 10) : '',
+      gvwr: vehicle.gvwr || '',
+      tireSize: vehicle.tireSize || '',
+      ownership: vehicle.ownership || 'owned',
+      iftaDecalNumber: vehicle.iftaDecalNumber || ''
+    });
+    setShowEditModal(true);
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    setEditSubmitting(true);
+    try {
+      await vehiclesAPI.update(id, editFormData);
+      toast.success('Vehicle updated successfully');
+      setShowEditModal(false);
+      fetchVehicle();
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to update vehicle');
+    } finally {
+      setEditSubmitting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -281,7 +328,7 @@ const VehicleDetail = () => {
           {/* Right: Quick Actions */}
           <div className="flex flex-wrap items-center gap-2">
             <button
-              onClick={() => navigate(`/app/vehicles/${id}/edit`)}
+              onClick={openEditModal}
               className="btn btn-secondary btn-sm"
             >
               <FiEdit2 className="w-4 h-4 mr-1.5" />
@@ -995,6 +1042,290 @@ const VehicleDetail = () => {
             </button>
           </div>
         </form>
+      </Modal>
+
+      {/* Edit Vehicle Modal */}
+      <Modal
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        title="Edit Vehicle"
+        icon={FiTruck}
+        size="lg"
+      >
+        {editFormData && (
+          <form onSubmit={handleEditSubmit} className="space-y-5">
+            {/* Vehicle Identity Section */}
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-6 h-6 rounded-md bg-primary-100 dark:bg-zinc-800 flex items-center justify-center">
+                <FiTruck className="w-3.5 h-3.5 text-primary-600 dark:text-zinc-300" />
+              </div>
+              <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Vehicle Information</span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Unit Number *</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  required
+                  value={editFormData.unitNumber}
+                  onChange={(e) => setEditFormData({ ...editFormData, unitNumber: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Nickname</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  value={editFormData.nickname}
+                  onChange={(e) => setEditFormData({ ...editFormData, nickname: e.target.value })}
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">VIN *</label>
+                <input
+                  type="text"
+                  className="form-input font-mono"
+                  required
+                  value={editFormData.vin}
+                  onChange={(e) => setEditFormData({ ...editFormData, vin: e.target.value.toUpperCase() })}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Vehicle Type</label>
+                <select
+                  value={editFormData.vehicleType}
+                  onChange={(e) => setEditFormData({ ...editFormData, vehicleType: e.target.value })}
+                  className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+                >
+                  <option value="tractor">Tractor</option>
+                  <option value="trailer">Trailer</option>
+                  <option value="straight_truck">Straight Truck</option>
+                  <option value="bus">Bus</option>
+                  <option value="van">Van</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Status</label>
+                <select
+                  value={editFormData.status}
+                  onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
+                  className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+                >
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                  <option value="maintenance">In Maintenance</option>
+                  <option value="out_of_service">Out of Service</option>
+                  <option value="sold">Sold</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Year</label>
+                <input
+                  type="number"
+                  className="form-input"
+                  min="1900"
+                  max="2100"
+                  value={editFormData.year}
+                  onChange={(e) => setEditFormData({ ...editFormData, year: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Make</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  value={editFormData.make}
+                  onChange={(e) => setEditFormData({ ...editFormData, make: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Model</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  value={editFormData.model}
+                  onChange={(e) => setEditFormData({ ...editFormData, model: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Color</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  value={editFormData.color}
+                  onChange={(e) => setEditFormData({ ...editFormData, color: e.target.value })}
+                />
+              </div>
+            </div>
+
+            {/* License Plate Section */}
+            <div className="border-t border-zinc-200 dark:border-zinc-800 pt-5">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-6 h-6 rounded-md bg-accent-100 dark:bg-accent-500/20 flex items-center justify-center">
+                  <FiFileText className="w-3.5 h-3.5 text-accent-600 dark:text-accent-400" />
+                </div>
+                <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">License & Registration</span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">License Plate</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={editFormData.licensePlate.number}
+                    onChange={(e) => setEditFormData({
+                      ...editFormData,
+                      licensePlate: { ...editFormData.licensePlate, number: e.target.value.toUpperCase() }
+                    })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Plate State</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    maxLength={2}
+                    value={editFormData.licensePlate.state}
+                    onChange={(e) => setEditFormData({
+                      ...editFormData,
+                      licensePlate: { ...editFormData.licensePlate, state: e.target.value.toUpperCase() }
+                    })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Cab Card Expiry</label>
+                  <input
+                    type="date"
+                    className="form-input"
+                    value={editFormData.cabCardExpiry}
+                    onChange={(e) => setEditFormData({ ...editFormData, cabCardExpiry: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Annual Expiry</label>
+                  <input
+                    type="date"
+                    className="form-input"
+                    value={editFormData.annualExpiry}
+                    onChange={(e) => setEditFormData({ ...editFormData, annualExpiry: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">IFTA Decal Number</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={editFormData.iftaDecalNumber}
+                    onChange={(e) => setEditFormData({ ...editFormData, iftaDecalNumber: e.target.value })}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Specs Section */}
+            <div className="border-t border-zinc-200 dark:border-zinc-800 pt-5">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-6 h-6 rounded-md bg-success-100 dark:bg-success-500/20 flex items-center justify-center">
+                  <FiSettings className="w-3.5 h-3.5 text-success-600 dark:text-success-400" />
+                </div>
+                <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Specifications</span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">GVWR (lbs)</label>
+                  <input
+                    type="number"
+                    className="form-input"
+                    value={editFormData.gvwr}
+                    onChange={(e) => setEditFormData({ ...editFormData, gvwr: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Tire Size</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={editFormData.tireSize}
+                    onChange={(e) => setEditFormData({ ...editFormData, tireSize: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Ownership</label>
+                  <select
+                    value={editFormData.ownership}
+                    onChange={(e) => setEditFormData({ ...editFormData, ownership: e.target.value })}
+                    className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+                  >
+                    <option value="owned">Owned</option>
+                    <option value="leased">Leased</option>
+                    <option value="rented">Rented</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Market Price</label>
+                  <input
+                    type="number"
+                    className="form-input"
+                    step="0.01"
+                    value={editFormData.marketPrice}
+                    onChange={(e) => setEditFormData({ ...editFormData, marketPrice: e.target.value })}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Dates Section */}
+            <div className="border-t border-zinc-200 dark:border-zinc-800 pt-5">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-6 h-6 rounded-md bg-warning-100 dark:bg-warning-500/20 flex items-center justify-center">
+                  <FiCalendar className="w-3.5 h-3.5 text-warning-600 dark:text-warning-400" />
+                </div>
+                <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Fleet Dates</span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Date Added to Fleet</label>
+                  <input
+                    type="date"
+                    value={editFormData.dateAddedToFleet}
+                    onChange={(e) => setEditFormData({ ...editFormData, dateAddedToFleet: e.target.value })}
+                    className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+                  />
+                </div>
+                {(editFormData.status === 'sold' || editFormData.status === 'inactive') && (
+                  <div>
+                    <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Date Removed from Fleet</label>
+                    <input
+                      type="date"
+                      value={editFormData.dateRemovedFromFleet}
+                      onChange={(e) => setEditFormData({ ...editFormData, dateRemovedFromFleet: e.target.value })}
+                      className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-4 border-t border-zinc-100 dark:border-zinc-800">
+              <button
+                type="button"
+                onClick={() => setShowEditModal(false)}
+                className="btn btn-secondary"
+              >
+                Cancel
+              </button>
+              <button type="submit" className="btn btn-primary" disabled={editSubmitting}>
+                {editSubmitting ? <LoadingSpinner size="sm" /> : 'Update Vehicle'}
+              </button>
+            </div>
+          </form>
+        )}
       </Modal>
     </div>
   );
