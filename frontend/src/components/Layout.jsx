@@ -12,7 +12,7 @@ import {
   FiHome, FiUsers, FiTruck, FiAlertTriangle, FiDroplet,
   FiFolder, FiBarChart2, FiFileText, FiSettings, FiMenu,
   FiX, FiBell, FiLogOut, FiChevronDown, FiShield, FiTag, FiMessageCircle, FiDollarSign,
-  FiStar, FiCreditCard, FiActivity, FiCopy, FiSun, FiMoon,
+  FiStar, FiActivity, FiCopy, FiSun, FiMoon,
   FiChevronsLeft, FiChevronsRight, FiCheckSquare, FiClipboard, FiTool, FiAlertOctagon,
   FiBookOpen, FiLink, FiTarget
 } from 'react-icons/fi';

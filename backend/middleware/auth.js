@@ -175,20 +175,6 @@ const restrictToCompany = (req, res, next) => {
   next();
 };
 
-// Middleware to check subscription limits before creating resources
-const checkSubscriptionActive = (req, res, next) => {
-  const activeStatuses = ['trialing', 'active'];
-
-  if (!activeStatuses.includes(req.user.subscription?.status)) {
-    return res.status(403).json({
-      success: false,
-      message: 'Your subscription is not active. Please subscribe to continue.',
-      code: 'SUBSCRIPTION_INACTIVE'
-    });
-  }
-  next();
-};
-
 // Require owner or admin role for company management operations
 const requireCompanyAdmin = (req, res, next) => {
   if (!['owner', 'admin'].includes(req.userRole)) {
@@ -237,7 +223,6 @@ module.exports = {
   authorize,
   checkPermission,
   restrictToCompany,
-  checkSubscriptionActive,
   requireCompanyAdmin,
   requireCompanyOwner,
   requireSuperAdmin

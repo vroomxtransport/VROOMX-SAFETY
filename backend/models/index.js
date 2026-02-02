@@ -24,6 +24,8 @@ const FMCSAInspection = require('./FMCSAInspection');
 const ScheduledReport = require('./ScheduledReport');
 const SystemConfig = require('./SystemConfig');
 const Ticket = require('./Ticket');
+const Integration = require('./Integration');
+const SamsaraRecord = require('./SamsaraRecord');
 
 module.exports = {
   User,
@@ -51,5 +53,7 @@ module.exports = {
   FMCSAInspection,
   ScheduledReport,
   SystemConfig,
-  Ticket
+  Ticket,
+  Integration,
+  SamsaraRecord
 };

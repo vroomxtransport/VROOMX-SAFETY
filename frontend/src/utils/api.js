@@ -90,7 +90,9 @@ export const driversAPI = {
   // CSA impact methods
   getRiskRanking: (limit = 5) => api.get('/drivers/risk-ranking', { params: { limit } }),
   getCSAImpact: (id) => api.get(`/drivers/${id}/csa`),
-  getViolations: (id, params) => api.get(`/drivers/${id}/violations`, { params })
+  getViolations: (id, params) => api.get(`/drivers/${id}/violations`, { params }),
+  // Archive/restore methods
+  restore: (id) => api.patch(`/drivers/${id}/restore`)
 };
 
 export const vehiclesAPI = {
