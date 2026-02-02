@@ -8,6 +8,7 @@ const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const { VIOLATION_SEVERITY_WEIGHTS, calculateSeverityPoints } = require('../config/fmcsaCompliance');
 const auditService = require('../services/auditService');
 const driverCSAService = require('../services/driverCSAService');
+const dataQAnalysisService = require('../services/dataQAnalysisService');
 
 router.use(protect);
 router.use(restrictToCompany);
@@ -124,6 +125,136 @@ router.get('/unassigned', checkPermission('violations', 'view'), asyncHandler(as
   res.json({
     success: true,
     ...result
+  });
+}));
+
+// ==================== DataQ Challenge Routes ====================
+// NOTE: These routes MUST be before /:id to prevent Express from matching them as IDs
+
+// @route   GET /api/violations/dataq-opportunities
+// @desc    Get list of violations ranked by DataQ challenge potential
+// @access  Private
+router.get('/dataq-opportunities', checkPermission('violations', 'view'), asyncHandler(async (req, res) => {
+  const { minScore = 40, limit = 20, basic } = req.query;
+
+  const result = await dataQAnalysisService.identifyChallengeableViolations(
+    req.companyFilter.companyId,
+    {
+      minScore: parseInt(minScore),
+      limit: parseInt(limit),
+      basic
+    }
+  );
+
+  res.json({
+    success: true,
+    ...result
+  });
+}));
+
+// @route   GET /api/violations/dataq-dashboard
+// @desc    Get DataQ challenge dashboard statistics
+// @access  Private
+router.get('/dataq-dashboard', checkPermission('violations', 'view'), asyncHandler(async (req, res) => {
+  const stats = await dataQAnalysisService.getDataQDashboardStats(req.companyFilter.companyId);
+
+  res.json({
+    success: true,
+    stats
+  });
+}));
+
+// @route   PUT /api/violations/:id/dataq/letter
+// @desc    Save a generated DataQ letter to a violation
+// @access  Private
+// NOTE: This specific route pattern works because Express matches more specific routes first
+router.put('/:id/dataq/letter', checkPermission('violations', 'edit'), [
+  body('content').trim().notEmpty().withMessage('Letter content is required'),
+  body('challengeType').isIn(['data_error', 'policy_violation', 'procedural_error', 'not_responsible'])
+], asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ success: false, errors: errors.array() });
+  }
+
+  const violation = await Violation.findOne({
+    _id: req.params.id,
+    ...req.companyFilter
+  });
+
+  if (!violation) {
+    throw new AppError('Violation not found', 404);
+  }
+
+  // Save the letter
+  const updatedViolation = await dataQAnalysisService.saveGeneratedLetter(req.params.id, {
+    content: req.body.content,
+    challengeType: req.body.challengeType
+  });
+
+  violation.history.push({
+    action: 'dataq_letter_saved',
+    userId: req.user._id,
+    notes: `DataQ letter saved (${req.body.challengeType})`
+  });
+  await violation.save();
+
+  auditService.log(req, 'update', 'violation', req.params.id, {
+    summary: 'DataQ letter saved',
+    challengeType: req.body.challengeType
+  });
+
+  res.json({
+    success: true,
+    message: 'DataQ letter saved successfully',
+    violation: updatedViolation
+  });
+}));
+
+// @route   PUT /api/violations/:id/dataq/evidence
+// @desc    Update evidence checklist for a DataQ challenge
+// @access  Private
+router.put('/:id/dataq/evidence', checkPermission('violations', 'edit'), asyncHandler(async (req, res) => {
+  const { evidenceChecklist } = req.body;
+
+  if (!Array.isArray(evidenceChecklist)) {
+    return res.status(400).json({
+      success: false,
+      error: 'Evidence checklist must be an array'
+    });
+  }
+
+  const violation = await Violation.findOne({
+    _id: req.params.id,
+    ...req.companyFilter
+  });
+
+  if (!violation) {
+    throw new AppError('Violation not found', 404);
+  }
+
+  if (!violation.dataQChallenge) {
+    violation.dataQChallenge = {};
+  }
+
+  violation.dataQChallenge.evidenceChecklist = evidenceChecklist.map(item => ({
+    item: item.item,
+    required: item.required || false,
+    obtained: item.obtained || false,
+    documentUrl: item.documentUrl,
+    notes: item.notes
+  }));
+
+  await violation.save();
+
+  auditService.log(req, 'update', 'violation', req.params.id, {
+    summary: 'DataQ evidence checklist updated'
+  });
+
+  res.json({
+    success: true,
+    message: 'Evidence checklist updated',
+    violation
   });
 }));
 

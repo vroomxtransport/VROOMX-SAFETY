@@ -38,6 +38,7 @@ import Maintenance from './pages/Maintenance';
 import Accidents from './pages/Accidents';
 import Policies from './pages/Policies';
 import Integrations from './pages/Integrations';
+import DataQDashboard from './pages/DataQDashboard';
 import LoadingSpinner from './components/LoadingSpinner';
 import ChatWidget from './components/AIChat/ChatWidget';
 import NotFound from './pages/NotFound';
@@ -244,6 +245,7 @@ function App() {
           <Route path="accidents" element={<Accidents />} />
           <Route path="policies" element={<Policies />} />
           <Route path="integrations" element={<Integrations />} />
+          <Route path="dataq-dashboard" element={<DataQDashboard />} />
         </Route>
 
         {/* Legacy routes - redirect to /app prefix */}

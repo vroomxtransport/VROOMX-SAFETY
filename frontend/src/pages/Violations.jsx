@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import {
   FiPlus, FiSearch, FiAlertTriangle, FiMessageSquare, FiCheck,
   FiCheckCircle, FiClock, FiX, FiFileText, FiUpload, FiList, FiEdit2, FiTrash2,
-  FiUserPlus, FiLink
+  FiUserPlus, FiLink, FiTarget, FiZap
 } from 'react-icons/fi';
 import DataTable from '../components/DataTable';
 import StatusBadge from '../components/StatusBadge';
@@ -14,6 +14,8 @@ import Modal from '../components/Modal';
 import LoadingSpinner from '../components/LoadingSpinner';
 import TabNav from '../components/TabNav';
 import InspectionUploadContent from '../components/InspectionUploadContent';
+import DataQOpportunities from '../components/DataQOpportunities';
+import DataQLetterModal from '../components/DataQLetterModal';
 
 const Violations = () => {
   const [activeTab, setActiveTab] = useState('list');
@@ -27,15 +29,20 @@ const Violations = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDataQModal, setShowDataQModal] = useState(false);
   const [showLinkDriverModal, setShowLinkDriverModal] = useState(false);
+  const [showLetterModal, setShowLetterModal] = useState(false);
   const [selectedViolation, setSelectedViolation] = useState(null);
+  const [selectedOpportunity, setSelectedOpportunity] = useState(null);
   const [drivers, setDrivers] = useState([]);
   const [vehicles, setVehicles] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [selectedDriverId, setSelectedDriverId] = useState('');
   const [driverFilter, setDriverFilter] = useState('');
+  const [opportunities, setOpportunities] = useState([]);
+  const [opportunitiesLoading, setOpportunitiesLoading] = useState(false);
 
   const tabs = [
     { key: 'list', label: 'Violations List', icon: FiList },
+    { key: 'dataq', label: 'DataQ Opportunities', icon: FiTarget, badge: 'AI' },
     { key: 'upload', label: 'Upload Inspection', icon: FiUpload, badge: 'AI' }
   ];
 
@@ -61,6 +68,37 @@ const Violations = () => {
     fetchStats();
     fetchDriversAndVehicles();
   }, [page, statusFilter, basicFilter, driverFilter]);
+
+  useEffect(() => {
+    if (activeTab === 'dataq') {
+      fetchOpportunities();
+    }
+  }, [activeTab]);
+
+  const fetchOpportunities = async () => {
+    setOpportunitiesLoading(true);
+    try {
+      const response = await violationsAPI.getDataQOpportunities({ minScore: 40, limit: 15 });
+      setOpportunities(response.data.violations || []);
+    } catch (error) {
+      toast.error('Failed to fetch DataQ opportunities');
+    } finally {
+      setOpportunitiesLoading(false);
+    }
+  };
+
+  const handleAnalyzeOpportunity = (opportunity) => {
+    setSelectedOpportunity(opportunity);
+    setShowLetterModal(true);
+  };
+
+  const handleLetterGenerated = () => {
+    fetchOpportunities();
+    fetchViolations();
+    setShowLetterModal(false);
+    setSelectedOpportunity(null);
+    toast.success('DataQ letter generated successfully');
+  };
 
   const fetchViolations = async () => {
     setLoading(true);
@@ -292,7 +330,16 @@ const Violations = () => {
     },
     {
       header: 'Status',
-      render: (row) => <StatusBadge status={row.status} size="sm" />
+      render: (row) => (
+        <div className="flex items-center gap-2">
+          <StatusBadge status={row.status} size="sm" />
+          {row.dataQChallenge?.aiAnalysis?.score >= 75 && row.status === 'open' && (
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-accent-100 dark:bg-accent-500/20 text-accent-700 dark:text-accent-400" title="High DataQ potential">
+              <FiZap className="w-3 h-3" />
+            </span>
+          )}
+        </div>
+      )
     },
     {
       header: '',
@@ -406,7 +453,32 @@ const Violations = () => {
       <TabNav tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
 
       {/* Tab Content */}
-      {activeTab === 'list' ? (
+      {activeTab === 'dataq' ? (
+        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800">
+          <div className="p-5 border-b border-zinc-200 dark:border-zinc-800">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-accent-100 dark:bg-accent-500/20 flex items-center justify-center">
+                  <FiTarget className="w-4 h-4 text-accent-600 dark:text-accent-400" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold text-zinc-900 dark:text-white">AI-Identified Challenge Opportunities</h2>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">Violations with high potential for successful DataQ challenge</p>
+                </div>
+              </div>
+              <Link to="/app/dataq-dashboard" className="btn btn-secondary text-sm">
+                <FiTarget className="w-4 h-4" />
+                Full Dashboard
+              </Link>
+            </div>
+          </div>
+          <DataQOpportunities
+            opportunities={opportunities}
+            onAnalyze={handleAnalyzeOpportunity}
+            loading={opportunitiesLoading}
+          />
+        </div>
+      ) : activeTab === 'list' ? (
         <>
         {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -822,6 +894,20 @@ const Violations = () => {
           </div>
         </form>
       </Modal>
+
+      {/* DataQ Letter Modal */}
+      {showLetterModal && selectedOpportunity && (
+        <DataQLetterModal
+          isOpen={showLetterModal}
+          onClose={() => {
+            setShowLetterModal(false);
+            setSelectedOpportunity(null);
+          }}
+          violation={selectedOpportunity.violation}
+          analysis={selectedOpportunity.analysis}
+          onSuccess={handleLetterGenerated}
+        />
+      )}
     </div>
   );
 };

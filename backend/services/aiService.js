@@ -91,7 +91,84 @@ Guidelines:
 - Be factual and professional in tone
 - Reference specific regulatory requirements
 - Suggest concrete evidence that would support the challenge
-- Be honest about likelihood of success`
+- Be honest about likelihood of success`,
+
+  dataQChallengeAnalyzer: `You are an expert DataQ challenge analyst for FMCSA violations. Your role is to evaluate violations and determine their challengeability.
+
+Analyze the provided violation and return a JSON response with the following structure:
+{
+  "challengeability": {
+    "score": <number 0-100>,
+    "confidence": "<low|medium|high>",
+    "recommendation": "<strongly_recommend|recommend|neutral|not_recommended>"
+  },
+  "analysis": {
+    "strengths": ["<list of factors that support challenging this violation>"],
+    "weaknesses": ["<list of factors that work against challenging>"],
+    "keyConsiderations": ["<important factors to consider>"]
+  },
+  "challengeStrategy": {
+    "primaryApproach": "<data_error|policy_violation|procedural_error|not_responsible>",
+    "alternativeApproaches": ["<other viable approaches>"],
+    "cfrCitations": ["<relevant CFR citations that could support the challenge>"]
+  },
+  "evidence": {
+    "required": ["<documents/evidence that are essential>"],
+    "recommended": ["<additional evidence that would strengthen the case>"],
+    "helpful": ["<nice-to-have evidence>"]
+  },
+  "successLikelihood": {
+    "percentage": <number 0-100>,
+    "reasoning": "<brief explanation>"
+  },
+  "summary": "<2-3 sentence summary of the analysis>"
+}
+
+Consider these factors when analyzing:
+1. Violation age (newer = better for challenging)
+2. Severity weight and OOS status
+3. Common error patterns in similar violation codes
+4. Whether ELD/telematics data could provide contradicting evidence
+5. Documentation requirements and availability
+6. Historical success rates for similar challenges
+7. BASIC category and CSA impact
+
+Be realistic and honest in your assessments. Do not inflate scores to make users feel better.`,
+
+  dataQLetterGenerator: `You are a professional compliance letter writer specializing in FMCSA DataQ challenges. Generate formal, professional DataQ challenge letters that follow proper format and include appropriate CFR citations.
+
+Letter Format Requirements:
+1. Proper business letter format with date and addresses
+2. Clear subject line with inspection report number
+3. Professional, factual tone throughout
+4. Specific CFR citations supporting the challenge
+5. Clear statement of the challenge type and grounds
+6. Reference to attached supporting evidence
+7. Formal closing with signature block
+
+Letter Sections:
+1. INTRODUCTION: State the purpose and identify the violation being challenged
+2. BACKGROUND: Brief factual description of the inspection and violation
+3. GROUNDS FOR CHALLENGE: Detailed explanation of why the violation should be removed/modified
+4. REGULATORY REFERENCES: Cite specific 49 CFR sections that support your position
+5. SUPPORTING EVIDENCE: List and briefly describe attached documentation
+6. REQUESTED ACTION: Clearly state what you want (removal, modification, etc.)
+7. CLOSING: Professional closing with contact information
+
+Guidelines:
+- Use formal, professional language
+- Be specific and factual - avoid emotional appeals
+- Include exact dates, times, and reference numbers
+- Cite specific CFR sections (e.g., "49 CFR §391.51(b)(2)")
+- Reference the specific evidence that contradicts the violation
+- Keep the letter concise but complete (typically 1-2 pages)
+- End with a clear call to action
+
+Do NOT include:
+- Emotional language or complaints about unfair treatment
+- Threats or accusations of misconduct
+- Irrelevant information about the carrier's history
+- Speculation without supporting evidence`
 };
 
 /**
@@ -245,11 +322,124 @@ Draft a professional DataQ challenge letter.`;
   return query('dataQAssistant', message, { maxTokens: 2000 });
 }
 
+/**
+ * Analyze a violation for DataQ challenge potential using AI
+ * @param {Object} violationData - Violation details
+ * @returns {Promise<Object>} AI analysis in JSON format
+ */
+async function analyzeDataQChallenge(violationData) {
+  const { violation, companyInfo } = violationData;
+
+  const message = `Analyze this violation for DataQ challenge potential:
+
+Violation Details:
+- Code: ${violation.violationCode || 'Not specified'}
+- Type: ${violation.violationType}
+- Description: ${violation.description}
+- Date: ${violation.violationDate}
+- BASIC Category: ${violation.basic}
+- Severity Weight: ${violation.severityWeight}/10
+- Out of Service: ${violation.outOfService ? 'Yes' : 'No'}
+- Inspection Number: ${violation.inspectionNumber}
+- Location: ${violation.location?.city || ''}, ${violation.location?.state || ''}
+
+${violation.driverId ? `Driver: ${violation.driverId.firstName} ${violation.driverId.lastName}` : 'Driver: Not assigned'}
+${violation.vehicleId ? `Vehicle: ${violation.vehicleId.unitNumber}` : 'Vehicle: Not specified'}
+
+${companyInfo ? `Company DOT Number: ${companyInfo.dotNumber}` : ''}
+
+Previous Challenge Status: ${violation.dataQChallenge?.submitted ? violation.dataQChallenge.status : 'Never challenged'}
+
+Provide your analysis in JSON format as specified in your instructions.`;
+
+  const response = await query('dataQChallengeAnalyzer', message, { maxTokens: 2000 });
+
+  // Try to parse the JSON response
+  try {
+    // Extract JSON from the response (it might be wrapped in markdown code blocks)
+    let jsonContent = response.content;
+    const jsonMatch = jsonContent.match(/```(?:json)?\s*([\s\S]*?)```/);
+    if (jsonMatch) {
+      jsonContent = jsonMatch[1];
+    }
+    const parsed = JSON.parse(jsonContent.trim());
+    return {
+      success: true,
+      analysis: parsed,
+      usage: response.usage
+    };
+  } catch (parseError) {
+    // Return the raw content if JSON parsing fails
+    return {
+      success: true,
+      analysis: null,
+      rawContent: response.content,
+      usage: response.usage
+    };
+  }
+}
+
+/**
+ * Generate a professional DataQ challenge letter
+ * @param {Object} letterData - Data for letter generation
+ * @returns {Promise<Object>} Generated letter content
+ */
+async function generateDataQLetter(letterData) {
+  const { violation, challengeType, reason, companyInfo, evidenceList } = letterData;
+
+  const challengeTypeDescriptions = {
+    data_error: 'Data Error - The factual information in the inspection report is incorrect',
+    policy_violation: 'Policy Violation - The inspector did not follow proper FMCSA procedures',
+    procedural_error: 'Procedural Error - The inspection was not conducted according to guidelines',
+    not_responsible: 'Not Responsible - The carrier/driver should not be held responsible'
+  };
+
+  const message = `Generate a professional DataQ challenge letter with the following information:
+
+VIOLATION BEING CHALLENGED:
+- Inspection Report Number: ${violation.inspectionNumber}
+- Violation Code: ${violation.violationCode || 'Not specified'}
+- Violation Type: ${violation.violationType}
+- Description: ${violation.description}
+- Date of Inspection: ${violation.violationDate}
+- Location: ${violation.location?.city || ''}, ${violation.location?.state || ''}
+- BASIC Category: ${violation.basic}
+- Severity Weight: ${violation.severityWeight}/10
+- Out of Service: ${violation.outOfService ? 'Yes' : 'No'}
+
+CHALLENGE DETAILS:
+- Challenge Type: ${challengeTypeDescriptions[challengeType] || challengeType}
+- Grounds for Challenge: ${reason}
+
+CARRIER INFORMATION:
+- Company Name: ${companyInfo?.name || '[COMPANY NAME]'}
+- DOT Number: ${companyInfo?.dotNumber || '[DOT NUMBER]'}
+- Address: ${companyInfo?.address || '[ADDRESS]'}
+- Contact Email: ${companyInfo?.email || '[EMAIL]'}
+- Contact Phone: ${companyInfo?.phone || '[PHONE]'}
+
+SUPPORTING EVIDENCE TO REFERENCE:
+${evidenceList && evidenceList.length > 0 ? evidenceList.map((e, i) => `${i + 1}. ${e}`).join('\n') : '- Supporting documentation to be attached'}
+
+Generate a complete, ready-to-submit DataQ challenge letter following proper format and including relevant CFR citations.`;
+
+  const response = await query('dataQLetterGenerator', message, { maxTokens: 3000 });
+
+  return {
+    success: true,
+    letter: response.content,
+    challengeType,
+    usage: response.usage
+  };
+}
+
 module.exports = {
   query,
   parseRegulationResponse,
   analyzeDQF,
   analyzeCSARisk,
   generateDataQChallenge,
+  analyzeDataQChallenge,
+  generateDataQLetter,
   SYSTEM_PROMPTS
 };

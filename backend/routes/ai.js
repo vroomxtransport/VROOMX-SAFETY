@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { protect } = require('../middleware/auth');
+const { protect, restrictToCompany, checkPermission } = require('../middleware/auth');
 const aiService = require('../services/aiService');
+const dataQAnalysisService = require('../services/dataQAnalysisService');
+const { Violation, Company } = require('../models');
 
 // Rate limiting for AI endpoints (simple in-memory implementation)
 const rateLimits = new Map();
@@ -271,6 +273,208 @@ router.get('/suggested-questions', protect, (req, res) => {
     success: true,
     data: shuffled.slice(0, 5)
   });
+});
+
+// ==================== DataQ AI Endpoints ====================
+
+// @route   POST /api/ai/analyze-dataq-opportunities
+// @desc    Bulk analyze violations for DataQ challenge opportunities
+// @access  Private
+router.post('/analyze-dataq-opportunities', protect, restrictToCompany, checkPermission('violations', 'view'), async (req, res) => {
+  try {
+    const { minScore = 40, limit = 20, basic } = req.body;
+
+    // Rate limiting
+    if (!checkRateLimit(req.user.id)) {
+      return res.status(429).json({
+        success: false,
+        error: 'Rate limit exceeded. Please wait before making another request.'
+      });
+    }
+
+    const result = await dataQAnalysisService.identifyChallengeableViolations(
+      req.companyFilter.companyId,
+      { minScore, limit, basic }
+    );
+
+    res.json({
+      success: true,
+      data: result
+    });
+  } catch (error) {
+    console.error('DataQ opportunities analysis error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to analyze DataQ opportunities'
+    });
+  }
+});
+
+// @route   POST /api/ai/analyze-violation/:id
+// @desc    Deep AI analysis of a single violation for DataQ challenge
+// @access  Private
+router.post('/analyze-violation/:id', protect, restrictToCompany, checkPermission('violations', 'view'), async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Rate limiting
+    if (!checkRateLimit(req.user.id)) {
+      return res.status(429).json({
+        success: false,
+        error: 'Rate limit exceeded. Please wait before making another request.'
+      });
+    }
+
+    // Fetch the violation
+    const violation = await Violation.findOne({
+      _id: id,
+      ...req.companyFilter
+    })
+      .populate('driverId', 'firstName lastName employeeId')
+      .populate('vehicleId', 'unitNumber vin');
+
+    if (!violation) {
+      return res.status(404).json({
+        success: false,
+        error: 'Violation not found'
+      });
+    }
+
+    // Get company info for the letter
+    const company = await Company.findById(req.companyFilter.companyId);
+
+    // Get the basic scoring analysis first
+    const basicAnalysis = dataQAnalysisService.analyzeViolationChallengeability(violation);
+
+    // If AI is configured, get deep AI analysis
+    let aiAnalysis = null;
+    if (process.env.ANTHROPIC_API_KEY) {
+      try {
+        const aiResult = await aiService.analyzeDataQChallenge({
+          violation: violation.toObject(),
+          companyInfo: company ? {
+            dotNumber: company.dotNumber,
+            name: company.name
+          } : null
+        });
+        aiAnalysis = aiResult.analysis;
+      } catch (aiError) {
+        console.error('AI analysis failed:', aiError.message);
+        // Continue with basic analysis only
+      }
+    }
+
+    // Save the analysis to the violation
+    await dataQAnalysisService.saveAnalysisToViolation(id, basicAnalysis);
+
+    res.json({
+      success: true,
+      data: {
+        violation: {
+          _id: violation._id,
+          violationDate: violation.violationDate,
+          violationType: violation.violationType,
+          violationCode: violation.violationCode,
+          description: violation.description,
+          basic: violation.basic,
+          severityWeight: violation.severityWeight,
+          outOfService: violation.outOfService,
+          inspectionNumber: violation.inspectionNumber,
+          location: violation.location,
+          driver: violation.driverId,
+          vehicle: violation.vehicleId
+        },
+        basicAnalysis,
+        aiAnalysis
+      }
+    });
+  } catch (error) {
+    console.error('Single violation analysis error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to analyze violation'
+    });
+  }
+});
+
+// @route   POST /api/ai/generate-dataq-letter/:id
+// @desc    Generate a professional DataQ challenge letter for a violation
+// @access  Private
+router.post('/generate-dataq-letter/:id', protect, restrictToCompany, checkPermission('violations', 'edit'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { challengeType, reason, evidenceList } = req.body;
+
+    if (!challengeType || !reason) {
+      return res.status(400).json({
+        success: false,
+        error: 'Challenge type and reason are required'
+      });
+    }
+
+    // Rate limiting
+    if (!checkRateLimit(req.user.id)) {
+      return res.status(429).json({
+        success: false,
+        error: 'Rate limit exceeded. Please wait before making another request.'
+      });
+    }
+
+    // Fetch the violation
+    const violation = await Violation.findOne({
+      _id: id,
+      ...req.companyFilter
+    })
+      .populate('driverId', 'firstName lastName employeeId')
+      .populate('vehicleId', 'unitNumber vin');
+
+    if (!violation) {
+      return res.status(404).json({
+        success: false,
+        error: 'Violation not found'
+      });
+    }
+
+    // Get company info
+    const company = await Company.findById(req.companyFilter.companyId);
+
+    // Generate the letter using AI
+    const letterResult = await aiService.generateDataQLetter({
+      violation: violation.toObject(),
+      challengeType,
+      reason,
+      companyInfo: company ? {
+        name: company.name,
+        dotNumber: company.dotNumber,
+        address: company.address ? `${company.address.street || ''}, ${company.address.city || ''}, ${company.address.state || ''} ${company.address.zip || ''}` : null,
+        email: company.email,
+        phone: company.phone
+      } : null,
+      evidenceList: evidenceList || []
+    });
+
+    // Save the generated letter to the violation
+    await dataQAnalysisService.saveGeneratedLetter(id, {
+      content: letterResult.letter,
+      challengeType
+    });
+
+    res.json({
+      success: true,
+      data: {
+        letter: letterResult.letter,
+        challengeType,
+        generatedAt: new Date(),
+        usage: letterResult.usage
+      }
+    });
+  } catch (error) {
+    console.error('DataQ letter generation error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to generate DataQ letter'
+    });
+  }
 });
 
 module.exports = router;

@@ -128,7 +128,15 @@ export const violationsAPI = {
   linkDriver: (id, driverId) => api.put(`/violations/${id}/link-driver`, { driverId }),
   unlinkDriver: (id) => api.delete(`/violations/${id}/link-driver`),
   getUnassigned: (params) => api.get('/violations/unassigned', { params }),
-  bulkLink: (violationIds, driverId) => api.post('/violations/bulk-link', { violationIds, driverId })
+  bulkLink: (violationIds, driverId) => api.post('/violations/bulk-link', { violationIds, driverId }),
+  // DataQ AI-powered analysis methods
+  getDataQOpportunities: (params) => api.get('/violations/dataq-opportunities', { params }),
+  getDataQDashboard: () => api.get('/violations/dataq-dashboard'),
+  analyzeOpportunities: (params) => api.post('/ai/analyze-dataq-opportunities', params),
+  analyzeViolation: (id) => api.post(`/ai/analyze-violation/${id}`),
+  generateLetter: (id, data) => api.post(`/ai/generate-dataq-letter/${id}`, data),
+  saveDataQLetter: (id, data) => api.put(`/violations/${id}/dataq/letter`, data),
+  updateEvidenceChecklist: (id, evidenceChecklist) => api.put(`/violations/${id}/dataq/evidence`, { evidenceChecklist })
 };
 
 export const drugAlcoholAPI = {

@@ -119,7 +119,32 @@ const violationSchema = new mongoose.Schema({
       submissionDate: Date,
       result: String,
       responseDate: Date
-    }
+    },
+    // AI-powered analysis fields
+    aiAnalysis: {
+      score: { type: Number, min: 0, max: 100 },
+      factors: [String],
+      confidence: { type: String, enum: ['low', 'medium', 'high'] },
+      recommendation: { type: String, enum: ['strongly_recommend', 'recommend', 'neutral', 'not_recommended'] },
+      generatedAt: Date
+    },
+    // AI-generated challenge letter
+    generatedLetter: {
+      content: String,
+      generatedAt: Date,
+      challengeType: {
+        type: String,
+        enum: ['data_error', 'policy_violation', 'procedural_error', 'not_responsible']
+      }
+    },
+    // Evidence checklist for the challenge
+    evidenceChecklist: [{
+      item: String,
+      required: { type: Boolean, default: false },
+      obtained: { type: Boolean, default: false },
+      documentUrl: String,
+      notes: String
+    }]
   },
 
   // Financial Impact
