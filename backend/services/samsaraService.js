@@ -541,6 +541,13 @@ const createFromSamsara = async (samsaraRecordId, companyId, additionalData = {}
   let newRecord;
   if (samsaraRecord.recordType === 'driver') {
     const mapped = mapSamsaraDriver(samsaraRecord.samsaraData);
+
+    // Set default dates (placeholder until real data is entered)
+    const oneYearFromNow = new Date();
+    oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
+    const twoYearsFromNow = new Date();
+    twoYearsFromNow.setFullYear(twoYearsFromNow.getFullYear() + 2);
+
     newRecord = await Driver.create({
       companyId,
       firstName: mapped.firstName || 'Unknown',
@@ -551,6 +558,17 @@ const createFromSamsara = async (samsaraRecordId, companyId, additionalData = {}
       hireDate: new Date(),
       dateOfBirth: additionalData.dateOfBirth || new Date('1990-01-01'),
       status: 'active',
+      // CDL info from Samsara (with defaults for missing data)
+      cdl: {
+        number: mapped.licenseNumber || 'PENDING',
+        state: mapped.licenseState || 'XX',
+        class: additionalData.cdlClass || 'A',
+        expiryDate: additionalData.cdlExpiryDate || oneYearFromNow
+      },
+      // Medical card (placeholder until real data entered)
+      medicalCard: {
+        expiryDate: additionalData.medicalExpiryDate || twoYearsFromNow
+      },
       ...additionalData
     });
   } else {
