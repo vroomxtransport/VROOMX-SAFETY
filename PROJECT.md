@@ -278,6 +278,55 @@ npm run dev  # Starts on port 5173
 
 ## Changelog
 
+### 2026-02-02 (Samsara Vehicle Telematics)
+- **Feature:** Samsara Vehicle Telematics - Pull real-time vehicle data from Samsara
+  - New Vehicle model field: `samsaraTelematics` for storing live data
+    - `currentMileage` - Odometer reading in miles (converted from meters)
+    - `odometerSource` - Whether data comes from OBD or GPS
+    - `location` - GPS coordinates, address, speed, heading
+    - `fuelPercent` - Fuel level percentage (0-100)
+    - `engineRunning` - Engine on/off status
+    - `engineHours` - Total engine runtime
+    - `lastUpdated` - Timestamp of last update
+  - New Service methods in `samsaraService.js`:
+    - `getVehicleStats()` - Fetch telematics from Samsara `/fleet/vehicles/stats` API
+    - `syncVehicleTelematics()` - Update a vehicle's telematics from Samsara
+    - `mapSamsaraTelematics()` - Convert Samsara stats to VroomX format
+  - Updated `matchRecord()` - Now fetches telematics when matching vehicles
+  - New Route: `POST /api/integrations/samsara/refresh-telematics/:vehicleId`
+  - Files: `backend/models/Vehicle.js`, `backend/services/samsaraService.js`, `backend/routes/integrations.js`
+- **UI:** Vehicle Detail telematics card
+  - Shows only for vehicles linked to Samsara (`samsaraId` present)
+  - Displays: Current mileage, Location (with Google Maps link), Fuel level (progress bar), Engine status
+  - "Refresh" button to pull latest data from Samsara
+  - Files: `frontend/src/pages/VehicleDetail.jsx`
+- **API:** Added `integrationsAPI` to frontend API client
+  - All Samsara integration methods centralized
+  - `refreshTelematics(vehicleId)` for telematics refresh
+  - Files: `frontend/src/utils/api.js`
+- **Feature:** Samsara DVIR Import (Driver-Linked)
+  - New Driver model field: `samsaraDvirs` array for storing inspection reports
+    - `samsaraId` - Samsara DVIR ID
+    - `vehicleName` - Which vehicle was inspected
+    - `inspectionType` - pre_trip, post_trip, or other
+    - `inspectedAt`, `submittedAt` - Timestamps
+    - `location` - GPS coordinates and address
+    - `defectsFound` - Boolean flag
+    - `defects` - Array of defect details (category, description, isMajor, resolved)
+    - `safeToOperate` - Vehicle safe to operate flag
+  - New Service methods in `samsaraService.js`:
+    - `getDvirs()` - Fetch DVIRs from Samsara `/fleet/dvirs` API
+    - `syncDriverDvirs()` - Sync DVIRs and link to drivers by samsaraId
+  - Updated `syncAll()` - Now syncs DVIRs after drivers
+  - Files: `backend/models/Driver.js`, `backend/services/samsaraService.js`
+- **UI:** Driver Detail DVIRs card
+  - Shows only for drivers linked to Samsara (`samsaraId` present)
+  - Displays: Recent DVIRs (last 10), expandable details
+  - Each DVIR shows: inspection type, date, vehicle, defect count
+  - Expandable to show: safe to operate status, location, defect details
+  - Defects show: category, description, major flag, resolved status
+  - Files: `frontend/src/pages/DriverDetail.jsx`
+
 ### 2026-01-31 (Sidebar Reorganization & Integrations)
 - **Sidebar:** Reorganized navigation structure
   - New "COMPANY FILES" section: Policies, Templates, Checklists, Documents

@@ -242,7 +242,14 @@ router.post('/samsara/match', authorize('owner', 'admin'), asyncHandler(async (r
     return res.status(400).json({ message: 'samsaraRecordId, vroomxRecordId, and recordType are required' });
   }
 
-  const result = await samsaraService.matchRecord(samsaraRecordId, vroomxRecordId, recordType);
+  // Get integration to pass for telematics fetch on vehicle match
+  const integration = await Integration.findOne({
+    companyId: req.companyFilter.companyId,
+    provider: 'samsara',
+    status: { $in: ['active', 'error'] }
+  });
+
+  const result = await samsaraService.matchRecord(samsaraRecordId, vroomxRecordId, recordType, integration);
 
   // Audit log
   auditService.log(req, 'SAMSARA_RECORD_MATCHED', recordType === 'driver' ? 'Driver' : 'Vehicle', vroomxRecordId, {
@@ -286,6 +293,33 @@ router.post('/samsara/create', authorize('owner', 'admin'), asyncHandler(async (
     success: true,
     message: `${resourceType} created successfully`,
     record: newRecord
+  });
+}));
+
+/**
+ * @route   POST /api/integrations/samsara/refresh-telematics/:vehicleId
+ * @desc    Refresh telematics data for a specific vehicle from Samsara
+ * @access  Private
+ */
+router.post('/samsara/refresh-telematics/:vehicleId', asyncHandler(async (req, res) => {
+  const { vehicleId } = req.params;
+
+  const integration = await Integration.findOne({
+    companyId: req.companyFilter.companyId,
+    provider: 'samsara',
+    status: { $in: ['active', 'error'] }
+  });
+
+  if (!integration) {
+    return res.status(404).json({ message: 'No active Samsara integration found' });
+  }
+
+  const telematics = await samsaraService.syncVehicleTelematics(integration, vehicleId);
+
+  res.json({
+    success: true,
+    message: 'Telematics updated',
+    telematics
   });
 }));
 

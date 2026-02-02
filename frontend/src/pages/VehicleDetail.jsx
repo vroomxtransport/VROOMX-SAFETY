@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { vehiclesAPI } from '../utils/api';
+import { vehiclesAPI, integrationsAPI } from '../utils/api';
 import { formatDate, formatCurrency, daysUntilExpiry } from '../utils/helpers';
 import toast from 'react-hot-toast';
-import { FiArrowLeft, FiPlus, FiTruck, FiTool, FiFileText, FiCalendar, FiUser } from 'react-icons/fi';
+import { FiArrowLeft, FiPlus, FiTruck, FiTool, FiFileText, FiCalendar, FiUser, FiMapPin, FiRefreshCw, FiDroplet, FiActivity } from 'react-icons/fi';
 import LoadingSpinner from '../components/LoadingSpinner';
 import StatusBadge from '../components/StatusBadge';
 import Modal from '../components/Modal';
@@ -49,6 +49,7 @@ const VehicleDetail = () => {
     odometer: '',
     totalCost: ''
   });
+  const [refreshingTelematics, setRefreshingTelematics] = useState(false);
 
   useEffect(() => {
     fetchVehicle();
@@ -103,6 +104,23 @@ const VehicleDetail = () => {
       toast.error('Failed to record inspection');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleRefreshTelematics = async () => {
+    setRefreshingTelematics(true);
+    try {
+      const response = await integrationsAPI.refreshTelematics(id);
+      // Update vehicle with new telematics data
+      setVehicle(prev => ({
+        ...prev,
+        samsaraTelematics: response.data.telematics
+      }));
+      toast.success('Telematics updated');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to refresh telematics');
+    } finally {
+      setRefreshingTelematics(false);
     }
   };
 
@@ -317,6 +335,142 @@ const VehicleDetail = () => {
               </div>
             </div>
           </div>
+
+          {/* Samsara Telematics - Only show if linked to Samsara */}
+          {vehicle.samsaraId && (
+            <div className="card border-l-4 border-l-orange-500">
+              <div className="card-header flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <img src="/images/integrations/samsara.svg" alt="Samsara" className="w-5 h-5" />
+                  <h3 className="font-semibold">Samsara Telematics</h3>
+                </div>
+                <button
+                  onClick={handleRefreshTelematics}
+                  disabled={refreshingTelematics}
+                  className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-lg transition-colors"
+                  title="Refresh telematics"
+                >
+                  <FiRefreshCw className={`w-4 h-4 ${refreshingTelematics ? 'animate-spin' : ''}`} />
+                </button>
+              </div>
+              <div className="card-body space-y-4">
+                {vehicle.samsaraTelematics ? (
+                  <>
+                    {/* Current Mileage */}
+                    {vehicle.samsaraTelematics.currentMileage && (
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                            <FiActivity className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                          </div>
+                          <span className="text-zinc-600 dark:text-zinc-300">Current Mileage</span>
+                        </div>
+                        <span className="font-semibold text-zinc-800 dark:text-zinc-200">
+                          {vehicle.samsaraTelematics.currentMileage.toLocaleString()} mi
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Location */}
+                    {vehicle.samsaraTelematics.location && (
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center space-x-2">
+                          <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                            <FiMapPin className="w-4 h-4 text-green-600 dark:text-green-400" />
+                          </div>
+                          <span className="text-zinc-600 dark:text-zinc-300">Location</span>
+                        </div>
+                        <div className="text-right max-w-[180px]">
+                          {vehicle.samsaraTelematics.location.address ? (
+                            <a
+                              href={`https://www.google.com/maps?q=${vehicle.samsaraTelematics.location.latitude},${vehicle.samsaraTelematics.location.longitude}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-sm text-accent-600 hover:underline"
+                            >
+                              {vehicle.samsaraTelematics.location.address}
+                            </a>
+                          ) : (
+                            <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                              {vehicle.samsaraTelematics.location.latitude?.toFixed(4)}, {vehicle.samsaraTelematics.location.longitude?.toFixed(4)}
+                            </span>
+                          )}
+                          {vehicle.samsaraTelematics.location.speedMph > 0 && (
+                            <p className="text-xs text-zinc-500 mt-1">
+                              {Math.round(vehicle.samsaraTelematics.location.speedMph)} mph
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Fuel Level */}
+                    {vehicle.samsaraTelematics.fuelPercent !== undefined && (
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center space-x-2">
+                            <div className="w-8 h-8 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center">
+                              <FiDroplet className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                            </div>
+                            <span className="text-zinc-600 dark:text-zinc-300">Fuel Level</span>
+                          </div>
+                          <span className="font-semibold text-zinc-800 dark:text-zinc-200">
+                            {vehicle.samsaraTelematics.fuelPercent}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-zinc-200 dark:bg-zinc-700 rounded-full h-2">
+                          <div
+                            className={`h-2 rounded-full ${
+                              vehicle.samsaraTelematics.fuelPercent > 50 ? 'bg-green-500' :
+                              vehicle.samsaraTelematics.fuelPercent > 25 ? 'bg-yellow-500' : 'bg-red-500'
+                            }`}
+                            style={{ width: `${vehicle.samsaraTelematics.fuelPercent}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Engine Status */}
+                    {vehicle.samsaraTelematics.engineRunning !== undefined && (
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+                            <FiTruck className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                          </div>
+                          <span className="text-zinc-600 dark:text-zinc-300">Engine</span>
+                        </div>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          vehicle.samsaraTelematics.engineRunning
+                            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                            : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-400'
+                        }`}>
+                          {vehicle.samsaraTelematics.engineRunning ? 'Running' : 'Off'}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Last Updated */}
+                    {vehicle.samsaraTelematics.lastUpdated && (
+                      <div className="pt-2 border-t border-zinc-100 dark:border-zinc-700 text-xs text-zinc-500 dark:text-zinc-400">
+                        Last updated: {new Date(vehicle.samsaraTelematics.lastUpdated).toLocaleString()}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="text-center py-4 text-zinc-500 dark:text-zinc-400">
+                    <p className="text-sm">No telematics data yet</p>
+                    <button
+                      onClick={handleRefreshTelematics}
+                      disabled={refreshingTelematics}
+                      className="mt-2 text-accent-600 hover:underline text-sm"
+                    >
+                      {refreshingTelematics ? 'Loading...' : 'Fetch from Samsara'}
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Annual Inspection */}
           <div className="card">

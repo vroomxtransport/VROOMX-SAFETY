@@ -52,6 +52,41 @@ const driverSchema = new mongoose.Schema({
     type: String,
     index: true
   },
+
+  // Samsara DVIRs (Driver Vehicle Inspection Reports)
+  samsaraDvirs: [{
+    samsaraId: String,              // Samsara DVIR ID
+    vehicleSamsaraId: String,       // Which vehicle was inspected
+    vehicleName: String,            // Vehicle name from Samsara
+    inspectionType: {
+      type: String,
+      enum: ['pre_trip', 'post_trip', 'other']
+    },
+    inspectedAt: Date,              // When inspection was done
+    submittedAt: Date,              // When submitted
+    location: {
+      latitude: Number,
+      longitude: Number,
+      address: String
+    },
+    defectsFound: {
+      type: Boolean,
+      default: false
+    },
+    defects: [{
+      category: String,             // e.g., 'Brakes', 'Lights'
+      description: String,
+      isMajor: Boolean,
+      resolved: Boolean,
+      resolvedAt: Date
+    }],
+    safeToOperate: {
+      type: Boolean,
+      default: true
+    },
+    syncedAt: Date                  // When imported from Samsara
+  }],
+
   hireDate: {
     type: Date,
     required: [true, 'Hire date is required']

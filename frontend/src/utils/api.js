@@ -525,6 +525,23 @@ export const auditAPI = {
   exportLogs: (params) => api.get('/audit/export', { params, responseType: 'blob' }),
 };
 
+// Integrations API - External integrations (Samsara, etc.)
+export const integrationsAPI = {
+  // Samsara
+  getSamsaraStatus: () => api.get('/integrations/samsara/status'),
+  connectSamsara: (apiKey) => api.post('/integrations/samsara/connect', { apiKey }),
+  disconnectSamsara: () => api.post('/integrations/samsara/disconnect'),
+  syncSamsara: () => api.post('/integrations/samsara/sync'),
+  updateSamsaraSettings: (settings) => api.put('/integrations/samsara/settings', settings),
+  getPendingSamsara: () => api.get('/integrations/samsara/pending'),
+  matchSamsaraRecord: (samsaraRecordId, vroomxRecordId, recordType) =>
+    api.post('/integrations/samsara/match', { samsaraRecordId, vroomxRecordId, recordType }),
+  createFromSamsara: (samsaraRecordId, additionalData) =>
+    api.post('/integrations/samsara/create', { samsaraRecordId, additionalData }),
+  skipSamsaraRecord: (samsaraRecordId) => api.post('/integrations/samsara/skip', { samsaraRecordId }),
+  refreshTelematics: (vehicleId) => api.post(`/integrations/samsara/refresh-telematics/${vehicleId}`),
+};
+
 // Announcements API - Public announcements
 export const announcementsAPI = {
   getActive: () => api.get('/announcements/active'),

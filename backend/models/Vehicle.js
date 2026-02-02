@@ -23,6 +23,35 @@ const vehicleSchema = new mongoose.Schema({
     type: String,
     index: true
   },
+
+  // Samsara Telematics Data (real-time from Samsara API)
+  samsaraTelematics: {
+    // Odometer
+    currentMileage: Number,           // miles (converted from meters)
+    odometerSource: {
+      type: String,
+      enum: ['obd', 'gps']
+    },
+
+    // Location
+    location: {
+      latitude: Number,
+      longitude: Number,
+      address: String,                // reverse geocoded address
+      speedMph: Number,
+      heading: Number                 // 0-360 degrees
+    },
+
+    // Fuel
+    fuelPercent: Number,              // 0-100
+
+    // Engine
+    engineRunning: Boolean,
+    engineHours: Number,
+
+    // Timestamps
+    lastUpdated: Date
+  },
   vin: {
     type: String,
     required: [true, 'VIN is required'],

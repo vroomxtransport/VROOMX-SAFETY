@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { driversAPI, violationsAPI } from '../utils/api';
 import { formatDate, daysUntilExpiry, getStatusConfig, formatPhone, basicCategories } from '../utils/helpers';
 import toast from 'react-hot-toast';
-import { FiArrowLeft, FiUpload, FiEdit2, FiFileText, FiCalendar, FiUser, FiPhone, FiMail, FiCheck, FiAlertCircle, FiAlertTriangle, FiShield, FiLink } from 'react-icons/fi';
+import { FiArrowLeft, FiUpload, FiEdit2, FiFileText, FiCalendar, FiUser, FiPhone, FiMail, FiCheck, FiAlertCircle, FiAlertTriangle, FiShield, FiLink, FiClipboard, FiTruck, FiMapPin, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import LoadingSpinner from '../components/LoadingSpinner';
 import StatusBadge from '../components/StatusBadge';
 import Modal from '../components/Modal';
@@ -17,6 +17,7 @@ const DriverDetail = () => {
   const [uploading, setUploading] = useState(false);
   const [csaData, setCsaData] = useState(null);
   const [csaLoading, setCsaLoading] = useState(true);
+  const [expandedDvir, setExpandedDvir] = useState(null);
 
   useEffect(() => {
     fetchDriver();
@@ -383,6 +384,170 @@ const DriverDetail = () => {
               )}
             </div>
           </div>
+
+          {/* Samsara DVIRs - Only show if driver has samsaraId */}
+          {driver.samsaraId && (
+            <div className="card border-l-4 border-l-orange-500">
+              <div className="card-header flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <img src="/images/integrations/samsara.svg" alt="Samsara" className="w-5 h-5" />
+                  <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">Recent DVIRs</h3>
+                </div>
+                {driver.samsaraDvirs?.length > 0 && (
+                  <span className="text-sm text-zinc-500 dark:text-zinc-400">
+                    {driver.samsaraDvirs.length} inspection{driver.samsaraDvirs.length !== 1 ? 's' : ''}
+                  </span>
+                )}
+              </div>
+              <div className="card-body">
+                {driver.samsaraDvirs?.length > 0 ? (
+                  <div className="space-y-3">
+                    {driver.samsaraDvirs
+                      .slice()
+                      .sort((a, b) => new Date(b.inspectedAt) - new Date(a.inspectedAt))
+                      .slice(0, 10)
+                      .map((dvir, index) => (
+                        <div
+                          key={dvir.samsaraId || index}
+                          className="border border-zinc-200 dark:border-zinc-700 rounded-lg overflow-hidden"
+                        >
+                          {/* DVIR Header */}
+                          <div
+                            className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-800/50 cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-700/50 transition-colors"
+                            onClick={() => setExpandedDvir(expandedDvir === dvir.samsaraId ? null : dvir.samsaraId)}
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                                dvir.defectsFound
+                                  ? 'bg-yellow-100 dark:bg-yellow-500/20'
+                                  : 'bg-green-100 dark:bg-green-500/20'
+                              }`}>
+                                <FiClipboard className={`w-5 h-5 ${
+                                  dvir.defectsFound
+                                    ? 'text-yellow-600 dark:text-yellow-400'
+                                    : 'text-green-600 dark:text-green-400'
+                                }`} />
+                              </div>
+                              <div>
+                                <p className="font-medium text-zinc-900 dark:text-white text-sm">
+                                  {dvir.inspectionType === 'pre_trip' ? 'Pre-Trip' : dvir.inspectionType === 'post_trip' ? 'Post-Trip' : 'Inspection'}
+                                </p>
+                                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                                  {formatDate(dvir.inspectedAt)}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                              <div className="text-right">
+                                <div className="flex items-center gap-1 text-sm text-zinc-600 dark:text-zinc-300">
+                                  <FiTruck className="w-3.5 h-3.5" />
+                                  <span>{dvir.vehicleName}</span>
+                                </div>
+                                {dvir.defectsFound ? (
+                                  <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-100 dark:bg-yellow-500/20 text-yellow-700 dark:text-yellow-400">
+                                    {dvir.defects?.length || 0} defect{(dvir.defects?.length || 0) !== 1 ? 's' : ''}
+                                  </span>
+                                ) : (
+                                  <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400">
+                                    No defects
+                                  </span>
+                                )}
+                              </div>
+                              {expandedDvir === dvir.samsaraId ? (
+                                <FiChevronUp className="w-4 h-4 text-zinc-400" />
+                              ) : (
+                                <FiChevronDown className="w-4 h-4 text-zinc-400" />
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Expanded DVIR Details */}
+                          {expandedDvir === dvir.samsaraId && (
+                            <div className="p-3 border-t border-zinc-200 dark:border-zinc-700 space-y-3">
+                              {/* Safe to Operate */}
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm text-zinc-600 dark:text-zinc-300">Safe to Operate</span>
+                                <span className={`text-sm font-medium ${
+                                  dvir.safeToOperate
+                                    ? 'text-green-600 dark:text-green-400'
+                                    : 'text-red-600 dark:text-red-400'
+                                }`}>
+                                  {dvir.safeToOperate ? 'Yes' : 'No'}
+                                </span>
+                              </div>
+
+                              {/* Location */}
+                              {dvir.location?.address && (
+                                <div className="flex items-start justify-between">
+                                  <span className="text-sm text-zinc-600 dark:text-zinc-300">Location</span>
+                                  <a
+                                    href={`https://www.google.com/maps?q=${dvir.location.latitude},${dvir.location.longitude}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-sm text-accent-600 hover:underline text-right max-w-[200px]"
+                                  >
+                                    {dvir.location.address}
+                                  </a>
+                                </div>
+                              )}
+
+                              {/* Defects List */}
+                              {dvir.defects?.length > 0 && (
+                                <div>
+                                  <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400 mb-2">
+                                    Defects Found
+                                  </p>
+                                  <div className="space-y-2">
+                                    {dvir.defects.map((defect, dIndex) => (
+                                      <div
+                                        key={dIndex}
+                                        className={`p-2 rounded-lg text-sm ${
+                                          defect.resolved
+                                            ? 'bg-green-50 dark:bg-green-500/10'
+                                            : 'bg-yellow-50 dark:bg-yellow-500/10'
+                                        }`}
+                                      >
+                                        <div className="flex items-start justify-between">
+                                          <div>
+                                            <span className="font-medium text-zinc-900 dark:text-white">
+                                              {defect.category}
+                                            </span>
+                                            {defect.isMajor && (
+                                              <span className="ml-2 text-xs px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-400">
+                                                Major
+                                              </span>
+                                            )}
+                                            <p className="text-zinc-600 dark:text-zinc-400 text-xs mt-0.5">
+                                              {defect.description}
+                                            </p>
+                                          </div>
+                                          {defect.resolved ? (
+                                            <FiCheck className="w-4 h-4 text-green-500 flex-shrink-0" />
+                                          ) : (
+                                            <FiAlertCircle className="w-4 h-4 text-yellow-500 flex-shrink-0" />
+                                          )}
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-6 text-zinc-500 dark:text-zinc-400">
+                    <FiClipboard className="w-10 h-10 mx-auto mb-2 text-zinc-300 dark:text-zinc-600" />
+                    <p className="text-sm">No DVIRs synced yet</p>
+                    <p className="text-xs mt-1">DVIRs will appear after syncing with Samsara</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* CSA Impact */}
           <div className="card">
