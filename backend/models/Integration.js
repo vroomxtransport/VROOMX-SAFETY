@@ -105,11 +105,24 @@ integrationSchema.methods.getDecryptedApiKey = function() {
 };
 
 // Method to update sync stats
-integrationSchema.methods.updateStats = async function(stats) {
-  this.stats = { ...this.stats, ...stats };
+integrationSchema.methods.updateStats = async function(results) {
+  // Update counts
+  this.stats = {
+    drivers: results.drivers || 0,
+    vehicles: results.vehicles || 0,
+    hosLogs: results.hosLogs || 0
+  };
   this.lastSyncAt = new Date();
   this.syncInProgress = false;
-  this.error = null;
+  this.status = 'active';
+
+  // Handle partial errors (some syncs succeeded, some failed)
+  if (results.errors && results.errors.length > 0) {
+    this.error = results.errors.join('; ');
+  } else {
+    this.error = null;
+  }
+
   await this.save();
 };
 

@@ -130,7 +130,8 @@ const syncAll = async (integration, syncConfig = {}) => {
   const results = {
     drivers: 0,
     vehicles: 0,
-    hosLogs: 0
+    hosLogs: 0,
+    errors: []
   };
 
   const config = {
@@ -140,33 +141,53 @@ const syncAll = async (integration, syncConfig = {}) => {
     ...syncConfig
   };
 
-  try {
-    // Sync drivers
-    if (config.syncDrivers) {
+  // Sync drivers - handle errors independently
+  if (config.syncDrivers) {
+    try {
       const drivers = await getDrivers(apiKey);
       results.drivers = drivers.length;
       // TODO: Map and sync drivers to local database
+    } catch (error) {
+      console.error('Samsara drivers sync error:', error.message);
+      results.errors.push(`Drivers: ${error.message}`);
     }
+  }
 
-    // Sync vehicles
-    if (config.syncVehicles) {
+  // Sync vehicles - handle errors independently
+  if (config.syncVehicles) {
+    try {
       const vehicles = await getVehicles(apiKey);
       results.vehicles = vehicles.length;
       // TODO: Map and sync vehicles to local database
+    } catch (error) {
+      console.error('Samsara vehicles sync error:', error.message);
+      results.errors.push(`Vehicles: ${error.message}`);
     }
+  }
 
-    // Sync HOS logs
-    if (config.syncHOS) {
+  // Sync HOS logs - handle errors independently (requires ELD permissions)
+  if (config.syncHOS) {
+    try {
       const hosLogs = await getHOSLogs(apiKey);
       results.hosLogs = hosLogs.length;
       // TODO: Map and store HOS data
+    } catch (error) {
+      console.error('Samsara HOS sync error:', error.message);
+      // HOS often fails due to ELD permission requirements
+      if (error.message.includes('permission') || error.status === 403) {
+        results.errors.push('HOS: API token lacks ELD Compliance permissions. Enable in Samsara settings.');
+      } else {
+        results.errors.push(`HOS: ${error.message}`);
+      }
     }
-
-    return results;
-  } catch (error) {
-    console.error('Samsara sync error:', error.message);
-    throw error;
   }
+
+  // If all syncs failed, throw an error
+  if (results.drivers === 0 && results.vehicles === 0 && results.hosLogs === 0 && results.errors.length > 0) {
+    throw new Error(results.errors.join('; '));
+  }
+
+  return results;
 };
 
 /**
