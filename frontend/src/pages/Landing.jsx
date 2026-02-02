@@ -94,6 +94,9 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* Features Section */}
+      <FeaturesSection features={features} />
+
       {/* Differentiation Section */}
       <section className="py-20 px-6 md:px-16 relative z-10 bg-gradient-to-b from-white to-[#F8FAFC]">
         <div className="max-w-5xl mx-auto text-center">
@@ -147,9 +150,6 @@ const Landing = () => {
           </p>
         </div>
       </section>
-
-      {/* Features Section */}
-      <FeaturesSection features={features} />
 
       {/* Problem Section */}
       <section className="py-32 px-6 md:px-16 relative z-10">

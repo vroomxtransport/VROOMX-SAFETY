@@ -15,21 +15,18 @@ const TestimonialsSection = () => {
   const testimonials = [
     {
       quote: "We were one violation away from FMCSA intervention. After 90 days with VroomX, we dropped 23 points and passed a surprise DOT inspection with flying colors.",
-      result: { icon: '📉', text: 'CSA Score: 78% → 55% in 90 days' },
       name: 'Mike Rodriguez',
       role: 'Fleet Owner • 12 trucks',
       image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face'
     },
     {
       quote: "I used to spend 15+ hours a week on compliance paperwork. VroomX automated everything. Now I spend that time actually growing my business.",
-      result: { icon: '⏱️', text: 'Saved 10+ hours per week' },
       name: 'Sarah Johnson',
       role: 'Safety Manager • 45 trucks',
       image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face'
     },
     {
       quote: "The AI assistant is incredible. I asked about a complex HOS regulation and got a clear, accurate answer in seconds. It's like having a compliance expert on call 24/7.",
-      result: { icon: '🤖', text: '500+ AI queries answered' },
       name: 'David Thompson',
       role: 'Owner-Operator',
       image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
@@ -51,7 +48,7 @@ const TestimonialsSection = () => {
           className={`text-center mb-12 transition-all duration-700 ${headerInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         >
           <h2 className="text-3xl md:text-5xl font-heading font-extrabold text-gray-800 dark:text-white mb-4">
-            Trusted by <span className="text-cta-500">2,500+</span> Carriers
+            Trusted by <span className="text-cta-500">500+</span> Carriers
           </h2>
           <p className="text-lg text-gray-600 dark:text-gray-300">
             See why fleet managers choose VroomX Safety
@@ -104,14 +101,6 @@ const TestimonialsSection = () => {
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-6">
                 "{t.quote}"
               </p>
-
-              {/* Result Highlight */}
-              <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 mb-6 flex items-center gap-3">
-                <span className="text-xl">{t.result.icon}</span>
-                <span className="text-emerald-600 font-semibold text-sm">
-                  {t.result.text}
-                </span>
-              </div>
 
               {/* Author */}
               <div className="flex items-center gap-4">
