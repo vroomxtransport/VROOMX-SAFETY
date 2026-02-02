@@ -278,6 +278,19 @@ npm run dev  # Starts on port 5173
 
 ## Changelog
 
+### 2026-02-02 (Samsara Integration Fixes)
+- **Fix:** Samsara driver creation validation error
+  - When creating a new driver from Samsara data via the "+" button, validation failed due to missing required fields
+  - Now populates CDL fields from Samsara (`licenseNumber`, `licenseState`) with defaults for missing data
+  - Defaults: CDL class 'A', CDL expiry 1 year from now, medical card expiry 2 years from now
+  - Users can update placeholder values with real data after creation
+  - File: `backend/services/samsaraService.js` (`createFromSamsara()` function)
+- **Fix:** Samsara API `fuelPercent` → `fuelPercents` typo
+  - Vehicle telematics refresh was failing with "Invalid stat type(s): fuelPercent"
+  - Samsara API uses plural `fuelPercents` for the stat type parameter
+  - Fixed in both API request and response mapping
+  - File: `backend/services/samsaraService.js` (`getVehicleStats()` and `mapSamsaraTelematics()`)
+
 ### 2026-02-02 (Samsara Vehicle Telematics)
 - **Feature:** Samsara Vehicle Telematics - Pull real-time vehicle data from Samsara
   - New Vehicle model field: `samsaraTelematics` for storing live data
