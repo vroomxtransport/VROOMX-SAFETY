@@ -278,6 +278,43 @@ npm run dev  # Starts on port 5173
 
 ## Changelog
 
+### 2026-02-02 (Admin Panel Enhancements)
+- **Feature:** Revenue Dashboard (`/admin/revenue`)
+  - MRR (Monthly Recurring Revenue) with 12-month trend chart
+  - MRR growth rate calculation (month-over-month)
+  - Churn rate tracking with 6-month trend
+  - Revenue breakdown by plan (Solo/Fleet/Pro) with pie chart
+  - Failed payments table with user details
+  - Upgrade/downgrade tracking (30-day window)
+  - Files: `backend/routes/admin.js`, `frontend/src/pages/admin/AdminRevenue.jsx`
+- **Feature:** Platform Alerts Panel (`/admin/alerts`)
+  - Real-time alerts for critical platform events
+  - Alert types: failed payments, high churn (>5%), trial expiring, service down, data integrity issues, open tickets
+  - Severity levels: critical (red), warning (yellow), info (blue)
+  - Clickable alerts linking to relevant admin pages
+  - Summary cards showing alert counts by severity
+  - Files: `backend/routes/admin.js`, `frontend/src/pages/admin/AdminAlerts.jsx`
+- **Feature:** Support Tickets Admin View (`/admin/tickets`)
+  - View all tickets across all companies (platform-wide)
+  - Filter by status (open, in_progress, resolved, closed)
+  - Filter by priority (urgent, high, medium, low)
+  - Search by subject/description
+  - Quick status change dropdown per ticket
+  - Stats cards showing ticket counts by status
+  - Company and user context for each ticket
+  - Files: `backend/routes/admin.js`, `frontend/src/pages/admin/AdminTickets.jsx`
+- **Feature:** User Analytics API (`GET /api/admin/user-analytics`)
+  - DAU (Daily Active Users), WAU (Weekly), MAU (Monthly)
+  - Login trend aggregation (30 days)
+  - Top active companies by login frequency
+  - Inactive users detection (no login in 30+ days)
+  - New vs returning user breakdown
+  - File: `backend/routes/admin.js`
+- **UI:** Updated admin sidebar navigation
+  - Added Revenue, Alerts, Tickets to navigation
+  - Reordered for better workflow: Dashboard → Revenue → Alerts → Users → Companies → Tickets → ...
+  - Files: `frontend/src/pages/admin/AdminLayout.jsx`, `frontend/src/App.jsx`
+
 ### 2026-02-02 (Samsara Integration Fixes)
 - **Fix:** Samsara driver creation validation error
   - When creating a new driver from Samsara data via the "+" button, validation failed due to missing required fields
