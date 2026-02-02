@@ -18,6 +18,11 @@ const vehicleSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  // External Integration IDs
+  samsaraId: {
+    type: String,
+    index: true
+  },
   vin: {
     type: String,
     required: [true, 'VIN is required'],

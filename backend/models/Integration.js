@@ -71,7 +71,9 @@ const integrationSchema = new mongoose.Schema({
   stats: {
     drivers: { type: Number, default: 0 },
     vehicles: { type: Number, default: 0 },
-    hosLogs: { type: Number, default: 0 }
+    hosLogs: { type: Number, default: 0 },
+    pendingDrivers: { type: Number, default: 0 },
+    pendingVehicles: { type: Number, default: 0 }
   },
   error: {
     type: String,
@@ -106,11 +108,13 @@ integrationSchema.methods.getDecryptedApiKey = function() {
 
 // Method to update sync stats
 integrationSchema.methods.updateStats = async function(results) {
-  // Update counts
+  // Update counts including pending
   this.stats = {
     drivers: results.drivers || 0,
     vehicles: results.vehicles || 0,
-    hosLogs: results.hosLogs || 0
+    hosLogs: results.hosLogs || 0,
+    pendingDrivers: results.pendingDrivers || 0,
+    pendingVehicles: results.pendingVehicles || 0
   };
   this.lastSyncAt = new Date();
   this.syncInProgress = false;

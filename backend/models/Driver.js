@@ -47,6 +47,11 @@ const driverSchema = new mongoose.Schema({
   employeeId: {
     type: String
   },
+  // External Integration IDs
+  samsaraId: {
+    type: String,
+    index: true
+  },
   hireDate: {
     type: Date,
     required: [true, 'Hire date is required']

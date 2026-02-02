@@ -5,6 +5,10 @@
  * API Documentation: https://developers.samsara.com/docs
  */
 
+const SamsaraRecord = require('../models/SamsaraRecord');
+const Driver = require('../models/Driver');
+const Vehicle = require('../models/Vehicle');
+
 const SAMSARA_API_BASE = 'https://api.samsara.com';
 
 /**
@@ -117,6 +121,7 @@ const getHOSLogs = async (apiKey, options = {}) => {
 
 /**
  * Sync all data from Samsara for an integration
+ * Stores records in SamsaraRecord collection for manual matching
  * @param {Object} integration - Integration document with decrypted API key
  * @param {Object} syncConfig - What to sync (drivers, vehicles, HOS)
  */
@@ -131,6 +136,8 @@ const syncAll = async (integration, syncConfig = {}) => {
     drivers: 0,
     vehicles: 0,
     hosLogs: 0,
+    pendingDrivers: 0,
+    pendingVehicles: 0,
     errors: []
   };
 
@@ -141,24 +148,88 @@ const syncAll = async (integration, syncConfig = {}) => {
     ...syncConfig
   };
 
-  // Sync drivers - handle errors independently
+  // Sync drivers - store in SamsaraRecord collection
   if (config.syncDrivers) {
     try {
       const drivers = await getDrivers(apiKey);
       results.drivers = drivers.length;
-      // TODO: Map and sync drivers to local database
+
+      for (const driver of drivers) {
+        // Check if already matched to a VroomX driver
+        const existingMatch = await Driver.findOne({
+          companyId: integration.companyId,
+          samsaraId: driver.id
+        });
+
+        // Upsert the SamsaraRecord
+        const record = await SamsaraRecord.findOneAndUpdate(
+          {
+            companyId: integration.companyId,
+            samsaraId: driver.id,
+            recordType: 'driver'
+          },
+          {
+            integrationId: integration._id,
+            samsaraData: driver,
+            displayName: driver.name || 'Unknown',
+            identifier: driver.licenseNumber || driver.username || null,
+            status: existingMatch ? 'matched' : 'pending',
+            linkedRecordId: existingMatch?._id || null,
+            linkedRecordModel: existingMatch ? 'Driver' : null,
+            linkedAt: existingMatch ? new Date() : null,
+            syncedAt: new Date()
+          },
+          { upsert: true, new: true }
+        );
+
+        if (record.status === 'pending') {
+          results.pendingDrivers++;
+        }
+      }
     } catch (error) {
       console.error('Samsara drivers sync error:', error.message);
       results.errors.push(`Drivers: ${error.message}`);
     }
   }
 
-  // Sync vehicles - handle errors independently
+  // Sync vehicles - store in SamsaraRecord collection
   if (config.syncVehicles) {
     try {
       const vehicles = await getVehicles(apiKey);
       results.vehicles = vehicles.length;
-      // TODO: Map and sync vehicles to local database
+
+      for (const vehicle of vehicles) {
+        // Check if already matched to a VroomX vehicle
+        const existingMatch = await Vehicle.findOne({
+          companyId: integration.companyId,
+          samsaraId: vehicle.id
+        });
+
+        // Upsert the SamsaraRecord
+        const record = await SamsaraRecord.findOneAndUpdate(
+          {
+            companyId: integration.companyId,
+            samsaraId: vehicle.id,
+            recordType: 'vehicle'
+          },
+          {
+            integrationId: integration._id,
+            samsaraData: vehicle,
+            displayName: vehicle.name || 'Unknown',
+            identifier: vehicle.vin || vehicle.serial || null,
+            status: existingMatch ? 'matched' : 'pending',
+            linkedRecordId: existingMatch?._id || null,
+            linkedRecordModel: existingMatch ? 'Vehicle' : null,
+            linkedAt: existingMatch ? new Date() : null,
+            syncedAt: new Date()
+          },
+          { upsert: true, new: true }
+        );
+
+        if (record.status === 'pending') {
+          results.pendingVehicles++;
+        }
+      }
     } catch (error) {
       console.error('Samsara vehicles sync error:', error.message);
       results.errors.push(`Vehicles: ${error.message}`);
@@ -170,10 +241,9 @@ const syncAll = async (integration, syncConfig = {}) => {
     try {
       const hosLogs = await getHOSLogs(apiKey);
       results.hosLogs = hosLogs.length;
-      // TODO: Map and store HOS data
+      // HOS data is informational - no matching needed
     } catch (error) {
       console.error('Samsara HOS sync error:', error.message);
-      // HOS often fails due to ELD permission requirements
       if (error.message.includes('permission') || error.status === 403) {
         results.errors.push('HOS: API token lacks ELD Compliance permissions. Enable in Samsara settings.');
       } else {
@@ -188,6 +258,102 @@ const syncAll = async (integration, syncConfig = {}) => {
   }
 
   return results;
+};
+
+/**
+ * Get pending (unmatched) Samsara records for a company
+ */
+const getPendingRecords = async (companyId) => {
+  const records = await SamsaraRecord.find({
+    companyId,
+    status: 'pending'
+  }).sort({ recordType: 1, displayName: 1 });
+
+  return {
+    drivers: records.filter(r => r.recordType === 'driver'),
+    vehicles: records.filter(r => r.recordType === 'vehicle')
+  };
+};
+
+/**
+ * Match a Samsara record to an existing VroomX record
+ */
+const matchRecord = async (samsaraRecordId, vroomxRecordId, recordType) => {
+  const samsaraRecord = await SamsaraRecord.findById(samsaraRecordId);
+  if (!samsaraRecord) {
+    throw new Error('Samsara record not found');
+  }
+
+  // Update the VroomX record with samsaraId
+  const Model = recordType === 'driver' ? Driver : Vehicle;
+  const vroomxRecord = await Model.findByIdAndUpdate(
+    vroomxRecordId,
+    { samsaraId: samsaraRecord.samsaraId },
+    { new: true }
+  );
+
+  if (!vroomxRecord) {
+    throw new Error(`${recordType} not found`);
+  }
+
+  // Update the SamsaraRecord as matched
+  samsaraRecord.status = 'matched';
+  samsaraRecord.linkedRecordId = vroomxRecord._id;
+  samsaraRecord.linkedRecordModel = recordType === 'driver' ? 'Driver' : 'Vehicle';
+  samsaraRecord.linkedAt = new Date();
+  await samsaraRecord.save();
+
+  return { samsaraRecord, vroomxRecord };
+};
+
+/**
+ * Create a new VroomX record from Samsara data
+ */
+const createFromSamsara = async (samsaraRecordId, companyId, additionalData = {}) => {
+  const samsaraRecord = await SamsaraRecord.findById(samsaraRecordId);
+  if (!samsaraRecord) {
+    throw new Error('Samsara record not found');
+  }
+
+  let newRecord;
+  if (samsaraRecord.recordType === 'driver') {
+    const mapped = mapSamsaraDriver(samsaraRecord.samsaraData);
+    newRecord = await Driver.create({
+      companyId,
+      firstName: mapped.firstName || 'Unknown',
+      lastName: mapped.lastName || 'Driver',
+      email: mapped.email,
+      phone: mapped.phone,
+      samsaraId: samsaraRecord.samsaraId,
+      hireDate: new Date(),
+      dateOfBirth: additionalData.dateOfBirth || new Date('1990-01-01'),
+      status: 'active',
+      ...additionalData
+    });
+  } else {
+    const mapped = mapSamsaraVehicle(samsaraRecord.samsaraData);
+    newRecord = await Vehicle.create({
+      companyId,
+      unitNumber: mapped.unitNumber || `SAMSARA-${samsaraRecord.samsaraId.slice(-6)}`,
+      vin: mapped.vin || additionalData.vin,
+      make: mapped.make,
+      model: mapped.model,
+      year: mapped.year,
+      samsaraId: samsaraRecord.samsaraId,
+      vehicleType: additionalData.vehicleType || 'tractor',
+      status: 'active',
+      ...additionalData
+    });
+  }
+
+  // Update SamsaraRecord as created
+  samsaraRecord.status = 'created';
+  samsaraRecord.linkedRecordId = newRecord._id;
+  samsaraRecord.linkedRecordModel = samsaraRecord.recordType === 'driver' ? 'Driver' : 'Vehicle';
+  samsaraRecord.linkedAt = new Date();
+  await samsaraRecord.save();
+
+  return newRecord;
 };
 
 /**
@@ -232,6 +398,9 @@ module.exports = {
   getVehicles,
   getHOSLogs,
   syncAll,
+  getPendingRecords,
+  matchRecord,
+  createFromSamsara,
   mapSamsaraDriver,
   mapSamsaraVehicle
 };

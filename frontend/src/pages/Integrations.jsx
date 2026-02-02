@@ -3,10 +3,11 @@ import toast from 'react-hot-toast';
 import {
   FiLink, FiCheck, FiX, FiRefreshCw, FiSettings, FiTruck,
   FiUsers, FiClock, FiAlertCircle, FiChevronRight, FiExternalLink,
-  FiZap, FiShield, FiDatabase
+  FiZap, FiShield, FiDatabase, FiAlertTriangle
 } from 'react-icons/fi';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Modal from '../components/Modal';
+import SamsaraMatchingModal from '../components/SamsaraMatchingModal';
 import api from '../utils/api';
 
 const Integrations = () => {
@@ -18,12 +19,15 @@ const Integrations = () => {
     stats: {
       drivers: 0,
       vehicles: 0,
-      hosLogs: 0
+      hosLogs: 0,
+      pendingDrivers: 0,
+      pendingVehicles: 0
     }
   });
   const [loading, setLoading] = useState(true);
   const [showConnectModal, setShowConnectModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showMatchingModal, setShowMatchingModal] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [apiKey, setApiKey] = useState('');
@@ -251,6 +255,31 @@ const Integrations = () => {
               </div>
             </div>
 
+            {/* Pending Matches Banner */}
+            {((samsaraStatus.stats?.pendingDrivers || 0) + (samsaraStatus.stats?.pendingVehicles || 0)) > 0 && (
+              <div className="mx-6 mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <FiAlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+                    <div>
+                      <p className="font-medium text-zinc-900 dark:text-white">
+                        {(samsaraStatus.stats?.pendingDrivers || 0) + (samsaraStatus.stats?.pendingVehicles || 0)} records need matching
+                      </p>
+                      <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                        {samsaraStatus.stats?.pendingDrivers || 0} drivers, {samsaraStatus.stats?.pendingVehicles || 0} vehicles
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowMatchingModal(true)}
+                    className="btn btn-primary btn-sm"
+                  >
+                    Review Matches
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Disconnect */}
             <div className="px-6 pb-6">
               <button
@@ -473,6 +502,13 @@ const Integrations = () => {
           </div>
         </form>
       </Modal>
+
+      {/* Samsara Matching Modal */}
+      <SamsaraMatchingModal
+        isOpen={showMatchingModal}
+        onClose={() => setShowMatchingModal(false)}
+        onComplete={fetchIntegrationStatus}
+      />
     </div>
   );
 };

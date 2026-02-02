@@ -220,4 +220,102 @@ router.put('/samsara/settings', authorize('owner', 'admin'), asyncHandler(async 
   });
 }));
 
+/**
+ * @route   GET /api/integrations/samsara/pending
+ * @desc    Get pending (unmatched) Samsara records
+ * @access  Private
+ */
+router.get('/samsara/pending', asyncHandler(async (req, res) => {
+  const pending = await samsaraService.getPendingRecords(req.companyFilter.companyId);
+  res.json(pending);
+}));
+
+/**
+ * @route   POST /api/integrations/samsara/match
+ * @desc    Match a Samsara record to an existing VroomX record
+ * @access  Private (Owner/Admin only)
+ */
+router.post('/samsara/match', authorize('owner', 'admin'), asyncHandler(async (req, res) => {
+  const { samsaraRecordId, vroomxRecordId, recordType } = req.body;
+
+  if (!samsaraRecordId || !vroomxRecordId || !recordType) {
+    return res.status(400).json({ message: 'samsaraRecordId, vroomxRecordId, and recordType are required' });
+  }
+
+  const result = await samsaraService.matchRecord(samsaraRecordId, vroomxRecordId, recordType);
+
+  // Audit log
+  auditService.log(req, 'SAMSARA_RECORD_MATCHED', recordType === 'driver' ? 'Driver' : 'Vehicle', vroomxRecordId, {
+    samsaraRecordId,
+    samsaraId: result.samsaraRecord.samsaraId
+  });
+
+  res.json({
+    success: true,
+    message: `${recordType} matched successfully`,
+    record: result.vroomxRecord
+  });
+}));
+
+/**
+ * @route   POST /api/integrations/samsara/create
+ * @desc    Create a new VroomX record from Samsara data
+ * @access  Private (Owner/Admin only)
+ */
+router.post('/samsara/create', authorize('owner', 'admin'), asyncHandler(async (req, res) => {
+  const { samsaraRecordId, additionalData } = req.body;
+
+  if (!samsaraRecordId) {
+    return res.status(400).json({ message: 'samsaraRecordId is required' });
+  }
+
+  const newRecord = await samsaraService.createFromSamsara(
+    samsaraRecordId,
+    req.companyFilter.companyId,
+    additionalData || {}
+  );
+
+  // Audit log
+  const resourceType = newRecord.firstName ? 'Driver' : 'Vehicle';
+  auditService.log(req, 'SAMSARA_RECORD_CREATED', resourceType, newRecord._id, {
+    samsaraRecordId,
+    createdFrom: 'samsara'
+  });
+
+  res.json({
+    success: true,
+    message: `${resourceType} created successfully`,
+    record: newRecord
+  });
+}));
+
+/**
+ * @route   POST /api/integrations/samsara/skip
+ * @desc    Skip a Samsara record (don't import)
+ * @access  Private (Owner/Admin only)
+ */
+router.post('/samsara/skip', authorize('owner', 'admin'), asyncHandler(async (req, res) => {
+  const { samsaraRecordId } = req.body;
+
+  if (!samsaraRecordId) {
+    return res.status(400).json({ message: 'samsaraRecordId is required' });
+  }
+
+  const SamsaraRecord = require('../models/SamsaraRecord');
+  const record = await SamsaraRecord.findByIdAndUpdate(
+    samsaraRecordId,
+    { status: 'skipped' },
+    { new: true }
+  );
+
+  if (!record) {
+    return res.status(404).json({ message: 'Samsara record not found' });
+  }
+
+  res.json({
+    success: true,
+    message: 'Record skipped'
+  });
+}));
+
 module.exports = router;
