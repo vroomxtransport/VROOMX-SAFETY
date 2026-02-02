@@ -517,6 +517,19 @@ export const adminAPI = {
   // Audit Logs
   getAuditLogs: (params) => api.get('/audit', { params }),
   exportAuditLogs: (params) => api.get('/audit/export', { params, responseType: 'blob' }),
+
+  // Revenue Dashboard
+  getRevenue: () => api.get('/admin/revenue'),
+
+  // User Analytics
+  getUserAnalytics: () => api.get('/admin/user-analytics'),
+
+  // Platform Alerts
+  getPlatformAlerts: () => api.get('/admin/platform-alerts'),
+
+  // Support Tickets (Admin)
+  getTickets: (params) => api.get('/admin/tickets', { params }),
+  updateTicket: (id, data) => api.patch(`/admin/tickets/${id}`, data),
 };
 
 // Audit API - Company-scoped audit logs (owner/admin)

@@ -6,13 +6,16 @@ import VroomXLogo from '../../components/VroomXLogo';
 import {
   FiHome, FiUsers, FiBriefcase, FiSettings, FiLogOut,
   FiArrowLeft, FiSun, FiMoon, FiShield, FiActivity,
-  FiMail, FiBell, FiToggleRight
+  FiMail, FiBell, FiToggleRight, FiDollarSign, FiAlertTriangle, FiMessageSquare
 } from 'react-icons/fi';
 
 const adminNavigation = [
   { name: 'Dashboard', path: '/admin', icon: FiHome },
+  { name: 'Revenue', path: '/admin/revenue', icon: FiDollarSign },
+  { name: 'Alerts', path: '/admin/alerts', icon: FiAlertTriangle },
   { name: 'Users', path: '/admin/users', icon: FiUsers },
   { name: 'Companies', path: '/admin/companies', icon: FiBriefcase },
+  { name: 'Tickets', path: '/admin/tickets', icon: FiMessageSquare },
   { name: 'Emails', path: '/admin/emails', icon: FiMail },
   { name: 'Announcements', path: '/admin/announcements', icon: FiBell },
   { name: 'Features', path: '/admin/features', icon: FiToggleRight },

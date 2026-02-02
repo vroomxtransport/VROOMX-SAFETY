@@ -56,6 +56,9 @@ import AdminEmails from './pages/admin/AdminEmails';
 import AdminAnnouncements from './pages/admin/AdminAnnouncements';
 import AdminFeatureFlags from './pages/admin/AdminFeatureFlags';
 import AdminDataIntegrity from './pages/admin/AdminDataIntegrity';
+import AdminRevenue from './pages/admin/AdminRevenue';
+import AdminAlerts from './pages/admin/AdminAlerts';
+import AdminTickets from './pages/admin/AdminTickets';
 
 // Design Demos
 import EnterpriseDemo from './pages/designs/EnterpriseDemo';
@@ -268,8 +271,11 @@ function App() {
           }
         >
           <Route index element={<AdminDashboard />} />
+          <Route path="revenue" element={<AdminRevenue />} />
+          <Route path="alerts" element={<AdminAlerts />} />
           <Route path="users" element={<AdminUsers />} />
           <Route path="companies" element={<AdminCompanies />} />
+          <Route path="tickets" element={<AdminTickets />} />
           <Route path="emails" element={<AdminEmails />} />
           <Route path="announcements" element={<AdminAnnouncements />} />
           <Route path="features" element={<AdminFeatureFlags />} />
