@@ -30,9 +30,11 @@ const VroomXLogo = ({
 
   // For light text color (dark backgrounds), we invert the logo
   // For default, we show normal in light mode and inverted in dark mode
+  // mix-blend-mode: multiply makes white background transparent on light backgrounds
+  // mix-blend-mode: screen makes black transparent on dark backgrounds (after invert)
   const filterClass = textColor === 'light'
-    ? 'brightness-0 invert' // Always white
-    : 'dark:brightness-0 dark:invert'; // White only in dark mode
+    ? 'brightness-0 invert mix-blend-screen' // White logo on dark bg
+    : 'mix-blend-multiply dark:brightness-0 dark:invert dark:mix-blend-screen'; // Auto dark mode
 
   const LogoContent = () => (
     <div className={`flex items-center ${className}`}>
@@ -41,7 +43,9 @@ const VroomXLogo = ({
         alt="VroomX Safety"
         width={width}
         className={`h-auto ${filterClass}`}
-        style={{ maxHeight: size === 'sm' ? '40px' : size === 'md' ? '52px' : size === 'lg' ? '65px' : '85px' }}
+        style={{
+          maxHeight: size === 'sm' ? '40px' : size === 'md' ? '52px' : size === 'lg' ? '65px' : '85px'
+        }}
       />
     </div>
   );
