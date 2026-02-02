@@ -66,12 +66,8 @@ const HeroSection = ({ heroTextIndex, heroTexts }) => {
             </span>
           </h1>
 
-          <p className="text-white drop-shadow-md text-lg md:text-xl max-w-2xl mb-4 leading-relaxed font-medium animate-fade-in-up mx-auto lg:mx-0" style={{ animationDelay: '0.1s' }}>
+          <p className="text-white drop-shadow-md text-lg md:text-xl max-w-2xl mb-8 leading-relaxed font-medium animate-fade-in-up mx-auto lg:mx-0" style={{ animationDelay: '0.1s' }}>
             You're a trucker, not a filing clerk. VroomX handles DQF files, expirations, and audit prep — so you can focus on the road.
-          </p>
-
-          <p className="text-white/80 drop-shadow-md text-base md:text-lg max-w-xl mb-8 italic animate-fade-in-up mx-auto lg:mx-0" style={{ animationDelay: '0.12s' }}>
-            Not telematics. Not fleet management. Just the document compliance that keeps you out of trouble.
           </p>
 
           {/* Stats inline */}
