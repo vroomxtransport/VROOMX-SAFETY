@@ -36,6 +36,8 @@ import Tasks from './pages/Tasks';
 import Checklists from './pages/Checklists';
 import Maintenance from './pages/Maintenance';
 import Accidents from './pages/Accidents';
+import Policies from './pages/Policies';
+import Integrations from './pages/Integrations';
 import LoadingSpinner from './components/LoadingSpinner';
 import ChatWidget from './components/AIChat/ChatWidget';
 import NotFound from './pages/NotFound';
@@ -237,6 +239,8 @@ function App() {
           <Route path="checklists" element={<Checklists />} />
           <Route path="maintenance" element={<Maintenance />} />
           <Route path="accidents" element={<Accidents />} />
+          <Route path="policies" element={<Policies />} />
+          <Route path="integrations" element={<Integrations />} />
         </Route>
 
         {/* Legacy routes - redirect to /app prefix */}

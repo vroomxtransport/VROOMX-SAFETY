@@ -13,7 +13,8 @@ import {
   FiFolder, FiBarChart2, FiFileText, FiSettings, FiMenu,
   FiX, FiBell, FiLogOut, FiChevronDown, FiShield, FiTag, FiMessageCircle, FiDollarSign,
   FiStar, FiCreditCard, FiActivity, FiCopy, FiSun, FiMoon,
-  FiChevronsLeft, FiChevronsRight, FiCheckSquare, FiClipboard, FiTool, FiAlertOctagon
+  FiChevronsLeft, FiChevronsRight, FiCheckSquare, FiClipboard, FiTool, FiAlertOctagon,
+  FiBookOpen, FiLink
 } from 'react-icons/fi';
 
 const navigation = [
@@ -37,11 +38,17 @@ const navigation = [
   { name: 'Damage Claims', path: '/app/damage-claims', icon: FiDollarSign },
   { name: 'Drug & Alcohol', path: '/app/drug-alcohol', icon: FiDroplet },
 
+  // Company Files section
+  { section: 'COMPANY FILES' },
+  { name: 'Policies', path: '/app/policies', icon: FiBookOpen },
+  { name: 'Templates', path: '/app/templates', icon: FiFileText },
+  { name: 'Checklists', path: '/app/checklists', icon: FiClipboard },
+  { name: 'Documents', path: '/app/documents', icon: FiFolder },
+
   // Tools section
   { section: 'TOOLS' },
-  { name: 'Documents', path: '/app/documents', icon: FiFolder },
-  { name: 'Checklists', path: '/app/checklists', icon: FiClipboard },
   { name: 'Reports', path: '/app/reports', icon: FiFileText },
+  { name: 'Integrations', path: '/app/integrations', icon: FiLink },
 ];
 
 const Layout = () => {
