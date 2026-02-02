@@ -26,18 +26,29 @@ const VroomXLogo = ({
     xl: 260
   };
 
+  // Map size to appropriate optimized image file
+  const getLogoSrc = () => {
+    switch (size) {
+      case 'xl':
+        return '/images/full_logo_large.png';  // 1200×555
+      case 'lg':
+        return '/images/full_logo_medium.png'; // 600×277
+      default:
+        return '/images/full_logo_small.png';  // 300×138 for sm, md
+    }
+  };
+
   const width = sizes[size] || sizes.md;
 
-  // For light text color (dark backgrounds), we invert the logo to white
-  // For default, we show normal in light mode and inverted in dark mode
+  // For light text color (dark backgrounds), invert to white
   const filterClass = textColor === 'light'
-    ? 'brightness-0 invert' // White logo on dark bg
-    : 'dark:brightness-0 dark:invert'; // White only in dark mode
+    ? 'brightness-0 invert'
+    : 'dark:brightness-0 dark:invert';
 
   const LogoContent = () => (
     <div className={`flex items-center ${className}`}>
       <img
-        src="/images/vroomx-logo-transparent.png"
+        src={getLogoSrc()}
         alt="VroomX Safety"
         width={width}
         className={`h-auto ${filterClass}`}
