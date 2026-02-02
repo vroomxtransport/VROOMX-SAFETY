@@ -12,7 +12,7 @@ const MinimalistDemo = () => {
         navItem: "flex items-center gap-4 px-4 py-3 rounded-2xl text-[#8E8E93] hover:bg-white hover:text-[#FF8A65] hover:shadow-sm transition-all duration-300 font-medium mb-1 cursor-pointer",
         navItemActive: "bg-[#FFF5F2] text-[#FF7043] shadow-inner",
         btnPrimary: "bg-gradient-to-r from-[#FF8A65] to-[#FF7043] text-white px-8 py-3 rounded-full font-bold shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 hover:-translate-y-0.5 transition-all duration-300",
-        search: "bg-white border-none rounded-full px-6 py-3 shadow-[0_2px_15px_rgb(0,0,0,0.03)] focus:outline-none focus:ring-2 focus:ring-[#FF8A65]/20 w-96 text-sm placeholder-gray-400",
+        search: "bg-white border-none rounded-full px-6 py-3 shadow-[0_2px_15px_rgb(0,0,0,0.03)] focus:outline-none focus:ring-2 focus:ring-[#FF8A65]/20 w-96 text-sm placeholder-gray-500",
     };
 
     return (
@@ -56,7 +56,7 @@ const MinimalistDemo = () => {
                     <img src="https://ui-avatars.com/api/?name=Alex+M&background=FF8A65&color=fff" className="w-10 h-10 rounded-full" alt="Profile" />
                     <div className="flex-1 min-w-0">
                         <h4 className="text-sm font-bold text-gray-800 truncate">Alex Morgan</h4>
-                        <p className="text-xs text-gray-400 truncate">Safety Officer</p>
+                        <p className="text-xs text-gray-500 truncate">Safety Officer</p>
                     </div>
                 </div>
             </aside>
@@ -67,7 +67,7 @@ const MinimalistDemo = () => {
                 <header className="hidden md:flex justify-between items-center mb-10">
                     <div>
                         <h1 className="text-3xl font-extrabold text-[#2D2D2D] mb-1">Good Morning, Alex! ☀️</h1>
-                        <p className="text-gray-400 font-medium">Your fleet is 98% compliant today.</p>
+                        <p className="text-gray-500 font-medium">Your fleet is 98% compliant today.</p>
                     </div>
                     <div className="flex items-center gap-6">
                         <div className="relative">
@@ -142,7 +142,7 @@ const MinimalistDemo = () => {
                                     </div>
                                     <div className="flex-1">
                                         <h4 className="font-bold text-[#2D2D2D]">{item.name}</h4>
-                                        <p className="text-sm text-gray-400">{item.action}</p>
+                                        <p className="text-sm text-gray-500">{item.action}</p>
                                     </div>
                                     <span className="text-xs font-bold text-gray-300">{item.time}</span>
                                 </div>

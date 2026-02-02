@@ -47,7 +47,7 @@ class ErrorBoundary extends React.Component {
             <h1 className="text-2xl font-bold text-white mb-2">
               Something went wrong
             </h1>
-            <p className="text-gray-400 mb-8">
+            <p className="text-gray-300 mb-8">
               An unexpected error occurred. You can try again or reload the page.
             </p>
 

@@ -98,7 +98,7 @@ const PricingSection = ({ isAnnual, setIsAnnual, pricingPlans }) => {
               {isAnnual && (
                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
                   Billed <span className="text-gray-700 dark:text-gray-200 font-medium">${plan.annualPrice * 12}/year</span>
-                  <span className="line-through ml-2 text-gray-400">${plan.monthlyPrice * 12}</span>
+                  <span className="line-through ml-2 text-gray-500">${plan.monthlyPrice * 12}</span>
                 </p>
               )}
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
