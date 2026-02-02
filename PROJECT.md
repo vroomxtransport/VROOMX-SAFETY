@@ -296,8 +296,9 @@ npm run dev  # Starts on port 5173
   - Sync status display (drivers, vehicles, HOS logs)
   - Manual sync trigger and auto-sync settings
   - Data mapping options (drivers, vehicles, HOS)
-  - Placeholder for future integrations (KeepTruckin, Geotab, Motive)
-  - Files: `frontend/src/pages/Integrations.jsx`
+  - Placeholder for future integrations (Geotab, Motive)
+  - Actual brand logos: Samsara owl, Geotab, Motive
+  - Files: `frontend/src/pages/Integrations.jsx`, `frontend/public/images/integrations/`
 - **Routes:** Added `/app/policies` and `/app/integrations` routes
   - Files: `frontend/src/App.jsx`
 
