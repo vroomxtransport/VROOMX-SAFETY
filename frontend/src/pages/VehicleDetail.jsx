@@ -430,25 +430,6 @@ const VehicleDetail = () => {
                       </div>
                     )}
 
-                    {/* Engine Status */}
-                    {vehicle.samsaraTelematics.engineRunning !== undefined && (
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
-                            <FiTruck className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                          </div>
-                          <span className="text-zinc-600 dark:text-zinc-300">Engine</span>
-                        </div>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          vehicle.samsaraTelematics.engineRunning
-                            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                            : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-400'
-                        }`}>
-                          {vehicle.samsaraTelematics.engineRunning ? 'Running' : 'Off'}
-                        </span>
-                      </div>
-                    )}
-
                     {/* Last Updated */}
                     {vehicle.samsaraTelematics.lastUpdated && (
                       <div className="pt-2 border-t border-zinc-100 dark:border-zinc-700 text-xs text-zinc-500 dark:text-zinc-400">

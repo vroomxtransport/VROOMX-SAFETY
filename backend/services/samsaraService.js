@@ -98,8 +98,8 @@ const getVehicles = async (apiKey) => {
  */
 const getVehicleStats = async (apiKey, vehicleIds = null) => {
   try {
-    // Request GPS, odometer, fuel, and engine state data
-    const types = 'gps,obdOdometerMeters,gpsOdometerMeters,fuelPercents,engineStates';
+    // Request GPS, odometer, and fuel data (Samsara limits to 4 types per request)
+    const types = 'gps,obdOdometerMeters,gpsOdometerMeters,fuelPercents';
     let endpoint = `/fleet/vehicles/stats?types=${types}`;
 
     if (vehicleIds && vehicleIds.length > 0) {
@@ -178,17 +178,6 @@ const mapSamsaraTelematics = (samsaraStats) => {
   // Fuel Level
   if (samsaraStats.fuelPercents) {
     telematics.fuelPercent = Math.round(samsaraStats.fuelPercents.value);
-  }
-
-  // Engine State
-  if (samsaraStats.engineStates && samsaraStats.engineStates.length > 0) {
-    const engineState = samsaraStats.engineStates[0].value;
-    telematics.engineRunning = engineState === 'On' || engineState === 'Idle';
-  }
-
-  // Engine Hours (if available from OBD)
-  if (samsaraStats.obdEngineSeconds) {
-    telematics.engineHours = Math.round(samsaraStats.obdEngineSeconds.value / 3600);
   }
 
   return telematics;
