@@ -12,13 +12,19 @@ const DiffV2 = () => {
 
   return (
     <div className="min-h-screen bg-[#0a1628] overflow-hidden">
-      {/* Back Link */}
-      <div className="p-6">
-        <Link to="/" className="inline-flex items-center gap-2 text-white/70 hover:text-white font-medium">
-          <FiArrowLeft /> Back to Home
-        </Link>
-        <span className="ml-4 text-sm text-white/30">Design V2: Centered Focus</span>
+      {/* Fixed Header */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-[#0a1628]/90 backdrop-blur-sm border-b border-white/10 px-6 py-3 flex items-center justify-between">
+        <button
+          onClick={() => window.location.href = '/'}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-cta-500 text-white rounded-lg font-medium hover:bg-cta-600 transition-colors"
+        >
+          <FiArrowLeft /> Back to Landing Page
+        </button>
+        <span className="text-sm text-white/50">Design V2: Centered Focus</span>
       </div>
+
+      {/* Spacer for fixed header */}
+      <div className="h-16"></div>
 
       {/* Section */}
       <section className="py-20 px-6 md:px-16 relative">

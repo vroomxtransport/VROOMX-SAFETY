@@ -11,13 +11,19 @@ const DiffV1 = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
-      {/* Back Link */}
-      <div className="p-6">
-        <Link to="/" className="inline-flex items-center gap-2 text-primary-500 hover:text-primary-600 font-medium">
-          <FiArrowLeft /> Back to Home
-        </Link>
-        <span className="ml-4 text-sm text-zinc-400">Design V1: Split Cards with Gradient Border</span>
+      {/* Fixed Header */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm border-b border-zinc-200 px-6 py-3 flex items-center justify-between">
+        <button
+          onClick={() => window.location.href = '/'}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-lg font-medium hover:bg-primary-600 transition-colors"
+        >
+          <FiArrowLeft /> Back to Landing Page
+        </button>
+        <span className="text-sm text-zinc-500">Design V1: Split Cards</span>
       </div>
+
+      {/* Spacer for fixed header */}
+      <div className="h-16"></div>
 
       {/* Section */}
       <section className="py-20 px-6 md:px-16">
