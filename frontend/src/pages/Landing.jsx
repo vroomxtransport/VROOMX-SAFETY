@@ -257,6 +257,34 @@ const Landing = () => {
                   <div className="p-1.5 border-r border-[#e5e5e5] text-gray-400 italic">???</div>
                   <div className="p-1.5 text-gray-400 italic">Unknown</div>
                 </div>
+                <div className="grid grid-cols-5 border-b border-[#e5e5e5]">
+                  <div className="p-1.5 border-r border-[#e5e5e5] text-gray-800">A. Martinez</div>
+                  <div className="p-1.5 border-r border-[#e5e5e5] text-gray-600">09/14/26</div>
+                  <div className="p-1.5 border-r border-[#e5e5e5] text-red-600 bg-red-50 font-semibold">EXPIRED</div>
+                  <div className="p-1.5 border-r border-[#e5e5e5] text-gray-600">02/28/25</div>
+                  <div className="p-1.5 text-amber-600">⚠️ Check</div>
+                </div>
+                <div className="grid grid-cols-5 border-b border-[#e5e5e5]">
+                  <div className="p-1.5 border-r border-[#e5e5e5] text-gray-800">K. Brown</div>
+                  <div className="p-1.5 border-r border-[#e5e5e5] text-red-600 bg-red-50 font-semibold">EXPIRED</div>
+                  <div className="p-1.5 border-r border-[#e5e5e5] text-red-600 bg-red-50 font-semibold">EXPIRED</div>
+                  <div className="p-1.5 border-r border-[#e5e5e5] text-red-600 bg-red-50">MISSING!</div>
+                  <div className="p-1.5 text-red-600 font-semibold">⚠️ OOS</div>
+                </div>
+                <div className="grid grid-cols-5 border-b border-[#e5e5e5]">
+                  <div className="p-1.5 border-r border-[#e5e5e5] text-gray-800">P. Garcia</div>
+                  <div className="p-1.5 border-r border-[#e5e5e5] text-amber-600 bg-amber-50">02/10/25</div>
+                  <div className="p-1.5 border-r border-[#e5e5e5] text-gray-600">11/30/25</div>
+                  <div className="p-1.5 border-r border-[#e5e5e5] text-gray-400 italic">???</div>
+                  <div className="p-1.5 text-gray-600">Active</div>
+                </div>
+                <div className="grid grid-cols-5 border-b border-[#e5e5e5]">
+                  <div className="p-1.5 border-r border-[#e5e5e5] text-gray-800">L. Thompson</div>
+                  <div className="p-1.5 border-r border-[#e5e5e5] text-gray-600">07/22/26</div>
+                  <div className="p-1.5 border-r border-[#e5e5e5] text-amber-600 bg-amber-50">01/05/25</div>
+                  <div className="p-1.5 border-r border-[#e5e5e5] text-gray-600">05/15/25</div>
+                  <div className="p-1.5 text-gray-600">Active</div>
+                </div>
               </div>
 
               {/* Error Bar */}
