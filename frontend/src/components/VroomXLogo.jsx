@@ -40,10 +40,12 @@ const VroomXLogo = ({
 
   const width = sizes[size] || sizes.md;
 
-  // For light text color (dark backgrounds), invert to white
+  // Logo has white/light text - make it dark on light backgrounds
+  // textColor='light' = on dark bg, keep logo white (no filter)
+  // textColor='default' = light mode needs dark logo, dark mode keeps white
   const filterClass = textColor === 'light'
-    ? 'brightness-0 invert'
-    : 'dark:brightness-0 dark:invert';
+    ? '' // Dark background - keep logo white
+    : 'brightness-0 dark:brightness-100'; // Light bg: black, dark mode: original white
 
   const LogoContent = () => (
     <div className={`flex items-center ${className}`}>
