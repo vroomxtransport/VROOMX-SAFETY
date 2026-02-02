@@ -26,7 +26,7 @@ const HeroSection = ({ heroTextIndex, heroTexts }) => {
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <img
-          src="/images/hero-truck.webp"
+          src="/images/hero-truck.jpg"
           className="w-full h-full object-cover object-[center_70%]"
           alt="Commercial semi-truck on American highway - FMCSA compliant trucking fleet"
           fetchpriority="high"
