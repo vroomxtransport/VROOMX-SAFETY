@@ -65,6 +65,9 @@ import AdminTickets from './pages/admin/AdminTickets';
 // Design Demos
 import EnterpriseDemo from './pages/designs/EnterpriseDemo';
 import MinimalistDemo from './pages/designs/MinimalistDemo';
+import DiffV1 from './pages/designs/DiffV1';
+import DiffV2 from './pages/designs/DiffV2';
+import DiffV3 from './pages/designs/DiffV3';
 
 // Protected route wrapper
 const ProtectedRoute = ({ children, allowPendingPayment = false }) => {
@@ -182,6 +185,9 @@ function App() {
         {/* Design Demos (Public for preview) */}
         <Route path="/design/enterprise" element={<EnterpriseDemo />} />
         <Route path="/design/minimalist" element={<MinimalistDemo />} />
+        <Route path="/design/diff-v1" element={<DiffV1 />} />
+        <Route path="/design/diff-v2" element={<DiffV2 />} />
+        <Route path="/design/diff-v3" element={<DiffV3 />} />
 
         {/* Blog - public, accessible to everyone */}
         <Route path="/blog" element={<Blog />} />
