@@ -267,7 +267,46 @@ app.listen(PORT, () => {
     }
   });
 
-  console.log('[Cron] Scheduled: Daily alerts at 6 AM, Alert digest emails, Escalation check every 6 hours, Trial ending check at 9 AM, Scheduled reports every hour');
+  // Sync Samsara integrations every hour (for companies with autoSync enabled)
+  cron.schedule('30 * * * *', async () => {
+    console.log('[Cron] Running hourly Samsara sync...');
+    try {
+      const Integration = require('./models/Integration');
+      const samsaraService = require('./services/samsaraService');
+
+      const activeIntegrations = await Integration.find({
+        provider: 'samsara',
+        status: 'active',
+        'syncConfig.autoSync': true
+      });
+
+      if (activeIntegrations.length === 0) {
+        return;
+      }
+
+      let successCount = 0;
+      for (const integration of activeIntegrations) {
+        try {
+          await samsaraService.syncAll(integration, integration.syncConfig);
+          integration.lastSyncAt = new Date();
+          integration.status = 'active';
+          integration.error = null;
+          await integration.save();
+          successCount++;
+        } catch (err) {
+          console.error(`[Cron] Samsara sync failed for company ${integration.companyId}:`, err.message);
+          integration.error = err.message;
+          await integration.save();
+        }
+      }
+
+      console.log(`[Cron] Samsara sync completed: ${successCount}/${activeIntegrations.length} integrations`);
+    } catch (err) {
+      console.error('[Cron] Samsara sync job failed:', err.message);
+    }
+  });
+
+  console.log('[Cron] Scheduled: Daily alerts at 6 AM, Alert digest emails, Escalation check every 6 hours, Trial ending check at 9 AM, Scheduled reports every hour, Samsara sync every hour');
 });
 
 // Handle uncaught exceptions — log and exit so process manager can restart

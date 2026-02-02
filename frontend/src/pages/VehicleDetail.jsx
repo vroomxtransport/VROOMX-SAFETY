@@ -55,6 +55,23 @@ const VehicleDetail = () => {
     fetchVehicle();
   }, [id]);
 
+  // Auto-refresh telematics from Samsara when viewing a linked vehicle
+  useEffect(() => {
+    if (vehicle?.samsaraId && !loading) {
+      integrationsAPI.refreshTelematics(vehicle._id)
+        .then(res => {
+          setVehicle(prev => ({
+            ...prev,
+            samsaraTelematics: res.data.telematics
+          }));
+        })
+        .catch(err => {
+          // Silent fail - don't interrupt user with errors for background refresh
+          console.error('Auto-refresh telematics failed:', err);
+        });
+    }
+  }, [vehicle?.samsaraId, vehicle?._id, loading]);
+
   const fetchVehicle = async () => {
     try {
       const response = await vehiclesAPI.getById(id);
