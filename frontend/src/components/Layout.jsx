@@ -14,7 +14,7 @@ import {
   FiX, FiBell, FiLogOut, FiChevronDown, FiShield, FiTag, FiMessageCircle, FiDollarSign,
   FiStar, FiActivity, FiCopy, FiSun, FiMoon,
   FiChevronsLeft, FiChevronsRight, FiCheckSquare, FiClipboard, FiTool, FiAlertOctagon,
-  FiBookOpen, FiLink, FiTarget
+  FiBookOpen, FiLink, FiTarget, FiArrowLeft
 } from 'react-icons/fi';
 
 const navigation = [
@@ -54,7 +54,7 @@ const navigation = [
 ];
 
 const Layout = () => {
-  const { user, logout, subscription, activeCompany } = useAuth();
+  const { user, logout, subscription, activeCompany, isDemo } = useAuth();
   const { isDark, toggleTheme } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
@@ -286,6 +286,23 @@ const Layout = () => {
             <FiX className="w-5 h-5" />
           </button>
         </div>
+
+        {/* Demo Mode Banner */}
+        {isDemo && !sidebarCollapsed && (
+          <div className="mx-3 mt-3 p-3 bg-cta-500/10 border border-cta-500/20 rounded-xl">
+            <p className="text-xs text-cta-600 font-medium mb-2">Demo Mode</p>
+            <button
+              onClick={() => {
+                logout();
+                window.location.href = '/';
+              }}
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-cta-500 text-white text-sm font-medium rounded-lg hover:bg-cta-600 transition-colors"
+            >
+              <FiArrowLeft className="w-4 h-4" />
+              Exit Demo
+            </button>
+          </div>
+        )}
 
         {/* Navigation */}
         <nav className={`flex-1 py-4 space-y-1 overflow-y-auto scrollbar-thin ${sidebarCollapsed ? 'px-2' : 'px-3'}`}>
