@@ -27,37 +27,59 @@ const VroomXLogo = ({
   };
 
   // Map size to appropriate optimized image file
-  const getLogoSrc = () => {
+  // textColor='light' = dark background, use white-text logos
+  // textColor='default' = light background, use navy-text logos (dark mode uses white-text)
+  const getLogoSrc = (forDarkBg = false) => {
+    const useWhiteLogo = forDarkBg || textColor === 'light';
+    const prefix = useWhiteLogo ? 'full_logo' : 'full_logo_dark_orange_lines';
+
     switch (size) {
       case 'xl':
-        return '/images/full_logo_large.png';  // 1200×555
+        return `/images/${prefix}_large.png`;
       case 'lg':
-        return '/images/full_logo_medium.png'; // 600×277
+        return `/images/${prefix}_medium.png`;
       default:
-        return '/images/full_logo_small.png';  // 300×138 for sm, md
+        return `/images/${prefix}_small.png`;
     }
   };
 
   const width = sizes[size] || sizes.md;
 
-  // Logo has white/light text - make it dark on light backgrounds
-  // textColor='light' = on dark bg, keep logo white (no filter)
-  // textColor='default' = light mode needs dark logo, dark mode keeps white
-  const filterClass = textColor === 'light'
-    ? '' // Dark background - keep logo white
-    : 'brightness-0 dark:brightness-100'; // Light bg: black, dark mode: original white
-
   const LogoContent = () => (
     <div className={`flex items-center ${className}`}>
-      <img
-        src={getLogoSrc()}
-        alt="VroomX Safety"
-        width={width}
-        className={`h-auto ${filterClass}`}
-        style={{
-          maxHeight: size === 'sm' ? '40px' : size === 'md' ? '52px' : size === 'lg' ? '65px' : '85px'
-        }}
-      />
+      {/* Light mode: navy logo, Dark mode: white logo */}
+      {textColor === 'light' ? (
+        <img
+          src={getLogoSrc(true)}
+          alt="VroomX Safety"
+          width={width}
+          className="h-auto"
+          style={{
+            maxHeight: size === 'sm' ? '40px' : size === 'md' ? '52px' : size === 'lg' ? '65px' : '85px'
+          }}
+        />
+      ) : (
+        <>
+          <img
+            src={getLogoSrc(false)}
+            alt="VroomX Safety"
+            width={width}
+            className="h-auto dark:hidden"
+            style={{
+              maxHeight: size === 'sm' ? '40px' : size === 'md' ? '52px' : size === 'lg' ? '65px' : '85px'
+            }}
+          />
+          <img
+            src={getLogoSrc(true)}
+            alt="VroomX Safety"
+            width={width}
+            className="h-auto hidden dark:block"
+            style={{
+              maxHeight: size === 'sm' ? '40px' : size === 'md' ? '52px' : size === 'lg' ? '65px' : '85px'
+            }}
+          />
+        </>
+      )}
     </div>
   );
 
