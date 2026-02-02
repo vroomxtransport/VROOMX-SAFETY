@@ -151,9 +151,11 @@ const Integrations = () => {
         <div className="p-6 border-b border-zinc-200 dark:border-zinc-700">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-xl">S</span>
-              </div>
+              <img
+                src="/images/integrations/samsara.svg"
+                alt="Samsara"
+                className="w-14 h-14 rounded-xl"
+              />
               <div>
                 <h2 className="text-xl font-bold text-zinc-900 dark:text-white">Samsara</h2>
                 <p className="text-zinc-600 dark:text-zinc-400">Fleet management & ELD integration</p>
@@ -323,14 +325,15 @@ const Integrations = () => {
         <h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">More Integrations Coming Soon</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[
-            { name: 'KeepTruckin', desc: 'ELD & fleet management' },
-            { name: 'Geotab', desc: 'Telematics & fleet tracking' },
-            { name: 'Motive', desc: 'Fleet management platform' },
+            { name: 'Geotab', desc: 'Telematics & fleet tracking', logo: '/images/integrations/geotab.svg' },
+            { name: 'Motive', desc: 'Fleet management platform', logo: '/images/integrations/motive.svg' },
           ].map((integration) => (
             <div key={integration.name} className="flex items-center space-x-3 p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl opacity-60">
-              <div className="w-10 h-10 bg-zinc-200 dark:bg-zinc-700 rounded-lg flex items-center justify-center">
-                <FiLink className="w-5 h-5 text-zinc-400" />
-              </div>
+              <img
+                src={integration.logo}
+                alt={integration.name}
+                className="w-10 h-10 rounded-lg"
+              />
               <div>
                 <p className="font-medium text-zinc-900 dark:text-white">{integration.name}</p>
                 <p className="text-xs text-zinc-500">{integration.desc}</p>
