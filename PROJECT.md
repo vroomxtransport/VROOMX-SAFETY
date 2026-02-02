@@ -316,6 +316,10 @@ npm run dev  # Starts on port 5173
     - `POST /api/integrations/samsara/sync` - Trigger manual sync
     - `PUT /api/integrations/samsara/settings` - Update sync settings
   - Features: Encrypted credential storage, company isolation, audit logging
+  - Fix: Graceful handling of permission errors (HOS requires ELD permissions)
+    - Each sync operation handled independently
+    - Partial sync succeeds even if one endpoint lacks permissions
+    - Clear error messages for missing permissions
 
 ### 2026-01-30 (Driver-Level CSA Attribution - Phase 4)
 - **Feature:** Driver-Level CSA Attribution - Link violations to drivers and track CSA impact
