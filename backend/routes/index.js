@@ -31,6 +31,7 @@ const auditRoutes = require('./audit');
 const announcementRoutes = require('./announcements');
 const featureRoutes = require('./features');
 const scheduledReportRoutes = require('./scheduledReports');
+const integrationRoutes = require('./integrations');
 
 // Apply demo guard globally - blocks write operations for demo users
 router.use(demoGuard);
@@ -65,5 +66,6 @@ router.use('/audit', auditRoutes);
 router.use('/announcements', announcementRoutes);
 router.use('/features', featureRoutes);
 router.use('/scheduled-reports', scheduledReportRoutes);
+router.use('/integrations', integrationRoutes);
 
 module.exports = router;
