@@ -278,6 +278,29 @@ npm run dev  # Starts on port 5173
 
 ## Changelog
 
+### 2026-01-31 (Sidebar Reorganization & Integrations)
+- **Sidebar:** Reorganized navigation structure
+  - New "COMPANY FILES" section: Policies, Templates, Checklists, Documents
+  - Updated "TOOLS" section: Reports, Integrations
+  - Added icons: `FiBookOpen`, `FiLink`
+  - Files: `frontend/src/components/Layout.jsx`
+- **New Page:** Policies (`/app/policies`)
+  - Company policy document management
+  - Upload, view, download, delete policies
+  - Categories: Safety, HR, Operations, Compliance, Driver, Maintenance, Drug & Alcohol, Accident, Training
+  - Search and filter functionality
+  - Files: `frontend/src/pages/Policies.jsx`
+- **New Page:** Integrations (`/app/integrations`)
+  - Samsara fleet management integration UI
+  - Connect/disconnect with API key authentication
+  - Sync status display (drivers, vehicles, HOS logs)
+  - Manual sync trigger and auto-sync settings
+  - Data mapping options (drivers, vehicles, HOS)
+  - Placeholder for future integrations (KeepTruckin, Geotab, Motive)
+  - Files: `frontend/src/pages/Integrations.jsx`
+- **Routes:** Added `/app/policies` and `/app/integrations` routes
+  - Files: `frontend/src/App.jsx`
+
 ### 2026-01-30 (Driver-Level CSA Attribution - Phase 4)
 - **Feature:** Driver-Level CSA Attribution - Link violations to drivers and track CSA impact
   - New Service: `backend/services/driverCSAService.js` - Driver linking, CSA calculations, risk scoring
