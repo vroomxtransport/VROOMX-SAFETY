@@ -320,6 +320,19 @@ npm run dev  # Starts on port 5173
     - Each sync operation handled independently
     - Partial sync succeeds even if one endpoint lacks permissions
     - Clear error messages for missing permissions
+- **Feature:** Samsara Manual Matching Workflow
+  - New Model: `backend/models/SamsaraRecord.js` - Store pending Samsara data for matching
+  - Added `samsaraId` field to Driver and Vehicle models for linking
+  - New Service methods: `getPendingRecords()`, `matchRecord()`, `createFromSamsara()`
+  - New Routes:
+    - `GET /api/integrations/samsara/pending` - Get unmatched records
+    - `POST /api/integrations/samsara/match` - Match to existing VroomX record
+    - `POST /api/integrations/samsara/create` - Create new record from Samsara
+    - `POST /api/integrations/samsara/skip` - Skip/ignore a record
+  - New Component: `frontend/src/components/SamsaraMatchingModal.jsx`
+  - UI: Pending matches banner with "Review Matches" button
+  - User flow: Sync → Review pending → Match/Create/Skip each record
+  - Once matched, future syncs auto-update linked records
 
 ### 2026-01-30 (Driver-Level CSA Attribution - Phase 4)
 - **Feature:** Driver-Level CSA Attribution - Link violations to drivers and track CSA impact
