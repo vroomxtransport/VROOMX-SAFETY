@@ -40,6 +40,7 @@ import Policies from './pages/Policies';
 import Integrations from './pages/Integrations';
 import DataQDashboard from './pages/DataQDashboard';
 import LoadingSpinner from './components/LoadingSpinner';
+import PageTransition from './components/PageTransition';
 import ChatWidget from './components/AIChat/ChatWidget';
 import NotFound from './pages/NotFound';
 
@@ -147,6 +148,7 @@ function App() {
 
   return (
     <FeatureFlagProvider>
+      <PageTransition />
       <Routes>
         {/* Landing page - public, redirects to dashboard if logged in */}
         <Route
