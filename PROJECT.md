@@ -108,6 +108,7 @@ TRUCKING COMPLIANCE HUB1/
 - **Document Intelligence** - Auto-classification via OpenAI Vision (images + PDF support)
 - **Smart Maintenance Upload** - AI extracts invoice/work order data from photos and PDFs (OpenAI Responses API)
 - **CSA Estimator** - Calculate potential CSA impact
+- **DataQ Challenge System** - AI-powered violation analysis, challenge scoring, and professional letter generation
 
 ### Business Features
 - **Free CSA Checker** - Public carrier lookup tool
@@ -277,6 +278,58 @@ npm run dev  # Starts on port 5173
 ---
 
 ## Changelog
+
+### 2026-02-02 (AI-Powered DataQ Challenge System)
+- **Feature:** AI-Powered DataQ Challenge Analysis
+  - Automatic identification of challengeable violations with scoring algorithm (0-100)
+  - Scoring factors: violation age, OOS status, severity weight, error-prone codes, BASIC category
+  - Challenge potential categories: High (75+), Medium (50-74), Low (<50)
+  - Estimated CSA impact calculation if challenge is accepted
+  - Evidence checklist recommendations per challenge type
+  - Files: `backend/services/dataQAnalysisService.js` (new)
+- **Feature:** AI DataQ Letter Generation
+  - Professional DataQ challenge letter generation with CFR citations
+  - Two new Claude AI prompts: `dataQChallengeAnalyzer` (JSON analysis) and `dataQLetterGenerator` (formal letters)
+  - Challenge types: data_error, policy_violation, procedural_error, not_responsible
+  - Files: `backend/services/aiService.js`
+- **Feature:** DataQ Dashboard (`/app/dataq-dashboard`)
+  - Summary stats: success rate, open challenges, accepted count, CSA points saved
+  - Challenge status breakdown: pending, under review, accepted, denied, withdrawn
+  - Average processing time tracking
+  - AI-identified opportunities list with expandable analysis
+  - How It Works section explaining the 3-step process
+  - Files: `frontend/src/pages/DataQDashboard.jsx` (new)
+- **Feature:** DataQ Opportunities Component
+  - Card-based display with circular score indicators
+  - Expandable details showing analysis factors and deductions
+  - Estimated CSA impact per violation
+  - One-click "Generate Challenge Letter" action
+  - Files: `frontend/src/components/DataQOpportunities.jsx` (new)
+- **Feature:** DataQ Letter Generation Modal
+  - 5-step wizard: Analysis → Challenge Type → Letter Preview → Evidence Checklist → Submit
+  - Deep AI analysis fetch option for detailed insights
+  - Letter copy/download functionality
+  - Evidence checklist with required/obtained tracking
+  - Files: `frontend/src/components/DataQLetterModal.jsx` (new)
+- **UI:** Violations page DataQ integration
+  - New "DataQ Opportunities" tab with AI badge
+  - AI badges on high-potential violations (75+ score) in list view
+  - Quick access to letter generation from opportunities tab
+  - Files: `frontend/src/pages/Violations.jsx`
+- **API:** New DataQ endpoints
+  - `POST /api/ai/analyze-dataq-opportunities` - Bulk violation analysis
+  - `POST /api/ai/analyze-violation/:id` - Deep single violation analysis
+  - `POST /api/ai/generate-dataq-letter/:id` - Generate challenge letter
+  - `GET /api/violations/dataq-opportunities` - List ranked opportunities
+  - `GET /api/violations/dataq-dashboard` - Dashboard statistics
+  - `PUT /api/violations/:id/dataq/letter` - Save generated letter
+  - `PUT /api/violations/:id/dataq/evidence` - Update evidence checklist
+  - Files: `backend/routes/ai.js`, `backend/routes/violations.js`
+- **Model:** Extended Violation schema
+  - Added `dataQChallenge.aiAnalysis` (score, factors, confidence, recommendation, generatedAt)
+  - Added `dataQChallenge.generatedLetter` (content, generatedAt, challengeType)
+  - Added `dataQChallenge.evidenceChecklist` (item, required, obtained, documentUrl, notes)
+  - Files: `backend/models/Violation.js`
 
 ### 2026-02-02 (Admin Panel Enhancements)
 - **Feature:** Revenue Dashboard (`/admin/revenue`)
