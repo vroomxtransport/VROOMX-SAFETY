@@ -290,6 +290,12 @@ npm run dev  # Starts on port 5173
   - Samsara API uses plural `fuelPercents` for the stat type parameter
   - Fixed in both API request and response mapping
   - File: `backend/services/samsaraService.js` (`getVehicleStats()` and `mapSamsaraTelematics()`)
+- **Fix:** Samsara API 4-type limit error
+  - Vehicle telematics was failing with "Vehicle stats are currently restricted to 4 types"
+  - Was requesting 5 types: gps, obdOdometerMeters, gpsOdometerMeters, fuelPercents, engineStates
+  - Removed `engineStates` (least critical) to stay within Samsara's 4-type limit
+  - Removed engine status display from Vehicle Detail telematics card
+  - Files: `backend/services/samsaraService.js`, `frontend/src/pages/VehicleDetail.jsx`
 
 ### 2026-02-02 (Samsara Vehicle Telematics)
 - **Feature:** Samsara Vehicle Telematics - Pull real-time vehicle data from Samsara
