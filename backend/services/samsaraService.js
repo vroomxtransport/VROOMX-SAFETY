@@ -99,7 +99,7 @@ const getVehicles = async (apiKey) => {
 const getVehicleStats = async (apiKey, vehicleIds = null) => {
   try {
     // Request GPS, odometer, fuel, and engine state data
-    const types = 'gps,obdOdometerMeters,gpsOdometerMeters,fuelPercent,engineStates';
+    const types = 'gps,obdOdometerMeters,gpsOdometerMeters,fuelPercents,engineStates';
     let endpoint = `/fleet/vehicles/stats?types=${types}`;
 
     if (vehicleIds && vehicleIds.length > 0) {
@@ -176,8 +176,8 @@ const mapSamsaraTelematics = (samsaraStats) => {
   }
 
   // Fuel Level
-  if (samsaraStats.fuelPercent) {
-    telematics.fuelPercent = Math.round(samsaraStats.fuelPercent.value);
+  if (samsaraStats.fuelPercents) {
+    telematics.fuelPercent = Math.round(samsaraStats.fuelPercents.value);
   }
 
   // Engine State
