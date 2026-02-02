@@ -330,6 +330,11 @@ npm run dev  # Starts on port 5173
   - Added `dataQChallenge.generatedLetter` (content, generatedAt, challengeType)
   - Added `dataQChallenge.evidenceChecklist` (item, required, obtained, documentUrl, notes)
   - Files: `backend/models/Violation.js`
+- **UI:** Sidebar navigation updates
+  - Added "Violations" link under MANAGEMENT section (`/app/violations`)
+  - Added "DataQ Challenges" link with AI badge (`/app/dataq-dashboard`)
+  - Removed redirect from `/app/violations` to `/app/compliance` - now renders Violations page
+  - Files: `frontend/src/components/Layout.jsx`, `frontend/src/App.jsx`
 
 ### 2026-02-02 (Admin Panel Enhancements)
 - **Feature:** Revenue Dashboard (`/admin/revenue`)
