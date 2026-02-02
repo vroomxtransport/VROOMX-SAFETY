@@ -14,7 +14,7 @@ import {
   FiX, FiBell, FiLogOut, FiChevronDown, FiShield, FiTag, FiMessageCircle, FiDollarSign,
   FiStar, FiCreditCard, FiActivity, FiCopy, FiSun, FiMoon,
   FiChevronsLeft, FiChevronsRight, FiCheckSquare, FiClipboard, FiTool, FiAlertOctagon,
-  FiBookOpen, FiLink
+  FiBookOpen, FiLink, FiTarget
 } from 'react-icons/fi';
 
 const navigation = [
@@ -27,6 +27,7 @@ const navigation = [
   // Management section
   { section: 'MANAGEMENT' },
   { name: 'FMCSA Dashboard', path: '/app/compliance', icon: FiBarChart2 },
+  { name: 'DataQ Challenges', path: '/app/dataq-dashboard', icon: FiTarget, isAI: true },
   { name: 'Driver Files', path: '/app/drivers', icon: FiUsers },
   { name: 'Vehicle Files', path: '/app/vehicles', icon: FiTruck },
   { name: 'Maintenance', path: '/app/maintenance', icon: FiTool },
