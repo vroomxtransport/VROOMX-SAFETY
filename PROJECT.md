@@ -301,6 +301,21 @@ npm run dev  # Starts on port 5173
   - Files: `frontend/src/pages/Integrations.jsx`, `frontend/public/images/integrations/`
 - **Routes:** Added `/app/policies` and `/app/integrations` routes
   - Files: `frontend/src/App.jsx`
+- **Backend:** Samsara Integration API
+  - New Model: `backend/models/Integration.js` - Stores encrypted API keys per company
+  - New Service: `backend/services/samsaraService.js` - Samsara API client
+    - `validateApiKey()` - Validate API key with Samsara
+    - `getDrivers()` - Fetch drivers from Samsara
+    - `getVehicles()` - Fetch vehicles from Samsara
+    - `getHOSLogs()` - Fetch HOS data
+    - `syncAll()` - Full sync operation
+  - New Routes: `backend/routes/integrations.js`
+    - `GET /api/integrations/samsara/status` - Get connection status
+    - `POST /api/integrations/samsara/connect` - Connect with API key
+    - `POST /api/integrations/samsara/disconnect` - Disconnect integration
+    - `POST /api/integrations/samsara/sync` - Trigger manual sync
+    - `PUT /api/integrations/samsara/settings` - Update sync settings
+  - Features: Encrypted credential storage, company isolation, audit logging
 
 ### 2026-01-30 (Driver-Level CSA Attribution - Phase 4)
 - **Feature:** Driver-Level CSA Attribution - Link violations to drivers and track CSA impact
