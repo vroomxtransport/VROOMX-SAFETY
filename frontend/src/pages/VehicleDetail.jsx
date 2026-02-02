@@ -3,7 +3,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { vehiclesAPI, integrationsAPI } from '../utils/api';
 import { formatDate, formatCurrency, daysUntilExpiry } from '../utils/helpers';
 import toast from 'react-hot-toast';
-import { FiArrowLeft, FiPlus, FiTruck, FiTool, FiFileText, FiCalendar, FiUser, FiMapPin, FiRefreshCw, FiDroplet, FiActivity } from 'react-icons/fi';
+import {
+  FiArrowLeft, FiPlus, FiTruck, FiTool, FiFileText, FiCalendar,
+  FiUser, FiMapPin, FiRefreshCw, FiDroplet, FiActivity, FiEdit2,
+  FiClipboard, FiAlertCircle, FiCheck, FiClock, FiSettings
+} from 'react-icons/fi';
 import LoadingSpinner from '../components/LoadingSpinner';
 import StatusBadge from '../components/StatusBadge';
 import Modal from '../components/Modal';
@@ -32,11 +36,66 @@ const getStatusDotColor = (status) => {
   }
 };
 
+// Health status badge component
+const HealthBadge = ({ label, days, type = 'days' }) => {
+  let bgColor, textColor, icon;
+
+  if (days === null || days === undefined) {
+    bgColor = 'bg-zinc-100 dark:bg-zinc-800';
+    textColor = 'text-zinc-500 dark:text-zinc-400';
+    icon = <FiClock className="w-4 h-4" />;
+  } else if (days < 0) {
+    bgColor = 'bg-red-100 dark:bg-red-500/20';
+    textColor = 'text-red-600 dark:text-red-400';
+    icon = <FiAlertCircle className="w-4 h-4" />;
+  } else if (days <= 30) {
+    bgColor = 'bg-yellow-100 dark:bg-yellow-500/20';
+    textColor = 'text-yellow-600 dark:text-yellow-400';
+    icon = <FiAlertCircle className="w-4 h-4" />;
+  } else {
+    bgColor = 'bg-green-100 dark:bg-green-500/20';
+    textColor = 'text-green-600 dark:text-green-400';
+    icon = <FiCheck className="w-4 h-4" />;
+  }
+
+  const displayValue = days === null || days === undefined
+    ? 'Not set'
+    : days < 0
+      ? `${Math.abs(days)}d overdue`
+      : `${days}d`;
+
+  return (
+    <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${bgColor}`}>
+      <span className={textColor}>{icon}</span>
+      <div>
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">{label}</p>
+        <p className={`text-sm font-semibold ${textColor}`}>{displayValue}</p>
+      </div>
+    </div>
+  );
+};
+
+// Tab button component
+const TabButton = ({ active, onClick, children, icon: Icon }) => (
+  <button
+    onClick={onClick}
+    className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg transition-all ${
+      active
+        ? 'bg-primary-500 text-white shadow-md'
+        : 'text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+    }`}
+  >
+    {Icon && <Icon className="w-4 h-4" />}
+    {children}
+  </button>
+);
+
 const VehicleDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [vehicle, setVehicle] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('overview');
   const [maintenanceModal, setMaintenanceModal] = useState(false);
   const [inspectionModal, setInspectionModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -66,7 +125,6 @@ const VehicleDetail = () => {
           }));
         })
         .catch(err => {
-          // Silent fail - don't interrupt user with errors for background refresh
           console.error('Auto-refresh telematics failed:', err);
         });
     }
@@ -128,7 +186,6 @@ const VehicleDetail = () => {
     setRefreshingTelematics(true);
     try {
       const response = await integrationsAPI.refreshTelematics(id);
-      // Update vehicle with new telematics data
       setVehicle(prev => ({
         ...prev,
         samsaraTelematics: response.data.telematics
@@ -152,467 +209,627 @@ const VehicleDetail = () => {
   if (!vehicle) return null;
 
   const inspectionDays = daysUntilExpiry(vehicle.annualInspection?.nextDueDate);
+  const pmDays = daysUntilExpiry(vehicle.pmSchedule?.nextPmDueDate);
+  const cabCardDays = daysUntilExpiry(vehicle.cabCardExpiry);
+
+  // Calculate overall health score
+  const getOverallHealth = () => {
+    const issues = [];
+    if (inspectionDays !== null && inspectionDays < 0) issues.push('expired');
+    else if (inspectionDays !== null && inspectionDays <= 30) issues.push('warning');
+    if (pmDays !== null && pmDays < 0) issues.push('expired');
+    else if (pmDays !== null && pmDays <= 30) issues.push('warning');
+    if (cabCardDays !== null && cabCardDays < 0) issues.push('expired');
+    else if (cabCardDays !== null && cabCardDays <= 30) issues.push('warning');
+
+    if (issues.includes('expired')) return { status: 'critical', label: 'Needs Attention', color: 'red' };
+    if (issues.includes('warning')) return { status: 'warning', label: 'Upcoming Expirations', color: 'yellow' };
+    return { status: 'good', label: 'All Good', color: 'green' };
+  };
+
+  const health = getOverallHealth();
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <button
-            onClick={() => navigate('/app/vehicles')}
-            className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg"
-          >
-            <FiArrowLeft className="w-5 h-5" />
-          </button>
-          <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-              <FiTruck className="w-6 h-6 text-orange-600" />
+      {/* Enhanced Header */}
+      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          {/* Left: Back + Vehicle Identity */}
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigate('/app/vehicles')}
+              className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+            >
+              <FiArrowLeft className="w-5 h-5" />
+            </button>
+
+            {/* Vehicle Icon with Status Ring */}
+            <div className="relative">
+              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${
+                health.color === 'red' ? 'bg-red-100 dark:bg-red-500/20' :
+                health.color === 'yellow' ? 'bg-yellow-100 dark:bg-yellow-500/20' :
+                'bg-green-100 dark:bg-green-500/20'
+              }`}>
+                <FiTruck className={`w-8 h-8 ${
+                  health.color === 'red' ? 'text-red-600 dark:text-red-400' :
+                  health.color === 'yellow' ? 'text-yellow-600 dark:text-yellow-400' :
+                  'text-green-600 dark:text-green-400'
+                }`} />
+              </div>
+              <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-2 border-white dark:border-zinc-900 ${getStatusDotColor(vehicle.status)}`} />
             </div>
+
+            {/* Vehicle Info */}
             <div>
               <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{vehicle.unitNumber}</h1>
-              <p className="text-zinc-600 dark:text-zinc-300">{vehicle.make} {vehicle.model} {vehicle.year}</p>
+              <p className="text-zinc-600 dark:text-zinc-300">
+                {vehicle.year} {vehicle.make} {vehicle.model}
+              </p>
+              <div className="flex items-center gap-2 mt-1">
+                <span className={`text-xs px-2 py-0.5 rounded-full ${getStatusDotColor(vehicle.status)} bg-opacity-20 ${getStatusColor(vehicle.status)}`}>
+                  {vehicle.status?.replace('_', ' ')}
+                </span>
+                {vehicle.vehicleType && (
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 capitalize">
+                    {vehicle.vehicleType.replace('_', ' ')}
+                  </span>
+                )}
+              </div>
             </div>
+          </div>
+
+          {/* Right: Quick Actions */}
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => navigate(`/app/vehicles/${id}/edit`)}
+              className="btn btn-secondary btn-sm"
+            >
+              <FiEdit2 className="w-4 h-4 mr-1.5" />
+              Edit
+            </button>
+            <button
+              onClick={() => setMaintenanceModal(true)}
+              className="btn btn-secondary btn-sm"
+            >
+              <FiTool className="w-4 h-4 mr-1.5" />
+              Add Maintenance
+            </button>
+            <button
+              onClick={() => setInspectionModal(true)}
+              className="btn btn-primary btn-sm"
+            >
+              <FiClipboard className="w-4 h-4 mr-1.5" />
+              Record Inspection
+            </button>
           </div>
         </div>
-        <StatusBadge status={vehicle.complianceStatus?.overall || vehicle.status} className="text-sm px-4 py-2" />
+
+        {/* Health Summary Bar */}
+        <div className="mt-6 pt-6 border-t border-zinc-100 dark:border-zinc-800">
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Overall Status */}
+            <div className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
+              health.color === 'red' ? 'bg-red-100 dark:bg-red-500/20' :
+              health.color === 'yellow' ? 'bg-yellow-100 dark:bg-yellow-500/20' :
+              'bg-green-100 dark:bg-green-500/20'
+            }`}>
+              {health.color === 'red' ? (
+                <FiAlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+              ) : health.color === 'yellow' ? (
+                <FiAlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+              ) : (
+                <FiCheck className="w-5 h-5 text-green-600 dark:text-green-400" />
+              )}
+              <span className={`text-sm font-semibold ${
+                health.color === 'red' ? 'text-red-600 dark:text-red-400' :
+                health.color === 'yellow' ? 'text-yellow-600 dark:text-yellow-400' :
+                'text-green-600 dark:text-green-400'
+              }`}>
+                {health.label}
+              </span>
+            </div>
+
+            <div className="h-8 w-px bg-zinc-200 dark:bg-zinc-700 hidden sm:block" />
+
+            {/* Expiration Badges */}
+            <HealthBadge label="Annual Inspection" days={inspectionDays} />
+            <HealthBadge label="PM Schedule" days={pmDays} />
+            <HealthBadge label="Cab Card" days={cabCardDays} />
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - Vehicle Info */}
-        <div className="space-y-6">
-          {/* Vehicle Details */}
+      {/* Tab Navigation */}
+      <div className="flex items-center gap-2 p-1 bg-zinc-100 dark:bg-zinc-800/50 rounded-xl w-fit">
+        <TabButton
+          active={activeTab === 'overview'}
+          onClick={() => setActiveTab('overview')}
+          icon={FiTruck}
+        >
+          Overview
+        </TabButton>
+        <TabButton
+          active={activeTab === 'maintenance'}
+          onClick={() => setActiveTab('maintenance')}
+          icon={FiTool}
+        >
+          Maintenance
+          {vehicle.maintenanceLog?.length > 0 && (
+            <span className="ml-1.5 px-1.5 py-0.5 text-xs rounded-full bg-white/20">
+              {vehicle.maintenanceLog.length}
+            </span>
+          )}
+        </TabButton>
+        <TabButton
+          active={activeTab === 'inspections'}
+          onClick={() => setActiveTab('inspections')}
+          icon={FiClipboard}
+        >
+          Inspections
+        </TabButton>
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === 'overview' && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Vehicle Information Card */}
           <div className="card">
             <div className="card-header">
-              <h3 className="font-semibold">Vehicle Details</h3>
+              <h3 className="font-semibold flex items-center gap-2">
+                <FiTruck className="w-4 h-4 text-primary-500" />
+                Vehicle Information
+              </h3>
             </div>
-            <div className="card-body space-y-3">
-              {/* Unit ID / Nickname */}
-              <div className="flex justify-between">
-                <span className="text-zinc-600 dark:text-zinc-300">Unit ID / Nickname</span>
-                <span className="font-medium text-zinc-800 dark:text-zinc-200">
-                  {vehicle.unitNumber}{vehicle.nickname ? ` (${vehicle.nickname})` : ''}
-                </span>
-              </div>
-
-              {/* VIN */}
-              <div className="flex justify-between">
-                <span className="text-zinc-600 dark:text-zinc-300">VIN #</span>
-                <span className="font-mono text-xs text-zinc-800 dark:text-zinc-200">{vehicle.vin}</span>
-              </div>
-
-              {/* Year / Make / Model */}
-              <div className="flex justify-between">
-                <span className="text-zinc-600 dark:text-zinc-300">Year / Make / Model</span>
-                <span className="text-zinc-800 dark:text-zinc-200">
-                  {vehicle.year || '—'} {vehicle.make || ''} {vehicle.model || ''}
-                </span>
-              </div>
-
-              {/* Market Price */}
-              <div className="flex justify-between">
-                <span className="text-zinc-600 dark:text-zinc-300">Market Price</span>
-                <span className="font-medium text-zinc-800 dark:text-zinc-200">
-                  {vehicle.marketPrice ? formatCurrency(vehicle.marketPrice) : '—'}
-                </span>
-              </div>
-
-              {/* Plate Number & State */}
-              <div className="flex justify-between">
-                <span className="text-zinc-600 dark:text-zinc-300">Plate Number & State</span>
-                <span className="text-zinc-800 dark:text-zinc-200">
-                  {vehicle.licensePlate?.number
-                    ? `${vehicle.licensePlate.number} ${vehicle.licensePlate.state || ''}`
-                    : '—'}
-                </span>
-              </div>
-
-              {/* Type (Tractor or Trailer) */}
-              <div className="flex justify-between">
-                <span className="text-zinc-600 dark:text-zinc-300">Type</span>
-                <span className="capitalize text-zinc-800 dark:text-zinc-200">
-                  {vehicle.vehicleType?.replace('_', ' ') || '—'}
-                </span>
-              </div>
-
-              {/* Assigned Driver */}
-              <div className="flex justify-between items-center">
-                <span className="text-zinc-600 dark:text-zinc-300">Assigned Driver</span>
-                {vehicle.assignedDriver ? (
-                  <div className="flex items-center space-x-2">
-                    <div className="w-6 h-6 bg-accent-100 rounded-full flex items-center justify-center">
-                      <FiUser className="w-3 h-3 text-accent-600" />
-                    </div>
-                    <span className="text-zinc-800 dark:text-zinc-200">
-                      {typeof vehicle.assignedDriver === 'object'
-                        ? `${vehicle.assignedDriver.firstName} ${vehicle.assignedDriver.lastName}`
-                        : 'Assigned'}
-                    </span>
-                  </div>
-                ) : (
-                  <span className="text-zinc-400 dark:text-zinc-500">Unassigned</span>
-                )}
-              </div>
-
-              {/* Status with Date */}
-              <div className="pt-2 border-t border-zinc-100 dark:border-zinc-700">
-                <div className="flex justify-between items-center">
-                  <span className="text-zinc-600 dark:text-zinc-300">Status</span>
-                  <div className="flex items-center space-x-2">
-                    <span className={`w-2 h-2 rounded-full ${getStatusDotColor(vehicle.status)}`}></span>
-                    <span className={`capitalize font-medium ${getStatusColor(vehicle.status)}`}>
-                      {vehicle.status?.replace('_', ' ')}
-                    </span>
-                  </div>
-                </div>
-                {/* Status Since Date */}
-                {vehicle.statusHistory?.length > 0 && (
-                  <div className="flex justify-between mt-1">
-                    <span className="text-zinc-500 dark:text-zinc-400 text-sm">Status Since</span>
-                    <span className="text-zinc-600 dark:text-zinc-300 text-sm">
-                      {formatDate(vehicle.statusHistory[vehicle.statusHistory.length - 1]?.changedAt)}
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Odometer if available */}
-              {vehicle.currentOdometer?.reading && (
-                <div className="flex justify-between pt-2 border-t border-zinc-100 dark:border-zinc-700">
-                  <span className="text-zinc-600 dark:text-zinc-300">Odometer</span>
-                  <span className="text-zinc-800 dark:text-zinc-200">
-                    {vehicle.currentOdometer.reading.toLocaleString()} mi
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Vehicle Specs */}
-          <div className="card">
-            <div className="card-header">
-              <h3 className="font-semibold">Vehicle Specs</h3>
-            </div>
-            <div className="card-body space-y-3">
-              <div className="flex justify-between">
-                <span className="text-zinc-600 dark:text-zinc-300">Color</span>
-                <span className="text-zinc-800 dark:text-zinc-200">{vehicle.color || '—'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-zinc-600 dark:text-zinc-300">GVWR</span>
-                <span className="text-zinc-800 dark:text-zinc-200">
-                  {vehicle.gvwr ? `${Number(vehicle.gvwr).toLocaleString()} lbs` : '—'}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-zinc-600 dark:text-zinc-300">Tire Size</span>
-                <span className="text-zinc-800 dark:text-zinc-200">{vehicle.tireSize || '—'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-zinc-600 dark:text-zinc-300">Ownership</span>
-                <span className="capitalize text-zinc-800 dark:text-zinc-200">{vehicle.ownership || '—'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-zinc-600 dark:text-zinc-300">IFTA Decal #</span>
-                <span className="text-zinc-800 dark:text-zinc-200">{vehicle.iftaDecalNumber || '—'}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Fleet & Compliance Dates */}
-          <div className="card">
-            <div className="card-header">
-              <h3 className="font-semibold">Fleet & Compliance</h3>
-            </div>
-            <div className="card-body space-y-3">
-              <div className="flex justify-between">
-                <span className="text-zinc-600 dark:text-zinc-300">Added to Fleet</span>
-                <span className="text-zinc-800 dark:text-zinc-200">
-                  {vehicle.dateAddedToFleet ? formatDate(vehicle.dateAddedToFleet) : '—'}
-                </span>
-              </div>
-              {vehicle.dateRemovedFromFleet && (
+            <div className="card-body space-y-4">
+              {/* Identity Section */}
+              <div className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-zinc-600 dark:text-zinc-300">Removed from Fleet</span>
-                  <span className="text-zinc-800 dark:text-zinc-200">
-                    {formatDate(vehicle.dateRemovedFromFleet)}
+                  <span className="text-zinc-600 dark:text-zinc-400">Unit ID</span>
+                  <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                    {vehicle.unitNumber}{vehicle.nickname ? ` (${vehicle.nickname})` : ''}
                   </span>
                 </div>
-              )}
-              <div className="flex justify-between">
-                <span className="text-zinc-600 dark:text-zinc-300">Cab Card Expiry</span>
-                <span className="text-zinc-800 dark:text-zinc-200">
-                  {vehicle.cabCardExpiry ? formatDate(vehicle.cabCardExpiry) : '—'}
-                </span>
+                <div className="flex justify-between">
+                  <span className="text-zinc-600 dark:text-zinc-400">VIN</span>
+                  <span className="font-mono text-xs text-zinc-900 dark:text-zinc-100">{vehicle.vin}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-zinc-600 dark:text-zinc-400">Year / Make / Model</span>
+                  <span className="text-zinc-900 dark:text-zinc-100">
+                    {vehicle.year || '—'} {vehicle.make || ''} {vehicle.model || ''}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-zinc-600 dark:text-zinc-400">License Plate</span>
+                  <span className="text-zinc-900 dark:text-zinc-100">
+                    {vehicle.licensePlate?.number
+                      ? `${vehicle.licensePlate.number} (${vehicle.licensePlate.state || ''})`
+                      : '—'}
+                  </span>
+                </div>
               </div>
-              <div className="flex justify-between">
-                <span className="text-zinc-600 dark:text-zinc-300">Annual Expiry</span>
-                <span className="text-zinc-800 dark:text-zinc-200">
-                  {vehicle.annualExpiry ? formatDate(vehicle.annualExpiry) : '—'}
-                </span>
+
+              <div className="border-t border-zinc-100 dark:border-zinc-800" />
+
+              {/* Specs Section */}
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-zinc-600 dark:text-zinc-400">Color</span>
+                  <span className="text-zinc-900 dark:text-zinc-100">{vehicle.color || '—'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-zinc-600 dark:text-zinc-400">GVWR</span>
+                  <span className="text-zinc-900 dark:text-zinc-100">
+                    {vehicle.gvwr ? `${Number(vehicle.gvwr).toLocaleString()} lbs` : '—'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-zinc-600 dark:text-zinc-400">Tire Size</span>
+                  <span className="text-zinc-900 dark:text-zinc-100">{vehicle.tireSize || '—'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-zinc-600 dark:text-zinc-400">Ownership</span>
+                  <span className="capitalize text-zinc-900 dark:text-zinc-100">{vehicle.ownership || '—'}</span>
+                </div>
+                {vehicle.marketPrice && (
+                  <div className="flex justify-between">
+                    <span className="text-zinc-600 dark:text-zinc-400">Market Price</span>
+                    <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                      {formatCurrency(vehicle.marketPrice)}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <div className="border-t border-zinc-100 dark:border-zinc-800" />
+
+              {/* Assignment Section */}
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-zinc-600 dark:text-zinc-400">Assigned Driver</span>
+                  {vehicle.assignedDriver ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 bg-accent-100 dark:bg-accent-500/20 rounded-full flex items-center justify-center">
+                        <FiUser className="w-3 h-3 text-accent-600 dark:text-accent-400" />
+                      </div>
+                      <span className="text-zinc-900 dark:text-zinc-100">
+                        {typeof vehicle.assignedDriver === 'object'
+                          ? `${vehicle.assignedDriver.firstName} ${vehicle.assignedDriver.lastName}`
+                          : 'Assigned'}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-zinc-400 dark:text-zinc-500">Unassigned</span>
+                  )}
+                </div>
+                {vehicle.currentOdometer?.reading && (
+                  <div className="flex justify-between">
+                    <span className="text-zinc-600 dark:text-zinc-400">Current Odometer</span>
+                    <span className="text-zinc-900 dark:text-zinc-100">
+                      {vehicle.currentOdometer.reading.toLocaleString()} mi
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
-          {/* Samsara Telematics - Only show if linked to Samsara */}
-          {vehicle.samsaraId && (
-            <div className="card border-l-4 border-l-orange-500">
-              <div className="card-header flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <img src="/images/integrations/samsara.svg" alt="Samsara" className="w-5 h-5" />
-                  <h3 className="font-semibold">Samsara Telematics</h3>
-                </div>
-                <button
-                  onClick={handleRefreshTelematics}
-                  disabled={refreshingTelematics}
-                  className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-lg transition-colors"
-                  title="Refresh telematics"
-                >
-                  <FiRefreshCw className={`w-4 h-4 ${refreshingTelematics ? 'animate-spin' : ''}`} />
-                </button>
+          {/* Compliance & Dates Card */}
+          <div className="space-y-6">
+            <div className="card">
+              <div className="card-header">
+                <h3 className="font-semibold flex items-center gap-2">
+                  <FiCalendar className="w-4 h-4 text-primary-500" />
+                  Compliance & Dates
+                </h3>
               </div>
-              <div className="card-body space-y-4">
-                {vehicle.samsaraTelematics ? (
-                  <>
-                    {/* Current Mileage */}
-                    {vehicle.samsaraTelematics.currentMileage && (
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                            <FiActivity className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                          </div>
-                          <span className="text-zinc-600 dark:text-zinc-300">Current Mileage</span>
-                        </div>
-                        <span className="font-semibold text-zinc-800 dark:text-zinc-200">
-                          {vehicle.samsaraTelematics.currentMileage.toLocaleString()} mi
-                        </span>
-                      </div>
-                    )}
+              <div className="card-body space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-zinc-600 dark:text-zinc-400">Added to Fleet</span>
+                  <span className="text-zinc-900 dark:text-zinc-100">
+                    {vehicle.dateAddedToFleet ? formatDate(vehicle.dateAddedToFleet) : '—'}
+                  </span>
+                </div>
+                {vehicle.dateRemovedFromFleet && (
+                  <div className="flex justify-between">
+                    <span className="text-zinc-600 dark:text-zinc-400">Removed from Fleet</span>
+                    <span className="text-zinc-900 dark:text-zinc-100">
+                      {formatDate(vehicle.dateRemovedFromFleet)}
+                    </span>
+                  </div>
+                )}
+                <div className="flex justify-between">
+                  <span className="text-zinc-600 dark:text-zinc-400">Cab Card Expiry</span>
+                  <span className={`font-medium ${cabCardDays !== null && cabCardDays < 30 ? 'text-yellow-600 dark:text-yellow-400' : 'text-zinc-900 dark:text-zinc-100'}`}>
+                    {vehicle.cabCardExpiry ? formatDate(vehicle.cabCardExpiry) : '—'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-zinc-600 dark:text-zinc-400">Annual Expiry</span>
+                  <span className="text-zinc-900 dark:text-zinc-100">
+                    {vehicle.annualExpiry ? formatDate(vehicle.annualExpiry) : '—'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-zinc-600 dark:text-zinc-400">IFTA Decal #</span>
+                  <span className="text-zinc-900 dark:text-zinc-100">{vehicle.iftaDecalNumber || '—'}</span>
+                </div>
+              </div>
+            </div>
 
-                    {/* Location */}
-                    {vehicle.samsaraTelematics.location && (
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center space-x-2">
-                          <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
-                            <FiMapPin className="w-4 h-4 text-green-600 dark:text-green-400" />
+            {/* Samsara Telematics Card */}
+            {vehicle.samsaraId && (
+              <div className="card border-l-4 border-l-orange-500">
+                <div className="card-header flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <img src="/images/integrations/samsara.svg" alt="Samsara" className="w-5 h-5" />
+                    <h3 className="font-semibold">Live Telematics</h3>
+                  </div>
+                  <button
+                    onClick={handleRefreshTelematics}
+                    disabled={refreshingTelematics}
+                    className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-lg transition-colors"
+                    title="Refresh telematics"
+                  >
+                    <FiRefreshCw className={`w-4 h-4 ${refreshingTelematics ? 'animate-spin' : ''}`} />
+                  </button>
+                </div>
+                <div className="card-body">
+                  {vehicle.samsaraTelematics ? (
+                    <div className="space-y-4">
+                      {vehicle.samsaraTelematics.currentMileage && (
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 bg-blue-100 dark:bg-blue-500/20 rounded-lg flex items-center justify-center">
+                              <FiActivity className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                            </div>
+                            <span className="text-zinc-600 dark:text-zinc-400">Mileage</span>
                           </div>
-                          <span className="text-zinc-600 dark:text-zinc-300">Location</span>
+                          <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+                            {vehicle.samsaraTelematics.currentMileage.toLocaleString()} mi
+                          </span>
                         </div>
-                        <div className="text-right max-w-[180px]">
-                          {vehicle.samsaraTelematics.location.address ? (
-                            <a
-                              href={`https://www.google.com/maps?q=${vehicle.samsaraTelematics.location.latitude},${vehicle.samsaraTelematics.location.longitude}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-sm text-accent-600 hover:underline"
-                            >
-                              {vehicle.samsaraTelematics.location.address}
-                            </a>
-                          ) : (
-                            <span className="text-sm text-zinc-600 dark:text-zinc-400">
-                              {vehicle.samsaraTelematics.location.latitude?.toFixed(4)}, {vehicle.samsaraTelematics.location.longitude?.toFixed(4)}
+                      )}
+
+                      {vehicle.samsaraTelematics.location && (
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 bg-green-100 dark:bg-green-500/20 rounded-lg flex items-center justify-center">
+                              <FiMapPin className="w-4 h-4 text-green-600 dark:text-green-400" />
+                            </div>
+                            <span className="text-zinc-600 dark:text-zinc-400">Location</span>
+                          </div>
+                          <div className="text-right max-w-[180px]">
+                            {vehicle.samsaraTelematics.location.address ? (
+                              <a
+                                href={`https://www.google.com/maps?q=${vehicle.samsaraTelematics.location.latitude},${vehicle.samsaraTelematics.location.longitude}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm text-accent-600 hover:underline"
+                              >
+                                {vehicle.samsaraTelematics.location.address}
+                              </a>
+                            ) : (
+                              <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                                {vehicle.samsaraTelematics.location.latitude?.toFixed(4)}, {vehicle.samsaraTelematics.location.longitude?.toFixed(4)}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {vehicle.samsaraTelematics.fuelPercent !== undefined && (
+                        <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <div className="w-8 h-8 bg-amber-100 dark:bg-amber-500/20 rounded-lg flex items-center justify-center">
+                                <FiDroplet className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                              </div>
+                              <span className="text-zinc-600 dark:text-zinc-400">Fuel</span>
+                            </div>
+                            <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+                              {vehicle.samsaraTelematics.fuelPercent}%
                             </span>
-                          )}
-                          {vehicle.samsaraTelematics.location.speedMph > 0 && (
-                            <p className="text-xs text-zinc-500 mt-1">
-                              {Math.round(vehicle.samsaraTelematics.location.speedMph)} mph
+                          </div>
+                          <div className="w-full bg-zinc-200 dark:bg-zinc-700 rounded-full h-2">
+                            <div
+                              className={`h-2 rounded-full transition-all ${
+                                vehicle.samsaraTelematics.fuelPercent > 50 ? 'bg-green-500' :
+                                vehicle.samsaraTelematics.fuelPercent > 25 ? 'bg-yellow-500' : 'bg-red-500'
+                              }`}
+                              style={{ width: `${vehicle.samsaraTelematics.fuelPercent}%` }}
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {vehicle.samsaraTelematics.lastUpdated && (
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400 pt-2 border-t border-zinc-100 dark:border-zinc-800">
+                          Updated: {new Date(vehicle.samsaraTelematics.lastUpdated).toLocaleString()}
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-center py-4">
+                      <p className="text-sm text-zinc-500 dark:text-zinc-400">No telematics data yet</p>
+                      <button
+                        onClick={handleRefreshTelematics}
+                        disabled={refreshingTelematics}
+                        className="mt-2 text-accent-600 hover:underline text-sm"
+                      >
+                        {refreshingTelematics ? 'Loading...' : 'Fetch from Samsara'}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'maintenance' && (
+        <div className="card">
+          <div className="card-header flex items-center justify-between">
+            <h3 className="font-semibold flex items-center gap-2">
+              <FiTool className="w-4 h-4 text-primary-500" />
+              Maintenance Log
+            </h3>
+            <button
+              onClick={() => setMaintenanceModal(true)}
+              className="btn btn-primary btn-sm"
+            >
+              <FiPlus className="w-4 h-4 mr-1" />
+              Add Record
+            </button>
+          </div>
+          <div className="card-body p-0">
+            {vehicle.maintenanceLog?.length > 0 ? (
+              <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
+                {vehicle.maintenanceLog.slice().reverse().map((record, index) => (
+                  <div
+                    key={index}
+                    className="p-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors cursor-pointer"
+                    onClick={() => {
+                      if (record.maintenanceRecordId) {
+                        navigate(`/app/maintenance?record=${record.maintenanceRecordId}`);
+                      } else {
+                        toast.error('This record was created before linking was enabled');
+                      }
+                    }}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-3">
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                          record.severity === 'critical' ? 'bg-red-100 dark:bg-red-500/20' :
+                          record.severity === 'high' ? 'bg-orange-100 dark:bg-orange-500/20' :
+                          record.severity === 'moderate' ? 'bg-yellow-100 dark:bg-yellow-500/20' : 'bg-blue-100 dark:bg-blue-500/20'
+                        }`}>
+                          <FiTool className={`w-5 h-5 ${
+                            record.severity === 'critical' ? 'text-red-600 dark:text-red-400' :
+                            record.severity === 'high' ? 'text-orange-600 dark:text-orange-400' :
+                            record.severity === 'moderate' ? 'text-yellow-600 dark:text-yellow-400' : 'text-blue-600 dark:text-blue-400'
+                          }`} />
+                        </div>
+                        <div>
+                          <p className="font-medium text-zinc-900 dark:text-zinc-100">{record.description}</p>
+                          <div className="flex flex-wrap items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+                            <span>{formatDate(record.date)}</span>
+                            <span>•</span>
+                            <span className="capitalize">{record.maintenanceType}</span>
+                            <span>•</span>
+                            <span className="capitalize">{record.category}</span>
+                          </div>
+                          {record.odometer && (
+                            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+                              {record.odometer.toLocaleString()} mi
                             </p>
                           )}
                         </div>
                       </div>
-                    )}
-
-                    {/* Fuel Level */}
-                    {vehicle.samsaraTelematics.fuelPercent !== undefined && (
-                      <div>
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center space-x-2">
-                            <div className="w-8 h-8 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center">
-                              <FiDroplet className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                            </div>
-                            <span className="text-zinc-600 dark:text-zinc-300">Fuel Level</span>
-                          </div>
-                          <span className="font-semibold text-zinc-800 dark:text-zinc-200">
-                            {vehicle.samsaraTelematics.fuelPercent}%
-                          </span>
-                        </div>
-                        <div className="w-full bg-zinc-200 dark:bg-zinc-700 rounded-full h-2">
-                          <div
-                            className={`h-2 rounded-full ${
-                              vehicle.samsaraTelematics.fuelPercent > 50 ? 'bg-green-500' :
-                              vehicle.samsaraTelematics.fuelPercent > 25 ? 'bg-yellow-500' : 'bg-red-500'
-                            }`}
-                            style={{ width: `${vehicle.samsaraTelematics.fuelPercent}%` }}
-                          />
-                        </div>
+                      <div className="text-right flex-shrink-0">
+                        <StatusBadge status={record.severity} />
+                        {record.totalCost && (
+                          <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 mt-1">
+                            {formatCurrency(record.totalCost)}
+                          </p>
+                        )}
                       </div>
-                    )}
-
-                    {/* Last Updated */}
-                    {vehicle.samsaraTelematics.lastUpdated && (
-                      <div className="pt-2 border-t border-zinc-100 dark:border-zinc-700 text-xs text-zinc-500 dark:text-zinc-400">
-                        Last updated: {new Date(vehicle.samsaraTelematics.lastUpdated).toLocaleString()}
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <div className="text-center py-4 text-zinc-500 dark:text-zinc-400">
-                    <p className="text-sm">No telematics data yet</p>
-                    <button
-                      onClick={handleRefreshTelematics}
-                      disabled={refreshingTelematics}
-                      className="mt-2 text-accent-600 hover:underline text-sm"
-                    >
-                      {refreshingTelematics ? 'Loading...' : 'Fetch from Samsara'}
-                    </button>
+                    </div>
                   </div>
-                )}
+                ))}
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="text-center py-16">
+                <div className="w-16 h-16 mx-auto mb-4 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center">
+                  <FiTool className="w-8 h-8 text-zinc-400" />
+                </div>
+                <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-100 mb-2">No maintenance records</h3>
+                <p className="text-zinc-500 dark:text-zinc-400 mb-6 max-w-sm mx-auto">
+                  Keep track of all repairs, inspections, and preventive maintenance for this vehicle.
+                </p>
+                <button
+                  onClick={() => setMaintenanceModal(true)}
+                  className="btn btn-primary"
+                >
+                  <FiPlus className="w-4 h-4 mr-2" />
+                  Add First Record
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
-          {/* Annual Inspection */}
+      {activeTab === 'inspections' && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Annual Inspection Card */}
           <div className="card">
             <div className="card-header flex items-center justify-between">
-              <h3 className="font-semibold">Annual Inspection</h3>
+              <h3 className="font-semibold flex items-center gap-2">
+                <FiClipboard className="w-4 h-4 text-primary-500" />
+                Annual Inspection
+              </h3>
               <button
                 onClick={() => setInspectionModal(true)}
                 className="btn btn-sm btn-outline"
               >
-                Record
+                Record New
               </button>
             </div>
             <div className="card-body">
-              <div className="text-center mb-4">
-                <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full ${
-                  inspectionDays < 0 ? 'bg-red-100' :
-                  inspectionDays <= 30 ? 'bg-yellow-100' : 'bg-green-100'
+              <div className="text-center mb-6">
+                <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full ${
+                  inspectionDays !== null && inspectionDays < 0 ? 'bg-red-100 dark:bg-red-500/20' :
+                  inspectionDays !== null && inspectionDays <= 30 ? 'bg-yellow-100 dark:bg-yellow-500/20' : 'bg-green-100 dark:bg-green-500/20'
                 }`}>
-                  <FiCalendar className={`w-8 h-8 ${
-                    inspectionDays < 0 ? 'text-red-600' :
-                    inspectionDays <= 30 ? 'text-yellow-600' : 'text-green-600'
+                  <FiCalendar className={`w-10 h-10 ${
+                    inspectionDays !== null && inspectionDays < 0 ? 'text-red-600 dark:text-red-400' :
+                    inspectionDays !== null && inspectionDays <= 30 ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400'
                   }`} />
                 </div>
+                <p className={`mt-3 text-lg font-semibold ${
+                  inspectionDays !== null && inspectionDays < 0 ? 'text-red-600 dark:text-red-400' :
+                  inspectionDays !== null && inspectionDays <= 30 ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400'
+                }`}>
+                  {inspectionDays === null ? 'Not scheduled' :
+                   inspectionDays < 0 ? `${Math.abs(inspectionDays)} days overdue` :
+                   inspectionDays === 0 ? 'Due today' :
+                   `${inspectionDays} days remaining`}
+                </p>
               </div>
-              <div className="space-y-2 text-sm">
+              <div className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-zinc-600 dark:text-zinc-300">Last Inspection</span>
-                  <span className="text-zinc-800 dark:text-zinc-200">{formatDate(vehicle.annualInspection?.lastInspectionDate)}</span>
+                  <span className="text-zinc-600 dark:text-zinc-400">Last Inspection</span>
+                  <span className="text-zinc-900 dark:text-zinc-100">{formatDate(vehicle.annualInspection?.lastInspectionDate)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-zinc-600 dark:text-zinc-300">Next Due</span>
-                  <span className={inspectionDays < 0 ? 'text-red-600 dark:text-red-400 font-medium' : 'text-zinc-800 dark:text-zinc-200'}>
+                  <span className="text-zinc-600 dark:text-zinc-400">Next Due</span>
+                  <span className={inspectionDays !== null && inspectionDays < 0 ? 'text-red-600 dark:text-red-400 font-medium' : 'text-zinc-900 dark:text-zinc-100'}>
                     {formatDate(vehicle.annualInspection?.nextDueDate)}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-zinc-600 dark:text-zinc-300">Result</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-zinc-600 dark:text-zinc-400">Last Result</span>
                   <StatusBadge status={vehicle.annualInspection?.result === 'pass' ? 'valid' : 'warning'} />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* PM Schedule */}
+          {/* PM Schedule Card */}
           <div className="card">
             <div className="card-header">
-              <h3 className="font-semibold">PM Schedule</h3>
+              <h3 className="font-semibold flex items-center gap-2">
+                <FiSettings className="w-4 h-4 text-primary-500" />
+                PM Schedule
+              </h3>
             </div>
-            <div className="card-body space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-zinc-600 dark:text-zinc-300">Last PM</span>
-                <span className="text-zinc-800 dark:text-zinc-200">{formatDate(vehicle.pmSchedule?.lastPmDate)}</span>
+            <div className="card-body">
+              <div className="text-center mb-6">
+                <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full ${
+                  pmDays !== null && pmDays < 0 ? 'bg-red-100 dark:bg-red-500/20' :
+                  pmDays !== null && pmDays <= 30 ? 'bg-yellow-100 dark:bg-yellow-500/20' : 'bg-green-100 dark:bg-green-500/20'
+                }`}>
+                  <FiSettings className={`w-10 h-10 ${
+                    pmDays !== null && pmDays < 0 ? 'text-red-600 dark:text-red-400' :
+                    pmDays !== null && pmDays <= 30 ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400'
+                  }`} />
+                </div>
+                <p className={`mt-3 text-lg font-semibold ${
+                  pmDays !== null && pmDays < 0 ? 'text-red-600 dark:text-red-400' :
+                  pmDays !== null && pmDays <= 30 ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400'
+                }`}>
+                  {pmDays === null ? 'Not scheduled' :
+                   pmDays < 0 ? `${Math.abs(pmDays)} days overdue` :
+                   pmDays === 0 ? 'Due today' :
+                   `${pmDays} days remaining`}
+                </p>
               </div>
-              <div className="flex justify-between">
-                <span className="text-zinc-600 dark:text-zinc-300">Next PM Due</span>
-                <span className="text-zinc-800 dark:text-zinc-200">{formatDate(vehicle.pmSchedule?.nextPmDueDate)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-zinc-600 dark:text-zinc-300">Interval</span>
-                <span className="text-zinc-800 dark:text-zinc-200">{vehicle.pmSchedule?.intervalMiles?.toLocaleString() || 25000} mi / {vehicle.pmSchedule?.intervalDays || 90} days</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-zinc-600 dark:text-zinc-300">PM Status</span>
-                <StatusBadge status={vehicle.complianceStatus?.pmStatus} />
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-zinc-600 dark:text-zinc-400">Last PM</span>
+                  <span className="text-zinc-900 dark:text-zinc-100">{formatDate(vehicle.pmSchedule?.lastPmDate)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-zinc-600 dark:text-zinc-400">Next PM Due</span>
+                  <span className="text-zinc-900 dark:text-zinc-100">{formatDate(vehicle.pmSchedule?.nextPmDueDate)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-zinc-600 dark:text-zinc-400">Interval</span>
+                  <span className="text-zinc-900 dark:text-zinc-100">
+                    {vehicle.pmSchedule?.intervalMiles?.toLocaleString() || 25000} mi / {vehicle.pmSchedule?.intervalDays || 90} days
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-zinc-600 dark:text-zinc-400">Status</span>
+                  <StatusBadge status={vehicle.complianceStatus?.pmStatus} />
+                </div>
               </div>
             </div>
           </div>
         </div>
-
-        {/* Right Column - Maintenance Log */}
-        <div className="lg:col-span-2">
-          <div className="card">
-            <div className="card-header flex items-center justify-between">
-              <h3 className="font-semibold">Maintenance Log</h3>
-              <button
-                onClick={() => setMaintenanceModal(true)}
-                className="btn btn-primary btn-sm"
-              >
-                <FiPlus className="w-4 h-4 mr-1" />
-                Add Record
-              </button>
-            </div>
-            <div className="card-body p-0">
-              {vehicle.maintenanceLog?.length > 0 ? (
-                <div className="divide-y divide-zinc-100 dark:divide-zinc-700">
-                  {vehicle.maintenanceLog.slice().reverse().slice(0, 10).map((record, index) => (
-                    <div
-                      key={index}
-                      className="p-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:pl-6 border-l-2 border-transparent hover:border-accent-500 transition-all duration-200 cursor-pointer"
-                      onClick={() => {
-                        if (record.maintenanceRecordId) {
-                          navigate(`/app/maintenance?record=${record.maintenanceRecordId}`);
-                        } else {
-                          toast.error('This record was created before linking was enabled');
-                        }
-                      }}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-start space-x-3">
-                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                            record.severity === 'critical' ? 'bg-red-100' :
-                            record.severity === 'high' ? 'bg-orange-100' :
-                            record.severity === 'moderate' ? 'bg-yellow-100' : 'bg-blue-100'
-                          }`}>
-                            <FiTool className={`w-5 h-5 ${
-                              record.severity === 'critical' ? 'text-red-600' :
-                              record.severity === 'high' ? 'text-orange-600' :
-                              record.severity === 'moderate' ? 'text-yellow-600' : 'text-blue-600'
-                            }`} />
-                          </div>
-                          <div>
-                            <p className="font-medium text-zinc-900 dark:text-zinc-100">{record.description}</p>
-                            <div className="flex items-center space-x-3 text-sm text-zinc-600 dark:text-zinc-300 mt-1">
-                              <span>{formatDate(record.date)}</span>
-                              <span className="capitalize">{record.maintenanceType}</span>
-                              <span className="capitalize">{record.category}</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <StatusBadge status={record.severity} />
-                          {record.totalCost && (
-                            <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-1">{formatCurrency(record.totalCost)}</p>
-                          )}
-                        </div>
-                      </div>
-                      {record.odometer && (
-                        <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-2 ml-13">
-                          Odometer: {record.odometer.toLocaleString()} mi
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-12 text-zinc-600 dark:text-zinc-300">
-                  <FiFileText className="w-12 h-12 mx-auto mb-2 text-zinc-300 dark:text-zinc-600" />
-                  <p>No maintenance records yet</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+      )}
 
       {/* Add Maintenance Modal */}
       <Modal
@@ -715,7 +932,7 @@ const VehicleDetail = () => {
               />
             </div>
           </div>
-          <div className="flex justify-end space-x-3 pt-4">
+          <div className="flex justify-end gap-3 pt-4">
             <button type="button" onClick={() => setMaintenanceModal(false)} className="btn btn-secondary">
               Cancel
             </button>
@@ -769,7 +986,7 @@ const VehicleDetail = () => {
             <label className="form-label">Inspection Report (PDF)</label>
             <input type="file" name="document" className="form-input" accept=".pdf,.jpg,.jpeg,.png" />
           </div>
-          <div className="flex justify-end space-x-3 pt-4">
+          <div className="flex justify-end gap-3 pt-4">
             <button type="button" onClick={() => setInspectionModal(false)} className="btn btn-secondary">
               Cancel
             </button>
