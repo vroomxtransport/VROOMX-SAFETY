@@ -272,7 +272,7 @@ const Layout = () => {
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
         {/* Logo Header */}
-        <div className={`flex items-center justify-between py-5 border-b border-zinc-200 dark:border-white/10 ${sidebarCollapsed ? 'px-3' : 'px-5'}`}>
+        <div className={`relative flex items-center justify-center py-5 border-b border-zinc-200 dark:border-white/10 ${sidebarCollapsed ? 'px-3' : 'px-5'}`}>
           <VroomXLogo
             size="sm"
             showText={!sidebarCollapsed}
@@ -280,7 +280,7 @@ const Layout = () => {
             animate={true}
           />
           <button
-            className="lg:hidden p-2 text-zinc-600 dark:text-white/70 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/10 rounded-lg transition-colors"
+            className="lg:hidden absolute right-3 p-2 text-zinc-600 dark:text-white/70 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/10 rounded-lg transition-colors"
             onClick={() => setSidebarOpen(false)}
           >
             <FiX className="w-5 h-5" />
