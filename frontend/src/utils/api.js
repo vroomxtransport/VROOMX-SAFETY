@@ -107,7 +107,10 @@ export const vehiclesAPI = {
   recordInspection: (id, formData) => api.post(`/vehicles/${id}/inspection`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),
-  addDvir: (id, data) => api.post(`/vehicles/${id}/dvir`, data)
+  addDvir: (id, data) => api.post(`/vehicles/${id}/dvir`, data),
+  // Safety/OOS methods
+  getOOSStats: (id) => api.get(`/vehicles/${id}/oos-stats`),
+  getViolations: (id, params) => api.get(`/vehicles/${id}/violations`, { params })
 };
 
 export const violationsAPI = {
