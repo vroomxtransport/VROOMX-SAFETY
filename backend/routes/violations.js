@@ -258,6 +258,56 @@ router.put('/:id/dataq/evidence', checkPermission('violations', 'edit'), asyncHa
   });
 }));
 
+// @route   GET /api/violations/review-queue
+// @desc    Get violations needing manual entity linking review
+// @access  Private
+// NOTE: This route MUST be before /:id to prevent Express from matching 'review-queue' as an ID
+router.get('/review-queue', checkPermission('violations', 'view'), asyncHandler(async (req, res) => {
+  const { page = 1, limit = 50 } = req.query;
+  const skip = (parseInt(page) - 1) * parseInt(limit);
+
+  const query = {
+    ...req.companyFilter,
+    'linkingMetadata.reviewRequired': true
+  };
+
+  const [violations, total] = await Promise.all([
+    Violation.find(query)
+      .populate('driverId', 'firstName lastName cdl.number cdl.state')
+      .populate('vehicleId', 'unitNumber vin licensePlate')
+      .sort({ violationDate: -1 })
+      .skip(skip)
+      .limit(parseInt(limit))
+      .lean(),
+    Violation.countDocuments(query)
+  ]);
+
+  // Fetch unitInfo from FMCSAInspection for each violation
+  const FMCSAInspection = require('../models/FMCSAInspection');
+  const enhancedViolations = await Promise.all(
+    violations.map(async (v) => {
+      if (v.inspectionNumber) {
+        const inspection = await FMCSAInspection.findOne({
+          companyId: v.companyId,
+          reportNumber: v.inspectionNumber
+        }).select('unitInfo').lean();
+        v.unitInfo = inspection?.unitInfo || null;
+      }
+      return v;
+    })
+  );
+
+  res.json({
+    violations: enhancedViolations,
+    pagination: {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      total,
+      pages: Math.ceil(total / parseInt(limit))
+    }
+  });
+}));
+
 // @route   POST /api/violations/bulk-link
 // @desc    Bulk link multiple violations to a driver
 // @access  Private
