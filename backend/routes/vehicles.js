@@ -8,6 +8,7 @@ const { uploadSingle, getFileUrl } = require('../middleware/upload');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const { checkVehicleLimit } = require('../middleware/subscriptionLimits');
 const auditService = require('../services/auditService');
+const vehicleOOSService = require('../services/vehicleOOSService');
 
 // Escape regex special characters to prevent NoSQL injection
 const escapeRegex = (str) => {
@@ -120,6 +121,39 @@ router.get('/stats', checkPermission('vehicles', 'view'), asyncHandler(async (re
       ...stats[0],
       dueForInspection
     }
+  });
+}));
+
+// @route   GET /api/vehicles/:id/oos-stats
+// @desc    Get vehicle's OOS rate and violation stats
+// @access  Private
+router.get('/:id/oos-stats', checkPermission('vehicles', 'view'), asyncHandler(async (req, res) => {
+  const stats = await vehicleOOSService.getVehicleOOSStats(
+    req.params.id,
+    req.companyFilter.companyId
+  );
+
+  res.json({
+    success: true,
+    ...stats
+  });
+}));
+
+// @route   GET /api/vehicles/:id/violations
+// @desc    Get vehicle's linked violations
+// @access  Private
+router.get('/:id/violations', checkPermission('violations', 'view'), asyncHandler(async (req, res) => {
+  const { page = 1, limit = 20, basic, sortBy = 'violationDate', sortOrder = 'desc' } = req.query;
+
+  const result = await vehicleOOSService.getVehicleViolations(
+    req.params.id,
+    req.companyFilter.companyId,
+    { page, limit, basic, sortBy, sortOrder }
+  );
+
+  res.json({
+    success: true,
+    ...result
   });
 }));
 
