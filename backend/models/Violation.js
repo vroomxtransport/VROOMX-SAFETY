@@ -246,4 +246,14 @@ violationSchema.index({ basic: 1 });
 violationSchema.index({ status: 1 });
 violationSchema.index({ inspectionNumber: 1 });
 
+// Unique constraint to prevent duplicate violation imports
+// A violation is uniquely identified by inspection + code + date
+violationSchema.index(
+  { companyId: 1, inspectionNumber: 1, violationCode: 1, violationDate: 1 },
+  { unique: true, sparse: true, name: 'unique_violation_per_inspection' }
+);
+
+// Index for fast lookup during sync by external ID
+violationSchema.index({ 'syncMetadata.externalId': 1 }, { sparse: true });
+
 module.exports = mongoose.model('Violation', violationSchema);
