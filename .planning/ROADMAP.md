@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Migration** - Move embedded violations to single source of truth
 - [x] **Phase 3: Sync Infrastructure** - Background cron jobs and sync services
 - [x] **Phase 4: Entity Linking** - Automatic driver/vehicle matching logic
-- [ ] **Phase 5: UI Integration** - Display linked violations in profiles
+- [x] **Phase 5: UI Integration** - Display linked violations in profiles
 - [ ] **Phase 6: DataQ Integration** - Connect sync to DataQ challenge workflow
 - [ ] **Phase 7: Polish** - Sync status UI and manual review queue
 
@@ -99,9 +99,9 @@ Plans:
 **Plans**: 3 plans (Wave 1 -> 2 -> 3 sequential)
 
 Plans:
-- [ ] 05-01-PLAN.md — Vehicle OOS backend service (vehicleOOSService.js)
-- [ ] 05-02-PLAN.md — Vehicle routes and frontend API methods
-- [ ] 05-03-PLAN.md — Vehicle Safety tab UI in VehicleDetail.jsx
+- [x] 05-01-PLAN.md — Vehicle OOS backend service (vehicleOOSService.js)
+- [x] 05-02-PLAN.md — Vehicle routes and frontend API methods
+- [x] 05-03-PLAN.md — Vehicle Safety tab UI in VehicleDetail.jsx
 
 ### Phase 6: DataQ Integration
 **Goal**: Synced violations flow into DataQ challenge workflow with AI analysis
@@ -145,7 +145,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 2. Migration | 1/1 | ✓ Verified | 2026-02-03 |
 | 3. Sync Infrastructure | 3/3 | ✓ Verified | 2026-02-03 |
 | 4. Entity Linking | 3/3 | ✓ Verified | 2026-02-03 |
-| 5. UI Integration | 0/3 | Planned | - |
+| 5. UI Integration | 3/3 | ✓ Verified | 2026-02-03 |
 | 6. DataQ Integration | 0/2 | Not started | - |
 | 7. Polish | 0/4 | Not started | - |
 
@@ -160,4 +160,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 *Phase 4 planned: 2026-02-03*
 *Phase 4 completed: 2026-02-03*
 *Phase 5 planned: 2026-02-03*
+*Phase 5 completed: 2026-02-03*
 *Total phases: 7 | Total plans: 19 | Requirements covered: 29*
