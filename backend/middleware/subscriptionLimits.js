@@ -7,7 +7,9 @@ const AI_QUERY_QUOTAS = {
   free_trial: 20,
   solo: 100,
   fleet: 500,
-  pro: -1  // unlimited
+  pro: -1,  // unlimited
+  starter: 100,  // legacy plan, treat as solo
+  professional: -1  // legacy plan, treat as pro
 };
 
 // Plan configurations for per-driver billing
