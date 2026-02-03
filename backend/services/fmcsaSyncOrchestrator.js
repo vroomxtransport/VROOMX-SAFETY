@@ -13,6 +13,7 @@ const Company = require('../models/Company');
 const fmcsaSyncService = require('./fmcsaSyncService');
 const fmcsaInspectionService = require('./fmcsaInspectionService');
 const fmcsaViolationService = require('./fmcsaViolationService');
+const entityLinkingService = require('./entityLinkingService');
 
 const fmcsaSyncOrchestrator = {
   /**
@@ -115,6 +116,17 @@ const fmcsaSyncOrchestrator = {
       errors.push({ source: 'inspections', error: err.message, timestamp: new Date() });
     }
 
+    // 4. Link violations to entities (drivers/vehicles)
+    try {
+      console.log(`[FMCSA Orchestrator] Running entity linking for company ${companyId}`);
+      const linkingResult = await entityLinkingService.linkViolationsForCompany(companyId);
+      timestamps.linkingLastRun = new Date();
+      console.log(`[FMCSA Orchestrator] Linking complete: ${linkingResult.linked} linked, ${linkingResult.reviewRequired} need review, ${linkingResult.skipped} skipped`);
+    } catch (err) {
+      console.error(`[FMCSA Orchestrator] Entity linking failed:`, err.message);
+      errors.push({ source: 'entity_linking', error: err.message, timestamp: new Date() });
+    }
+
     // Update Company sync status
     const success = errors.length === 0;
     await Company.updateOne(
@@ -126,7 +138,8 @@ const fmcsaSyncOrchestrator = {
           'fmcsaData.syncStatus.errors': errors,
           ...(timestamps.csaScoresLastSync && { 'fmcsaData.syncStatus.csaScoresLastSync': timestamps.csaScoresLastSync }),
           ...(timestamps.violationsLastSync && { 'fmcsaData.syncStatus.violationsLastSync': timestamps.violationsLastSync }),
-          ...(timestamps.inspectionsLastSync && { 'fmcsaData.syncStatus.inspectionsLastSync': timestamps.inspectionsLastSync })
+          ...(timestamps.inspectionsLastSync && { 'fmcsaData.syncStatus.inspectionsLastSync': timestamps.inspectionsLastSync }),
+          ...(timestamps.linkingLastRun && { 'fmcsaData.syncStatus.linkingLastRun': timestamps.linkingLastRun })
         }
       }
     );

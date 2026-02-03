@@ -135,7 +135,7 @@ const companySchema = new mongoose.Schema({
       lastRun: { type: Date },
       success: { type: Boolean },
       errors: [{
-        source: { type: String, enum: ['csa_scores', 'violations', 'inspections'] },
+        source: { type: String, enum: ['csa_scores', 'violations', 'inspections', 'entity_linking'] },
         error: String,
         timestamp: { type: Date, default: Date.now }
       }],
