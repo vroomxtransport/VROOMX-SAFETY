@@ -80,12 +80,12 @@ Plans:
   2. Violations with VINs or unit numbers are auto-linked to matching vehicles
   3. Uncertain matches (no exact match) are flagged with low confidence score
   4. Uncertain matches appear in a review queue for manual confirmation
-**Plans**: TBD
+**Plans**: 3 plans (Wave 1: 04-01, Wave 2: 04-02 + 04-03 parallel)
 
 Plans:
-- [ ] 04-01: Driver linking by CDL number
-- [ ] 04-02: Vehicle linking by VIN/unit number
-- [ ] 04-03: Confidence scoring and uncertain match flagging
+- [ ] 04-01-PLAN.md — Entity linking service with driver/vehicle matching logic
+- [ ] 04-02-PLAN.md — Orchestrator integration (call linking after sync)
+- [ ] 04-03-PLAN.md — Review queue API endpoint for manual confirmation
 
 ### Phase 5: UI Integration
 **Goal**: Drivers and vehicles show their linked violations with CSA impact calculations
@@ -145,7 +145,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 1. Foundation | 3/3 | ✓ Verified | 2026-02-03 |
 | 2. Migration | 1/1 | ✓ Verified | 2026-02-03 |
 | 3. Sync Infrastructure | 3/3 | ✓ Verified | 2026-02-03 |
-| 4. Entity Linking | 0/3 | Not started | - |
+| 4. Entity Linking | 0/3 | Planned | - |
 | 5. UI Integration | 0/4 | Not started | - |
 | 6. DataQ Integration | 0/2 | Not started | - |
 | 7. Polish | 0/4 | Not started | - |
@@ -158,4 +158,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 *Phase 2 completed: 2026-02-03*
 *Phase 3 planned: 2026-02-03*
 *Phase 3 completed: 2026-02-03*
+*Phase 4 planned: 2026-02-03*
 *Total phases: 7 | Total plans: 20 | Requirements covered: 29*
