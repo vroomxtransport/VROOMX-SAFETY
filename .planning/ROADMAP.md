@@ -88,21 +88,20 @@ Plans:
 - [x] 04-03-PLAN.md — Review queue API endpoint for manual confirmation
 
 ### Phase 5: UI Integration
-**Goal**: Drivers and vehicles show their linked violations with CSA impact calculations
+**Goal**: Vehicle profile shows linked violations with OOS rate (driver UI already complete)
 **Depends on**: Phase 4
 **Requirements**: DRVR-03, DRVR-04, VHCL-03, VHCL-04
 **Success Criteria** (what must be TRUE):
-  1. Driver profile page shows all violations linked to that driver
-  2. Driver profile shows CSA impact score calculated from linked violations
+  1. Driver profile page shows all violations linked to that driver (ALREADY COMPLETE - existing Safety & CSA tab)
+  2. Driver profile shows CSA impact score calculated from linked violations (ALREADY COMPLETE)
   3. Vehicle profile page shows all violations linked to that vehicle
   4. Vehicle profile shows OOS rate calculated from linked violations
-**Plans**: TBD
+**Plans**: 3 plans (Wave 1 -> 2 -> 3 sequential)
 
 Plans:
-- [ ] 05-01: Driver profile violations display
-- [ ] 05-02: Driver CSA impact calculation
-- [ ] 05-03: Vehicle profile violations display
-- [ ] 05-04: Vehicle OOS rate calculation
+- [ ] 05-01-PLAN.md — Vehicle OOS backend service (vehicleOOSService.js)
+- [ ] 05-02-PLAN.md — Vehicle routes and frontend API methods
+- [ ] 05-03-PLAN.md — Vehicle Safety tab UI in VehicleDetail.jsx
 
 ### Phase 6: DataQ Integration
 **Goal**: Synced violations flow into DataQ challenge workflow with AI analysis
@@ -146,7 +145,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 2. Migration | 1/1 | ✓ Verified | 2026-02-03 |
 | 3. Sync Infrastructure | 3/3 | ✓ Verified | 2026-02-03 |
 | 4. Entity Linking | 3/3 | ✓ Verified | 2026-02-03 |
-| 5. UI Integration | 0/4 | Not started | - |
+| 5. UI Integration | 0/3 | Planned | - |
 | 6. DataQ Integration | 0/2 | Not started | - |
 | 7. Polish | 0/4 | Not started | - |
 
@@ -160,4 +159,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 *Phase 3 completed: 2026-02-03*
 *Phase 4 planned: 2026-02-03*
 *Phase 4 completed: 2026-02-03*
-*Total phases: 7 | Total plans: 20 | Requirements covered: 29*
+*Phase 5 planned: 2026-02-03*
+*Total phases: 7 | Total plans: 19 | Requirements covered: 29*
