@@ -28,7 +28,10 @@ if (process.env.NODE_ENV === 'production') {
   const productionEnvVars = [
     'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET',
     'STRIPE_SOLO_PRICE_ID', 'STRIPE_FLEET_PRICE_ID', 'STRIPE_PRO_PRICE_ID',
-    'RESEND_API_KEY', 'FRONTEND_URL'
+    'RESEND_API_KEY', 'FRONTEND_URL',
+    // FMCSA Data Sync (Phase 3)
+    'SAFERWEB_API_KEY',      // SaferWebAPI for inspection details
+    'SOCRATA_APP_TOKEN'      // DataHub API for violations (1000 req/hr)
   ];
   const missingProdVars = productionEnvVars.filter(v => !process.env[v]);
   if (missingProdVars.length > 0) {
@@ -40,6 +43,15 @@ if (process.env.NODE_ENV === 'production') {
 // Warn about weak JWT secret
 if (process.env.JWT_SECRET && process.env.JWT_SECRET.length < 32) {
   console.warn('WARNING: JWT_SECRET is too short. Use at least 32 characters for production.');
+}
+
+// Warn about missing FMCSA credentials in development
+if (process.env.NODE_ENV !== 'production') {
+  const fmcsaVars = ['SAFERWEB_API_KEY', 'SOCRATA_APP_TOKEN'];
+  const missingFmcsa = fmcsaVars.filter(v => !process.env[v]);
+  if (missingFmcsa.length > 0) {
+    console.warn(`WARNING: Missing FMCSA credentials (${missingFmcsa.join(', ')}). FMCSA sync will not work.`);
+  }
 }
 
 // Initialize express
