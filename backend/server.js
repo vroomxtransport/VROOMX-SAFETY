@@ -318,7 +318,22 @@ app.listen(PORT, () => {
     }
   });
 
-  console.log('[Cron] Scheduled: Daily alerts at 6 AM, Alert digest emails, Escalation check every 6 hours, Trial ending check at 9 AM, Scheduled reports every hour, Samsara sync every hour');
+  // Sync FMCSA data every 6 hours (CSA scores, violations, inspection stats)
+  cron.schedule('0 */6 * * *', async () => {
+    console.log('[Cron] Running FMCSA data sync...');
+    try {
+      const fmcsaSyncOrchestrator = require('./services/fmcsaSyncOrchestrator');
+      const result = await fmcsaSyncOrchestrator.syncAllCompanies();
+      console.log(`[Cron] FMCSA sync complete: ${result.succeeded}/${result.total} companies succeeded`);
+      if (result.errors.length > 0) {
+        console.log(`[Cron] FMCSA sync had ${result.errors.length} company failures`);
+      }
+    } catch (error) {
+      console.error('[Cron] FMCSA sync job failed:', error.message);
+    }
+  });
+
+  console.log('[Cron] Scheduled: Daily alerts at 6 AM, Alert digest emails, Escalation check every 6 hours, Trial ending check at 9 AM, Scheduled reports every hour, Samsara sync every hour, FMCSA data sync every 6 hours');
 });
 
 // Handle uncaught exceptions — log and exit so process manager can restart
