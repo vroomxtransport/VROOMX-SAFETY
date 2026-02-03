@@ -7,6 +7,12 @@ const Blog = () => {
   const [activeCategory, setActiveCategory] = useState('all');
   const [selectedArticle, setSelectedArticle] = useState(null);
 
+  // Force light mode on blog page (prevents invisible text when dark mode persists)
+  useEffect(() => {
+    document.documentElement.classList.remove('dark');
+    localStorage.removeItem('vroomx-theme');
+  }, []);
+
   // Lock body scroll when modal is open
   useEffect(() => {
     if (selectedArticle) {

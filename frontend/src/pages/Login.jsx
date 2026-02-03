@@ -18,6 +18,12 @@ const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  // Force light mode on login page (prevents invisible text when dark mode persists)
+  useEffect(() => {
+    document.documentElement.classList.remove('dark');
+    localStorage.removeItem('vroomx-theme');
+  }, []);
+
   // Countdown timer for rate limit lockout
   useEffect(() => {
     if (lockoutSeconds > 0) {

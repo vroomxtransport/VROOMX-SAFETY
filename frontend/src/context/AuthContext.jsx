@@ -138,6 +138,10 @@ export const AuthProvider = ({ children }) => {
     setCompanies([]);
     setActiveCompany(null);
     setSubscription(null);
+
+    // Reset theme to light mode for public pages
+    localStorage.removeItem('vroomx-theme');
+    document.documentElement.classList.remove('dark');
   };
 
   // Switch to a different company

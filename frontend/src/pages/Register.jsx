@@ -31,6 +31,12 @@ const Register = () => {
   const selectedPlan = searchParams.get('plan');
   const isSoloPlan = selectedPlan === 'solo';
 
+  // Force light mode on register page (prevents invisible text when dark mode persists)
+  useEffect(() => {
+    document.documentElement.classList.remove('dark');
+    localStorage.removeItem('vroomx-theme');
+  }, []);
+
   // FMCSA lookup state
   const [dotLookupStatus, setDotLookupStatus] = useState('idle'); // idle, loading, verified, not_found, error
   const [fmcsaData, setFmcsaData] = useState(null);

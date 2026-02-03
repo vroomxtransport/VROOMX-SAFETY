@@ -34,15 +34,10 @@ const Landing = () => {
   // FAQ state
   const [openFaq, setOpenFaq] = useState(null);
 
-  // Force light mode on public landing page (prevents invisible text when OS is in dark mode)
+  // Force light mode on public landing page (prevents invisible text when dark mode persists)
   useEffect(() => {
-    const wasDark = document.documentElement.classList.contains('dark');
     document.documentElement.classList.remove('dark');
-    return () => {
-      if (wasDark) {
-        document.documentElement.classList.add('dark');
-      }
-    };
+    localStorage.removeItem('vroomx-theme');
   }, []);
 
   // Cycle hero typewriter text
