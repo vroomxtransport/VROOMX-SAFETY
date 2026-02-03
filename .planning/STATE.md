@@ -10,18 +10,18 @@ See: PROJECT.md (updated 2026-02-03)
 ## Current Position
 
 Phase: 5 of 7 (UI Integration)
-Plan: 1 of 4 in current phase
+Plan: 2 of 4 in current phase
 Status: In progress
-Last activity: 2026-02-03 - Completed 05-01-PLAN.md (Vehicle OOS Service)
+Last activity: 2026-02-03 - Completed 05-02-PLAN.md (Vehicle Stats API Route)
 
-Progress: [==========-] 79%
+Progress: [==========--] 86%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 11
+- Total plans completed: 12
 - Average duration: 2 min
-- Total execution time: 0.34 hours
+- Total execution time: 0.36 hours
 
 **By Phase:**
 
@@ -31,10 +31,10 @@ Progress: [==========-] 79%
 | 02-migration | 1 | 2 min | 2.0 min |
 | 03-sync-infrastructure | 3 | 5 min | 1.7 min |
 | 04-entity-linking | 3 | 5 min | 1.7 min |
-| 05-ui-integration | 1 | 1 min | 1.0 min |
+| 05-ui-integration | 2 | 2 min | 1.0 min |
 
 **Recent Trend:**
-- Last 5 plans: 1 min, 2 min, 1 min, 2 min, 1 min
+- Last 5 plans: 2 min, 1 min, 2 min, 1 min, 1 min
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -73,6 +73,8 @@ Recent decisions affecting current work:
 - [05-01]: OOS rate uses simple percentage (not weighted like driver CSA scores) - vehicles don't have CSA percentiles
 - [05-01]: Include driver info in vehicle violations (who was driving) - useful for accountability
 - [05-01]: Include hazmat in BASIC categories (7 total) - vehicles can have hazmat violations
+- [05-02]: Routes placed before /:id for correct Express routing order
+- [05-02]: Violations route uses violations.view permission (matches driver pattern)
 
 ### Pending Todos
 
@@ -86,8 +88,8 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-03
-Stopped at: Completed 05-01-PLAN.md (Vehicle OOS Service)
+Stopped at: Completed 05-02-PLAN.md (Vehicle Stats API Route)
 Resume file: None
 
 ---
-*Next step: Execute 05-02-PLAN.md (Vehicle Stats API Route)*
+*Next step: Execute 05-03-PLAN.md (Vehicle Profile Safety Tab)*
