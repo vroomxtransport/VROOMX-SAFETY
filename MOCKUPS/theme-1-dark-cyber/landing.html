@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VroomX Safety Platform - Fleet Compliance Command Center</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Orbitron:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  <!-- Shared CSS -->
+  <link rel="stylesheet" href="../shared/css/base.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'space-navy': '#0F172A',
+            'cyber-cyan': '#06B6D4',
+            'hot-pink': '#EC4899',
+            'neon-green': '#22D3EE',
+          },
+          fontFamily: {
+            'mono': ['JetBrains Mono', 'monospace'],
+            'display': ['Orbitron', 'sans-serif'],
+            'body': ['Inter', 'system-ui', 'sans-serif'],
+          },
+          borderRadius: {
+            'cyber': '4px',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background-color: #0F172A;
+    }
+
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    .font-display { font-family: 'Orbitron', sans-serif; }
+
+    /* Grid Pattern Background */
+    .grid-pattern {
+      background-image:
+        linear-gradient(rgba(6, 182, 212, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(6, 182, 212, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    /* Neon Glow Effects */
+    .glow-cyan {
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.3), 0 0 40px rgba(6, 182, 212, 0.1);
+    }
+
+    .glow-pink {
+      box-shadow: 0 0 20px rgba(236, 72, 153, 0.3), 0 0 40px rgba(236, 72, 153, 0.1);
+    }
+
+    .glow-cyan-sm {
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.2);
+    }
+
+    .text-glow-cyan {
+      text-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
+    }
+
+    .text-glow-pink {
+      text-shadow: 0 0 20px rgba(236, 72, 153, 0.5);
+    }
+
+    /* Border Glow */
+    .border-glow-cyan {
+      border-color: rgba(6, 182, 212, 0.5);
+      box-shadow: inset 0 0 20px rgba(6, 182, 212, 0.05), 0 0 20px rgba(6, 182, 212, 0.1);
+    }
+
+    /* Typewriter Effect */
+    @keyframes typewriter {
+      from { width: 0; }
+      to { width: 100%; }
+    }
+
+    @keyframes blink {
+      50% { border-color: transparent; }
+    }
+
+    .typewriter {
+      overflow: hidden;
+      white-space: nowrap;
+      border-right: 3px solid #06B6D4;
+      animation: typewriter 3s steps(40) 1s forwards, blink 0.7s step-end infinite;
+    }
+
+    /* Scan Line Effect */
+    .scan-lines::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(6, 182, 212, 0.02) 2px,
+        rgba(6, 182, 212, 0.02) 4px
+      );
+      pointer-events: none;
+    }
+
+    /* Hover Glow Animation */
+    .hover-glow:hover {
+      box-shadow: 0 0 30px rgba(6, 182, 212, 0.4), 0 0 60px rgba(6, 182, 212, 0.2);
+    }
+
+    /* Pulse Animation */
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(236, 72, 153, 0.3); }
+      50% { box-shadow: 0 0 40px rgba(236, 72, 153, 0.5), 0 0 60px rgba(236, 72, 153, 0.3); }
+    }
+
+    .pulse-glow {
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    /* Gradient Text */
+    .gradient-text {
+      background: linear-gradient(135deg, #06B6D4 0%, #EC4899 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Card Hover Effect */
+    .cyber-card {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.9) 100%);
+      border: 1px solid rgba(6, 182, 212, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .cyber-card:hover {
+      border-color: rgba(6, 182, 212, 0.5);
+      transform: translateY(-4px);
+      box-shadow: 0 0 30px rgba(6, 182, 212, 0.2);
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #0F172A;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #06B6D4;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #22D3EE;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-space-navy text-white" x-data="{
+  mobileMenuOpen: false,
+  activeTab: 'tracking',
+  activeFaq: null,
+  billingPeriod: 'monthly'
+}">
+
+  <!-- Fixed Header -->
+  <header class="fixed top-0 left-0 right-0 z-50 border-b border-cyan-500/20 bg-space-navy/80 backdrop-blur-xl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+      <div class="flex items-center justify-between h-16 md:h-20">
+
+        <!-- Logo -->
+        <a href="landing.html" class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-cyber bg-gradient-to-br from-cyber-cyan to-hot-pink flex items-center justify-center glow-cyan-sm">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+          </div>
+          <span class="text-xl font-display font-bold text-white tracking-wider">VROOMX</span>
+        </a>
+
+        <!-- Desktop Navigation -->
+        <nav class="hidden md:flex items-center gap-8">
+          <a href="#features" class="text-sm font-mono text-gray-400 hover:text-cyber-cyan transition-colors">FEATURES</a>
+          <a href="#pricing" class="text-sm font-mono text-gray-400 hover:text-cyber-cyan transition-colors">PRICING</a>
+          <a href="#testimonials" class="text-sm font-mono text-gray-400 hover:text-cyber-cyan transition-colors">REVIEWS</a>
+          <a href="#faq" class="text-sm font-mono text-gray-400 hover:text-cyber-cyan transition-colors">FAQ</a>
+        </nav>
+
+        <!-- CTA Buttons -->
+        <div class="hidden md:flex items-center gap-4">
+          <a href="login.html" class="text-sm font-mono text-cyber-cyan hover:text-white transition-colors">LOGIN</a>
+          <a href="register.html" class="px-5 py-2.5 text-sm font-mono font-semibold text-space-navy bg-cyber-cyan rounded-cyber hover:bg-neon-green transition-all glow-cyan hover-glow">
+            ACCESS SYSTEM
+          </a>
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden p-2 text-gray-400 hover:text-cyber-cyan">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path x-show="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            <path x-show="mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Mobile Menu -->
+      <div x-show="mobileMenuOpen" x-transition class="md:hidden py-4 border-t border-cyan-500/20">
+        <nav class="flex flex-col gap-4">
+          <a href="#features" class="text-sm font-mono text-gray-400 hover:text-cyber-cyan">FEATURES</a>
+          <a href="#pricing" class="text-sm font-mono text-gray-400 hover:text-cyber-cyan">PRICING</a>
+          <a href="#testimonials" class="text-sm font-mono text-gray-400 hover:text-cyber-cyan">REVIEWS</a>
+          <a href="#faq" class="text-sm font-mono text-gray-400 hover:text-cyber-cyan">FAQ</a>
+          <div class="pt-4 border-t border-cyan-500/20 flex flex-col gap-3">
+            <a href="login.html" class="text-sm font-mono text-cyber-cyan">LOGIN</a>
+            <a href="register.html" class="w-full py-3 text-center text-sm font-mono font-semibold text-space-navy bg-cyber-cyan rounded-cyber">
+              ACCESS SYSTEM
+            </a>
+          </div>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="relative min-h-screen flex items-center pt-20 overflow-hidden grid-pattern scan-lines">
+    <!-- Gradient Orbs -->
+    <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-cyber-cyan/20 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-hot-pink/20 rounded-full blur-3xl"></div>
+
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 py-20 md:py-32">
+      <div class="text-center max-w-4xl mx-auto">
+        <!-- Status Badge -->
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-cyber-cyan/30 bg-cyber-cyan/10 mb-8">
+          <span class="w-2 h-2 bg-cyber-cyan rounded-full animate-pulse"></span>
+          <span class="text-xs font-mono text-cyber-cyan uppercase tracking-wider">System Online - FMCSA Connected</span>
+        </div>
+
+        <!-- Main Headline -->
+        <h1 class="text-4xl sm:text-5xl md:text-7xl font-display font-bold leading-tight mb-6">
+          <span class="text-white">FLEET COMPLIANCE</span>
+          <br>
+          <span class="gradient-text text-glow-cyan">COMMAND CENTER</span>
+        </h1>
+
+        <!-- Typewriter Subheadline -->
+        <div class="h-8 mb-8 overflow-hidden">
+          <p class="text-lg md:text-xl font-mono text-gray-400">
+            <span class="typewriter">Automated DOT compliance for modern trucking operations_</span>
+          </p>
+        </div>
+
+        <!-- Description -->
+        <p class="text-lg text-gray-400 max-w-2xl mx-auto mb-10">
+          Real-time driver qualification file management, violation tracking, and FMCSA integration.
+          Built for safety managers who refuse to let compliance slip through the cracks.
+        </p>
+
+        <!-- CTA Buttons -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <a href="register.html" class="group w-full sm:w-auto px-8 py-4 text-lg font-mono font-bold text-space-navy bg-hot-pink rounded-cyber pulse-glow hover:bg-pink-400 transition-all">
+            START FREE TRIAL
+            <svg class="inline-block w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+            </svg>
+          </a>
+          <a href="#features" class="w-full sm:w-auto px-8 py-4 text-lg font-mono font-semibold text-cyber-cyan border border-cyber-cyan/50 rounded-cyber hover:bg-cyber-cyan/10 transition-all">
+            VIEW SYSTEM DEMO
+          </a>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="grid grid-cols-3 gap-4 md:gap-8 mt-16 max-w-2xl mx-auto">
+          <div class="cyber-card rounded-cyber p-4 md:p-6">
+            <div class="text-2xl md:text-4xl font-display font-bold text-cyber-cyan text-glow-cyan">2,500+</div>
+            <div class="text-xs md:text-sm font-mono text-gray-500 mt-1">ACTIVE FLEETS</div>
+          </div>
+          <div class="cyber-card rounded-cyber p-4 md:p-6">
+            <div class="text-2xl md:text-4xl font-display font-bold text-cyber-cyan text-glow-cyan">99.9%</div>
+            <div class="text-xs md:text-sm font-mono text-gray-500 mt-1">UPTIME</div>
+          </div>
+          <div class="cyber-card rounded-cyber p-4 md:p-6">
+            <div class="text-2xl md:text-4xl font-display font-bold text-cyber-cyan text-glow-cyan">$4.2M</div>
+            <div class="text-xs md:text-sm font-mono text-gray-500 mt-1">FINES PREVENTED</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll Indicator -->
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
+      <span class="text-xs font-mono text-gray-500">SCROLL</span>
+      <div class="w-6 h-10 rounded-full border-2 border-gray-500 flex items-start justify-center p-2">
+        <div class="w-1 h-2 bg-cyber-cyan rounded-full animate-bounce"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trust Badges Section -->
+  <section class="py-12 border-y border-cyan-500/20 bg-space-navy/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+      <div class="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16">
+        <div class="flex items-center gap-3">
+          <svg class="w-8 h-8 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+          </svg>
+          <span class="text-sm font-mono text-gray-400">SOC 2 CERTIFIED</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <svg class="w-8 h-8 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+          </svg>
+          <span class="text-sm font-mono text-gray-400">256-BIT ENCRYPTION</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <svg class="w-8 h-8 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"/>
+          </svg>
+          <span class="text-sm font-mono text-gray-400">FMCSA INTEGRATED</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <svg class="w-8 h-8 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+          <span class="text-sm font-mono text-gray-400">24/7 MONITORING</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="py-20 md:py-32 relative grid-pattern">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+
+      <!-- Section Header -->
+      <div class="text-center mb-16">
+        <span class="inline-block px-3 py-1 text-xs font-mono text-cyber-cyan border border-cyber-cyan/30 rounded-full mb-4">SYSTEM CAPABILITIES</span>
+        <h2 class="text-3xl md:text-5xl font-display font-bold text-white mb-4">
+          MISSION CONTROL <span class="gradient-text">FEATURES</span>
+        </h2>
+        <p class="text-lg text-gray-400 max-w-2xl mx-auto">
+          Everything you need to maintain perfect DOT compliance, all in one command center.
+        </p>
+      </div>
+
+      <!-- Feature Tabs -->
+      <div class="mb-8">
+        <div class="flex flex-wrap justify-center gap-2">
+          <button @click="activeTab = 'tracking'"
+                  :class="activeTab === 'tracking' ? 'bg-cyber-cyan text-space-navy' : 'bg-transparent text-gray-400 border-gray-600 hover:border-cyber-cyan hover:text-cyber-cyan'"
+                  class="px-4 py-2 text-sm font-mono rounded-cyber border transition-all">
+            DOCUMENT TRACKING
+          </button>
+          <button @click="activeTab = 'fmcsa'"
+                  :class="activeTab === 'fmcsa' ? 'bg-cyber-cyan text-space-navy' : 'bg-transparent text-gray-400 border-gray-600 hover:border-cyber-cyan hover:text-cyber-cyan'"
+                  class="px-4 py-2 text-sm font-mono rounded-cyber border transition-all">
+            FMCSA SYNC
+          </button>
+          <button @click="activeTab = 'alerts'"
+                  :class="activeTab === 'alerts' ? 'bg-cyber-cyan text-space-navy' : 'bg-transparent text-gray-400 border-gray-600 hover:border-cyber-cyan hover:text-cyber-cyan'"
+                  class="px-4 py-2 text-sm font-mono rounded-cyber border transition-all">
+            SMART ALERTS
+          </button>
+          <button @click="activeTab = 'ai'"
+                  :class="activeTab === 'ai' ? 'bg-cyber-cyan text-space-navy' : 'bg-transparent text-gray-400 border-gray-600 hover:border-cyber-cyan hover:text-cyber-cyan'"
+                  class="px-4 py-2 text-sm font-mono rounded-cyber border transition-all">
+            AI ASSISTANT
+          </button>
+          <button @click="activeTab = 'reports'"
+                  :class="activeTab === 'reports' ? 'bg-cyber-cyan text-space-navy' : 'bg-transparent text-gray-400 border-gray-600 hover:border-cyber-cyan hover:text-cyber-cyan'"
+                  class="px-4 py-2 text-sm font-mono rounded-cyber border transition-all">
+            REPORTS
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab Content -->
+      <div class="cyber-card rounded-cyber p-8 md:p-12 border-glow-cyan">
+
+        <!-- Document Tracking -->
+        <div x-show="activeTab === 'tracking'" x-transition>
+          <div class="grid md:grid-cols-2 gap-8 items-center">
+            <div>
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-12 h-12 rounded-cyber bg-cyber-cyan/20 border border-cyber-cyan/30 flex items-center justify-center">
+                  <svg class="w-6 h-6 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                  </svg>
+                </div>
+                <h3 class="text-2xl font-display font-bold text-white">Document Tracking</h3>
+              </div>
+              <p class="text-gray-400 mb-6">
+                Never miss an expiration again. Track CDLs, medical cards, MVRs, Clearinghouse queries, and all driver qualification documents in one centralized system.
+              </p>
+              <ul class="space-y-3">
+                <li class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  <span class="text-gray-300 font-mono text-sm">AI-powered document scanning</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  <span class="text-gray-300 font-mono text-sm">Automatic expiration tracking</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  <span class="text-gray-300 font-mono text-sm">Secure cloud storage</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  <span class="text-gray-300 font-mono text-sm">One-click audit reports</span>
+                </li>
+              </ul>
+            </div>
+            <div class="relative">
+              <div class="absolute inset-0 bg-gradient-to-br from-cyber-cyan/20 to-hot-pink/20 rounded-cyber blur-2xl"></div>
+              <div class="relative bg-slate-900/80 rounded-cyber p-6 border border-cyan-500/30">
+                <div class="flex items-center justify-between mb-4">
+                  <span class="text-xs font-mono text-gray-500">DOCUMENT STATUS</span>
+                  <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                </div>
+                <div class="space-y-3">
+                  <div class="flex items-center justify-between p-3 bg-green-500/10 border border-green-500/30 rounded-cyber">
+                    <span class="text-sm font-mono text-white">CDL - James Wilson</span>
+                    <span class="text-xs font-mono text-green-400">VALID</span>
+                  </div>
+                  <div class="flex items-center justify-between p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-cyber">
+                    <span class="text-sm font-mono text-white">Med Card - Maria Garcia</span>
+                    <span class="text-xs font-mono text-yellow-400">14 DAYS</span>
+                  </div>
+                  <div class="flex items-center justify-between p-3 bg-red-500/10 border border-red-500/30 rounded-cyber">
+                    <span class="text-sm font-mono text-white">MVR - Robert Johnson</span>
+                    <span class="text-xs font-mono text-red-400">EXPIRED</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FMCSA Sync -->
+        <div x-show="activeTab === 'fmcsa'" x-transition>
+          <div class="grid md:grid-cols-2 gap-8 items-center">
+            <div>
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-12 h-12 rounded-cyber bg-cyber-cyan/20 border border-cyber-cyan/30 flex items-center justify-center">
+                  <svg class="w-6 h-6 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                  </svg>
+                </div>
+                <h3 class="text-2xl font-display font-bold text-white">FMCSA Auto-Sync</h3>
+              </div>
+              <p class="text-gray-400 mb-6">
+                Direct integration with SAFER, SMS, and Clearinghouse. Your inspection history, violations, and CSA scores update automatically every day.
+              </p>
+              <ul class="space-y-3">
+                <li class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  <span class="text-gray-300 font-mono text-sm">Daily SAFER data sync</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  <span class="text-gray-300 font-mono text-sm">Real-time violation alerts</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  <span class="text-gray-300 font-mono text-sm">CSA score monitoring</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  <span class="text-gray-300 font-mono text-sm">Clearinghouse integration</span>
+                </li>
+              </ul>
+            </div>
+            <div class="relative">
+              <div class="absolute inset-0 bg-gradient-to-br from-cyber-cyan/20 to-hot-pink/20 rounded-cyber blur-2xl"></div>
+              <div class="relative bg-slate-900/80 rounded-cyber p-6 border border-cyan-500/30">
+                <div class="flex items-center justify-between mb-4">
+                  <span class="text-xs font-mono text-gray-500">SMS BASIC SCORES</span>
+                  <span class="text-xs font-mono text-green-400">SYNCED 2 MIN AGO</span>
+                </div>
+                <div class="space-y-3">
+                  <div>
+                    <div class="flex justify-between text-sm mb-1">
+                      <span class="font-mono text-gray-400">Unsafe Driving</span>
+                      <span class="font-mono text-green-400">15%</span>
+                    </div>
+                    <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                      <div class="h-full w-[15%] bg-green-500 rounded-full"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="flex justify-between text-sm mb-1">
+                      <span class="font-mono text-gray-400">HOS Compliance</span>
+                      <span class="font-mono text-yellow-400">42%</span>
+                    </div>
+                    <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                      <div class="h-full w-[42%] bg-yellow-500 rounded-full"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="flex justify-between text-sm mb-1">
+                      <span class="font-mono text-gray-400">Vehicle Maintenance</span>
+                      <span class="font-mono text-green-400">8%</span>
+                    </div>
+                    <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                      <div class="h-full w-[8%] bg-green-500 rounded-full"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Smart Alerts -->
+        <div x-show="activeTab === 'alerts'" x-transition>
+          <div class="grid md:grid-cols-2 gap-8 items-center">
+            <div>
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-12 h-12 rounded-cyber bg-cyber-cyan/20 border border-cyber-cyan/30 flex items-center justify-center">
+                  <svg class="w-6 h-6 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                  </svg>
+                </div>
+                <h3 class="text-2xl font-display font-bold text-white">Smart Alerts</h3>
+              </div>
+              <p class="text-gray-400 mb-6">
+                Proactive notifications keep you ahead of compliance issues. Get alerts at 90, 60, 30, and 7 days before any document expires.
+              </p>
+              <ul class="space-y-3">
+                <li class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  <span class="text-gray-300 font-mono text-sm">Multi-channel notifications</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  <span class="text-gray-300 font-mono text-sm">Email, SMS, and in-app alerts</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  <span class="text-gray-300 font-mono text-sm">Escalation workflows</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  <span class="text-gray-300 font-mono text-sm">Custom alert thresholds</span>
+                </li>
+              </ul>
+            </div>
+            <div class="relative">
+              <div class="absolute inset-0 bg-gradient-to-br from-cyber-cyan/20 to-hot-pink/20 rounded-cyber blur-2xl"></div>
+              <div class="relative bg-slate-900/80 rounded-cyber p-6 border border-cyan-500/30">
+                <div class="flex items-center justify-between mb-4">
+                  <span class="text-xs font-mono text-gray-500">RECENT ALERTS</span>
+                  <span class="px-2 py-0.5 text-xs font-mono bg-red-500/20 text-red-400 rounded">5 NEW</span>
+                </div>
+                <div class="space-y-3">
+                  <div class="flex items-start gap-3 p-3 bg-red-500/10 border border-red-500/30 rounded-cyber">
+                    <div class="w-2 h-2 mt-1.5 bg-red-500 rounded-full animate-pulse"></div>
+                    <div>
+                      <p class="text-sm font-mono text-white">Medical Card Expired</p>
+                      <p class="text-xs text-gray-500">Maria Garcia - 2 hours ago</p>
+                    </div>
+                  </div>
+                  <div class="flex items-start gap-3 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-cyber">
+                    <div class="w-2 h-2 mt-1.5 bg-yellow-500 rounded-full"></div>
+                    <div>
+                      <p class="text-sm font-mono text-white">CDL Expiring in 14 Days</p>
+                      <p class="text-xs text-gray-500">Maria Garcia - 5 hours ago</p>
+                    </div>
+                  </div>
+                  <div class="flex items-start gap-3 p-3 bg-cyan-500/10 border border-cyan-500/30 rounded-cyber">
+                    <div class="w-2 h-2 mt-1.5 bg-cyan-500 rounded-full"></div>
+                    <div>
+                      <p class="text-sm font-mono text-white">New Violation Recorded</p>
+                      <p class="text-xs text-gray-500">Jennifer Davis - 1 day ago</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Assistant -->
+        <div x-show="activeTab === 'ai'" x-transition>
+          <div class="grid md:grid-cols-2 gap-8 items-center">
+            <div>
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-12 h-12 rounded-cyber bg-hot-pink/20 border border-hot-pink/30 flex items-center justify-center">
+                  <svg class="w-6 h-6 text-hot-pink" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                  </svg>
+                </div>
+                <h3 class="text-2xl font-display font-bold text-white">VroomX AI</h3>
+              </div>
+              <p class="text-gray-400 mb-6">
+                Your personal compliance expert powered by AI. Ask any DOT regulation question and get instant, accurate answers with CFR citations.
+              </p>
+              <ul class="space-y-3">
+                <li class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-hot-pink" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  <span class="text-gray-300 font-mono text-sm">Natural language queries</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-hot-pink" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  <span class="text-gray-300 font-mono text-sm">CFR regulation citations</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-hot-pink" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  <span class="text-gray-300 font-mono text-sm">Audit preparation guidance</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-hot-pink" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  <span class="text-gray-300 font-mono text-sm">Document extraction</span>
+                </li>
+              </ul>
+            </div>
+            <div class="relative">
+              <div class="absolute inset-0 bg-gradient-to-br from-hot-pink/20 to-cyber-cyan/20 rounded-cyber blur-2xl"></div>
+              <div class="relative bg-slate-900/80 rounded-cyber p-6 border border-hot-pink/30">
+                <div class="flex items-center gap-2 mb-4">
+                  <div class="w-8 h-8 rounded-full bg-hot-pink/20 flex items-center justify-center">
+                    <svg class="w-4 h-4 text-hot-pink" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                    </svg>
+                  </div>
+                  <span class="text-sm font-mono text-hot-pink">VroomX AI</span>
+                </div>
+                <div class="space-y-4">
+                  <div class="flex justify-end">
+                    <div class="bg-cyan-500/20 border border-cyan-500/30 rounded-cyber px-4 py-2 max-w-[80%]">
+                      <p class="text-sm text-white">How long must I keep driver qualification files?</p>
+                    </div>
+                  </div>
+                  <div class="flex justify-start">
+                    <div class="bg-slate-700/50 border border-gray-600 rounded-cyber px-4 py-2 max-w-[80%]">
+                      <p class="text-sm text-gray-300">Per 49 CFR 391.51, you must retain driver qualification files for 3 years after employment ends. This includes the application, MVR, medical certificate, and road test...</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reports -->
+        <div x-show="activeTab === 'reports'" x-transition>
+          <div class="grid md:grid-cols-2 gap-8 items-center">
+            <div>
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-12 h-12 rounded-cyber bg-cyber-cyan/20 border border-cyber-cyan/30 flex items-center justify-center">
+                  <svg class="w-6 h-6 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                  </svg>
+                </div>
+                <h3 class="text-2xl font-display font-bold text-white">Advanced Reports</h3>
+              </div>
+              <p class="text-gray-400 mb-6">
+                Generate comprehensive compliance reports with one click. Perfect for audits, insurance renewals, and management reviews.
+              </p>
+              <ul class="space-y-3">
+                <li class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  <span class="text-gray-300 font-mono text-sm">DOT audit-ready reports</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  <span class="text-gray-300 font-mono text-sm">Fleet compliance scorecards</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  <span class="text-gray-300 font-mono text-sm">Trend analysis</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  <span class="text-gray-300 font-mono text-sm">PDF and CSV exports</span>
+                </li>
+              </ul>
+            </div>
+            <div class="relative">
+              <div class="absolute inset-0 bg-gradient-to-br from-cyber-cyan/20 to-hot-pink/20 rounded-cyber blur-2xl"></div>
+              <div class="relative bg-slate-900/80 rounded-cyber p-6 border border-cyan-500/30">
+                <div class="flex items-center justify-between mb-4">
+                  <span class="text-xs font-mono text-gray-500">COMPLIANCE OVERVIEW</span>
+                  <span class="text-xs font-mono text-cyber-cyan">JAN 2025</span>
+                </div>
+                <div class="text-center mb-6">
+                  <div class="text-5xl font-display font-bold text-cyber-cyan text-glow-cyan">87%</div>
+                  <div class="text-sm font-mono text-gray-400 mt-1">FLEET COMPLIANCE SCORE</div>
+                </div>
+                <div class="grid grid-cols-3 gap-3">
+                  <div class="text-center p-3 bg-green-500/10 border border-green-500/30 rounded-cyber">
+                    <div class="text-xl font-bold text-green-400">9</div>
+                    <div class="text-xs font-mono text-gray-500">COMPLIANT</div>
+                  </div>
+                  <div class="text-center p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-cyber">
+                    <div class="text-xl font-bold text-yellow-400">2</div>
+                    <div class="text-xs font-mono text-gray-500">WARNING</div>
+                  </div>
+                  <div class="text-center p-3 bg-red-500/10 border border-red-500/30 rounded-cyber">
+                    <div class="text-xl font-bold text-red-400">1</div>
+                    <div class="text-xs font-mono text-gray-500">CRITICAL</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Problem Section (Excel Mockery) -->
+  <section class="py-20 md:py-32 bg-gradient-to-b from-space-navy to-slate-900 relative overflow-hidden">
+    <div class="absolute inset-0 grid-pattern opacity-50"></div>
+
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6">
+      <div class="text-center mb-16">
+        <span class="inline-block px-3 py-1 text-xs font-mono text-hot-pink border border-hot-pink/30 rounded-full mb-4">THE PROBLEM</span>
+        <h2 class="text-3xl md:text-5xl font-display font-bold text-white mb-4">
+          STILL USING <span class="text-red-500 line-through">SPREADSHEETS</span>?
+        </h2>
+        <p class="text-lg text-gray-400 max-w-2xl mx-auto">
+          Spreadsheets weren't built for DOT compliance. One missed expiration can cost you $16,000+ in fines.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-8 items-center">
+        <!-- Excel Hell -->
+        <div class="relative">
+          <div class="absolute inset-0 bg-red-500/10 rounded-cyber blur-xl"></div>
+          <div class="relative bg-slate-900/90 rounded-cyber p-6 border-2 border-red-500/50">
+            <div class="flex items-center gap-2 mb-4">
+              <div class="w-3 h-3 rounded-full bg-red-500"></div>
+              <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+              <div class="w-3 h-3 rounded-full bg-green-500"></div>
+              <span class="text-xs font-mono text-gray-500 ml-2">driver_files_FINAL_v3_UPDATED.xlsx</span>
+            </div>
+            <div class="space-y-2 font-mono text-xs">
+              <div class="flex border border-gray-700">
+                <div class="w-8 p-1 bg-gray-800 text-gray-500 text-center border-r border-gray-700">1</div>
+                <div class="flex-1 p-1 bg-gray-700/50 text-gray-400">Driver Name | CDL Exp | Med Card | MVR | Notes</div>
+              </div>
+              <div class="flex border border-gray-700">
+                <div class="w-8 p-1 bg-gray-800 text-gray-500 text-center border-r border-gray-700">2</div>
+                <div class="flex-1 p-1 text-gray-400">James Wilson | 8/15/25 | <span class="text-yellow-400">3/22/25</span> | 2/28 | check MVR??</div>
+              </div>
+              <div class="flex border border-gray-700 bg-red-500/10">
+                <div class="w-8 p-1 bg-gray-800 text-gray-500 text-center border-r border-gray-700">3</div>
+                <div class="flex-1 p-1 text-red-400">#REF! | <span class="text-red-500">ERROR</span> | #N/A | | who added this??</div>
+              </div>
+              <div class="flex border border-gray-700">
+                <div class="w-8 p-1 bg-gray-800 text-gray-500 text-center border-r border-gray-700">4</div>
+                <div class="flex-1 p-1 text-gray-400">Robert J | <span class="text-red-400">EXPIRED?</span> | <span class="text-red-400">12/1/24</span> | | URGENT CALL</div>
+              </div>
+            </div>
+            <div class="mt-4 flex items-center gap-2 text-red-400">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+              </svg>
+              <span class="text-sm font-mono">3 errors found. Circular reference detected.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- VroomX Solution -->
+        <div class="relative">
+          <div class="absolute inset-0 bg-cyber-cyan/10 rounded-cyber blur-xl"></div>
+          <div class="relative bg-slate-900/90 rounded-cyber p-6 border-2 border-cyber-cyan/50 glow-cyan">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-cyber bg-gradient-to-br from-cyber-cyan to-hot-pink flex items-center justify-center">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                  </svg>
+                </div>
+                <span class="text-sm font-display text-white">VROOMX COMMAND</span>
+              </div>
+              <span class="px-2 py-1 text-xs font-mono bg-green-500/20 text-green-400 rounded border border-green-500/30">LIVE</span>
+            </div>
+            <div class="space-y-3">
+              <div class="flex items-center justify-between p-3 bg-green-500/10 border border-green-500/30 rounded-cyber">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 font-bold text-sm">JW</div>
+                  <div>
+                    <p class="text-sm font-mono text-white">James Wilson</p>
+                    <p class="text-xs text-gray-500">All documents valid</p>
+                  </div>
+                </div>
+                <span class="text-xs font-mono text-green-400">100%</span>
+              </div>
+              <div class="flex items-center justify-between p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-cyber">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-400 font-bold text-sm">MG</div>
+                  <div>
+                    <p class="text-sm font-mono text-white">Maria Garcia</p>
+                    <p class="text-xs text-gray-500">CDL expires in 14 days</p>
+                  </div>
+                </div>
+                <span class="text-xs font-mono text-yellow-400">85%</span>
+              </div>
+              <div class="flex items-center justify-between p-3 bg-red-500/10 border border-red-500/30 rounded-cyber">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center text-red-400 font-bold text-sm">RJ</div>
+                  <div>
+                    <p class="text-sm font-mono text-white">Robert Johnson</p>
+                    <p class="text-xs text-gray-500">Med card expired - action required</p>
+                  </div>
+                </div>
+                <span class="text-xs font-mono text-red-400">40%</span>
+              </div>
+            </div>
+            <div class="mt-4 flex items-center gap-2 text-cyber-cyan">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <span class="text-sm font-mono">Real-time compliance tracking. Zero errors.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section id="pricing" class="py-20 md:py-32 relative grid-pattern">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+
+      <!-- Section Header -->
+      <div class="text-center mb-16">
+        <span class="inline-block px-3 py-1 text-xs font-mono text-cyber-cyan border border-cyber-cyan/30 rounded-full mb-4">PRICING MATRIX</span>
+        <h2 class="text-3xl md:text-5xl font-display font-bold text-white mb-4">
+          SELECT YOUR <span class="gradient-text">ACCESS TIER</span>
+        </h2>
+        <p class="text-lg text-gray-400 max-w-2xl mx-auto mb-8">
+          All plans include a 14-day free trial. No credit card required.
+        </p>
+
+        <!-- Billing Toggle -->
+        <div class="inline-flex items-center gap-4 p-1 bg-slate-800/50 border border-gray-700 rounded-cyber">
+          <button @click="billingPeriod = 'monthly'"
+                  :class="billingPeriod === 'monthly' ? 'bg-cyber-cyan text-space-navy' : 'text-gray-400'"
+                  class="px-4 py-2 text-sm font-mono rounded-cyber transition-all">
+            MONTHLY
+          </button>
+          <button @click="billingPeriod = 'annual'"
+                  :class="billingPeriod === 'annual' ? 'bg-cyber-cyan text-space-navy' : 'text-gray-400'"
+                  class="px-4 py-2 text-sm font-mono rounded-cyber transition-all">
+            ANNUAL <span class="text-xs">(SAVE 17%)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Pricing Cards -->
+      <div class="grid md:grid-cols-3 gap-6 lg:gap-8">
+
+        <!-- Solo Plan -->
+        <div class="cyber-card rounded-cyber p-6 lg:p-8">
+          <div class="mb-6">
+            <h3 class="text-xl font-display font-bold text-white mb-2">SOLO</h3>
+            <p class="text-sm text-gray-400">Perfect for owner-operators</p>
+          </div>
+          <div class="mb-6">
+            <div class="flex items-baseline gap-1">
+              <span class="text-4xl font-display font-bold text-white" x-text="billingPeriod === 'monthly' ? '$29' : '$24'"></span>
+              <span class="text-gray-500 font-mono text-sm">/month</span>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">1 driver included</p>
+          </div>
+          <ul class="space-y-3 mb-8">
+            <li class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span class="text-sm text-gray-300">Full DQF Management</span>
+            </li>
+            <li class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span class="text-sm text-gray-300">Document Storage</span>
+            </li>
+            <li class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span class="text-sm text-gray-300">Expiration Alerts</span>
+            </li>
+            <li class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span class="text-sm text-gray-300">Mobile Access</span>
+            </li>
+            <li class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span class="text-sm text-gray-300">Email Support</span>
+            </li>
+          </ul>
+          <a href="register.html" class="block w-full py-3 text-center text-sm font-mono font-semibold text-cyber-cyan border border-cyber-cyan/50 rounded-cyber hover:bg-cyber-cyan/10 transition-all">
+            START FREE TRIAL
+          </a>
+        </div>
+
+        <!-- Fleet Plan (Popular) -->
+        <div class="relative cyber-card rounded-cyber p-6 lg:p-8 border-2 border-hot-pink/50 glow-pink">
+          <div class="absolute -top-4 left-1/2 -translate-x-1/2">
+            <span class="px-4 py-1 text-xs font-mono font-bold text-space-navy bg-hot-pink rounded-full">MOST POPULAR</span>
+          </div>
+          <div class="mb-6">
+            <h3 class="text-xl font-display font-bold text-white mb-2">FLEET</h3>
+            <p class="text-sm text-gray-400">For growing fleets</p>
+          </div>
+          <div class="mb-6">
+            <div class="flex items-baseline gap-1">
+              <span class="text-4xl font-display font-bold text-white" x-text="billingPeriod === 'monthly' ? '$79' : '$66'"></span>
+              <span class="text-gray-500 font-mono text-sm">/month</span>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">3 drivers included (+$6/additional)</p>
+          </div>
+          <ul class="space-y-3 mb-8">
+            <li class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-hot-pink" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span class="text-sm text-gray-300">Everything in Solo</span>
+            </li>
+            <li class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-hot-pink" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span class="text-sm text-gray-300">Unlimited Vehicles</span>
+            </li>
+            <li class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-hot-pink" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span class="text-sm text-gray-300">FMCSA Integration</span>
+            </li>
+            <li class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-hot-pink" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span class="text-sm text-gray-300">Violation Tracking</span>
+            </li>
+            <li class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-hot-pink" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span class="text-sm text-gray-300">Maintenance Scheduling</span>
+            </li>
+            <li class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-hot-pink" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span class="text-sm text-gray-300">Priority Support</span>
+            </li>
+            <li class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-hot-pink" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span class="text-sm text-gray-300">Team Access</span>
+            </li>
+          </ul>
+          <a href="register.html" class="block w-full py-3 text-center text-sm font-mono font-bold text-space-navy bg-hot-pink rounded-cyber hover:bg-pink-400 transition-all pulse-glow">
+            START FREE TRIAL
+          </a>
+        </div>
+
+        <!-- Pro Plan -->
+        <div class="cyber-card rounded-cyber p-6 lg:p-8">
+          <div class="mb-6">
+            <h3 class="text-xl font-display font-bold text-white mb-2">PRO</h3>
+            <p class="text-sm text-gray-400">For enterprise fleets</p>
+          </div>
+          <div class="mb-6">
+            <div class="flex items-baseline gap-1">
+              <span class="text-4xl font-display font-bold text-white" x-text="billingPeriod === 'monthly' ? '$199' : '$166'"></span>
+              <span class="text-gray-500 font-mono text-sm">/month</span>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">10 drivers included (+$5/additional)</p>
+          </div>
+          <ul class="space-y-3 mb-8">
+            <li class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span class="text-sm text-gray-300">Everything in Fleet</span>
+            </li>
+            <li class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span class="text-sm text-gray-300">VroomX AI Assistant</span>
+            </li>
+            <li class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span class="text-sm text-gray-300">Advanced Analytics</span>
+            </li>
+            <li class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span class="text-sm text-gray-300">Custom Reports</span>
+            </li>
+            <li class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span class="text-sm text-gray-300">API Access</span>
+            </li>
+            <li class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span class="text-sm text-gray-300">Dedicated Support</span>
+            </li>
+            <li class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span class="text-sm text-gray-300">SSO Integration</span>
+            </li>
+            <li class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span class="text-sm text-gray-300">Audit Trail</span>
+            </li>
+          </ul>
+          <a href="register.html" class="block w-full py-3 text-center text-sm font-mono font-semibold text-cyber-cyan border border-cyber-cyan/50 rounded-cyber hover:bg-cyber-cyan/10 transition-all">
+            CONTACT SALES
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section id="testimonials" class="py-20 md:py-32 bg-gradient-to-b from-slate-900 to-space-navy relative">
+    <div class="absolute inset-0 grid-pattern opacity-30"></div>
+
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6">
+
+      <!-- Section Header -->
+      <div class="text-center mb-16">
+        <span class="inline-block px-3 py-1 text-xs font-mono text-cyber-cyan border border-cyber-cyan/30 rounded-full mb-4">FIELD REPORTS</span>
+        <h2 class="text-3xl md:text-5xl font-display font-bold text-white mb-4">
+          TRUSTED BY <span class="gradient-text">FLEET OPERATORS</span>
+        </h2>
+        <p class="text-lg text-gray-400 max-w-2xl mx-auto">
+          See what safety managers are saying about VroomX.
+        </p>
+      </div>
+
+      <!-- Testimonial Cards -->
+      <div class="grid md:grid-cols-3 gap-6">
+
+        <!-- Testimonial 1 -->
+        <div class="cyber-card rounded-cyber p-6 lg:p-8">
+          <div class="flex items-center gap-1 mb-4">
+            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+            </svg>
+            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+            </svg>
+            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+            </svg>
+            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+            </svg>
+            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+            </svg>
+          </div>
+          <p class="text-gray-300 mb-6 leading-relaxed">
+            "VroomX cut our audit prep time from 2 weeks to 2 hours. The automatic alerts saved us from multiple compliance issues."
+          </p>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-cyber-cyan to-hot-pink flex items-center justify-center text-white font-bold">
+                MT
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-white">Mike Thompson</p>
+                <p class="text-xs text-gray-500">Safety Director, Thompson Freight LLC</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-xl font-display font-bold text-cyber-cyan">95%</div>
+              <div class="text-xs font-mono text-gray-500">TIME SAVED</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Testimonial 2 -->
+        <div class="cyber-card rounded-cyber p-6 lg:p-8">
+          <div class="flex items-center gap-1 mb-4">
+            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+            </svg>
+            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+            </svg>
+            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+            </svg>
+            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+            </svg>
+            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+            </svg>
+          </div>
+          <p class="text-gray-300 mb-6 leading-relaxed">
+            "Finally, a system built by people who understand trucking. No more spreadsheet chaos. Our CSA scores improved 30% in 6 months."
+          </p>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-cyber-cyan to-hot-pink flex items-center justify-center text-white font-bold">
+                SC
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-white">Sandra Chen</p>
+                <p class="text-xs text-gray-500">Fleet Manager, Pacific Coast Carriers</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-xl font-display font-bold text-cyber-cyan">30%</div>
+              <div class="text-xs font-mono text-gray-500">CSA IMPROVED</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Testimonial 3 -->
+        <div class="cyber-card rounded-cyber p-6 lg:p-8">
+          <div class="flex items-center gap-1 mb-4">
+            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+            </svg>
+            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+            </svg>
+            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+            </svg>
+            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+            </svg>
+            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+            </svg>
+          </div>
+          <p class="text-gray-300 mb-6 leading-relaxed">
+            "The AI document extraction is incredible. Upload a med card photo and it fills everything in. Saves hours every week."
+          </p>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-cyber-cyan to-hot-pink flex items-center justify-center text-white font-bold">
+                RH
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-white">Robert Hayes</p>
+                <p class="text-xs text-gray-500">Owner-Operator, Hayes Trucking</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-xl font-display font-bold text-cyber-cyan">5hrs</div>
+              <div class="text-xs font-mono text-gray-500">SAVED WEEKLY</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section id="faq" class="py-20 md:py-32 relative grid-pattern">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6">
+
+      <!-- Section Header -->
+      <div class="text-center mb-16">
+        <span class="inline-block px-3 py-1 text-xs font-mono text-cyber-cyan border border-cyber-cyan/30 rounded-full mb-4">KNOWLEDGE BASE</span>
+        <h2 class="text-3xl md:text-5xl font-display font-bold text-white mb-4">
+          FREQUENTLY <span class="gradient-text">ASKED</span>
+        </h2>
+      </div>
+
+      <!-- FAQ Accordion -->
+      <div class="space-y-4">
+
+        <!-- FAQ Item 1 -->
+        <div class="cyber-card rounded-cyber overflow-hidden">
+          <button @click="activeFaq = activeFaq === 1 ? null : 1"
+                  class="w-full flex items-center justify-between p-5 text-left">
+            <span class="font-mono text-white">How long does it take to get set up?</span>
+            <svg class="w-5 h-5 text-cyber-cyan transition-transform"
+                 :class="activeFaq === 1 ? 'rotate-180' : ''"
+                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+          <div x-show="activeFaq === 1" x-transition class="px-5 pb-5">
+            <p class="text-gray-400 text-sm leading-relaxed">
+              Most fleets are up and running in under 30 minutes. Our AI-powered document import can process your existing files automatically. We also offer free migration assistance for larger fleets.
+            </p>
+          </div>
+        </div>
+
+        <!-- FAQ Item 2 -->
+        <div class="cyber-card rounded-cyber overflow-hidden">
+          <button @click="activeFaq = activeFaq === 2 ? null : 2"
+                  class="w-full flex items-center justify-between p-5 text-left">
+            <span class="font-mono text-white">Do you integrate with ELD providers?</span>
+            <svg class="w-5 h-5 text-cyber-cyan transition-transform"
+                 :class="activeFaq === 2 ? 'rotate-180' : ''"
+                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+          <div x-show="activeFaq === 2" x-transition class="px-5 pb-5">
+            <p class="text-gray-400 text-sm leading-relaxed">
+              Yes! We integrate with all major ELD providers including KeepTruckin, Samsara, Omnitracs, and more. HOS data syncs automatically to help track compliance.
+            </p>
+          </div>
+        </div>
+
+        <!-- FAQ Item 3 -->
+        <div class="cyber-card rounded-cyber overflow-hidden">
+          <button @click="activeFaq = activeFaq === 3 ? null : 3"
+                  class="w-full flex items-center justify-between p-5 text-left">
+            <span class="font-mono text-white">Is my data secure?</span>
+            <svg class="w-5 h-5 text-cyber-cyan transition-transform"
+                 :class="activeFaq === 3 ? 'rotate-180' : ''"
+                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+          <div x-show="activeFaq === 3" x-transition class="px-5 pb-5">
+            <p class="text-gray-400 text-sm leading-relaxed">
+              Absolutely. We use bank-level 256-bit encryption, SOC 2 Type II certified data centers, and automatic backups. Your data is never shared with third parties.
+            </p>
+          </div>
+        </div>
+
+        <!-- FAQ Item 4 -->
+        <div class="cyber-card rounded-cyber overflow-hidden">
+          <button @click="activeFaq = activeFaq === 4 ? null : 4"
+                  class="w-full flex items-center justify-between p-5 text-left">
+            <span class="font-mono text-white">Can I try before I buy?</span>
+            <svg class="w-5 h-5 text-cyber-cyan transition-transform"
+                 :class="activeFaq === 4 ? 'rotate-180' : ''"
+                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+          <div x-show="activeFaq === 4" x-transition class="px-5 pb-5">
+            <p class="text-gray-400 text-sm leading-relaxed">
+              Yes! All plans include a 14-day free trial with full access to all features. No credit card required to start.
+            </p>
+          </div>
+        </div>
+
+        <!-- FAQ Item 5 -->
+        <div class="cyber-card rounded-cyber overflow-hidden">
+          <button @click="activeFaq = activeFaq === 5 ? null : 5"
+                  class="w-full flex items-center justify-between p-5 text-left">
+            <span class="font-mono text-white">What happens if I need help?</span>
+            <svg class="w-5 h-5 text-cyber-cyan transition-transform"
+                 :class="activeFaq === 5 ? 'rotate-180' : ''"
+                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+          <div x-show="activeFaq === 5" x-transition class="px-5 pb-5">
+            <p class="text-gray-400 text-sm leading-relaxed">
+              Our support team includes former DOT auditors and fleet safety managers. We offer email, chat, and phone support depending on your plan. Average response time is under 2 hours.
+            </p>
+          </div>
+        </div>
+
+        <!-- FAQ Item 6 -->
+        <div class="cyber-card rounded-cyber overflow-hidden">
+          <button @click="activeFaq = activeFaq === 6 ? null : 6"
+                  class="w-full flex items-center justify-between p-5 text-left">
+            <span class="font-mono text-white">Do you pull FMCSA data automatically?</span>
+            <svg class="w-5 h-5 text-cyber-cyan transition-transform"
+                 :class="activeFaq === 6 ? 'rotate-180' : ''"
+                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+          <div x-show="activeFaq === 6" x-transition class="px-5 pb-5">
+            <p class="text-gray-400 text-sm leading-relaxed">
+              Yes. We sync with SAFER, SMS, and other FMCSA databases daily. Your inspection history, violations, and CSA scores update automatically.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA Section -->
+  <section class="py-20 md:py-32 relative overflow-hidden">
+    <!-- Background Effects -->
+    <div class="absolute inset-0 grid-pattern"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-cyber-cyan/30 to-hot-pink/30 rounded-full blur-3xl"></div>
+
+    <div class="relative max-w-4xl mx-auto px-4 sm:px-6 text-center">
+      <h2 class="text-3xl md:text-5xl font-display font-bold text-white mb-6">
+        READY TO TAKE <span class="gradient-text">COMMAND</span>?
+      </h2>
+      <p class="text-lg text-gray-400 mb-10 max-w-2xl mx-auto">
+        Join 2,500+ fleets using VroomX to stay compliant. Start your 14-day free trial today.
+      </p>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <a href="register.html" class="group w-full sm:w-auto px-10 py-4 text-lg font-mono font-bold text-space-navy bg-hot-pink rounded-cyber pulse-glow hover:bg-pink-400 transition-all">
+          START FREE TRIAL
+          <svg class="inline-block w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+          </svg>
+        </a>
+        <a href="#" class="w-full sm:w-auto px-10 py-4 text-lg font-mono font-semibold text-cyber-cyan border border-cyber-cyan/50 rounded-cyber hover:bg-cyber-cyan/10 transition-all">
+          SCHEDULE DEMO
+        </a>
+      </div>
+      <p class="mt-6 text-sm text-gray-500 font-mono">
+        No credit card required &bull; 14-day free trial &bull; Cancel anytime
+      </p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="border-t border-cyan-500/20 bg-space-navy/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+
+        <!-- Company -->
+        <div>
+          <div class="flex items-center gap-2 mb-4">
+            <div class="w-8 h-8 rounded-cyber bg-gradient-to-br from-cyber-cyan to-hot-pink flex items-center justify-center">
+              <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+            </div>
+            <span class="font-display font-bold text-white">VROOMX</span>
+          </div>
+          <p class="text-sm text-gray-500 mb-4">
+            Fleet compliance command center for modern trucking operations.
+          </p>
+          <div class="flex items-center gap-3">
+            <a href="#" class="w-8 h-8 rounded-cyber bg-gray-800 hover:bg-gray-700 flex items-center justify-center text-gray-400 hover:text-cyber-cyan transition-colors">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
+              </svg>
+            </a>
+            <a href="#" class="w-8 h-8 rounded-cyber bg-gray-800 hover:bg-gray-700 flex items-center justify-center text-gray-400 hover:text-cyber-cyan transition-colors">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Product -->
+        <div>
+          <h4 class="text-sm font-mono font-semibold text-white mb-4">PRODUCT</h4>
+          <ul class="space-y-2">
+            <li><a href="#features" class="text-sm text-gray-500 hover:text-cyber-cyan transition-colors">Features</a></li>
+            <li><a href="#pricing" class="text-sm text-gray-500 hover:text-cyber-cyan transition-colors">Pricing</a></li>
+            <li><a href="#" class="text-sm text-gray-500 hover:text-cyber-cyan transition-colors">Integrations</a></li>
+            <li><a href="#" class="text-sm text-gray-500 hover:text-cyber-cyan transition-colors">Changelog</a></li>
+          </ul>
+        </div>
+
+        <!-- Resources -->
+        <div>
+          <h4 class="text-sm font-mono font-semibold text-white mb-4">RESOURCES</h4>
+          <ul class="space-y-2">
+            <li><a href="#" class="text-sm text-gray-500 hover:text-cyber-cyan transition-colors">Documentation</a></li>
+            <li><a href="#faq" class="text-sm text-gray-500 hover:text-cyber-cyan transition-colors">FAQ</a></li>
+            <li><a href="#" class="text-sm text-gray-500 hover:text-cyber-cyan transition-colors">Blog</a></li>
+            <li><a href="#" class="text-sm text-gray-500 hover:text-cyber-cyan transition-colors">Support</a></li>
+          </ul>
+        </div>
+
+        <!-- Legal -->
+        <div>
+          <h4 class="text-sm font-mono font-semibold text-white mb-4">LEGAL</h4>
+          <ul class="space-y-2">
+            <li><a href="#" class="text-sm text-gray-500 hover:text-cyber-cyan transition-colors">Privacy Policy</a></li>
+            <li><a href="#" class="text-sm text-gray-500 hover:text-cyber-cyan transition-colors">Terms of Service</a></li>
+            <li><a href="#" class="text-sm text-gray-500 hover:text-cyber-cyan transition-colors">Security</a></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="mt-12 pt-8 border-t border-cyan-500/10 flex flex-col md:flex-row items-center justify-between gap-4">
+        <p class="text-sm text-gray-600 font-mono">
+          &copy; 2025 VroomX Safety Platform. All rights reserved.
+        </p>
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+          <span class="text-xs font-mono text-gray-500">All systems operational</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Shared JS -->
+  <script src="../shared/js/common.js"></script>
+  <script src="../shared/data/mock-data.js"></script>
+
+</body>
+</html>

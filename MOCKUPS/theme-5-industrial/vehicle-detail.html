@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en" x-data="{ activeTab: 'overview', showEditModal: false, showScheduleModal: false }">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRK-2847 | VroomX Safety Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --stone-900: #1C1917; --stone-800: #292524; --stone-700: #44403C; --stone-600: #57534E; --stone-500: #78716C; --stone-400: #A8A29E; --stone-300: #D6D3D1; --stone-200: #E7E5E4; --stone-100: #F5F5F4;
+            --safety-orange: #EA580C; --safety-orange-dark: #C2410C; --safety-orange-light: #FB923C;
+            --status-red: #DC2626; --status-red-bg: #FEE2E2; --status-yellow: #CA8A04; --status-yellow-bg: #FEF9C3; --status-green: #16A34A; --status-green-bg: #DCFCE7;
+        }
+        body { font-family: 'Roboto', sans-serif; background-color: var(--stone-200); color: var(--stone-900); min-height: 100vh; }
+
+        /* SIDEBAR */
+        .sidebar { position: fixed; left: 0; top: 0; width: 260px; height: 100vh; background-color: var(--stone-900); border-right: 2px solid var(--stone-700); overflow-y: auto; z-index: 100; }
+        .sidebar-logo { padding: 24px 20px; border-bottom: 2px solid var(--stone-700); }
+        .sidebar-logo h1 { font-family: 'Roboto Condensed', sans-serif; font-weight: 700; font-size: 28px; color: var(--safety-orange); text-transform: uppercase; letter-spacing: 2px; }
+        .sidebar-logo span { color: var(--stone-400); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; display: block; margin-top: 4px; }
+        .sidebar-nav { padding: 16px 0; }
+        .nav-section { margin-bottom: 8px; }
+        .nav-section-title { font-family: 'Roboto Condensed', sans-serif; font-size: 11px; font-weight: 700; color: var(--stone-500); text-transform: uppercase; letter-spacing: 1px; padding: 12px 20px 8px; }
+        .nav-item { display: flex; align-items: center; padding: 12px 20px; color: var(--stone-400); text-decoration: none; font-family: 'Roboto Condensed', sans-serif; font-size: 14px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; border-left: 4px solid transparent; transition: all 0.15s ease; }
+        .nav-item:hover { background-color: var(--stone-800); color: var(--stone-200); }
+        .nav-item.active { background-color: var(--stone-800); color: white; border-left-color: var(--safety-orange); }
+        .nav-item svg { width: 20px; height: 20px; margin-right: 12px; flex-shrink: 0; }
+        .nav-badge { margin-left: auto; background-color: var(--status-red); color: white; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 2px; }
+
+        /* MAIN CONTENT */
+        .main-content { margin-left: 260px; min-height: 100vh; }
+        .top-header { background-color: white; border-bottom: 2px solid var(--stone-300); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 0 rgba(0,0,0,0.05); }
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .back-btn { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background-color: var(--stone-100); border: 2px solid var(--stone-300); font-family: 'Roboto Condensed', sans-serif; font-size: 13px; font-weight: 700; text-transform: uppercase; color: var(--stone-600); text-decoration: none; }
+        .back-btn:hover { background-color: var(--stone-200); }
+        .page-title { font-family: 'Roboto Condensed', sans-serif; font-size: 24px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--stone-900); }
+        .header-actions { display: flex; align-items: center; gap: 12px; }
+        .header-btn { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background-color: var(--stone-100); border: 2px solid var(--stone-300); font-family: 'Roboto Condensed', sans-serif; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--stone-700); cursor: pointer; transition: all 0.15s ease; }
+        .header-btn:hover { background-color: var(--stone-200); border-color: var(--stone-400); }
+        .header-btn.primary { background-color: var(--safety-orange); border-color: var(--safety-orange-dark); color: white; box-shadow: 4px 4px 0 var(--safety-orange-dark); }
+        .header-btn.primary:hover { background-color: var(--safety-orange-dark); transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--safety-orange-dark); }
+        .content-area { padding: 24px 32px; }
+
+        /* VEHICLE PROFILE HEADER */
+        .profile-header { background-color: white; border: 2px solid var(--stone-300); box-shadow: 4px 4px 0 var(--stone-300); margin-bottom: 24px; display: flex; gap: 32px; padding: 24px; }
+        .vehicle-avatar { width: 120px; height: 120px; background-color: var(--stone-700); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .vehicle-avatar svg { width: 64px; height: 64px; color: white; }
+        .profile-info { flex: 1; }
+        .profile-name { font-family: 'Roboto Condensed', sans-serif; font-size: 32px; font-weight: 700; text-transform: uppercase; color: var(--stone-900); margin-bottom: 4px; }
+        .profile-subtitle { font-size: 16px; color: var(--stone-600); margin-bottom: 16px; }
+        .profile-meta { display: flex; flex-wrap: wrap; gap: 24px; margin-bottom: 16px; }
+        .profile-meta-item { display: flex; align-items: center; gap: 8px; }
+        .profile-meta-item svg { width: 18px; height: 18px; color: var(--stone-500); }
+        .profile-meta-item span { font-size: 14px; color: var(--stone-600); }
+        .profile-meta-item strong { color: var(--stone-900); }
+        .profile-badges { display: flex; gap: 12px; }
+        .profile-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background-color: var(--stone-100); border: 2px solid var(--stone-300); font-family: 'Roboto Condensed', sans-serif; font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--stone-700); }
+        .profile-status { text-align: center; padding: 24px; border-left: 2px solid var(--stone-200); min-width: 160px; }
+        .status-circle { width: 100px; height: 100px; border-radius: 50%; border: 8px solid var(--status-yellow); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; flex-direction: column; }
+        .status-circle-value { font-family: 'Roboto Condensed', sans-serif; font-size: 20px; font-weight: 700; color: var(--status-yellow); }
+        .status-circle-label { font-size: 10px; color: var(--status-yellow); text-transform: uppercase; }
+        .status-label { font-family: 'Roboto Condensed', sans-serif; font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--stone-500); }
+
+        /* STATUS BADGE */
+        .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; font-family: 'Roboto Condensed', sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; border: 2px solid; }
+        .status-badge.green { background-color: var(--status-green-bg); color: var(--status-green); border-color: var(--status-green); }
+        .status-badge.yellow { background-color: var(--status-yellow-bg); color: var(--status-yellow); border-color: var(--status-yellow); }
+        .status-badge.red { background-color: var(--status-red-bg); color: var(--status-red); border-color: var(--status-red); }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background-color: currentColor; }
+
+        /* TABS */
+        .tabs { display: flex; gap: 4px; margin-bottom: 24px; flex-wrap: wrap; }
+        .tab-btn { padding: 14px 24px; background-color: var(--stone-100); border: 2px solid var(--stone-300); border-bottom: none; font-family: 'Roboto Condensed', sans-serif; font-size: 14px; font-weight: 700; text-transform: uppercase; color: var(--stone-600); cursor: pointer; position: relative; top: 2px; }
+        .tab-btn:hover { background-color: var(--stone-200); }
+        .tab-btn.active { background-color: white; color: var(--stone-900); border-color: var(--stone-300); }
+
+        /* CONTENT GRID */
+        .content-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+
+        /* CARD */
+        .card { background-color: white; border: 2px solid var(--stone-300); box-shadow: 4px 4px 0 var(--stone-300); margin-bottom: 24px; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 2px solid var(--stone-300); background-color: var(--stone-100); }
+        .card-title { font-family: 'Roboto Condensed', sans-serif; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--stone-900); }
+        .card-action { font-family: 'Roboto Condensed', sans-serif; font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--safety-orange); text-decoration: none; cursor: pointer; background: none; border: none; }
+        .card-action:hover { color: var(--safety-orange-dark); }
+        .card-body { padding: 20px; }
+
+        /* INFO GRID */
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .info-item { border-bottom: 2px solid var(--stone-200); padding-bottom: 12px; }
+        .info-label { font-family: 'Roboto Condensed', sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--stone-500); margin-bottom: 4px; }
+        .info-value { font-size: 15px; font-weight: 500; color: var(--stone-900); }
+
+        /* ALERT CARD */
+        .alert-card { background-color: var(--status-yellow-bg); border: 2px solid var(--status-yellow); padding: 16px; margin-bottom: 16px; }
+        .alert-card h4 { font-family: 'Roboto Condensed', sans-serif; font-size: 14px; font-weight: 700; text-transform: uppercase; color: var(--status-yellow); margin-bottom: 8px; }
+        .alert-card p { font-size: 13px; color: var(--stone-700); margin-bottom: 12px; }
+        .alert-card .action-btn { background-color: var(--status-yellow); border-color: #92400E; color: white; }
+
+        /* DATA TABLE */
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th { background-color: var(--stone-800); color: white; font-family: 'Roboto Condensed', sans-serif; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 12px 16px; text-align: left; border: 2px solid var(--stone-700); }
+        .data-table td { padding: 12px 16px; border: 2px solid var(--stone-200); font-size: 14px; }
+        .data-table tr:nth-child(even) { background-color: var(--stone-100); }
+        .data-table tr:hover { background-color: var(--stone-200); }
+
+        /* TIMELINE */
+        .timeline { list-style: none; position: relative; padding-left: 24px; }
+        .timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background-color: var(--stone-300); }
+        .timeline-item { position: relative; padding-bottom: 20px; }
+        .timeline-item::before { content: ''; position: absolute; left: -20px; top: 4px; width: 12px; height: 12px; background-color: var(--stone-400); border: 2px solid white; }
+        .timeline-item.success::before { background-color: var(--status-green); }
+        .timeline-item.warning::before { background-color: var(--status-yellow); }
+        .timeline-item.danger::before { background-color: var(--status-red); }
+        .timeline-date { font-family: 'Roboto Condensed', sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--stone-500); margin-bottom: 4px; }
+        .timeline-content { font-size: 14px; color: var(--stone-700); }
+
+        /* ACTION BUTTONS */
+        .action-btn { padding: 6px 12px; background-color: var(--stone-100); border: 2px solid var(--stone-300); font-family: 'Roboto Condensed', sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--stone-600); cursor: pointer; }
+        .action-btn:hover { background-color: var(--stone-200); }
+        .action-btn.primary { background-color: var(--safety-orange); border-color: var(--safety-orange-dark); color: white; }
+
+        /* MILEAGE BAR */
+        .mileage-bar { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
+        .mileage-track { flex: 1; height: 16px; background-color: var(--stone-200); border: 2px solid var(--stone-300); }
+        .mileage-fill { height: 100%; background-color: var(--status-red); }
+        .mileage-label { font-family: 'Roboto Condensed', sans-serif; font-size: 12px; font-weight: 700; color: var(--status-red); min-width: 80px; }
+
+        /* TAB CONTENT */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* MODAL */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .modal { background-color: white; border: 2px solid var(--stone-700); box-shadow: 8px 8px 0 rgba(0,0,0,0.3); width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; background-color: var(--stone-800); color: white; }
+        .modal-title { font-family: 'Roboto Condensed', sans-serif; font-size: 18px; font-weight: 700; text-transform: uppercase; }
+        .modal-close { background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
+        .modal-body { padding: 24px; }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; font-family: 'Roboto Condensed', sans-serif; font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--stone-600); margin-bottom: 8px; }
+        .form-input { width: 100%; padding: 12px 16px; border: 2px solid var(--stone-300); font-family: 'Roboto', sans-serif; font-size: 14px; }
+        .form-input:focus { outline: none; border-color: var(--safety-orange); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 12px; padding: 20px 24px; border-top: 2px solid var(--stone-200); background-color: var(--stone-100); }
+
+        /* RESPONSIVE */
+        @media (max-width: 1200px) { .content-grid { grid-template-columns: 1fr; } .profile-header { flex-direction: column; } .profile-status { border-left: none; border-top: 2px solid var(--stone-200); } }
+        @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .main-content { margin-left: 0; } .info-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-logo"><h1>VroomX</h1><span>Safety Platform</span></div>
+        <nav class="sidebar-nav">
+            <div class="nav-section"><div class="nav-section-title">Overview</div>
+                <a href="dashboard.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>Dashboard</a>
+                <a href="alerts.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>Alerts<span class="nav-badge">5</span></a>
+            </div>
+            <div class="nav-section"><div class="nav-section-title">Fleet</div>
+                <a href="drivers.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Drivers</a>
+                <a href="vehicles.html" class="nav-item active"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>Vehicles</a>
+            </div>
+            <div class="nav-section"><div class="nav-section-title">Compliance</div>
+                <a href="compliance.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>FMCSA Status</a>
+                <a href="documents.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Documents</a>
+                <a href="drug-alcohol.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>Drug & Alcohol</a>
+            </div>
+            <div class="nav-section"><div class="nav-section-title">Safety</div>
+                <a href="violations.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>Violations</a>
+                <a href="tickets.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>Tickets</a>
+                <a href="accidents.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Accidents</a>
+                <a href="damage-claims.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Damage Claims</a>
+            </div>
+            <div class="nav-section"><div class="nav-section-title">Operations</div>
+                <a href="maintenance.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Maintenance</a>
+                <a href="tasks.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>Tasks</a>
+                <a href="checklists.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Checklists</a>
+            </div>
+            <div class="nav-section"><div class="nav-section-title">Reports</div>
+                <a href="reports.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Reports</a>
+            </div>
+            <div class="nav-section"><div class="nav-section-title">Tools</div>
+                <a href="ai-assistant.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>AI Assistant</a>
+                <a href="settings.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Settings</a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <header class="top-header">
+            <div class="header-left">
+                <a href="vehicles.html" class="back-btn">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    Back
+                </a>
+                <h1 class="page-title">Vehicle Profile</h1>
+            </div>
+            <div class="header-actions">
+                <button class="header-btn" @click="showScheduleModal = true">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    Schedule PM
+                </button>
+                <button class="header-btn primary" @click="showEditModal = true">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    Edit Vehicle
+                </button>
+            </div>
+        </header>
+
+        <div class="content-area">
+            <!-- VEHICLE PROFILE HEADER -->
+            <div class="profile-header">
+                <div class="vehicle-avatar">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                </div>
+                <div class="profile-info">
+                    <h1 class="profile-name">TRK-2847</h1>
+                    <p class="profile-subtitle">2022 Peterbilt 579 - Sleeper Cab</p>
+                    <div class="profile-meta">
+                        <div class="profile-meta-item">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0"/></svg>
+                            <span>VIN: <strong>1XPWD40X1ED215847</strong></span>
+                        </div>
+                        <div class="profile-meta-item">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            <span>Assigned: <strong>Mike Johnson</strong></span>
+                        </div>
+                        <div class="profile-meta-item">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+                            <span>Odometer: <strong>245,892 mi</strong></span>
+                        </div>
+                    </div>
+                    <div class="profile-badges">
+                        <span class="profile-badge">GVWR: 80,000 lbs</span>
+                        <span class="profile-badge">Cummins X15</span>
+                        <span class="profile-badge">Eaton Fuller</span>
+                    </div>
+                </div>
+                <div class="profile-status">
+                    <div class="status-circle">
+                        <span class="status-circle-value">500</span>
+                        <span class="status-circle-label">Miles to PM</span>
+                    </div>
+                    <div class="status-label">Maintenance Status</div>
+                    <span class="status-badge yellow" style="margin-top: 12px;"><span class="status-dot"></span>PM Due</span>
+                </div>
+            </div>
+
+            <!-- TABS -->
+            <div class="tabs">
+                <button class="tab-btn" :class="{ active: activeTab === 'overview' }" @click="activeTab = 'overview'">Overview</button>
+                <button class="tab-btn" :class="{ active: activeTab === 'maintenance' }" @click="activeTab = 'maintenance'">Maintenance</button>
+                <button class="tab-btn" :class="{ active: activeTab === 'inspections' }" @click="activeTab = 'inspections'">Inspections</button>
+                <button class="tab-btn" :class="{ active: activeTab === 'documents' }" @click="activeTab = 'documents'">Documents</button>
+                <button class="tab-btn" :class="{ active: activeTab === 'history' }" @click="activeTab = 'history'">History</button>
+            </div>
+
+            <!-- OVERVIEW TAB -->
+            <div class="tab-content" :class="{ active: activeTab === 'overview' }">
+                <!-- ALERT -->
+                <div class="alert-card">
+                    <h4>Preventive Maintenance Due</h4>
+                    <p>PM Service is due in 500 miles. Schedule maintenance to avoid out-of-service conditions.</p>
+                    <button class="action-btn" @click="showScheduleModal = true">Schedule Now</button>
+                </div>
+
+                <div class="content-grid">
+                    <div>
+                        <!-- VEHICLE INFO -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Vehicle Information</h3>
+                                <button class="card-action" @click="showEditModal = true">Edit</button>
+                            </div>
+                            <div class="card-body">
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <div class="info-label">Unit Number</div>
+                                        <div class="info-value">TRK-2847</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">VIN</div>
+                                        <div class="info-value">1XPWD40X1ED215847</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Year / Make / Model</div>
+                                        <div class="info-value">2022 Peterbilt 579</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">License Plate</div>
+                                        <div class="info-value">TX-2847-CMV</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Engine</div>
+                                        <div class="info-value">Cummins X15 - 500HP</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Transmission</div>
+                                        <div class="info-value">Eaton Fuller 18-Speed</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">GVWR</div>
+                                        <div class="info-value">80,000 lbs</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Fuel Type</div>
+                                        <div class="info-value">Diesel</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- MAINTENANCE STATUS -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Maintenance Status</h3>
+                            </div>
+                            <div class="card-body">
+                                <div style="margin-bottom: 24px;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                        <span style="font-family: 'Roboto Condensed', sans-serif; font-weight: 700; text-transform: uppercase; font-size: 13px;">Next PM Service</span>
+                                        <span style="font-family: 'Roboto Condensed', sans-serif; font-weight: 700; color: var(--status-red);">500 mi remaining</span>
+                                    </div>
+                                    <div class="mileage-bar">
+                                        <div class="mileage-track">
+                                            <div class="mileage-fill" style="width: 97%;"></div>
+                                        </div>
+                                        <span class="mileage-label">OVERDUE SOON</span>
+                                    </div>
+                                </div>
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Service Type</th>
+                                            <th>Last Completed</th>
+                                            <th>Next Due</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>Oil Change</strong></td>
+                                            <td>Dec 15, 2025</td>
+                                            <td>246,392 mi</td>
+                                            <td><span class="status-badge red"><span class="status-dot"></span>Due Soon</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Tire Rotation</strong></td>
+                                            <td>Nov 20, 2025</td>
+                                            <td>260,000 mi</td>
+                                            <td><span class="status-badge green"><span class="status-dot"></span>Good</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Brake Inspection</strong></td>
+                                            <td>Oct 10, 2025</td>
+                                            <td>270,000 mi</td>
+                                            <td><span class="status-badge green"><span class="status-dot"></span>Good</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>DEF System</strong></td>
+                                            <td>Jan 05, 2026</td>
+                                            <td>Mar 05, 2026</td>
+                                            <td><span class="status-badge green"><span class="status-dot"></span>Good</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <!-- TIMELINE -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Recent Activity</h3>
+                            </div>
+                            <div class="card-body">
+                                <ul class="timeline">
+                                    <li class="timeline-item warning">
+                                        <div class="timeline-date">Jan 30, 2026</div>
+                                        <div class="timeline-content">PM service warning - 500 miles remaining</div>
+                                    </li>
+                                    <li class="timeline-item success">
+                                        <div class="timeline-date">Jan 25, 2026</div>
+                                        <div class="timeline-content">Pre-trip inspection completed - No defects</div>
+                                    </li>
+                                    <li class="timeline-item success">
+                                        <div class="timeline-date">Jan 20, 2026</div>
+                                        <div class="timeline-content">Fuel filter replaced at 244,500 mi</div>
+                                    </li>
+                                    <li class="timeline-item">
+                                        <div class="timeline-date">Jan 15, 2026</div>
+                                        <div class="timeline-content">Driver assignment: Mike Johnson</div>
+                                    </li>
+                                    <li class="timeline-item success">
+                                        <div class="timeline-date">Dec 15, 2025</div>
+                                        <div class="timeline-content">Oil change completed at 230,000 mi</div>
+                                    </li>
+                                    <li class="timeline-item success">
+                                        <div class="timeline-date">Dec 01, 2025</div>
+                                        <div class="timeline-content">DOT Annual Inspection - PASSED</div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- QUICK STATS -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Performance Stats</h3>
+                            </div>
+                            <div class="card-body">
+                                <div style="display: grid; gap: 16px;">
+                                    <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--stone-100); border: 2px solid var(--stone-200);">
+                                        <span style="font-family: 'Roboto Condensed', sans-serif; font-weight: 700; text-transform: uppercase; font-size: 12px; color: var(--stone-600);">Miles This Month</span>
+                                        <span style="font-family: 'Roboto Condensed', sans-serif; font-weight: 700; font-size: 18px;">12,450</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--stone-100); border: 2px solid var(--stone-200);">
+                                        <span style="font-family: 'Roboto Condensed', sans-serif; font-weight: 700; text-transform: uppercase; font-size: 12px; color: var(--stone-600);">Avg Fuel Economy</span>
+                                        <span style="font-family: 'Roboto Condensed', sans-serif; font-weight: 700; font-size: 18px; color: var(--status-green);">7.2 MPG</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--stone-100); border: 2px solid var(--stone-200);">
+                                        <span style="font-family: 'Roboto Condensed', sans-serif; font-weight: 700; text-transform: uppercase; font-size: 12px; color: var(--stone-600);">Roadside Inspections</span>
+                                        <span style="font-family: 'Roboto Condensed', sans-serif; font-weight: 700; font-size: 18px;">3</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--stone-100); border: 2px solid var(--stone-200);">
+                                        <span style="font-family: 'Roboto Condensed', sans-serif; font-weight: 700; text-transform: uppercase; font-size: 12px; color: var(--stone-600);">OOS Violations</span>
+                                        <span style="font-family: 'Roboto Condensed', sans-serif; font-weight: 700; font-size: 18px; color: var(--status-green);">0</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--stone-100); border: 2px solid var(--stone-200);">
+                                        <span style="font-family: 'Roboto Condensed', sans-serif; font-weight: 700; text-transform: uppercase; font-size: 12px; color: var(--stone-600);">Maintenance Cost (YTD)</span>
+                                        <span style="font-family: 'Roboto Condensed', sans-serif; font-weight: 700; font-size: 18px;">$4,250</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MAINTENANCE TAB -->
+            <div class="tab-content" :class="{ active: activeTab === 'maintenance' }">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Maintenance History</h3>
+                        <button class="card-action" @click="showScheduleModal = true">+ Add Record</button>
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Service Type</th>
+                                    <th>Description</th>
+                                    <th>Odometer</th>
+                                    <th>Cost</th>
+                                    <th>Vendor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Jan 20, 2026</td>
+                                    <td><strong>Preventive</strong></td>
+                                    <td>Fuel filter replacement</td>
+                                    <td>244,500 mi</td>
+                                    <td>$185.00</td>
+                                    <td>Fleet Services Inc.</td>
+                                </tr>
+                                <tr>
+                                    <td>Dec 15, 2025</td>
+                                    <td><strong>Preventive</strong></td>
+                                    <td>Oil change, filter replacement</td>
+                                    <td>230,000 mi</td>
+                                    <td>$450.00</td>
+                                    <td>Fleet Services Inc.</td>
+                                </tr>
+                                <tr>
+                                    <td>Dec 01, 2025</td>
+                                    <td><strong>Inspection</strong></td>
+                                    <td>DOT Annual Inspection</td>
+                                    <td>228,500 mi</td>
+                                    <td>$150.00</td>
+                                    <td>Certified DOT Shop</td>
+                                </tr>
+                                <tr>
+                                    <td>Nov 20, 2025</td>
+                                    <td><strong>Preventive</strong></td>
+                                    <td>Tire rotation, alignment check</td>
+                                    <td>220,000 mi</td>
+                                    <td>$275.00</td>
+                                    <td>Truck Tire Pro</td>
+                                </tr>
+                                <tr>
+                                    <td>Oct 10, 2025</td>
+                                    <td><strong>Preventive</strong></td>
+                                    <td>Brake inspection, pad replacement</td>
+                                    <td>210,000 mi</td>
+                                    <td>$850.00</td>
+                                    <td>Fleet Services Inc.</td>
+                                </tr>
+                                <tr>
+                                    <td>Sep 15, 2025</td>
+                                    <td><strong>Repair</strong></td>
+                                    <td>A/C compressor replacement</td>
+                                    <td>200,500 mi</td>
+                                    <td>$1,200.00</td>
+                                    <td>Peterbilt Dealer</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INSPECTIONS TAB -->
+            <div class="tab-content" :class="{ active: activeTab === 'inspections' }">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Inspection Records</h3>
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Location</th>
+                                    <th>Inspector</th>
+                                    <th>Result</th>
+                                    <th>Violations</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Jan 25, 2026</td>
+                                    <td><strong>Level 1</strong></td>
+                                    <td>Dallas, TX</td>
+                                    <td>Officer M. Rodriguez</td>
+                                    <td><span class="status-badge green"><span class="status-dot"></span>Pass</span></td>
+                                    <td>0</td>
+                                    <td><button class="action-btn">View</button></td>
+                                </tr>
+                                <tr>
+                                    <td>Dec 01, 2025</td>
+                                    <td><strong>Annual</strong></td>
+                                    <td>Houston, TX</td>
+                                    <td>Certified DOT Shop</td>
+                                    <td><span class="status-badge green"><span class="status-dot"></span>Pass</span></td>
+                                    <td>0</td>
+                                    <td><button class="action-btn">View</button></td>
+                                </tr>
+                                <tr>
+                                    <td>Oct 15, 2025</td>
+                                    <td><strong>Level 2</strong></td>
+                                    <td>Memphis, TN</td>
+                                    <td>Officer J. Williams</td>
+                                    <td><span class="status-badge green"><span class="status-dot"></span>Pass</span></td>
+                                    <td>0</td>
+                                    <td><button class="action-btn">View</button></td>
+                                </tr>
+                                <tr>
+                                    <td>Aug 22, 2025</td>
+                                    <td><strong>Level 1</strong></td>
+                                    <td>Little Rock, AR</td>
+                                    <td>Officer R. Thompson</td>
+                                    <td><span class="status-badge yellow"><span class="status-dot"></span>Warning</span></td>
+                                    <td>1</td>
+                                    <td><button class="action-btn">View</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DOCUMENTS TAB -->
+            <div class="tab-content" :class="{ active: activeTab === 'documents' }">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Vehicle Documents</h3>
+                        <button class="card-action">+ Upload Document</button>
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Document</th>
+                                    <th>Issue Date</th>
+                                    <th>Expiration</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Vehicle Registration</strong></td>
+                                    <td>Mar 15, 2025</td>
+                                    <td>Mar 15, 2026</td>
+                                    <td><span class="status-badge green"><span class="status-dot"></span>Valid</span></td>
+                                    <td><button class="action-btn">View</button> <button class="action-btn">Download</button></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Annual DOT Inspection</strong></td>
+                                    <td>Dec 01, 2025</td>
+                                    <td>Dec 01, 2026</td>
+                                    <td><span class="status-badge green"><span class="status-dot"></span>Valid</span></td>
+                                    <td><button class="action-btn">View</button> <button class="action-btn">Download</button></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Insurance Certificate</strong></td>
+                                    <td>Jan 01, 2026</td>
+                                    <td>Jan 01, 2027</td>
+                                    <td><span class="status-badge green"><span class="status-dot"></span>Valid</span></td>
+                                    <td><button class="action-btn">View</button> <button class="action-btn">Download</button></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>IRP Cab Card</strong></td>
+                                    <td>Jan 01, 2026</td>
+                                    <td>Dec 31, 2026</td>
+                                    <td><span class="status-badge green"><span class="status-dot"></span>Valid</span></td>
+                                    <td><button class="action-btn">View</button> <button class="action-btn">Download</button></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>IFTA Decal</strong></td>
+                                    <td>Jan 01, 2026</td>
+                                    <td>Dec 31, 2026</td>
+                                    <td><span class="status-badge green"><span class="status-dot"></span>Valid</span></td>
+                                    <td><button class="action-btn">View</button> <button class="action-btn">Download</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HISTORY TAB -->
+            <div class="tab-content" :class="{ active: activeTab === 'history' }">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Driver Assignment History</h3>
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Driver</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Miles Driven</th>
+                                    <th>Incidents</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Mike Johnson</strong></td>
+                                    <td>Jan 15, 2026</td>
+                                    <td>Current</td>
+                                    <td>15,892 mi</td>
+                                    <td>0</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Tom Anderson</strong></td>
+                                    <td>Sep 01, 2025</td>
+                                    <td>Jan 14, 2026</td>
+                                    <td>45,000 mi</td>
+                                    <td>0</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Sarah Davis</strong></td>
+                                    <td>Mar 15, 2025</td>
+                                    <td>Aug 31, 2025</td>
+                                    <td>62,500 mi</td>
+                                    <td>1</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Robert Williams</strong></td>
+                                    <td>Jan 01, 2024</td>
+                                    <td>Mar 14, 2025</td>
+                                    <td>122,500 mi</td>
+                                    <td>0</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- EDIT VEHICLE MODAL -->
+    <div class="modal-overlay" x-show="showEditModal" x-cloak @click.self="showEditModal = false">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Edit Vehicle</h3>
+                <button class="modal-close" @click="showEditModal = false">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Unit Number</label>
+                        <input type="text" class="form-input" value="TRK-2847">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">VIN</label>
+                        <input type="text" class="form-input" value="1XPWD40X1ED215847">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Year</label>
+                        <input type="text" class="form-input" value="2022">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Make</label>
+                        <input type="text" class="form-input" value="Peterbilt">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Model</label>
+                        <input type="text" class="form-input" value="579">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">License Plate</label>
+                        <input type="text" class="form-input" value="TX-2847-CMV">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Assigned Driver</label>
+                    <select class="form-input">
+                        <option>Mike Johnson</option>
+                        <option>Sarah Davis</option>
+                        <option>Robert Williams</option>
+                        <option>Tom Anderson</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Current Odometer</label>
+                        <input type="text" class="form-input" value="245,892">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">GVWR (lbs)</label>
+                        <input type="text" class="form-input" value="80000">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="header-btn" @click="showEditModal = false">Cancel</button>
+                <button class="header-btn primary" @click="showEditModal = false">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCHEDULE PM MODAL -->
+    <div class="modal-overlay" x-show="showScheduleModal" x-cloak @click.self="showScheduleModal = false">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Schedule Maintenance</h3>
+                <button class="modal-close" @click="showScheduleModal = false">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Service Type</label>
+                    <select class="form-input">
+                        <option>Preventive Maintenance (PM)</option>
+                        <option>Oil Change</option>
+                        <option>Brake Service</option>
+                        <option>Tire Service</option>
+                        <option>DOT Annual Inspection</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Scheduled Date</label>
+                        <input type="date" class="form-input" value="2026-02-05">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Scheduled Time</label>
+                        <input type="time" class="form-input" value="08:00">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Service Provider</label>
+                    <select class="form-input">
+                        <option>Fleet Services Inc.</option>
+                        <option>Peterbilt Dealer</option>
+                        <option>Truck Tire Pro</option>
+                        <option>Certified DOT Shop</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Notes</label>
+                    <textarea class="form-input" rows="3" placeholder="Add any special instructions..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="header-btn" @click="showScheduleModal = false">Cancel</button>
+                <button class="header-btn primary" @click="showScheduleModal = false">Schedule</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+</body>
+</html>

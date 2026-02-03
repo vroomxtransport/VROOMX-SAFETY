@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACCIDENTS | VroomX Safety Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --stone-900: #1C1917;
+            --stone-800: #292524;
+            --stone-700: #44403C;
+            --stone-600: #57534E;
+            --stone-500: #78716C;
+            --stone-400: #A8A29E;
+            --stone-300: #D6D3D1;
+            --stone-200: #E7E5E4;
+            --stone-100: #F5F5F4;
+            --safety-orange: #EA580C;
+            --safety-orange-dark: #C2410C;
+            --safety-orange-light: #FB923C;
+            --status-red: #DC2626;
+            --status-red-bg: #FEE2E2;
+            --status-yellow: #CA8A04;
+            --status-yellow-bg: #FEF9C3;
+            --status-green: #16A34A;
+            --status-green-bg: #DCFCE7;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--stone-200);
+            color: var(--stone-900);
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 260px;
+            height: 100vh;
+            background-color: var(--stone-900);
+            border-right: 2px solid var(--stone-700);
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .sidebar-logo {
+            padding: 24px 20px;
+            border-bottom: 2px solid var(--stone-700);
+        }
+
+        .sidebar-logo h1 {
+            font-family: 'Roboto Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 28px;
+            color: var(--safety-orange);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .sidebar-logo span {
+            color: var(--stone-400);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: block;
+            margin-top: 4px;
+        }
+
+        .sidebar-nav {
+            padding: 16px 0;
+        }
+
+        .nav-section {
+            margin-bottom: 8px;
+        }
+
+        .nav-section-title {
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--stone-500);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 12px 20px 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--stone-400);
+            text-decoration: none;
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-left: 4px solid transparent;
+            transition: all 0.15s ease;
+        }
+
+        .nav-item:hover {
+            background-color: var(--stone-800);
+            color: var(--stone-200);
+        }
+
+        .nav-item.active {
+            background-color: var(--stone-800);
+            color: white;
+            border-left-color: var(--safety-orange);
+        }
+
+        .nav-item svg {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            background-color: var(--status-red);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 2px;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            margin-left: 260px;
+            min-height: 100vh;
+        }
+
+        /* TOP HEADER */
+        .top-header {
+            background-color: white;
+            border-bottom: 2px solid var(--stone-300);
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.05);
+        }
+
+        .page-title {
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--stone-900);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background-color: var(--stone-100);
+            border: 2px solid var(--stone-300);
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--stone-700);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .header-btn:hover {
+            background-color: var(--stone-200);
+            border-color: var(--stone-400);
+        }
+
+        .header-btn.primary {
+            background-color: var(--safety-orange);
+            border-color: var(--safety-orange-dark);
+            color: white;
+            box-shadow: 4px 4px 0 var(--safety-orange-dark);
+        }
+
+        .header-btn.primary:hover {
+            background-color: var(--safety-orange-dark);
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0 var(--safety-orange-dark);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 12px;
+            background-color: var(--stone-800);
+            border: 2px solid var(--stone-700);
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            background-color: var(--safety-orange);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Roboto Condensed', sans-serif;
+            font-weight: 700;
+            color: white;
+            font-size: 14px;
+        }
+
+        .user-info {
+            color: white;
+        }
+
+        .user-name {
+            font-family: 'Roboto Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        .user-role {
+            font-size: 11px;
+            color: var(--stone-400);
+        }
+
+        /* CONTENT AREA */
+        .content-area {
+            padding: 24px 32px;
+        }
+
+        /* STATS ROW */
+        .stats-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-pill {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background-color: white;
+            border: 2px solid var(--stone-300);
+            padding: 12px 20px;
+            box-shadow: 3px 3px 0 var(--stone-300);
+        }
+
+        .stat-pill-value {
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--stone-900);
+        }
+
+        .stat-pill-label {
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--stone-500);
+        }
+
+        .stat-pill.green .stat-pill-value { color: var(--status-green); }
+        .stat-pill.yellow .stat-pill-value { color: var(--status-yellow); }
+        .stat-pill.red .stat-pill-value { color: var(--status-red); }
+
+        /* TOOLBAR */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background-color: white;
+            border: 2px solid var(--stone-300);
+            padding: 0 16px;
+            width: 320px;
+        }
+
+        .search-box svg {
+            width: 20px;
+            height: 20px;
+            color: var(--stone-400);
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            font-family: 'Roboto', sans-serif;
+            font-size: 14px;
+            background: transparent;
+            outline: none;
+        }
+
+        .filter-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background-color: white;
+            border: 2px solid var(--stone-300);
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--stone-700);
+            cursor: pointer;
+        }
+
+        .filter-btn:hover {
+            background-color: var(--stone-100);
+        }
+
+        /* CARD */
+        .card {
+            background-color: white;
+            border: 2px solid var(--stone-300);
+            box-shadow: 4px 4px 0 var(--stone-300);
+        }
+
+        /* DATA TABLE */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            background-color: var(--stone-800);
+            color: white;
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 14px 16px;
+            text-align: left;
+            border: 2px solid var(--stone-700);
+        }
+
+        .data-table td {
+            padding: 14px 16px;
+            border: 2px solid var(--stone-200);
+            font-size: 14px;
+            vertical-align: middle;
+        }
+
+        .data-table tr:nth-child(even) {
+            background-color: var(--stone-100);
+        }
+
+        .data-table tr:hover {
+            background-color: var(--stone-200);
+        }
+
+        .data-table tbody tr {
+            cursor: pointer;
+        }
+
+        /* STATUS BADGE */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            border: 2px solid;
+        }
+
+        .status-badge.green {
+            background-color: var(--status-green-bg);
+            color: var(--status-green);
+            border-color: var(--status-green);
+        }
+
+        .status-badge.yellow {
+            background-color: var(--status-yellow-bg);
+            color: var(--status-yellow);
+            border-color: var(--status-yellow);
+        }
+
+        .status-badge.red {
+            background-color: var(--status-red-bg);
+            color: var(--status-red);
+            border-color: var(--status-red);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: currentColor;
+        }
+
+        /* ACTION BUTTONS */
+        .action-btn {
+            padding: 6px 10px;
+            background-color: var(--stone-100);
+            border: 2px solid var(--stone-300);
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--stone-600);
+            cursor: pointer;
+            margin-right: 4px;
+        }
+
+        .action-btn:hover {
+            background-color: var(--stone-200);
+        }
+
+        .action-btn.primary {
+            background-color: var(--safety-orange);
+            border-color: var(--safety-orange-dark);
+            color: white;
+        }
+
+        /* PAGINATION */
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-top: 2px solid var(--stone-200);
+            background-color: var(--stone-100);
+        }
+
+        .pagination-info {
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: 13px;
+            color: var(--stone-600);
+            text-transform: uppercase;
+        }
+
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pagination-btn {
+            padding: 8px 14px;
+            background-color: white;
+            border: 2px solid var(--stone-300);
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--stone-700);
+            cursor: pointer;
+        }
+
+        .pagination-btn:hover {
+            background-color: var(--stone-200);
+        }
+
+        .pagination-btn.active {
+            background-color: var(--stone-800);
+            border-color: var(--stone-800);
+            color: white;
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* SEVERITY INDICATOR */
+        .severity-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .severity-bar {
+            width: 60px;
+            height: 8px;
+            background-color: var(--stone-200);
+            border: 1px solid var(--stone-300);
+        }
+
+        .severity-bar-fill {
+            height: 100%;
+        }
+
+        .severity-bar-fill.low { background-color: var(--status-green); width: 33%; }
+        .severity-bar-fill.medium { background-color: var(--status-yellow); width: 66%; }
+        .severity-bar-fill.high { background-color: var(--status-red); width: 100%; }
+
+        /* RESPONSIVE */
+        @media (max-width: 1200px) {
+            .stats-row { flex-wrap: wrap; }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .main-content { margin-left: 0; }
+            .toolbar { flex-direction: column; align-items: stretch; }
+            .search-box { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <h1>VroomX</h1>
+            <span>Safety Platform</span>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-section-title">Overview</div>
+                <a href="dashboard.html" class="nav-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+                    Dashboard
+                </a>
+                <a href="alerts.html" class="nav-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                    Alerts
+                    <span class="nav-badge">5</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Fleet</div>
+                <a href="drivers.html" class="nav-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    Drivers
+                </a>
+                <a href="vehicles.html" class="nav-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                    Vehicles
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Compliance</div>
+                <a href="compliance.html" class="nav-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    FMCSA Status
+                </a>
+                <a href="documents.html" class="nav-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    Documents
+                </a>
+                <a href="drug-alcohol.html" class="nav-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+                    Drug & Alcohol
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Safety</div>
+                <a href="violations.html" class="nav-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    Violations
+                </a>
+                <a href="tickets.html" class="nav-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>
+                    Tickets
+                </a>
+                <a href="accidents.html" class="nav-item active">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    Accidents
+                </a>
+                <a href="damage-claims.html" class="nav-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                    Damage Claims
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Operations</div>
+                <a href="maintenance.html" class="nav-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    Maintenance
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                    Tasks
+                </a>
+                <a href="checklists.html" class="nav-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                    Checklists
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Reports</div>
+                <a href="reports.html" class="nav-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    Reports
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Tools</div>
+                <a href="ai-assistant.html" class="nav-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                    AI Assistant
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    Settings
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <!-- TOP HEADER -->
+        <header class="top-header">
+            <h1 class="page-title">Accidents</h1>
+            <div class="header-actions">
+                <button class="header-btn">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    Export
+                </button>
+                <button class="header-btn primary">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    Report Accident
+                </button>
+                <div class="user-menu">
+                    <div class="user-avatar">JD</div>
+                    <div class="user-info">
+                        <div class="user-name">John Doe</div>
+                        <div class="user-role">Fleet Manager</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- CONTENT AREA -->
+        <div class="content-area">
+            <!-- STATS ROW -->
+            <div class="stats-row">
+                <div class="stat-pill">
+                    <div class="stat-pill-value">3</div>
+                    <div class="stat-pill-label">Total Accidents</div>
+                </div>
+                <div class="stat-pill yellow">
+                    <div class="stat-pill-value">1</div>
+                    <div class="stat-pill-label">Under Review</div>
+                </div>
+                <div class="stat-pill green">
+                    <div class="stat-pill-value">2</div>
+                    <div class="stat-pill-label">Closed</div>
+                </div>
+                <div class="stat-pill">
+                    <div class="stat-pill-value">$23,000</div>
+                    <div class="stat-pill-label">Total Damages</div>
+                </div>
+            </div>
+
+            <!-- TOOLBAR -->
+            <div class="toolbar">
+                <div class="toolbar-left">
+                    <div class="search-box">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        <input type="text" placeholder="Search accidents...">
+                    </div>
+                    <button class="filter-btn">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+                        Filters
+                    </button>
+                </div>
+            </div>
+
+            <!-- DATA TABLE -->
+            <div class="card">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Report #</th>
+                            <th>Date</th>
+                            <th>Driver</th>
+                            <th>Vehicle</th>
+                            <th>Type</th>
+                            <th>Location</th>
+                            <th>Est. Damage</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>ACC-2025-001</strong></td>
+                            <td>Jan 5, 2025</td>
+                            <td>Maria Garcia</td>
+                            <td>Unit 102</td>
+                            <td>Minor Collision</td>
+                            <td>US-75, Sherman TX</td>
+                            <td>$2,500</td>
+                            <td><span class="status-badge yellow"><span class="status-dot"></span>Under Review</span></td>
+                            <td>
+                                <button class="action-btn">View</button>
+                                <button class="action-btn">Edit</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>ACC-2024-008</strong></td>
+                            <td>Sep 15, 2024</td>
+                            <td>Robert Johnson</td>
+                            <td>Unit 103</td>
+                            <td>Single Vehicle</td>
+                            <td>I-20 MP 315, Midland TX</td>
+                            <td>$15,000</td>
+                            <td><span class="status-badge green"><span class="status-dot"></span>Closed</span></td>
+                            <td>
+                                <button class="action-btn">View</button>
+                                <button class="action-btn">Edit</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>ACC-2024-005</strong></td>
+                            <td>Jun 22, 2024</td>
+                            <td>David Martinez</td>
+                            <td>Unit 107</td>
+                            <td>Property Damage</td>
+                            <td>FM 1960, Houston TX</td>
+                            <td>$5,500</td>
+                            <td><span class="status-badge green"><span class="status-dot"></span>Closed</span></td>
+                            <td>
+                                <button class="action-btn">View</button>
+                                <button class="action-btn">Edit</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="pagination">
+                    <div class="pagination-info">
+                        Showing 1-3 of 3 accidents
+                    </div>
+                    <div class="pagination-controls">
+                        <button class="pagination-btn" disabled>&laquo; Prev</button>
+                        <button class="pagination-btn active">1</button>
+                        <button class="pagination-btn" disabled>Next &raquo;</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../shared/data/mock-data.js"></script>
+</body>
+</html>

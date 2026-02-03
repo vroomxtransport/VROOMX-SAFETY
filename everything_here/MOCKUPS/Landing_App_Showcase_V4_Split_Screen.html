@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VroomX App Showcase - V4: Split Screen Showcase</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Sora:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #1E3A5F;
+            --navy-light: #2D4A6F;
+            --navy-dark: #152942;
+            --orange: #EA580C;
+            --orange-light: #FB923C;
+            --orange-glow: rgba(234, 88, 12, 0.5);
+            --green: #22C55E;
+            --green-light: #4ADE80;
+            --red: #EF4444;
+            --yellow: #F59E0B;
+            --blue: #3B82F6;
+            --indigo: #6366F1;
+            --bg: #F8FAFC;
+            --bg-warm: #FFFBF7;
+            --border: #E2E8F0;
+            --text-dark: #1E293B;
+            --text-muted: #64748B;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Sora', sans-serif;
+            background: var(--bg);
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        /* Section Container */
+        .showcase-section {
+            position: relative;
+            min-height: 100vh;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--bg) 0%, var(--bg-warm) 50%, var(--bg) 100%);
+        }
+
+        /* Subtle Grid Texture */
+        .grid-texture {
+            position: absolute;
+            inset: 0;
+            background-image:
+                radial-gradient(circle at 1px 1px, rgba(30, 58, 95, 0.03) 1px, transparent 0);
+            background-size: 32px 32px;
+            pointer-events: none;
+        }
+
+        /* Floating Blobs */
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.2;
+            pointer-events: none;
+        }
+
+        .blob-1 {
+            width: 600px;
+            height: 600px;
+            background: linear-gradient(135deg, var(--orange) 0%, #FFEDD5 100%);
+            top: -200px;
+            left: -100px;
+            animation: blobDrift 25s ease-in-out infinite;
+        }
+
+        .blob-2 {
+            width: 500px;
+            height: 500px;
+            background: linear-gradient(135deg, var(--navy) 0%, #BFDBFE 100%);
+            bottom: -100px;
+            right: -100px;
+            animation: blobDrift 30s ease-in-out infinite reverse;
+        }
+
+        @keyframes blobDrift {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(40px, -40px) rotate(10deg); }
+        }
+
+        /* Header Section */
+        .section-header {
+            text-align: center;
+            padding: 100px 24px 60px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--navy);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 28px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+            animation: fadeDown 0.6s ease-out;
+        }
+
+        .badge-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--orange);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 var(--orange-glow); }
+            50% { transform: scale(1.1); box-shadow: 0 0 0 8px transparent; }
+        }
+
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(40px, 5vw, 60px);
+            font-weight: 800;
+            color: var(--navy);
+            line-height: 1.1;
+            margin-bottom: 20px;
+            letter-spacing: -1.5px;
+            animation: fadeUp 0.8s ease-out 0.1s both;
+        }
+
+        .section-title .accent {
+            color: var(--orange);
+        }
+
+        .section-subtitle {
+            font-size: 18px;
+            color: var(--text-muted);
+            max-width: 500px;
+            margin: 0 auto;
+            line-height: 1.7;
+            animation: fadeUp 0.8s ease-out 0.2s both;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Split Layout Container */
+        .split-container {
+            display: flex;
+            gap: 60px;
+            max-width: 1500px;
+            margin: 0 auto;
+            padding: 0 40px 120px;
+            position: relative;
+            z-index: 10;
+            align-items: flex-start;
+        }
+
+        /* Left Side - Dashboard Preview */
+        .dashboard-preview {
+            flex: 0 0 58%;
+            position: sticky;
+            top: 40px;
+            animation: slideInLeft 1s ease-out 0.3s both;
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-60px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .dashboard-frame {
+            position: relative;
+            background: white;
+            border-radius: 24px;
+            box-shadow:
+                0 4px 6px rgba(0, 0, 0, 0.02),
+                0 12px 24px rgba(0, 0, 0, 0.04),
+                0 24px 48px rgba(0, 0, 0, 0.06),
+                0 0 0 1px rgba(0, 0, 0, 0.02);
+            overflow: hidden;
+            animation: floatDashboard 6s ease-in-out infinite;
+        }
+
+        @keyframes floatDashboard {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .dashboard-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 20px;
+            background: linear-gradient(180deg, #FAFBFC 0%, #F5F7F9 100%);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .window-dots {
+            display: flex;
+            gap: 8px;
+        }
+
+        .window-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .window-dot.red { background: #FF5F57; }
+        .window-dot.yellow { background: #FFBD2E; }
+        .window-dot.green { background: #28CA41; }
+
+        .window-title {
+            flex: 1;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        /* Dashboard Content */
+        .dashboard-content {
+            position: relative;
+            padding: 24px;
+            background: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%);
+            min-height: 550px;
+        }
+
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 220px 1fr 1fr;
+            grid-template-rows: auto auto auto;
+            gap: 16px;
+        }
+
+        /* Hotspots */
+        .hotspot {
+            position: absolute;
+            z-index: 100;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .hotspot-marker {
+            width: 32px;
+            height: 32px;
+            background: var(--orange);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            box-shadow: 0 4px 12px var(--orange-glow);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .hotspot-marker::before {
+            content: '';
+            position: absolute;
+            inset: -6px;
+            border: 2px solid var(--orange);
+            border-radius: 50%;
+            opacity: 0.4;
+            animation: hotspotPulse 2s ease-in-out infinite;
+        }
+
+        .hotspot-marker::after {
+            content: '';
+            position: absolute;
+            inset: -12px;
+            border: 1px solid var(--orange);
+            border-radius: 50%;
+            opacity: 0.2;
+            animation: hotspotPulse 2s ease-in-out infinite 0.3s;
+        }
+
+        @keyframes hotspotPulse {
+            0%, 100% { transform: scale(1); opacity: 0.4; }
+            50% { transform: scale(1.2); opacity: 0; }
+        }
+
+        .hotspot.active .hotspot-marker,
+        .hotspot:hover .hotspot-marker {
+            transform: scale(1.15);
+            box-shadow: 0 6px 20px var(--orange-glow);
+        }
+
+        .hotspot-1 { top: 140px; left: 120px; }
+        .hotspot-2 { top: 50px; right: 180px; }
+        .hotspot-3 { bottom: 150px; left: 50px; }
+        .hotspot-4 { bottom: 60px; right: 100px; }
+        .hotspot-5 { top: 200px; right: 40px; }
+
+        /* Dashboard UI Components */
+        .gauge-section {
+            grid-row: span 2;
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.4s ease;
+        }
+
+        .gauge-section.highlight {
+            box-shadow: 0 0 0 2px var(--orange), 0 8px 24px var(--orange-glow);
+        }
+
+        .gauge-title {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+        }
+
+        .gauge-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: conic-gradient(var(--green) 0deg 252deg, var(--border) 252deg 360deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .gauge-inner {
+            width: 108px;
+            height: 108px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gauge-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 42px;
+            font-weight: 800;
+            color: var(--navy);
+            line-height: 1;
+        }
+
+        .gauge-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .gauge-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background: rgba(34, 197, 94, 0.1);
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--green);
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border);
+            transition: all 0.4s ease;
+        }
+
+        .stat-card.highlight {
+            box-shadow: 0 0 0 2px var(--orange), 0 8px 24px var(--orange-glow);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .stat-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .stat-icon.blue { background: rgba(59, 130, 246, 0.1); }
+        .stat-icon.green { background: rgba(34, 197, 94, 0.1); }
+        .stat-icon.orange { background: rgba(234, 88, 12, 0.1); }
+        .stat-icon.red { background: rgba(239, 68, 68, 0.1); }
+
+        .stat-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--navy);
+        }
+
+        .stat-trend {
+            font-size: 11px;
+            color: var(--green);
+            margin-top: 4px;
+        }
+
+        .basics-section {
+            grid-column: span 2;
+            background: white;
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border);
+            transition: all 0.4s ease;
+        }
+
+        .basics-section.highlight {
+            box-shadow: 0 0 0 2px var(--orange), 0 8px 24px var(--orange-glow);
+        }
+
+        .basics-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 14px;
+        }
+
+        .basics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .basic-item {
+            background: var(--bg);
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        .basic-name {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .basic-bar-bg {
+            height: 6px;
+            background: white;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+
+        .basic-bar {
+            height: 100%;
+            border-radius: 3px;
+        }
+
+        .basic-bar.green { background: linear-gradient(90deg, var(--green), var(--green-light)); }
+        .basic-bar.yellow { background: linear-gradient(90deg, var(--yellow), #FCD34D); }
+        .basic-bar.red { background: linear-gradient(90deg, var(--red), #F87171); }
+
+        .basic-percent {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+        .chart-section {
+            grid-column: span 2;
+            background: white;
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border);
+            transition: all 0.4s ease;
+        }
+
+        .chart-section.highlight {
+            box-shadow: 0 0 0 2px var(--orange), 0 8px 24px var(--orange-glow);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .chart-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+        .chart-trend {
+            font-size: 12px;
+            color: var(--green);
+            font-weight: 500;
+        }
+
+        .chart-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 6px;
+            height: 80px;
+        }
+
+        .chart-bar {
+            flex: 1;
+            background: linear-gradient(180deg, var(--green) 0%, var(--green-light) 100%);
+            border-radius: 4px 4px 0 0;
+        }
+
+        .alerts-mini {
+            background: white;
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border);
+            transition: all 0.4s ease;
+        }
+
+        .alerts-mini.highlight {
+            box-shadow: 0 0 0 2px var(--orange), 0 8px 24px var(--orange-glow);
+        }
+
+        .alerts-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .alerts-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+        .alerts-count {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--red);
+        }
+
+        .alert-item-mini {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: var(--bg);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .alert-dot-mini {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .alert-dot-mini.red { background: var(--red); }
+        .alert-dot-mini.yellow { background: var(--yellow); }
+
+        .alert-text-mini {
+            font-size: 11px;
+            color: var(--navy);
+            font-weight: 500;
+        }
+
+        /* Right Side - Feature Cards */
+        .features-list {
+            flex: 0 0 38%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            animation: slideInRight 1s ease-out 0.5s both;
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(60px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .feature-card {
+            display: flex;
+            gap: 20px;
+            padding: 24px;
+            background: white;
+            border-radius: 20px;
+            box-shadow:
+                0 2px 4px rgba(0, 0, 0, 0.02),
+                0 8px 16px rgba(0, 0, 0, 0.04);
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(234, 88, 12, 0.03) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .feature-card:hover,
+        .feature-card.active {
+            border-color: var(--orange);
+            transform: translateX(8px);
+            box-shadow:
+                0 4px 8px rgba(0, 0, 0, 0.04),
+                0 16px 32px rgba(234, 88, 12, 0.12);
+        }
+
+        .feature-card:hover::before,
+        .feature-card.active::before {
+            opacity: 1;
+        }
+
+        .feature-number {
+            width: 44px;
+            height: 44px;
+            background: var(--bg);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Outfit', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-muted);
+            flex-shrink: 0;
+            transition: all 0.4s ease;
+        }
+
+        .feature-card:hover .feature-number,
+        .feature-card.active .feature-number {
+            background: var(--orange);
+            color: white;
+        }
+
+        .feature-content {
+            flex: 1;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 6px;
+            transition: color 0.3s ease;
+        }
+
+        .feature-card:hover .feature-title,
+        .feature-card.active .feature-title {
+            color: var(--orange);
+        }
+
+        .feature-description {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .feature-tags {
+            display: flex;
+            gap: 8px;
+        }
+
+        .feature-tag {
+            padding: 5px 10px;
+            background: var(--bg);
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-muted);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover .feature-tag,
+        .feature-card.active .feature-tag {
+            background: rgba(234, 88, 12, 0.1);
+            color: var(--orange);
+        }
+
+        .feature-arrow {
+            width: 36px;
+            height: 36px;
+            background: var(--bg);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            align-self: center;
+            transition: all 0.4s ease;
+        }
+
+        .feature-arrow svg {
+            width: 16px;
+            height: 16px;
+            stroke: var(--text-muted);
+            stroke-width: 2;
+            fill: none;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover .feature-arrow,
+        .feature-card.active .feature-arrow {
+            background: var(--orange);
+        }
+
+        .feature-card:hover .feature-arrow svg,
+        .feature-card.active .feature-arrow svg {
+            stroke: white;
+            transform: translateX(2px);
+        }
+
+        /* Connection Lines (Visual Guide) */
+        .connection-line {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(90deg, var(--orange), transparent);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .split-container {
+                flex-direction: column;
+                gap: 40px;
+                padding: 0 24px 80px;
+            }
+
+            .dashboard-preview {
+                flex: none;
+                position: relative;
+                top: 0;
+            }
+
+            .features-list {
+                flex: none;
+            }
+
+            .hotspot {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .section-header {
+                padding: 60px 20px 40px;
+            }
+
+            .dashboard-layout {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .gauge-section {
+                grid-column: span 2;
+                grid-row: auto;
+            }
+
+            .basics-section,
+            .chart-section {
+                grid-column: span 2;
+            }
+
+            .feature-card {
+                padding: 20px;
+            }
+
+            .feature-number {
+                width: 36px;
+                height: 36px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <section class="showcase-section">
+        <!-- Background Elements -->
+        <div class="grid-texture"></div>
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+
+        <!-- Section Header -->
+        <div class="section-header">
+            <div class="badge">
+                <span class="badge-dot"></span>
+                Interactive Demo
+            </div>
+            <h2 class="section-title">Built for <span class="accent">Fleet Managers</span></h2>
+            <p class="section-subtitle">Every feature designed with compliance officers in mind. Hover over the cards to explore each capability.</p>
+        </div>
+
+        <!-- Split Container -->
+        <div class="split-container">
+            <!-- Left Side - Dashboard Preview -->
+            <div class="dashboard-preview">
+                <div class="dashboard-frame">
+                    <div class="dashboard-header">
+                        <div class="window-dots">
+                            <div class="window-dot red"></div>
+                            <div class="window-dot yellow"></div>
+                            <div class="window-dot green"></div>
+                        </div>
+                        <div class="window-title">VroomX Safety Dashboard</div>
+                        <div style="width: 52px;"></div>
+                    </div>
+                    <div class="dashboard-content">
+                        <!-- Hotspots -->
+                        <div class="hotspot hotspot-1" data-feature="1">
+                            <div class="hotspot-marker">1</div>
+                        </div>
+                        <div class="hotspot hotspot-2" data-feature="2">
+                            <div class="hotspot-marker">2</div>
+                        </div>
+                        <div class="hotspot hotspot-3" data-feature="3">
+                            <div class="hotspot-marker">3</div>
+                        </div>
+                        <div class="hotspot hotspot-4" data-feature="4">
+                            <div class="hotspot-marker">4</div>
+                        </div>
+                        <div class="hotspot hotspot-5" data-feature="5">
+                            <div class="hotspot-marker">5</div>
+                        </div>
+
+                        <!-- Dashboard Layout -->
+                        <div class="dashboard-layout">
+                            <!-- Gauge Section -->
+                            <div class="gauge-section" data-highlight="1">
+                                <span class="gauge-title">Compliance Score</span>
+                                <div class="gauge-circle">
+                                    <div class="gauge-inner">
+                                        <span class="gauge-value">87</span>
+                                        <span class="gauge-label">Score</span>
+                                    </div>
+                                </div>
+                                <div class="gauge-status">
+                                    <span>✓</span> Good Standing
+                                </div>
+                            </div>
+
+                            <!-- Stat Cards -->
+                            <div class="stat-card" data-highlight="2">
+                                <div class="stat-header">
+                                    <span class="stat-label">Active Drivers</span>
+                                    <div class="stat-icon blue">👥</div>
+                                </div>
+                                <div class="stat-value">24</div>
+                                <div class="stat-trend">↑ 2 this month</div>
+                            </div>
+
+                            <div class="stat-card" data-highlight="2">
+                                <div class="stat-header">
+                                    <span class="stat-label">Fleet Vehicles</span>
+                                    <div class="stat-icon green">🚛</div>
+                                </div>
+                                <div class="stat-value">18</div>
+                                <div class="stat-trend">All operational</div>
+                            </div>
+
+                            <div class="stat-card" data-highlight="2">
+                                <div class="stat-header">
+                                    <span class="stat-label">Expiring Soon</span>
+                                    <div class="stat-icon orange">📄</div>
+                                </div>
+                                <div class="stat-value">3</div>
+                                <div class="stat-trend" style="color: var(--orange);">Needs attention</div>
+                            </div>
+
+                            <div class="stat-card" data-highlight="2">
+                                <div class="stat-header">
+                                    <span class="stat-label">Open Violations</span>
+                                    <div class="stat-icon red">⚠️</div>
+                                </div>
+                                <div class="stat-value">2</div>
+                                <div class="stat-trend" style="color: var(--red);">1 critical</div>
+                            </div>
+
+                            <!-- BASICs Section -->
+                            <div class="basics-section" data-highlight="3">
+                                <div class="basics-title">SMS BASICs Overview</div>
+                                <div class="basics-grid">
+                                    <div class="basic-item">
+                                        <div class="basic-name">Unsafe Driving</div>
+                                        <div class="basic-bar-bg"><div class="basic-bar green" style="width: 32%"></div></div>
+                                        <div class="basic-percent">32%</div>
+                                    </div>
+                                    <div class="basic-item">
+                                        <div class="basic-name">HOS Compliance</div>
+                                        <div class="basic-bar-bg"><div class="basic-bar yellow" style="width: 58%"></div></div>
+                                        <div class="basic-percent">58%</div>
+                                    </div>
+                                    <div class="basic-item">
+                                        <div class="basic-name">Vehicle Maint.</div>
+                                        <div class="basic-bar-bg"><div class="basic-bar green" style="width: 45%"></div></div>
+                                        <div class="basic-percent">45%</div>
+                                    </div>
+                                    <div class="basic-item">
+                                        <div class="basic-name">Ctrl. Substances</div>
+                                        <div class="basic-bar-bg"><div class="basic-bar green" style="width: 12%"></div></div>
+                                        <div class="basic-percent">12%</div>
+                                    </div>
+                                    <div class="basic-item">
+                                        <div class="basic-name">Driver Fitness</div>
+                                        <div class="basic-bar-bg"><div class="basic-bar green" style="width: 28%"></div></div>
+                                        <div class="basic-percent">28%</div>
+                                    </div>
+                                    <div class="basic-item">
+                                        <div class="basic-name">Crash Indicator</div>
+                                        <div class="basic-bar-bg"><div class="basic-bar red" style="width: 72%"></div></div>
+                                        <div class="basic-percent">72%</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Chart Section -->
+                            <div class="chart-section" data-highlight="4">
+                                <div class="chart-header">
+                                    <span class="chart-title">30-Day Compliance Trend</span>
+                                    <span class="chart-trend">↑ 5% improvement</span>
+                                </div>
+                                <div class="chart-bars">
+                                    <div class="chart-bar" style="height: 45%"></div>
+                                    <div class="chart-bar" style="height: 50%"></div>
+                                    <div class="chart-bar" style="height: 42%"></div>
+                                    <div class="chart-bar" style="height: 55%"></div>
+                                    <div class="chart-bar" style="height: 60%"></div>
+                                    <div class="chart-bar" style="height: 58%"></div>
+                                    <div class="chart-bar" style="height: 65%"></div>
+                                    <div class="chart-bar" style="height: 62%"></div>
+                                    <div class="chart-bar" style="height: 70%"></div>
+                                    <div class="chart-bar" style="height: 68%"></div>
+                                    <div class="chart-bar" style="height: 75%"></div>
+                                    <div class="chart-bar" style="height: 80%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Alerts Mini -->
+                            <div class="alerts-mini" data-highlight="5">
+                                <div class="alerts-header">
+                                    <span class="alerts-title">Recent Alerts</span>
+                                    <span class="alerts-count">🔔 3 new</span>
+                                </div>
+                                <div class="alert-item-mini">
+                                    <div class="alert-dot-mini red"></div>
+                                    <span class="alert-text-mini">Medical card expired - R. Johnson</span>
+                                </div>
+                                <div class="alert-item-mini">
+                                    <div class="alert-dot-mini yellow"></div>
+                                    <span class="alert-text-mini">CDL expiring in 28 days - M. Santos</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side - Feature Cards -->
+            <div class="features-list">
+                <div class="feature-card" data-feature="1">
+                    <div class="feature-number">1</div>
+                    <div class="feature-content">
+                        <h3 class="feature-title">Compliance Score</h3>
+                        <p class="feature-description">Real-time compliance health score calculated from all safety factors, driver status, and violation history.</p>
+                        <div class="feature-tags">
+                            <span class="feature-tag">Real-time</span>
+                            <span class="feature-tag">0-100 Scale</span>
+                        </div>
+                    </div>
+                    <div class="feature-arrow">
+                        <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </div>
+                </div>
+
+                <div class="feature-card" data-feature="2">
+                    <div class="feature-number">2</div>
+                    <div class="feature-content">
+                        <h3 class="feature-title">Fleet Statistics</h3>
+                        <p class="feature-description">At-a-glance metrics for your entire fleet including driver count, vehicles, and items needing attention.</p>
+                        <div class="feature-tags">
+                            <span class="feature-tag">Quick Stats</span>
+                            <span class="feature-tag">Trends</span>
+                        </div>
+                    </div>
+                    <div class="feature-arrow">
+                        <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </div>
+                </div>
+
+                <div class="feature-card" data-feature="3">
+                    <div class="feature-number">3</div>
+                    <div class="feature-content">
+                        <h3 class="feature-title">BASICs Monitoring</h3>
+                        <p class="feature-description">Track all 6 FMCSA safety categories with color-coded status indicators and threshold alerts.</p>
+                        <div class="feature-tags">
+                            <span class="feature-tag">FMCSA Data</span>
+                            <span class="feature-tag">Thresholds</span>
+                        </div>
+                    </div>
+                    <div class="feature-arrow">
+                        <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </div>
+                </div>
+
+                <div class="feature-card" data-feature="4">
+                    <div class="feature-number">4</div>
+                    <div class="feature-content">
+                        <h3 class="feature-title">Trend Analysis</h3>
+                        <p class="feature-description">30-day compliance trend visualization showing improvement trajectory and historical performance.</p>
+                        <div class="feature-tags">
+                            <span class="feature-tag">Analytics</span>
+                            <span class="feature-tag">Historical</span>
+                        </div>
+                    </div>
+                    <div class="feature-arrow">
+                        <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </div>
+                </div>
+
+                <div class="feature-card" data-feature="5">
+                    <div class="feature-number">5</div>
+                    <div class="feature-content">
+                        <h3 class="feature-title">Smart Alerts</h3>
+                        <p class="feature-description">Intelligent notification system that prioritizes critical compliance issues requiring immediate attention.</p>
+                        <div class="feature-tags">
+                            <span class="feature-tag">Priority</span>
+                            <span class="feature-tag">Escalation</span>
+                        </div>
+                    </div>
+                    <div class="feature-arrow">
+                        <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const featureCards = document.querySelectorAll('.feature-card');
+        const hotspots = document.querySelectorAll('.hotspot');
+        const highlightElements = document.querySelectorAll('[data-highlight]');
+
+        // Feature card hover - highlight corresponding elements
+        featureCards.forEach(card => {
+            const featureNum = card.dataset.feature;
+
+            card.addEventListener('mouseenter', () => {
+                // Activate card
+                featureCards.forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+
+                // Activate hotspot
+                hotspots.forEach(h => {
+                    h.classList.toggle('active', h.dataset.feature === featureNum);
+                });
+
+                // Highlight dashboard elements
+                highlightElements.forEach(el => {
+                    el.classList.toggle('highlight', el.dataset.highlight === featureNum);
+                });
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.classList.remove('active');
+                hotspots.forEach(h => h.classList.remove('active'));
+                highlightElements.forEach(el => el.classList.remove('highlight'));
+            });
+        });
+
+        // Hotspot hover - highlight corresponding card
+        hotspots.forEach(hotspot => {
+            const featureNum = hotspot.dataset.feature;
+
+            hotspot.addEventListener('mouseenter', () => {
+                // Activate hotspot
+                hotspots.forEach(h => h.classList.remove('active'));
+                hotspot.classList.add('active');
+
+                // Activate corresponding card
+                featureCards.forEach(card => {
+                    card.classList.toggle('active', card.dataset.feature === featureNum);
+                });
+
+                // Highlight dashboard elements
+                highlightElements.forEach(el => {
+                    el.classList.toggle('highlight', el.dataset.highlight === featureNum);
+                });
+            });
+
+            hotspot.addEventListener('mouseleave', () => {
+                hotspot.classList.remove('active');
+                featureCards.forEach(c => c.classList.remove('active'));
+                highlightElements.forEach(el => el.classList.remove('highlight'));
+            });
+        });
+
+        // Intersection Observer for scroll animations
+        const observerOptions = {
+            threshold: 0.2,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const animateOnScroll = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationPlayState = 'running';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.dashboard-preview, .features-list').forEach(el => {
+            el.style.animationPlayState = 'paused';
+            animateOnScroll.observe(el);
+        });
+    </script>
+</body>
+</html>

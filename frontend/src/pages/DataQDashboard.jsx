@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { violationsAPI } from '../utils/api';
+import { violationsAPI, inspectionsAPI } from '../utils/api';
 import { formatDate, basicCategories } from '../utils/helpers';
 import toast from 'react-hot-toast';
 import {
@@ -21,6 +21,8 @@ const DataQDashboard = () => {
   const [selectedViolation, setSelectedViolation] = useState(null);
   const [showLetterModal, setShowLetterModal] = useState(false);
   const [minScore, setMinScore] = useState(40);
+  const [autoSyncing, setAutoSyncing] = useState(false);
+  const autoSyncAttempted = useRef(false);
 
   useEffect(() => {
     fetchData();
@@ -36,8 +38,41 @@ const DataQDashboard = () => {
         violationsAPI.getDataQOpportunities({ minScore, limit: 10 })
       ]);
 
-      setStats(dashboardRes.data.stats);
+      const dashboardStats = dashboardRes.data.stats;
+      setStats(dashboardStats);
       setOpportunities(opportunitiesRes.data.violations || []);
+
+      // If no violations exist, try a one-time auto-sync from FMCSA DataHub
+      if (!autoSyncAttempted.current && (dashboardStats?.totalViolations || 0) === 0) {
+        autoSyncAttempted.current = true;
+        setAutoSyncing(true);
+        try {
+          const syncRes = await inspectionsAPI.syncViolations();
+          if (syncRes.data.success) {
+            const imported = syncRes.data.dataqCreated || 0;
+            toast.success(
+              imported > 0
+                ? `Synced ${imported} violations from FMCSA`
+                : (syncRes.data.message || 'FMCSA sync completed')
+            );
+          } else {
+            toast.error(syncRes.data.message || 'FMCSA sync failed');
+          }
+        } catch (syncError) {
+          toast.error(syncError.response?.data?.message || 'Failed to sync violations from FMCSA');
+        } finally {
+          setAutoSyncing(false);
+        }
+
+        // Re-fetch after sync attempt
+        const [dashboardRes2, opportunitiesRes2] = await Promise.all([
+          violationsAPI.getDataQDashboard(),
+          violationsAPI.getDataQOpportunities({ minScore, limit: 10 })
+        ]);
+
+        setStats(dashboardRes2.data.stats);
+        setOpportunities(opportunitiesRes2.data.violations || []);
+      }
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to load DataQ dashboard');
       toast.error('Failed to load DataQ data');
@@ -117,7 +152,7 @@ const DataQDashboard = () => {
           <button
             onClick={handleRefresh}
             className="btn btn-primary"
-            disabled={refreshing}
+            disabled={refreshing || autoSyncing}
           >
             {refreshing ? <LoadingSpinner size="sm" /> : <FiRefreshCw className="w-4 h-4" />}
             Refresh

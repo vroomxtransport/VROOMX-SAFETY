@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - VroomX</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'jakarta': ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        ember: {
+                            orange: '#f97316',
+                            pink: '#ec4899',
+                            dark: '#18181b',
+                            darker: '#09090b',
+                            card: '#1c1c1f',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #f97316 0%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #f97316 0%, #ec4899 100%);
+        }
+
+        .gradient-border {
+            position: relative;
+            background: #1c1c1f;
+            border-radius: 1rem;
+        }
+
+        .gradient-border::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            padding: 1px;
+            border-radius: 1rem;
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.5) 0%, rgba(236, 72, 153, 0.5) 100%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+        }
+
+        .sidebar-item.active {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%);
+        }
+
+        .sidebar-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(135deg, #f97316 0%, #ec4899 100%);
+            border-radius: 0 3px 3px 0;
+        }
+
+        .gradient-progress {
+            background: linear-gradient(135deg, #f97316 0%, #ec4899 100%);
+        }
+
+        .card-hover:hover {
+            box-shadow: 0 0 40px rgba(249, 115, 22, 0.1);
+            border-color: rgba(249, 115, 22, 0.3);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #18181b;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #3f3f46;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #52525b;
+        }
+
+        .floating-btn {
+            box-shadow: 0 4px 30px rgba(249, 115, 22, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .floating-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 40px rgba(249, 115, 22, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-ember-darker text-white antialiased" x-data="{ sidebarOpen: true, mobileMenu: false }">
+
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside
+            :class="sidebarOpen ? 'w-64' : 'w-20'"
+            class="hidden lg:flex flex-col bg-ember-dark border-r border-white/5 transition-all duration-300"
+        >
+            <!-- Logo -->
+            <div class="p-6 border-b border-white/5">
+                <a href="landing.html" class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl gradient-bg flex items-center justify-center flex-shrink-0">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                    </div>
+                    <span x-show="sidebarOpen" class="text-xl font-bold">VroomX</span>
+                </a>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+                <a href="#" class="sidebar-item active relative flex items-center gap-3 px-4 py-3 rounded-xl text-white transition-colors">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    </svg>
+                    <span x-show="sidebarOpen">Dashboard</span>
+                </a>
+
+                <a href="#" class="sidebar-item relative flex items-center gap-3 px-4 py-3 rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition-colors">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                    <span x-show="sidebarOpen">Drivers</span>
+                </a>
+
+                <a href="#" class="sidebar-item relative flex items-center gap-3 px-4 py-3 rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition-colors">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                    </svg>
+                    <span x-show="sidebarOpen">Vehicles</span>
+                </a>
+
+                <a href="#" class="sidebar-item relative flex items-center gap-3 px-4 py-3 rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition-colors">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <span x-show="sidebarOpen">Documents</span>
+                </a>
+
+                <a href="#" class="sidebar-item relative flex items-center gap-3 px-4 py-3 rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition-colors">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                    <span x-show="sidebarOpen">Compliance</span>
+                </a>
+
+                <a href="#" class="sidebar-item relative flex items-center gap-3 px-4 py-3 rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition-colors">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <span x-show="sidebarOpen">Maintenance</span>
+                </a>
+
+                <a href="#" class="sidebar-item relative flex items-center gap-3 px-4 py-3 rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition-colors">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                    </svg>
+                    <span x-show="sidebarOpen">Alerts</span>
+                    <span x-show="sidebarOpen" class="ml-auto px-2 py-0.5 text-xs rounded-full gradient-bg text-white">12</span>
+                </a>
+
+                <a href="#" class="sidebar-item relative flex items-center gap-3 px-4 py-3 rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition-colors">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                    <span x-show="sidebarOpen">Reports</span>
+                </a>
+            </nav>
+
+            <!-- User Section -->
+            <div class="p-4 border-t border-white/5">
+                <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/5 transition-colors">
+                    <div class="w-10 h-10 rounded-full gradient-bg flex items-center justify-center font-semibold flex-shrink-0">
+                        JD
+                    </div>
+                    <div x-show="sidebarOpen" class="flex-1 min-w-0">
+                        <div class="font-semibold truncate">John Doe</div>
+                        <div class="text-sm text-zinc-500 truncate">Fleet Manager</div>
+                    </div>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Mobile Sidebar Overlay -->
+        <div
+            x-show="mobileMenu"
+            @click="mobileMenu = false"
+            class="lg:hidden fixed inset-0 bg-black/50 z-40"
+        ></div>
+
+        <!-- Mobile Sidebar -->
+        <aside
+            x-show="mobileMenu"
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="-translate-x-full"
+            x-transition:enter-end="translate-x-0"
+            x-transition:leave="transition ease-in duration-300"
+            x-transition:leave-start="translate-x-0"
+            x-transition:leave-end="-translate-x-full"
+            class="lg:hidden fixed left-0 top-0 bottom-0 w-64 bg-ember-dark border-r border-white/5 z-50 flex flex-col"
+        >
+            <!-- Close button -->
+            <button @click="mobileMenu = false" class="absolute top-4 right-4 p-2 text-zinc-400 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+
+            <!-- Logo -->
+            <div class="p-6 border-b border-white/5">
+                <a href="landing.html" class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl gradient-bg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold">VroomX</span>
+                </a>
+            </div>
+
+            <!-- Mobile Nav -->
+            <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+                <a href="#" class="sidebar-item active relative flex items-center gap-3 px-4 py-3 rounded-xl text-white">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="sidebar-item relative flex items-center gap-3 px-4 py-3 rounded-xl text-zinc-400 hover:text-white hover:bg-white/5">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <span>Drivers</span>
+                </a>
+                <a href="#" class="sidebar-item relative flex items-center gap-3 px-4 py-3 rounded-xl text-zinc-400 hover:text-white hover:bg-white/5">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                    </svg>
+                    <span>Vehicles</span>
+                </a>
+                <a href="#" class="sidebar-item relative flex items-center gap-3 px-4 py-3 rounded-xl text-zinc-400 hover:text-white hover:bg-white/5">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <span>Documents</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Top Header -->
+            <header class="bg-ember-dark border-b border-white/5 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <!-- Mobile Menu Toggle -->
+                        <button @click="mobileMenu = true" class="lg:hidden p-2 -ml-2 text-zinc-400 hover:text-white">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                            </svg>
+                        </button>
+
+                        <!-- Sidebar Toggle (Desktop) -->
+                        <button @click="sidebarOpen = !sidebarOpen" class="hidden lg:block p-2 -ml-2 text-zinc-400 hover:text-white">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                            </svg>
+                        </button>
+
+                        <!-- Search -->
+                        <div class="relative hidden sm:block">
+                            <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                            <input
+                                type="text"
+                                placeholder="Search drivers, vehicles, documents..."
+                                class="w-80 pl-10 pr-4 py-2.5 bg-ember-darker border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:border-orange-500/50 transition-colors"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <!-- Notifications -->
+                        <button class="relative p-2 text-zinc-400 hover:text-white transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                            </svg>
+                            <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-orange-500"></span>
+                        </button>
+
+                        <!-- Settings -->
+                        <button class="p-2 text-zinc-400 hover:text-white transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content Area -->
+            <main class="flex-1 overflow-y-auto p-6">
+                <!-- Page Header -->
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold mb-2">Dashboard</h1>
+                    <p class="text-zinc-400">Welcome back, John. Here's what's happening with your fleet.</p>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <!-- Total Drivers -->
+                    <div class="p-6 rounded-2xl bg-ember-card border border-white/5 card-hover transition-all duration-300">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500/20 to-pink-500/20 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                            </div>
+                            <span class="px-2.5 py-1 text-xs font-medium text-green-400 bg-green-500/10 rounded-lg">+12%</span>
+                        </div>
+                        <div class="text-3xl font-bold mb-1">48</div>
+                        <div class="text-zinc-400 text-sm">Active Drivers</div>
+                    </div>
+
+                    <!-- Total Vehicles -->
+                    <div class="p-6 rounded-2xl bg-ember-card border border-white/5 card-hover transition-all duration-300">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500/20 to-pink-500/20 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                                </svg>
+                            </div>
+                            <span class="px-2.5 py-1 text-xs font-medium text-green-400 bg-green-500/10 rounded-lg">+5%</span>
+                        </div>
+                        <div class="text-3xl font-bold mb-1">32</div>
+                        <div class="text-zinc-400 text-sm">Total Vehicles</div>
+                    </div>
+
+                    <!-- Compliance Score -->
+                    <div class="p-6 rounded-2xl bg-ember-card border border-white/5 card-hover transition-all duration-300">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500/20 to-pink-500/20 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                                </svg>
+                            </div>
+                            <span class="px-2.5 py-1 text-xs font-medium text-green-400 bg-green-500/10 rounded-lg">+3%</span>
+                        </div>
+                        <div class="text-3xl font-bold gradient-text mb-1">94%</div>
+                        <div class="text-zinc-400 text-sm">Compliance Score</div>
+                    </div>
+
+                    <!-- Alerts -->
+                    <div class="p-6 rounded-2xl bg-ember-card border border-white/5 card-hover transition-all duration-300">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500/20 to-pink-500/20 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                                </svg>
+                            </div>
+                            <span class="px-2.5 py-1 text-xs font-medium text-red-400 bg-red-500/10 rounded-lg">-2</span>
+                        </div>
+                        <div class="text-3xl font-bold mb-1">12</div>
+                        <div class="text-zinc-400 text-sm">Active Alerts</div>
+                    </div>
+                </div>
+
+                <!-- Two Column Layout -->
+                <div class="grid lg:grid-cols-3 gap-6 mb-8">
+                    <!-- Compliance Overview -->
+                    <div class="lg:col-span-2 p-6 rounded-2xl bg-ember-card border border-white/5">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-xl font-bold">Compliance Overview</h2>
+                            <select class="bg-ember-darker border border-white/10 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-orange-500/50">
+                                <option>Last 30 Days</option>
+                                <option>Last 90 Days</option>
+                                <option>This Year</option>
+                            </select>
+                        </div>
+
+                        <div class="space-y-6">
+                            <!-- Driver Qualifications -->
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-zinc-400">Driver Qualifications</span>
+                                    <span class="font-semibold">96%</span>
+                                </div>
+                                <div class="h-3 bg-white/5 rounded-full overflow-hidden">
+                                    <div class="h-full gradient-progress rounded-full" style="width: 96%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Vehicle Inspections -->
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-zinc-400">Vehicle Inspections</span>
+                                    <span class="font-semibold">89%</span>
+                                </div>
+                                <div class="h-3 bg-white/5 rounded-full overflow-hidden">
+                                    <div class="h-full gradient-progress rounded-full" style="width: 89%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Medical Certificates -->
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-zinc-400">Medical Certificates</span>
+                                    <span class="font-semibold">100%</span>
+                                </div>
+                                <div class="h-3 bg-white/5 rounded-full overflow-hidden">
+                                    <div class="h-full gradient-progress rounded-full" style="width: 100%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Drug Testing -->
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-zinc-400">Drug Testing</span>
+                                    <span class="font-semibold">92%</span>
+                                </div>
+                                <div class="h-3 bg-white/5 rounded-full overflow-hidden">
+                                    <div class="h-full gradient-progress rounded-full" style="width: 92%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Hours of Service -->
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-zinc-400">Hours of Service</span>
+                                    <span class="font-semibold">88%</span>
+                                </div>
+                                <div class="h-3 bg-white/5 rounded-full overflow-hidden">
+                                    <div class="h-full gradient-progress rounded-full" style="width: 88%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Upcoming Expirations -->
+                    <div class="p-6 rounded-2xl bg-ember-card border border-white/5">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-xl font-bold">Upcoming Expirations</h2>
+                            <a href="#" class="text-sm text-orange-500 hover:text-orange-400">View All</a>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="p-4 rounded-xl bg-red-500/10 border border-red-500/20">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="w-8 h-8 rounded-lg bg-red-500/20 flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="font-semibold text-sm">CDL - Mike Johnson</div>
+                                        <div class="text-xs text-red-400">Expires in 3 days</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="w-8 h-8 rounded-lg bg-yellow-500/20 flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="font-semibold text-sm">Medical Card - Sarah Davis</div>
+                                        <div class="text-xs text-yellow-400">Expires in 12 days</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="w-8 h-8 rounded-lg bg-yellow-500/20 flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="font-semibold text-sm">Vehicle Inspection - Unit 1247</div>
+                                        <div class="text-xs text-yellow-400">Expires in 18 days</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="font-semibold text-sm">Drug Test - Tom Wilson</div>
+                                        <div class="text-xs text-zinc-400">Expires in 28 days</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="p-6 rounded-2xl bg-ember-card border border-white/5">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-bold">Recent Activity</h2>
+                        <a href="#" class="text-sm text-orange-500 hover:text-orange-400">View All</a>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="text-left text-zinc-500 text-sm border-b border-white/5">
+                                    <th class="pb-4 font-medium">Activity</th>
+                                    <th class="pb-4 font-medium">Driver/Vehicle</th>
+                                    <th class="pb-4 font-medium">Status</th>
+                                    <th class="pb-4 font-medium">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-white/5">
+                                <tr>
+                                    <td class="py-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
+                                                <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                </svg>
+                                            </div>
+                                            <span class="font-medium">CDL Document Uploaded</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 text-zinc-400">James Anderson</td>
+                                    <td class="py-4">
+                                        <span class="px-3 py-1 text-xs font-medium text-green-400 bg-green-500/10 rounded-full">Verified</span>
+                                    </td>
+                                    <td class="py-4 text-zinc-400">2 hours ago</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center">
+                                                <svg class="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                                </svg>
+                                            </div>
+                                            <span class="font-medium">Inspection Alert Created</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 text-zinc-400">Unit 1892</td>
+                                    <td class="py-4">
+                                        <span class="px-3 py-1 text-xs font-medium text-orange-400 bg-orange-500/10 rounded-full">Pending</span>
+                                    </td>
+                                    <td class="py-4 text-zinc-400">5 hours ago</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                                                <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                                </svg>
+                                            </div>
+                                            <span class="font-medium">FMCSA Data Synced</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 text-zinc-400">Company Profile</td>
+                                    <td class="py-4">
+                                        <span class="px-3 py-1 text-xs font-medium text-blue-400 bg-blue-500/10 rounded-full">Synced</span>
+                                    </td>
+                                    <td class="py-4 text-zinc-400">Yesterday</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
+                                                <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                                                </svg>
+                                            </div>
+                                            <span class="font-medium">New Driver Added</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 text-zinc-400">Maria Garcia</td>
+                                    <td class="py-4">
+                                        <span class="px-3 py-1 text-xs font-medium text-green-400 bg-green-500/10 rounded-full">Active</span>
+                                    </td>
+                                    <td class="py-4 text-zinc-400">2 days ago</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Floating Action Button -->
+    <button class="fixed bottom-8 right-8 w-14 h-14 rounded-full gradient-bg floating-btn flex items-center justify-center z-50">
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+    </button>
+
+</body>
+</html>

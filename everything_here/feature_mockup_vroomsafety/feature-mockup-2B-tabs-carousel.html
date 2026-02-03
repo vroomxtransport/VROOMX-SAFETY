@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VroomX - Feature Mockup 2B: Tabs with 3D Carousel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary: #1E3A5F;
+            --primary-light: #2D5A87;
+            --primary-dark: #152A45;
+            --success: #22C55E;
+            --success-light: #DCFCE7;
+            --success-dark: #16A34A;
+            --cta: #F97316;
+            --cta-hover: #EA580C;
+            --text-primary: #1E293B;
+            --text-secondary: #475569;
+            --text-muted: #94A3B8;
+            --background: #F8FAFC;
+            --card-bg: #FFFFFF;
+            --border: #E2E8F0;
+            --ai-accent: #6366F1;
+            --ai-light: #EEF2FF;
+            --ai-dark: #4F46E5;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: linear-gradient(180deg, var(--primary-dark) 0%, var(--primary) 50%, var(--primary-light) 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .mockup-label {
+            text-align: center;
+            padding: 16px;
+            background: var(--cta);
+            color: white;
+            font-weight: 700;
+            font-size: 0.875rem;
+            margin: 40px auto;
+            border-radius: 12px;
+            max-width: 1200px;
+        }
+
+        .features-section {
+            padding: 80px 24px 120px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+            color: white;
+        }
+
+        .section-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+            animation: fadeInDown 0.6s ease;
+        }
+
+        .section-header h2 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            animation: fadeInUp 0.6s ease 0.1s both;
+        }
+
+        .section-header p {
+            font-size: 1.25rem;
+            color: rgba(255,255,255,0.7);
+            max-width: 600px;
+            margin: 0 auto;
+            animation: fadeInUp 0.6s ease 0.2s both;
+        }
+
+        /* VERTICAL TAB NAV */
+        .feature-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .tab-sidebar {
+            position: sticky;
+            top: 40px;
+            animation: slideInLeft 0.6s ease 0.3s both;
+        }
+
+        .tab-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .tab-btn {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px 24px;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            color: rgba(255,255,255,0.7);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab-btn::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: var(--cta);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.2);
+            transform: translateX(8px);
+        }
+
+        .tab-btn.active {
+            background: rgba(255,255,255,0.15);
+            border-color: rgba(255,255,255,0.3);
+            color: white;
+        }
+
+        .tab-btn.active::before {
+            transform: scaleY(1);
+        }
+
+        .tab-icon-wrapper {
+            width: 48px;
+            height: 48px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active .tab-icon-wrapper {
+            background: var(--cta);
+        }
+
+        .tab-btn.ai-tab.active .tab-icon-wrapper {
+            background: var(--ai-accent);
+        }
+
+        .tab-icon-wrapper i {
+            width: 24px;
+            height: 24px;
+        }
+
+        .tab-text {
+            flex: 1;
+        }
+
+        .tab-title {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+
+        .tab-subtitle {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .ai-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: var(--ai-accent);
+            color: white;
+            font-size: 0.6rem;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+        }
+
+        /* 3D CAROUSEL */
+        .carousel-container {
+            perspective: 2000px;
+            animation: fadeInRight 0.6s ease 0.4s both;
+        }
+
+        .carousel-viewport {
+            position: relative;
+            min-height: 600px;
+            transform-style: preserve-3d;
+        }
+
+        .carousel-card {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: var(--card-bg);
+            border-radius: 32px;
+            overflow: hidden;
+            box-shadow: 0 50px 100px rgba(0,0,0,0.3);
+            opacity: 0;
+            transform: rotateY(-30deg) translateZ(-200px) scale(0.9);
+            transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+        }
+
+        .carousel-card.active {
+            opacity: 1;
+            transform: rotateY(0) translateZ(0) scale(1);
+            pointer-events: auto;
+        }
+
+        .carousel-card.prev {
+            opacity: 0.3;
+            transform: rotateY(30deg) translateX(-50%) translateZ(-300px) scale(0.8);
+        }
+
+        .carousel-card.next {
+            opacity: 0.3;
+            transform: rotateY(-30deg) translateX(50%) translateZ(-300px) scale(0.8);
+        }
+
+        /* CARD CONTENT */
+        .card-visual {
+            height: 280px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-visual.bg-ai {
+            background: linear-gradient(135deg, var(--ai-accent) 0%, var(--ai-dark) 100%);
+        }
+
+        .card-visual.bg-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        }
+
+        .card-visual.bg-success {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+        }
+
+        .card-visual.bg-warning {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+        }
+
+        .card-visual.bg-purple {
+            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+        }
+
+        /* Animated background patterns */
+        .card-visual::before {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 60%);
+            border-radius: 50%;
+            top: -200px;
+            right: -100px;
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        .card-visual::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+            border-radius: 50%;
+            bottom: -150px;
+            left: -100px;
+            animation: pulse 5s ease-in-out infinite reverse;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        .visual-content {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        /* Mini mockups inside visual */
+        .mini-mockup {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+            width: 100%;
+            max-width: 380px;
+            animation: floatUp 3s ease-in-out infinite;
+        }
+
+        @keyframes floatUp {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .mini-mockup-header {
+            background: #1a1a2e;
+            padding: 10px 14px;
+            display: flex;
+            gap: 6px;
+        }
+
+        .mini-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .mini-dot.red { background: #FF5F57; }
+        .mini-dot.yellow { background: #FFBD2E; }
+        .mini-dot.green { background: #28CA42; }
+
+        .mini-mockup-body {
+            padding: 16px;
+            background: var(--background);
+        }
+
+        /* Chat Mini */
+        .chat-mini {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .chat-mini-msg {
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+            animation: chatPop 0.5s ease forwards;
+            opacity: 0;
+        }
+
+        .chat-mini-msg:nth-child(1) { animation-delay: 0.5s; }
+        .chat-mini-msg:nth-child(2) { animation-delay: 1s; }
+
+        @keyframes chatPop {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .chat-mini-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 0.75rem;
+        }
+
+        .chat-mini-avatar.user { background: var(--border); color: var(--text-muted); }
+        .chat-mini-avatar.ai { background: var(--ai-accent); color: white; }
+
+        .chat-mini-bubble {
+            background: var(--card-bg);
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            max-width: 240px;
+        }
+
+        .chat-mini-bubble.ai {
+            background: var(--ai-light);
+        }
+
+        /* Bar chart mini */
+        .bars-mini {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .bar-mini-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .bar-mini-label {
+            width: 70px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .bar-mini-track {
+            flex: 1;
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .bar-mini-fill {
+            height: 100%;
+            border-radius: 4px;
+            animation: barGrow 1s ease forwards;
+            transform-origin: left;
+        }
+
+        @keyframes barGrow {
+            from { transform: scaleX(0); }
+            to { transform: scaleX(1); }
+        }
+
+        .bar-mini-fill.green { background: linear-gradient(90deg, var(--success) 0%, #34D399 100%); }
+        .bar-mini-fill.yellow { background: linear-gradient(90deg, #EAB308 0%, #FBBF24 100%); }
+
+        /* Files mini */
+        .files-mini {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .file-mini-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: var(--card-bg);
+            border-radius: 10px;
+            animation: fileSlide 0.5s ease forwards;
+            opacity: 0;
+        }
+
+        .file-mini-row:nth-child(1) { animation-delay: 0.3s; }
+        .file-mini-row:nth-child(2) { animation-delay: 0.5s; }
+
+        @keyframes fileSlide {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .file-mini-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .file-mini-icon i { width: 16px; height: 16px; }
+
+        .file-mini-info {
+            flex: 1;
+        }
+
+        .file-mini-name {
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .file-mini-meta {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+
+        .file-mini-status {
+            font-size: 0.65rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .file-mini-status.valid { background: var(--success-light); color: var(--success-dark); }
+        .file-mini-status.warning { background: #FEF3C7; color: #B45309; }
+
+        /* Alert mini */
+        .alerts-mini {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .alert-mini-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            animation: alertPop 0.5s ease forwards;
+            opacity: 0;
+        }
+
+        .alert-mini-row:nth-child(1) { animation-delay: 0.3s; }
+        .alert-mini-row:nth-child(2) { animation-delay: 0.5s; }
+
+        @keyframes alertPop {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .alert-mini-row.warning { background: #FEF3C7; }
+        .alert-mini-row.success { background: var(--success-light); }
+
+        .alert-mini-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .alert-mini-row.warning .alert-mini-icon { background: rgba(245, 158, 11, 0.2); color: #B45309; }
+        .alert-mini-row.success .alert-mini-icon { background: rgba(34, 197, 94, 0.2); color: var(--success-dark); }
+
+        .alert-mini-icon i { width: 14px; height: 14px; }
+
+        .alert-mini-text {
+            flex: 1;
+        }
+
+        .alert-mini-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .alert-mini-sub {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+
+        /* DataQ mini */
+        .dataq-mini {
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        .dataq-mini-icon {
+            width: 56px;
+            height: 56px;
+            background: var(--ai-accent);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            color: white;
+            animation: iconBounce 2s ease infinite;
+        }
+
+        @keyframes iconBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        .dataq-mini-icon i { width: 28px; height: 28px; }
+
+        .dataq-mini-title {
+            font-weight: 700;
+            color: var(--ai-accent);
+            margin-bottom: 4px;
+        }
+
+        .dataq-mini-sub {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Card Info Section */
+        .card-info {
+            padding: 36px 40px;
+        }
+
+        .card-category {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 16px;
+            color: var(--ai-accent);
+        }
+
+        .card-category i {
+            width: 18px;
+            height: 18px;
+        }
+
+        .card-info h3 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .card-info p {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            margin-bottom: 28px;
+            line-height: 1.7;
+        }
+
+        .card-features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            margin-bottom: 32px;
+        }
+
+        .card-feature {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .card-feature-icon {
+            width: 28px;
+            height: 28px;
+            background: var(--success-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--success);
+            flex-shrink: 0;
+        }
+
+        .card-feature-icon i {
+            width: 14px;
+            height: 14px;
+        }
+
+        .card-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 32px;
+            background: linear-gradient(135deg, var(--cta) 0%, var(--cta-hover) 100%);
+            color: white;
+            border-radius: 14px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .card-cta:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(249, 115, 22, 0.4);
+        }
+
+        .card-cta i {
+            width: 20px;
+            height: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .card-cta:hover i {
+            transform: translateX(4px);
+        }
+
+        /* Navigation arrows */
+        .carousel-nav {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 40px;
+        }
+
+        .nav-btn {
+            width: 56px;
+            height: 56px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: var(--cta);
+            border-color: var(--cta);
+            transform: scale(1.1);
+        }
+
+        .nav-btn i {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Dots indicator */
+        .carousel-dots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 24px;
+        }
+
+        .carousel-dot {
+            width: 10px;
+            height: 10px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .carousel-dot.active {
+            background: var(--cta);
+            transform: scale(1.3);
+        }
+
+        .carousel-dot:hover {
+            background: rgba(255,255,255,0.6);
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-40px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes fadeInRight {
+            from { opacity: 0; transform: translateX(40px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 1000px) {
+            .feature-layout {
+                grid-template-columns: 1fr;
+            }
+            .tab-sidebar {
+                position: static;
+            }
+            .tab-list {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .tab-btn {
+                flex-direction: column;
+                text-align: center;
+                padding: 16px;
+                min-width: 140px;
+            }
+            .tab-text {
+                display: none;
+            }
+            .card-features {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .design-notes {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 24px;
+        }
+
+        .design-notes-inner {
+            padding: 28px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            border: 2px dashed var(--border);
+        }
+
+        .design-notes h4 {
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .design-notes ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px 32px;
+        }
+
+        .design-notes li {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            padding-left: 24px;
+            position: relative;
+        }
+
+        .design-notes li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--success);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="mockup-label">MOCKUP 2B: Tabs with 3D Carousel — Dark theme, vertical nav, perspective card transitions</div>
+
+    <section class="features-section">
+        <div class="section-header">
+            <div class="section-badge">
+                <i data-lucide="sparkles" style="width:16px;height:16px;"></i>
+                Powerful Features
+            </div>
+            <h2>Everything You Need to Stay Compliant</h2>
+            <p>Explore our powerful tools designed specifically for owner-operators and small fleets.</p>
+        </div>
+
+        <div class="feature-layout">
+            <div class="tab-sidebar">
+                <div class="tab-list">
+                    <button class="tab-btn active ai-tab" onclick="showCard(0)">
+                        <div class="tab-icon-wrapper">
+                            <i data-lucide="bot"></i>
+                        </div>
+                        <div class="tab-text">
+                            <div class="tab-title">AI Assistant</div>
+                            <div class="tab-subtitle">24/7 regulation help</div>
+                        </div>
+                        <span class="ai-badge">AI</span>
+                    </button>
+                    <button class="tab-btn" onclick="showCard(1)">
+                        <div class="tab-icon-wrapper">
+                            <i data-lucide="bar-chart-3"></i>
+                        </div>
+                        <div class="tab-text">
+                            <div class="tab-title">CSA Tracking</div>
+                            <div class="tab-subtitle">Monitor all 7 BASICs</div>
+                        </div>
+                    </button>
+                    <button class="tab-btn" onclick="showCard(2)">
+                        <div class="tab-icon-wrapper">
+                            <i data-lucide="folder-open"></i>
+                        </div>
+                        <div class="tab-text">
+                            <div class="tab-title">DQF Files</div>
+                            <div class="tab-subtitle">Secure document storage</div>
+                        </div>
+                    </button>
+                    <button class="tab-btn ai-tab" onclick="showCard(3)">
+                        <div class="tab-icon-wrapper">
+                            <i data-lucide="file-text"></i>
+                        </div>
+                        <div class="tab-text">
+                            <div class="tab-title">DataQ Generator</div>
+                            <div class="tab-subtitle">Challenge violations</div>
+                        </div>
+                        <span class="ai-badge">AI</span>
+                    </button>
+                    <button class="tab-btn" onclick="showCard(4)">
+                        <div class="tab-icon-wrapper">
+                            <i data-lucide="bell-ring"></i>
+                        </div>
+                        <div class="tab-text">
+                            <div class="tab-title">Smart Alerts</div>
+                            <div class="tab-subtitle">Never miss deadlines</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <div class="carousel-container">
+                <div class="carousel-viewport">
+                    <!-- Card 0: AI Assistant -->
+                    <div class="carousel-card active" data-index="0">
+                        <div class="card-visual bg-ai">
+                            <div class="visual-content">
+                                <div class="mini-mockup">
+                                    <div class="mini-mockup-header">
+                                        <div class="mini-dot red"></div>
+                                        <div class="mini-dot yellow"></div>
+                                        <div class="mini-dot green"></div>
+                                    </div>
+                                    <div class="mini-mockup-body">
+                                        <div class="chat-mini">
+                                            <div class="chat-mini-msg">
+                                                <div class="chat-mini-avatar user"><i data-lucide="user" style="width:14px;height:14px;"></i></div>
+                                                <div class="chat-mini-bubble">What's the HOS limit for property-carrying drivers?</div>
+                                            </div>
+                                            <div class="chat-mini-msg">
+                                                <div class="chat-mini-avatar ai"><i data-lucide="bot" style="width:14px;height:14px;"></i></div>
+                                                <div class="chat-mini-bubble ai">11-hour driving limit after 10 hours off duty per §395.3...</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-info">
+                            <div class="card-category">
+                                <i data-lucide="cpu"></i>
+                                AI-Powered
+                            </div>
+                            <h3>AI Regulation Assistant</h3>
+                            <p>Ask any FMCSA regulation question and get instant, accurate answers. Like having a compliance expert on call 24/7.</p>
+                            <div class="card-features">
+                                <div class="card-feature">
+                                    <span class="card-feature-icon"><i data-lucide="zap"></i></span>
+                                    Instant answers
+                                </div>
+                                <div class="card-feature">
+                                    <span class="card-feature-icon"><i data-lucide="refresh-cw"></i></span>
+                                    Always up-to-date
+                                </div>
+                                <div class="card-feature">
+                                    <span class="card-feature-icon"><i data-lucide="message-circle"></i></span>
+                                    Plain English
+                                </div>
+                                <div class="card-feature">
+                                    <span class="card-feature-icon"><i data-lucide="clock"></i></span>
+                                    24/7 available
+                                </div>
+                            </div>
+                            <a href="#" class="card-cta">
+                                Try It Free
+                                <i data-lucide="arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Card 1: CSA Tracking -->
+                    <div class="carousel-card" data-index="1">
+                        <div class="card-visual bg-primary">
+                            <div class="visual-content">
+                                <div class="mini-mockup">
+                                    <div class="mini-mockup-header">
+                                        <div class="mini-dot red"></div>
+                                        <div class="mini-dot yellow"></div>
+                                        <div class="mini-dot green"></div>
+                                    </div>
+                                    <div class="mini-mockup-body">
+                                        <div class="bars-mini">
+                                            <div class="bar-mini-row">
+                                                <span class="bar-mini-label">Unsafe Driving</span>
+                                                <div class="bar-mini-track"><div class="bar-mini-fill green" style="width: 32%"></div></div>
+                                            </div>
+                                            <div class="bar-mini-row">
+                                                <span class="bar-mini-label">HOS</span>
+                                                <div class="bar-mini-track"><div class="bar-mini-fill green" style="width: 45%"></div></div>
+                                            </div>
+                                            <div class="bar-mini-row">
+                                                <span class="bar-mini-label">Vehicle Maint.</span>
+                                                <div class="bar-mini-track"><div class="bar-mini-fill yellow" style="width: 58%"></div></div>
+                                            </div>
+                                            <div class="bar-mini-row">
+                                                <span class="bar-mini-label">Driver Fitness</span>
+                                                <div class="bar-mini-track"><div class="bar-mini-fill green" style="width: 21%"></div></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-info">
+                            <div class="card-category" style="color: var(--primary);">
+                                <i data-lucide="trending-up"></i>
+                                Analytics
+                            </div>
+                            <h3>CSA Score Tracking</h3>
+                            <p>Monitor your CSA scores across all 7 BASICs in real-time. Get actionable recommendations to improve.</p>
+                            <div class="card-features">
+                                <div class="card-feature">
+                                    <span class="card-feature-icon"><i data-lucide="layout-dashboard"></i></span>
+                                    All 7 BASICs
+                                </div>
+                                <div class="card-feature">
+                                    <span class="card-feature-icon"><i data-lucide="line-chart"></i></span>
+                                    Historical trends
+                                </div>
+                                <div class="card-feature">
+                                    <span class="card-feature-icon"><i data-lucide="bell"></i></span>
+                                    Score alerts
+                                </div>
+                                <div class="card-feature">
+                                    <span class="card-feature-icon"><i data-lucide="lightbulb"></i></span>
+                                    AI recommendations
+                                </div>
+                            </div>
+                            <a href="#" class="card-cta">
+                                Check Your Score
+                                <i data-lucide="arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: DQF Files -->
+                    <div class="carousel-card" data-index="2">
+                        <div class="card-visual bg-success">
+                            <div class="visual-content">
+                                <div class="mini-mockup">
+                                    <div class="mini-mockup-header">
+                                        <div class="mini-dot red"></div>
+                                        <div class="mini-dot yellow"></div>
+                                        <div class="mini-dot green"></div>
+                                    </div>
+                                    <div class="mini-mockup-body">
+                                        <div class="files-mini">
+                                            <div class="file-mini-row">
+                                                <div class="file-mini-icon"><i data-lucide="id-card"></i></div>
+                                                <div class="file-mini-info">
+                                                    <div class="file-mini-name">CDL - Mike R.</div>
+                                                    <div class="file-mini-meta">Expires Dec 2026</div>
+                                                </div>
+                                                <span class="file-mini-status valid">Valid</span>
+                                            </div>
+                                            <div class="file-mini-row">
+                                                <div class="file-mini-icon" style="background: #DC2626;"><i data-lucide="stethoscope"></i></div>
+                                                <div class="file-mini-info">
+                                                    <div class="file-mini-name">Medical Card</div>
+                                                    <div class="file-mini-meta">Expires Mar 2026</div>
+                                                </div>
+                                                <span class="file-mini-status warning">45 days</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-info">
+                            <div class="card-category" style="color: var(--success-dark);">
+                                <i data-lucide="folder-open"></i>
+                                Document Management
+                            </div>
+                            <h3>DQF Management</h3>
+                            <p>Store, organize, and track all Driver Qualification Files in one secure place with automatic expiration tracking.</p>
+                            <div class="card-features">
+                                <div class="card-feature">
+                                    <span class="card-feature-icon"><i data-lucide="cloud"></i></span>
+                                    Secure cloud storage
+                                </div>
+                                <div class="card-feature">
+                                    <span class="card-feature-icon"><i data-lucide="calendar-clock"></i></span>
+                                    Auto expiration tracking
+                                </div>
+                                <div class="card-feature">
+                                    <span class="card-feature-icon"><i data-lucide="file-down"></i></span>
+                                    One-click reports
+                                </div>
+                                <div class="card-feature">
+                                    <span class="card-feature-icon"><i data-lucide="shield-check"></i></span>
+                                    Audit-ready
+                                </div>
+                            </div>
+                            <a href="#" class="card-cta">
+                                Upload Documents
+                                <i data-lucide="arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: DataQ Generator -->
+                    <div class="carousel-card" data-index="3">
+                        <div class="card-visual bg-purple">
+                            <div class="visual-content">
+                                <div class="mini-mockup">
+                                    <div class="mini-mockup-header">
+                                        <div class="mini-dot red"></div>
+                                        <div class="mini-dot yellow"></div>
+                                        <div class="mini-dot green"></div>
+                                    </div>
+                                    <div class="mini-mockup-body">
+                                        <div class="dataq-mini">
+                                            <div class="dataq-mini-icon">
+                                                <i data-lucide="file-check-2"></i>
+                                            </div>
+                                            <div class="dataq-mini-title">DataQ Letter Ready</div>
+                                            <div class="dataq-mini-sub">Success probability: 68%</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-info">
+                            <div class="card-category">
+                                <i data-lucide="cpu"></i>
+                                AI-Powered
+                            </div>
+                            <h3>DataQ Challenge Generator</h3>
+                            <p>Our AI identifies challengeable violations and drafts professional DataQ letters automatically.</p>
+                            <div class="card-features">
+                                <div class="card-feature">
+                                    <span class="card-feature-icon"><i data-lucide="search"></i></span>
+                                    Auto-detect opportunities
+                                </div>
+                                <div class="card-feature">
+                                    <span class="card-feature-icon"><i data-lucide="file-signature"></i></span>
+                                    Generate letters
+                                </div>
+                                <div class="card-feature">
+                                    <span class="card-feature-icon"><i data-lucide="activity"></i></span>
+                                    Track status
+                                </div>
+                                <div class="card-feature">
+                                    <span class="card-feature-icon"><i data-lucide="trophy"></i></span>
+                                    40% success rate
+                                </div>
+                            </div>
+                            <a href="#" class="card-cta">
+                                Challenge a Violation
+                                <i data-lucide="arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: Smart Alerts -->
+                    <div class="carousel-card" data-index="4">
+                        <div class="card-visual bg-warning">
+                            <div class="visual-content">
+                                <div class="mini-mockup">
+                                    <div class="mini-mockup-header">
+                                        <div class="mini-dot red"></div>
+                                        <div class="mini-dot yellow"></div>
+                                        <div class="mini-dot green"></div>
+                                    </div>
+                                    <div class="mini-mockup-body">
+                                        <div class="alerts-mini">
+                                            <div class="alert-mini-row warning">
+                                                <div class="alert-mini-icon"><i data-lucide="alert-triangle"></i></div>
+                                                <div class="alert-mini-text">
+                                                    <div class="alert-mini-title">Medical Card Expiring</div>
+                                                    <div class="alert-mini-sub">Mike R. - 45 days</div>
+                                                </div>
+                                            </div>
+                                            <div class="alert-mini-row success">
+                                                <div class="alert-mini-icon"><i data-lucide="check-circle"></i></div>
+                                                <div class="alert-mini-text">
+                                                    <div class="alert-mini-title">Inspection Complete</div>
+                                                    <div class="alert-mini-sub">Truck #1042</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-info">
+                            <div class="card-category" style="color: #B45309;">
+                                <i data-lucide="bell-ring"></i>
+                                Notifications
+                            </div>
+                            <h3>Smart Alerts</h3>
+                            <p>Never miss an expiring document or compliance deadline. Automated reminders via email, SMS, or push.</p>
+                            <div class="card-features">
+                                <div class="card-feature">
+                                    <span class="card-feature-icon"><i data-lucide="mail"></i></span>
+                                    Email, SMS, push
+                                </div>
+                                <div class="card-feature">
+                                    <span class="card-feature-icon"><i data-lucide="calendar"></i></span>
+                                    Custom schedules
+                                </div>
+                                <div class="card-feature">
+                                    <span class="card-feature-icon"><i data-lucide="users"></i></span>
+                                    Driver alerts
+                                </div>
+                                <div class="card-feature">
+                                    <span class="card-feature-icon"><i data-lucide="bar-chart"></i></span>
+                                    Score notifications
+                                </div>
+                            </div>
+                            <a href="#" class="card-cta">
+                                Set Up Alerts
+                                <i data-lucide="arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="carousel-nav">
+                    <button class="nav-btn" onclick="prevCard()">
+                        <i data-lucide="chevron-left"></i>
+                    </button>
+                    <button class="nav-btn" onclick="nextCard()">
+                        <i data-lucide="chevron-right"></i>
+                    </button>
+                </div>
+
+                <div class="carousel-dots">
+                    <div class="carousel-dot active" onclick="showCard(0)"></div>
+                    <div class="carousel-dot" onclick="showCard(1)"></div>
+                    <div class="carousel-dot" onclick="showCard(2)"></div>
+                    <div class="carousel-dot" onclick="showCard(3)"></div>
+                    <div class="carousel-dot" onclick="showCard(4)"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="design-notes">
+        <div class="design-notes-inner">
+            <h4>
+                <i data-lucide="info" style="width:20px;height:20px;"></i>
+                Design Improvements in This Revision
+            </h4>
+            <ul>
+                <li>Dark gradient background creates premium feel</li>
+                <li>Vertical sidebar navigation with descriptive subtitles</li>
+                <li>3D perspective card transitions with depth</li>
+                <li>Mini product mockups animate on card display</li>
+                <li>Navigation arrows and dot indicators for carousel</li>
+                <li>Animated background patterns in visual sections</li>
+                <li>Glowing accent bar on active tab</li>
+                <li>Professional Lucide icons throughout</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        let currentCard = 0;
+        const totalCards = 5;
+
+        function showCard(index) {
+            currentCard = index;
+
+            // Update cards
+            document.querySelectorAll('.carousel-card').forEach((card, i) => {
+                card.classList.remove('active', 'prev', 'next');
+                if (i === index) {
+                    card.classList.add('active');
+                } else if (i === index - 1 || (index === 0 && i === totalCards - 1)) {
+                    card.classList.add('prev');
+                } else if (i === index + 1 || (index === totalCards - 1 && i === 0)) {
+                    card.classList.add('next');
+                }
+            });
+
+            // Update tabs
+            document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+                btn.classList.toggle('active', i === index);
+            });
+
+            // Update dots
+            document.querySelectorAll('.carousel-dot').forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+
+            // Re-init icons
+            setTimeout(() => lucide.createIcons(), 100);
+        }
+
+        function nextCard() {
+            showCard((currentCard + 1) % totalCards);
+        }
+
+        function prevCard() {
+            showCard((currentCard - 1 + totalCards) % totalCards);
+        }
+
+        // Auto-rotate every 6 seconds
+        setInterval(() => {
+            nextCard();
+        }, 6000);
+    </script>
+</body>
+</html>

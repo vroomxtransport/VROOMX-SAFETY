@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VroomX Design 3: Focus - Clean Minimal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #FAFBFC;
+            --bg-white: #FFFFFF;
+            --bg-hover: #F5F6F8;
+            --border-light: #E8ECF0;
+            --border-medium: #D1D9E0;
+            --text-primary: #1A1F36;
+            --text-secondary: #545D7A;
+            --text-muted: #8E99A4;
+            --orange-500: #F97316;
+            --orange-600: #EA580C;
+            --green-500: #22C55E;
+            --green-100: #DCFCE7;
+            --yellow-500: #EAB308;
+            --yellow-100: #FEF9C3;
+            --red-500: #EF4444;
+            --red-100: #FEE2E2;
+            --blue-500: #3B82F6;
+            --blue-100: #DBEAFE;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            min-height: 100vh;
+            color: var(--text-primary);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        body.dark {
+            --bg-primary: #111827;
+            --bg-white: #1F2937;
+            --bg-hover: #374151;
+            --border-light: #374151;
+            --border-medium: #4B5563;
+            --text-primary: #F9FAFB;
+            --text-secondary: #D1D5DB;
+            --text-muted: #9CA3AF;
+            --green-100: rgba(34, 197, 94, 0.15);
+            --yellow-100: rgba(234, 179, 8, 0.15);
+            --red-100: rgba(239, 68, 68, 0.15);
+            --blue-100: rgba(59, 130, 246, 0.15);
+        }
+
+        /* Layout */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 240px;
+            background: var(--bg-white);
+            border-right: 1px solid var(--border-light);
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 8px 24px;
+            margin-bottom: 8px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--orange-500);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+            color: white;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .nav-section {
+            margin-bottom: 24px;
+        }
+
+        .nav-section-title {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            padding: 0 12px;
+            margin-bottom: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.15s ease;
+            cursor: pointer;
+            margin-bottom: 2px;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: var(--orange-500);
+            color: white;
+        }
+
+        .nav-icon {
+            width: 18px;
+            height: 18px;
+            opacity: 0.7;
+        }
+
+        .nav-item.active .nav-icon {
+            opacity: 1;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            background: var(--red-500);
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+
+        .nav-item.active .nav-badge {
+            background: white;
+            color: var(--orange-500);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 240px;
+            padding: 32px 40px;
+            max-width: 1400px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 40px;
+        }
+
+        .header-left h1 {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 4px;
+        }
+
+        .header-left p {
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-white);
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            padding: 10px 14px;
+            width: 240px;
+            transition: all 0.15s ease;
+        }
+
+        .search-box:focus-within {
+            border-color: var(--orange-500);
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+        }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-primary);
+            font-size: 14px;
+            width: 100%;
+        }
+
+        .search-box input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-icon {
+            color: var(--text-muted);
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            background: var(--bg-white);
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            color: var(--text-secondary);
+            position: relative;
+        }
+
+        .icon-btn:hover {
+            border-color: var(--border-medium);
+            color: var(--text-primary);
+        }
+
+        .notification-dot {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            background: var(--red-500);
+            border-radius: 50%;
+            border: 2px solid var(--bg-white);
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--orange-500);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            color: white;
+            cursor: pointer;
+        }
+
+        /* Compliance Score */
+        .compliance-section {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 32px;
+            margin-bottom: 40px;
+        }
+
+        .score-card {
+            background: var(--bg-white);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+        }
+
+        .score-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        .score-number {
+            font-size: 80px;
+            font-weight: 700;
+            line-height: 1;
+            color: var(--green-500);
+            margin-bottom: 8px;
+        }
+
+        .score-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--green-100);
+            color: var(--green-500);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .score-status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        /* Breakdown Cards */
+        .breakdown-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .breakdown-card {
+            background: var(--bg-white);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.15s ease;
+        }
+
+        .breakdown-card:hover {
+            border-color: var(--border-medium);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .breakdown-value {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .breakdown-card.success .breakdown-value { color: var(--green-500); }
+        .breakdown-card.warning .breakdown-value { color: var(--yellow-500); }
+        .breakdown-card.danger .breakdown-value { color: var(--red-500); }
+
+        .breakdown-label {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        /* Stats Row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--bg-white);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 20px 24px;
+            transition: all 0.15s ease;
+        }
+
+        .stat-card:hover {
+            border-color: var(--border-medium);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .stat-trend {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+
+        .stat-trend.positive {
+            background: var(--green-100);
+            color: var(--green-500);
+        }
+
+        .stat-trend.negative {
+            background: var(--red-100);
+            color: var(--red-500);
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        /* Content Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 24px;
+        }
+
+        /* Card Base */
+        .card {
+            background: var(--bg-white);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .card-link {
+            font-size: 13px;
+            color: var(--orange-500);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.15s;
+        }
+
+        .card-link:hover {
+            color: var(--orange-600);
+        }
+
+        .card-body {
+            padding: 16px 24px;
+        }
+
+        /* BASIC Scores */
+        .basic-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .basic-item:last-child {
+            border-bottom: none;
+        }
+
+        .basic-info {
+            flex: 1;
+        }
+
+        .basic-name {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+
+        .basic-bar {
+            height: 6px;
+            background: var(--bg-hover);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .basic-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .basic-bar-fill.green { background: var(--green-500); }
+        .basic-bar-fill.yellow { background: var(--yellow-500); }
+        .basic-bar-fill.red { background: var(--red-500); }
+
+        .basic-score {
+            font-size: 18px;
+            font-weight: 600;
+            min-width: 50px;
+            text-align: right;
+        }
+
+        .basic-score.green { color: var(--green-500); }
+        .basic-score.yellow { color: var(--yellow-500); }
+        .basic-score.red { color: var(--red-500); }
+
+        .basic-threshold {
+            font-size: 12px;
+            color: var(--text-muted);
+            min-width: 80px;
+            text-align: right;
+        }
+
+        /* Alerts */
+        .alert-item {
+            display: flex;
+            gap: 14px;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border-light);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .alert-item:last-child {
+            border-bottom: none;
+        }
+
+        .alert-item:hover {
+            background: var(--bg-hover);
+            margin: 0 -24px;
+            padding: 14px 24px;
+        }
+
+        .alert-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-top: 6px;
+            flex-shrink: 0;
+        }
+
+        .alert-dot.critical { background: var(--red-500); }
+        .alert-dot.warning { background: var(--yellow-500); }
+        .alert-dot.info { background: var(--blue-500); }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .alert-description {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .alert-time {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Data Table */
+        .data-table {
+            grid-column: 1 / -1;
+            margin-top: 8px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: var(--text-muted);
+            background: var(--bg-hover);
+        }
+
+        th:first-child {
+            border-radius: 8px 0 0 8px;
+        }
+
+        th:last-child {
+            border-radius: 0 8px 8px 0;
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-light);
+            font-size: 14px;
+        }
+
+        tr:hover td {
+            background: var(--bg-hover);
+        }
+
+        .driver-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .driver-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: var(--bg-hover);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .driver-name {
+            font-weight: 500;
+        }
+
+        .driver-id {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-badge.active {
+            background: var(--green-100);
+            color: var(--green-500);
+        }
+
+        .status-badge.expiring {
+            background: var(--yellow-100);
+            color: var(--yellow-500);
+        }
+
+        .status-badge.expired {
+            background: var(--red-100);
+            color: var(--red-500);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        /* Dark Mode Toggle */
+        .theme-toggle {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-white);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            z-index: 100;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--border-medium);
+        }
+
+        .toggle-track {
+            width: 44px;
+            height: 24px;
+            background: var(--bg-hover);
+            border-radius: 12px;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-thumb {
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        body.dark .toggle-thumb {
+            left: 22px;
+            background: var(--orange-500);
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .compliance-section {
+                grid-template-columns: 1fr;
+            }
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .breakdown-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 24px;
+            }
+            .header {
+                flex-direction: column;
+                gap: 16px;
+            }
+            .stats-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">V</div>
+                <span class="logo-text">VroomX</span>
+            </div>
+
+            <nav>
+                <div class="nav-section">
+                    <div class="nav-section-title">Overview</div>
+                    <a href="#" class="nav-item active">
+                        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="#" class="nav-item">
+                        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                        BASIC Scores
+                    </a>
+                    <a href="#" class="nav-item">
+                        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
+                        Alerts
+                        <span class="nav-badge">5</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Fleet</div>
+                    <a href="#" class="nav-item">
+                        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                        Drivers
+                    </a>
+                    <a href="#" class="nav-item">
+                        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                        </svg>
+                        Vehicles
+                    </a>
+                    <a href="#" class="nav-item">
+                        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        Documents
+                    </a>
+                    <a href="#" class="nav-item">
+                        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                        </svg>
+                        Inspections
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Compliance</div>
+                    <a href="#" class="nav-item">
+                        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                        Drug Testing
+                    </a>
+                    <a href="#" class="nav-item">
+                        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"/>
+                        </svg>
+                        Maintenance
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <h1>Dashboard</h1>
+                    <p>Your fleet compliance at a glance</p>
+                </div>
+                <div class="header-actions">
+                    <div class="search-box">
+                        <svg class="search-icon" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        <input type="text" placeholder="Search...">
+                    </div>
+                    <div class="icon-btn">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
+                        <span class="notification-dot"></span>
+                    </div>
+                    <div class="avatar">JD</div>
+                </div>
+            </header>
+
+            <!-- Compliance Section -->
+            <div class="compliance-section">
+                <div class="score-card">
+                    <div class="score-label">Compliance Score</div>
+                    <div class="score-number">85</div>
+                    <div class="score-status">
+                        <span class="score-status-dot"></span>
+                        Excellent
+                    </div>
+                </div>
+                <div class="breakdown-grid">
+                    <div class="breakdown-card success">
+                        <div class="breakdown-value">92%</div>
+                        <div class="breakdown-label">Documents Valid</div>
+                    </div>
+                    <div class="breakdown-card warning">
+                        <div class="breakdown-value">78%</div>
+                        <div class="breakdown-label">Inspections Passed</div>
+                    </div>
+                    <div class="breakdown-card success">
+                        <div class="breakdown-value">100%</div>
+                        <div class="breakdown-label">Drug Tests Clear</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-label">Active Drivers</span>
+                        <span class="stat-trend positive">+12%</span>
+                    </div>
+                    <div class="stat-value">24</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-label">Vehicles</span>
+                        <span class="stat-trend positive">+5%</span>
+                    </div>
+                    <div class="stat-value">18</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-label">Inspections YTD</span>
+                        <span class="stat-trend positive">+8%</span>
+                    </div>
+                    <div class="stat-value">156</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-label">Active Alerts</span>
+                        <span class="stat-trend negative">+2</span>
+                    </div>
+                    <div class="stat-value">5</div>
+                </div>
+            </div>
+
+            <!-- Content Grid -->
+            <div class="content-grid">
+                <!-- BASIC Scores -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">BASIC Scores</h3>
+                        <a href="#" class="card-link">View Details</a>
+                    </div>
+                    <div class="card-body">
+                        <div class="basic-item">
+                            <div class="basic-info">
+                                <div class="basic-name">Unsafe Driving</div>
+                                <div class="basic-bar">
+                                    <div class="basic-bar-fill green" style="width: 12%"></div>
+                                </div>
+                            </div>
+                            <div class="basic-score green">12%</div>
+                            <div class="basic-threshold">Limit: 65%</div>
+                        </div>
+                        <div class="basic-item">
+                            <div class="basic-info">
+                                <div class="basic-name">HOS Compliance</div>
+                                <div class="basic-bar">
+                                    <div class="basic-bar-fill green" style="width: 34%"></div>
+                                </div>
+                            </div>
+                            <div class="basic-score green">34%</div>
+                            <div class="basic-threshold">Limit: 65%</div>
+                        </div>
+                        <div class="basic-item">
+                            <div class="basic-info">
+                                <div class="basic-name">Vehicle Maintenance</div>
+                                <div class="basic-bar">
+                                    <div class="basic-bar-fill yellow" style="width: 58%"></div>
+                                </div>
+                            </div>
+                            <div class="basic-score yellow">58%</div>
+                            <div class="basic-threshold">Limit: 80%</div>
+                        </div>
+                        <div class="basic-item">
+                            <div class="basic-info">
+                                <div class="basic-name">Driver Fitness</div>
+                                <div class="basic-bar">
+                                    <div class="basic-bar-fill green" style="width: 8%"></div>
+                                </div>
+                            </div>
+                            <div class="basic-score green">8%</div>
+                            <div class="basic-threshold">Limit: 80%</div>
+                        </div>
+                        <div class="basic-item">
+                            <div class="basic-info">
+                                <div class="basic-name">Controlled Substances</div>
+                                <div class="basic-bar">
+                                    <div class="basic-bar-fill green" style="width: 22%"></div>
+                                </div>
+                            </div>
+                            <div class="basic-score green">22%</div>
+                            <div class="basic-threshold">Limit: 80%</div>
+                        </div>
+                        <div class="basic-item">
+                            <div class="basic-info">
+                                <div class="basic-name">Crash Indicator</div>
+                                <div class="basic-bar">
+                                    <div class="basic-bar-fill red" style="width: 72%"></div>
+                                </div>
+                            </div>
+                            <div class="basic-score red">72%</div>
+                            <div class="basic-threshold">Limit: 65%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alerts -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent Alerts</h3>
+                        <a href="#" class="card-link">View All</a>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert-item">
+                            <div class="alert-dot critical"></div>
+                            <div class="alert-content">
+                                <div class="alert-title">CDL Expiring Soon</div>
+                                <div class="alert-description">John Smith's CDL expires in 14 days</div>
+                            </div>
+                            <div class="alert-time">2h ago</div>
+                        </div>
+                        <div class="alert-item">
+                            <div class="alert-dot warning"></div>
+                            <div class="alert-content">
+                                <div class="alert-title">Medical Card Update</div>
+                                <div class="alert-description">Mike Johnson needs recertification</div>
+                            </div>
+                            <div class="alert-time">5h ago</div>
+                        </div>
+                        <div class="alert-item">
+                            <div class="alert-dot warning"></div>
+                            <div class="alert-content">
+                                <div class="alert-title">Vehicle Inspection Due</div>
+                                <div class="alert-description">Truck #1042 annual inspection in 7 days</div>
+                            </div>
+                            <div class="alert-time">1d ago</div>
+                        </div>
+                        <div class="alert-item">
+                            <div class="alert-dot info"></div>
+                            <div class="alert-content">
+                                <div class="alert-title">Drug Test Completed</div>
+                                <div class="alert-description">Results received for 3 drivers</div>
+                            </div>
+                            <div class="alert-time">2d ago</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Table -->
+                <div class="card data-table">
+                    <div class="card-header">
+                        <h3 class="card-title">Driver Compliance Status</h3>
+                        <a href="#" class="card-link">View All Drivers</a>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Driver</th>
+                                    <th>CDL Status</th>
+                                    <th>Medical Card</th>
+                                    <th>Drug Test</th>
+                                    <th>Last Inspection</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="driver-cell">
+                                            <div class="driver-avatar">JS</div>
+                                            <div>
+                                                <div class="driver-name">John Smith</div>
+                                                <div class="driver-id">DRV-001</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span class="status-badge expiring"><span class="status-dot"></span>Expiring</span></td>
+                                    <td><span class="status-badge active"><span class="status-dot"></span>Valid</span></td>
+                                    <td><span class="status-badge active"><span class="status-dot"></span>Clear</span></td>
+                                    <td>Jan 15, 2026</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="driver-cell">
+                                            <div class="driver-avatar">MJ</div>
+                                            <div>
+                                                <div class="driver-name">Mike Johnson</div>
+                                                <div class="driver-id">DRV-002</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span class="status-badge active"><span class="status-dot"></span>Valid</span></td>
+                                    <td><span class="status-badge expiring"><span class="status-dot"></span>Expiring</span></td>
+                                    <td><span class="status-badge active"><span class="status-dot"></span>Clear</span></td>
+                                    <td>Jan 22, 2026</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="driver-cell">
+                                            <div class="driver-avatar">SW</div>
+                                            <div>
+                                                <div class="driver-name">Sarah Williams</div>
+                                                <div class="driver-id">DRV-003</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span class="status-badge active"><span class="status-dot"></span>Valid</span></td>
+                                    <td><span class="status-badge active"><span class="status-dot"></span>Valid</span></td>
+                                    <td><span class="status-badge active"><span class="status-dot"></span>Clear</span></td>
+                                    <td>Jan 28, 2026</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="driver-cell">
+                                            <div class="driver-avatar">RD</div>
+                                            <div>
+                                                <div class="driver-name">Robert Davis</div>
+                                                <div class="driver-id">DRV-004</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span class="status-badge expired"><span class="status-dot"></span>Expired</span></td>
+                                    <td><span class="status-badge active"><span class="status-dot"></span>Valid</span></td>
+                                    <td><span class="status-badge active"><span class="status-dot"></span>Clear</span></td>
+                                    <td>Dec 10, 2025</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Theme Toggle -->
+    <div class="theme-toggle" onclick="toggleTheme()">
+        <span>Light</span>
+        <div class="toggle-track">
+            <div class="toggle-thumb"></div>
+        </div>
+        <span>Dark</span>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            document.body.classList.toggle('dark');
+        }
+    </script>
+</body>
+</html>

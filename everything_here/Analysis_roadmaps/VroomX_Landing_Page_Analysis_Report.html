@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VroomX Landing Page Analysis Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-header { background: linear-gradient(135deg, #1e3a5f 0%, #0d1b2a 100%); }
+        .score-ring {
+            background: conic-gradient(#22c55e 0deg, #22c55e calc(var(--score) * 3.6deg), #e5e7eb calc(var(--score) * 3.6deg));
+        }
+        .good { color: #22c55e; }
+        .warning { color: #f59e0b; }
+        .critical { color: #ef4444; }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <!-- Header -->
+    <div class="gradient-header text-white py-12">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-blue-300 text-sm uppercase tracking-wider mb-2">Landing Page Analysis</p>
+                    <h1 class="text-4xl font-bold mb-2">VroomX Safety</h1>
+                    <p class="text-gray-300">vroomx-safety.netlify.app</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-32 h-32 rounded-full bg-white/10 flex items-center justify-center relative">
+                        <div class="text-center">
+                            <p class="text-5xl font-bold">7.5</p>
+                            <p class="text-sm text-gray-300">out of 10</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Summary -->
+    <div class="max-w-6xl mx-auto px-6 -mt-6">
+        <div class="bg-white rounded-2xl shadow-xl p-6 grid md:grid-cols-4 gap-4">
+            <div class="text-center p-4 bg-green-50 rounded-xl">
+                <p class="text-3xl font-bold text-green-600">✓</p>
+                <p class="text-sm text-gray-600 mt-1">Professional Design</p>
+            </div>
+            <div class="text-center p-4 bg-green-50 rounded-xl">
+                <p class="text-3xl font-bold text-green-600">✓</p>
+                <p class="text-sm text-gray-600 mt-1">Clear Value Prop</p>
+            </div>
+            <div class="text-center p-4 bg-yellow-50 rounded-xl">
+                <p class="text-3xl font-bold text-yellow-500">!</p>
+                <p class="text-sm text-gray-600 mt-1">Needs Social Proof</p>
+            </div>
+            <div class="text-center p-4 bg-yellow-50 rounded-xl">
+                <p class="text-3xl font-bold text-yellow-500">!</p>
+                <p class="text-sm text-gray-600 mt-1">Missing Trust Elements</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-6 py-12">
+
+        <!-- Section Scores -->
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+            <span class="text-3xl">📊</span> Section-by-Section Analysis
+        </h2>
+
+        <div class="space-y-6 mb-12">
+
+            <!-- Hero Section -->
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">1️⃣</span>
+                        <h3 class="font-bold text-lg">Hero Section</h3>
+                    </div>
+                    <div class="bg-white/20 px-4 py-1 rounded-full">
+                        <span class="font-bold">8/10</span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-bold text-green-600 mb-3 flex items-center gap-2">
+                                <span>✅</span> What's Working
+                            </h4>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span><strong>"TOTAL COMPLIANCE"</strong> - Bold, clear headline that speaks to the pain</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span>CSA Score Analyzer widget embedded - brilliant lead capture tool</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span>Social proof badge "500+ carriers trust VroomX"</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span>Stats row (3,247+ CSA Checks, 99.2% Uptime, 4.9★)</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span>Two CTAs: "Get Started" (primary) + "View Demo" (secondary)</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span>Beautiful mountain/truck imagery sets professional tone</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-red-600 mb-3 flex items-center gap-2">
+                                <span>❌</span> What Needs Work
+                            </h4>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-start gap-2">
+                                    <span class="text-red-500 mt-1">•</span>
+                                    <span>"500+ carriers" feels low for SaaS - consider "trusted by carriers nationwide"</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-red-500 mt-1">•</span>
+                                    <span>Avatar images look generic/stock - use real customer photos or remove</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-red-500 mt-1">•</span>
+                                    <span>CSA widget could show example result to entice clicks</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trust Badges -->
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="bg-gradient-to-r from-green-600 to-green-700 text-white p-4 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">2️⃣</span>
+                        <h3 class="font-bold text-lg">Trust Badges Bar</h3>
+                    </div>
+                    <div class="bg-white/20 px-4 py-1 rounded-full">
+                        <span class="font-bold">9/10</span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-bold text-green-600 mb-3 flex items-center gap-2">
+                                <span>✅</span> What's Working
+                            </h4>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span><strong>SSL Secure + SOC2 Compliant</strong> - Builds security trust</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span><strong>FMCSA Data</strong> - Shows legitimacy with official source</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span><strong>US Support</strong> - Important for trucking audience</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span>Clean horizontal layout, easy to scan</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-red-600 mb-3 flex items-center gap-2">
+                                <span>❌</span> What Needs Work
+                            </h4>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-start gap-2">
+                                    <span class="text-red-500 mt-1">•</span>
+                                    <span>Consider adding actual certification badges (SOC2 logo, SSL seal)</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features Section -->
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="bg-gradient-to-r from-purple-600 to-purple-700 text-white p-4 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">3️⃣</span>
+                        <h3 class="font-bold text-lg">Feature Highlights</h3>
+                    </div>
+                    <div class="bg-white/20 px-4 py-1 rounded-full">
+                        <span class="font-bold">8/10</span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-bold text-green-600 mb-3 flex items-center gap-2">
+                                <span>✅</span> What's Working
+                            </h4>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span>Clear feature stats: 6+ BASICs, 49 CFR, 30/14/7 Day Alerts</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span>DQF Management section with UI mockup - shows the product</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span>Feature tags (AI Assistant, CSA Tracking, Alerts) are clear</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-red-600 mb-3 flex items-center gap-2">
+                                <span>❌</span> What Needs Work
+                            </h4>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-start gap-2">
+                                    <span class="text-red-500 mt-1">•</span>
+                                    <span>Only showing DQF - add more feature cards (Alerts, CSA, etc.)</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-red-500 mt-1">•</span>
+                                    <span>Consider interactive product screenshots or video demo</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Problem Section -->
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="bg-gradient-to-r from-orange-600 to-orange-700 text-white p-4 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">4️⃣</span>
+                        <h3 class="font-bold text-lg">Problem Section ("The Problem")</h3>
+                    </div>
+                    <div class="bg-white/20 px-4 py-1 rounded-full">
+                        <span class="font-bold">9/10</span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-bold text-green-600 mb-3 flex items-center gap-2">
+                                <span>✅</span> What's Working - EXCELLENT!
+                            </h4>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span><strong>BRILLIANT spreadsheet mockup</strong> - Shows pain visually with "EXPIRED", "MISSING!", errors</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span>"12 ERRORS • AUDIT IN 3 DAYS!!" - Creates urgency</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span>4 pain points are specific and relatable to truckers</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span>Filename "driver_docs_COPY_FINAL(2)_backup.xlsx" - genius touch!</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-red-600 mb-3 flex items-center gap-2">
+                                <span>❌</span> What Needs Work
+                            </h4>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-start gap-2">
+                                    <span class="text-red-500 mt-1">•</span>
+                                    <span>Could add a "Before/After" comparison showing VroomX solution</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pricing Section -->
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="bg-gradient-to-r from-teal-600 to-teal-700 text-white p-4 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">5️⃣</span>
+                        <h3 class="font-bold text-lg">Pricing Section</h3>
+                    </div>
+                    <div class="bg-white/20 px-4 py-1 rounded-full">
+                        <span class="font-bold">8/10</span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-bold text-green-600 mb-3 flex items-center gap-2">
+                                <span>✅</span> What's Working
+                            </h4>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span>3-tier structure (Solo $19, Fleet $39, Pro $79) - clear progression</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span>Monthly/Annual toggle with "Save 20%"</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span>"Most Popular" badge on Fleet plan</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span>Per-driver pricing is transparent (+$6, +$5)</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-red-600 mb-3 flex items-center gap-2">
+                                <span>❌</span> What Needs Work
+                            </h4>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-start gap-2">
+                                    <span class="text-red-500 mt-1">•</span>
+                                    <span>Add "per month" label more prominently</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-red-500 mt-1">•</span>
+                                    <span>Consider money-back guarantee badge</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-red-500 mt-1">•</span>
+                                    <span>Add comparison to competitor pricing ($50+/mo)</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comparison Table -->
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white p-4 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">6️⃣</span>
+                        <h3 class="font-bold text-lg">Comparison Table</h3>
+                    </div>
+                    <div class="bg-white/20 px-4 py-1 rounded-full">
+                        <span class="font-bold">9/10</span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-bold text-green-600 mb-3 flex items-center gap-2">
+                                <span>✅</span> What's Working - GREAT!
+                            </h4>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span>VroomX vs Spreadsheets vs Other Software - smart positioning</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span>Checkmarks vs X marks - clear visual</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span>"Setup Time: 10 min" vs "Hours" vs "1-2 days" - powerful</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span>Footnote explaining spreadsheet hidden costs</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-red-600 mb-3 flex items-center gap-2">
+                                <span>❌</span> What Needs Work
+                            </h4>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-start gap-2">
+                                    <span class="text-red-500 mt-1">•</span>
+                                    <span>Name specific competitors (FleetDrive360, KeepTruckin) for SEO</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Testimonials -->
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="bg-gradient-to-r from-pink-600 to-pink-700 text-white p-4 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">7️⃣</span>
+                        <h3 class="font-bold text-lg">Testimonials</h3>
+                    </div>
+                    <div class="bg-white/20 px-4 py-1 rounded-full">
+                        <span class="font-bold">6/10</span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-bold text-green-600 mb-3 flex items-center gap-2">
+                                <span>✅</span> What's Working
+                            </h4>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span>Good variety: Safety Director, Owner Operator, Fleet Mgr</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span>Fleet sizes shown (3 trucks to 120 trucks)</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span>Specific results mentioned ("zero compliance violations")</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span>Carousel format shows multiple reviews</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-red-600 mb-3 flex items-center gap-2">
+                                <span>❌</span> CRITICAL Issues
+                            </h4>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-start gap-2">
+                                    <span class="text-red-500 mt-1">•</span>
+                                    <span><strong>NO PHOTOS</strong> - Testimonials without faces feel fake</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-red-500 mt-1">•</span>
+                                    <span><strong>NO COMPANY NAMES</strong> - "45 Trucks" but no company name?</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-red-500 mt-1">•</span>
+                                    <span><strong>NO VIDEO</strong> - Video testimonials convert 2x better</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-red-500 mt-1">•</span>
+                                    <span>Raw HTML showing in text (&lt;span class="text-primary..."&gt;)</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAQ Section -->
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="bg-gradient-to-r from-cyan-600 to-cyan-700 text-white p-4 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">8️⃣</span>
+                        <h3 class="font-bold text-lg">FAQ Section</h3>
+                    </div>
+                    <div class="bg-white/20 px-4 py-1 rounded-full">
+                        <span class="font-bold">8/10</span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-bold text-green-600 mb-3 flex items-center gap-2">
+                                <span>✅</span> What's Working
+                            </h4>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span>Covers key questions: trial, security, pricing, integrations</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span>ELD integration mention (KeepTruckin, Samsara, Omnitracs)</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span>"3-day free trial with no credit card" - reduces friction</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-red-600 mb-3 flex items-center gap-2">
+                                <span>❌</span> What Needs Work
+                            </h4>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-start gap-2">
+                                    <span class="text-red-500 mt-1">•</span>
+                                    <span>Add FAQ about Clearinghouse integration</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-red-500 mt-1">•</span>
+                                    <span>Add FAQ about DataQ process</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Blog Section -->
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="bg-gradient-to-r from-gray-600 to-gray-700 text-white p-4 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">9️⃣</span>
+                        <h3 class="font-bold text-lg">Blog Preview</h3>
+                    </div>
+                    <div class="bg-white/20 px-4 py-1 rounded-full">
+                        <span class="font-bold">5/10</span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-bold text-green-600 mb-3 flex items-center gap-2">
+                                <span>✅</span> What's Working
+                            </h4>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span>Good topic selection (FMCSA rules, DQF, Remote Audits)</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span>Category tags (Regulation, Tech, Safety)</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span>Dates shown for freshness</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-red-600 mb-3 flex items-center gap-2">
+                                <span>❌</span> CRITICAL Issues
+                            </h4>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-start gap-2">
+                                    <span class="text-red-500 mt-1">•</span>
+                                    <span><strong>NO IMAGES</strong> - Blog cards are text-only, looks incomplete</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-red-500 mt-1">•</span>
+                                    <span>Dates are in the future (Oct 2025, Sep 2025) - looks fake</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-red-500 mt-1">•</span>
+                                    <span>Do the blog posts actually exist? Or dead links?</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="bg-gradient-to-r from-slate-600 to-slate-700 text-white p-4 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">🔟</span>
+                        <h3 class="font-bold text-lg">Footer</h3>
+                    </div>
+                    <div class="bg-white/20 px-4 py-1 rounded-full">
+                        <span class="font-bold">7/10</span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-bold text-green-600 mb-3 flex items-center gap-2">
+                                <span>✅</span> What's Working
+                            </h4>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span>Clean 4-column layout (Product, Resources, Company)</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span>FMCSA Guide link - good SEO content idea</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-500 mt-1">•</span>
+                                    <span>"Made with ❤️ for truckers" - nice personal touch</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-red-600 mb-3 flex items-center gap-2">
+                                <span>❌</span> What Needs Work
+                            </h4>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-start gap-2">
+                                    <span class="text-red-500 mt-1">•</span>
+                                    <span>Missing social media links (LinkedIn, Facebook, X)</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-red-500 mt-1">•</span>
+                                    <span>Missing phone number for support</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-red-500 mt-1">•</span>
+                                    <span>API link - is this real? Could confuse users</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CRITICAL BUGS -->
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+            <span class="text-3xl">🐛</span> Critical Bugs Found
+        </h2>
+
+        <div class="bg-red-50 border-2 border-red-200 rounded-2xl p-6 mb-12">
+            <div class="space-y-4">
+                <div class="flex items-start gap-4 p-4 bg-white rounded-xl">
+                    <span class="text-2xl">1.</span>
+                    <div>
+                        <p class="font-bold text-red-700">Raw HTML in Testimonials</p>
+                        <p class="text-sm text-gray-600">The testimonial shows: <code class="bg-gray-100 px-2 py-1 rounded">&lt;span class="text-primary-500 font-bold"&gt;zero compliance violations&lt;/span&gt;</code></p>
+                        <p class="text-sm text-red-600 mt-1">FIX: Check your testimonial component for proper HTML rendering</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4 p-4 bg-white rounded-xl">
+                    <span class="text-2xl">2.</span>
+                    <div>
+                        <p class="font-bold text-red-700">Future Dates on Blog Posts</p>
+                        <p class="text-sm text-gray-600">Blog shows Oct 12, 2025 and Sep 28, 2025 - it's currently January 2026</p>
+                        <p class="text-sm text-red-600 mt-1">FIX: Update dates to realistic past dates or current dates</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4 p-4 bg-white rounded-xl">
+                    <span class="text-2xl">3.</span>
+                    <div>
+                        <p class="font-bold text-red-700">Logo Display Issue</p>
+                        <p class="text-sm text-gray-600">In footer, "VroomX" and "Safety" appear separated with space between them</p>
+                        <p class="text-sm text-red-600 mt-1">FIX: Check footer logo component styling</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TOP PRIORITIES -->
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+            <span class="text-3xl">🎯</span> Top 10 Priorities to Improve
+        </h2>
+
+        <div class="bg-white rounded-2xl shadow-xl p-6 mb-12">
+            <div class="space-y-4">
+                <div class="flex items-center gap-4 p-4 bg-red-50 rounded-xl border-l-4 border-red-500">
+                    <span class="text-2xl font-bold text-red-600">1</span>
+                    <div class="flex-1">
+                        <p class="font-bold text-gray-800">Fix the raw HTML bug in testimonials</p>
+                        <p class="text-sm text-gray-500">This looks unprofessional and breaks trust</p>
+                    </div>
+                    <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm">Critical</span>
+                </div>
+
+                <div class="flex items-center gap-4 p-4 bg-red-50 rounded-xl border-l-4 border-red-500">
+                    <span class="text-2xl font-bold text-red-600">2</span>
+                    <div class="flex-1">
+                        <p class="font-bold text-gray-800">Add real photos to testimonials</p>
+                        <p class="text-sm text-gray-500">Get headshots from beta users or use professional stock with permission</p>
+                    </div>
+                    <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm">Critical</span>
+                </div>
+
+                <div class="flex items-center gap-4 p-4 bg-red-50 rounded-xl border-l-4 border-red-500">
+                    <span class="text-2xl font-bold text-red-600">3</span>
+                    <div class="flex-1">
+                        <p class="font-bold text-gray-800">Add images to blog cards</p>
+                        <p class="text-sm text-gray-500">Even simple trucking/compliance themed images will help</p>
+                    </div>
+                    <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm">Critical</span>
+                </div>
+
+                <div class="flex items-center gap-4 p-4 bg-orange-50 rounded-xl border-l-4 border-orange-500">
+                    <span class="text-2xl font-bold text-orange-600">4</span>
+                    <div class="flex-1">
+                        <p class="font-bold text-gray-800">Fix blog post dates</p>
+                        <p class="text-sm text-gray-500">Change to January 2026 or earlier - future dates look fake</p>
+                    </div>
+                    <span class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-sm">High</span>
+                </div>
+
+                <div class="flex items-center gap-4 p-4 bg-orange-50 rounded-xl border-l-4 border-orange-500">
+                    <span class="text-2xl font-bold text-orange-600">5</span>
+                    <div class="flex-1">
+                        <p class="font-bold text-gray-800">Add company names to testimonials</p>
+                        <p class="text-sm text-gray-500">"ABC Trucking" instead of just "45 Trucks"</p>
+                    </div>
+                    <span class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-sm">High</span>
+                </div>
+
+                <div class="flex items-center gap-4 p-4 bg-orange-50 rounded-xl border-l-4 border-orange-500">
+                    <span class="text-2xl font-bold text-orange-600">6</span>
+                    <div class="flex-1">
+                        <p class="font-bold text-gray-800">Add money-back guarantee badge</p>
+                        <p class="text-sm text-gray-500">"30-Day Money Back Guarantee" near pricing section</p>
+                    </div>
+                    <span class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-sm">High</span>
+                </div>
+
+                <div class="flex items-center gap-4 p-4 bg-yellow-50 rounded-xl border-l-4 border-yellow-500">
+                    <span class="text-2xl font-bold text-yellow-600">7</span>
+                    <div class="flex-1">
+                        <p class="font-bold text-gray-800">Add social media links to footer</p>
+                        <p class="text-sm text-gray-500">LinkedIn, Facebook, X - even if just placeholder accounts</p>
+                    </div>
+                    <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm">Medium</span>
+                </div>
+
+                <div class="flex items-center gap-4 p-4 bg-yellow-50 rounded-xl border-l-4 border-yellow-500">
+                    <span class="text-2xl font-bold text-yellow-600">8</span>
+                    <div class="flex-1">
+                        <p class="font-bold text-gray-800">Add phone number for support</p>
+                        <p class="text-sm text-gray-500">Even a Google Voice number builds trust with truckers</p>
+                    </div>
+                    <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm">Medium</span>
+                </div>
+
+                <div class="flex items-center gap-4 p-4 bg-yellow-50 rounded-xl border-l-4 border-yellow-500">
+                    <span class="text-2xl font-bold text-yellow-600">9</span>
+                    <div class="flex-1">
+                        <p class="font-bold text-gray-800">Replace generic avatars in hero</p>
+                        <p class="text-sm text-gray-500">Use trucking-related imagery or remove the "500+ carriers" avatars</p>
+                    </div>
+                    <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm">Medium</span>
+                </div>
+
+                <div class="flex items-center gap-4 p-4 bg-blue-50 rounded-xl border-l-4 border-blue-500">
+                    <span class="text-2xl font-bold text-blue-600">10</span>
+                    <div class="flex-1">
+                        <p class="font-bold text-gray-800">Add video demo or product walkthrough</p>
+                        <p class="text-sm text-gray-500">Even a 60-second Loom video would help conversions</p>
+                    </div>
+                    <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">Nice-to-have</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- WHAT'S GREAT -->
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+            <span class="text-3xl">⭐</span> What's Already Great (Keep These!)
+        </h2>
+
+        <div class="bg-green-50 border-2 border-green-200 rounded-2xl p-6 mb-12">
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="flex items-start gap-3">
+                    <span class="text-green-600 text-xl">✓</span>
+                    <p class="text-gray-700">Professional color scheme (navy, orange, white)</p>
+                </div>
+                <div class="flex items-start gap-3">
+                    <span class="text-green-600 text-xl">✓</span>
+                    <p class="text-gray-700">CSA Score Analyzer as lead capture - genius!</p>
+                </div>
+                <div class="flex items-start gap-3">
+                    <span class="text-green-600 text-xl">✓</span>
+                    <p class="text-gray-700">Problem section with spreadsheet mockup</p>
+                </div>
+                <div class="flex items-start gap-3">
+                    <span class="text-green-600 text-xl">✓</span>
+                    <p class="text-gray-700">Comparison table vs spreadsheets</p>
+                </div>
+                <div class="flex items-start gap-3">
+                    <span class="text-green-600 text-xl">✓</span>
+                    <p class="text-gray-700">Clear 3-tier pricing structure</p>
+                </div>
+                <div class="flex items-start gap-3">
+                    <span class="text-green-600 text-xl">✓</span>
+                    <p class="text-gray-700">Trust badges (SSL, SOC2, FMCSA, US Support)</p>
+                </div>
+                <div class="flex items-start gap-3">
+                    <span class="text-green-600 text-xl">✓</span>
+                    <p class="text-gray-700">FAQ section covering key objections</p>
+                </div>
+                <div class="flex items-start gap-3">
+                    <span class="text-green-600 text-xl">✓</span>
+                    <p class="text-gray-700">ELD integration mentions</p>
+                </div>
+                <div class="flex items-start gap-3">
+                    <span class="text-green-600 text-xl">✓</span>
+                    <p class="text-gray-700">Mobile-responsive design</p>
+                </div>
+                <div class="flex items-start gap-3">
+                    <span class="text-green-600 text-xl">✓</span>
+                    <p class="text-gray-700">Fast loading, modern UI framework</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCORE BREAKDOWN -->
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+            <span class="text-3xl">📈</span> Score Breakdown
+        </h2>
+
+        <div class="bg-white rounded-2xl shadow-xl p-6 mb-12">
+            <div class="space-y-4">
+                <div class="flex items-center gap-4">
+                    <span class="w-32 text-sm text-gray-600">Visual Design</span>
+                    <div class="flex-1 bg-gray-200 rounded-full h-4 overflow-hidden">
+                        <div class="bg-green-500 h-full rounded-full" style="width: 85%"></div>
+                    </div>
+                    <span class="font-bold text-gray-700">8.5/10</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="w-32 text-sm text-gray-600">Copywriting</span>
+                    <div class="flex-1 bg-gray-200 rounded-full h-4 overflow-hidden">
+                        <div class="bg-green-500 h-full rounded-full" style="width: 80%"></div>
+                    </div>
+                    <span class="font-bold text-gray-700">8/10</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="w-32 text-sm text-gray-600">Trust Signals</span>
+                    <div class="flex-1 bg-gray-200 rounded-full h-4 overflow-hidden">
+                        <div class="bg-yellow-500 h-full rounded-full" style="width: 65%"></div>
+                    </div>
+                    <span class="font-bold text-gray-700">6.5/10</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="w-32 text-sm text-gray-600">Social Proof</span>
+                    <div class="flex-1 bg-gray-200 rounded-full h-4 overflow-hidden">
+                        <div class="bg-orange-500 h-full rounded-full" style="width: 55%"></div>
+                    </div>
+                    <span class="font-bold text-gray-700">5.5/10</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="w-32 text-sm text-gray-600">Call-to-Actions</span>
+                    <div class="flex-1 bg-gray-200 rounded-full h-4 overflow-hidden">
+                        <div class="bg-green-500 h-full rounded-full" style="width: 80%"></div>
+                    </div>
+                    <span class="font-bold text-gray-700">8/10</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="w-32 text-sm text-gray-600">Feature Clarity</span>
+                    <div class="flex-1 bg-gray-200 rounded-full h-4 overflow-hidden">
+                        <div class="bg-green-500 h-full rounded-full" style="width: 80%"></div>
+                    </div>
+                    <span class="font-bold text-gray-700">8/10</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="w-32 text-sm text-gray-600">Bug-Free</span>
+                    <div class="flex-1 bg-gray-200 rounded-full h-4 overflow-hidden">
+                        <div class="bg-orange-500 h-full rounded-full" style="width: 60%"></div>
+                    </div>
+                    <span class="font-bold text-gray-700">6/10</span>
+                </div>
+            </div>
+
+            <div class="mt-8 pt-6 border-t flex justify-between items-center">
+                <div>
+                    <p class="text-gray-600">Overall Score</p>
+                    <p class="text-4xl font-bold text-gray-800">7.5 <span class="text-lg font-normal text-gray-500">/ 10</span></p>
+                </div>
+                <div class="text-right">
+                    <p class="text-gray-600">Potential After Fixes</p>
+                    <p class="text-4xl font-bold text-green-600">9.0 <span class="text-lg font-normal text-gray-500">/ 10</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Wins -->
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+            <span class="text-3xl">⚡</span> Quick Wins (30 min or less each)
+        </h2>
+
+        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 mb-12">
+            <div class="grid md:grid-cols-2 gap-4">
+                <label class="flex items-center gap-3 p-4 bg-white rounded-xl cursor-pointer hover:shadow-md transition-shadow">
+                    <input type="checkbox" class="w-5 h-5 rounded">
+                    <span>Fix raw HTML in testimonials</span>
+                    <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full ml-auto">5 min</span>
+                </label>
+                <label class="flex items-center gap-3 p-4 bg-white rounded-xl cursor-pointer hover:shadow-md transition-shadow">
+                    <input type="checkbox" class="w-5 h-5 rounded">
+                    <span>Update blog dates to Jan 2026</span>
+                    <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full ml-auto">5 min</span>
+                </label>
+                <label class="flex items-center gap-3 p-4 bg-white rounded-xl cursor-pointer hover:shadow-md transition-shadow">
+                    <input type="checkbox" class="w-5 h-5 rounded">
+                    <span>Add company names to testimonials</span>
+                    <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full ml-auto">10 min</span>
+                </label>
+                <label class="flex items-center gap-3 p-4 bg-white rounded-xl cursor-pointer hover:shadow-md transition-shadow">
+                    <input type="checkbox" class="w-5 h-5 rounded">
+                    <span>Add social media links to footer</span>
+                    <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full ml-auto">10 min</span>
+                </label>
+                <label class="flex items-center gap-3 p-4 bg-white rounded-xl cursor-pointer hover:shadow-md transition-shadow">
+                    <input type="checkbox" class="w-5 h-5 rounded">
+                    <span>Add phone number to footer</span>
+                    <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full ml-auto">5 min</span>
+                </label>
+                <label class="flex items-center gap-3 p-4 bg-white rounded-xl cursor-pointer hover:shadow-md transition-shadow">
+                    <input type="checkbox" class="w-5 h-5 rounded">
+                    <span>Fix footer logo spacing</span>
+                    <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full ml-auto">5 min</span>
+                </label>
+                <label class="flex items-center gap-3 p-4 bg-white rounded-xl cursor-pointer hover:shadow-md transition-shadow">
+                    <input type="checkbox" class="w-5 h-5 rounded">
+                    <span>Add stock images to blog cards</span>
+                    <span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full ml-auto">20 min</span>
+                </label>
+                <label class="flex items-center gap-3 p-4 bg-white rounded-xl cursor-pointer hover:shadow-md transition-shadow">
+                    <input type="checkbox" class="w-5 h-5 rounded">
+                    <span>Add testimonial placeholder photos</span>
+                    <span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full ml-auto">15 min</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Final Verdict -->
+        <div class="bg-gradient-to-br from-green-600 to-emerald-700 rounded-2xl p-8 text-white">
+            <h2 class="text-2xl font-bold mb-4">🏆 Final Verdict</h2>
+            <p class="text-lg mb-6">
+                This is a <strong>solid 7.5/10 landing page</strong> that's above average for a bootstrapped SaaS.
+                The design is professional, the value proposition is clear, and the problem section is brilliant.
+            </p>
+            <p class="text-lg mb-6">
+                <strong>Main issues are credibility gaps:</strong> testimonials without photos, blog posts with fake dates,
+                and a raw HTML bug that screams "we didn't test this."
+            </p>
+            <p class="text-lg">
+                Fix the 3 critical bugs and add real testimonial photos, and you're at <strong>9/10</strong> -
+                ready to compete with FleetDrive360 and the big players.
+            </p>
+            <div class="mt-6 pt-6 border-t border-white/20">
+                <p class="text-green-200 text-sm">Bottom line: You're 2-3 hours of work away from a professional, conversion-ready landing page.</p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center py-8 mt-8 border-t">
+            <p class="text-gray-500">VroomX Landing Page Analysis Report</p>
+            <p class="text-gray-400 text-sm">Generated January 2026</p>
+        </div>
+
+    </div>
+
+</body>
+</html>

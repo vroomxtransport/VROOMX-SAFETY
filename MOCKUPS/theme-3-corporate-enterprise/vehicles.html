@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicles - VroomX Safety Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary-blue: #1E40AF;
+            --royal-blue: #2563EB;
+            --light-blue: #3B82F6;
+            --slate-50: #F8FAFC;
+            --slate-100: #F1F5F9;
+            --slate-200: #E2E8F0;
+            --slate-300: #CBD5E1;
+            --slate-400: #94A3B8;
+            --slate-500: #64748B;
+            --slate-600: #475569;
+            --slate-700: #334155;
+            --slate-800: #1E293B;
+            --slate-900: #0F172A;
+            --success: #059669;
+            --warning: #D97706;
+            --danger: #DC2626;
+            --sidebar-width: 260px;
+            --header-height: 64px;
+            --radius: 6px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06);
+        }
+        body { font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--slate-100); color: var(--slate-800); min-height: 100vh; }
+        .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar-width); background: var(--slate-50); border-right: 1px solid var(--slate-200); display: flex; flex-direction: column; z-index: 100; }
+        .sidebar-header { padding: 20px 24px; border-bottom: 1px solid var(--slate-200); }
+        .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .logo-icon { width: 40px; height: 40px; background: var(--primary-blue); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; }
+        .logo-icon svg { width: 24px; height: 24px; fill: white; }
+        .logo-text { font-size: 22px; font-weight: 700; color: var(--slate-800); }
+        .logo-text span { color: var(--primary-blue); }
+        .sidebar-nav { flex: 1; padding: 16px 0; overflow-y: auto; }
+        .nav-section { margin-bottom: 8px; }
+        .nav-section-title { padding: 8px 24px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--slate-400); }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 24px; color: var(--slate-600); text-decoration: none; font-size: 14px; font-weight: 500; transition: all 0.15s ease; border-left: 3px solid transparent; margin: 2px 0; }
+        .nav-item:hover { background: var(--slate-100); color: var(--slate-800); }
+        .nav-item.active { background: linear-gradient(to right, rgba(30, 64, 175, 0.08), transparent); color: var(--primary-blue); border-left-color: var(--primary-blue); font-weight: 600; }
+        .nav-item svg { width: 20px; height: 20px; flex-shrink: 0; }
+        .nav-badge { margin-left: auto; background: var(--danger); color: white; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; }
+        .sidebar-footer { padding: 16px 24px; border-top: 1px solid var(--slate-200); }
+        .user-info { display: flex; align-items: center; gap: 12px; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--primary-blue); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 16px; }
+        .user-details { flex: 1; }
+        .user-name { font-weight: 600; color: var(--slate-800); font-size: 14px; }
+        .user-role { font-size: 12px; color: var(--slate-500); }
+        .main-content { margin-left: var(--sidebar-width); min-height: 100vh; }
+        .header { height: var(--header-height); background: white; border-bottom: 1px solid var(--slate-200); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; position: sticky; top: 0; z-index: 50; }
+        .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+        .breadcrumb-item { color: var(--slate-500); text-decoration: none; }
+        .breadcrumb-item:hover { color: var(--primary-blue); }
+        .breadcrumb-separator { color: var(--slate-300); }
+        .breadcrumb-current { color: var(--slate-800); font-weight: 600; }
+        .header-actions { display: flex; align-items: center; gap: 16px; }
+        .header-btn { width: 40px; height: 40px; border-radius: var(--radius); border: 1px solid var(--slate-200); background: white; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s ease; position: relative; }
+        .header-btn:hover { background: var(--slate-50); border-color: var(--slate-300); }
+        .header-btn svg { width: 20px; height: 20px; color: var(--slate-600); }
+        .notification-dot { position: absolute; top: 8px; right: 8px; width: 8px; height: 8px; background: var(--danger); border-radius: 50%; border: 2px solid white; }
+        .search-box { display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius); width: 280px; }
+        .search-box input { border: none; background: transparent; outline: none; font-family: inherit; font-size: 14px; width: 100%; color: var(--slate-800); }
+        .search-box input::placeholder { color: var(--slate-400); }
+        .search-box svg { width: 18px; height: 18px; color: var(--slate-400); }
+        .page-content { padding: 32px; }
+        .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+        .page-title { font-size: 28px; font-weight: 700; color: var(--slate-900); margin-bottom: 8px; }
+        .page-subtitle { font-size: 15px; color: var(--slate-500); }
+        .page-actions { display: flex; gap: 12px; }
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: var(--radius); font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer; transition: all 0.15s ease; border: none; }
+        .btn-primary { background: var(--primary-blue); color: white; }
+        .btn-primary:hover { background: var(--royal-blue); }
+        .btn-secondary { background: white; color: var(--slate-700); border: 1px solid var(--slate-300); }
+        .btn-secondary:hover { background: var(--slate-50); border-color: var(--slate-400); }
+        .btn svg { width: 18px; height: 18px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 24px; }
+        .stat-card { background: white; border-radius: var(--radius); padding: 20px 24px; box-shadow: var(--shadow); border: 1px solid var(--slate-200); }
+        .stat-label { font-size: 13px; font-weight: 500; color: var(--slate-500); margin-bottom: 8px; }
+        .stat-value { font-size: 28px; font-weight: 700; color: var(--slate-900); }
+        .stat-value.success { color: var(--success); }
+        .stat-value.warning { color: var(--warning); }
+        .stat-value.danger { color: var(--danger); }
+        .toolbar { background: white; border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); }
+        .toolbar-left { display: flex; align-items: center; gap: 16px; }
+        .toolbar-right { display: flex; align-items: center; gap: 12px; }
+        .filter-group { display: flex; align-items: center; gap: 8px; }
+        .filter-label { font-size: 13px; color: var(--slate-500); font-weight: 500; }
+        .filter-select { padding: 8px 12px; border: 1px solid var(--slate-200); border-radius: var(--radius); font-size: 14px; font-family: inherit; color: var(--slate-700); background: white; cursor: pointer; min-width: 140px; }
+        .filter-select:hover { border-color: var(--slate-300); }
+        .search-input { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius); width: 240px; }
+        .search-input input { border: none; background: transparent; outline: none; font-family: inherit; font-size: 14px; width: 100%; color: var(--slate-800); }
+        .search-input input::placeholder { color: var(--slate-400); }
+        .search-input svg { width: 16px; height: 16px; color: var(--slate-400); }
+        .table-card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--slate-200); overflow: hidden; }
+        .table-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--slate-100); }
+        .table-title { font-size: 16px; font-weight: 600; color: var(--slate-800); }
+        .table-info { font-size: 13px; color: var(--slate-500); }
+        table { width: 100%; border-collapse: collapse; }
+        thead { background: var(--slate-50); }
+        th { padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--slate-500); border-bottom: 1px solid var(--slate-200); white-space: nowrap; }
+        td { padding: 16px; border-bottom: 1px solid var(--slate-100); font-size: 14px; color: var(--slate-700); }
+        tr:hover { background: var(--slate-50); }
+        .vehicle-cell { display: flex; align-items: center; gap: 12px; }
+        .vehicle-icon { width: 44px; height: 44px; border-radius: var(--radius); background: var(--slate-100); display: flex; align-items: center; justify-content: center; }
+        .vehicle-icon svg { width: 24px; height: 24px; color: var(--slate-500); }
+        .vehicle-info { display: flex; flex-direction: column; }
+        .vehicle-name { font-weight: 600; color: var(--slate-800); text-decoration: none; }
+        .vehicle-name:hover { color: var(--primary-blue); }
+        .vehicle-id { font-size: 12px; color: var(--slate-500); }
+        .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .status-badge.active { background: rgba(5, 150, 105, 0.1); color: var(--success); }
+        .status-badge.maintenance { background: rgba(217, 119, 6, 0.1); color: var(--warning); }
+        .status-badge.out-of-service { background: rgba(220, 38, 38, 0.1); color: var(--danger); }
+        .status-badge .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+        .inspection-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+        .inspection-badge.valid { background: rgba(5, 150, 105, 0.1); color: var(--success); }
+        .inspection-badge.expiring { background: rgba(217, 119, 6, 0.1); color: var(--warning); }
+        .inspection-badge.expired { background: rgba(220, 38, 38, 0.1); color: var(--danger); }
+        .action-btn { width: 32px; height: 32px; border-radius: 4px; border: none; background: transparent; color: var(--slate-400); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all 0.15s ease; }
+        .action-btn:hover { background: var(--slate-100); color: var(--slate-600); }
+        .action-btn svg { width: 18px; height: 18px; }
+        .table-footer { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-top: 1px solid var(--slate-100); }
+        .pagination-info { font-size: 14px; color: var(--slate-500); }
+        .pagination { display: flex; align-items: center; gap: 4px; }
+        .page-btn { min-width: 36px; height: 36px; border: 1px solid var(--slate-200); border-radius: 4px; background: white; color: var(--slate-600); font-size: 14px; font-family: inherit; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all 0.15s ease; }
+        .page-btn:hover { background: var(--slate-50); border-color: var(--slate-300); }
+        .page-btn.active { background: var(--primary-blue); border-color: var(--primary-blue); color: white; }
+        .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .page-btn svg { width: 16px; height: 16px; }
+
+        /* Modal Styles */
+        .modal-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; z-index: 200; }
+        .modal { background: white; border-radius: var(--radius); width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--slate-200); }
+        .modal-title { font-size: 18px; font-weight: 600; color: var(--slate-900); }
+        .modal-close { width: 32px; height: 32px; border-radius: 4px; border: none; background: transparent; color: var(--slate-400); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .modal-close:hover { background: var(--slate-100); color: var(--slate-600); }
+        .modal-close svg { width: 20px; height: 20px; }
+        .modal-body { padding: 24px; }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; font-size: 14px; font-weight: 600; color: var(--slate-700); margin-bottom: 6px; }
+        .form-input { width: 100%; padding: 10px 14px; border: 1px solid var(--slate-300); border-radius: var(--radius); font-size: 14px; font-family: inherit; color: var(--slate-800); transition: border-color 0.15s ease; }
+        .form-input:focus { outline: none; border-color: var(--primary-blue); box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 12px; padding: 16px 24px; border-top: 1px solid var(--slate-200); background: var(--slate-50); }
+    </style>
+</head>
+<body x-data="{ showAddModal: false }">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <a href="dashboard.html" class="logo">
+                <div class="logo-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg></div>
+                <span class="logo-text">Vroom<span>X</span></span>
+            </a>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-section-title">Overview</div>
+                <a href="dashboard.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>Dashboard</a>
+                <a href="compliance.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>Compliance</a>
+                <a href="alerts.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>Alerts<span class="nav-badge">5</span></a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Fleet Management</div>
+                <a href="drivers.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>Drivers</a>
+                <a href="vehicles.html" class="nav-item active"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>Vehicles</a>
+                <a href="documents.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Documents</a>
+                <a href="maintenance.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Maintenance</a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Safety & Incidents</div>
+                <a href="violations.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>Violations</a>
+                <a href="tickets.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>Tickets</a>
+                <a href="accidents.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3m8.293 8.293l1.414 1.414"/></svg>Accidents</a>
+                <a href="drug-alcohol.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>Drug & Alcohol</a>
+                <a href="damage-claims.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>Damage Claims</a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Operations</div>
+                <a href="tasks.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>Tasks</a>
+                <a href="checklists.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Checklists</a>
+                <a href="reports.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Reports</a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">System</div>
+                <a href="ai-assistant.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>AI Assistant</a>
+                <a href="settings.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Settings</a>
+            </div>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">JD</div>
+                <div class="user-details">
+                    <div class="user-name">John Doe</div>
+                    <div class="user-role">Fleet Manager</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <div class="breadcrumb">
+                <a href="dashboard.html" class="breadcrumb-item">Home</a>
+                <span class="breadcrumb-separator">/</span>
+                <span class="breadcrumb-current">Vehicles</span>
+            </div>
+            <div class="header-actions">
+                <div class="search-box">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    <input type="text" placeholder="Search vehicles...">
+                </div>
+                <button class="header-btn">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                    <span class="notification-dot"></span>
+                </button>
+                <button class="header-btn">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </button>
+            </div>
+        </header>
+
+        <div class="page-content">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Vehicles</h1>
+                    <p class="page-subtitle">Manage your fleet vehicles and equipment</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-secondary">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                        Import
+                    </button>
+                    <button class="btn btn-primary" @click="showAddModal = true">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        Add Vehicle
+                    </button>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Vehicles</div>
+                    <div class="stat-value">32</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Active</div>
+                    <div class="stat-value success">28</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">In Maintenance</div>
+                    <div class="stat-value warning">3</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Out of Service</div>
+                    <div class="stat-value danger">1</div>
+                </div>
+            </div>
+
+            <div class="toolbar">
+                <div class="toolbar-left">
+                    <div class="filter-group">
+                        <span class="filter-label">Status:</span>
+                        <select class="filter-select">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="maintenance">In Maintenance</option>
+                            <option value="out-of-service">Out of Service</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <span class="filter-label">Type:</span>
+                        <select class="filter-select">
+                            <option value="">All Types</option>
+                            <option value="tractor">Tractor</option>
+                            <option value="trailer">Trailer</option>
+                            <option value="straight-truck">Straight Truck</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="toolbar-right">
+                    <div class="search-input">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        <input type="text" placeholder="Search by unit number...">
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-card">
+                <div class="table-header">
+                    <div>
+                        <span class="table-title">Fleet Vehicles</span>
+                        <span class="table-info"> - 32 total</span>
+                    </div>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Vehicle</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Assigned Driver</th>
+                            <th>Annual Inspection</th>
+                            <th>Registration Exp.</th>
+                            <th>Mileage</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="vehicle-cell">
+                                    <div class="vehicle-icon">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                                    </div>
+                                    <div class="vehicle-info">
+                                        <a href="vehicle-detail.html" class="vehicle-name">Unit 1001</a>
+                                        <span class="vehicle-id">VIN: 1FUJGHDV5DLBV1234</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>Tractor</td>
+                            <td><span class="status-badge active"><span class="status-dot"></span>Active</span></td>
+                            <td>Michael Johnson</td>
+                            <td><span class="inspection-badge valid">Nov 15, 2026</span></td>
+                            <td>Mar 2026</td>
+                            <td>456,782</td>
+                            <td>
+                                <button class="action-btn" title="View"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+                                <button class="action-btn" title="Edit"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="vehicle-cell">
+                                    <div class="vehicle-icon">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                                    </div>
+                                    <div class="vehicle-info">
+                                        <a href="vehicle-detail.html" class="vehicle-name">Unit 1002</a>
+                                        <span class="vehicle-id">VIN: 1FUJGHDV5DLBV5678</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>Tractor</td>
+                            <td><span class="status-badge active"><span class="status-dot"></span>Active</span></td>
+                            <td>Sarah Williams</td>
+                            <td><span class="inspection-badge valid">Oct 22, 2026</span></td>
+                            <td>Jun 2026</td>
+                            <td>389,541</td>
+                            <td>
+                                <button class="action-btn" title="View"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+                                <button class="action-btn" title="Edit"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="vehicle-cell">
+                                    <div class="vehicle-icon">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                                    </div>
+                                    <div class="vehicle-info">
+                                        <a href="vehicle-detail.html" class="vehicle-name">Unit 1003</a>
+                                        <span class="vehicle-id">VIN: 1FUJGHDV5DLBV9012</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>Tractor</td>
+                            <td><span class="status-badge maintenance"><span class="status-dot"></span>Maintenance</span></td>
+                            <td>Robert Brown</td>
+                            <td><span class="inspection-badge expiring">Feb 10, 2026</span></td>
+                            <td>Apr 2026</td>
+                            <td>512,103</td>
+                            <td>
+                                <button class="action-btn" title="View"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+                                <button class="action-btn" title="Edit"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="vehicle-cell">
+                                    <div class="vehicle-icon">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                                    </div>
+                                    <div class="vehicle-info">
+                                        <a href="vehicle-detail.html" class="vehicle-name">Unit 1004</a>
+                                        <span class="vehicle-id">VIN: 1FUJGHDV5DLBV3456</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>Tractor</td>
+                            <td><span class="status-badge out-of-service"><span class="status-dot"></span>Out of Service</span></td>
+                            <td>Unassigned</td>
+                            <td><span class="inspection-badge expired">Dec 5, 2025</span></td>
+                            <td>Jan 2026</td>
+                            <td>678,234</td>
+                            <td>
+                                <button class="action-btn" title="View"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+                                <button class="action-btn" title="Edit"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="vehicle-cell">
+                                    <div class="vehicle-icon">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                                    </div>
+                                    <div class="vehicle-info">
+                                        <a href="vehicle-detail.html" class="vehicle-name">Trailer T-201</a>
+                                        <span class="vehicle-id">VIN: 3AKJHHDR9KSLA7890</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>Trailer</td>
+                            <td><span class="status-badge active"><span class="status-dot"></span>Active</span></td>
+                            <td>-</td>
+                            <td><span class="inspection-badge valid">Aug 30, 2026</span></td>
+                            <td>Jul 2026</td>
+                            <td>-</td>
+                            <td>
+                                <button class="action-btn" title="View"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+                                <button class="action-btn" title="Edit"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="vehicle-cell">
+                                    <div class="vehicle-icon">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                                    </div>
+                                    <div class="vehicle-info">
+                                        <a href="vehicle-detail.html" class="vehicle-name">Unit 1005</a>
+                                        <span class="vehicle-id">VIN: 1FUJGHDV5DLBV7891</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>Straight Truck</td>
+                            <td><span class="status-badge active"><span class="status-dot"></span>Active</span></td>
+                            <td>James Wilson</td>
+                            <td><span class="inspection-badge valid">Sep 18, 2026</span></td>
+                            <td>May 2026</td>
+                            <td>234,567</td>
+                            <td>
+                                <button class="action-btn" title="View"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+                                <button class="action-btn" title="Edit"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="vehicle-cell">
+                                    <div class="vehicle-icon">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                                    </div>
+                                    <div class="vehicle-info">
+                                        <a href="vehicle-detail.html" class="vehicle-name">Trailer T-202</a>
+                                        <span class="vehicle-id">VIN: 3AKJHHDR9KSLA1234</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>Trailer</td>
+                            <td><span class="status-badge maintenance"><span class="status-dot"></span>Maintenance</span></td>
+                            <td>-</td>
+                            <td><span class="inspection-badge valid">Jul 12, 2026</span></td>
+                            <td>Aug 2026</td>
+                            <td>-</td>
+                            <td>
+                                <button class="action-btn" title="View"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+                                <button class="action-btn" title="Edit"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="vehicle-cell">
+                                    <div class="vehicle-icon">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                                    </div>
+                                    <div class="vehicle-info">
+                                        <a href="vehicle-detail.html" class="vehicle-name">Unit 1006</a>
+                                        <span class="vehicle-id">VIN: 1FUJGHDV5DLBV2468</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>Tractor</td>
+                            <td><span class="status-badge active"><span class="status-dot"></span>Active</span></td>
+                            <td>Jennifer Martinez</td>
+                            <td><span class="inspection-badge valid">Dec 1, 2026</span></td>
+                            <td>Feb 2026</td>
+                            <td>345,891</td>
+                            <td>
+                                <button class="action-btn" title="View"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+                                <button class="action-btn" title="Edit"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="table-footer">
+                    <div class="pagination-info">Showing 1-8 of 32 vehicles</div>
+                    <div class="pagination">
+                        <button class="page-btn" disabled><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
+                        <button class="page-btn active">1</button>
+                        <button class="page-btn">2</button>
+                        <button class="page-btn">3</button>
+                        <button class="page-btn">4</button>
+                        <button class="page-btn"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Vehicle Modal -->
+    <div class="modal-backdrop" x-show="showAddModal" x-cloak @click.self="showAddModal = false" style="display: none;">
+        <div class="modal" @click.stop>
+            <div class="modal-header">
+                <h2 class="modal-title">Add New Vehicle</h2>
+                <button class="modal-close" @click="showAddModal = false">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Unit Number *</label>
+                        <input type="text" class="form-input" placeholder="e.g., Unit 1007">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Vehicle Type *</label>
+                        <select class="form-input">
+                            <option value="">Select type</option>
+                            <option value="tractor">Tractor</option>
+                            <option value="trailer">Trailer</option>
+                            <option value="straight-truck">Straight Truck</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">VIN *</label>
+                    <input type="text" class="form-input" placeholder="17-character VIN">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Year</label>
+                        <input type="text" class="form-input" placeholder="e.g., 2024">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Make</label>
+                        <input type="text" class="form-input" placeholder="e.g., Freightliner">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Model</label>
+                        <input type="text" class="form-input" placeholder="e.g., Cascadia">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">License Plate</label>
+                        <input type="text" class="form-input" placeholder="Plate number">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Annual Inspection Date</label>
+                        <input type="date" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Registration Expiry</label>
+                        <input type="date" class="form-input">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Assigned Driver</label>
+                    <select class="form-input">
+                        <option value="">Unassigned</option>
+                        <option value="1">Michael Johnson</option>
+                        <option value="2">Sarah Williams</option>
+                        <option value="3">Robert Brown</option>
+                        <option value="4">James Wilson</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" @click="showAddModal = false">Cancel</button>
+                <button class="btn btn-primary">Add Vehicle</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const MOCK_DATA = {
+            totalVehicles: 32,
+            activeVehicles: 28,
+            inMaintenance: 3,
+            outOfService: 1
+        };
+        console.log('Vehicles page loaded:', MOCK_DATA);
+    </script>
+</body>
+</html>

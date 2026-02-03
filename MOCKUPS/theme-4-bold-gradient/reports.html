@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - VroomX Safety Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --indigo: #4F46E5;
+            --violet: #7C3AED;
+            --pink: #EC4899;
+            --pink-light: #F472B6;
+            --gradient-primary: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+            --gradient-secondary: linear-gradient(135deg, #7C3AED 0%, #EC4899 100%);
+            --gradient-accent: linear-gradient(135deg, #EC4899 0%, #F472B6 100%);
+            --bg-primary: #F8FAFC;
+            --bg-card: #FFFFFF;
+            --text-primary: #1E293B;
+            --text-secondary: #64748B;
+            --text-muted: #94A3B8;
+            --border: #E2E8F0;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --radius: 16px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border);
+            padding: 24px 16px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 200px;
+            background: linear-gradient(180deg, rgba(79, 70, 229, 0.05) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 12px 24px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+            background: var(--gradient-primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+        }
+
+        .logo-text {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 24px;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-section {
+            margin-bottom: 24px;
+        }
+
+        .nav-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            padding: 0 12px;
+            margin-bottom: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 50px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            margin-bottom: 4px;
+        }
+
+        .nav-item:hover {
+            background: rgba(79, 70, 229, 0.08);
+            color: var(--indigo);
+        }
+
+        .nav-item.active {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+        }
+
+        .nav-item i {
+            width: 20px;
+            height: 20px;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            background: var(--gradient-accent);
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 50px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 32px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+        }
+
+        .header-left h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .header-left p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.5);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--indigo);
+            color: var(--indigo);
+        }
+
+        /* Report Cards Grid */
+        .reports-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .report-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 24px;
+            border: 1px solid var(--border);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .report-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .report-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .report-card:hover::before {
+            opacity: 1;
+        }
+
+        .report-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .report-icon.indigo { background: var(--gradient-primary); }
+        .report-icon.violet { background: var(--gradient-secondary); }
+        .report-icon.pink { background: var(--gradient-accent); }
+        .report-icon.success { background: linear-gradient(135deg, #10B981 0%, #34D399 100%); }
+        .report-icon.warning { background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%); }
+
+        .report-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .report-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .report-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .report-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 500;
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+        }
+
+        .report-action {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--indigo);
+        }
+
+        /* Recent Reports Section */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        /* Table */
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 16px 24px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 20px 24px;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:hover {
+            background: rgba(79, 70, 229, 0.02);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Actions */
+        .action-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .action-btn:hover {
+            border-color: var(--indigo);
+            color: var(--indigo);
+            transform: scale(1.05);
+        }
+
+        .actions-cell {
+            display: flex;
+            gap: 8px;
+        }
+
+        @media (max-width: 1400px) {
+            .reports-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .reports-grid {
+                grid-template-columns: 1fr;
+            }
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i data-lucide="truck"></i>
+                </div>
+                <span class="logo-text">VroomX</span>
+            </div>
+
+            <nav class="nav-section">
+                <div class="nav-label">Main</div>
+                <a href="dashboard.html" class="nav-item">
+                    <i data-lucide="layout-dashboard"></i>
+                    Dashboard
+                </a>
+                <a href="drivers.html" class="nav-item">
+                    <i data-lucide="users"></i>
+                    Drivers
+                    <span class="nav-badge">24</span>
+                </a>
+                <a href="vehicles.html" class="nav-item">
+                    <i data-lucide="truck"></i>
+                    Vehicles
+                </a>
+                <a href="compliance.html" class="nav-item">
+                    <i data-lucide="shield-check"></i>
+                    Compliance
+                </a>
+            </nav>
+
+            <nav class="nav-section">
+                <div class="nav-label">Management</div>
+                <a href="documents.html" class="nav-item">
+                    <i data-lucide="file-text"></i>
+                    Documents
+                </a>
+                <a href="maintenance.html" class="nav-item">
+                    <i data-lucide="wrench"></i>
+                    Maintenance
+                </a>
+                <a href="violations.html" class="nav-item">
+                    <i data-lucide="alert-triangle"></i>
+                    Violations
+                    <span class="nav-badge">3</span>
+                </a>
+                <a href="tickets.html" class="nav-item">
+                    <i data-lucide="ticket"></i>
+                    Tickets
+                </a>
+                <a href="accidents.html" class="nav-item">
+                    <i data-lucide="car"></i>
+                    Accidents
+                </a>
+            </nav>
+
+            <nav class="nav-section">
+                <div class="nav-label">Safety</div>
+                <a href="drug-alcohol.html" class="nav-item">
+                    <i data-lucide="flask-conical"></i>
+                    Drug & Alcohol
+                </a>
+                <a href="damage-claims.html" class="nav-item">
+                    <i data-lucide="file-warning"></i>
+                    Damage Claims
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <i data-lucide="check-square"></i>
+                    Tasks
+                </a>
+                <a href="checklists.html" class="nav-item">
+                    <i data-lucide="clipboard-list"></i>
+                    Checklists
+                </a>
+            </nav>
+
+            <nav class="nav-section">
+                <div class="nav-label">Tools</div>
+                <a href="reports.html" class="nav-item active">
+                    <i data-lucide="bar-chart-3"></i>
+                    Reports
+                </a>
+                <a href="alerts.html" class="nav-item">
+                    <i data-lucide="bell"></i>
+                    Alerts
+                    <span class="nav-badge">5</span>
+                </a>
+                <a href="ai-assistant.html" class="nav-item">
+                    <i data-lucide="sparkles"></i>
+                    AI Assistant
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <i data-lucide="settings"></i>
+                    Settings
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <h1>Reports</h1>
+                    <p>Generate and download compliance and operational reports</p>
+                </div>
+                <div class="header-right">
+                    <button class="btn btn-secondary">
+                        <i data-lucide="calendar" style="width: 18px; height: 18px;"></i>
+                        Schedule Report
+                    </button>
+                    <button class="btn btn-primary">
+                        <i data-lucide="plus" style="width: 18px; height: 18px;"></i>
+                        Custom Report
+                    </button>
+                </div>
+            </header>
+
+            <!-- Report Cards Grid -->
+            <div class="reports-grid">
+                <div class="report-card">
+                    <div class="report-icon indigo">
+                        <i data-lucide="shield-check" style="width: 28px; height: 28px;"></i>
+                    </div>
+                    <h3 class="report-title">Compliance Summary</h3>
+                    <p class="report-description">Overall compliance status for drivers, vehicles, and documents with expiration tracking.</p>
+                    <div class="report-meta">
+                        <span class="report-tag">Updated Daily</span>
+                        <span class="report-action">
+                            Generate
+                            <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="report-card">
+                    <div class="report-icon violet">
+                        <i data-lucide="users" style="width: 28px; height: 28px;"></i>
+                    </div>
+                    <h3 class="report-title">Driver Qualification</h3>
+                    <p class="report-description">Complete DQF status for all drivers including CDL, medical cards, MVR, and training records.</p>
+                    <div class="report-meta">
+                        <span class="report-tag">DOT Ready</span>
+                        <span class="report-action">
+                            Generate
+                            <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="report-card">
+                    <div class="report-icon pink">
+                        <i data-lucide="truck" style="width: 28px; height: 28px;"></i>
+                    </div>
+                    <h3 class="report-title">Vehicle Inspection</h3>
+                    <p class="report-description">Fleet inspection history, upcoming inspections, and maintenance schedules.</p>
+                    <div class="report-meta">
+                        <span class="report-tag">By Vehicle</span>
+                        <span class="report-action">
+                            Generate
+                            <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="report-card">
+                    <div class="report-icon warning">
+                        <i data-lucide="alert-triangle" style="width: 28px; height: 28px;"></i>
+                    </div>
+                    <h3 class="report-title">Violation Report</h3>
+                    <p class="report-description">All violations by driver, category, and severity with trend analysis.</p>
+                    <div class="report-meta">
+                        <span class="report-tag">CSA Impact</span>
+                        <span class="report-action">
+                            Generate
+                            <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="report-card">
+                    <div class="report-icon success">
+                        <i data-lucide="flask-conical" style="width: 28px; height: 28px;"></i>
+                    </div>
+                    <h3 class="report-title">D&A Program Report</h3>
+                    <p class="report-description">Drug and alcohol testing history, random pool compliance, and MIS data.</p>
+                    <div class="report-meta">
+                        <span class="report-tag">Annual MIS</span>
+                        <span class="report-action">
+                            Generate
+                            <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="report-card">
+                    <div class="report-icon indigo">
+                        <i data-lucide="bar-chart-3" style="width: 28px; height: 28px;"></i>
+                    </div>
+                    <h3 class="report-title">SMS BASIC Scores</h3>
+                    <p class="report-description">FMCSA Safety Measurement System scores with historical trends and peer comparison.</p>
+                    <div class="report-meta">
+                        <span class="report-tag">Monthly Update</span>
+                        <span class="report-action">
+                            Generate
+                            <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Reports -->
+            <div class="section-header">
+                <h2 class="section-title">Recently Generated</h2>
+            </div>
+
+            <div class="card">
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Report Name</th>
+                                <th>Type</th>
+                                <th>Generated</th>
+                                <th>Generated By</th>
+                                <th>Format</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="font-weight: 600;">Compliance Summary - Jan 2025</td>
+                                <td>Compliance</td>
+                                <td>Jan 25, 2025</td>
+                                <td>John Smith</td>
+                                <td>PDF</td>
+                                <td>
+                                    <div class="actions-cell">
+                                        <button class="action-btn">
+                                            <i data-lucide="eye" style="width: 16px; height: 16px;"></i>
+                                        </button>
+                                        <button class="action-btn">
+                                            <i data-lucide="download" style="width: 16px; height: 16px;"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 600;">Driver Qualification Files - Q4 2024</td>
+                                <td>DQF</td>
+                                <td>Jan 15, 2025</td>
+                                <td>John Smith</td>
+                                <td>PDF</td>
+                                <td>
+                                    <div class="actions-cell">
+                                        <button class="action-btn">
+                                            <i data-lucide="eye" style="width: 16px; height: 16px;"></i>
+                                        </button>
+                                        <button class="action-btn">
+                                            <i data-lucide="download" style="width: 16px; height: 16px;"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 600;">Violation Analysis - 2024 Annual</td>
+                                <td>Violations</td>
+                                <td>Jan 05, 2025</td>
+                                <td>John Smith</td>
+                                <td>Excel</td>
+                                <td>
+                                    <div class="actions-cell">
+                                        <button class="action-btn">
+                                            <i data-lucide="eye" style="width: 16px; height: 16px;"></i>
+                                        </button>
+                                        <button class="action-btn">
+                                            <i data-lucide="download" style="width: 16px; height: 16px;"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 600;">D&A MIS Report - 2024</td>
+                                <td>Drug & Alcohol</td>
+                                <td>Jan 02, 2025</td>
+                                <td>John Smith</td>
+                                <td>PDF</td>
+                                <td>
+                                    <div class="actions-cell">
+                                        <button class="action-btn">
+                                            <i data-lucide="eye" style="width: 16px; height: 16px;"></i>
+                                        </button>
+                                        <button class="action-btn">
+                                            <i data-lucide="download" style="width: 16px; height: 16px;"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

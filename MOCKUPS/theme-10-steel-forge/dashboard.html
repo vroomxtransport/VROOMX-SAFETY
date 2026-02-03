@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DASHBOARD | VroomX Safety Platform</title>
+
+    <!-- Google Fonts - Bebas Neue & Roboto -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            950: '#18181b',
+                            900: '#27272a',
+                            800: '#3f3f46',
+                            700: '#52525b',
+                            600: '#71717a',
+                            500: '#a1a1aa',
+                            400: '#d4d4d8',
+                            300: '#e4e4e7',
+                            200: '#f4f4f5',
+                            100: '#fafafa',
+                        },
+                        steel: {
+                            DEFAULT: '#71717a',
+                            light: '#a1a1aa',
+                            dark: '#52525b',
+                        },
+                        safety: {
+                            orange: '#ea580c',
+                            'orange-dark': '#c2410c',
+                            'orange-light': '#fb923c',
+                            'orange-glow': '#fdba74',
+                        },
+                        forge: {
+                            red: '#dc2626',
+                            'red-dark': '#b91c1c',
+                            'red-bg': '#fef2f2',
+                            green: '#16a34a',
+                            'green-dark': '#15803d',
+                            'green-bg': '#f0fdf4',
+                            yellow: '#ca8a04',
+                            'yellow-dark': '#a16207',
+                            'yellow-bg': '#fefce8',
+                        }
+                    },
+                    fontFamily: {
+                        'bebas': ['Bebas Neue', 'Impact', 'sans-serif'],
+                        'roboto': ['Roboto', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        /* Industrial Theme Styles */
+        .font-industrial {
+            font-family: 'Bebas Neue', Impact, sans-serif;
+            letter-spacing: 0.08em;
+        }
+
+        /* Safety Stripes */
+        .safety-stripes {
+            background: repeating-linear-gradient(
+                -45deg,
+                #ea580c,
+                #ea580c 8px,
+                #27272a 8px,
+                #27272a 16px
+            );
+        }
+
+        .safety-stripes-sm {
+            background: repeating-linear-gradient(
+                -45deg,
+                #dc2626,
+                #dc2626 6px,
+                #27272a 6px,
+                #27272a 12px
+            );
+        }
+
+        /* Steel Texture */
+        .steel-texture {
+            background-image:
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 4px 4px;
+        }
+
+        /* Diamond Plate */
+        .diamond-plate {
+            background-image:
+                linear-gradient(45deg, rgba(255,255,255,0.03) 25%, transparent 25%),
+                linear-gradient(-45deg, rgba(255,255,255,0.03) 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.03) 75%),
+                linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.03) 75%);
+            background-size: 8px 8px;
+            background-position: 0 0, 0 4px, 4px -4px, -4px 0px;
+        }
+
+        /* Industrial Card */
+        .card-forge {
+            border: 3px solid #27272a;
+            box-shadow: 0 4px 0 0 #27272a;
+            background-color: white;
+        }
+
+        /* Industrial Button */
+        .btn-forge {
+            position: relative;
+            border: 2px solid #27272a;
+            box-shadow: 0 3px 0 0 #27272a;
+            transition: all 0.1s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .btn-forge:hover {
+            transform: translateY(1px);
+            box-shadow: 0 2px 0 0 #27272a;
+        }
+
+        .btn-forge:active {
+            transform: translateY(3px);
+            box-shadow: none;
+        }
+
+        .btn-forge-orange {
+            background-color: #ea580c;
+            color: white;
+            border-color: #c2410c;
+            box-shadow: 0 3px 0 0 #c2410c;
+        }
+
+        .btn-forge-orange:hover {
+            background-color: #c2410c;
+            box-shadow: 0 2px 0 0 #9a3412;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            scrollbar-width: thin;
+            scrollbar-color: #ea580c #27272a;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: #27272a;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #ea580c;
+            border-radius: 0;
+        }
+
+        /* Data Table */
+        .data-table th {
+            background-color: #27272a;
+            color: white;
+            font-family: 'Bebas Neue', Impact, sans-serif;
+            font-size: 14px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 12px 16px;
+            text-align: left;
+            border: 2px solid #18181b;
+        }
+
+        .data-table td {
+            padding: 12px 16px;
+            border: 2px solid #e4e4e7;
+            font-size: 14px;
+        }
+
+        .data-table tr:nth-child(even) {
+            background-color: #f4f4f5;
+        }
+
+        .data-table tr:hover {
+            background-color: #e4e4e7;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            font-family: 'Bebas Neue', Impact, sans-serif;
+            font-size: 12px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            border: 2px solid;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            height: 20px;
+            background-color: #e4e4e7;
+            border: 2px solid #27272a;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: repeating-linear-gradient(
+                45deg,
+                #16a34a,
+                #16a34a 5px,
+                #15803d 5px,
+                #15803d 10px
+            );
+            transition: width 0.5s ease;
+        }
+
+        /* Alert Box */
+        .alert-critical {
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(220, 38, 38, 0.1),
+                rgba(220, 38, 38, 0.1) 10px,
+                rgba(220, 38, 38, 0.05) 10px,
+                rgba(220, 38, 38, 0.05) 20px
+            );
+            border-left: 4px solid #dc2626;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #27272a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #ea580c;
+            border: 2px solid #27272a;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #fb923c;
+        }
+    </style>
+</head>
+<body class="bg-charcoal-200 font-roboto text-charcoal-900" x-data="{ sidebarOpen: true, mobileMenu: false }">
+
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="sidebar fixed lg:sticky top-0 left-0 h-screen w-64 bg-charcoal-900 border-r-4 border-charcoal-800 flex flex-col z-40 transform transition-transform duration-200"
+               :class="{ '-translate-x-full lg:translate-x-0': !sidebarOpen && !mobileMenu }">
+
+            <!-- Logo -->
+            <div class="p-4 border-b-4 border-charcoal-800">
+                <a href="landing.html" class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-safety-orange flex items-center justify-center border-2 border-safety-orange-dark">
+                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="font-bebas text-2xl text-white tracking-wider block">VROOMX</span>
+                        <span class="text-xs text-charcoal-500 tracking-widest uppercase">Safety Platform</span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 overflow-y-auto py-4">
+                <!-- Overview Section -->
+                <div class="px-4 mb-2">
+                    <span class="font-bebas text-xs text-charcoal-600 tracking-wider">OVERVIEW</span>
+                </div>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 text-white bg-charcoal-800 border-l-4 border-safety-orange">
+                    <svg class="w-5 h-5 text-safety-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                    </svg>
+                    <span class="font-bebas text-sm tracking-wider">DASHBOARD</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 text-charcoal-400 hover:text-white hover:bg-charcoal-800 border-l-4 border-transparent hover:border-charcoal-600 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                    </svg>
+                    <span class="font-bebas text-sm tracking-wider">ALERTS</span>
+                    <span class="ml-auto bg-forge-red text-white text-xs font-bold px-2 py-0.5">5</span>
+                </a>
+
+                <!-- Fleet Section -->
+                <div class="px-4 mt-6 mb-2">
+                    <span class="font-bebas text-xs text-charcoal-600 tracking-wider">FLEET</span>
+                </div>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 text-charcoal-400 hover:text-white hover:bg-charcoal-800 border-l-4 border-transparent hover:border-charcoal-600 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <span class="font-bebas text-sm tracking-wider">DRIVERS</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 text-charcoal-400 hover:text-white hover:bg-charcoal-800 border-l-4 border-transparent hover:border-charcoal-600 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                    </svg>
+                    <span class="font-bebas text-sm tracking-wider">VEHICLES</span>
+                </a>
+
+                <!-- Compliance Section -->
+                <div class="px-4 mt-6 mb-2">
+                    <span class="font-bebas text-xs text-charcoal-600 tracking-wider">COMPLIANCE</span>
+                </div>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 text-charcoal-400 hover:text-white hover:bg-charcoal-800 border-l-4 border-transparent hover:border-charcoal-600 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                    <span class="font-bebas text-sm tracking-wider">FMCSA STATUS</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 text-charcoal-400 hover:text-white hover:bg-charcoal-800 border-l-4 border-transparent hover:border-charcoal-600 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <span class="font-bebas text-sm tracking-wider">DOCUMENTS</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 text-charcoal-400 hover:text-white hover:bg-charcoal-800 border-l-4 border-transparent hover:border-charcoal-600 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                    </svg>
+                    <span class="font-bebas text-sm tracking-wider">DRUG & ALCOHOL</span>
+                </a>
+
+                <!-- Safety Section -->
+                <div class="px-4 mt-6 mb-2">
+                    <span class="font-bebas text-xs text-charcoal-600 tracking-wider">SAFETY</span>
+                </div>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 text-charcoal-400 hover:text-white hover:bg-charcoal-800 border-l-4 border-transparent hover:border-charcoal-600 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                    <span class="font-bebas text-sm tracking-wider">VIOLATIONS</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 text-charcoal-400 hover:text-white hover:bg-charcoal-800 border-l-4 border-transparent hover:border-charcoal-600 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                    <span class="font-bebas text-sm tracking-wider">ACCIDENTS</span>
+                </a>
+
+                <!-- Operations Section -->
+                <div class="px-4 mt-6 mb-2">
+                    <span class="font-bebas text-xs text-charcoal-600 tracking-wider">OPERATIONS</span>
+                </div>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 text-charcoal-400 hover:text-white hover:bg-charcoal-800 border-l-4 border-transparent hover:border-charcoal-600 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <span class="font-bebas text-sm tracking-wider">MAINTENANCE</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 text-charcoal-400 hover:text-white hover:bg-charcoal-800 border-l-4 border-transparent hover:border-charcoal-600 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                    </svg>
+                    <span class="font-bebas text-sm tracking-wider">TASKS</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 text-charcoal-400 hover:text-white hover:bg-charcoal-800 border-l-4 border-transparent hover:border-charcoal-600 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <span class="font-bebas text-sm tracking-wider">REPORTS</span>
+                </a>
+            </nav>
+
+            <!-- User Section -->
+            <div class="p-4 border-t-4 border-charcoal-800">
+                <a href="#" class="flex items-center gap-3 text-charcoal-400 hover:text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <span class="font-bebas text-sm tracking-wider">SETTINGS</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 min-w-0">
+            <!-- Top Header -->
+            <header class="bg-white border-b-4 border-charcoal-300 px-6 py-4 sticky top-0 z-30">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <!-- Mobile Menu Button -->
+                        <button @click="mobileMenu = !mobileMenu" class="lg:hidden p-2 text-charcoal-600 hover:text-charcoal-900">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                            </svg>
+                        </button>
+                        <h1 class="font-bebas text-2xl text-charcoal-900 tracking-wider">DASHBOARD</h1>
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <button class="btn-forge bg-charcoal-100 text-charcoal-700 font-bebas text-sm tracking-wider px-4 py-2 flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                            </svg>
+                            EXPORT
+                        </button>
+                        <button class="btn-forge-orange font-bebas text-sm tracking-wider px-4 py-2 flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            ADD NEW
+                        </button>
+
+                        <!-- User Menu -->
+                        <div class="flex items-center gap-3 pl-4 border-l-2 border-charcoal-300">
+                            <div class="w-10 h-10 bg-safety-orange flex items-center justify-center border-2 border-safety-orange-dark">
+                                <span class="font-bebas text-white text-lg">JD</span>
+                            </div>
+                            <div class="hidden sm:block">
+                                <div class="font-bebas text-sm text-charcoal-900 tracking-wider">JOHN DOE</div>
+                                <div class="text-xs text-charcoal-500">Fleet Manager</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="p-6">
+                <!-- Critical Alerts Section -->
+                <section class="mb-6">
+                    <div class="bg-forge-red border-4 border-forge-red-dark p-4 safety-stripes-sm relative overflow-hidden">
+                        <div class="bg-forge-red p-4">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="w-10 h-10 bg-white flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-forge-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                    </svg>
+                                </div>
+                                <h2 class="font-bebas text-2xl text-white tracking-wider">NEEDS IMMEDIATE ATTENTION - 5 ITEMS</h2>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-3">
+                                <!-- Alert Item 1 -->
+                                <div class="bg-white border-2 border-forge-red-dark p-4 flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-forge-red-bg flex items-center justify-center flex-shrink-0 border-2 border-forge-red">
+                                        <svg class="w-6 h-6 text-forge-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="font-bebas text-sm text-charcoal-900 tracking-wider">MEDICAL CARD EXPIRED</h4>
+                                        <p class="text-xs text-charcoal-600 truncate">Mike Johnson - 3 days ago</p>
+                                    </div>
+                                </div>
+
+                                <!-- Alert Item 2 -->
+                                <div class="bg-white border-2 border-forge-red-dark p-4 flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-forge-red-bg flex items-center justify-center flex-shrink-0 border-2 border-forge-red">
+                                        <svg class="w-6 h-6 text-forge-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="font-bebas text-sm text-charcoal-900 tracking-wider">PM SERVICE OVERDUE</h4>
+                                        <p class="text-xs text-charcoal-600 truncate">TRK-2847 - 500mi overdue</p>
+                                    </div>
+                                </div>
+
+                                <!-- Alert Item 3 -->
+                                <div class="bg-white border-2 border-forge-red-dark p-4 flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-forge-red-bg flex items-center justify-center flex-shrink-0 border-2 border-forge-red">
+                                        <svg class="w-6 h-6 text-forge-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="font-bebas text-sm text-charcoal-900 tracking-wider">DRUG TEST DUE</h4>
+                                        <p class="text-xs text-charcoal-600 truncate">Robert Williams - 2 days</p>
+                                    </div>
+                                </div>
+
+                                <!-- Alert Item 4 -->
+                                <div class="bg-white border-2 border-forge-red-dark p-4 flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-forge-yellow-bg flex items-center justify-center flex-shrink-0 border-2 border-forge-yellow">
+                                        <svg class="w-6 h-6 text-forge-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="font-bebas text-sm text-charcoal-900 tracking-wider">INSURANCE EXPIRING</h4>
+                                        <p class="text-xs text-charcoal-600 truncate">Policy #789 - 7 days left</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Stats Grid -->
+                <section class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <!-- Stat Card 1 -->
+                    <div class="card-forge p-0 overflow-hidden">
+                        <div class="h-1 bg-forge-green"></div>
+                        <div class="p-4">
+                            <div class="flex items-start justify-between mb-2">
+                                <span class="font-bebas text-xs text-charcoal-500 tracking-wider">ACTIVE DRIVERS</span>
+                                <div class="w-10 h-10 bg-charcoal-100 flex items-center justify-center border-2 border-charcoal-200">
+                                    <svg class="w-5 h-5 text-charcoal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="font-bebas text-5xl text-charcoal-900 mb-1">24</div>
+                            <div class="flex items-center gap-1 text-forge-green text-sm font-medium">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+                                </svg>
+                                +2 from last month
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stat Card 2 -->
+                    <div class="card-forge p-0 overflow-hidden">
+                        <div class="h-1 bg-forge-green"></div>
+                        <div class="p-4">
+                            <div class="flex items-start justify-between mb-2">
+                                <span class="font-bebas text-xs text-charcoal-500 tracking-wider">ACTIVE VEHICLES</span>
+                                <div class="w-10 h-10 bg-charcoal-100 flex items-center justify-center border-2 border-charcoal-200">
+                                    <svg class="w-5 h-5 text-charcoal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="font-bebas text-5xl text-charcoal-900 mb-1">18</div>
+                            <div class="flex items-center gap-1 text-forge-green text-sm font-medium">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+                                </svg>
+                                +3 from last month
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stat Card 3 -->
+                    <div class="card-forge p-0 overflow-hidden">
+                        <div class="h-1 bg-forge-yellow"></div>
+                        <div class="p-4">
+                            <div class="flex items-start justify-between mb-2">
+                                <span class="font-bebas text-xs text-charcoal-500 tracking-wider">PENDING TASKS</span>
+                                <div class="w-10 h-10 bg-charcoal-100 flex items-center justify-center border-2 border-charcoal-200">
+                                    <svg class="w-5 h-5 text-charcoal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="font-bebas text-5xl text-charcoal-900 mb-1">12</div>
+                            <div class="flex items-center gap-1 text-forge-red text-sm font-medium">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+                                </svg>
+                                +5 from last week
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stat Card 4 -->
+                    <div class="card-forge p-0 overflow-hidden">
+                        <div class="h-1 bg-forge-red"></div>
+                        <div class="p-4">
+                            <div class="flex items-start justify-between mb-2">
+                                <span class="font-bebas text-xs text-charcoal-500 tracking-wider">OPEN ALERTS</span>
+                                <div class="w-10 h-10 bg-charcoal-100 flex items-center justify-center border-2 border-charcoal-200">
+                                    <svg class="w-5 h-5 text-charcoal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="font-bebas text-5xl text-charcoal-900 mb-1">5</div>
+                            <div class="flex items-center gap-1 text-forge-red text-sm font-medium">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                </svg>
+                                2 critical
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Content Grid -->
+                <div class="grid lg:grid-cols-3 gap-6">
+                    <!-- Expiring Documents Table -->
+                    <div class="lg:col-span-2">
+                        <div class="card-forge overflow-hidden">
+                            <div class="flex items-center justify-between p-4 border-b-2 border-charcoal-300 bg-charcoal-100">
+                                <h3 class="font-bebas text-lg text-charcoal-900 tracking-wider">EXPIRING DOCUMENTS</h3>
+                                <a href="#" class="font-bebas text-sm text-safety-orange tracking-wider hover:text-safety-orange-dark">VIEW ALL</a>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="data-table w-full">
+                                    <thead>
+                                        <tr>
+                                            <th>Document</th>
+                                            <th>Driver/Unit</th>
+                                            <th>Expires</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="font-medium">Medical Card</td>
+                                            <td>Mike Johnson</td>
+                                            <td>Jan 28, 2026</td>
+                                            <td>
+                                                <span class="status-badge bg-forge-red-bg text-forge-red border-forge-red">
+                                                    <span class="w-2 h-2 rounded-full bg-forge-red"></span>
+                                                    EXPIRED
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="font-medium">CDL License</td>
+                                            <td>Sarah Davis</td>
+                                            <td>Feb 5, 2026</td>
+                                            <td>
+                                                <span class="status-badge bg-forge-yellow-bg text-forge-yellow border-forge-yellow">
+                                                    <span class="w-2 h-2 rounded-full bg-forge-yellow"></span>
+                                                    7 DAYS
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="font-medium">Annual Inspection</td>
+                                            <td>TRK-2847</td>
+                                            <td>Feb 10, 2026</td>
+                                            <td>
+                                                <span class="status-badge bg-forge-yellow-bg text-forge-yellow border-forge-yellow">
+                                                    <span class="w-2 h-2 rounded-full bg-forge-yellow"></span>
+                                                    12 DAYS
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="font-medium">Insurance Policy</td>
+                                            <td>Company Wide</td>
+                                            <td>Feb 8, 2026</td>
+                                            <td>
+                                                <span class="status-badge bg-forge-yellow-bg text-forge-yellow border-forge-yellow">
+                                                    <span class="w-2 h-2 rounded-full bg-forge-yellow"></span>
+                                                    10 DAYS
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="font-medium">HazMat Endorsement</td>
+                                            <td>Robert Williams</td>
+                                            <td>Feb 28, 2026</td>
+                                            <td>
+                                                <span class="status-badge bg-forge-green-bg text-forge-green border-forge-green">
+                                                    <span class="w-2 h-2 rounded-full bg-forge-green"></span>
+                                                    30 DAYS
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Compliance Score Card -->
+                    <div class="space-y-6">
+                        <div class="card-forge overflow-hidden">
+                            <div class="flex items-center justify-between p-4 border-b-2 border-charcoal-300 bg-charcoal-100">
+                                <h3 class="font-bebas text-lg text-charcoal-900 tracking-wider">COMPLIANCE SCORE</h3>
+                                <a href="#" class="font-bebas text-sm text-safety-orange tracking-wider hover:text-safety-orange-dark">DETAILS</a>
+                            </div>
+                            <div class="p-4">
+                                <div class="text-center mb-4">
+                                    <div class="font-bebas text-7xl text-forge-green">94%</div>
+                                    <div class="font-bebas text-sm text-charcoal-500 tracking-wider">OVERALL SCORE</div>
+                                </div>
+
+                                <div class="progress-bar mb-4">
+                                    <div class="progress-bar-fill" style="width: 94%;"></div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div class="bg-charcoal-100 border-2 border-charcoal-200 p-3 text-center">
+                                        <div class="font-bebas text-xs text-charcoal-500 tracking-wider mb-1">DRIVER</div>
+                                        <div class="font-bebas text-2xl text-forge-green">96%</div>
+                                    </div>
+                                    <div class="bg-charcoal-100 border-2 border-charcoal-200 p-3 text-center">
+                                        <div class="font-bebas text-xs text-charcoal-500 tracking-wider mb-1">VEHICLE</div>
+                                        <div class="font-bebas text-2xl text-forge-green">92%</div>
+                                    </div>
+                                    <div class="bg-charcoal-100 border-2 border-charcoal-200 p-3 text-center">
+                                        <div class="font-bebas text-xs text-charcoal-500 tracking-wider mb-1">HOS</div>
+                                        <div class="font-bebas text-2xl text-forge-yellow">88%</div>
+                                    </div>
+                                    <div class="bg-charcoal-100 border-2 border-charcoal-200 p-3 text-center">
+                                        <div class="font-bebas text-xs text-charcoal-500 tracking-wider mb-1">HAZMAT</div>
+                                        <div class="font-bebas text-2xl text-forge-green">100%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div class="card-forge overflow-hidden">
+                            <div class="p-4 border-b-2 border-charcoal-300 bg-charcoal-100">
+                                <h3 class="font-bebas text-lg text-charcoal-900 tracking-wider">QUICK ACTIONS</h3>
+                            </div>
+                            <div class="p-4 grid grid-cols-2 gap-3">
+                                <button class="btn-forge bg-charcoal-100 text-charcoal-700 font-bebas text-xs tracking-wider p-3 flex flex-col items-center gap-2">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                                    </svg>
+                                    ADD DRIVER
+                                </button>
+                                <button class="btn-forge bg-charcoal-100 text-charcoal-700 font-bebas text-xs tracking-wider p-3 flex flex-col items-center gap-2">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                    </svg>
+                                    ADD VEHICLE
+                                </button>
+                                <button class="btn-forge bg-charcoal-100 text-charcoal-700 font-bebas text-xs tracking-wider p-3 flex flex-col items-center gap-2">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                                    </svg>
+                                    UPLOAD DOC
+                                </button>
+                                <button class="btn-forge bg-charcoal-100 text-charcoal-700 font-bebas text-xs tracking-wider p-3 flex flex-col items-center gap-2">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                    RUN REPORT
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <section class="mt-6">
+                    <div class="card-forge overflow-hidden">
+                        <div class="flex items-center justify-between p-4 border-b-2 border-charcoal-300 bg-charcoal-100">
+                            <h3 class="font-bebas text-lg text-charcoal-900 tracking-wider">RECENT ACTIVITY</h3>
+                            <a href="#" class="font-bebas text-sm text-safety-orange tracking-wider hover:text-safety-orange-dark">VIEW ALL</a>
+                        </div>
+                        <div class="p-4">
+                            <div class="space-y-4">
+                                <!-- Activity Item 1 -->
+                                <div class="flex gap-4 pb-4 border-b-2 border-charcoal-200">
+                                    <div class="w-10 h-10 bg-forge-green-bg flex items-center justify-center flex-shrink-0 border-2 border-forge-green">
+                                        <svg class="w-5 h-5 text-forge-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="font-bebas text-sm text-charcoal-900 tracking-wider">DRIVER QUALIFICATION FILE UPDATED</h4>
+                                        <p class="text-sm text-charcoal-600">Sarah Davis completed annual training certification</p>
+                                        <span class="text-xs text-charcoal-400">15 minutes ago</span>
+                                    </div>
+                                </div>
+
+                                <!-- Activity Item 2 -->
+                                <div class="flex gap-4 pb-4 border-b-2 border-charcoal-200">
+                                    <div class="w-10 h-10 bg-charcoal-100 flex items-center justify-center flex-shrink-0 border-2 border-charcoal-300">
+                                        <svg class="w-5 h-5 text-charcoal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="font-bebas text-sm text-charcoal-900 tracking-wider">VEHICLE MAINTENANCE COMPLETED</h4>
+                                        <p class="text-sm text-charcoal-600">Unit #TRK-1592 - Oil change and tire rotation</p>
+                                        <span class="text-xs text-charcoal-400">2 hours ago</span>
+                                    </div>
+                                </div>
+
+                                <!-- Activity Item 3 -->
+                                <div class="flex gap-4 pb-4 border-b-2 border-charcoal-200">
+                                    <div class="w-10 h-10 bg-forge-red-bg flex items-center justify-center flex-shrink-0 border-2 border-forge-red">
+                                        <svg class="w-5 h-5 text-forge-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="font-bebas text-sm text-charcoal-900 tracking-wider">NEW VIOLATION RECORDED</h4>
+                                        <p class="text-sm text-charcoal-600">HOS violation - Tom Anderson - 30 minute break rule</p>
+                                        <span class="text-xs text-charcoal-400">4 hours ago</span>
+                                    </div>
+                                </div>
+
+                                <!-- Activity Item 4 -->
+                                <div class="flex gap-4">
+                                    <div class="w-10 h-10 bg-forge-green-bg flex items-center justify-center flex-shrink-0 border-2 border-forge-green">
+                                        <svg class="w-5 h-5 text-forge-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="font-bebas text-sm text-charcoal-900 tracking-wider">DRUG TEST COMPLETED</h4>
+                                        <p class="text-sm text-charcoal-600">Robert Williams - Random test - Negative result</p>
+                                        <span class="text-xs text-charcoal-400">Yesterday</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div x-show="mobileMenu" @click="mobileMenu = false" class="fixed inset-0 bg-charcoal-950/50 z-30 lg:hidden" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"></div>
+
+</body>
+</html>

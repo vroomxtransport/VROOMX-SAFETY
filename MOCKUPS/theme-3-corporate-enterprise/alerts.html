@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alerts - VroomX Safety Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary-blue: #1E40AF; --royal-blue: #2563EB; --light-blue: #3B82F6;
+            --slate-50: #F8FAFC; --slate-100: #F1F5F9; --slate-200: #E2E8F0;
+            --slate-300: #CBD5E1; --slate-400: #94A3B8; --slate-500: #64748B;
+            --slate-600: #475569; --slate-700: #334155; --slate-800: #1E293B; --slate-900: #0F172A;
+            --success: #059669; --warning: #D97706; --danger: #DC2626;
+            --sidebar-width: 260px; --header-height: 64px; --radius: 6px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06);
+        }
+        body { font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--slate-100); color: var(--slate-800); min-height: 100vh; }
+        .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar-width); background: var(--slate-50); border-right: 1px solid var(--slate-200); display: flex; flex-direction: column; z-index: 100; }
+        .sidebar-header { padding: 20px 24px; border-bottom: 1px solid var(--slate-200); }
+        .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .logo-icon { width: 40px; height: 40px; background: var(--primary-blue); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; }
+        .logo-icon svg { width: 24px; height: 24px; fill: white; }
+        .logo-text { font-size: 22px; font-weight: 700; color: var(--slate-800); }
+        .logo-text span { color: var(--primary-blue); }
+        .sidebar-nav { flex: 1; padding: 16px 0; overflow-y: auto; }
+        .nav-section { margin-bottom: 8px; }
+        .nav-section-title { padding: 8px 24px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--slate-400); }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 24px; color: var(--slate-600); text-decoration: none; font-size: 14px; font-weight: 500; transition: all 0.15s ease; border-left: 3px solid transparent; margin: 2px 0; }
+        .nav-item:hover { background: var(--slate-100); color: var(--slate-800); }
+        .nav-item.active { background: linear-gradient(to right, rgba(30, 64, 175, 0.08), transparent); color: var(--primary-blue); border-left-color: var(--primary-blue); font-weight: 600; }
+        .nav-item svg { width: 20px; height: 20px; flex-shrink: 0; }
+        .nav-badge { margin-left: auto; background: var(--danger); color: white; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; }
+        .sidebar-footer { padding: 16px 24px; border-top: 1px solid var(--slate-200); }
+        .user-info { display: flex; align-items: center; gap: 12px; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--primary-blue); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 16px; }
+        .user-details { flex: 1; }
+        .user-name { font-weight: 600; color: var(--slate-800); font-size: 14px; }
+        .user-role { font-size: 12px; color: var(--slate-500); }
+        .main-content { margin-left: var(--sidebar-width); min-height: 100vh; }
+        .header { height: var(--header-height); background: white; border-bottom: 1px solid var(--slate-200); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; position: sticky; top: 0; z-index: 50; }
+        .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+        .breadcrumb-item { color: var(--slate-500); text-decoration: none; }
+        .breadcrumb-item:hover { color: var(--primary-blue); }
+        .breadcrumb-separator { color: var(--slate-300); }
+        .breadcrumb-current { color: var(--slate-800); font-weight: 600; }
+        .header-actions { display: flex; align-items: center; gap: 16px; }
+        .header-btn { width: 40px; height: 40px; border-radius: var(--radius); border: 1px solid var(--slate-200); background: white; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s ease; position: relative; }
+        .header-btn:hover { background: var(--slate-50); border-color: var(--slate-300); }
+        .header-btn svg { width: 20px; height: 20px; color: var(--slate-600); }
+        .notification-dot { position: absolute; top: 8px; right: 8px; width: 8px; height: 8px; background: var(--danger); border-radius: 50%; border: 2px solid white; }
+        .search-box { display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius); width: 280px; }
+        .search-box input { border: none; background: transparent; outline: none; font-family: inherit; font-size: 14px; width: 100%; color: var(--slate-800); }
+        .search-box input::placeholder { color: var(--slate-400); }
+        .search-box svg { width: 18px; height: 18px; color: var(--slate-400); }
+        .page-content { padding: 32px; }
+        .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+        .page-title { font-size: 28px; font-weight: 700; color: var(--slate-900); margin-bottom: 8px; }
+        .page-subtitle { font-size: 15px; color: var(--slate-500); }
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: var(--radius); font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer; transition: all 0.15s ease; border: none; }
+        .btn-primary { background: var(--primary-blue); color: white; }
+        .btn-primary:hover { background: var(--royal-blue); }
+        .btn-secondary { background: white; color: var(--slate-700); border: 1px solid var(--slate-300); }
+        .btn-secondary:hover { background: var(--slate-50); border-color: var(--slate-400); }
+        .btn svg { width: 18px; height: 18px; }
+
+        /* Alert Stats */
+        .alert-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 32px; }
+        .stat-card { background: white; border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); border: 1px solid var(--slate-200); }
+        .stat-label { font-size: 13px; color: var(--slate-500); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-value { font-size: 32px; font-weight: 700; color: var(--slate-900); }
+        .stat-value.danger { color: var(--danger); }
+        .stat-value.warning { color: var(--warning); }
+        .stat-value.info { color: var(--primary-blue); }
+
+        /* Alert Filters */
+        .alert-filters { display: flex; gap: 12px; margin-bottom: 24px; }
+        .filter-btn { padding: 8px 16px; border-radius: var(--radius); border: 1px solid var(--slate-200); background: white; font-size: 14px; font-weight: 500; color: var(--slate-600); cursor: pointer; transition: all 0.15s ease; }
+        .filter-btn:hover { border-color: var(--slate-300); background: var(--slate-50); }
+        .filter-btn.active { background: var(--primary-blue); border-color: var(--primary-blue); color: white; }
+
+        /* Alert List */
+        .alert-card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--slate-200); overflow: hidden; }
+        .alert-item { display: flex; gap: 16px; padding: 20px 24px; border-bottom: 1px solid var(--slate-100); transition: background 0.15s ease; }
+        .alert-item:last-child { border-bottom: none; }
+        .alert-item:hover { background: var(--slate-50); }
+        .alert-item.unread { background: rgba(30, 64, 175, 0.03); }
+        .alert-icon { width: 44px; height: 44px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .alert-icon.critical { background: rgba(220, 38, 38, 0.1); color: var(--danger); }
+        .alert-icon.warning { background: rgba(217, 119, 6, 0.1); color: var(--warning); }
+        .alert-icon.info { background: rgba(30, 64, 175, 0.1); color: var(--primary-blue); }
+        .alert-icon svg { width: 22px; height: 22px; }
+        .alert-content { flex: 1; }
+        .alert-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+        .alert-title { font-weight: 600; color: var(--slate-800); font-size: 15px; }
+        .alert-time { font-size: 12px; color: var(--slate-400); }
+        .alert-message { font-size: 14px; color: var(--slate-600); margin-bottom: 12px; line-height: 1.5; }
+        .alert-actions { display: flex; gap: 12px; }
+        .alert-link { font-size: 13px; font-weight: 600; color: var(--primary-blue); text-decoration: none; }
+        .alert-link:hover { text-decoration: underline; }
+        .alert-dismiss { font-size: 13px; color: var(--slate-500); background: none; border: none; cursor: pointer; padding: 0; }
+        .alert-dismiss:hover { color: var(--slate-700); }
+        .unread-dot { width: 8px; height: 8px; background: var(--primary-blue); border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <a href="dashboard.html" class="logo">
+                <div class="logo-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg></div>
+                <span class="logo-text">Vroom<span>X</span></span>
+            </a>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-section-title">Overview</div>
+                <a href="dashboard.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>Dashboard</a>
+                <a href="compliance.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>Compliance</a>
+                <a href="alerts.html" class="nav-item active"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>Alerts<span class="nav-badge">5</span></a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Fleet Management</div>
+                <a href="drivers.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>Drivers</a>
+                <a href="vehicles.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>Vehicles</a>
+                <a href="documents.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Documents</a>
+                <a href="maintenance.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Maintenance</a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Safety & Incidents</div>
+                <a href="violations.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>Violations</a>
+                <a href="tickets.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>Tickets</a>
+                <a href="accidents.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3m8.293 8.293l1.414 1.414"/></svg>Accidents</a>
+                <a href="drug-alcohol.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>Drug & Alcohol</a>
+                <a href="damage-claims.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>Damage Claims</a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Operations</div>
+                <a href="tasks.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>Tasks</a>
+                <a href="checklists.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Checklists</a>
+                <a href="reports.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Reports</a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">System</div>
+                <a href="ai-assistant.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>AI Assistant</a>
+                <a href="settings.html" class="nav-item"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Settings</a>
+            </div>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">JD</div>
+                <div class="user-details">
+                    <div class="user-name">John Doe</div>
+                    <div class="user-role">Fleet Manager</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <div class="breadcrumb">
+                <a href="dashboard.html" class="breadcrumb-item">Home</a>
+                <span class="breadcrumb-separator">/</span>
+                <span class="breadcrumb-current">Alerts</span>
+            </div>
+            <div class="header-actions">
+                <div class="search-box">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    <input type="text" placeholder="Search alerts...">
+                </div>
+                <button class="header-btn">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                    <span class="notification-dot"></span>
+                </button>
+                <button class="header-btn">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </button>
+            </div>
+        </header>
+
+        <div class="page-content">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Alerts</h1>
+                    <p class="page-subtitle">Stay on top of compliance issues and deadlines</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-secondary">Mark All Read</button>
+                    <button class="btn btn-primary">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        Alert Settings
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="alert-stats">
+                <div class="stat-card">
+                    <div class="stat-label">Total Alerts</div>
+                    <div class="stat-value">6</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Critical</div>
+                    <div class="stat-value danger">2</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Warnings</div>
+                    <div class="stat-value warning">3</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Info</div>
+                    <div class="stat-value info">1</div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="alert-filters">
+                <button class="filter-btn active">All Alerts</button>
+                <button class="filter-btn">Critical</button>
+                <button class="filter-btn">Warnings</button>
+                <button class="filter-btn">Info</button>
+                <button class="filter-btn">Unread</button>
+            </div>
+
+            <!-- Alert List -->
+            <div class="alert-card">
+                <div class="alert-item unread">
+                    <div class="alert-icon critical">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    </div>
+                    <div class="alert-content">
+                        <div class="alert-header">
+                            <span class="alert-title">Medical Card Expired</span>
+                            <span class="alert-time">Jan 16, 2025</span>
+                        </div>
+                        <p class="alert-message">Maria Garcia's medical card expired on Jan 15, 2025. Driver is non-compliant and must renew immediately.</p>
+                        <div class="alert-actions">
+                            <a href="driver-detail.html" class="alert-link">View Driver</a>
+                            <button class="alert-dismiss">Dismiss</button>
+                        </div>
+                    </div>
+                    <div class="unread-dot"></div>
+                </div>
+
+                <div class="alert-item unread">
+                    <div class="alert-icon critical">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    </div>
+                    <div class="alert-content">
+                        <div class="alert-header">
+                            <span class="alert-title">New Violation Recorded</span>
+                            <span class="alert-time">Jan 18, 2025</span>
+                        </div>
+                        <p class="alert-message">Jennifer Davis received an HOS violation on Jan 18, 2025. False report of driver's record of duty status.</p>
+                        <div class="alert-actions">
+                            <a href="violations.html" class="alert-link">View Violation</a>
+                            <button class="alert-dismiss">Dismiss</button>
+                        </div>
+                    </div>
+                    <div class="unread-dot"></div>
+                </div>
+
+                <div class="alert-item unread">
+                    <div class="alert-icon warning">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                    <div class="alert-content">
+                        <div class="alert-header">
+                            <span class="alert-title">CDL Expiring Soon</span>
+                            <span class="alert-time">Jan 25, 2025</span>
+                        </div>
+                        <p class="alert-message">Maria Garcia's CDL expires in 14 days on Feb 20, 2025. Schedule renewal appointment.</p>
+                        <div class="alert-actions">
+                            <a href="driver-detail.html" class="alert-link">View Driver</a>
+                            <button class="alert-dismiss">Dismiss</button>
+                        </div>
+                    </div>
+                    <div class="unread-dot"></div>
+                </div>
+
+                <div class="alert-item">
+                    <div class="alert-icon warning">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                    <div class="alert-content">
+                        <div class="alert-header">
+                            <span class="alert-title">MVR Expiring Soon</span>
+                            <span class="alert-time">Jan 25, 2025</span>
+                        </div>
+                        <p class="alert-message">Robert Johnson's MVR expires in 5 days on Jan 30, 2025. Request updated MVR.</p>
+                        <div class="alert-actions">
+                            <a href="driver-detail.html" class="alert-link">View Driver</a>
+                            <button class="alert-dismiss">Dismiss</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert-item">
+                    <div class="alert-icon warning">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                    </div>
+                    <div class="alert-content">
+                        <div class="alert-header">
+                            <span class="alert-title">Registration Expiring</span>
+                            <span class="alert-time">Jan 20, 2025</span>
+                        </div>
+                        <p class="alert-message">Unit 108 registration expires in 75 days on Apr 15, 2025. Plan for renewal.</p>
+                        <div class="alert-actions">
+                            <a href="vehicle-detail.html" class="alert-link">View Vehicle</a>
+                            <button class="alert-dismiss">Dismiss</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert-item unread">
+                    <div class="alert-icon info">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    </div>
+                    <div class="alert-content">
+                        <div class="alert-header">
+                            <span class="alert-title">PM Due Soon</span>
+                            <span class="alert-time">Jan 20, 2025</span>
+                        </div>
+                        <p class="alert-message">Unit 105 is due for preventive maintenance on Feb 15, 2025. Schedule with vendor.</p>
+                        <div class="alert-actions">
+                            <a href="maintenance.html" class="alert-link">View Schedule</a>
+                            <button class="alert-dismiss">Dismiss</button>
+                        </div>
+                    </div>
+                    <div class="unread-dot"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../shared/data/mock-data.js"></script>
+    <script>
+        console.log('Alerts page loaded with mock data:', MOCK_DATA.alerts);
+
+        // Filter button functionality
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

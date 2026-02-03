@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VroomX - Feature Section Mockup 3: Timeline Journey</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1E3A5F;
+            --primary-light: #2D5A87;
+            --success: #22C55E;
+            --success-light: #DCFCE7;
+            --cta: #F97316;
+            --text-primary: #1E293B;
+            --text-secondary: #475569;
+            --text-muted: #94A3B8;
+            --background: #F8FAFC;
+            --card-bg: #FFFFFF;
+            --border: #E2E8F0;
+            --ai-accent: #6366F1;
+            --ai-light: #EEF2FF;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 40px 24px;
+        }
+
+        .mockup-label {
+            text-align: center;
+            padding: 16px;
+            background: var(--primary);
+            color: white;
+            font-weight: 700;
+            font-size: 0.875rem;
+            margin-bottom: 40px;
+            border-radius: 8px;
+            max-width: 1200px;
+            margin: 0 auto 40px;
+        }
+
+        .features {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-badge {
+            display: inline-block;
+            background: var(--success-light);
+            color: #16A34A;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .section-header p {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* TIMELINE LAYOUT */
+        .timeline {
+            position: relative;
+            padding-left: 80px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 30px;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, var(--primary) 0%, var(--ai-accent) 50%, var(--success) 100%);
+            border-radius: 2px;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 48px;
+        }
+
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: -58px;
+            top: 0;
+            width: 56px;
+            height: 56px;
+            background: var(--card-bg);
+            border: 4px solid var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 12px rgba(30, 58, 95, 0.15);
+            z-index: 2;
+        }
+
+        .timeline-item.ai .timeline-marker {
+            border-color: var(--ai-accent);
+            background: var(--ai-light);
+        }
+
+        .timeline-step {
+            position: absolute;
+            left: -82px;
+            top: 64px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: center;
+            width: 60px;
+        }
+
+        .timeline-content {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: 0 4px 20px rgba(30, 58, 95, 0.06);
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .timeline-content:hover {
+            transform: translateX(8px);
+            box-shadow: 0 8px 30px rgba(30, 58, 95, 0.1);
+        }
+
+        .timeline-item.ai .timeline-content {
+            border-color: var(--ai-accent);
+            border-width: 2px;
+            background: linear-gradient(135deg, var(--card-bg) 0%, var(--ai-light) 100%);
+        }
+
+        .timeline-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .timeline-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+        }
+
+        .ai-badge {
+            background: var(--ai-accent);
+            color: white;
+            font-size: 0.65rem;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .timeline-description {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 20px;
+            line-height: 1.7;
+        }
+
+        .timeline-features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .timeline-feature {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .timeline-feature::before {
+            content: '✓';
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        /* SPECIAL CARDS */
+        .timeline-visual {
+            margin-top: 20px;
+            padding: 16px;
+            background: var(--background);
+            border-radius: 12px;
+        }
+
+        .mini-csa-chart {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            height: 80px;
+            gap: 8px;
+        }
+
+        .csa-bar-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+        }
+
+        .csa-bar {
+            width: 100%;
+            max-width: 40px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+
+        .csa-bar-fill {
+            width: 100%;
+            border-radius: 4px;
+        }
+
+        .csa-bar-fill.green { background: var(--success); }
+        .csa-bar-fill.yellow { background: #EAB308; }
+
+        .csa-bar-label {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        /* AI DEMO */
+        .ai-mini-demo {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            padding: 16px;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 10px;
+        }
+
+        .ai-mini-demo .avatar {
+            width: 28px;
+            height: 28px;
+            background: var(--ai-accent);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .ai-mini-demo .text {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* END GOAL */
+        .timeline-end {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, var(--success-light) 0%, #D1FAE5 100%);
+            border-radius: 20px;
+            margin-top: 48px;
+            position: relative;
+        }
+
+        .timeline-end::before {
+            content: '';
+            position: absolute;
+            left: -50px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 60px;
+            background: var(--success);
+            border-radius: 2px;
+        }
+
+        .timeline-end .goal-icon {
+            width: 72px;
+            height: 72px;
+            background: var(--success);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 20px;
+            box-shadow: 0 8px 24px rgba(34, 197, 94, 0.3);
+        }
+
+        .timeline-end h3 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+            color: #166534;
+        }
+
+        .timeline-end p {
+            color: #166534;
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .timeline {
+                padding-left: 60px;
+            }
+            .timeline::before {
+                left: 20px;
+            }
+            .timeline-marker {
+                left: -48px;
+                width: 44px;
+                height: 44px;
+                font-size: 1.2rem;
+            }
+            .timeline-step {
+                display: none;
+            }
+            .timeline-features {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .design-notes {
+            max-width: 1000px;
+            margin: 60px auto 0;
+            padding: 24px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 2px dashed var(--border);
+        }
+
+        .design-notes h4 {
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--primary);
+        }
+
+        .design-notes ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px 24px;
+        }
+
+        .design-notes li {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .design-notes li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--success);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="mockup-label">MOCKUP 3: TIMELINE JOURNEY — Shows the compliance workflow from start to success</div>
+
+    <section class="features">
+        <div class="section-header">
+            <div class="section-badge">How It Works</div>
+            <h2>Your Path to Full Compliance</h2>
+            <p>VroomX guides you through every step of FMCSA compliance, from document management to score optimization.</p>
+        </div>
+
+        <div class="timeline">
+            <!-- Step 1: DQF Management -->
+            <div class="timeline-item">
+                <div class="timeline-marker">📁</div>
+                <div class="timeline-step">Step 1</div>
+                <div class="timeline-content">
+                    <div class="timeline-header">
+                        <h3 class="timeline-title">Organize Your DQF Files</h3>
+                    </div>
+                    <p class="timeline-description">Upload and organize all your Driver Qualification Files in one secure location. We support all document types and automatically track expiration dates.</p>
+                    <div class="timeline-features">
+                        <span class="timeline-feature">CDL & medical cards</span>
+                        <span class="timeline-feature">MVR tracking</span>
+                        <span class="timeline-feature">Annual inspections</span>
+                        <span class="timeline-feature">Secure cloud storage</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: CSA Tracking -->
+            <div class="timeline-item">
+                <div class="timeline-marker">📊</div>
+                <div class="timeline-step">Step 2</div>
+                <div class="timeline-content">
+                    <div class="timeline-header">
+                        <h3 class="timeline-title">Monitor Your CSA Score</h3>
+                    </div>
+                    <p class="timeline-description">Get a complete picture of your safety scores across all 7 BASICs. Track trends over time and understand what's affecting your numbers.</p>
+                    <div class="timeline-features">
+                        <span class="timeline-feature">All 7 BASICs tracked</span>
+                        <span class="timeline-feature">Historical trends</span>
+                        <span class="timeline-feature">Peer comparisons</span>
+                        <span class="timeline-feature">Score projections</span>
+                    </div>
+                    <div class="timeline-visual">
+                        <div class="mini-csa-chart">
+                            <div class="csa-bar-wrapper">
+                                <div class="csa-bar" style="height: 60px;">
+                                    <div class="csa-bar-fill green" style="height: 32%"></div>
+                                </div>
+                                <span class="csa-bar-label">Unsafe</span>
+                            </div>
+                            <div class="csa-bar-wrapper">
+                                <div class="csa-bar" style="height: 60px;">
+                                    <div class="csa-bar-fill green" style="height: 45%"></div>
+                                </div>
+                                <span class="csa-bar-label">HOS</span>
+                            </div>
+                            <div class="csa-bar-wrapper">
+                                <div class="csa-bar" style="height: 60px;">
+                                    <div class="csa-bar-fill yellow" style="height: 58%"></div>
+                                </div>
+                                <span class="csa-bar-label">Vehicle</span>
+                            </div>
+                            <div class="csa-bar-wrapper">
+                                <div class="csa-bar" style="height: 60px;">
+                                    <div class="csa-bar-fill green" style="height: 21%"></div>
+                                </div>
+                                <span class="csa-bar-label">Fitness</span>
+                            </div>
+                            <div class="csa-bar-wrapper">
+                                <div class="csa-bar" style="height: 60px;">
+                                    <div class="csa-bar-fill green" style="height: 15%"></div>
+                                </div>
+                                <span class="csa-bar-label">Crash</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Smart Alerts -->
+            <div class="timeline-item">
+                <div class="timeline-marker">🔔</div>
+                <div class="timeline-step">Step 3</div>
+                <div class="timeline-content">
+                    <div class="timeline-header">
+                        <h3 class="timeline-title">Stay Ahead with Smart Alerts</h3>
+                    </div>
+                    <p class="timeline-description">Automated reminders ensure you never miss an expiring document or compliance deadline. Get notified via email, SMS, or push.</p>
+                    <div class="timeline-features">
+                        <span class="timeline-feature">30, 14, 7 day warnings</span>
+                        <span class="timeline-feature">Email & SMS alerts</span>
+                        <span class="timeline-feature">CSA score changes</span>
+                        <span class="timeline-feature">Custom schedules</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: AI Assistant -->
+            <div class="timeline-item ai">
+                <div class="timeline-marker">🤖</div>
+                <div class="timeline-step">Step 4</div>
+                <div class="timeline-content">
+                    <div class="timeline-header">
+                        <h3 class="timeline-title">Get AI-Powered Help</h3>
+                        <span class="ai-badge">AI-POWERED</span>
+                    </div>
+                    <p class="timeline-description">Ask any FMCSA regulation question and get instant, accurate answers. Our AI is trained on the complete FMCSR and stays up-to-date with the latest changes.</p>
+                    <div class="timeline-features">
+                        <span class="timeline-feature">24/7 availability</span>
+                        <span class="timeline-feature">Plain English answers</span>
+                        <span class="timeline-feature">Always up-to-date</span>
+                        <span class="timeline-feature">Cite specific regulations</span>
+                    </div>
+                    <div class="ai-mini-demo">
+                        <div class="avatar">🤖</div>
+                        <div class="text">"Property-carrying drivers have an 11-hour driving limit after 10 consecutive hours off duty, per §395.3..."</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5: DataQ Challenge -->
+            <div class="timeline-item ai">
+                <div class="timeline-marker">📝</div>
+                <div class="timeline-step">Step 5</div>
+                <div class="timeline-content">
+                    <div class="timeline-header">
+                        <h3 class="timeline-title">Challenge Unfair Violations</h3>
+                        <span class="ai-badge">AI-POWERED</span>
+                    </div>
+                    <p class="timeline-description">Our AI scans your violation history to identify challengeable items and generates professional DataQ letters automatically. Improve your score by removing unfair violations.</p>
+                    <div class="timeline-features">
+                        <span class="timeline-feature">Auto-detect opportunities</span>
+                        <span class="timeline-feature">Generate DataQ letters</span>
+                        <span class="timeline-feature">Track challenge status</span>
+                        <span class="timeline-feature">40% avg success rate</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- End Goal -->
+            <div class="timeline-end">
+                <div class="goal-icon">✓</div>
+                <h3>Stay Compliant, Stress-Free</h3>
+                <p>Pass any DOT audit with confidence. Focus on driving while VroomX handles your compliance.</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="design-notes">
+        <h4>Design Rationale</h4>
+        <ul>
+            <li>Timeline creates a clear narrative/workflow for users</li>
+            <li>Gradient line shows progression from setup to success</li>
+            <li>Step markers guide users through the product journey</li>
+            <li>AI features highlighted with special styling</li>
+            <li>End goal card reinforces the value proposition</li>
+            <li>Visual elements (charts, demos) break up text content</li>
+        </ul>
+    </div>
+</body>
+</html>

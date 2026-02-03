@@ -1,0 +1,1562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>N8N Implementation Guide | VroomX Safety</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --accent: #f97316;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .dark .glass-card {
+            background: rgba(30, 41, 59, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .workflow-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .workflow-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .workflow-card.expanded {
+            grid-column: 1 / -1;
+        }
+
+        .priority-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            color: white;
+        }
+
+        .priority-1 { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .priority-2 { background: linear-gradient(135deg, #f97316, #ea580c); }
+        .priority-3 { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+
+        .tab-btn {
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .flow-diagram {
+            position: relative;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            border-radius: 12px;
+        }
+
+        .dark .flow-diagram {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+        }
+
+        .flow-step {
+            display: flex;
+            align-items: center;
+            margin: 12px 0;
+            animation: fadeInUp 0.5s ease forwards;
+            opacity: 0;
+        }
+
+        .flow-step:nth-child(1) { animation-delay: 0.1s; }
+        .flow-step:nth-child(2) { animation-delay: 0.2s; }
+        .flow-step:nth-child(3) { animation-delay: 0.3s; }
+        .flow-step:nth-child(4) { animation-delay: 0.4s; }
+        .flow-step:nth-child(5) { animation-delay: 0.5s; }
+        .flow-step:nth-child(6) { animation-delay: 0.6s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .flow-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .connector {
+            position: absolute;
+            left: 39px;
+            top: 60px;
+            bottom: 40px;
+            width: 2px;
+            background: linear-gradient(to bottom, #3b82f6, #8b5cf6);
+        }
+
+        .stat-card {
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: scale(1.05);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 30px;
+            padding-bottom: 30px;
+            border-left: 2px solid #e2e8f0;
+        }
+
+        .dark .timeline-item {
+            border-left-color: #334155;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 0;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #3b82f6;
+        }
+
+        .timeline-item:last-child {
+            border-left: none;
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .accordion-content.open {
+            max-height: 2000px;
+        }
+
+        .integration-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .floating-nav {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .floating-nav a {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #cbd5e1;
+            transition: all 0.2s ease;
+        }
+
+        .floating-nav a:hover,
+        .floating-nav a.active {
+            background: #3b82f6;
+            transform: scale(1.3);
+        }
+
+        @media (max-width: 768px) {
+            .floating-nav {
+                display: none;
+            }
+        }
+
+        .glow {
+            box-shadow: 0 0 40px rgba(59, 130, 246, 0.3);
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 transition-colors duration-300">
+    <!-- Floating Navigation -->
+    <nav class="floating-nav hidden lg:flex">
+        <a href="#hero" title="Top"></a>
+        <a href="#current" title="Current State"></a>
+        <a href="#workflows" title="Workflows"></a>
+        <a href="#roi" title="ROI"></a>
+        <a href="#roadmap" title="Roadmap"></a>
+        <a href="#architecture" title="Architecture"></a>
+    </nav>
+
+    <!-- Header -->
+    <header class="gradient-bg text-white sticky top-0 z-50 shadow-lg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-truck text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold">VroomX Safety</h1>
+                        <p class="text-xs text-blue-200">N8N Implementation Guide</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleDarkMode()" class="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:inline"></i>
+                    </button>
+                    <a href="#workflows" class="hidden sm:inline-flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition">
+                        <i class="fas fa-play"></i>
+                        Get Started
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="hero" class="gradient-bg text-white py-20 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10">
+            <div class="absolute top-20 left-20 w-64 h-64 bg-blue-400 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-20 right-20 w-96 h-96 bg-purple-400 rounded-full blur-3xl"></div>
+        </div>
+        <div class="container mx-auto px-6 relative">
+            <div class="max-w-4xl mx-auto text-center">
+                <div class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full text-sm mb-6">
+                    <i class="fas fa-bolt text-yellow-400"></i>
+                    <span>18 Automation Workflows Identified</span>
+                </div>
+                <h1 class="text-4xl md:text-6xl font-bold mb-6">
+                    Transform Compliance with
+                    <span class="bg-gradient-to-r from-orange-400 to-pink-400 bg-clip-text text-transparent">N8N Automation</span>
+                </h1>
+                <p class="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+                    Reduce manual compliance work by 70-80% with intelligent workflow automation.
+                    Save 44+ hours monthly and respond to critical issues in real-time.
+                </p>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <a href="#workflows" class="px-6 py-3 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition shadow-lg">
+                        <i class="fas fa-diagram-project mr-2"></i>
+                        View Workflows
+                    </a>
+                    <a href="#roi" class="px-6 py-3 bg-white/10 border border-white/30 rounded-xl font-semibold hover:bg-white/20 transition">
+                        <i class="fas fa-chart-line mr-2"></i>
+                        See ROI Analysis
+                    </a>
+                </div>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-16 max-w-4xl mx-auto">
+                <div class="stat-card bg-white/10 rounded-xl p-4 text-center backdrop-blur">
+                    <div class="text-3xl font-bold text-orange-400">44h</div>
+                    <div class="text-sm text-blue-200">Monthly Savings</div>
+                </div>
+                <div class="stat-card bg-white/10 rounded-xl p-4 text-center backdrop-blur">
+                    <div class="text-3xl font-bold text-green-400">$13.2K</div>
+                    <div class="text-sm text-blue-200">Annual Savings</div>
+                </div>
+                <div class="stat-card bg-white/10 rounded-xl p-4 text-center backdrop-blur">
+                    <div class="text-3xl font-bold text-purple-400">90%</div>
+                    <div class="text-sm text-blue-200">Faster Alerts</div>
+                </div>
+                <div class="stat-card bg-white/10 rounded-xl p-4 text-center backdrop-blur">
+                    <div class="text-3xl font-bold text-pink-400">18</div>
+                    <div class="text-sm text-blue-200">Workflows</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Current State Section -->
+    <section id="current" class="py-16 bg-white dark:bg-slate-800">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-4">Current Automation Landscape</h2>
+                <p class="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+                    VroomX Safety already has solid foundations with 5 active cron jobs and multiple external integrations.
+                </p>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-8">
+                <!-- Existing Cron Jobs -->
+                <div class="glass-card rounded-2xl p-6 shadow-xl">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-clock text-blue-600 dark:text-blue-400 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold">Existing Cron Jobs</h3>
+                            <p class="text-sm text-slate-500">5 scheduled tasks in server.js</p>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xs font-mono bg-slate-200 dark:bg-slate-600 px-2 py-1 rounded">6:00 AM</span>
+                                <span class="text-sm">Alert Generation + Email Digest</span>
+                            </div>
+                            <i class="fas fa-arrow-right text-orange-500"></i>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xs font-mono bg-slate-200 dark:bg-slate-600 px-2 py-1 rounded">Every 6h</span>
+                                <span class="text-sm">Alert Escalation</span>
+                            </div>
+                            <i class="fas fa-arrow-right text-orange-500"></i>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xs font-mono bg-slate-200 dark:bg-slate-600 px-2 py-1 rounded">9:00 AM</span>
+                                <span class="text-sm">Trial Ending Notifications</span>
+                            </div>
+                            <i class="fas fa-arrow-right text-orange-500"></i>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xs font-mono bg-slate-200 dark:bg-slate-600 px-2 py-1 rounded">Hourly</span>
+                                <span class="text-sm">Scheduled Report Processing</span>
+                            </div>
+                            <i class="fas fa-arrow-right text-orange-500"></i>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xs font-mono bg-slate-200 dark:bg-slate-600 px-2 py-1 rounded">Hourly :30</span>
+                                <span class="text-sm">Samsara Integration Sync</span>
+                            </div>
+                            <i class="fas fa-arrow-right text-orange-500"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- External Integrations -->
+                <div class="glass-card rounded-2xl p-6 shadow-xl">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-plug text-purple-600 dark:text-purple-400 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold">External Integrations</h3>
+                            <p class="text-sm text-slate-500">Ready for N8N connection</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl text-center">
+                            <div class="integration-icon bg-blue-100 dark:bg-blue-900/30 text-blue-600 mx-auto mb-2">
+                                <i class="fas fa-building-columns"></i>
+                            </div>
+                            <div class="font-semibold text-sm">FMCSA SAFER</div>
+                            <div class="text-xs text-slate-500">Carrier Data & CSA</div>
+                        </div>
+                        <div class="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl text-center">
+                            <div class="integration-icon bg-purple-100 dark:bg-purple-900/30 text-purple-600 mx-auto mb-2">
+                                <i class="fab fa-stripe-s"></i>
+                            </div>
+                            <div class="font-semibold text-sm">Stripe</div>
+                            <div class="text-xs text-slate-500">Billing & Webhooks</div>
+                        </div>
+                        <div class="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl text-center">
+                            <div class="integration-icon bg-green-100 dark:bg-green-900/30 text-green-600 mx-auto mb-2">
+                                <i class="fas fa-satellite-dish"></i>
+                            </div>
+                            <div class="font-semibold text-sm">Samsara</div>
+                            <div class="text-xs text-slate-500">Fleet Telematics</div>
+                        </div>
+                        <div class="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl text-center">
+                            <div class="integration-icon bg-pink-100 dark:bg-pink-900/30 text-pink-600 mx-auto mb-2">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="font-semibold text-sm">Resend</div>
+                            <div class="text-xs text-slate-500">Email Delivery</div>
+                        </div>
+                        <div class="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl text-center">
+                            <div class="integration-icon bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 mx-auto mb-2">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="font-semibold text-sm">OpenAI</div>
+                            <div class="text-xs text-slate-500">Document OCR</div>
+                        </div>
+                        <div class="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl text-center">
+                            <div class="integration-icon bg-orange-100 dark:bg-orange-900/30 text-orange-600 mx-auto mb-2">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <div class="font-semibold text-sm">Claude AI</div>
+                            <div class="text-xs text-slate-500">Compliance Analysis</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Workflows Section -->
+    <section id="workflows" class="py-16 bg-slate-100 dark:bg-slate-900">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-4">N8N Workflow Catalog</h2>
+                <p class="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+                    18 automation workflows organized by priority. Click any workflow to see the detailed implementation flow.
+                </p>
+            </div>
+
+            <!-- Priority Tabs -->
+            <div class="flex flex-wrap justify-center gap-2 mb-8">
+                <button onclick="filterWorkflows('all')" class="tab-btn active px-4 py-2 rounded-lg font-medium bg-slate-200 dark:bg-slate-700">
+                    All Workflows
+                </button>
+                <button onclick="filterWorkflows('1')" class="tab-btn px-4 py-2 rounded-lg font-medium bg-slate-200 dark:bg-slate-700">
+                    <span class="inline-block w-3 h-3 rounded-full bg-red-500 mr-2"></span>
+                    Priority 1
+                </button>
+                <button onclick="filterWorkflows('2')" class="tab-btn px-4 py-2 rounded-lg font-medium bg-slate-200 dark:bg-slate-700">
+                    <span class="inline-block w-3 h-3 rounded-full bg-orange-500 mr-2"></span>
+                    Priority 2
+                </button>
+                <button onclick="filterWorkflows('3')" class="tab-btn px-4 py-2 rounded-lg font-medium bg-slate-200 dark:bg-slate-700">
+                    <span class="inline-block w-3 h-3 rounded-full bg-blue-500 mr-2"></span>
+                    Priority 3
+                </button>
+            </div>
+
+            <!-- Workflows Grid -->
+            <div id="workflowsGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Workflow 1.1 -->
+                <div class="workflow-card glass-card rounded-2xl p-6 shadow-lg relative" data-priority="1" onclick="toggleWorkflow(this)">
+                    <div class="priority-badge priority-1">1</div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-bell text-red-600 dark:text-red-400 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold">Real-Time Alerts</h3>
+                            <p class="text-xs text-slate-500">Immediate notifications</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                        Replace daily batch alerts with instant notifications when compliance issues are detected.
+                    </p>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-green-600 dark:text-green-400 font-medium">
+                            <i class="fas fa-clock mr-1"></i>90% faster response
+                        </span>
+                        <i class="fas fa-chevron-down transition-transform"></i>
+                    </div>
+                    <div class="accordion-content mt-4">
+                        <div class="flow-diagram">
+                            <div class="flow-step">
+                                <div class="flow-icon bg-blue-500 text-white"><i class="fas fa-webhook"></i></div>
+                                <div><strong>Trigger:</strong> Webhook on data change</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-purple-500 text-white"><i class="fas fa-filter"></i></div>
+                                <div><strong>Check:</strong> CDL/Medical expiring, CSA threshold</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-orange-500 text-white"><i class="fas fa-code-branch"></i></div>
+                                <div><strong>Route:</strong> Critical = immediate, Warning = digest</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-green-500 text-white"><i class="fas fa-paper-plane"></i></div>
+                                <div><strong>Action:</strong> Email + SMS to safety manager</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Workflow 1.2 -->
+                <div class="workflow-card glass-card rounded-2xl p-6 shadow-lg relative" data-priority="1" onclick="toggleWorkflow(this)">
+                    <div class="priority-badge priority-1">1</div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-file-pdf text-red-600 dark:text-red-400 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold">Scheduled Reports</h3>
+                            <p class="text-xs text-slate-500">Automated generation</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                        Robust report pipeline with retry logic, error handling, and admin notifications.
+                    </p>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-green-600 dark:text-green-400 font-medium">
+                            <i class="fas fa-check mr-1"></i>Zero missed reports
+                        </span>
+                        <i class="fas fa-chevron-down transition-transform"></i>
+                    </div>
+                    <div class="accordion-content mt-4">
+                        <div class="flow-diagram">
+                            <div class="flow-step">
+                                <div class="flow-icon bg-blue-500 text-white"><i class="fas fa-clock"></i></div>
+                                <div><strong>Trigger:</strong> Cron (configurable per report)</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-purple-500 text-white"><i class="fas fa-database"></i></div>
+                                <div><strong>Fetch:</strong> Due reports from API</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-orange-500 text-white"><i class="fas fa-file-export"></i></div>
+                                <div><strong>Generate:</strong> PDF via report endpoint</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-pink-500 text-white"><i class="fas fa-envelope"></i></div>
+                                <div><strong>Email:</strong> Send via Resend with attachment</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-green-500 text-white"><i class="fas fa-redo"></i></div>
+                                <div><strong>Retry:</strong> 3x with backoff on failure</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Workflow 1.3 -->
+                <div class="workflow-card glass-card rounded-2xl p-6 shadow-lg relative" data-priority="1" onclick="toggleWorkflow(this)">
+                    <div class="priority-badge priority-1">1</div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-sync text-red-600 dark:text-red-400 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold">FMCSA Auto-Import</h3>
+                            <p class="text-xs text-slate-500">Violation sync</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                        Hourly automatic sync with smart deduplication and auto-driver linking.
+                    </p>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-green-600 dark:text-green-400 font-medium">
+                            <i class="fas fa-hourglass mr-1"></i>4-6 hrs/month saved
+                        </span>
+                        <i class="fas fa-chevron-down transition-transform"></i>
+                    </div>
+                    <div class="accordion-content mt-4">
+                        <div class="flow-diagram">
+                            <div class="flow-step">
+                                <div class="flow-icon bg-blue-500 text-white"><i class="fas fa-clock"></i></div>
+                                <div><strong>Trigger:</strong> Hourly cron</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-purple-500 text-white"><i class="fas fa-download"></i></div>
+                                <div><strong>Fetch:</strong> FMCSA inspections by DOT#</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-orange-500 text-white"><i class="fas fa-code-compare"></i></div>
+                                <div><strong>Dedupe:</strong> Skip existing by reportNumber</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-pink-500 text-white"><i class="fas fa-link"></i></div>
+                                <div><strong>Link:</strong> Auto-match drivers by name</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-green-500 text-white"><i class="fas fa-bell"></i></div>
+                                <div><strong>Alert:</strong> Notify safety manager</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Workflow 1.4 -->
+                <div class="workflow-card glass-card rounded-2xl p-6 shadow-lg relative" data-priority="1" onclick="toggleWorkflow(this)">
+                    <div class="priority-badge priority-1">1</div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-calendar-times text-red-600 dark:text-red-400 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold">Document Expiry Cascade</h3>
+                            <p class="text-xs text-slate-500">Multi-touch reminders</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                        60/30/14/7-day reminder sequence with escalation to prevent compliance lapses.
+                    </p>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-green-600 dark:text-green-400 font-medium">
+                            <i class="fas fa-shield mr-1"></i>50% fewer audit issues
+                        </span>
+                        <i class="fas fa-chevron-down transition-transform"></i>
+                    </div>
+                    <div class="accordion-content mt-4">
+                        <div class="flow-diagram">
+                            <div class="flow-step">
+                                <div class="flow-icon bg-blue-500 text-white"><i class="fas fa-clock"></i></div>
+                                <div><strong>60 days:</strong> Email reminder to driver</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-purple-500 text-white"><i class="fas fa-tasks"></i></div>
+                                <div><strong>30 days:</strong> Email + create renewal task</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-orange-500 text-white"><i class="fas fa-user-plus"></i></div>
+                                <div><strong>14 days:</strong> CC safety manager</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-red-500 text-white"><i class="fas fa-sms"></i></div>
+                                <div><strong>7 days:</strong> Critical alert + SMS owner</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-slate-500 text-white"><i class="fas fa-ban"></i></div>
+                                <div><strong>Expired:</strong> Mark non-compliant</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Workflow 1.5 -->
+                <div class="workflow-card glass-card rounded-2xl p-6 shadow-lg relative" data-priority="1" onclick="toggleWorkflow(this)">
+                    <div class="priority-badge priority-1">1</div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-gavel text-red-600 dark:text-red-400 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold">DataQ Automation</h3>
+                            <p class="text-xs text-slate-500">AI-powered challenges</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                        Batch AI analysis with auto-generated challenge letters for high-score violations.
+                    </p>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-green-600 dark:text-green-400 font-medium">
+                            <i class="fas fa-hourglass mr-1"></i>10+ hrs/month saved
+                        </span>
+                        <i class="fas fa-chevron-down transition-transform"></i>
+                    </div>
+                    <div class="accordion-content mt-4">
+                        <div class="flow-diagram">
+                            <div class="flow-step">
+                                <div class="flow-icon bg-blue-500 text-white"><i class="fas fa-clock"></i></div>
+                                <div><strong>Trigger:</strong> Weekly (Monday 8 AM)</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-purple-500 text-white"><i class="fas fa-search"></i></div>
+                                <div><strong>Fetch:</strong> Challengeable violations</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-orange-500 text-white"><i class="fas fa-brain"></i></div>
+                                <div><strong>AI Score:</strong> Analyze challenge potential (0-100)</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-pink-500 text-white"><i class="fas fa-file-signature"></i></div>
+                                <div><strong>Generate:</strong> Letter for score >= 70</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-green-500 text-white"><i class="fas fa-tasks"></i></div>
+                                <div><strong>Task:</strong> Review letter + track deadline</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Workflow 2.1 -->
+                <div class="workflow-card glass-card rounded-2xl p-6 shadow-lg relative" data-priority="2" onclick="toggleWorkflow(this)">
+                    <div class="priority-badge priority-2">2</div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-user-plus text-orange-600 dark:text-orange-400 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold">Driver Onboarding</h3>
+                            <p class="text-xs text-slate-500">Automated setup</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                        Auto-create checklists, schedule tasks, and send welcome emails for new drivers.
+                    </p>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-green-600 dark:text-green-400 font-medium">
+                            <i class="fas fa-percent mr-1"></i>95% less manual work
+                        </span>
+                        <i class="fas fa-chevron-down transition-transform"></i>
+                    </div>
+                    <div class="accordion-content mt-4">
+                        <div class="flow-diagram">
+                            <div class="flow-step">
+                                <div class="flow-icon bg-blue-500 text-white"><i class="fas fa-webhook"></i></div>
+                                <div><strong>Trigger:</strong> New driver created</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-purple-500 text-white"><i class="fas fa-clipboard-list"></i></div>
+                                <div><strong>Create:</strong> Onboarding checklist</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-orange-500 text-white"><i class="fas fa-tasks"></i></div>
+                                <div><strong>Schedule:</strong> Clearinghouse, MVR, road test</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-green-500 text-white"><i class="fas fa-envelope"></i></div>
+                                <div><strong>Email:</strong> Welcome + required docs list</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Workflow 2.2 -->
+                <div class="workflow-card glass-card rounded-2xl p-6 shadow-lg relative" data-priority="2" onclick="toggleWorkflow(this)">
+                    <div class="priority-badge priority-2">2</div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-link text-orange-600 dark:text-orange-400 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold">Samsara Auto-Match</h3>
+                            <p class="text-xs text-slate-500">Fuzzy matching</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                        Automatically match pending Samsara records to VroomX drivers with confidence scoring.
+                    </p>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-green-600 dark:text-green-400 font-medium">
+                            <i class="fas fa-percent mr-1"></i>95% automation
+                        </span>
+                        <i class="fas fa-chevron-down transition-transform"></i>
+                    </div>
+                    <div class="accordion-content mt-4">
+                        <div class="flow-diagram">
+                            <div class="flow-step">
+                                <div class="flow-icon bg-blue-500 text-white"><i class="fas fa-sync"></i></div>
+                                <div><strong>Trigger:</strong> After Samsara sync</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-purple-500 text-white"><i class="fas fa-search"></i></div>
+                                <div><strong>Fuzzy Match:</strong> Name, license number</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-green-500 text-white"><i class="fas fa-check"></i></div>
+                                <div><strong>>= 90%:</strong> Auto-link records</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-orange-500 text-white"><i class="fas fa-question"></i></div>
+                                <div><strong>70-89%:</strong> Flag for review</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Workflow 2.3 -->
+                <div class="workflow-card glass-card rounded-2xl p-6 shadow-lg relative" data-priority="2" onclick="toggleWorkflow(this)">
+                    <div class="priority-badge priority-2">2</div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-car-crash text-orange-600 dark:text-orange-400 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold">Post-Accident Testing</h3>
+                            <p class="text-xs text-slate-500">Auto-trigger</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                        Automatically create drug/alcohol test when DOT-recordable accident is logged.
+                    </p>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-green-600 dark:text-green-400 font-medium">
+                            <i class="fas fa-shield mr-1"></i>100% compliance
+                        </span>
+                        <i class="fas fa-chevron-down transition-transform"></i>
+                    </div>
+                    <div class="accordion-content mt-4">
+                        <div class="flow-diagram">
+                            <div class="flow-step">
+                                <div class="flow-icon bg-blue-500 text-white"><i class="fas fa-webhook"></i></div>
+                                <div><strong>Trigger:</strong> Accident created</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-purple-500 text-white"><i class="fas fa-filter"></i></div>
+                                <div><strong>Check:</strong> isDotRecordable = true?</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-orange-500 text-white"><i class="fas fa-vial"></i></div>
+                                <div><strong>Create:</strong> Drug/Alcohol test record</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-red-500 text-white"><i class="fas fa-exclamation-triangle"></i></div>
+                                <div><strong>Task:</strong> Complete within 32 hours</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Workflow 2.4 -->
+                <div class="workflow-card glass-card rounded-2xl p-6 shadow-lg relative" data-priority="2" onclick="toggleWorkflow(this)">
+                    <div class="priority-badge priority-2">2</div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-random text-orange-600 dark:text-orange-400 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold">Random D&A Selection</h3>
+                            <p class="text-xs text-slate-500">Monthly automation</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                        Automated monthly random driver selection for 50% drug / 10% alcohol testing.
+                    </p>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-green-600 dark:text-green-400 font-medium">
+                            <i class="fas fa-clipboard-check mr-1"></i>Audit-ready
+                        </span>
+                        <i class="fas fa-chevron-down transition-transform"></i>
+                    </div>
+                    <div class="accordion-content mt-4">
+                        <div class="flow-diagram">
+                            <div class="flow-step">
+                                <div class="flow-icon bg-blue-500 text-white"><i class="fas fa-calendar"></i></div>
+                                <div><strong>Trigger:</strong> 1st of month, 8 AM</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-purple-500 text-white"><i class="fas fa-calculator"></i></div>
+                                <div><strong>Calculate:</strong> Required tests this month</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-orange-500 text-white"><i class="fas fa-dice"></i></div>
+                                <div><strong>Select:</strong> Random drivers (exclude recent)</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-green-500 text-white"><i class="fas fa-envelope"></i></div>
+                                <div><strong>Email:</strong> Selection list to coordinator</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Workflow 2.5 -->
+                <div class="workflow-card glass-card rounded-2xl p-6 shadow-lg relative" data-priority="2" onclick="toggleWorkflow(this)">
+                    <div class="priority-badge priority-2">2</div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-chart-line text-orange-600 dark:text-orange-400 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold">CSA Score Monitoring</h3>
+                            <p class="text-xs text-slate-500">Threshold alerts</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                        Real-time monitoring with immediate alerts when BASIC scores cross intervention thresholds.
+                    </p>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-green-600 dark:text-green-400 font-medium">
+                            <i class="fas fa-shield mr-1"></i>Proactive intervention
+                        </span>
+                        <i class="fas fa-chevron-down transition-transform"></i>
+                    </div>
+                    <div class="accordion-content mt-4">
+                        <div class="flow-diagram">
+                            <div class="flow-step">
+                                <div class="flow-icon bg-blue-500 text-white"><i class="fas fa-sync"></i></div>
+                                <div><strong>Trigger:</strong> After FMCSA sync</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-purple-500 text-white"><i class="fas fa-code-compare"></i></div>
+                                <div><strong>Compare:</strong> Current vs previous scores</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-orange-500 text-white"><i class="fas fa-exclamation"></i></div>
+                                <div><strong>65% crossed:</strong> Warning alert</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-red-500 text-white"><i class="fas fa-exclamation-triangle"></i></div>
+                                <div><strong>80%+ crossed:</strong> Critical + AI recommendations</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Workflow 2.6 -->
+                <div class="workflow-card glass-card rounded-2xl p-6 shadow-lg relative" data-priority="2" onclick="toggleWorkflow(this)">
+                    <div class="priority-badge priority-2">2</div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-credit-card text-orange-600 dark:text-orange-400 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold">Payment Recovery</h3>
+                            <p class="text-xs text-slate-500">Stripe dunning</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                        Automated payment recovery sequence with escalating reminders over 15 days.
+                    </p>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-green-600 dark:text-green-400 font-medium">
+                            <i class="fas fa-percent mr-1"></i>30-40% better recovery
+                        </span>
+                        <i class="fas fa-chevron-down transition-transform"></i>
+                    </div>
+                    <div class="accordion-content mt-4">
+                        <div class="flow-diagram">
+                            <div class="flow-step">
+                                <div class="flow-icon bg-red-500 text-white"><i class="fas fa-webhook"></i></div>
+                                <div><strong>Day 0:</strong> Payment failed email</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-orange-500 text-white"><i class="fas fa-envelope"></i></div>
+                                <div><strong>Day 3:</strong> First reminder</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-yellow-500 text-white"><i class="fas fa-user-tie"></i></div>
+                                <div><strong>Day 7:</strong> Escalate to owner + SMS</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-purple-500 text-white"><i class="fas fa-exclamation"></i></div>
+                                <div><strong>Day 14:</strong> Final warning</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="flow-icon bg-slate-500 text-white"><i class="fas fa-lock"></i></div>
+                                <div><strong>Day 15:</strong> Suspend account</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Workflow 3.1 -->
+                <div class="workflow-card glass-card rounded-2xl p-6 shadow-lg relative" data-priority="3" onclick="toggleWorkflow(this)">
+                    <div class="priority-badge priority-3">3</div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-wrench text-blue-600 dark:text-blue-400 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold">Maintenance Scheduling</h3>
+                            <p class="text-xs text-slate-500">Proactive reminders</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                        Auto-schedule next service based on time/mileage with telematics integration.
+                    </p>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-green-600 dark:text-green-400 font-medium">
+                            <i class="fas fa-truck mr-1"></i>Fleet uptime
+                        </span>
+                        <i class="fas fa-chevron-down transition-transform"></i>
+                    </div>
+                </div>
+
+                <!-- Workflow 3.2 -->
+                <div class="workflow-card glass-card rounded-2xl p-6 shadow-lg relative" data-priority="3" onclick="toggleWorkflow(this)">
+                    <div class="priority-badge priority-3">3</div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-database text-blue-600 dark:text-blue-400 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold">Clearinghouse Queries</h3>
+                            <p class="text-xs text-slate-500">Annual automation</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                        Auto-track annual query requirements and create tasks before expiry.
+                    </p>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-green-600 dark:text-green-400 font-medium">
+                            <i class="fas fa-check mr-1"></i>Never miss queries
+                        </span>
+                        <i class="fas fa-chevron-down transition-transform"></i>
+                    </div>
+                </div>
+
+                <!-- Workflow 3.3 -->
+                <div class="workflow-card glass-card rounded-2xl p-6 shadow-lg relative" data-priority="3" onclick="toggleWorkflow(this)">
+                    <div class="priority-badge priority-3">3</div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-heartbeat text-blue-600 dark:text-blue-400 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold">Health Score Dashboard</h3>
+                            <p class="text-xs text-slate-500">Daily calculation</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                        Composite compliance score with alerts on significant drops and weekly summaries.
+                    </p>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-green-600 dark:text-green-400 font-medium">
+                            <i class="fas fa-chart-pie mr-1"></i>Executive visibility
+                        </span>
+                        <i class="fas fa-chevron-down transition-transform"></i>
+                    </div>
+                </div>
+
+                <!-- Workflow 3.4 -->
+                <div class="workflow-card glass-card rounded-2xl p-6 shadow-lg relative" data-priority="3" onclick="toggleWorkflow(this)">
+                    <div class="priority-badge priority-3">3</div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-user-check text-blue-600 dark:text-blue-400 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold">Return-to-Duty Tracking</h3>
+                            <p class="text-xs text-slate-500">SAP follow-up</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                        Auto-track RTD process from positive test through all follow-up requirements.
+                    </p>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-green-600 dark:text-green-400 font-medium">
+                            <i class="fas fa-clipboard-list mr-1"></i>Full compliance
+                        </span>
+                        <i class="fas fa-chevron-down transition-transform"></i>
+                    </div>
+                </div>
+
+                <!-- Workflow 3.5 -->
+                <div class="workflow-card glass-card rounded-2xl p-6 shadow-lg relative" data-priority="3" onclick="toggleWorkflow(this)">
+                    <div class="priority-badge priority-3">3</div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-funnel-dollar text-blue-600 dark:text-blue-400 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold">Trial Conversion</h3>
+                            <p class="text-xs text-slate-500">Nurture sequence</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                        14-day personalized email sequence based on user engagement metrics.
+                    </p>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-green-600 dark:text-green-400 font-medium">
+                            <i class="fas fa-arrow-up mr-1"></i>Higher conversion
+                        </span>
+                        <i class="fas fa-chevron-down transition-transform"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ROI Section -->
+    <section id="roi" class="py-16 bg-white dark:bg-slate-800">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-4">Return on Investment</h2>
+                <p class="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+                    Implementing N8N automation delivers significant time and cost savings while improving compliance outcomes.
+                </p>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-8 mb-12">
+                <!-- Time Savings Chart -->
+                <div class="glass-card rounded-2xl p-6 shadow-xl">
+                    <h3 class="text-xl font-bold mb-4">Monthly Time Savings</h3>
+                    <canvas id="timeSavingsChart" height="300"></canvas>
+                </div>
+
+                <!-- ROI Summary -->
+                <div class="glass-card rounded-2xl p-6 shadow-xl">
+                    <h3 class="text-xl font-bold mb-6">Annual Impact Summary</h3>
+                    <div class="space-y-6">
+                        <div class="flex items-center justify-between p-4 bg-green-50 dark:bg-green-900/20 rounded-xl">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-clock text-green-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-lg">528 Hours</div>
+                                    <div class="text-sm text-slate-500">Time saved annually</div>
+                                </div>
+                            </div>
+                            <div class="text-2xl font-bold text-green-600">88%</div>
+                        </div>
+
+                        <div class="flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-dollar-sign text-blue-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-lg">$13,200</div>
+                                    <div class="text-sm text-slate-500">Cost savings (at $25/hr)</div>
+                                </div>
+                            </div>
+                            <div class="text-2xl font-bold text-blue-600">ROI</div>
+                        </div>
+
+                        <div class="flex items-center justify-between p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-bolt text-purple-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-lg">90% Faster</div>
+                                    <div class="text-sm text-slate-500">Alert response time</div>
+                                </div>
+                            </div>
+                            <div class="text-2xl font-bold text-purple-600">Real-time</div>
+                        </div>
+
+                        <div class="flex items-center justify-between p-4 bg-orange-50 dark:bg-orange-900/20 rounded-xl">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-shield-halved text-orange-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-lg">50% Fewer</div>
+                                    <div class="text-sm text-slate-500">Audit findings</div>
+                                </div>
+                            </div>
+                            <div class="text-2xl font-bold text-orange-600">Compliance</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Savings Breakdown Table -->
+            <div class="glass-card rounded-2xl p-6 shadow-xl overflow-x-auto">
+                <h3 class="text-xl font-bold mb-4">Detailed Savings Breakdown</h3>
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-slate-200 dark:border-slate-700">
+                            <th class="text-left py-3 px-4">Workflow</th>
+                            <th class="text-right py-3 px-4">Current (hrs/mo)</th>
+                            <th class="text-right py-3 px-4">Automated (hrs/mo)</th>
+                            <th class="text-right py-3 px-4">Savings</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-slate-100 dark:border-slate-700/50">
+                            <td class="py-3 px-4">Alert Management</td>
+                            <td class="text-right py-3 px-4 font-mono">8.0</td>
+                            <td class="text-right py-3 px-4 font-mono">1.0</td>
+                            <td class="text-right py-3 px-4 font-mono text-green-600">7.0 hrs</td>
+                        </tr>
+                        <tr class="border-b border-slate-100 dark:border-slate-700/50">
+                            <td class="py-3 px-4">Document Tracking</td>
+                            <td class="text-right py-3 px-4 font-mono">10.0</td>
+                            <td class="text-right py-3 px-4 font-mono">2.0</td>
+                            <td class="text-right py-3 px-4 font-mono text-green-600">8.0 hrs</td>
+                        </tr>
+                        <tr class="border-b border-slate-100 dark:border-slate-700/50">
+                            <td class="py-3 px-4">DataQ Analysis</td>
+                            <td class="text-right py-3 px-4 font-mono">8.0</td>
+                            <td class="text-right py-3 px-4 font-mono">1.0</td>
+                            <td class="text-right py-3 px-4 font-mono text-green-600">7.0 hrs</td>
+                        </tr>
+                        <tr class="border-b border-slate-100 dark:border-slate-700/50">
+                            <td class="py-3 px-4">Report Generation</td>
+                            <td class="text-right py-3 px-4 font-mono">6.0</td>
+                            <td class="text-right py-3 px-4 font-mono">0.5</td>
+                            <td class="text-right py-3 px-4 font-mono text-green-600">5.5 hrs</td>
+                        </tr>
+                        <tr class="border-b border-slate-100 dark:border-slate-700/50">
+                            <td class="py-3 px-4">Violation Import</td>
+                            <td class="text-right py-3 px-4 font-mono">6.0</td>
+                            <td class="text-right py-3 px-4 font-mono">0.5</td>
+                            <td class="text-right py-3 px-4 font-mono text-green-600">5.5 hrs</td>
+                        </tr>
+                        <tr class="border-b border-slate-100 dark:border-slate-700/50">
+                            <td class="py-3 px-4">Driver Onboarding</td>
+                            <td class="text-right py-3 px-4 font-mono">5.0</td>
+                            <td class="text-right py-3 px-4 font-mono">0.5</td>
+                            <td class="text-right py-3 px-4 font-mono text-green-600">4.5 hrs</td>
+                        </tr>
+                        <tr class="border-b border-slate-100 dark:border-slate-700/50">
+                            <td class="py-3 px-4">D&A Test Scheduling</td>
+                            <td class="text-right py-3 px-4 font-mono">4.0</td>
+                            <td class="text-right py-3 px-4 font-mono">0.25</td>
+                            <td class="text-right py-3 px-4 font-mono text-green-600">3.75 hrs</td>
+                        </tr>
+                        <tr class="border-b border-slate-100 dark:border-slate-700/50">
+                            <td class="py-3 px-4">Samsara Matching</td>
+                            <td class="text-right py-3 px-4 font-mono">3.0</td>
+                            <td class="text-right py-3 px-4 font-mono">0.25</td>
+                            <td class="text-right py-3 px-4 font-mono text-green-600">2.75 hrs</td>
+                        </tr>
+                        <tr class="bg-slate-50 dark:bg-slate-700/30 font-bold">
+                            <td class="py-3 px-4">TOTAL</td>
+                            <td class="text-right py-3 px-4 font-mono">50.0</td>
+                            <td class="text-right py-3 px-4 font-mono">6.0</td>
+                            <td class="text-right py-3 px-4 font-mono text-green-600">44.0 hrs</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Roadmap Section -->
+    <section id="roadmap" class="py-16 bg-slate-100 dark:bg-slate-900">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-4">Implementation Roadmap</h2>
+                <p class="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+                    8-week phased implementation plan to deploy all N8N workflows.
+                </p>
+            </div>
+
+            <div class="max-w-3xl mx-auto">
+                <div class="timeline-item">
+                    <div class="glass-card rounded-xl p-6 shadow-lg ml-4">
+                        <div class="flex items-center gap-3 mb-3">
+                            <span class="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full text-sm font-semibold">Week 1-2</span>
+                            <h3 class="font-bold">Foundation</h3>
+                        </div>
+                        <ul class="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+                            <li class="flex items-center gap-2"><i class="fas fa-check text-green-500"></i> Set up N8N instance (self-hosted or cloud)</li>
+                            <li class="flex items-center gap-2"><i class="fas fa-check text-green-500"></i> Create VroomX API credentials</li>
+                            <li class="flex items-center gap-2"><i class="fas fa-check text-green-500"></i> Implement webhook endpoints in backend</li>
+                            <li class="flex items-center gap-2"><i class="fas fa-check text-green-500"></i> Build Scheduled Report Automation</li>
+                            <li class="flex items-center gap-2"><i class="fas fa-check text-green-500"></i> Build Document Expiry Notifications</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="glass-card rounded-xl p-6 shadow-lg ml-4">
+                        <div class="flex items-center gap-3 mb-3">
+                            <span class="px-3 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-full text-sm font-semibold">Week 3-4</span>
+                            <h3 class="font-bold">Core Compliance</h3>
+                        </div>
+                        <ul class="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+                            <li class="flex items-center gap-2"><i class="fas fa-check text-green-500"></i> Build Real-Time Alert System</li>
+                            <li class="flex items-center gap-2"><i class="fas fa-check text-green-500"></i> Build FMCSA Violation Auto-Import</li>
+                            <li class="flex items-center gap-2"><i class="fas fa-check text-green-500"></i> Build Post-Accident Testing Trigger</li>
+                            <li class="flex items-center gap-2"><i class="fas fa-check text-green-500"></i> Build Random D&A Test Selection</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="glass-card rounded-xl p-6 shadow-lg ml-4">
+                        <div class="flex items-center gap-3 mb-3">
+                            <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-full text-sm font-semibold">Week 5-6</span>
+                            <h3 class="font-bold">Intelligence</h3>
+                        </div>
+                        <ul class="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+                            <li class="flex items-center gap-2"><i class="fas fa-check text-green-500"></i> Build DataQ Challenge Automation</li>
+                            <li class="flex items-center gap-2"><i class="fas fa-check text-green-500"></i> Build CSA Score Monitoring</li>
+                            <li class="flex items-center gap-2"><i class="fas fa-check text-green-500"></i> Build Driver Onboarding Automation</li>
+                            <li class="flex items-center gap-2"><i class="fas fa-check text-green-500"></i> Build Samsara Auto-Matching</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="glass-card rounded-xl p-6 shadow-lg ml-4">
+                        <div class="flex items-center gap-3 mb-3">
+                            <span class="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full text-sm font-semibold">Week 7-8</span>
+                            <h3 class="font-bold">Optimization</h3>
+                        </div>
+                        <ul class="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+                            <li class="flex items-center gap-2"><i class="fas fa-check text-green-500"></i> Build Stripe Payment Recovery</li>
+                            <li class="flex items-center gap-2"><i class="fas fa-check text-green-500"></i> Build Maintenance Scheduling</li>
+                            <li class="flex items-center gap-2"><i class="fas fa-check text-green-500"></i> Build Compliance Health Score</li>
+                            <li class="flex items-center gap-2"><i class="fas fa-check text-green-500"></i> Build Trial Conversion Sequence</li>
+                            <li class="flex items-center gap-2"><i class="fas fa-check text-green-500"></i> Performance tuning & monitoring</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture Section -->
+    <section id="architecture" class="py-16 bg-white dark:bg-slate-800">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-4">Technical Architecture</h2>
+                <p class="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+                    Webhook endpoints and credentials required for N8N integration.
+                </p>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-8">
+                <!-- Webhook Endpoints -->
+                <div class="glass-card rounded-2xl p-6 shadow-xl">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-code text-blue-600 dark:text-blue-400 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold">Webhook Endpoints</h3>
+                            <p class="text-sm text-slate-500">Add to backend</p>
+                        </div>
+                    </div>
+                    <div class="space-y-3 font-mono text-sm">
+                        <div class="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                            <span class="text-green-600">POST</span> /api/n8n/webhooks/driver-changed
+                        </div>
+                        <div class="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                            <span class="text-green-600">POST</span> /api/n8n/webhooks/document-changed
+                        </div>
+                        <div class="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                            <span class="text-green-600">POST</span> /api/n8n/webhooks/violation-imported
+                        </div>
+                        <div class="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                            <span class="text-green-600">POST</span> /api/n8n/webhooks/accident-created
+                        </div>
+                        <div class="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                            <span class="text-green-600">POST</span> /api/n8n/webhooks/csa-updated
+                        </div>
+                        <div class="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                            <span class="text-green-600">POST</span> /api/n8n/webhooks/test-recorded
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Credentials -->
+                <div class="glass-card rounded-2xl p-6 shadow-xl">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-key text-purple-600 dark:text-purple-400 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold">N8N Credentials</h3>
+                            <p class="text-sm text-slate-500">Required integrations</p>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                            <span class="font-medium">VroomX API</span>
+                            <span class="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-600 px-2 py-1 rounded">API Key / JWT</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                            <span class="font-medium">Resend</span>
+                            <span class="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-600 px-2 py-1 rounded">API Key</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                            <span class="font-medium">Stripe</span>
+                            <span class="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-600 px-2 py-1 rounded">Secret + Webhook</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                            <span class="font-medium">OpenAI</span>
+                            <span class="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-600 px-2 py-1 rounded">API Key</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                            <span class="font-medium">Anthropic</span>
+                            <span class="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-600 px-2 py-1 rounded">API Key</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                            <span class="font-medium">Twilio (optional)</span>
+                            <span class="text-xs bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300 px-2 py-1 rounded">SID + Token</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Deployment Options -->
+            <div class="mt-8 glass-card rounded-2xl p-6 shadow-xl">
+                <h3 class="text-xl font-bold mb-6">Recommended Deployment</h3>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="p-6 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl border-2 border-blue-200 dark:border-blue-800">
+                        <div class="flex items-center gap-2 mb-3">
+                            <i class="fas fa-star text-yellow-500"></i>
+                            <h4 class="font-bold">Self-Hosted (Recommended)</h4>
+                        </div>
+                        <ul class="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>Lower latency for webhooks</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>Sensitive data stays in-network</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>Full control over scaling</li>
+                            <li><i class="fas fa-dollar-sign text-slate-400 mr-2"></i>$50-100/month (VPS)</li>
+                        </ul>
+                    </div>
+                    <div class="p-6 bg-slate-50 dark:bg-slate-700/30 rounded-xl">
+                        <h4 class="font-bold mb-3">N8N Cloud (Alternative)</h4>
+                        <ul class="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>Zero maintenance</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>Auto-updates</li>
+                            <li><i class="fas fa-minus text-slate-400 mr-2"></i>Potential latency for high-frequency</li>
+                            <li><i class="fas fa-dollar-sign text-slate-400 mr-2"></i>$20-50/month (Team plan)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="gradient-bg text-white py-12">
+        <div class="container mx-auto px-6">
+            <div class="text-center">
+                <div class="flex items-center justify-center gap-3 mb-4">
+                    <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-truck text-xl"></i>
+                    </div>
+                    <span class="text-xl font-bold">VroomX Safety</span>
+                </div>
+                <p class="text-blue-200 mb-6">N8N Implementation Guide</p>
+                <p class="text-sm text-blue-300">
+                    Generated by Claude AI | February 2026
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Dark mode toggle
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
+        }
+
+        // Initialize dark mode from localStorage
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.documentElement.classList.add('dark');
+        }
+
+        // Filter workflows by priority
+        function filterWorkflows(priority) {
+            const cards = document.querySelectorAll('.workflow-card');
+            const buttons = document.querySelectorAll('.tab-btn');
+
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            cards.forEach(card => {
+                if (priority === 'all' || card.dataset.priority === priority) {
+                    card.style.display = 'block';
+                    card.style.animation = 'fadeInUp 0.3s ease forwards';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Toggle workflow accordion
+        function toggleWorkflow(card) {
+            const content = card.querySelector('.accordion-content');
+            const icon = card.querySelector('.fa-chevron-down');
+
+            if (content) {
+                content.classList.toggle('open');
+                if (icon) {
+                    icon.style.transform = content.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0)';
+                }
+            }
+        }
+
+        // Time savings chart
+        const ctx = document.getElementById('timeSavingsChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Alerts', 'Documents', 'DataQ', 'Reports', 'Violations', 'Onboarding', 'D&A', 'Samsara'],
+                datasets: [{
+                    label: 'Current (hrs)',
+                    data: [8, 10, 8, 6, 6, 5, 4, 3],
+                    backgroundColor: 'rgba(239, 68, 68, 0.7)',
+                    borderRadius: 4
+                }, {
+                    label: 'Automated (hrs)',
+                    data: [1, 2, 1, 0.5, 0.5, 0.5, 0.25, 0.25],
+                    backgroundColor: 'rgba(34, 197, 94, 0.7)',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Hours per Month'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Smooth scroll for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Update floating nav on scroll
+        window.addEventListener('scroll', () => {
+            const sections = ['hero', 'current', 'workflows', 'roi', 'roadmap', 'architecture'];
+            const navLinks = document.querySelectorAll('.floating-nav a');
+
+            sections.forEach((section, index) => {
+                const el = document.getElementById(section);
+                if (el) {
+                    const rect = el.getBoundingClientRect();
+                    if (rect.top <= 200 && rect.bottom >= 200) {
+                        navLinks.forEach(link => link.classList.remove('active'));
+                        navLinks[index]?.classList.add('active');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

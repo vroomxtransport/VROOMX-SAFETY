@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VroomX - Feature Mockup 2A: Enhanced Interactive Tabs</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary: #1E3A5F;
+            --primary-light: #2D5A87;
+            --primary-dark: #152A45;
+            --success: #22C55E;
+            --success-light: #DCFCE7;
+            --success-dark: #16A34A;
+            --cta: #F97316;
+            --cta-hover: #EA580C;
+            --text-primary: #1E293B;
+            --text-secondary: #475569;
+            --text-muted: #94A3B8;
+            --background: #F8FAFC;
+            --card-bg: #FFFFFF;
+            --border: #E2E8F0;
+            --ai-accent: #6366F1;
+            --ai-light: #EEF2FF;
+            --ai-dark: #4F46E5;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .mockup-label {
+            text-align: center;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--ai-accent) 0%, var(--ai-dark) 100%);
+            color: white;
+            font-weight: 700;
+            font-size: 0.875rem;
+            margin: 40px auto;
+            border-radius: 12px;
+            max-width: 1200px;
+        }
+
+        .features-section {
+            padding: 80px 24px 120px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--success-light);
+            color: var(--success-dark);
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            animation: fadeInDown 0.6s ease;
+        }
+
+        .section-header h2 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: fadeInUp 0.6s ease 0.1s both;
+        }
+
+        .section-header p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+            animation: fadeInUp 0.6s ease 0.2s both;
+        }
+
+        /* ANIMATED TAB NAVIGATION */
+        .tab-navigation {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 50px;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.6s ease 0.3s both;
+        }
+
+        .tab-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 28px;
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: 0;
+        }
+
+        .tab-btn:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(30, 58, 95, 0.15);
+        }
+
+        .tab-btn.active {
+            border-color: transparent;
+            color: white;
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(30, 58, 95, 0.25);
+        }
+
+        .tab-btn.active::before {
+            opacity: 1;
+        }
+
+        .tab-btn.ai-tab.active::before {
+            background: linear-gradient(135deg, var(--ai-accent) 0%, var(--ai-dark) 100%);
+        }
+
+        .tab-btn > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .tab-icon {
+            width: 24px;
+            height: 24px;
+            transition: transform 0.3s ease;
+        }
+
+        .tab-btn:hover .tab-icon {
+            transform: scale(1.1);
+        }
+
+        .tab-btn.active .tab-icon {
+            animation: iconPulse 2s ease infinite;
+        }
+
+        .ai-badge {
+            background: var(--ai-accent);
+            color: white;
+            font-size: 0.6rem;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            animation: shimmer 2s ease infinite;
+        }
+
+        .tab-btn.active .ai-badge {
+            background: rgba(255,255,255,0.25);
+        }
+
+        /* TAB CONTENT WRAPPER */
+        .tab-content-wrapper {
+            background: var(--card-bg);
+            border-radius: 32px;
+            box-shadow: 0 20px 60px rgba(30, 58, 95, 0.1);
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease 0.4s both;
+        }
+
+        .tab-content {
+            display: none;
+            opacity: 0;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: tabFadeIn 0.5s ease forwards;
+        }
+
+        @keyframes tabFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* FEATURE DISPLAY */
+        .feature-display {
+            display: grid;
+            grid-template-columns: 1fr 1.3fr;
+            min-height: 550px;
+        }
+
+        .feature-info {
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .feature-category {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 20px;
+            opacity: 0;
+            animation: slideInLeft 0.5s ease 0.2s forwards;
+        }
+
+        .feature-category.ai { color: var(--ai-accent); }
+        .feature-category.core { color: var(--primary); }
+        .feature-category.alert { color: var(--cta); }
+
+        .feature-category-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .feature-info h3 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.15;
+            opacity: 0;
+            animation: slideInLeft 0.5s ease 0.3s forwards;
+        }
+
+        .feature-info .description {
+            color: var(--text-secondary);
+            font-size: 1.15rem;
+            margin-bottom: 36px;
+            line-height: 1.8;
+            opacity: 0;
+            animation: slideInLeft 0.5s ease 0.4s forwards;
+        }
+
+        .feature-bullets {
+            list-style: none;
+            margin-bottom: 40px;
+        }
+
+        .feature-bullets li {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 1rem;
+            color: var(--text-secondary);
+            opacity: 0;
+            animation: slideInLeft 0.5s ease forwards;
+        }
+
+        .feature-bullets li:nth-child(1) { animation-delay: 0.5s; }
+        .feature-bullets li:nth-child(2) { animation-delay: 0.6s; }
+        .feature-bullets li:nth-child(3) { animation-delay: 0.7s; }
+        .feature-bullets li:nth-child(4) { animation-delay: 0.8s; }
+
+        .feature-bullets li:last-child {
+            border-bottom: none;
+        }
+
+        .bullet-icon {
+            width: 28px;
+            height: 28px;
+            background: var(--success-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--success);
+            flex-shrink: 0;
+        }
+
+        .bullet-icon i {
+            width: 14px;
+            height: 14px;
+        }
+
+        .feature-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 18px 36px;
+            background: linear-gradient(135deg, var(--cta) 0%, var(--cta-hover) 100%);
+            color: white;
+            border-radius: 14px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            width: fit-content;
+            opacity: 0;
+            animation: slideInLeft 0.5s ease 0.9s forwards;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-cta::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .feature-cta:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(249, 115, 22, 0.4);
+        }
+
+        .feature-cta:hover::before {
+            left: 100%;
+        }
+
+        .feature-cta i {
+            width: 20px;
+            height: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-cta:hover i {
+            transform: translateX(4px);
+        }
+
+        /* VISUAL SIDE */
+        .feature-visual {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 50px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-visual.bg-ai {
+            background: linear-gradient(135deg, var(--ai-accent) 0%, var(--ai-dark) 100%);
+        }
+
+        .feature-visual.bg-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        }
+
+        .feature-visual.bg-light {
+            background: linear-gradient(135deg, #F1F5F9 0%, #E2E8F0 100%);
+        }
+
+        .feature-visual.bg-success {
+            background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
+        }
+
+        .feature-visual.bg-warning {
+            background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+        }
+
+        /* Floating particles */
+        .feature-visual::before {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            top: -100px;
+            right: -100px;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .feature-visual::after {
+            content: '';
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            bottom: -50px;
+            left: -50px;
+            animation: float 8s ease-in-out infinite reverse;
+        }
+
+        /* VISUAL MOCKUP CARD */
+        .visual-mockup {
+            background: var(--card-bg);
+            border-radius: 24px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 480px;
+            overflow: hidden;
+            position: relative;
+            z-index: 2;
+            animation: mockupFloat 6s ease-in-out infinite;
+        }
+
+        @keyframes mockupFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .mockup-header {
+            padding: 16px 20px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mockup-dots {
+            display: flex;
+            gap: 8px;
+        }
+
+        .mockup-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        .mockup-dot:hover {
+            transform: scale(1.2);
+        }
+
+        .mockup-dot.red { background: #FF5F57; }
+        .mockup-dot.yellow { background: #FFBD2E; }
+        .mockup-dot.green { background: #28CA42; }
+
+        .mockup-title {
+            flex: 1;
+            text-align: center;
+            color: rgba(255,255,255,0.6);
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .mockup-body {
+            padding: 28px;
+            background: var(--background);
+        }
+
+        /* AI CHAT MOCKUP */
+        .ai-chat-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .chat-message {
+            display: flex;
+            gap: 14px;
+            opacity: 0;
+            animation: messageSlide 0.5s ease forwards;
+        }
+
+        .chat-message:nth-child(1) { animation-delay: 0.3s; }
+        .chat-message:nth-child(2) { animation-delay: 0.8s; }
+        .chat-message:nth-child(3) { animation-delay: 1.3s; }
+
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chat-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .chat-avatar.user {
+            background: linear-gradient(135deg, var(--border) 0%, #CBD5E1 100%);
+            color: var(--text-secondary);
+        }
+
+        .chat-avatar.ai {
+            background: linear-gradient(135deg, var(--ai-accent) 0%, var(--ai-dark) 100%);
+            color: white;
+        }
+
+        .chat-avatar i {
+            width: 22px;
+            height: 22px;
+        }
+
+        .chat-bubble {
+            background: var(--card-bg);
+            padding: 16px 20px;
+            border-radius: 18px;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            max-width: 320px;
+            line-height: 1.6;
+        }
+
+        .chat-bubble.ai {
+            background: linear-gradient(135deg, var(--ai-light) 0%, #E0E7FF 100%);
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 16px 20px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--ai-accent);
+            border-radius: 50%;
+            animation: typingBounce 1.4s ease infinite;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typingBounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-8px); }
+        }
+
+        /* CSA MOCKUP */
+        .csa-dashboard {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .csa-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .csa-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .csa-title i {
+            width: 24px;
+            height: 24px;
+            color: var(--primary);
+        }
+
+        .status-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--success-light);
+            color: var(--success-dark);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-pill i {
+            width: 16px;
+            height: 16px;
+        }
+
+        .csa-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .csa-bar-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            opacity: 0;
+            animation: barSlide 0.5s ease forwards;
+        }
+
+        .csa-bar-item:nth-child(1) { animation-delay: 0.3s; }
+        .csa-bar-item:nth-child(2) { animation-delay: 0.4s; }
+        .csa-bar-item:nth-child(3) { animation-delay: 0.5s; }
+        .csa-bar-item:nth-child(4) { animation-delay: 0.6s; }
+        .csa-bar-item:nth-child(5) { animation-delay: 0.7s; }
+
+        @keyframes barSlide {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .csa-label {
+            width: 110px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .csa-label i {
+            width: 16px;
+            height: 16px;
+        }
+
+        .csa-track {
+            flex: 1;
+            height: 14px;
+            background: var(--border);
+            border-radius: 7px;
+            overflow: hidden;
+        }
+
+        .csa-fill {
+            height: 100%;
+            border-radius: 7px;
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .csa-fill.green {
+            background: linear-gradient(90deg, var(--success) 0%, #34D399 100%);
+        }
+        .csa-fill.yellow {
+            background: linear-gradient(90deg, #EAB308 0%, #FBBF24 100%);
+        }
+        .csa-fill.red {
+            background: linear-gradient(90deg, #DC2626 0%, #EF4444 100%);
+        }
+
+        .csa-value {
+            width: 50px;
+            text-align: right;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* DQF MOCKUP */
+        .dqf-container {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .dqf-file {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 18px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            opacity: 0;
+            animation: fileSlide 0.5s ease forwards;
+        }
+
+        .dqf-file:nth-child(1) { animation-delay: 0.3s; }
+        .dqf-file:nth-child(2) { animation-delay: 0.5s; }
+        .dqf-file:nth-child(3) { animation-delay: 0.7s; }
+
+        @keyframes fileSlide {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .dqf-file:hover {
+            transform: translateX(8px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .dqf-icon {
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .dqf-icon i {
+            width: 26px;
+            height: 26px;
+        }
+
+        .dqf-icon.medical {
+            background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+        }
+
+        .dqf-icon.report {
+            background: linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%);
+        }
+
+        .dqf-details {
+            flex: 1;
+        }
+
+        .dqf-name {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .dqf-meta {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .dqf-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .dqf-status i {
+            width: 14px;
+            height: 14px;
+        }
+
+        .dqf-status.valid {
+            background: var(--success-light);
+            color: var(--success-dark);
+        }
+
+        .dqf-status.warning {
+            background: #FEF3C7;
+            color: #B45309;
+        }
+
+        /* ALERTS MOCKUP */
+        .alerts-container {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .alert-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 18px;
+            border-radius: 16px;
+            transition: all 0.3s ease;
+            opacity: 0;
+            animation: alertPop 0.5s ease forwards;
+        }
+
+        .alert-item:nth-child(1) { animation-delay: 0.3s; }
+        .alert-item:nth-child(2) { animation-delay: 0.5s; }
+        .alert-item:nth-child(3) { animation-delay: 0.7s; }
+
+        @keyframes alertPop {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .alert-item:hover {
+            transform: translateX(8px);
+        }
+
+        .alert-item.warning {
+            background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+        }
+
+        .alert-item.success {
+            background: linear-gradient(135deg, var(--success-light) 0%, #A7F3D0 100%);
+        }
+
+        .alert-item.info {
+            background: linear-gradient(135deg, var(--ai-light) 0%, #C7D2FE 100%);
+        }
+
+        .alert-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .alert-item.warning .alert-icon {
+            background: rgba(245, 158, 11, 0.2);
+            color: #B45309;
+        }
+
+        .alert-item.success .alert-icon {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--success-dark);
+        }
+
+        .alert-item.info .alert-icon {
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--ai-accent);
+        }
+
+        .alert-icon i {
+            width: 24px;
+            height: 24px;
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .alert-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .alert-time {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* DATAQ MOCKUP */
+        .dataq-container {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .dataq-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--ai-accent) 0%, var(--ai-dark) 100%);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            color: white;
+            animation: iconFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes iconFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(3deg); }
+        }
+
+        .dataq-icon i {
+            width: 40px;
+            height: 40px;
+        }
+
+        .dataq-status {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--ai-accent);
+            margin-bottom: 8px;
+        }
+
+        .dataq-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        .dataq-details {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: left;
+        }
+
+        .dataq-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .dataq-row:last-child {
+            border-bottom: none;
+        }
+
+        .dataq-row-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .dataq-row-value {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .dataq-row-value.success {
+            color: var(--success);
+        }
+
+        /* ANIMATIONS */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        @keyframes iconPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes shimmer {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1000px) {
+            .feature-display {
+                grid-template-columns: 1fr;
+            }
+            .feature-visual {
+                min-height: 400px;
+                order: -1;
+            }
+            .feature-info {
+                padding: 40px;
+            }
+        }
+
+        .design-notes {
+            max-width: 1200px;
+            margin: 60px auto;
+            padding: 24px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: 2px dashed var(--border);
+        }
+
+        .design-notes h4 {
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .design-notes ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px 32px;
+        }
+
+        .design-notes li {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            padding-left: 24px;
+            position: relative;
+        }
+
+        .design-notes li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--success);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="mockup-label">MOCKUP 2A: Enhanced Interactive Tabs — Smooth animations, Lucide icons, floating visuals</div>
+
+    <section class="features-section">
+        <div class="section-header">
+            <div class="section-badge">
+                <i data-lucide="sparkles" style="width:16px;height:16px;"></i>
+                Powerful Features
+            </div>
+            <h2>Everything You Need to Stay Compliant</h2>
+            <p>Click on any feature below to explore how VroomX keeps you audit-ready and stress-free.</p>
+        </div>
+
+        <div class="tab-navigation">
+            <button class="tab-btn active ai-tab" onclick="showTab('ai-assistant')">
+                <i data-lucide="bot" class="tab-icon"></i>
+                <span>AI Assistant</span>
+                <span class="ai-badge">AI</span>
+            </button>
+            <button class="tab-btn" onclick="showTab('csa-tracking')">
+                <i data-lucide="bar-chart-3" class="tab-icon"></i>
+                <span>CSA Tracking</span>
+            </button>
+            <button class="tab-btn" onclick="showTab('dqf-management')">
+                <i data-lucide="folder-open" class="tab-icon"></i>
+                <span>DQF Files</span>
+            </button>
+            <button class="tab-btn ai-tab" onclick="showTab('dataq-generator')">
+                <i data-lucide="file-text" class="tab-icon"></i>
+                <span>DataQ Generator</span>
+                <span class="ai-badge">AI</span>
+            </button>
+            <button class="tab-btn" onclick="showTab('smart-alerts')">
+                <i data-lucide="bell-ring" class="tab-icon"></i>
+                <span>Smart Alerts</span>
+            </button>
+        </div>
+
+        <div class="tab-content-wrapper">
+            <!-- AI Assistant Tab -->
+            <div class="tab-content active" id="ai-assistant">
+                <div class="feature-display">
+                    <div class="feature-info">
+                        <div class="feature-category ai">
+                            <i data-lucide="cpu" class="feature-category-icon"></i>
+                            AI-Powered
+                        </div>
+                        <h3>AI Regulation Assistant</h3>
+                        <p class="description">Ask any FMCSA regulation question and get instant, accurate answers. Like having a compliance expert on call 24/7, without the hourly fees.</p>
+                        <ul class="feature-bullets">
+                            <li>
+                                <span class="bullet-icon"><i data-lucide="zap"></i></span>
+                                Instant answers to complex regulation questions
+                            </li>
+                            <li>
+                                <span class="bullet-icon"><i data-lucide="refresh-cw"></i></span>
+                                Always up-to-date with latest FMCSA rules
+                            </li>
+                            <li>
+                                <span class="bullet-icon"><i data-lucide="message-circle"></i></span>
+                                Plain English explanations, no legal jargon
+                            </li>
+                            <li>
+                                <span class="bullet-icon"><i data-lucide="clock"></i></span>
+                                24/7 availability, unlimited queries
+                            </li>
+                        </ul>
+                        <a href="#" class="feature-cta">
+                            Try It Free
+                            <i data-lucide="arrow-right"></i>
+                        </a>
+                    </div>
+                    <div class="feature-visual bg-ai">
+                        <div class="visual-mockup">
+                            <div class="mockup-header">
+                                <div class="mockup-dots">
+                                    <div class="mockup-dot red"></div>
+                                    <div class="mockup-dot yellow"></div>
+                                    <div class="mockup-dot green"></div>
+                                </div>
+                                <div class="mockup-title">AI Regulation Assistant</div>
+                            </div>
+                            <div class="mockup-body">
+                                <div class="ai-chat-container">
+                                    <div class="chat-message">
+                                        <div class="chat-avatar user">
+                                            <i data-lucide="user"></i>
+                                        </div>
+                                        <div class="chat-bubble">What's the HOS limit for property-carrying drivers?</div>
+                                    </div>
+                                    <div class="chat-message">
+                                        <div class="chat-avatar ai">
+                                            <i data-lucide="bot"></i>
+                                        </div>
+                                        <div class="chat-bubble ai">Property-carrying drivers have an 11-hour driving limit after 10 consecutive hours off duty. Per §395.3, you also cannot drive beyond the 14th hour after coming on duty.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CSA Tracking Tab -->
+            <div class="tab-content" id="csa-tracking">
+                <div class="feature-display">
+                    <div class="feature-info">
+                        <div class="feature-category core">
+                            <i data-lucide="trending-up" class="feature-category-icon"></i>
+                            Analytics
+                        </div>
+                        <h3>CSA Score Tracking</h3>
+                        <p class="description">Monitor your CSA scores across all 7 BASICs in real-time. Understand what's affecting your numbers and get actionable recommendations to improve.</p>
+                        <ul class="feature-bullets">
+                            <li>
+                                <span class="bullet-icon"><i data-lucide="layout-dashboard"></i></span>
+                                Track all 7 BASICs in one dashboard
+                            </li>
+                            <li>
+                                <span class="bullet-icon"><i data-lucide="line-chart"></i></span>
+                                Historical trends & future projections
+                            </li>
+                            <li>
+                                <span class="bullet-icon"><i data-lucide="bell"></i></span>
+                                Instant alerts when scores change
+                            </li>
+                            <li>
+                                <span class="bullet-icon"><i data-lucide="lightbulb"></i></span>
+                                AI-powered recommendations to improve
+                            </li>
+                        </ul>
+                        <a href="#" class="feature-cta">
+                            Check Your Score
+                            <i data-lucide="arrow-right"></i>
+                        </a>
+                    </div>
+                    <div class="feature-visual bg-light">
+                        <div class="visual-mockup">
+                            <div class="mockup-header">
+                                <div class="mockup-dots">
+                                    <div class="mockup-dot red"></div>
+                                    <div class="mockup-dot yellow"></div>
+                                    <div class="mockup-dot green"></div>
+                                </div>
+                                <div class="mockup-title">CSA Dashboard</div>
+                            </div>
+                            <div class="mockup-body">
+                                <div class="csa-dashboard">
+                                    <div class="csa-header">
+                                        <span class="csa-title">
+                                            <i data-lucide="shield-check"></i>
+                                            CSA Score Overview
+                                        </span>
+                                        <span class="status-pill">
+                                            <i data-lucide="check-circle-2"></i>
+                                            Compliant
+                                        </span>
+                                    </div>
+                                    <div class="csa-bars">
+                                        <div class="csa-bar-item">
+                                            <span class="csa-label"><i data-lucide="car"></i> Unsafe Driving</span>
+                                            <div class="csa-track"><div class="csa-fill green" style="width: 32%"></div></div>
+                                            <span class="csa-value">32%</span>
+                                        </div>
+                                        <div class="csa-bar-item">
+                                            <span class="csa-label"><i data-lucide="clock"></i> HOS</span>
+                                            <div class="csa-track"><div class="csa-fill green" style="width: 45%"></div></div>
+                                            <span class="csa-value">45%</span>
+                                        </div>
+                                        <div class="csa-bar-item">
+                                            <span class="csa-label"><i data-lucide="wrench"></i> Vehicle Maint.</span>
+                                            <div class="csa-track"><div class="csa-fill yellow" style="width: 58%"></div></div>
+                                            <span class="csa-value">58%</span>
+                                        </div>
+                                        <div class="csa-bar-item">
+                                            <span class="csa-label"><i data-lucide="heart-pulse"></i> Driver Fitness</span>
+                                            <div class="csa-track"><div class="csa-fill green" style="width: 21%"></div></div>
+                                            <span class="csa-value">21%</span>
+                                        </div>
+                                        <div class="csa-bar-item">
+                                            <span class="csa-label"><i data-lucide="alert-triangle"></i> Crash</span>
+                                            <div class="csa-track"><div class="csa-fill green" style="width: 15%"></div></div>
+                                            <span class="csa-value">15%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DQF Management Tab -->
+            <div class="tab-content" id="dqf-management">
+                <div class="feature-display">
+                    <div class="feature-info">
+                        <div class="feature-category core">
+                            <i data-lucide="folder-open" class="feature-category-icon"></i>
+                            Document Management
+                        </div>
+                        <h3>DQF Management</h3>
+                        <p class="description">Store, organize, and track all your Driver Qualification Files in one secure place. Get alerts before documents expire and stay audit-ready.</p>
+                        <ul class="feature-bullets">
+                            <li>
+                                <span class="bullet-icon"><i data-lucide="cloud"></i></span>
+                                Secure cloud storage with encryption
+                            </li>
+                            <li>
+                                <span class="bullet-icon"><i data-lucide="calendar-clock"></i></span>
+                                Automatic document expiration tracking
+                            </li>
+                            <li>
+                                <span class="bullet-icon"><i data-lucide="file-down"></i></span>
+                                One-click audit report generation
+                            </li>
+                            <li>
+                                <span class="bullet-icon"><i data-lucide="files"></i></span>
+                                CDL, medical cards, MVRs, and more
+                            </li>
+                        </ul>
+                        <a href="#" class="feature-cta">
+                            Upload Documents
+                            <i data-lucide="arrow-right"></i>
+                        </a>
+                    </div>
+                    <div class="feature-visual bg-primary">
+                        <div class="visual-mockup">
+                            <div class="mockup-header">
+                                <div class="mockup-dots">
+                                    <div class="mockup-dot red"></div>
+                                    <div class="mockup-dot yellow"></div>
+                                    <div class="mockup-dot green"></div>
+                                </div>
+                                <div class="mockup-title">Driver Qualification Files</div>
+                            </div>
+                            <div class="mockup-body">
+                                <div class="dqf-container">
+                                    <div class="dqf-file">
+                                        <div class="dqf-icon">
+                                            <i data-lucide="id-card"></i>
+                                        </div>
+                                        <div class="dqf-details">
+                                            <div class="dqf-name">CDL - Mike Rodriguez</div>
+                                            <div class="dqf-meta">Expires: Dec 15, 2026</div>
+                                        </div>
+                                        <span class="dqf-status valid">
+                                            <i data-lucide="check"></i>
+                                            Valid
+                                        </span>
+                                    </div>
+                                    <div class="dqf-file">
+                                        <div class="dqf-icon medical">
+                                            <i data-lucide="stethoscope"></i>
+                                        </div>
+                                        <div class="dqf-details">
+                                            <div class="dqf-name">Medical Card - Mike R.</div>
+                                            <div class="dqf-meta">Expires: Mar 8, 2026</div>
+                                        </div>
+                                        <span class="dqf-status warning">
+                                            <i data-lucide="alert-circle"></i>
+                                            45 days
+                                        </span>
+                                    </div>
+                                    <div class="dqf-file">
+                                        <div class="dqf-icon report">
+                                            <i data-lucide="file-text"></i>
+                                        </div>
+                                        <div class="dqf-details">
+                                            <div class="dqf-name">MVR - Mike Rodriguez</div>
+                                            <div class="dqf-meta">Updated: Jan 10, 2026</div>
+                                        </div>
+                                        <span class="dqf-status valid">
+                                            <i data-lucide="check"></i>
+                                            Current
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DataQ Generator Tab -->
+            <div class="tab-content" id="dataq-generator">
+                <div class="feature-display">
+                    <div class="feature-info">
+                        <div class="feature-category ai">
+                            <i data-lucide="cpu" class="feature-category-icon"></i>
+                            AI-Powered
+                        </div>
+                        <h3>DataQ Challenge Generator</h3>
+                        <p class="description">Our AI identifies challengeable violations and drafts DataQ letters for you automatically. Remove unfair violations from your record and improve your CSA score.</p>
+                        <ul class="feature-bullets">
+                            <li>
+                                <span class="bullet-icon"><i data-lucide="search"></i></span>
+                                AI scans violations for challenge opportunities
+                            </li>
+                            <li>
+                                <span class="bullet-icon"><i data-lucide="file-signature"></i></span>
+                                Generates professional DataQ letters instantly
+                            </li>
+                            <li>
+                                <span class="bullet-icon"><i data-lucide="activity"></i></span>
+                                Tracks challenge status and outcomes
+                            </li>
+                            <li>
+                                <span class="bullet-icon"><i data-lucide="trophy"></i></span>
+                                Average 40% success rate on challenges
+                            </li>
+                        </ul>
+                        <a href="#" class="feature-cta">
+                            Challenge a Violation
+                            <i data-lucide="arrow-right"></i>
+                        </a>
+                    </div>
+                    <div class="feature-visual bg-ai">
+                        <div class="visual-mockup">
+                            <div class="mockup-header">
+                                <div class="mockup-dots">
+                                    <div class="mockup-dot red"></div>
+                                    <div class="mockup-dot yellow"></div>
+                                    <div class="mockup-dot green"></div>
+                                </div>
+                                <div class="mockup-title">DataQ Challenge Generator</div>
+                            </div>
+                            <div class="mockup-body">
+                                <div class="dataq-container">
+                                    <div class="dataq-icon">
+                                        <i data-lucide="file-check-2"></i>
+                                    </div>
+                                    <div class="dataq-status">DataQ Letter Ready</div>
+                                    <div class="dataq-subtitle">AI-generated challenge for speeding violation</div>
+                                    <div class="dataq-details">
+                                        <div class="dataq-row">
+                                            <span class="dataq-row-label">Challenge Basis</span>
+                                            <span class="dataq-row-value">Inaccurate speed measurement</span>
+                                        </div>
+                                        <div class="dataq-row">
+                                            <span class="dataq-row-label">Violation Type</span>
+                                            <span class="dataq-row-value">§392.2 - Speeding</span>
+                                        </div>
+                                        <div class="dataq-row">
+                                            <span class="dataq-row-label">Success Probability</span>
+                                            <span class="dataq-row-value success">68% (High)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Smart Alerts Tab -->
+            <div class="tab-content" id="smart-alerts">
+                <div class="feature-display">
+                    <div class="feature-info">
+                        <div class="feature-category alert">
+                            <i data-lucide="bell-ring" class="feature-category-icon"></i>
+                            Notifications
+                        </div>
+                        <h3>Smart Alerts</h3>
+                        <p class="description">Never miss an expiring document or compliance deadline again. Automated reminders via email, SMS, or push keep you and your drivers on track.</p>
+                        <ul class="feature-bullets">
+                            <li>
+                                <span class="bullet-icon"><i data-lucide="mail"></i></span>
+                                Email, SMS, and push notifications
+                            </li>
+                            <li>
+                                <span class="bullet-icon"><i data-lucide="calendar"></i></span>
+                                Customizable schedules (30, 14, 7 days)
+                            </li>
+                            <li>
+                                <span class="bullet-icon"><i data-lucide="users"></i></span>
+                                Driver and dispatcher alerts
+                            </li>
+                            <li>
+                                <span class="bullet-icon"><i data-lucide="bar-chart"></i></span>
+                                CSA score change notifications
+                            </li>
+                        </ul>
+                        <a href="#" class="feature-cta">
+                            Set Up Alerts
+                            <i data-lucide="arrow-right"></i>
+                        </a>
+                    </div>
+                    <div class="feature-visual bg-warning">
+                        <div class="visual-mockup">
+                            <div class="mockup-header">
+                                <div class="mockup-dots">
+                                    <div class="mockup-dot red"></div>
+                                    <div class="mockup-dot yellow"></div>
+                                    <div class="mockup-dot green"></div>
+                                </div>
+                                <div class="mockup-title">Notification Center</div>
+                            </div>
+                            <div class="mockup-body">
+                                <div class="alerts-container">
+                                    <div class="alert-item warning">
+                                        <div class="alert-icon">
+                                            <i data-lucide="alert-triangle"></i>
+                                        </div>
+                                        <div class="alert-content">
+                                            <div class="alert-title">Medical Card Expiring</div>
+                                            <div class="alert-subtitle">Mike R. - 45 days remaining</div>
+                                        </div>
+                                        <span class="alert-time">2h ago</span>
+                                    </div>
+                                    <div class="alert-item success">
+                                        <div class="alert-icon">
+                                            <i data-lucide="check-circle"></i>
+                                        </div>
+                                        <div class="alert-content">
+                                            <div class="alert-title">Annual Inspection Complete</div>
+                                            <div class="alert-subtitle">Truck #1042 - Updated today</div>
+                                        </div>
+                                        <span class="alert-time">5h ago</span>
+                                    </div>
+                                    <div class="alert-item info">
+                                        <div class="alert-icon">
+                                            <i data-lucide="trending-down"></i>
+                                        </div>
+                                        <div class="alert-content">
+                                            <div class="alert-title">CSA Score Improved</div>
+                                            <div class="alert-subtitle">Unsafe Driving: 35% → 32%</div>
+                                        </div>
+                                        <span class="alert-time">1d ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="design-notes">
+        <h4>
+            <i data-lucide="info" style="width:20px;height:20px;"></i>
+            Design Improvements in This Revision
+        </h4>
+        <ul>
+            <li>Lucide icons throughout for professional, consistent look</li>
+            <li>Smooth tab transitions with scale + fade animations</li>
+            <li>Floating particle effects in visual backgrounds</li>
+            <li>Staggered animation on feature bullets and mockup elements</li>
+            <li>Gradient text and hover effects on buttons</li>
+            <li>Mockup cards have subtle floating animation</li>
+            <li>Icons animate on tab activation (pulse effect)</li>
+            <li>Chat messages appear sequentially with slide animation</li>
+        </ul>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        function showTab(tabId) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Deactivate all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabId).classList.add('active');
+
+            // Activate clicked button
+            event.target.closest('.tab-btn').classList.add('active');
+
+            // Re-initialize icons for the new tab content
+            setTimeout(() => {
+                lucide.createIcons();
+            }, 100);
+        }
+    </script>
+</body>
+</html>

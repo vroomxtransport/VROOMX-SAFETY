@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VroomX Safety Manager Portal - Development Blueprint</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #1e3a5f 0%, #0d1b2a 100%); }
+        .card-gradient { background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%); }
+        .flow-arrow::after {
+            content: '→';
+            font-size: 2rem;
+            color: #3b82f6;
+            margin: 0 1rem;
+        }
+        .phase-card { transition: all 0.3s ease; }
+        .phase-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .feature-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+        .connector-line {
+            position: absolute;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            height: 3px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <!-- Header -->
+    <div class="gradient-bg text-white py-12">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
+                    <span class="text-3xl">🛡️</span>
+                </div>
+                <div>
+                    <h1 class="text-4xl font-bold">Safety Manager Portal</h1>
+                    <p class="text-blue-200 text-lg">Development Blueprint & Architecture</p>
+                </div>
+            </div>
+            <p class="text-xl text-gray-300 max-w-3xl mt-6">
+                A dedicated platform for independent safety managers and consultants to manage multiple trucking companies from a single dashboard.
+            </p>
+        </div>
+    </div>
+
+    <!-- The Big Picture -->
+    <div class="max-w-7xl mx-auto px-6 py-12">
+        <h2 class="text-3xl font-bold text-gray-800 mb-8 flex items-center gap-3">
+            <span class="text-4xl">🎯</span> The Big Picture
+        </h2>
+
+        <div class="bg-white rounded-3xl shadow-xl p-8 mb-12">
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Column 1: Fleet Owner -->
+                <div class="text-center">
+                    <div class="w-24 h-24 bg-blue-100 rounded-full mx-auto mb-4 flex items-center justify-center">
+                        <span class="text-5xl">🚛</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Fleet Owners</h3>
+                    <p class="text-gray-600 mb-4">Need help with compliance but can't afford full-time safety manager</p>
+                    <div class="bg-blue-50 rounded-xl p-4">
+                        <p class="text-sm text-blue-800 font-medium">Pain Points:</p>
+                        <ul class="text-sm text-gray-600 text-left mt-2 space-y-1">
+                            <li>• No time for paperwork</li>
+                            <li>• Confused by regulations</li>
+                            <li>• Fear of DOT audits</li>
+                            <li>• CSA scores dropping</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Arrow -->
+                <div class="flex items-center justify-center">
+                    <div class="text-center">
+                        <div class="w-32 h-32 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg">
+                            <span class="text-6xl">🔗</span>
+                        </div>
+                        <h3 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">VroomX</h3>
+                        <p class="text-gray-600">Connects Both Sides</p>
+                    </div>
+                </div>
+
+                <!-- Column 3: Safety Manager -->
+                <div class="text-center">
+                    <div class="w-24 h-24 bg-green-100 rounded-full mx-auto mb-4 flex items-center justify-center">
+                        <span class="text-5xl">👨‍💼</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Safety Managers</h3>
+                    <p class="text-gray-600 mb-4">Independent consultants managing multiple small fleets</p>
+                    <div class="bg-green-50 rounded-xl p-4">
+                        <p class="text-sm text-green-800 font-medium">Their Needs:</p>
+                        <ul class="text-sm text-gray-600 text-left mt-2 space-y-1">
+                            <li>• Find new clients</li>
+                            <li>• Manage many companies</li>
+                            <li>• Single dashboard view</li>
+                            <li>• Billing automation</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Two Portal Types -->
+        <h2 class="text-3xl font-bold text-gray-800 mb-8 flex items-center gap-3">
+            <span class="text-4xl">🏗️</span> Portal Architecture
+        </h2>
+
+        <div class="grid md:grid-cols-2 gap-8 mb-12">
+            <!-- Fleet Portal -->
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden">
+                <div class="bg-blue-600 text-white p-6">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center">
+                            <span class="text-3xl">🚛</span>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold">Fleet Owner Portal</h3>
+                            <p class="text-blue-200">Already Building (MVP)</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-600 mb-4">What fleet owners see when they login:</p>
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                            <span class="text-xl">📊</span>
+                            <span class="font-medium">Dashboard</span>
+                            <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full ml-auto">Built</span>
+                        </div>
+                        <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                            <span class="text-xl">👥</span>
+                            <span class="font-medium">Drivers</span>
+                            <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full ml-auto">Built</span>
+                        </div>
+                        <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                            <span class="text-xl">🚚</span>
+                            <span class="font-medium">Vehicles</span>
+                            <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full ml-auto">Built</span>
+                        </div>
+                        <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                            <span class="text-xl">🔔</span>
+                            <span class="font-medium">Alerts</span>
+                            <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full ml-auto">Built</span>
+                        </div>
+                        <div class="flex items-center gap-3 p-3 bg-blue-50 rounded-xl border-2 border-blue-200">
+                            <span class="text-xl">🛡️</span>
+                            <span class="font-medium text-blue-800">Find Safety Manager</span>
+                            <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full ml-auto">NEW</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Safety Manager Portal -->
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden">
+                <div class="bg-gradient-to-r from-green-600 to-emerald-600 text-white p-6">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center">
+                            <span class="text-3xl">👨‍💼</span>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold">Safety Manager Portal</h3>
+                            <p class="text-green-200">NEW - To Build</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-600 mb-4">What safety managers see when they login:</p>
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-3 p-3 bg-green-50 rounded-xl border-2 border-green-200">
+                            <span class="text-xl">🏢</span>
+                            <span class="font-medium text-green-800">All Companies View</span>
+                            <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full ml-auto">Priority</span>
+                        </div>
+                        <div class="flex items-center gap-3 p-3 bg-green-50 rounded-xl border-2 border-green-200">
+                            <span class="text-xl">🔄</span>
+                            <span class="font-medium text-green-800">Switch Company</span>
+                            <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full ml-auto">Priority</span>
+                        </div>
+                        <div class="flex items-center gap-3 p-3 bg-green-50 rounded-xl border-2 border-green-200">
+                            <span class="text-xl">📋</span>
+                            <span class="font-medium text-green-800">Task Manager</span>
+                            <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full ml-auto">Priority</span>
+                        </div>
+                        <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                            <span class="text-xl">💰</span>
+                            <span class="font-medium">Billing & Invoices</span>
+                        </div>
+                        <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                            <span class="text-xl">👤</span>
+                            <span class="font-medium">My Profile/Listing</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Roles & Flow -->
+        <h2 class="text-3xl font-bold text-gray-800 mb-8 flex items-center gap-3">
+            <span class="text-4xl">👥</span> User Roles & Registration Flow
+        </h2>
+
+        <div class="bg-white rounded-3xl shadow-xl p-8 mb-12">
+            <div class="grid md:grid-cols-2 gap-12">
+                <!-- Fleet Owner Registration -->
+                <div>
+                    <h4 class="text-xl font-bold text-blue-600 mb-6 flex items-center gap-2">
+                        <span class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">🚛</span>
+                        Fleet Owner Registration
+                    </h4>
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-4">
+                            <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center flex-shrink-0 font-bold">1</div>
+                            <div>
+                                <p class="font-medium text-gray-800">Sign Up</p>
+                                <p class="text-sm text-gray-600">Email, password, company name</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center flex-shrink-0 font-bold">2</div>
+                            <div>
+                                <p class="font-medium text-gray-800">Enter DOT/MC Number</p>
+                                <p class="text-sm text-gray-600">We pull company data from FMCSA</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center flex-shrink-0 font-bold">3</div>
+                            <div>
+                                <p class="font-medium text-gray-800">Choose Plan</p>
+                                <p class="text-sm text-gray-600">$49/mo Basic or $99/mo Pro</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center flex-shrink-0 font-bold">4</div>
+                            <div>
+                                <p class="font-medium text-gray-800">Optional: Find Safety Manager</p>
+                                <p class="text-sm text-gray-600">Browse marketplace or get matched</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Safety Manager Registration -->
+                <div>
+                    <h4 class="text-xl font-bold text-green-600 mb-6 flex items-center gap-2">
+                        <span class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">👨‍💼</span>
+                        Safety Manager Registration
+                    </h4>
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-4">
+                            <div class="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center flex-shrink-0 font-bold">1</div>
+                            <div>
+                                <p class="font-medium text-gray-800">Apply as Safety Manager</p>
+                                <p class="text-sm text-gray-600">Name, experience, certifications</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center flex-shrink-0 font-bold">2</div>
+                            <div>
+                                <p class="font-medium text-gray-800">Verification</p>
+                                <p class="text-sm text-gray-600">We verify credentials (manual review)</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center flex-shrink-0 font-bold">3</div>
+                            <div>
+                                <p class="font-medium text-gray-800">Create Profile</p>
+                                <p class="text-sm text-gray-600">Bio, services, pricing, availability</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center flex-shrink-0 font-bold">4</div>
+                            <div>
+                                <p class="font-medium text-gray-800">Go Live on Marketplace</p>
+                                <p class="text-sm text-gray-600">Start receiving client requests</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Database Schema -->
+        <h2 class="text-3xl font-bold text-gray-800 mb-8 flex items-center gap-3">
+            <span class="text-4xl">🗄️</span> Database Structure (New Models)
+        </h2>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            <!-- SafetyManager Model -->
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="bg-green-600 text-white p-4">
+                    <h4 class="font-bold text-lg">SafetyManager Model</h4>
+                    <p class="text-green-200 text-sm">New Collection</p>
+                </div>
+                <div class="p-4">
+                    <code class="text-sm">
+                        <pre class="bg-gray-50 p-3 rounded-lg overflow-x-auto text-xs">
+{
+  _id: ObjectId,
+  userId: ref → User,
+
+  // Profile Info
+  firstName: String,
+  lastName: String,
+  phone: String,
+  photo: String,
+  bio: String,
+
+  // Credentials
+  certifications: [String],
+  yearsExperience: Number,
+  specialties: [String],
+
+  // Business
+  hourlyRate: Number,
+  monthlyRate: Number,
+  availability: String,
+  maxClients: Number,
+
+  // Status
+  isVerified: Boolean,
+  isActive: Boolean,
+  rating: Number,
+  reviewCount: Number,
+
+  createdAt: Date
+}
+                        </pre>
+                    </code>
+                </div>
+            </div>
+
+            <!-- ClientAssignment Model -->
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="bg-purple-600 text-white p-4">
+                    <h4 class="font-bold text-lg">ClientAssignment Model</h4>
+                    <p class="text-purple-200 text-sm">Links Manager ↔ Company</p>
+                </div>
+                <div class="p-4">
+                    <code class="text-sm">
+                        <pre class="bg-gray-50 p-3 rounded-lg overflow-x-auto text-xs">
+{
+  _id: ObjectId,
+
+  safetyManagerId: ref → SafetyManager,
+  companyId: ref → Company,
+
+  // Agreement
+  status: 'pending' | 'active' |
+          'paused' | 'terminated',
+  startDate: Date,
+  endDate: Date,
+
+  // Billing
+  billingType: 'hourly' | 'monthly',
+  rate: Number,
+
+  // Access Level
+  permissions: {
+    viewDrivers: Boolean,
+    editDrivers: Boolean,
+    viewVehicles: Boolean,
+    runReports: Boolean,
+    // etc.
+  },
+
+  createdAt: Date
+}
+                        </pre>
+                    </code>
+                </div>
+            </div>
+
+            <!-- Update User Model -->
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="bg-blue-600 text-white p-4">
+                    <h4 class="font-bold text-lg">User Model Update</h4>
+                    <p class="text-blue-200 text-sm">Add role field</p>
+                </div>
+                <div class="p-4">
+                    <code class="text-sm">
+                        <pre class="bg-gray-50 p-3 rounded-lg overflow-x-auto text-xs">
+{
+  // Existing fields...
+  email: String,
+  password: String,
+
+  // ADD THIS:
+  role: {
+    type: String,
+    enum: [
+      'fleet_owner',
+      'fleet_admin',
+      'safety_manager',
+      'driver'
+    ],
+    default: 'fleet_owner'
+  },
+
+  // For safety managers
+  safetyManagerProfile: {
+    type: ObjectId,
+    ref: 'SafetyManager'
+  }
+}
+                        </pre>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <!-- Safety Manager Dashboard Wireframe -->
+        <h2 class="text-3xl font-bold text-gray-800 mb-8 flex items-center gap-3">
+            <span class="text-4xl">📱</span> Safety Manager Dashboard (Wireframe)
+        </h2>
+
+        <div class="bg-white rounded-3xl shadow-xl overflow-hidden mb-12">
+            <!-- Mock Browser Bar -->
+            <div class="bg-gray-100 px-4 py-3 flex items-center gap-2 border-b">
+                <div class="flex gap-2">
+                    <div class="w-3 h-3 bg-red-400 rounded-full"></div>
+                    <div class="w-3 h-3 bg-yellow-400 rounded-full"></div>
+                    <div class="w-3 h-3 bg-green-400 rounded-full"></div>
+                </div>
+                <div class="flex-1 bg-white rounded-lg px-4 py-1 text-sm text-gray-500 ml-4">
+                    app.vroomxsafety.com/manager/dashboard
+                </div>
+            </div>
+
+            <div class="flex">
+                <!-- Sidebar -->
+                <div class="w-64 bg-gray-900 text-white p-4 min-h-[600px]">
+                    <div class="flex items-center gap-3 mb-8">
+                        <div class="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center">
+                            <span class="text-xl">🛡️</span>
+                        </div>
+                        <div>
+                            <p class="font-bold">VroomX</p>
+                            <p class="text-xs text-gray-400">Safety Manager</p>
+                        </div>
+                    </div>
+
+                    <!-- Company Switcher -->
+                    <div class="bg-gray-800 rounded-xl p-3 mb-6">
+                        <p class="text-xs text-gray-400 mb-2">Current Company</p>
+                        <select class="w-full bg-gray-700 rounded-lg px-3 py-2 text-sm">
+                            <option>🏢 All Companies (5)</option>
+                            <option>ABC Trucking LLC</option>
+                            <option>Fast Freight Inc</option>
+                            <option>Metro Logistics</option>
+                        </select>
+                    </div>
+
+                    <nav class="space-y-2">
+                        <a href="#" class="flex items-center gap-3 px-3 py-2 bg-green-600 rounded-lg">
+                            <span>📊</span> Overview
+                        </a>
+                        <a href="#" class="flex items-center gap-3 px-3 py-2 text-gray-400 hover:bg-gray-800 rounded-lg">
+                            <span>🏢</span> My Companies
+                        </a>
+                        <a href="#" class="flex items-center gap-3 px-3 py-2 text-gray-400 hover:bg-gray-800 rounded-lg">
+                            <span>📋</span> Tasks
+                        </a>
+                        <a href="#" class="flex items-center gap-3 px-3 py-2 text-gray-400 hover:bg-gray-800 rounded-lg">
+                            <span>🔔</span> All Alerts
+                        </a>
+                        <a href="#" class="flex items-center gap-3 px-3 py-2 text-gray-400 hover:bg-gray-800 rounded-lg">
+                            <span>📈</span> Reports
+                        </a>
+                        <a href="#" class="flex items-center gap-3 px-3 py-2 text-gray-400 hover:bg-gray-800 rounded-lg">
+                            <span>💰</span> Billing
+                        </a>
+                        <a href="#" class="flex items-center gap-3 px-3 py-2 text-gray-400 hover:bg-gray-800 rounded-lg">
+                            <span>👤</span> My Profile
+                        </a>
+                    </nav>
+                </div>
+
+                <!-- Main Content -->
+                <div class="flex-1 p-6 bg-gray-50">
+                    <!-- Header -->
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800">Good morning, John! 👋</h2>
+                            <p class="text-gray-600">Managing 5 companies • 47 drivers total</p>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <button class="bg-green-600 text-white px-4 py-2 rounded-lg font-medium">
+                                + New Task
+                            </button>
+                            <div class="w-10 h-10 bg-gray-300 rounded-full"></div>
+                        </div>
+                    </div>
+
+                    <!-- Stats Row -->
+                    <div class="grid grid-cols-4 gap-4 mb-6">
+                        <div class="bg-white rounded-xl p-4 shadow-sm">
+                            <p class="text-gray-500 text-sm">Companies</p>
+                            <p class="text-3xl font-bold text-gray-800">5</p>
+                            <p class="text-green-600 text-sm">+1 this month</p>
+                        </div>
+                        <div class="bg-white rounded-xl p-4 shadow-sm">
+                            <p class="text-gray-500 text-sm">Total Drivers</p>
+                            <p class="text-3xl font-bold text-gray-800">47</p>
+                        </div>
+                        <div class="bg-white rounded-xl p-4 shadow-sm">
+                            <p class="text-gray-500 text-sm">Open Tasks</p>
+                            <p class="text-3xl font-bold text-orange-600">12</p>
+                            <p class="text-orange-600 text-sm">3 due today</p>
+                        </div>
+                        <div class="bg-white rounded-xl p-4 shadow-sm">
+                            <p class="text-gray-500 text-sm">Monthly Revenue</p>
+                            <p class="text-3xl font-bold text-green-600">$2,450</p>
+                        </div>
+                    </div>
+
+                    <!-- Companies Overview -->
+                    <div class="bg-white rounded-xl shadow-sm mb-6">
+                        <div class="p-4 border-b flex justify-between items-center">
+                            <h3 class="font-bold text-gray-800">Companies Overview</h3>
+                            <button class="text-blue-600 text-sm">View All →</button>
+                        </div>
+                        <div class="divide-y">
+                            <!-- Company Row -->
+                            <div class="p-4 flex items-center justify-between hover:bg-gray-50">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                                        <span class="text-xl">🚛</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-gray-800">ABC Trucking LLC</p>
+                                        <p class="text-sm text-gray-500">DOT: 1234567 • 12 drivers</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-6">
+                                    <div class="text-center">
+                                        <p class="text-2xl font-bold text-green-600">A</p>
+                                        <p class="text-xs text-gray-500">CSA Grade</p>
+                                    </div>
+                                    <div class="text-center">
+                                        <p class="text-lg font-bold text-orange-600">2</p>
+                                        <p class="text-xs text-gray-500">Alerts</p>
+                                    </div>
+                                    <button class="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg text-sm font-medium">
+                                        Open →
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- Company Row 2 -->
+                            <div class="p-4 flex items-center justify-between hover:bg-gray-50">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                                        <span class="text-xl">🚚</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-gray-800">Fast Freight Inc</p>
+                                        <p class="text-sm text-gray-500">DOT: 7654321 • 8 drivers</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-6">
+                                    <div class="text-center">
+                                        <p class="text-2xl font-bold text-yellow-600">B</p>
+                                        <p class="text-xs text-gray-500">CSA Grade</p>
+                                    </div>
+                                    <div class="text-center">
+                                        <p class="text-lg font-bold text-red-600">5</p>
+                                        <p class="text-xs text-gray-500">Alerts</p>
+                                    </div>
+                                    <button class="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg text-sm font-medium">
+                                        Open →
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- Company Row 3 -->
+                            <div class="p-4 flex items-center justify-between hover:bg-gray-50">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                                        <span class="text-xl">📦</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-gray-800">Metro Logistics</p>
+                                        <p class="text-sm text-gray-500">DOT: 9876543 • 15 drivers</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-6">
+                                    <div class="text-center">
+                                        <p class="text-2xl font-bold text-green-600">A+</p>
+                                        <p class="text-xs text-gray-500">CSA Grade</p>
+                                    </div>
+                                    <div class="text-center">
+                                        <p class="text-lg font-bold text-gray-400">0</p>
+                                        <p class="text-xs text-gray-500">Alerts</p>
+                                    </div>
+                                    <button class="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg text-sm font-medium">
+                                        Open →
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Urgent Tasks -->
+                    <div class="bg-white rounded-xl shadow-sm">
+                        <div class="p-4 border-b flex justify-between items-center">
+                            <h3 class="font-bold text-gray-800">🔥 Urgent Tasks</h3>
+                            <span class="bg-red-100 text-red-600 px-2 py-1 rounded-full text-sm">3 due today</span>
+                        </div>
+                        <div class="divide-y">
+                            <div class="p-4 flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <input type="checkbox" class="w-5 h-5 rounded">
+                                    <div>
+                                        <p class="font-medium text-gray-800">Medical card expiring - John Smith</p>
+                                        <p class="text-sm text-gray-500">ABC Trucking • Due: Today</p>
+                                    </div>
+                                </div>
+                                <span class="bg-red-100 text-red-600 px-3 py-1 rounded-full text-sm">Urgent</span>
+                            </div>
+                            <div class="p-4 flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <input type="checkbox" class="w-5 h-5 rounded">
+                                    <div>
+                                        <p class="font-medium text-gray-800">Annual Clearinghouse query needed</p>
+                                        <p class="text-sm text-gray-500">Fast Freight • Due: Today</p>
+                                    </div>
+                                </div>
+                                <span class="bg-red-100 text-red-600 px-3 py-1 rounded-full text-sm">Urgent</span>
+                            </div>
+                            <div class="p-4 flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <input type="checkbox" class="w-5 h-5 rounded">
+                                    <div>
+                                        <p class="font-medium text-gray-800">Vehicle inspection due - Truck #102</p>
+                                        <p class="text-sm text-gray-500">Metro Logistics • Due: Tomorrow</p>
+                                    </div>
+                                </div>
+                                <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm">Soon</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Marketplace Page Wireframe -->
+        <h2 class="text-3xl font-bold text-gray-800 mb-8 flex items-center gap-3">
+            <span class="text-4xl">🛒</span> Safety Manager Marketplace (Fleet Owner View)
+        </h2>
+
+        <div class="bg-white rounded-3xl shadow-xl overflow-hidden mb-12">
+            <!-- Mock Browser Bar -->
+            <div class="bg-gray-100 px-4 py-3 flex items-center gap-2 border-b">
+                <div class="flex gap-2">
+                    <div class="w-3 h-3 bg-red-400 rounded-full"></div>
+                    <div class="w-3 h-3 bg-yellow-400 rounded-full"></div>
+                    <div class="w-3 h-3 bg-green-400 rounded-full"></div>
+                </div>
+                <div class="flex-1 bg-white rounded-lg px-4 py-1 text-sm text-gray-500 ml-4">
+                    app.vroomxsafety.com/marketplace
+                </div>
+            </div>
+
+            <div class="p-8">
+                <!-- Header -->
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">Find a Safety Manager</h2>
+                    <p class="text-gray-600">Connect with verified FMCSA compliance experts</p>
+                </div>
+
+                <!-- Filters -->
+                <div class="flex gap-4 mb-8 flex-wrap">
+                    <select class="border rounded-lg px-4 py-2">
+                        <option>All Specialties</option>
+                        <option>DOT Audits</option>
+                        <option>Drug & Alcohol</option>
+                        <option>Hours of Service</option>
+                    </select>
+                    <select class="border rounded-lg px-4 py-2">
+                        <option>Any Experience</option>
+                        <option>5+ years</option>
+                        <option>10+ years</option>
+                    </select>
+                    <select class="border rounded-lg px-4 py-2">
+                        <option>Any Price</option>
+                        <option>Under $500/mo</option>
+                        <option>$500-1000/mo</option>
+                    </select>
+                    <select class="border rounded-lg px-4 py-2">
+                        <option>Highest Rated</option>
+                        <option>Most Reviews</option>
+                        <option>Lowest Price</option>
+                    </select>
+                </div>
+
+                <!-- Manager Cards -->
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Manager Card 1 -->
+                    <div class="border rounded-2xl p-6 hover:shadow-lg transition-shadow">
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                                <span class="text-3xl">👨‍💼</span>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-800">Michael Rodriguez</h4>
+                                <div class="flex items-center gap-1 text-yellow-500">
+                                    ⭐⭐⭐⭐⭐ <span class="text-gray-600 text-sm">(24 reviews)</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <p class="text-gray-600 text-sm">Former DOT inspector with 15+ years experience. Specializing in audit preparation and CSA score improvement.</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs">DOT Audits</span>
+                            <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">CSA Scores</span>
+                            <span class="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs">HOS</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-2xl font-bold text-gray-800">$450<span class="text-sm font-normal text-gray-500">/month</span></p>
+                            </div>
+                            <button class="bg-green-600 text-white px-4 py-2 rounded-lg font-medium">
+                                Contact
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Manager Card 2 -->
+                    <div class="border rounded-2xl p-6 hover:shadow-lg transition-shadow">
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center">
+                                <span class="text-3xl">👩‍💼</span>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-800">Sarah Johnson</h4>
+                                <div class="flex items-center gap-1 text-yellow-500">
+                                    ⭐⭐⭐⭐⭐ <span class="text-gray-600 text-sm">(18 reviews)</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <p class="text-gray-600 text-sm">Drug & Alcohol program specialist. C/TPA certified. Managing Clearinghouse compliance for 50+ companies.</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs">Drug & Alcohol</span>
+                            <span class="bg-orange-100 text-orange-700 px-2 py-1 rounded-full text-xs">Clearinghouse</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-2xl font-bold text-gray-800">$350<span class="text-sm font-normal text-gray-500">/month</span></p>
+                            </div>
+                            <button class="bg-green-600 text-white px-4 py-2 rounded-lg font-medium">
+                                Contact
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Manager Card 3 -->
+                    <div class="border rounded-2xl p-6 hover:shadow-lg transition-shadow relative">
+                        <div class="absolute top-4 right-4 bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full text-xs font-bold">
+                            TOP RATED
+                        </div>
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                                <span class="text-3xl">👨‍💼</span>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-800">James Wilson</h4>
+                                <div class="flex items-center gap-1 text-yellow-500">
+                                    ⭐⭐⭐⭐⭐ <span class="text-gray-600 text-sm">(42 reviews)</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <p class="text-gray-600 text-sm">Full-service safety management. From driver qualification files to accident investigation. 20+ years experience.</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs">Full Service</span>
+                            <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">DQ Files</span>
+                            <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs">+3 more</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-2xl font-bold text-gray-800">$650<span class="text-sm font-normal text-gray-500">/month</span></p>
+                            </div>
+                            <button class="bg-green-600 text-white px-4 py-2 rounded-lg font-medium">
+                                Contact
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Development Phases -->
+        <h2 class="text-3xl font-bold text-gray-800 mb-8 flex items-center gap-3">
+            <span class="text-4xl">🛠️</span> Development Phases
+        </h2>
+
+        <div class="space-y-6 mb-12">
+            <!-- Phase 1 -->
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden phase-card">
+                <div class="bg-blue-600 text-white p-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center font-bold">1</div>
+                        <div>
+                            <h4 class="font-bold text-lg">Phase 1: Foundation</h4>
+                            <p class="text-blue-200 text-sm">Week 1-2</p>
+                        </div>
+                    </div>
+                    <span class="bg-white/20 px-3 py-1 rounded-full text-sm">~2 weeks</span>
+                </div>
+                <div class="p-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h5 class="font-bold text-gray-800 mb-3">Backend Tasks</h5>
+                            <ul class="space-y-2">
+                                <li class="flex items-center gap-2">
+                                    <span class="w-5 h-5 bg-blue-100 rounded flex items-center justify-center text-xs">1</span>
+                                    <span>Add <code class="bg-gray-100 px-1 rounded">role</code> field to User model</span>
+                                </li>
+                                <li class="flex items-center gap-2">
+                                    <span class="w-5 h-5 bg-blue-100 rounded flex items-center justify-center text-xs">2</span>
+                                    <span>Create SafetyManager model</span>
+                                </li>
+                                <li class="flex items-center gap-2">
+                                    <span class="w-5 h-5 bg-blue-100 rounded flex items-center justify-center text-xs">3</span>
+                                    <span>Create ClientAssignment model</span>
+                                </li>
+                                <li class="flex items-center gap-2">
+                                    <span class="w-5 h-5 bg-blue-100 rounded flex items-center justify-center text-xs">4</span>
+                                    <span>Safety Manager auth routes</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h5 class="font-bold text-gray-800 mb-3">Frontend Tasks</h5>
+                            <ul class="space-y-2">
+                                <li class="flex items-center gap-2">
+                                    <span class="w-5 h-5 bg-green-100 rounded flex items-center justify-center text-xs">1</span>
+                                    <span>Safety Manager registration page</span>
+                                </li>
+                                <li class="flex items-center gap-2">
+                                    <span class="w-5 h-5 bg-green-100 rounded flex items-center justify-center text-xs">2</span>
+                                    <span>Role-based login redirect</span>
+                                </li>
+                                <li class="flex items-center gap-2">
+                                    <span class="w-5 h-5 bg-green-100 rounded flex items-center justify-center text-xs">3</span>
+                                    <span>New layout for SM portal</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 2 -->
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden phase-card">
+                <div class="bg-green-600 text-white p-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center font-bold">2</div>
+                        <div>
+                            <h4 class="font-bold text-lg">Phase 2: Multi-Company Dashboard</h4>
+                            <p class="text-green-200 text-sm">Week 3-4</p>
+                        </div>
+                    </div>
+                    <span class="bg-white/20 px-3 py-1 rounded-full text-sm">~2 weeks</span>
+                </div>
+                <div class="p-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h5 class="font-bold text-gray-800 mb-3">Backend Tasks</h5>
+                            <ul class="space-y-2">
+                                <li class="flex items-center gap-2">
+                                    <span class="w-5 h-5 bg-blue-100 rounded flex items-center justify-center text-xs">1</span>
+                                    <span>API: Get all assigned companies</span>
+                                </li>
+                                <li class="flex items-center gap-2">
+                                    <span class="w-5 h-5 bg-blue-100 rounded flex items-center justify-center text-xs">2</span>
+                                    <span>API: Switch company context</span>
+                                </li>
+                                <li class="flex items-center gap-2">
+                                    <span class="w-5 h-5 bg-blue-100 rounded flex items-center justify-center text-xs">3</span>
+                                    <span>Aggregate stats across companies</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h5 class="font-bold text-gray-800 mb-3">Frontend Tasks</h5>
+                            <ul class="space-y-2">
+                                <li class="flex items-center gap-2">
+                                    <span class="w-5 h-5 bg-green-100 rounded flex items-center justify-center text-xs">1</span>
+                                    <span>Company switcher dropdown</span>
+                                </li>
+                                <li class="flex items-center gap-2">
+                                    <span class="w-5 h-5 bg-green-100 rounded flex items-center justify-center text-xs">2</span>
+                                    <span>Overview dashboard (all companies)</span>
+                                </li>
+                                <li class="flex items-center gap-2">
+                                    <span class="w-5 h-5 bg-green-100 rounded flex items-center justify-center text-xs">3</span>
+                                    <span>Company list with stats</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 3 -->
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden phase-card">
+                <div class="bg-purple-600 text-white p-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center font-bold">3</div>
+                        <div>
+                            <h4 class="font-bold text-lg">Phase 3: Marketplace</h4>
+                            <p class="text-purple-200 text-sm">Week 5-6</p>
+                        </div>
+                    </div>
+                    <span class="bg-white/20 px-3 py-1 rounded-full text-sm">~2 weeks</span>
+                </div>
+                <div class="p-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h5 class="font-bold text-gray-800 mb-3">Backend Tasks</h5>
+                            <ul class="space-y-2">
+                                <li class="flex items-center gap-2">
+                                    <span class="w-5 h-5 bg-blue-100 rounded flex items-center justify-center text-xs">1</span>
+                                    <span>Search/filter safety managers API</span>
+                                </li>
+                                <li class="flex items-center gap-2">
+                                    <span class="w-5 h-5 bg-blue-100 rounded flex items-center justify-center text-xs">2</span>
+                                    <span>Connection request system</span>
+                                </li>
+                                <li class="flex items-center gap-2">
+                                    <span class="w-5 h-5 bg-blue-100 rounded flex items-center justify-center text-xs">3</span>
+                                    <span>Messaging system</span>
+                                </li>
+                                <li class="flex items-center gap-2">
+                                    <span class="w-5 h-5 bg-blue-100 rounded flex items-center justify-center text-xs">4</span>
+                                    <span>Review/rating system</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h5 class="font-bold text-gray-800 mb-3">Frontend Tasks</h5>
+                            <ul class="space-y-2">
+                                <li class="flex items-center gap-2">
+                                    <span class="w-5 h-5 bg-green-100 rounded flex items-center justify-center text-xs">1</span>
+                                    <span>Marketplace browse page</span>
+                                </li>
+                                <li class="flex items-center gap-2">
+                                    <span class="w-5 h-5 bg-green-100 rounded flex items-center justify-center text-xs">2</span>
+                                    <span>Safety Manager profile page</span>
+                                </li>
+                                <li class="flex items-center gap-2">
+                                    <span class="w-5 h-5 bg-green-100 rounded flex items-center justify-center text-xs">3</span>
+                                    <span>Contact/request flow</span>
+                                </li>
+                                <li class="flex items-center gap-2">
+                                    <span class="w-5 h-5 bg-green-100 rounded flex items-center justify-center text-xs">4</span>
+                                    <span>Inbox/messaging UI</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 4 -->
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden phase-card">
+                <div class="bg-orange-600 text-white p-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center font-bold">4</div>
+                        <div>
+                            <h4 class="font-bold text-lg">Phase 4: Billing & Tasks</h4>
+                            <p class="text-orange-200 text-sm">Week 7-8</p>
+                        </div>
+                    </div>
+                    <span class="bg-white/20 px-3 py-1 rounded-full text-sm">~2 weeks</span>
+                </div>
+                <div class="p-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h5 class="font-bold text-gray-800 mb-3">Backend Tasks</h5>
+                            <ul class="space-y-2">
+                                <li class="flex items-center gap-2">
+                                    <span class="w-5 h-5 bg-blue-100 rounded flex items-center justify-center text-xs">1</span>
+                                    <span>Stripe Connect for payouts</span>
+                                </li>
+                                <li class="flex items-center gap-2">
+                                    <span class="w-5 h-5 bg-blue-100 rounded flex items-center justify-center text-xs">2</span>
+                                    <span>Invoice generation</span>
+                                </li>
+                                <li class="flex items-center gap-2">
+                                    <span class="w-5 h-5 bg-blue-100 rounded flex items-center justify-center text-xs">3</span>
+                                    <span>Task management system</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h5 class="font-bold text-gray-800 mb-3">Frontend Tasks</h5>
+                            <ul class="space-y-2">
+                                <li class="flex items-center gap-2">
+                                    <span class="w-5 h-5 bg-green-100 rounded flex items-center justify-center text-xs">1</span>
+                                    <span>SM billing dashboard</span>
+                                </li>
+                                <li class="flex items-center gap-2">
+                                    <span class="w-5 h-5 bg-green-100 rounded flex items-center justify-center text-xs">2</span>
+                                    <span>Task management UI</span>
+                                </li>
+                                <li class="flex items-center gap-2">
+                                    <span class="w-5 h-5 bg-green-100 rounded flex items-center justify-center text-xs">3</span>
+                                    <span>Cross-company task view</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- File Structure -->
+        <h2 class="text-3xl font-bold text-gray-800 mb-8 flex items-center gap-3">
+            <span class="text-4xl">📁</span> New Files to Create
+        </h2>
+
+        <div class="grid md:grid-cols-2 gap-6 mb-12">
+            <!-- Backend Files -->
+            <div class="bg-gray-900 rounded-2xl p-6 text-green-400 font-mono text-sm">
+                <h4 class="text-white font-bold mb-4 font-sans">📂 Backend Files</h4>
+                <pre>
+backend/
+├── models/
+│   ├── <span class="text-yellow-400">SafetyManager.js</span>      ← NEW
+│   ├── <span class="text-yellow-400">ClientAssignment.js</span>   ← NEW
+│   ├── <span class="text-yellow-400">Message.js</span>            ← NEW
+│   └── <span class="text-yellow-400">Review.js</span>             ← NEW
+│
+├── routes/
+│   ├── <span class="text-yellow-400">safetyManager.js</span>      ← NEW
+│   ├── <span class="text-yellow-400">marketplace.js</span>        ← NEW
+│   ├── <span class="text-yellow-400">assignments.js</span>        ← NEW
+│   └── <span class="text-yellow-400">messages.js</span>           ← NEW
+│
+├── middleware/
+│   └── <span class="text-yellow-400">roleAuth.js</span>           ← NEW
+│
+└── controllers/
+    ├── <span class="text-yellow-400">safetyManagerController.js</span>
+    └── <span class="text-yellow-400">marketplaceController.js</span>
+                </pre>
+            </div>
+
+            <!-- Frontend Files -->
+            <div class="bg-gray-900 rounded-2xl p-6 text-blue-400 font-mono text-sm">
+                <h4 class="text-white font-bold mb-4 font-sans">📂 Frontend Files</h4>
+                <pre>
+frontend/src/
+├── pages/
+│   ├── <span class="text-yellow-400">SafetyManagerRegister.jsx</span>
+│   ├── <span class="text-yellow-400">SafetyManagerDashboard.jsx</span>
+│   ├── <span class="text-yellow-400">SMCompanies.jsx</span>
+│   ├── <span class="text-yellow-400">SMTasks.jsx</span>
+│   ├── <span class="text-yellow-400">SMBilling.jsx</span>
+│   ├── <span class="text-yellow-400">SMProfile.jsx</span>
+│   ├── <span class="text-yellow-400">Marketplace.jsx</span>
+│   └── <span class="text-yellow-400">SMProfilePublic.jsx</span>
+│
+├── layouts/
+│   └── <span class="text-yellow-400">SafetyManagerLayout.jsx</span>   ← NEW
+│
+├── components/
+│   ├── <span class="text-yellow-400">CompanySwitcher.jsx</span>
+│   ├── <span class="text-yellow-400">SafetyManagerCard.jsx</span>
+│   └── <span class="text-yellow-400">TaskList.jsx</span>
+│
+└── context/
+    └── <span class="text-yellow-400">CompanyContext.jsx</span>       ← NEW
+                </pre>
+            </div>
+        </div>
+
+        <!-- Revenue Model -->
+        <h2 class="text-3xl font-bold text-gray-800 mb-8 flex items-center gap-3">
+            <span class="text-4xl">💰</span> Revenue Model
+        </h2>
+
+        <div class="bg-gradient-to-br from-green-50 to-emerald-100 rounded-3xl p-8 mb-12">
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white rounded-2xl p-6 shadow-lg">
+                    <div class="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+                        <span class="text-3xl">🚛</span>
+                    </div>
+                    <h4 class="font-bold text-gray-800 mb-2">Fleet Subscriptions</h4>
+                    <p class="text-3xl font-bold text-blue-600 mb-2">$49-99<span class="text-sm font-normal">/mo</span></p>
+                    <p class="text-gray-600 text-sm">Flat rate for platform access</p>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 shadow-lg">
+                    <div class="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center mb-4">
+                        <span class="text-3xl">👨‍💼</span>
+                    </div>
+                    <h4 class="font-bold text-gray-800 mb-2">Marketplace Commission</h4>
+                    <p class="text-3xl font-bold text-green-600 mb-2">15%<span class="text-sm font-normal"> of SM fees</span></p>
+                    <p class="text-gray-600 text-sm">When fleet hires through marketplace</p>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 shadow-lg">
+                    <div class="w-14 h-14 bg-purple-100 rounded-xl flex items-center justify-center mb-4">
+                        <span class="text-3xl">⭐</span>
+                    </div>
+                    <h4 class="font-bold text-gray-800 mb-2">SM Premium Listing</h4>
+                    <p class="text-3xl font-bold text-purple-600 mb-2">$49<span class="text-sm font-normal">/mo</span></p>
+                    <p class="text-gray-600 text-sm">Featured placement in marketplace</p>
+                </div>
+            </div>
+
+            <div class="mt-8 bg-white rounded-2xl p-6 shadow-lg">
+                <h4 class="font-bold text-gray-800 mb-4">Example Revenue Calculation</h4>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="text-left p-3">Source</th>
+                                <th class="text-left p-3">Count</th>
+                                <th class="text-left p-3">Rate</th>
+                                <th class="text-left p-3">Monthly</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y">
+                            <tr>
+                                <td class="p-3">Fleet Subscriptions</td>
+                                <td class="p-3">100 fleets</td>
+                                <td class="p-3">$75 avg</td>
+                                <td class="p-3 font-bold">$7,500</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3">Marketplace Commissions</td>
+                                <td class="p-3">30 connections @ $400 avg</td>
+                                <td class="p-3">15%</td>
+                                <td class="p-3 font-bold">$1,800</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3">SM Premium Listings</td>
+                                <td class="p-3">10 SMs</td>
+                                <td class="p-3">$49</td>
+                                <td class="p-3 font-bold">$490</td>
+                            </tr>
+                            <tr class="bg-green-50">
+                                <td class="p-3 font-bold" colspan="3">TOTAL MRR</td>
+                                <td class="p-3 font-bold text-green-600 text-xl">$9,790</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Checklist -->
+        <h2 class="text-3xl font-bold text-gray-800 mb-8 flex items-center gap-3">
+            <span class="text-4xl">✅</span> Quick Start Checklist
+        </h2>
+
+        <div class="bg-white rounded-3xl shadow-xl p-8 mb-12">
+            <p class="text-gray-600 mb-6">Start with these tasks to begin building the Safety Manager Portal:</p>
+
+            <div class="space-y-4">
+                <label class="flex items-start gap-4 p-4 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100">
+                    <input type="checkbox" class="w-6 h-6 mt-1 rounded">
+                    <div>
+                        <p class="font-medium text-gray-800">1. Add 'role' field to User model</p>
+                        <p class="text-sm text-gray-500">Update User.js with role enum: fleet_owner, safety_manager, driver</p>
+                    </div>
+                </label>
+
+                <label class="flex items-start gap-4 p-4 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100">
+                    <input type="checkbox" class="w-6 h-6 mt-1 rounded">
+                    <div>
+                        <p class="font-medium text-gray-800">2. Create SafetyManager model</p>
+                        <p class="text-sm text-gray-500">New model with profile info, credentials, rates, verification status</p>
+                    </div>
+                </label>
+
+                <label class="flex items-start gap-4 p-4 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100">
+                    <input type="checkbox" class="w-6 h-6 mt-1 rounded">
+                    <div>
+                        <p class="font-medium text-gray-800">3. Create ClientAssignment model</p>
+                        <p class="text-sm text-gray-500">Links safety managers to companies with permissions and billing</p>
+                    </div>
+                </label>
+
+                <label class="flex items-start gap-4 p-4 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100">
+                    <input type="checkbox" class="w-6 h-6 mt-1 rounded">
+                    <div>
+                        <p class="font-medium text-gray-800">4. Create SafetyManagerLayout.jsx</p>
+                        <p class="text-sm text-gray-500">New sidebar layout with company switcher for SM portal</p>
+                    </div>
+                </label>
+
+                <label class="flex items-start gap-4 p-4 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100">
+                    <input type="checkbox" class="w-6 h-6 mt-1 rounded">
+                    <div>
+                        <p class="font-medium text-gray-800">5. Create SafetyManagerDashboard.jsx</p>
+                        <p class="text-sm text-gray-500">Overview page showing all companies, tasks, and stats</p>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center py-8 border-t">
+            <p class="text-gray-500">VroomX Safety Manager Portal Blueprint</p>
+            <p class="text-gray-400 text-sm">Generated for strategic development planning</p>
+        </div>
+    </div>
+
+</body>
+</html>

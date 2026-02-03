@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VroomX - Feature Mockup 3A: Animated Timeline Journey</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary: #1E3A5F;
+            --primary-light: #2D5A87;
+            --primary-dark: #152A45;
+            --success: #22C55E;
+            --success-light: #DCFCE7;
+            --success-dark: #16A34A;
+            --cta: #F97316;
+            --cta-hover: #EA580C;
+            --text-primary: #1E293B;
+            --text-secondary: #475569;
+            --text-muted: #94A3B8;
+            --background: #F8FAFC;
+            --card-bg: #FFFFFF;
+            --border: #E2E8F0;
+            --ai-accent: #6366F1;
+            --ai-light: #EEF2FF;
+            --ai-dark: #4F46E5;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .mockup-label {
+            text-align: center;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--success) 0%, var(--success-dark) 100%);
+            color: white;
+            font-weight: 700;
+            font-size: 0.875rem;
+            margin: 40px auto;
+            border-radius: 12px;
+            max-width: 1200px;
+        }
+
+        .features-section {
+            padding: 80px 24px 120px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .section-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--success-light);
+            color: var(--success-dark);
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .section-header h2 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-header p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* TIMELINE CONTAINER */
+        .timeline {
+            position: relative;
+            padding-left: 100px;
+        }
+
+        /* Animated Timeline Line */
+        .timeline-line {
+            position: absolute;
+            left: 40px;
+            top: 0;
+            bottom: 0;
+            width: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .timeline-progress {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 0%;
+            background: linear-gradient(180deg, var(--primary) 0%, var(--ai-accent) 50%, var(--success) 100%);
+            border-radius: 3px;
+            transition: height 0.5s ease;
+        }
+
+        /* Animated particles on line */
+        .timeline-particle {
+            position: absolute;
+            width: 6px;
+            height: 20px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 3px;
+            animation: particleMove 3s ease-in-out infinite;
+        }
+
+        @keyframes particleMove {
+            0% { top: 0; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        /* TIMELINE ITEM */
+        .timeline-item {
+            position: relative;
+            margin-bottom: 60px;
+            opacity: 0;
+            transform: translateX(-30px);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .timeline-item.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .timeline-item:last-of-type {
+            margin-bottom: 0;
+        }
+
+        /* Timeline Marker */
+        .timeline-marker {
+            position: absolute;
+            left: -68px;
+            top: 0;
+            width: 64px;
+            height: 64px;
+            background: var(--card-bg);
+            border: 4px solid var(--border);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            transition: all 0.4s ease;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .timeline-item.visible .timeline-marker {
+            border-color: var(--primary);
+            animation: markerPop 0.5s ease;
+        }
+
+        @keyframes markerPop {
+            0% { transform: scale(0.8); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .timeline-marker i {
+            width: 28px;
+            height: 28px;
+            color: var(--primary);
+            transition: all 0.3s ease;
+        }
+
+        .timeline-item.ai .timeline-marker {
+            border-color: var(--ai-accent);
+            background: var(--ai-light);
+        }
+
+        .timeline-item.ai .timeline-marker i {
+            color: var(--ai-accent);
+        }
+
+        .timeline-item:hover .timeline-marker {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        /* Step number */
+        .step-number {
+            position: absolute;
+            left: -100px;
+            top: 72px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+        }
+
+        /* Timeline Card */
+        .timeline-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 36px;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.06);
+            border: 1px solid var(--border);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .timeline-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
+
+        .timeline-item.visible .timeline-card::before {
+            transform: scaleX(1);
+        }
+
+        .timeline-item.ai .timeline-card::before {
+            background: linear-gradient(90deg, var(--ai-accent) 0%, var(--ai-dark) 100%);
+        }
+
+        .timeline-card:hover {
+            transform: translateX(10px);
+            box-shadow: 0 10px 50px rgba(0,0,0,0.1);
+        }
+
+        /* Card Header */
+        .card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .ai-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, var(--ai-accent) 0%, var(--ai-dark) 100%);
+            color: white;
+            font-size: 0.7rem;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .ai-badge i {
+            width: 14px;
+            height: 14px;
+        }
+
+        .card-description {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            margin-bottom: 24px;
+            line-height: 1.7;
+        }
+
+        /* Feature Grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: var(--background);
+            border-radius: 12px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            background: var(--success-light);
+            transform: translateX(4px);
+        }
+
+        .feature-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--success-light);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--success);
+            flex-shrink: 0;
+        }
+
+        .feature-icon i {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Visual Preview */
+        .visual-preview {
+            background: linear-gradient(135deg, var(--background) 0%, var(--border) 100%);
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .timeline-item.ai .visual-preview {
+            background: linear-gradient(135deg, var(--ai-light) 0%, #E0E7FF 100%);
+        }
+
+        /* Mini CSA Chart */
+        .mini-csa {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .mini-csa-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .mini-csa-label {
+            width: 100px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .mini-csa-label i {
+            width: 14px;
+            height: 14px;
+        }
+
+        .mini-csa-bar {
+            flex: 1;
+            height: 10px;
+            background: var(--card-bg);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .mini-csa-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 1s ease;
+        }
+
+        .mini-csa-fill.green { background: linear-gradient(90deg, var(--success) 0%, #34D399 100%); }
+        .mini-csa-fill.yellow { background: linear-gradient(90deg, #EAB308 0%, #FBBF24 100%); }
+
+        .mini-csa-value {
+            width: 40px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-align: right;
+        }
+
+        /* Mini Chat */
+        .mini-chat {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .mini-chat-msg {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .mini-chat-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .mini-chat-avatar.user { background: var(--border); color: var(--text-muted); }
+        .mini-chat-avatar.ai { background: var(--ai-accent); color: white; }
+
+        .mini-chat-avatar i { width: 16px; height: 16px; }
+
+        .mini-chat-bubble {
+            background: var(--card-bg);
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            max-width: 280px;
+        }
+
+        .mini-chat-bubble.ai {
+            background: white;
+        }
+
+        /* SUCCESS CARD */
+        .success-card {
+            text-align: center;
+            padding: 60px 40px;
+            background: linear-gradient(135deg, var(--success-light) 0%, #D1FAE5 100%);
+            border-radius: 32px;
+            margin-top: 60px;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .success-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .success-card::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(34, 197, 94, 0.2) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .success-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 28px;
+            color: white;
+            box-shadow: 0 20px 50px rgba(34, 197, 94, 0.4);
+            animation: float 3s ease-in-out infinite;
+            position: relative;
+            z-index: 2;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(3deg); }
+        }
+
+        .success-icon i {
+            width: 50px;
+            height: 50px;
+        }
+
+        .success-card h3 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #166534;
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .success-card p {
+            color: #166534;
+            font-size: 1.1rem;
+            opacity: 0.85;
+            max-width: 500px;
+            margin: 0 auto 32px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .success-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 18px 40px;
+            background: linear-gradient(135deg, var(--cta) 0%, var(--cta-hover) 100%);
+            color: white;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        .success-cta:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 40px rgba(249, 115, 22, 0.4);
+        }
+
+        .success-cta i {
+            width: 22px;
+            height: 22px;
+            transition: transform 0.3s ease;
+        }
+
+        .success-cta:hover i {
+            transform: translateX(4px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .timeline {
+                padding-left: 70px;
+            }
+            .timeline-line {
+                left: 25px;
+            }
+            .timeline-marker {
+                left: -53px;
+                width: 50px;
+                height: 50px;
+            }
+            .step-number {
+                display: none;
+            }
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .design-notes {
+            max-width: 1100px;
+            margin: 60px auto;
+            padding: 24px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            border: 2px dashed var(--border);
+        }
+
+        .design-notes h4 {
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .design-notes ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px 32px;
+        }
+
+        .design-notes li {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            padding-left: 24px;
+            position: relative;
+        }
+
+        .design-notes li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--success);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="mockup-label">MOCKUP 3A: Animated Timeline Journey — Scroll-triggered animations, progress indicator, floating particles</div>
+
+    <section class="features-section">
+        <div class="section-header">
+            <div class="section-badge">
+                <i data-lucide="route" style="width:16px;height:16px;"></i>
+                How It Works
+            </div>
+            <h2>Your Path to Full Compliance</h2>
+            <p>VroomX guides you through every step of FMCSA compliance, from document management to score optimization.</p>
+        </div>
+
+        <div class="timeline">
+            <div class="timeline-line">
+                <div class="timeline-progress" id="timelineProgress"></div>
+                <div class="timeline-particle"></div>
+            </div>
+
+            <!-- Step 1: DQF Management -->
+            <div class="timeline-item" data-step="1">
+                <div class="timeline-marker">
+                    <i data-lucide="folder-open"></i>
+                </div>
+                <span class="step-number">Step 01</span>
+                <div class="timeline-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Organize Your DQF Files</h3>
+                    </div>
+                    <p class="card-description">Upload and organize all your Driver Qualification Files in one secure location. We support all document types and automatically track expiration dates.</p>
+                    <div class="feature-grid">
+                        <div class="feature-item">
+                            <span class="feature-icon"><i data-lucide="id-card"></i></span>
+                            CDL & medical cards
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon"><i data-lucide="file-text"></i></span>
+                            MVR tracking
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon"><i data-lucide="clipboard-check"></i></span>
+                            Annual inspections
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon"><i data-lucide="cloud"></i></span>
+                            Secure cloud storage
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: CSA Tracking -->
+            <div class="timeline-item" data-step="2">
+                <div class="timeline-marker">
+                    <i data-lucide="bar-chart-3"></i>
+                </div>
+                <span class="step-number">Step 02</span>
+                <div class="timeline-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Monitor Your CSA Score</h3>
+                    </div>
+                    <p class="card-description">Get a complete picture of your safety scores across all 7 BASICs. Track trends over time and understand what's affecting your numbers.</p>
+                    <div class="feature-grid">
+                        <div class="feature-item">
+                            <span class="feature-icon"><i data-lucide="layout-dashboard"></i></span>
+                            All 7 BASICs tracked
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon"><i data-lucide="trending-up"></i></span>
+                            Historical trends
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon"><i data-lucide="users"></i></span>
+                            Peer comparisons
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon"><i data-lucide="target"></i></span>
+                            Score projections
+                        </div>
+                    </div>
+                    <div class="visual-preview">
+                        <div class="mini-csa">
+                            <div class="mini-csa-row">
+                                <span class="mini-csa-label"><i data-lucide="car"></i> Unsafe Driving</span>
+                                <div class="mini-csa-bar"><div class="mini-csa-fill green" style="width: 32%"></div></div>
+                                <span class="mini-csa-value">32%</span>
+                            </div>
+                            <div class="mini-csa-row">
+                                <span class="mini-csa-label"><i data-lucide="clock"></i> HOS</span>
+                                <div class="mini-csa-bar"><div class="mini-csa-fill green" style="width: 45%"></div></div>
+                                <span class="mini-csa-value">45%</span>
+                            </div>
+                            <div class="mini-csa-row">
+                                <span class="mini-csa-label"><i data-lucide="wrench"></i> Vehicle Maint.</span>
+                                <div class="mini-csa-bar"><div class="mini-csa-fill yellow" style="width: 58%"></div></div>
+                                <span class="mini-csa-value">58%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Smart Alerts -->
+            <div class="timeline-item" data-step="3">
+                <div class="timeline-marker">
+                    <i data-lucide="bell-ring"></i>
+                </div>
+                <span class="step-number">Step 03</span>
+                <div class="timeline-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Stay Ahead with Smart Alerts</h3>
+                    </div>
+                    <p class="card-description">Automated reminders ensure you never miss an expiring document or compliance deadline. Get notified via email, SMS, or push.</p>
+                    <div class="feature-grid">
+                        <div class="feature-item">
+                            <span class="feature-icon"><i data-lucide="calendar"></i></span>
+                            30, 14, 7 day warnings
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon"><i data-lucide="mail"></i></span>
+                            Email & SMS alerts
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon"><i data-lucide="activity"></i></span>
+                            CSA score changes
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon"><i data-lucide="settings"></i></span>
+                            Custom schedules
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: AI Assistant -->
+            <div class="timeline-item ai" data-step="4">
+                <div class="timeline-marker">
+                    <i data-lucide="bot"></i>
+                </div>
+                <span class="step-number">Step 04</span>
+                <div class="timeline-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Get AI-Powered Help</h3>
+                        <span class="ai-badge">
+                            <i data-lucide="sparkles"></i>
+                            AI-POWERED
+                        </span>
+                    </div>
+                    <p class="card-description">Ask any FMCSA regulation question and get instant, accurate answers. Our AI is trained on the complete FMCSR and stays up-to-date with the latest changes.</p>
+                    <div class="feature-grid">
+                        <div class="feature-item">
+                            <span class="feature-icon"><i data-lucide="clock"></i></span>
+                            24/7 availability
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon"><i data-lucide="message-circle"></i></span>
+                            Plain English answers
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon"><i data-lucide="refresh-cw"></i></span>
+                            Always up-to-date
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon"><i data-lucide="book-open"></i></span>
+                            Cite specific regulations
+                        </div>
+                    </div>
+                    <div class="visual-preview">
+                        <div class="mini-chat">
+                            <div class="mini-chat-msg">
+                                <div class="mini-chat-avatar user"><i data-lucide="user"></i></div>
+                                <div class="mini-chat-bubble">What's the HOS limit for property-carrying drivers?</div>
+                            </div>
+                            <div class="mini-chat-msg">
+                                <div class="mini-chat-avatar ai"><i data-lucide="bot"></i></div>
+                                <div class="mini-chat-bubble ai">Property-carrying drivers have an 11-hour driving limit after 10 consecutive hours off duty, per §395.3...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5: DataQ Challenge -->
+            <div class="timeline-item ai" data-step="5">
+                <div class="timeline-marker">
+                    <i data-lucide="file-check"></i>
+                </div>
+                <span class="step-number">Step 05</span>
+                <div class="timeline-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Challenge Unfair Violations</h3>
+                        <span class="ai-badge">
+                            <i data-lucide="sparkles"></i>
+                            AI-POWERED
+                        </span>
+                    </div>
+                    <p class="card-description">Our AI scans your violation history to identify challengeable items and generates professional DataQ letters automatically. Improve your score by removing unfair violations.</p>
+                    <div class="feature-grid">
+                        <div class="feature-item">
+                            <span class="feature-icon"><i data-lucide="search"></i></span>
+                            Auto-detect opportunities
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon"><i data-lucide="file-signature"></i></span>
+                            Generate DataQ letters
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon"><i data-lucide="activity"></i></span>
+                            Track challenge status
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon"><i data-lucide="trophy"></i></span>
+                            40% avg success rate
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Success Card -->
+            <div class="success-card">
+                <div class="success-icon">
+                    <i data-lucide="shield-check"></i>
+                </div>
+                <h3>Stay Compliant, Stress-Free</h3>
+                <p>Pass any DOT audit with confidence. Focus on driving while VroomX handles your compliance.</p>
+                <a href="#" class="success-cta">
+                    Start Your Free Trial
+                    <i data-lucide="arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <div class="design-notes">
+        <h4>
+            <i data-lucide="info" style="width:20px;height:20px;"></i>
+            Design Improvements in This Revision
+        </h4>
+        <ul>
+            <li>Scroll-triggered animations reveal items as you scroll</li>
+            <li>Animated progress bar fills as you scroll down</li>
+            <li>Floating particle effect on the timeline line</li>
+            <li>Markers pop and rotate on hover</li>
+            <li>Cards slide in with staggered delays</li>
+            <li>Feature items have hover interaction</li>
+            <li>Professional Lucide icons throughout</li>
+            <li>Mini product previews for key features</li>
+        </ul>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // Intersection Observer for scroll animations
+        const observerOptions = {
+            threshold: 0.2,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        // Observe timeline items
+        document.querySelectorAll('.timeline-item').forEach(item => {
+            observer.observe(item);
+        });
+
+        // Observe success card
+        document.querySelector('.success-card') && observer.observe(document.querySelector('.success-card'));
+
+        // Timeline progress bar
+        window.addEventListener('scroll', () => {
+            const timeline = document.querySelector('.timeline');
+            const timelineProgress = document.getElementById('timelineProgress');
+            const rect = timeline.getBoundingClientRect();
+            const windowHeight = window.innerHeight;
+
+            const scrollPercent = Math.min(100, Math.max(0,
+                ((windowHeight - rect.top) / (rect.height + windowHeight - 200)) * 100
+            ));
+
+            timelineProgress.style.height = scrollPercent + '%';
+        });
+
+        // Initial trigger
+        window.dispatchEvent(new Event('scroll'));
+    </script>
+</body>
+</html>

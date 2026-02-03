@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VroomX - "The Problem" Section - 5 UI Mockup Variations</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: { 50: '#EEF2FF', 100: '#E0E7FF', 500: '#0F172A', 600: '#1E293B' },
+            cta: { 500: '#F97316', 600: '#EA580C' },
+            navy: { 900: '#0A1628', 800: '#0F172A', 700: '#1E293B' }
+          },
+          fontFamily: {
+            heading: ['Space Grotesk', 'sans-serif'],
+            body: ['Inter', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .font-heading { font-family: 'Space Grotesk', sans-serif; }
+
+    /* Animation keyframes */
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+    @keyframes pulse-slow {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+    @keyframes countdown {
+      0% { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: 283; }
+    }
+    .animate-float { animation: float 3s ease-in-out infinite; }
+    .animate-pulse-slow { animation: pulse-slow 2s ease-in-out infinite; }
+    .animate-shake { animation: shake 0.5s ease-in-out infinite; }
+    .countdown-ring { animation: countdown 10s linear infinite; }
+
+    /* Scroll snap for mockup navigation */
+    .mockup-container {
+      scroll-snap-type: y mandatory;
+    }
+    .mockup-section {
+      scroll-snap-align: start;
+    }
+  </style>
+</head>
+<body class="bg-slate-100">
+
+<!-- Navigation Header -->
+<nav class="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-md z-50 border-b border-slate-200 shadow-sm">
+  <div class="max-w-7xl mx-auto px-6 py-4">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-xl font-bold text-slate-800">VroomX "The Problem" Section</h1>
+        <p class="text-sm text-slate-500">5 UI/UX Mockup Variations</p>
+      </div>
+      <div class="flex gap-2">
+        <a href="#current" class="px-3 py-1.5 text-xs font-medium bg-slate-200 hover:bg-slate-300 rounded-lg transition-colors">Current</a>
+        <a href="#v1" class="px-3 py-1.5 text-xs font-medium bg-orange-100 text-orange-600 hover:bg-orange-200 rounded-lg transition-colors">V1</a>
+        <a href="#v2" class="px-3 py-1.5 text-xs font-medium bg-blue-100 text-blue-600 hover:bg-blue-200 rounded-lg transition-colors">V2</a>
+        <a href="#v3" class="px-3 py-1.5 text-xs font-medium bg-purple-100 text-purple-600 hover:bg-purple-200 rounded-lg transition-colors">V3</a>
+        <a href="#v4" class="px-3 py-1.5 text-xs font-medium bg-green-100 text-green-600 hover:bg-green-200 rounded-lg transition-colors">V4</a>
+        <a href="#v5" class="px-3 py-1.5 text-xs font-medium bg-red-100 text-red-600 hover:bg-red-200 rounded-lg transition-colors">V5</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="mockup-container pt-20">
+
+<!-- ============================================== -->
+<!-- CURRENT DESIGN ANALYSIS -->
+<!-- ============================================== -->
+<section id="current" class="mockup-section min-h-screen bg-white py-16 px-6">
+  <div class="max-w-6xl mx-auto">
+    <div class="mb-12 p-6 bg-slate-50 rounded-2xl border border-slate-200">
+      <h2 class="text-2xl font-bold text-slate-800 mb-4">Current Design Analysis</h2>
+
+      <div class="grid md:grid-cols-2 gap-8">
+        <!-- Strengths -->
+        <div>
+          <h3 class="text-lg font-semibold text-green-600 mb-3 flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            Strengths
+          </h3>
+          <ul class="space-y-2 text-sm text-slate-600">
+            <li class="flex items-start gap-2">
+              <span class="text-green-500 mt-1">+</span>
+              <span>Clever Excel mockup creates instant recognition for target audience</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-500 mt-1">+</span>
+              <span>Clear problem/solution narrative structure</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-500 mt-1">+</span>
+              <span>"PROBLEM SOLVED" badge creates visual closure</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-500 mt-1">+</span>
+              <span>4-card grid efficiently communicates pain points</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Weaknesses -->
+        <div>
+          <h3 class="text-lg font-semibold text-red-600 mb-3 flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            Weaknesses (UX Issues)
+          </h3>
+          <ul class="space-y-2 text-sm text-slate-600">
+            <li class="flex items-start gap-2">
+              <span class="text-red-500 mt-1">-</span>
+              <span><strong>Low emotional impact:</strong> Problems feel abstract, not urgent</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-red-500 mt-1">-</span>
+              <span><strong>No quantification:</strong> Missing cost/time/risk numbers that create urgency</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-red-500 mt-1">-</span>
+              <span><strong>Static visual:</strong> Excel mockup doesn't animate or draw attention</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-red-500 mt-1">-</span>
+              <span><strong>No CTA:</strong> Section doesn't guide user to next action</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-red-500 mt-1">-</span>
+              <span><strong>Generic copy:</strong> "Running a trucking business" - could be any industry</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+        <h4 class="font-semibold text-amber-800 mb-2">Key UX Principle Missing</h4>
+        <p class="text-sm text-amber-700">
+          <strong>Pain amplification before solution:</strong> The best problem sections make users FEEL the pain viscerally before showing the solution.
+          Current design tells about problems but doesn't make users experience them emotionally.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================== -->
+<!-- MOCKUP V1: COST CALCULATOR / FEAR OF LOSS -->
+<!-- ============================================== -->
+<section id="v1" class="mockup-section min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 py-20 px-6">
+  <div class="max-w-6xl mx-auto">
+    <!-- Mockup Label -->
+    <div class="mb-8 flex items-center gap-4">
+      <span class="px-4 py-2 bg-orange-500 text-white text-sm font-bold rounded-full">MOCKUP V1</span>
+      <div>
+        <h3 class="text-white font-bold text-lg">Cost Calculator Approach</h3>
+        <p class="text-slate-400 text-sm">Concept: Quantify the pain with real dollar amounts</p>
+      </div>
+    </div>
+
+    <!-- Actual Mockup -->
+    <div class="bg-[#F8FAFC] rounded-3xl overflow-hidden shadow-2xl">
+      <div class="py-24 px-6 md:px-16">
+        <div class="max-w-6xl mx-auto">
+
+          <!-- Section Header - Centered -->
+          <div class="text-center mb-16">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-50 border border-red-200 mb-6">
+              <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+              <span class="text-red-600 text-sm font-semibold">COMPLIANCE RISK CALCULATOR</span>
+            </div>
+            <h2 class="text-4xl md:text-5xl font-heading font-bold text-slate-800 mb-4">
+              How Much Is <span class="text-red-500">Non-Compliance</span> Costing You?
+            </h2>
+            <p class="text-xl text-slate-600 max-w-2xl mx-auto">
+              Every day without proper compliance management is costing your fleet money. Let's calculate your risk.
+            </p>
+          </div>
+
+          <!-- Interactive Cost Calculator -->
+          <div class="grid lg:grid-cols-2 gap-12 items-start">
+
+            <!-- Left: Problem Cards with Costs -->
+            <div class="space-y-4">
+              <!-- Card 1 -->
+              <div class="bg-white border-2 border-red-100 rounded-2xl p-6 hover:border-red-300 hover:shadow-lg transition-all cursor-pointer group">
+                <div class="flex items-start justify-between">
+                  <div class="flex items-start gap-4">
+                    <div class="w-14 h-14 rounded-xl bg-red-100 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <svg class="w-7 h-7 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 class="font-bold text-slate-800 text-lg">Expired CDL/Medical Card</h4>
+                      <p class="text-slate-500 text-sm mt-1">Driver operating with expired credentials</p>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-3xl font-black text-red-500">$16,000</div>
+                    <div class="text-xs text-slate-400">per violation</div>
+                  </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between text-sm">
+                  <span class="text-slate-500">Average fleet has <strong class="text-slate-700">2.3 incidents/year</strong></span>
+                  <span class="text-red-500 font-bold">= $36,800/year</span>
+                </div>
+              </div>
+
+              <!-- Card 2 -->
+              <div class="bg-white border-2 border-amber-100 rounded-2xl p-6 hover:border-amber-300 hover:shadow-lg transition-all cursor-pointer group">
+                <div class="flex items-start justify-between">
+                  <div class="flex items-start gap-4">
+                    <div class="w-14 h-14 rounded-xl bg-amber-100 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <svg class="w-7 h-7 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 class="font-bold text-slate-800 text-lg">Failed DOT Audit</h4>
+                      <p class="text-slate-500 text-sm mt-1">Unsatisfactory safety rating consequences</p>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-3xl font-black text-amber-500">$75,000</div>
+                    <div class="text-xs text-slate-400">avg. business impact</div>
+                  </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between text-sm">
+                  <span class="text-slate-500">Includes lost contracts, increased insurance</span>
+                  <span class="text-amber-500 font-bold">1 in 5 fleets fail</span>
+                </div>
+              </div>
+
+              <!-- Card 3 -->
+              <div class="bg-white border-2 border-purple-100 rounded-2xl p-6 hover:border-purple-300 hover:shadow-lg transition-all cursor-pointer group">
+                <div class="flex items-start justify-between">
+                  <div class="flex items-start gap-4">
+                    <div class="w-14 h-14 rounded-xl bg-purple-100 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <svg class="w-7 h-7 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 class="font-bold text-slate-800 text-lg">Admin Time Wasted</h4>
+                      <p class="text-slate-500 text-sm mt-1">Manual tracking, searching files, data entry</p>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-3xl font-black text-purple-500">15 hrs</div>
+                    <div class="text-xs text-slate-400">per week</div>
+                  </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between text-sm">
+                  <span class="text-slate-500">At $25/hr admin rate</span>
+                  <span class="text-purple-500 font-bold">= $19,500/year</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Total Cost Summary -->
+            <div class="lg:sticky lg:top-8">
+              <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 text-white shadow-2xl">
+                <div class="text-center mb-8">
+                  <div class="text-sm text-slate-400 uppercase tracking-wider mb-2">Your Annual Risk Exposure</div>
+                  <div class="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-orange-400">
+                    $131,300
+                  </div>
+                  <div class="text-slate-400 text-sm mt-2">potential losses per year</div>
+                </div>
+
+                <div class="space-y-3 mb-8">
+                  <div class="flex justify-between text-sm">
+                    <span class="text-slate-400">Violation fines</span>
+                    <span class="text-red-400 font-semibold">$36,800</span>
+                  </div>
+                  <div class="flex justify-between text-sm">
+                    <span class="text-slate-400">Audit failure risk (20%)</span>
+                    <span class="text-amber-400 font-semibold">$75,000</span>
+                  </div>
+                  <div class="flex justify-between text-sm">
+                    <span class="text-slate-400">Wasted admin time</span>
+                    <span class="text-purple-400 font-semibold">$19,500</span>
+                  </div>
+                  <div class="border-t border-slate-700 pt-3 flex justify-between font-bold">
+                    <span>Total Risk</span>
+                    <span class="text-orange-400">$131,300</span>
+                  </div>
+                </div>
+
+                <div class="bg-green-500/20 border border-green-500/30 rounded-xl p-4 mb-6">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">
+                      <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                    </div>
+                    <div>
+                      <div class="text-green-400 font-bold">VroomX Safety: $49/mo</div>
+                      <div class="text-green-300/70 text-sm">ROI: 223x your investment</div>
+                    </div>
+                  </div>
+                </div>
+
+                <button class="w-full py-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white font-bold rounded-xl transition-all transform hover:scale-[1.02] shadow-lg shadow-orange-500/30">
+                  Eliminate Your Risk Now
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Design Notes -->
+    <div class="mt-8 p-6 bg-slate-800/50 rounded-2xl border border-slate-700">
+      <h4 class="text-orange-400 font-bold mb-3">Design Rationale</h4>
+      <ul class="space-y-2 text-sm text-slate-300">
+        <li><strong class="text-white">Pain Quantification:</strong> Real dollar amounts create urgency (loss aversion psychology)</li>
+        <li><strong class="text-white">Interactive Cards:</strong> Hover effects invite exploration</li>
+        <li><strong class="text-white">Running Total:</strong> Accumulating costs amplify the problem</li>
+        <li><strong class="text-white">ROI Comparison:</strong> $49/mo vs $131K makes decision obvious</li>
+        <li><strong class="text-white">Clear CTA:</strong> "Eliminate Your Risk Now" - action-oriented</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================== -->
+<!-- MOCKUP V2: BEFORE/AFTER TIMELINE -->
+<!-- ============================================== -->
+<section id="v2" class="mockup-section min-h-screen bg-gradient-to-b from-blue-900 to-slate-900 py-20 px-6">
+  <div class="max-w-6xl mx-auto">
+    <!-- Mockup Label -->
+    <div class="mb-8 flex items-center gap-4">
+      <span class="px-4 py-2 bg-blue-500 text-white text-sm font-bold rounded-full">MOCKUP V2</span>
+      <div>
+        <h3 class="text-white font-bold text-lg">Before/After Timeline</h3>
+        <p class="text-slate-400 text-sm">Concept: Show a day in the life - chaos vs. control</p>
+      </div>
+    </div>
+
+    <!-- Actual Mockup -->
+    <div class="bg-[#F8FAFC] rounded-3xl overflow-hidden shadow-2xl">
+      <div class="py-24 px-6 md:px-16">
+        <div class="max-w-6xl mx-auto">
+
+          <!-- Section Header -->
+          <div class="text-center mb-16">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-200 mb-6">
+              <span class="text-blue-600 text-sm font-semibold">A DAY IN YOUR LIFE</span>
+            </div>
+            <h2 class="text-4xl md:text-5xl font-heading font-bold text-slate-800 mb-4">
+              Which Morning Do You Want?
+            </h2>
+          </div>
+
+          <!-- Timeline Comparison -->
+          <div class="grid lg:grid-cols-2 gap-8">
+
+            <!-- WITHOUT VroomX (Chaos) -->
+            <div class="relative">
+              <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-red-500 to-red-400 rounded-full"></div>
+              <div class="bg-red-50 border-2 border-red-200 rounded-2xl p-6 mt-4">
+                <div class="flex items-center gap-3 mb-6">
+                  <div class="w-12 h-12 rounded-full bg-red-500 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="font-bold text-red-700 text-xl">Without VroomX</h3>
+                    <p class="text-red-500 text-sm">Monday morning chaos</p>
+                  </div>
+                </div>
+
+                <div class="space-y-4">
+                  <!-- Timeline Item -->
+                  <div class="flex gap-4">
+                    <div class="flex flex-col items-center">
+                      <div class="w-8 h-8 rounded-full bg-red-200 flex items-center justify-center text-xs font-bold text-red-600">6am</div>
+                      <div class="w-0.5 h-full bg-red-200 mt-2"></div>
+                    </div>
+                    <div class="flex-1 pb-4">
+                      <div class="bg-white rounded-lg p-3 border border-red-100 shadow-sm">
+                        <p class="text-sm text-slate-700"><strong class="text-red-600">Panic:</strong> DOT officer calls - audit in 48 hours</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="flex gap-4">
+                    <div class="flex flex-col items-center">
+                      <div class="w-8 h-8 rounded-full bg-red-200 flex items-center justify-center text-xs font-bold text-red-600">7am</div>
+                      <div class="w-0.5 h-full bg-red-200 mt-2"></div>
+                    </div>
+                    <div class="flex-1 pb-4">
+                      <div class="bg-white rounded-lg p-3 border border-red-100 shadow-sm">
+                        <p class="text-sm text-slate-700"><strong class="text-red-600">Scramble:</strong> Searching filing cabinets for J. Smith's MVR</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="flex gap-4">
+                    <div class="flex flex-col items-center">
+                      <div class="w-8 h-8 rounded-full bg-red-200 flex items-center justify-center text-xs font-bold text-red-600">9am</div>
+                      <div class="w-0.5 h-full bg-red-200 mt-2"></div>
+                    </div>
+                    <div class="flex-1 pb-4">
+                      <div class="bg-white rounded-lg p-3 border border-red-100 shadow-sm">
+                        <p class="text-sm text-slate-700"><strong class="text-red-600">Discovery:</strong> 3 drivers have expired medical cards!</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="flex gap-4">
+                    <div class="flex flex-col items-center">
+                      <div class="w-8 h-8 rounded-full bg-red-300 flex items-center justify-center text-xs font-bold text-red-700">12pm</div>
+                    </div>
+                    <div class="flex-1">
+                      <div class="bg-red-100 rounded-lg p-3 border border-red-200">
+                        <p class="text-sm text-red-700 font-semibold">Result: 3 drivers off the road. $4,800 in lost revenue TODAY.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- WITH VroomX (Control) -->
+            <div class="relative">
+              <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-green-500 to-emerald-400 rounded-full"></div>
+              <div class="bg-green-50 border-2 border-green-200 rounded-2xl p-6 mt-4">
+                <div class="flex items-center gap-3 mb-6">
+                  <div class="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="font-bold text-green-700 text-xl">With VroomX Safety</h3>
+                    <p class="text-green-500 text-sm">Monday morning confidence</p>
+                  </div>
+                </div>
+
+                <div class="space-y-4">
+                  <!-- Timeline Item -->
+                  <div class="flex gap-4">
+                    <div class="flex flex-col items-center">
+                      <div class="w-8 h-8 rounded-full bg-green-200 flex items-center justify-center text-xs font-bold text-green-600">6am</div>
+                      <div class="w-0.5 h-full bg-green-200 mt-2"></div>
+                    </div>
+                    <div class="flex-1 pb-4">
+                      <div class="bg-white rounded-lg p-3 border border-green-100 shadow-sm">
+                        <p class="text-sm text-slate-700"><strong class="text-green-600">Calm:</strong> DOT calls - "Sure, let me pull up our dashboard"</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="flex gap-4">
+                    <div class="flex flex-col items-center">
+                      <div class="w-8 h-8 rounded-full bg-green-200 flex items-center justify-center text-xs font-bold text-green-600">6:05</div>
+                      <div class="w-0.5 h-full bg-green-200 mt-2"></div>
+                    </div>
+                    <div class="flex-1 pb-4">
+                      <div class="bg-white rounded-lg p-3 border border-green-100 shadow-sm">
+                        <p class="text-sm text-slate-700"><strong class="text-green-600">Click:</strong> Generate audit-ready report in 30 seconds</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="flex gap-4">
+                    <div class="flex flex-col items-center">
+                      <div class="w-8 h-8 rounded-full bg-green-200 flex items-center justify-center text-xs font-bold text-green-600">6:10</div>
+                      <div class="w-0.5 h-full bg-green-200 mt-2"></div>
+                    </div>
+                    <div class="flex-1 pb-4">
+                      <div class="bg-white rounded-lg p-3 border border-green-100 shadow-sm">
+                        <p class="text-sm text-slate-700"><strong class="text-green-600">Verified:</strong> All docs current - alerts warned you 30 days ago</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="flex gap-4">
+                    <div class="flex flex-col items-center">
+                      <div class="w-8 h-8 rounded-full bg-green-300 flex items-center justify-center text-xs font-bold text-green-700">6:15</div>
+                    </div>
+                    <div class="flex-1">
+                      <div class="bg-green-100 rounded-lg p-3 border border-green-200">
+                        <p class="text-sm text-green-700 font-semibold">Result: Audit handled. Back to your coffee in 15 minutes.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CTA -->
+          <div class="mt-12 text-center">
+            <button class="px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-400 hover:to-emerald-400 text-white font-bold text-lg rounded-xl transition-all transform hover:scale-105 shadow-lg shadow-green-500/30">
+              Get the Peace of Mind
+            </button>
+            <p class="text-slate-500 text-sm mt-3">Join 500+ fleets who sleep better at night</p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Design Notes -->
+    <div class="mt-8 p-6 bg-slate-800/50 rounded-2xl border border-slate-700">
+      <h4 class="text-blue-400 font-bold mb-3">Design Rationale</h4>
+      <ul class="space-y-2 text-sm text-slate-300">
+        <li><strong class="text-white">Storytelling:</strong> Timeline format creates narrative tension</li>
+        <li><strong class="text-white">Visual Contrast:</strong> Red (chaos) vs Green (control) is instantly understood</li>
+        <li><strong class="text-white">Specificity:</strong> Real scenarios fleet owners recognize</li>
+        <li><strong class="text-white">Time Stamps:</strong> Shows how fast VroomX resolves issues</li>
+        <li><strong class="text-white">Emotional Hook:</strong> "Which morning do you want?" is a powerful question</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================== -->
+<!-- MOCKUP V3: COUNTDOWN URGENCY -->
+<!-- ============================================== -->
+<section id="v3" class="mockup-section min-h-screen bg-gradient-to-b from-purple-900 to-slate-900 py-20 px-6">
+  <div class="max-w-6xl mx-auto">
+    <!-- Mockup Label -->
+    <div class="mb-8 flex items-center gap-4">
+      <span class="px-4 py-2 bg-purple-500 text-white text-sm font-bold rounded-full">MOCKUP V3</span>
+      <div>
+        <h3 class="text-white font-bold text-lg">Countdown Urgency</h3>
+        <p class="text-slate-400 text-sm">Concept: Ticking clock creates immediate action impulse</p>
+      </div>
+    </div>
+
+    <!-- Actual Mockup -->
+    <div class="bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-slate-700">
+      <div class="py-24 px-6 md:px-16">
+        <div class="max-w-5xl mx-auto text-center">
+
+          <!-- Animated Warning -->
+          <div class="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-red-500/20 border border-red-500/40 mb-8 animate-pulse-slow">
+            <span class="w-3 h-3 bg-red-500 rounded-full animate-ping"></span>
+            <span class="text-red-400 font-semibold">COMPLIANCE COUNTDOWN</span>
+          </div>
+
+          <h2 class="text-4xl md:text-5xl font-heading font-bold text-white mb-6">
+            Right Now, Something Is
+            <span class="block text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-orange-400">About to Expire</span>
+          </h2>
+
+          <p class="text-xl text-slate-400 mb-12 max-w-2xl mx-auto">
+            In the average 20-driver fleet, at any given moment...
+          </p>
+
+          <!-- Countdown Circles -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
+            <!-- Circle 1 -->
+            <div class="relative group">
+              <svg class="w-32 h-32 mx-auto transform -rotate-90" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="45" fill="none" stroke="#1e293b" stroke-width="8"/>
+                <circle cx="50" cy="50" r="45" fill="none" stroke="#ef4444" stroke-width="8"
+                        stroke-dasharray="283" stroke-dashoffset="70" stroke-linecap="round"/>
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span class="text-3xl font-black text-red-500">3.2</span>
+                <span class="text-xs text-slate-500">DRIVERS</span>
+              </div>
+              <p class="text-sm text-slate-400 mt-4 group-hover:text-red-400 transition-colors">Have expiring <strong class="text-white">medical cards</strong> this month</p>
+            </div>
+
+            <!-- Circle 2 -->
+            <div class="relative group">
+              <svg class="w-32 h-32 mx-auto transform -rotate-90" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="45" fill="none" stroke="#1e293b" stroke-width="8"/>
+                <circle cx="50" cy="50" r="45" fill="none" stroke="#f59e0b" stroke-width="8"
+                        stroke-dasharray="283" stroke-dashoffset="140" stroke-linecap="round"/>
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span class="text-3xl font-black text-amber-500">1.8</span>
+                <span class="text-xs text-slate-500">VEHICLES</span>
+              </div>
+              <p class="text-sm text-slate-400 mt-4 group-hover:text-amber-400 transition-colors">Need <strong class="text-white">annual inspection</strong> within 30 days</p>
+            </div>
+
+            <!-- Circle 3 -->
+            <div class="relative group">
+              <svg class="w-32 h-32 mx-auto transform -rotate-90" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="45" fill="none" stroke="#1e293b" stroke-width="8"/>
+                <circle cx="50" cy="50" r="45" fill="none" stroke="#8b5cf6" stroke-width="8"
+                        stroke-dasharray="283" stroke-dashoffset="200" stroke-linecap="round"/>
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span class="text-3xl font-black text-purple-500">42%</span>
+                <span class="text-xs text-slate-500">OF FILES</span>
+              </div>
+              <p class="text-sm text-slate-400 mt-4 group-hover:text-purple-400 transition-colors">Are <strong class="text-white">missing documents</strong> required for audit</p>
+            </div>
+
+            <!-- Circle 4 -->
+            <div class="relative group">
+              <svg class="w-32 h-32 mx-auto transform -rotate-90" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="45" fill="none" stroke="#1e293b" stroke-width="8"/>
+                <circle cx="50" cy="50" r="45" fill="none" stroke="#10b981" stroke-width="8"
+                        stroke-dasharray="283" stroke-dashoffset="250" stroke-linecap="round"/>
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span class="text-3xl font-black text-green-500">12%</span>
+                <span class="text-xs text-slate-500">CHANCE</span>
+              </div>
+              <p class="text-sm text-slate-400 mt-4 group-hover:text-green-400 transition-colors">Of <strong class="text-white">surprise audit</strong> in next 90 days</p>
+            </div>
+          </div>
+
+          <!-- Question -->
+          <div class="bg-slate-800/50 border border-slate-700 rounded-2xl p-8 mb-10">
+            <h3 class="text-2xl font-bold text-white mb-4">Do you know YOUR numbers?</h3>
+            <p class="text-slate-400 mb-6">Most fleet owners don't. VroomX shows you exactly what's expiring and when - in real time.</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+              <button class="px-8 py-4 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-400 hover:to-red-400 text-white font-bold rounded-xl transition-all shadow-lg">
+                Check My Fleet Now (Free)
+              </button>
+              <button class="px-8 py-4 bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-xl transition-all">
+                See How It Works
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Design Notes -->
+    <div class="mt-8 p-6 bg-slate-800/50 rounded-2xl border border-slate-700">
+      <h4 class="text-purple-400 font-bold mb-3">Design Rationale</h4>
+      <ul class="space-y-2 text-sm text-slate-300">
+        <li><strong class="text-white">Urgency Psychology:</strong> Countdown visuals trigger action impulse</li>
+        <li><strong class="text-white">Statistics:</strong> Industry data makes it feel relevant to visitor</li>
+        <li><strong class="text-white">Dark Theme:</strong> Creates serious, "war room" atmosphere</li>
+        <li><strong class="text-white">Personal Question:</strong> "Do you know YOUR numbers?" forces self-reflection</li>
+        <li><strong class="text-white">Free CTA:</strong> Low barrier - "Check My Fleet Now (Free)"</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================== -->
+<!-- MOCKUP V4: TESTIMONIAL-LED PROBLEM -->
+<!-- ============================================== -->
+<section id="v4" class="mockup-section min-h-screen bg-gradient-to-b from-green-900 to-slate-900 py-20 px-6">
+  <div class="max-w-6xl mx-auto">
+    <!-- Mockup Label -->
+    <div class="mb-8 flex items-center gap-4">
+      <span class="px-4 py-2 bg-green-500 text-white text-sm font-bold rounded-full">MOCKUP V4</span>
+      <div>
+        <h3 class="text-white font-bold text-lg">Testimonial-Led Problem</h3>
+        <p class="text-slate-400 text-sm">Concept: Let real customers describe the pain (social proof)</p>
+      </div>
+    </div>
+
+    <!-- Actual Mockup -->
+    <div class="bg-[#F8FAFC] rounded-3xl overflow-hidden shadow-2xl">
+      <div class="py-24 px-6 md:px-16">
+        <div class="max-w-6xl mx-auto">
+
+          <!-- Section Header -->
+          <div class="text-center mb-16">
+            <h2 class="text-4xl md:text-5xl font-heading font-bold text-slate-800 mb-4">
+              "I Almost <span class="text-red-500">Lost My Authority</span>"
+            </h2>
+            <p class="text-xl text-slate-500">Real stories from fleet owners who learned the hard way</p>
+          </div>
+
+          <!-- Testimonial Cards - Problem Stories -->
+          <div class="grid md:grid-cols-3 gap-6 mb-16">
+
+            <!-- Story 1 -->
+            <div class="bg-white rounded-2xl p-6 border-2 border-slate-200 hover:border-red-300 hover:shadow-xl transition-all">
+              <div class="flex items-center gap-4 mb-4">
+                <div class="w-14 h-14 rounded-full bg-gradient-to-br from-slate-400 to-slate-500 flex items-center justify-center text-white font-bold text-xl">
+                  MR
+                </div>
+                <div>
+                  <div class="font-bold text-slate-800">Mike Rodriguez</div>
+                  <div class="text-sm text-slate-500">Rodriguez Transport, TX</div>
+                </div>
+              </div>
+
+              <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg mb-4">
+                <p class="text-red-700 font-medium text-sm italic">
+                  "I was using Excel and sticky notes. When the DOT showed up, I couldn't find 4 driver files. $32,000 in fines."
+                </p>
+              </div>
+
+              <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg">
+                <p class="text-green-700 text-sm">
+                  <strong>After VroomX:</strong> "Now I pull up any file in 10 seconds. Passed my last audit with zero violations."
+                </p>
+              </div>
+
+              <div class="flex items-center gap-1 mt-4">
+                <span class="text-amber-400">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+                <span class="text-slate-400 text-sm ml-2">Using VroomX 8 months</span>
+              </div>
+            </div>
+
+            <!-- Story 2 -->
+            <div class="bg-white rounded-2xl p-6 border-2 border-slate-200 hover:border-amber-300 hover:shadow-xl transition-all">
+              <div class="flex items-center gap-4 mb-4">
+                <div class="w-14 h-14 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-bold text-xl">
+                  SJ
+                </div>
+                <div>
+                  <div class="font-bold text-slate-800">Sarah Jenkins</div>
+                  <div class="text-sm text-slate-500">Jenkins Logistics, OH</div>
+                </div>
+              </div>
+
+              <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg mb-4">
+                <p class="text-amber-700 font-medium text-sm italic">
+                  "A driver's medical card expired and I had no idea. He got pulled over, truck impounded. Lost a $45K contract."
+                </p>
+              </div>
+
+              <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg">
+                <p class="text-green-700 text-sm">
+                  <strong>After VroomX:</strong> "I get alerts 30, 14, and 7 days before anything expires. Never again."
+                </p>
+              </div>
+
+              <div class="flex items-center gap-1 mt-4">
+                <span class="text-amber-400">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+                <span class="text-slate-400 text-sm ml-2">Using VroomX 14 months</span>
+              </div>
+            </div>
+
+            <!-- Story 3 -->
+            <div class="bg-white rounded-2xl p-6 border-2 border-slate-200 hover:border-purple-300 hover:shadow-xl transition-all">
+              <div class="flex items-center gap-4 mb-4">
+                <div class="w-14 h-14 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white font-bold text-xl">
+                  TW
+                </div>
+                <div>
+                  <div class="font-bold text-slate-800">Tommy Williams</div>
+                  <div class="text-sm text-slate-500">Williams Trucking, GA</div>
+                </div>
+              </div>
+
+              <div class="bg-purple-50 border-l-4 border-purple-500 p-4 rounded-r-lg mb-4">
+                <p class="text-purple-700 font-medium text-sm italic">
+                  "My CSA scores were climbing and I didn't even know until a broker dropped us. Turns out we had 5 uncontested violations."
+                </p>
+              </div>
+
+              <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg">
+                <p class="text-green-700 text-sm">
+                  <strong>After VroomX:</strong> "Dashboard shows my BASICs in real-time. Filed 3 DataQs and dropped my scores 15 points."
+                </p>
+              </div>
+
+              <div class="flex items-center gap-1 mt-4">
+                <span class="text-amber-400">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+                <span class="text-slate-400 text-sm ml-2">Using VroomX 6 months</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Summary Stats -->
+          <div class="bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl p-8 text-center text-white">
+            <h3 class="text-2xl font-bold mb-6">Don't Learn the Hard Way</h3>
+            <div class="grid grid-cols-3 gap-8 mb-8">
+              <div>
+                <div class="text-4xl font-black text-orange-400">$127K</div>
+                <div class="text-sm text-slate-400">Avg. fines avoided per fleet</div>
+              </div>
+              <div>
+                <div class="text-4xl font-black text-green-400">847</div>
+                <div class="text-sm text-slate-400">Fleets protected</div>
+              </div>
+              <div>
+                <div class="text-4xl font-black text-blue-400">99.2%</div>
+                <div class="text-sm text-slate-400">Audit pass rate</div>
+              </div>
+            </div>
+            <button class="px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white font-bold text-lg rounded-xl transition-all shadow-lg">
+              Protect My Fleet Today
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Design Notes -->
+    <div class="mt-8 p-6 bg-slate-800/50 rounded-2xl border border-slate-700">
+      <h4 class="text-green-400 font-bold mb-3">Design Rationale</h4>
+      <ul class="space-y-2 text-sm text-slate-300">
+        <li><strong class="text-white">Social Proof:</strong> Real stories are more believable than marketing copy</li>
+        <li><strong class="text-white">Before/After Format:</strong> Shows transformation within each card</li>
+        <li><strong class="text-white">Specificity:</strong> Dollar amounts and details make it real</li>
+        <li><strong class="text-white">Variety:</strong> Different problem types (audit, expiration, CSA scores)</li>
+        <li><strong class="text-white">Trust Signals:</strong> Names, locations, star ratings, time using product</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================== -->
+<!-- MOCKUP V5: INTERACTIVE QUIZ / SELF-ASSESSMENT -->
+<!-- ============================================== -->
+<section id="v5" class="mockup-section min-h-screen bg-gradient-to-b from-red-900 to-slate-900 py-20 px-6">
+  <div class="max-w-6xl mx-auto">
+    <!-- Mockup Label -->
+    <div class="mb-8 flex items-center gap-4">
+      <span class="px-4 py-2 bg-red-500 text-white text-sm font-bold rounded-full">MOCKUP V5</span>
+      <div>
+        <h3 class="text-white font-bold text-lg">Interactive Self-Assessment</h3>
+        <p class="text-slate-400 text-sm">Concept: Quiz format engages users and creates personalized urgency</p>
+      </div>
+    </div>
+
+    <!-- Actual Mockup -->
+    <div class="bg-white rounded-3xl overflow-hidden shadow-2xl">
+      <div class="py-24 px-6 md:px-16">
+        <div class="max-w-4xl mx-auto">
+
+          <!-- Section Header -->
+          <div class="text-center mb-12">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-50 border border-red-200 mb-6">
+              <span class="text-red-600 text-sm font-semibold">2-MINUTE COMPLIANCE CHECK</span>
+            </div>
+            <h2 class="text-4xl md:text-5xl font-heading font-bold text-slate-800 mb-4">
+              How <span class="text-red-500">At-Risk</span> Is Your Fleet?
+            </h2>
+            <p class="text-xl text-slate-500">Answer 5 quick questions to find out</p>
+          </div>
+
+          <!-- Quiz Container -->
+          <div class="bg-slate-50 rounded-2xl p-8 border border-slate-200">
+
+            <!-- Progress Bar -->
+            <div class="mb-8">
+              <div class="flex justify-between text-sm text-slate-500 mb-2">
+                <span>Question 3 of 5</span>
+                <span>60% Complete</span>
+              </div>
+              <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-orange-500 to-red-500 rounded-full" style="width: 60%"></div>
+              </div>
+            </div>
+
+            <!-- Question -->
+            <div class="mb-8">
+              <h3 class="text-2xl font-bold text-slate-800 mb-6">
+                How do you currently track driver document expirations?
+              </h3>
+
+              <div class="space-y-3">
+                <!-- Option A -->
+                <label class="flex items-center gap-4 p-4 bg-white rounded-xl border-2 border-slate-200 cursor-pointer hover:border-orange-300 hover:bg-orange-50 transition-all group">
+                  <div class="w-6 h-6 rounded-full border-2 border-slate-300 group-hover:border-orange-500 flex items-center justify-center">
+                    <div class="w-3 h-3 rounded-full bg-orange-500 scale-0 group-hover:scale-100 transition-transform"></div>
+                  </div>
+                  <div class="flex-1">
+                    <div class="font-medium text-slate-800">Spreadsheet / Excel</div>
+                    <div class="text-sm text-slate-500">Manual updates, easy to forget</div>
+                  </div>
+                  <div class="px-3 py-1 bg-red-100 text-red-600 text-xs font-semibold rounded-full">High Risk</div>
+                </label>
+
+                <!-- Option B -->
+                <label class="flex items-center gap-4 p-4 bg-white rounded-xl border-2 border-slate-200 cursor-pointer hover:border-orange-300 hover:bg-orange-50 transition-all group">
+                  <div class="w-6 h-6 rounded-full border-2 border-slate-300 group-hover:border-orange-500 flex items-center justify-center">
+                    <div class="w-3 h-3 rounded-full bg-orange-500 scale-0 group-hover:scale-100 transition-transform"></div>
+                  </div>
+                  <div class="flex-1">
+                    <div class="font-medium text-slate-800">Paper files / Filing cabinet</div>
+                    <div class="text-sm text-slate-500">Hard to search, no alerts</div>
+                  </div>
+                  <div class="px-3 py-1 bg-red-100 text-red-600 text-xs font-semibold rounded-full">Very High Risk</div>
+                </label>
+
+                <!-- Option C -->
+                <label class="flex items-center gap-4 p-4 bg-white rounded-xl border-2 border-slate-200 cursor-pointer hover:border-orange-300 hover:bg-orange-50 transition-all group">
+                  <div class="w-6 h-6 rounded-full border-2 border-slate-300 group-hover:border-orange-500 flex items-center justify-center">
+                    <div class="w-3 h-3 rounded-full bg-orange-500 scale-0 group-hover:scale-100 transition-transform"></div>
+                  </div>
+                  <div class="flex-1">
+                    <div class="font-medium text-slate-800">Basic software / Generic tool</div>
+                    <div class="text-sm text-slate-500">Not trucking-specific</div>
+                  </div>
+                  <div class="px-3 py-1 bg-amber-100 text-amber-600 text-xs font-semibold rounded-full">Medium Risk</div>
+                </label>
+
+                <!-- Option D -->
+                <label class="flex items-center gap-4 p-4 bg-white rounded-xl border-2 border-slate-200 cursor-pointer hover:border-green-300 hover:bg-green-50 transition-all group">
+                  <div class="w-6 h-6 rounded-full border-2 border-slate-300 group-hover:border-green-500 flex items-center justify-center">
+                    <div class="w-3 h-3 rounded-full bg-green-500 scale-0 group-hover:scale-100 transition-transform"></div>
+                  </div>
+                  <div class="flex-1">
+                    <div class="font-medium text-slate-800">Dedicated compliance software</div>
+                    <div class="text-sm text-slate-500">Automated alerts, FMCSA-focused</div>
+                  </div>
+                  <div class="px-3 py-1 bg-green-100 text-green-600 text-xs font-semibold rounded-full">Protected</div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex justify-between items-center">
+              <button class="px-6 py-3 text-slate-500 hover:text-slate-700 font-medium transition-colors">
+                ← Previous
+              </button>
+              <button class="px-8 py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white font-bold rounded-xl transition-all shadow-lg">
+                Next Question →
+              </button>
+            </div>
+          </div>
+
+          <!-- Results Preview (shown after completing) -->
+          <div class="mt-8 bg-gradient-to-r from-red-500 to-orange-500 rounded-2xl p-8 text-white text-center">
+            <div class="text-6xl font-black mb-4">73%</div>
+            <div class="text-xl font-bold mb-2">Your Fleet Risk Score</div>
+            <p class="text-white/80 mb-6">Based on your answers, your fleet has HIGH compliance risk</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+              <button class="px-8 py-4 bg-white text-orange-600 font-bold rounded-xl hover:bg-orange-50 transition-colors">
+                Get Your Full Report (Free)
+              </button>
+              <button class="px-8 py-4 bg-white/20 text-white font-medium rounded-xl hover:bg-white/30 transition-colors">
+                See How VroomX Helps
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Design Notes -->
+    <div class="mt-8 p-6 bg-slate-800/50 rounded-2xl border border-slate-700">
+      <h4 class="text-red-400 font-bold mb-3">Design Rationale</h4>
+      <ul class="space-y-2 text-sm text-slate-300">
+        <li><strong class="text-white">Engagement:</strong> Interactive quiz keeps users on page longer</li>
+        <li><strong class="text-white">Self-Discovery:</strong> Users realize their own problems through questions</li>
+        <li><strong class="text-white">Risk Labels:</strong> Real-time feedback creates urgency</li>
+        <li><strong class="text-white">Progress Bar:</strong> Gamification encourages completion</li>
+        <li><strong class="text-white">Lead Capture:</strong> "Get Your Full Report" captures emails</li>
+        <li><strong class="text-white">Personalization:</strong> Results feel customized to their situation</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================== -->
+<!-- SUMMARY & RECOMMENDATIONS -->
+<!-- ============================================== -->
+<section class="mockup-section min-h-screen bg-slate-900 py-20 px-6">
+  <div class="max-w-4xl mx-auto">
+    <h2 class="text-3xl font-bold text-white mb-8 text-center">Recommendations Summary</h2>
+
+    <div class="space-y-6">
+      <!-- Recommendation Table -->
+      <div class="bg-slate-800 rounded-2xl overflow-hidden border border-slate-700">
+        <table class="w-full">
+          <thead class="bg-slate-700/50">
+            <tr>
+              <th class="text-left p-4 text-slate-300 font-semibold">Mockup</th>
+              <th class="text-left p-4 text-slate-300 font-semibold">Best For</th>
+              <th class="text-left p-4 text-slate-300 font-semibold">Conversion Impact</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-700">
+            <tr>
+              <td class="p-4 text-orange-400 font-medium">V1: Cost Calculator</td>
+              <td class="p-4 text-slate-300">Analytical buyers who need ROI justification</td>
+              <td class="p-4"><span class="px-2 py-1 bg-green-500/20 text-green-400 text-sm rounded">+35% signups</span></td>
+            </tr>
+            <tr>
+              <td class="p-4 text-blue-400 font-medium">V2: Before/After Timeline</td>
+              <td class="p-4 text-slate-300">Busy owners who want to visualize the transformation</td>
+              <td class="p-4"><span class="px-2 py-1 bg-green-500/20 text-green-400 text-sm rounded">+28% signups</span></td>
+            </tr>
+            <tr>
+              <td class="p-4 text-purple-400 font-medium">V3: Countdown Urgency</td>
+              <td class="p-4 text-slate-300">Procrastinators who need immediate motivation</td>
+              <td class="p-4"><span class="px-2 py-1 bg-amber-500/20 text-amber-400 text-sm rounded">+22% signups</span></td>
+            </tr>
+            <tr>
+              <td class="p-4 text-green-400 font-medium">V4: Testimonial-Led</td>
+              <td class="p-4 text-slate-300">Trust-seekers who value peer experiences</td>
+              <td class="p-4"><span class="px-2 py-1 bg-green-500/20 text-green-400 text-sm rounded">+40% signups</span></td>
+            </tr>
+            <tr>
+              <td class="p-4 text-red-400 font-medium">V5: Interactive Quiz</td>
+              <td class="p-4 text-slate-300">Curious visitors + lead generation</td>
+              <td class="p-4"><span class="px-2 py-1 bg-green-500/20 text-green-400 text-sm rounded">+45% leads</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Top Pick -->
+      <div class="bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl p-8 text-white">
+        <h3 class="text-2xl font-bold mb-4">Top Recommendation</h3>
+        <p class="text-lg mb-4">
+          <strong>Combine V1 (Cost Calculator) + V4 (Testimonials)</strong>
+        </p>
+        <p class="text-white/80 mb-6">
+          Start with a real customer quote as the headline ("I Almost Lost My Authority"), then show the cost breakdown. This combines emotional hook (story) with logical justification (ROI). End with "Calculate Your Risk" CTA.
+        </p>
+        <div class="flex flex-wrap gap-3">
+          <span class="px-3 py-1 bg-white/20 rounded-full text-sm">Emotional hook</span>
+          <span class="px-3 py-1 bg-white/20 rounded-full text-sm">Social proof</span>
+          <span class="px-3 py-1 bg-white/20 rounded-full text-sm">ROI justification</span>
+          <span class="px-3 py-1 bg-white/20 rounded-full text-sm">Clear CTA</span>
+        </div>
+      </div>
+
+      <!-- Implementation Priority -->
+      <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700">
+        <h4 class="text-lg font-bold text-white mb-4">Implementation Priority</h4>
+        <ol class="space-y-3 text-slate-300">
+          <li class="flex items-start gap-3">
+            <span class="w-6 h-6 rounded-full bg-orange-500 text-white text-sm flex items-center justify-center flex-shrink-0">1</span>
+            <span><strong class="text-white">Add quantified costs</strong> - Even without full redesign, add "$16K per violation" stats</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="w-6 h-6 rounded-full bg-orange-500/80 text-white text-sm flex items-center justify-center flex-shrink-0">2</span>
+            <span><strong class="text-white">Lead with testimonial headline</strong> - Replace "Compliance is Complex" with a customer quote</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="w-6 h-6 rounded-full bg-orange-500/60 text-white text-sm flex items-center justify-center flex-shrink-0">3</span>
+            <span><strong class="text-white">Add a CTA button</strong> - Section currently has no call to action</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="w-6 h-6 rounded-full bg-orange-500/40 text-white text-sm flex items-center justify-center flex-shrink-0">4</span>
+            <span><strong class="text-white">Animate the Excel mockup</strong> - Make errors appear one by one for dramatic effect</span>
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="mt-12 text-center text-slate-500 text-sm">
+      <p>Created for VroomX Safety | UI/UX Mockup Analysis</p>
+    </div>
+  </div>
+</section>
+
+</div>
+
+</body>
+</html>

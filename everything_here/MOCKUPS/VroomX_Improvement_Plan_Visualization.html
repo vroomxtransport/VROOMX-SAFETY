@@ -1,0 +1,1926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VroomX Safety - Improvement & Integration Plan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #000000;
+      --surface: #0a0a0f;
+      --surface-2: #141419;
+      --surface-3: #1a1a22;
+      --border: rgba(255,255,255,0.08);
+      --primary: #e11d48;
+      --primary-glow: rgba(225, 29, 72, 0.3);
+      --success: #22c55e;
+      --success-glow: rgba(34, 197, 94, 0.3);
+      --warning: #f59e0b;
+      --warning-glow: rgba(245, 158, 11, 0.3);
+      --info: #3b82f6;
+      --info-glow: rgba(59, 130, 246, 0.3);
+      --text: #fafafa;
+      --text-muted: #71717a;
+      --text-secondary: #a1a1aa;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Background */
+    .bg-pattern {
+      position: fixed;
+      inset: 0;
+      background-size: 40px 40px;
+      background-image:
+        linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .bg-glow {
+      position: fixed;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      filter: blur(150px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .bg-glow-1 {
+      top: -200px;
+      left: -200px;
+      background: var(--primary-glow);
+    }
+
+    .bg-glow-2 {
+      bottom: -200px;
+      right: -200px;
+      background: var(--success-glow);
+      opacity: 0.5;
+    }
+
+    /* Navigation */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 16px 24px;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nav-logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary), #be123c);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px var(--primary-glow);
+    }
+
+    .nav-logo-icon svg {
+      width: 22px;
+      height: 22px;
+      color: #fff;
+    }
+
+    .nav-logo-text {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+
+    .nav-logo-text span {
+      color: var(--primary);
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      background: var(--surface-2);
+      padding: 6px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .nav-tab {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+      background: transparent;
+    }
+
+    .nav-tab:hover {
+      color: var(--text);
+    }
+
+    .nav-tab.active {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 0 20px var(--primary-glow);
+    }
+
+    /* Main Content */
+    .main {
+      position: relative;
+      z-index: 1;
+      padding: 100px 24px 60px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* Sections */
+    .section {
+      display: none;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 60px 0 80px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(225, 29, 72, 0.1);
+      border: 1px solid rgba(225, 29, 72, 0.2);
+      border-radius: 50px;
+      font-size: 0.85rem;
+      color: var(--primary);
+      margin-bottom: 24px;
+    }
+
+    .hero-title {
+      font-size: 3.5rem;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+
+    .hero-title span {
+      background: linear-gradient(135deg, var(--primary), #fb7185);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin: 60px 0;
+    }
+
+    @media (max-width: 900px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .stat-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      border-color: var(--primary);
+      box-shadow: 0 0 30px var(--primary-glow);
+      transform: translateY(-4px);
+    }
+
+    .stat-value {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .stat-card:nth-child(1) .stat-value { color: var(--primary); }
+    .stat-card:nth-child(2) .stat-value { color: var(--info); }
+    .stat-card:nth-child(3) .stat-value { color: var(--success); }
+    .stat-card:nth-child(4) .stat-value { color: var(--warning); }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    /* Section Header */
+    .section-header {
+      margin-bottom: 40px;
+    }
+
+    .section-header h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .section-header p {
+      color: var(--text-secondary);
+    }
+
+    /* Feature Cards */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 1000px) {
+      .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .feature-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .feature-card:hover {
+      border-color: rgba(255,255,255,0.15);
+      transform: translateY(-4px);
+    }
+
+    .feature-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .feature-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .feature-icon.red {
+      background: rgba(225, 29, 72, 0.15);
+      color: var(--primary);
+    }
+
+    .feature-icon.blue {
+      background: rgba(59, 130, 246, 0.15);
+      color: var(--info);
+    }
+
+    .feature-icon.green {
+      background: rgba(34, 197, 94, 0.15);
+      color: var(--success);
+    }
+
+    .feature-icon.yellow {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--warning);
+    }
+
+    .feature-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    .feature-status.exists {
+      background: rgba(34, 197, 94, 0.15);
+      color: var(--success);
+    }
+
+    .feature-status.planned {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--warning);
+    }
+
+    .feature-status.new {
+      background: rgba(59, 130, 246, 0.15);
+      color: var(--info);
+    }
+
+    .feature-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .feature-desc {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    .feature-improvements {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .improvement-tag {
+      font-size: 0.7rem;
+      padding: 4px 8px;
+      border-radius: 4px;
+      background: var(--surface-3);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+
+    .improvement-tag.high {
+      background: rgba(225, 29, 72, 0.1);
+      border-color: rgba(225, 29, 72, 0.2);
+      color: var(--primary);
+    }
+
+    /* Integration Architecture */
+    .architecture {
+      padding: 40px 0;
+    }
+
+    .architecture-diagram {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .architecture-center {
+      width: 200px;
+      height: 200px;
+      background: linear-gradient(135deg, var(--primary), #be123c);
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 60px;
+      box-shadow: 0 0 60px var(--primary-glow);
+      position: relative;
+      z-index: 10;
+    }
+
+    .architecture-center svg {
+      width: 48px;
+      height: 48px;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+
+    .architecture-center-text {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #fff;
+      text-align: center;
+    }
+
+    .integration-categories {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .integration-categories {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .integration-categories {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .integration-category {
+      background: var(--surface-3);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      transition: all 0.3s ease;
+    }
+
+    .integration-category:hover {
+      border-color: rgba(255,255,255,0.15);
+    }
+
+    .integration-category-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .integration-category-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .integration-category-icon svg {
+      width: 20px;
+      height: 20px;
+      color: #fff;
+    }
+
+    .integration-category-title {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .integration-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .integration-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: var(--surface-2);
+      border-radius: 8px;
+      font-size: 0.85rem;
+    }
+
+    .integration-item-name {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .integration-item-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .integration-item-dot.tier1 {
+      background: var(--primary);
+      box-shadow: 0 0 10px var(--primary-glow);
+    }
+
+    .integration-item-dot.tier2 {
+      background: var(--warning);
+      box-shadow: 0 0 10px var(--warning-glow);
+    }
+
+    .integration-item-dot.tier3 {
+      background: var(--text-muted);
+    }
+
+    .integration-item-status {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    .integration-item-status.connected {
+      background: rgba(34, 197, 94, 0.15);
+      color: var(--success);
+    }
+
+    .integration-item-status.planned {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--warning);
+    }
+
+    .integration-item-status.future {
+      background: var(--surface-3);
+      color: var(--text-muted);
+    }
+
+    /* Timeline / Roadmap */
+    .roadmap {
+      padding: 40px 0;
+    }
+
+    .timeline {
+      position: relative;
+      padding-left: 40px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(180deg, var(--primary), var(--success));
+    }
+
+    .timeline-phase {
+      position: relative;
+      margin-bottom: 40px;
+      padding: 24px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .timeline-phase:hover {
+      border-color: rgba(255,255,255,0.15);
+      transform: translateX(10px);
+    }
+
+    .timeline-phase::before {
+      content: '';
+      position: absolute;
+      left: -33px;
+      top: 30px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--primary);
+      border: 3px solid var(--bg);
+      box-shadow: 0 0 15px var(--primary-glow);
+    }
+
+    .timeline-phase.phase-2::before { background: var(--info); box-shadow: 0 0 15px var(--info-glow); }
+    .timeline-phase.phase-3::before { background: var(--warning); box-shadow: 0 0 15px var(--warning-glow); }
+    .timeline-phase.phase-4::before { background: var(--success); box-shadow: 0 0 15px var(--success-glow); }
+    .timeline-phase.phase-5::before { background: #a855f7; box-shadow: 0 0 15px rgba(168, 85, 247, 0.3); }
+
+    .timeline-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .timeline-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .timeline-duration {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      padding: 6px 12px;
+      background: var(--surface-3);
+      border-radius: 6px;
+    }
+
+    .timeline-focus {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    .timeline-deliverables {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .deliverable {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      padding: 6px 12px;
+      background: var(--surface-3);
+      border-radius: 6px;
+      color: var(--text-secondary);
+    }
+
+    .deliverable svg {
+      width: 14px;
+      height: 14px;
+      color: var(--success);
+    }
+
+    /* Tech Stack */
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .tech-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .tech-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    .tech-card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .tech-card-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tech-card-icon svg {
+      width: 22px;
+      height: 22px;
+      color: #fff;
+    }
+
+    .tech-card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .tech-items {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .tech-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: var(--surface-3);
+      border-radius: 10px;
+    }
+
+    .tech-item-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .tech-item-current {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .tech-item-arrow {
+      color: var(--text-muted);
+    }
+
+    .tech-item-new {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--success);
+    }
+
+    .tech-item-priority {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    .tech-item-priority.high {
+      background: rgba(225, 29, 72, 0.15);
+      color: var(--primary);
+    }
+
+    .tech-item-priority.medium {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--warning);
+    }
+
+    /* Metrics */
+    .metrics-section {
+      padding: 40px 0;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .metrics-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .metrics-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    .metrics-card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .metrics-table {
+      width: 100%;
+    }
+
+    .metrics-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 10px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.85rem;
+    }
+
+    .metrics-row:last-child {
+      border-bottom: none;
+    }
+
+    .metrics-row.header {
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .metric-current {
+      color: var(--text-secondary);
+    }
+
+    .metric-target {
+      color: var(--warning);
+    }
+
+    .metric-goal {
+      color: var(--success);
+    }
+
+    /* Progress bars */
+    .progress-section {
+      margin-top: 40px;
+    }
+
+    .progress-item {
+      margin-bottom: 20px;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+    }
+
+    .progress-label {
+      color: var(--text-secondary);
+    }
+
+    .progress-value {
+      font-weight: 600;
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: var(--surface-3);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 1s ease;
+    }
+
+    .progress-fill.red { background: linear-gradient(90deg, var(--primary), #fb7185); }
+    .progress-fill.blue { background: linear-gradient(90deg, var(--info), #60a5fa); }
+    .progress-fill.green { background: linear-gradient(90deg, var(--success), #4ade80); }
+    .progress-fill.yellow { background: linear-gradient(90deg, var(--warning), #fbbf24); }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 40px 0;
+      border-top: 1px solid var(--border);
+      margin-top: 60px;
+    }
+
+    .footer-text {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* Animations */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .animate-pulse {
+      animation: pulse 2s infinite;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-pattern"></div>
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <div class="nav-logo">
+        <div class="nav-logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+          </svg>
+        </div>
+        <div class="nav-logo-text">VroomX <span>Safety</span></div>
+      </div>
+
+      <div class="nav-tabs">
+        <button class="nav-tab active" data-section="overview">Overview</button>
+        <button class="nav-tab" data-section="features">Features</button>
+        <button class="nav-tab" data-section="integrations">Integrations</button>
+        <button class="nav-tab" data-section="roadmap">Roadmap</button>
+        <button class="nav-tab" data-section="tech">Tech Stack</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main">
+
+    <!-- Overview Section -->
+    <section class="section active" id="overview">
+      <div class="hero">
+        <div class="hero-badge">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+          Comprehensive Improvement Plan
+        </div>
+        <h1 class="hero-title">VroomX Safety<br><span>Roadmap 2025</span></h1>
+        <p class="hero-subtitle">Transform your FMCSA compliance platform into an enterprise-ready, fully-integrated solution with ELD connectivity, mobile apps, and advanced analytics.</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value">16</div>
+          <div class="stat-label">Data Models</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">23</div>
+          <div class="stat-label">API Routes</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">27+</div>
+          <div class="stat-label">Frontend Pages</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">15+</div>
+          <div class="stat-label">Planned Integrations</div>
+        </div>
+      </div>
+
+      <div class="progress-section">
+        <div class="section-header">
+          <h2>Implementation Progress</h2>
+          <p>Track the development phases and feature completion</p>
+        </div>
+
+        <div class="progress-item">
+          <div class="progress-header">
+            <span class="progress-label">Phase 1: Foundation</span>
+            <span class="progress-value">0%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill red" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <div class="progress-item">
+          <div class="progress-header">
+            <span class="progress-label">Phase 2: Core Integrations</span>
+            <span class="progress-value">0%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill blue" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <div class="progress-item">
+          <div class="progress-header">
+            <span class="progress-label">Phase 3: Mobile & UX</span>
+            <span class="progress-value">0%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill green" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <div class="progress-item">
+          <div class="progress-header">
+            <span class="progress-label">Phase 4: Advanced Features</span>
+            <span class="progress-value">0%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill yellow" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="section" id="features">
+      <div class="section-header">
+        <h2>Current Features & Improvements</h2>
+        <p>Existing capabilities and planned enhancements for each module</p>
+      </div>
+
+      <div class="features-grid">
+        <!-- Driver Management -->
+        <div class="feature-card">
+          <div class="feature-card-header">
+            <div class="feature-icon red">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </div>
+            <div class="feature-status exists">✓ Active</div>
+          </div>
+          <h3 class="feature-title">Driver Management</h3>
+          <p class="feature-desc">Complete DQF tracking, CDL, medical cards, MVR, Clearinghouse status</p>
+          <div class="feature-improvements">
+            <span class="improvement-tag high">Clearinghouse API</span>
+            <span class="improvement-tag high">Driver App</span>
+            <span class="improvement-tag">Training Module</span>
+            <span class="improvement-tag">Road Test Forms</span>
+          </div>
+        </div>
+
+        <!-- Vehicle Management -->
+        <div class="feature-card">
+          <div class="feature-card-header">
+            <div class="feature-icon blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="1" y="3" width="15" height="13"/>
+                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                <circle cx="5.5" cy="18.5" r="2.5"/>
+                <circle cx="18.5" cy="18.5" r="2.5"/>
+              </svg>
+            </div>
+            <div class="feature-status exists">✓ Active</div>
+          </div>
+          <h3 class="feature-title">Vehicle Management</h3>
+          <p class="feature-desc">Annual inspections, maintenance logs, DVIR, PM scheduling</p>
+          <div class="feature-improvements">
+            <span class="improvement-tag high">ELD Integration</span>
+            <span class="improvement-tag high">GPS Tracking</span>
+            <span class="improvement-tag">Fuel Cards</span>
+            <span class="improvement-tag">Telematics</span>
+          </div>
+        </div>
+
+        <!-- CSA Management -->
+        <div class="feature-card">
+          <div class="feature-card-header">
+            <div class="feature-icon green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+            </div>
+            <div class="feature-status exists">✓ Active</div>
+          </div>
+          <h3 class="feature-title">CSA Score Management</h3>
+          <p class="feature-desc">FMCSA sync, score estimation, trends, DataQ process</p>
+          <div class="feature-improvements">
+            <span class="improvement-tag high">Auto DataQ Filing</span>
+            <span class="improvement-tag">Peer Comparison</span>
+            <span class="improvement-tag">ML Forecasting</span>
+            <span class="improvement-tag">Pattern Analysis</span>
+          </div>
+        </div>
+
+        <!-- Drug & Alcohol -->
+        <div class="feature-card">
+          <div class="feature-card-header">
+            <div class="feature-icon yellow">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+              </svg>
+            </div>
+            <div class="feature-status exists">✓ Active</div>
+          </div>
+          <h3 class="feature-title">Drug & Alcohol Program</h3>
+          <p class="feature-desc">Test tracking, random pool, Clearinghouse, RTD process</p>
+          <div class="feature-improvements">
+            <span class="improvement-tag high">Auto Random Selection</span>
+            <span class="improvement-tag">Consortium Mgmt</span>
+            <span class="improvement-tag">SAP Portal</span>
+            <span class="improvement-tag">Collection Sites</span>
+          </div>
+        </div>
+
+        <!-- Documents -->
+        <div class="feature-card">
+          <div class="feature-card-header">
+            <div class="feature-icon red">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+              </svg>
+            </div>
+            <div class="feature-status exists">✓ Active</div>
+          </div>
+          <h3 class="feature-title">Document Management</h3>
+          <p class="feature-desc">Multi-category storage, expiry tracking, AI extraction</p>
+          <div class="feature-improvements">
+            <span class="improvement-tag high">E-Signatures</span>
+            <span class="improvement-tag high">OCR Enhancement</span>
+            <span class="improvement-tag">Templates</span>
+            <span class="improvement-tag">Sharing Portal</span>
+          </div>
+        </div>
+
+        <!-- Mobile App -->
+        <div class="feature-card">
+          <div class="feature-card-header">
+            <div class="feature-icon blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+                <line x1="12" y1="18" x2="12.01" y2="18"/>
+              </svg>
+            </div>
+            <div class="feature-status new">New</div>
+          </div>
+          <h3 class="feature-title">Mobile Application</h3>
+          <p class="feature-desc">iOS/Android app for drivers with DVIR, docs, training</p>
+          <div class="feature-improvements">
+            <span class="improvement-tag high">Digital DVIR</span>
+            <span class="improvement-tag high">Doc Scanner</span>
+            <span class="improvement-tag">Push Alerts</span>
+            <span class="improvement-tag">Offline Mode</span>
+          </div>
+        </div>
+
+        <!-- Dispatch -->
+        <div class="feature-card">
+          <div class="feature-card-header">
+            <div class="feature-icon green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+              </svg>
+            </div>
+            <div class="feature-status planned">Planned</div>
+          </div>
+          <h3 class="feature-title">Dispatch & Load Mgmt</h3>
+          <p class="feature-desc">Load assignment, route optimization, driver scheduling</p>
+          <div class="feature-improvements">
+            <span class="improvement-tag">Load Board</span>
+            <span class="improvement-tag">Route Optimization</span>
+            <span class="improvement-tag">HOS Compliance</span>
+            <span class="improvement-tag">Customer Portal</span>
+          </div>
+        </div>
+
+        <!-- Training LMS -->
+        <div class="feature-card">
+          <div class="feature-card-header">
+            <div class="feature-icon yellow">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+              </svg>
+            </div>
+            <div class="feature-status planned">Planned</div>
+          </div>
+          <h3 class="feature-title">Training & LMS</h3>
+          <p class="feature-desc">Built-in safety training platform with courses and quizzes</p>
+          <div class="feature-improvements">
+            <span class="improvement-tag">Course Library</span>
+            <span class="improvement-tag">Quizzes</span>
+            <span class="improvement-tag">Certificates</span>
+            <span class="improvement-tag">Compliance Track</span>
+          </div>
+        </div>
+
+        <!-- Audit Prep -->
+        <div class="feature-card">
+          <div class="feature-card-header">
+            <div class="feature-icon red">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 11l3 3L22 4"/>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+              </svg>
+            </div>
+            <div class="feature-status planned">Planned</div>
+          </div>
+          <h3 class="feature-title">Audit Preparation</h3>
+          <p class="feature-desc">DOT audit readiness tools, checklists, document collector</p>
+          <div class="feature-improvements">
+            <span class="improvement-tag high">Gap Analysis</span>
+            <span class="improvement-tag">Mock Audit</span>
+            <span class="improvement-tag">Auditor Portal</span>
+            <span class="improvement-tag">Audit History</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Integrations Section -->
+    <section class="section" id="integrations">
+      <div class="section-header">
+        <h2>Integration Architecture</h2>
+        <p>Connect VroomX Safety with your entire trucking technology stack</p>
+      </div>
+
+      <div class="architecture">
+        <div class="architecture-diagram">
+          <div class="architecture-center">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
+            <div class="architecture-center-text">VroomX<br>Safety Hub</div>
+          </div>
+
+          <div class="integration-categories">
+            <!-- ELD/GPS -->
+            <div class="integration-category">
+              <div class="integration-category-header">
+                <div class="integration-category-icon" style="background: linear-gradient(135deg, var(--primary), #be123c);">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="1" y="3" width="15" height="13"/>
+                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                  </svg>
+                </div>
+                <div class="integration-category-title">ELD & GPS</div>
+              </div>
+              <div class="integration-list">
+                <div class="integration-item">
+                  <div class="integration-item-name">
+                    <div class="integration-item-dot tier1"></div>
+                    <span>Samsara</span>
+                  </div>
+                  <span class="integration-item-status planned">Tier 1</span>
+                </div>
+                <div class="integration-item">
+                  <div class="integration-item-name">
+                    <div class="integration-item-dot tier1"></div>
+                    <span>KeepTruckin (Motive)</span>
+                  </div>
+                  <span class="integration-item-status planned">Tier 1</span>
+                </div>
+                <div class="integration-item">
+                  <div class="integration-item-name">
+                    <div class="integration-item-dot tier2"></div>
+                    <span>Geotab</span>
+                  </div>
+                  <span class="integration-item-status future">Tier 2</span>
+                </div>
+                <div class="integration-item">
+                  <div class="integration-item-name">
+                    <div class="integration-item-dot tier3"></div>
+                    <span>Omnitracs</span>
+                  </div>
+                  <span class="integration-item-status future">Tier 3</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- TMS -->
+            <div class="integration-category">
+              <div class="integration-category-header">
+                <div class="integration-category-icon" style="background: linear-gradient(135deg, var(--info), #2563eb);">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+                  </svg>
+                </div>
+                <div class="integration-category-title">TMS Systems</div>
+              </div>
+              <div class="integration-list">
+                <div class="integration-item">
+                  <div class="integration-item-name">
+                    <div class="integration-item-dot tier3"></div>
+                    <span>McLeod</span>
+                  </div>
+                  <span class="integration-item-status future">Tier 3</span>
+                </div>
+                <div class="integration-item">
+                  <div class="integration-item-name">
+                    <div class="integration-item-dot tier3"></div>
+                    <span>TMW</span>
+                  </div>
+                  <span class="integration-item-status future">Tier 3</span>
+                </div>
+                <div class="integration-item">
+                  <div class="integration-item-name">
+                    <div class="integration-item-dot tier3"></div>
+                    <span>TruckMate</span>
+                  </div>
+                  <span class="integration-item-status future">Tier 3</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Accounting -->
+            <div class="integration-category">
+              <div class="integration-category-header">
+                <div class="integration-category-icon" style="background: linear-gradient(135deg, var(--success), #16a34a);">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="1" x2="12" y2="23"/>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                  </svg>
+                </div>
+                <div class="integration-category-title">Accounting & ERP</div>
+              </div>
+              <div class="integration-list">
+                <div class="integration-item">
+                  <div class="integration-item-name">
+                    <div class="integration-item-dot tier2"></div>
+                    <span>QuickBooks</span>
+                  </div>
+                  <span class="integration-item-status future">Tier 2</span>
+                </div>
+                <div class="integration-item">
+                  <div class="integration-item-name">
+                    <div class="integration-item-dot tier3"></div>
+                    <span>Sage</span>
+                  </div>
+                  <span class="integration-item-status future">Tier 3</span>
+                </div>
+                <div class="integration-item">
+                  <div class="integration-item-name">
+                    <div class="integration-item-dot tier3"></div>
+                    <span>NetSuite</span>
+                  </div>
+                  <span class="integration-item-status future">Tier 3</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Government APIs -->
+            <div class="integration-category">
+              <div class="integration-category-header">
+                <div class="integration-category-icon" style="background: linear-gradient(135deg, var(--warning), #d97706);">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 21h18"/>
+                    <path d="M3 10h18"/>
+                    <path d="M5 6l7-3 7 3"/>
+                    <path d="M4 10v11"/>
+                    <path d="M20 10v11"/>
+                    <path d="M8 14v3"/>
+                    <path d="M12 14v3"/>
+                    <path d="M16 14v3"/>
+                  </svg>
+                </div>
+                <div class="integration-category-title">Government APIs</div>
+              </div>
+              <div class="integration-list">
+                <div class="integration-item">
+                  <div class="integration-item-name">
+                    <div class="integration-item-dot tier1"></div>
+                    <span>FMCSA SAFER</span>
+                  </div>
+                  <span class="integration-item-status connected">Connected</span>
+                </div>
+                <div class="integration-item">
+                  <div class="integration-item-name">
+                    <div class="integration-item-dot tier1"></div>
+                    <span>Clearinghouse</span>
+                  </div>
+                  <span class="integration-item-status planned">Tier 1</span>
+                </div>
+                <div class="integration-item">
+                  <div class="integration-item-name">
+                    <div class="integration-item-dot tier3"></div>
+                    <span>CDLIS</span>
+                  </div>
+                  <span class="integration-item-status future">Tier 3</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Communication -->
+            <div class="integration-category">
+              <div class="integration-category-header">
+                <div class="integration-category-icon" style="background: linear-gradient(135deg, #a855f7, #7c3aed);">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                  </svg>
+                </div>
+                <div class="integration-category-title">Communication</div>
+              </div>
+              <div class="integration-list">
+                <div class="integration-item">
+                  <div class="integration-item-name">
+                    <div class="integration-item-dot tier1"></div>
+                    <span>Twilio (SMS)</span>
+                  </div>
+                  <span class="integration-item-status planned">Tier 1</span>
+                </div>
+                <div class="integration-item">
+                  <div class="integration-item-name">
+                    <div class="integration-item-dot tier1"></div>
+                    <span>SendGrid (Email)</span>
+                  </div>
+                  <span class="integration-item-status planned">Tier 1</span>
+                </div>
+                <div class="integration-item">
+                  <div class="integration-item-name">
+                    <div class="integration-item-dot tier2"></div>
+                    <span>Slack</span>
+                  </div>
+                  <span class="integration-item-status future">Tier 2</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Fuel & Expenses -->
+            <div class="integration-category">
+              <div class="integration-category-header">
+                <div class="integration-category-icon" style="background: linear-gradient(135deg, #ec4899, #db2777);">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                    <line x1="1" y1="10" x2="23" y2="10"/>
+                  </svg>
+                </div>
+                <div class="integration-category-title">Fuel & Expenses</div>
+              </div>
+              <div class="integration-list">
+                <div class="integration-item">
+                  <div class="integration-item-name">
+                    <div class="integration-item-dot tier2"></div>
+                    <span>Comdata</span>
+                  </div>
+                  <span class="integration-item-status future">Tier 2</span>
+                </div>
+                <div class="integration-item">
+                  <div class="integration-item-name">
+                    <div class="integration-item-dot tier2"></div>
+                    <span>EFS</span>
+                  </div>
+                  <span class="integration-item-status future">Tier 2</span>
+                </div>
+                <div class="integration-item">
+                  <div class="integration-item-name">
+                    <div class="integration-item-dot tier2"></div>
+                    <span>WEX</span>
+                  </div>
+                  <span class="integration-item-status future">Tier 2</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Roadmap Section -->
+    <section class="section" id="roadmap">
+      <div class="section-header">
+        <h2>Implementation Roadmap</h2>
+        <p>12-month phased delivery plan with clear milestones</p>
+      </div>
+
+      <div class="roadmap">
+        <div class="timeline">
+          <!-- Phase 1 -->
+          <div class="timeline-phase phase-1">
+            <div class="timeline-header">
+              <h3 class="timeline-title">Phase 1: Foundation</h3>
+              <span class="timeline-duration">Months 1-2</span>
+            </div>
+            <p class="timeline-focus">Technical debt, essential integrations, infrastructure improvements</p>
+            <div class="timeline-deliverables">
+              <div class="deliverable">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+                Redis Caching
+              </div>
+              <div class="deliverable">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+                AWS S3 Storage
+              </div>
+              <div class="deliverable">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+                CI/CD Pipeline
+              </div>
+              <div class="deliverable">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+                SMS Notifications
+              </div>
+              <div class="deliverable">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+                API Documentation
+              </div>
+            </div>
+          </div>
+
+          <!-- Phase 2 -->
+          <div class="timeline-phase phase-2">
+            <div class="timeline-header">
+              <h3 class="timeline-title">Phase 2: Core Integrations</h3>
+              <span class="timeline-duration">Months 3-4</span>
+            </div>
+            <p class="timeline-focus">ELD integration, enhanced CSA features, Clearinghouse connectivity</p>
+            <div class="timeline-deliverables">
+              <div class="deliverable">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+                Samsara ELD
+              </div>
+              <div class="deliverable">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+                Motive ELD
+              </div>
+              <div class="deliverable">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+                GPS Tracking
+              </div>
+              <div class="deliverable">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+                Clearinghouse API
+              </div>
+              <div class="deliverable">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+                DataQ Automation
+              </div>
+            </div>
+          </div>
+
+          <!-- Phase 3 -->
+          <div class="timeline-phase phase-3">
+            <div class="timeline-header">
+              <h3 class="timeline-title">Phase 3: Mobile & UX</h3>
+              <span class="timeline-duration">Months 5-6</span>
+            </div>
+            <p class="timeline-focus">Mobile application, user experience improvements, e-signatures</p>
+            <div class="timeline-deliverables">
+              <div class="deliverable">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+                iOS/Android App
+              </div>
+              <div class="deliverable">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+                Digital DVIR
+              </div>
+              <div class="deliverable">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+                DocuSign Integration
+              </div>
+              <div class="deliverable">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+                Custom Dashboards
+              </div>
+              <div class="deliverable">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+                Scheduled Reports
+              </div>
+            </div>
+          </div>
+
+          <!-- Phase 4 -->
+          <div class="timeline-phase phase-4">
+            <div class="timeline-header">
+              <h3 class="timeline-title">Phase 4: Advanced Features</h3>
+              <span class="timeline-duration">Months 7-9</span>
+            </div>
+            <p class="timeline-focus">New modules, advanced integrations, enterprise capabilities</p>
+            <div class="timeline-deliverables">
+              <div class="deliverable">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+                Dispatch Module
+              </div>
+              <div class="deliverable">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+                Training LMS
+              </div>
+              <div class="deliverable">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+                QuickBooks Sync
+              </div>
+              <div class="deliverable">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+                Audit Tools
+              </div>
+            </div>
+          </div>
+
+          <!-- Phase 5 -->
+          <div class="timeline-phase phase-5">
+            <div class="timeline-header">
+              <h3 class="timeline-title">Phase 5: Enterprise</h3>
+              <span class="timeline-duration">Months 10-12</span>
+            </div>
+            <p class="timeline-focus">Enterprise features, TMS integrations, ML analytics, partner ecosystem</p>
+            <div class="timeline-deliverables">
+              <div class="deliverable">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+                TMS Integrations
+              </div>
+              <div class="deliverable">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+                Load Boards
+              </div>
+              <div class="deliverable">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+                Predictive Analytics
+              </div>
+              <div class="deliverable">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+                Enterprise SSO
+              </div>
+              <div class="deliverable">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+                API Marketplace
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tech Stack Section -->
+    <section class="section" id="tech">
+      <div class="section-header">
+        <h2>Technical Improvements</h2>
+        <p>Infrastructure upgrades and architectural enhancements</p>
+      </div>
+
+      <div class="tech-grid">
+        <!-- Backend Improvements -->
+        <div class="tech-card">
+          <div class="tech-card-header">
+            <div class="tech-card-icon" style="background: linear-gradient(135deg, var(--primary), #be123c);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="2" width="20" height="8" rx="2" ry="2"/>
+                <rect x="2" y="14" width="20" height="8" rx="2" ry="2"/>
+                <line x1="6" y1="6" x2="6.01" y2="6"/>
+                <line x1="6" y1="18" x2="6.01" y2="18"/>
+              </svg>
+            </div>
+            <div class="tech-card-title">Backend Infrastructure</div>
+          </div>
+          <div class="tech-items">
+            <div class="tech-item">
+              <div class="tech-item-left">
+                <span class="tech-item-current">node-cache</span>
+                <span class="tech-item-arrow">→</span>
+                <span class="tech-item-new">Redis</span>
+              </div>
+              <span class="tech-item-priority high">High</span>
+            </div>
+            <div class="tech-item">
+              <div class="tech-item-left">
+                <span class="tech-item-current">Sync Processing</span>
+                <span class="tech-item-arrow">→</span>
+                <span class="tech-item-new">Bull Queue</span>
+              </div>
+              <span class="tech-item-priority high">High</span>
+            </div>
+            <div class="tech-item">
+              <div class="tech-item-left">
+                <span class="tech-item-current">Local /uploads</span>
+                <span class="tech-item-arrow">→</span>
+                <span class="tech-item-new">AWS S3</span>
+              </div>
+              <span class="tech-item-priority high">High</span>
+            </div>
+            <div class="tech-item">
+              <div class="tech-item-left">
+                <span class="tech-item-current">Console Logs</span>
+                <span class="tech-item-arrow">→</span>
+                <span class="tech-item-new">Sentry</span>
+              </div>
+              <span class="tech-item-priority medium">Med</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Frontend Improvements -->
+        <div class="tech-card">
+          <div class="tech-card-header">
+            <div class="tech-card-icon" style="background: linear-gradient(135deg, var(--info), #2563eb);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="16 18 22 12 16 6"/>
+                <polyline points="8 6 2 12 8 18"/>
+              </svg>
+            </div>
+            <div class="tech-card-title">Frontend Architecture</div>
+          </div>
+          <div class="tech-items">
+            <div class="tech-item">
+              <div class="tech-item-left">
+                <span class="tech-item-current">Axios + useEffect</span>
+                <span class="tech-item-arrow">→</span>
+                <span class="tech-item-new">React Query</span>
+              </div>
+              <span class="tech-item-priority high">High</span>
+            </div>
+            <div class="tech-item">
+              <div class="tech-item-left">
+                <span class="tech-item-current">Context API</span>
+                <span class="tech-item-arrow">→</span>
+                <span class="tech-item-new">Zustand</span>
+              </div>
+              <span class="tech-item-priority medium">Med</span>
+            </div>
+            <div class="tech-item">
+              <div class="tech-item-left">
+                <span class="tech-item-current">Manual Forms</span>
+                <span class="tech-item-arrow">→</span>
+                <span class="tech-item-new">React Hook Form</span>
+              </div>
+              <span class="tech-item-priority medium">Med</span>
+            </div>
+            <div class="tech-item">
+              <div class="tech-item-left">
+                <span class="tech-item-current">No Tests</span>
+                <span class="tech-item-arrow">→</span>
+                <span class="tech-item-new">Jest + Playwright</span>
+              </div>
+              <span class="tech-item-priority high">High</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Metrics Section -->
+      <div class="metrics-section">
+        <div class="section-header" style="margin-top: 60px;">
+          <h2>Success Metrics</h2>
+          <p>KPIs to track progress and success</p>
+        </div>
+
+        <div class="metrics-grid">
+          <!-- Technical KPIs -->
+          <div class="metrics-card">
+            <div class="metrics-card-title">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+              Technical KPIs
+            </div>
+            <div class="metrics-table">
+              <div class="metrics-row header">
+                <span>Metric</span>
+                <span>Current</span>
+                <span>6 Month</span>
+                <span>12 Month</span>
+              </div>
+              <div class="metrics-row">
+                <span>API Response (p95)</span>
+                <span class="metric-current">~500ms</span>
+                <span class="metric-target">&lt;200ms</span>
+                <span class="metric-goal">&lt;100ms</span>
+              </div>
+              <div class="metrics-row">
+                <span>Uptime</span>
+                <span class="metric-current">95%</span>
+                <span class="metric-target">99.5%</span>
+                <span class="metric-goal">99.9%</span>
+              </div>
+              <div class="metrics-row">
+                <span>Test Coverage</span>
+                <span class="metric-current">0%</span>
+                <span class="metric-target">60%</span>
+                <span class="metric-goal">80%</span>
+              </div>
+              <div class="metrics-row">
+                <span>Lighthouse Score</span>
+                <span class="metric-current">70</span>
+                <span class="metric-target">85</span>
+                <span class="metric-goal">95</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Business KPIs -->
+          <div class="metrics-card">
+            <div class="metrics-card-title">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2">
+                <line x1="12" y1="20" x2="12" y2="10"/>
+                <line x1="18" y1="20" x2="18" y2="4"/>
+                <line x1="6" y1="20" x2="6" y2="16"/>
+              </svg>
+              Business KPIs
+            </div>
+            <div class="metrics-table">
+              <div class="metrics-row header">
+                <span>Metric</span>
+                <span>Current</span>
+                <span>6 Month</span>
+                <span>12 Month</span>
+              </div>
+              <div class="metrics-row">
+                <span>Active Integrations</span>
+                <span class="metric-current">1</span>
+                <span class="metric-target">5</span>
+                <span class="metric-goal">15</span>
+              </div>
+              <div class="metrics-row">
+                <span>Mobile App Users</span>
+                <span class="metric-current">0</span>
+                <span class="metric-target">500</span>
+                <span class="metric-goal">2,000</span>
+              </div>
+              <div class="metrics-row">
+                <span>API Partners</span>
+                <span class="metric-current">0</span>
+                <span class="metric-target">3</span>
+                <span class="metric-goal">10</span>
+              </div>
+              <div class="metrics-row">
+                <span>NPS Score</span>
+                <span class="metric-current">--</span>
+                <span class="metric-target">40</span>
+                <span class="metric-goal">60</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p class="footer-text">VroomX Safety Improvement & Integration Plan • Version 1.0 • January 2025</p>
+    </footer>
+  </main>
+
+  <script>
+    // Tab Navigation
+    const tabs = document.querySelectorAll('.nav-tab');
+    const sections = document.querySelectorAll('.section');
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const targetSection = tab.dataset.section;
+
+        // Update tabs
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        // Update sections
+        sections.forEach(s => s.classList.remove('active'));
+        document.getElementById(targetSection).classList.add('active');
+
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+
+    // Animate progress bars on scroll
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const progressFills = entry.target.querySelectorAll('.progress-fill');
+          progressFills.forEach((fill, index) => {
+            setTimeout(() => {
+              // Simulate some progress for demo
+              const randomProgress = Math.floor(Math.random() * 20);
+              fill.style.width = `${randomProgress}%`;
+              fill.parentElement.previousElementSibling.querySelector('.progress-value').textContent = `${randomProgress}%`;
+            }, index * 200);
+          });
+        }
+      });
+    }, { threshold: 0.5 });
+
+    const progressSection = document.querySelector('.progress-section');
+    if (progressSection) {
+      observer.observe(progressSection);
+    }
+
+    // Feature card hover effect
+    const featureCards = document.querySelectorAll('.feature-card');
+    featureCards.forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        const icon = card.querySelector('.feature-icon');
+        icon.style.transform = 'scale(1.1)';
+      });
+      card.addEventListener('mouseleave', () => {
+        const icon = card.querySelector('.feature-icon');
+        icon.style.transform = 'scale(1)';
+      });
+    });
+  </script>
+
+</body>
+</html>

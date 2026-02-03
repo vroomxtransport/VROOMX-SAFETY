@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VroomX - The Future of Fleet Compliance</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'jakarta': ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        ember: {
+                            orange: '#f97316',
+                            pink: '#ec4899',
+                            dark: '#18181b',
+                            darker: '#09090b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #f97316 0%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .gradient-border {
+            position: relative;
+            background: #18181b;
+            border-radius: 1.5rem;
+        }
+
+        .gradient-border::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            padding: 2px;
+            border-radius: 1.5rem;
+            background: linear-gradient(135deg, #f97316 0%, #ec4899 100%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+        }
+
+        .gradient-btn {
+            background: linear-gradient(135deg, #f97316 0%, #ec4899 100%);
+            transition: all 0.3s ease;
+        }
+
+        .gradient-btn:hover {
+            box-shadow: 0 0 40px rgba(249, 115, 22, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .animated-gradient-bg {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.1) 0%, rgba(236, 72, 153, 0.1) 50%, rgba(249, 115, 22, 0.05) 100%);
+            background-size: 400% 400%;
+            animation: gradient-shift 15s ease infinite;
+        }
+
+        @keyframes gradient-shift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .float-card {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .float-card:nth-child(2) {
+            animation-delay: -2s;
+        }
+
+        .float-card:nth-child(3) {
+            animation-delay: -4s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .gradient-icon {
+            background: linear-gradient(135deg, #f97316 0%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .card-glow:hover {
+            box-shadow: 0 0 60px rgba(249, 115, 22, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-ember-dark text-white antialiased" x-data="{ mobileMenu: false }">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-ember-dark/80 backdrop-blur-xl border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <!-- Logo -->
+                <a href="#" class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl gradient-btn flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold">VroomX</span>
+                </a>
+
+                <!-- Desktop Nav -->
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="#features" class="text-zinc-400 hover:text-white transition-colors">Features</a>
+                    <a href="#pricing" class="text-zinc-400 hover:text-white transition-colors">Pricing</a>
+                    <a href="#testimonials" class="text-zinc-400 hover:text-white transition-colors">Testimonials</a>
+                    <a href="#" class="text-zinc-400 hover:text-white transition-colors">Docs</a>
+                </div>
+
+                <!-- CTA Buttons -->
+                <div class="hidden md:flex items-center gap-4">
+                    <a href="#" class="text-zinc-400 hover:text-white transition-colors">Sign in</a>
+                    <a href="#" class="gradient-btn px-5 py-2.5 rounded-xl font-semibold text-white">
+                        Start Free Trial
+                    </a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button @click="mobileMenu = !mobileMenu" class="md:hidden p-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path x-show="!mobileMenu" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        <path x-show="mobileMenu" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div x-show="mobileMenu" x-transition class="md:hidden mt-4 pb-4 border-t border-white/10 pt-4">
+                <div class="flex flex-col gap-4">
+                    <a href="#features" class="text-zinc-400 hover:text-white transition-colors">Features</a>
+                    <a href="#pricing" class="text-zinc-400 hover:text-white transition-colors">Pricing</a>
+                    <a href="#testimonials" class="text-zinc-400 hover:text-white transition-colors">Testimonials</a>
+                    <a href="#" class="text-zinc-400 hover:text-white transition-colors">Docs</a>
+                    <hr class="border-white/10">
+                    <a href="#" class="text-zinc-400 hover:text-white transition-colors">Sign in</a>
+                    <a href="#" class="gradient-btn px-5 py-2.5 rounded-xl font-semibold text-white text-center">
+                        Start Free Trial
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
+        <!-- Animated Background -->
+        <div class="absolute inset-0 animated-gradient-bg"></div>
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(249,115,22,0.15),transparent_50%)]"></div>
+
+        <div class="relative max-w-7xl mx-auto px-6 py-20 text-center">
+            <!-- Badge -->
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8">
+                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                <span class="text-sm text-zinc-400">Now with AI-powered document scanning</span>
+            </div>
+
+            <!-- Main Headline -->
+            <h1 class="text-5xl md:text-7xl lg:text-8xl font-extrabold leading-tight mb-6">
+                <span class="gradient-text">The Future of</span><br>
+                <span class="text-white">Fleet Compliance</span>
+            </h1>
+
+            <p class="text-xl md:text-2xl text-zinc-400 max-w-3xl mx-auto mb-10">
+                Stop drowning in paperwork. VroomX automates DOT compliance, tracks expirations,
+                and keeps your fleet road-ready with intelligent automation.
+            </p>
+
+            <!-- CTA Buttons -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+                <a href="#" class="gradient-btn px-8 py-4 rounded-2xl font-bold text-lg text-white w-full sm:w-auto">
+                    Start Free 14-Day Trial
+                </a>
+                <a href="#" class="px-8 py-4 rounded-2xl font-semibold text-lg border border-white/20 hover:bg-white/5 transition-colors w-full sm:w-auto">
+                    Watch Demo
+                </a>
+            </div>
+
+            <!-- Floating Product Cards -->
+            <div class="relative max-w-5xl mx-auto">
+                <div class="grid md:grid-cols-3 gap-6">
+                    <!-- Card 1 -->
+                    <div class="gradient-border p-6 float-card card-glow transition-all duration-300">
+                        <div class="relative">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500/20 to-pink-500/20 flex items-center justify-center mb-4">
+                                <svg class="w-6 h-6 gradient-icon" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-bold mb-2">Auto-Compliance</h3>
+                            <p class="text-zinc-400 text-sm">AI monitors your documents and alerts before anything expires.</p>
+                        </div>
+                    </div>
+
+                    <!-- Card 2 -->
+                    <div class="gradient-border p-6 float-card card-glow transition-all duration-300">
+                        <div class="relative">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500/20 to-pink-500/20 flex items-center justify-center mb-4">
+                                <svg class="w-6 h-6 gradient-icon" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-bold mb-2">Smart Documents</h3>
+                            <p class="text-zinc-400 text-sm">Upload once, extract data automatically with AI vision.</p>
+                        </div>
+                    </div>
+
+                    <!-- Card 3 -->
+                    <div class="gradient-border p-6 float-card card-glow transition-all duration-300">
+                        <div class="relative">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500/20 to-pink-500/20 flex items-center justify-center mb-4">
+                                <svg class="w-6 h-6 gradient-icon" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-bold mb-2">Real-time Sync</h3>
+                            <p class="text-zinc-400 text-sm">FMCSA data syncs automatically. Always audit-ready.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trust Badges -->
+            <div class="mt-20">
+                <p class="text-zinc-500 text-sm mb-6">Trusted by 500+ trucking companies</p>
+                <div class="flex flex-wrap items-center justify-center gap-8 opacity-50">
+                    <span class="text-xl font-bold text-zinc-600">Swift Logistics</span>
+                    <span class="text-xl font-bold text-zinc-600">Prime Freight</span>
+                    <span class="text-xl font-bold text-zinc-600">Atlas Carriers</span>
+                    <span class="text-xl font-bold text-zinc-600">Roadstar Inc</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-32 relative">
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(236,72,153,0.1),transparent_70%)]"></div>
+
+        <div class="max-w-7xl mx-auto px-6 relative">
+            <div class="text-center mb-20">
+                <span class="text-sm font-semibold gradient-text uppercase tracking-wider">Features</span>
+                <h2 class="text-4xl md:text-5xl font-bold mt-4 mb-6">
+                    Everything you need to<br>
+                    <span class="gradient-text">stay compliant</span>
+                </h2>
+                <p class="text-xl text-zinc-400 max-w-2xl mx-auto">
+                    Built for modern fleet operators who demand efficiency and reliability.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="group p-8 rounded-3xl bg-white/[0.02] border border-white/5 hover:border-orange-500/30 transition-all duration-300">
+                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">DOT Compliance Hub</h3>
+                    <p class="text-zinc-400">Centralized dashboard for all DOT requirements. Driver qualifications, vehicle inspections, and hours of service in one place.</p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="group p-8 rounded-3xl bg-white/[0.02] border border-white/5 hover:border-orange-500/30 transition-all duration-300">
+                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Smart Alerts</h3>
+                    <p class="text-zinc-400">Get notified 90, 60, 30, and 7 days before expirations. SMS, email, and in-app notifications keep you ahead.</p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="group p-8 rounded-3xl bg-white/[0.02] border border-white/5 hover:border-orange-500/30 transition-all duration-300">
+                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">AI Document Scanner</h3>
+                    <p class="text-zinc-400">Upload any document and watch AI extract dates, names, and critical data automatically. No manual entry needed.</p>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="group p-8 rounded-3xl bg-white/[0.02] border border-white/5 hover:border-orange-500/30 transition-all duration-300">
+                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">FMCSA Auto-Sync</h3>
+                    <p class="text-zinc-400">Real-time connection to FMCSA databases. Carrier authority, safety scores, and inspections update automatically.</p>
+                </div>
+
+                <!-- Feature 5 -->
+                <div class="group p-8 rounded-3xl bg-white/[0.02] border border-white/5 hover:border-orange-500/30 transition-all duration-300">
+                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Driver Portal</h3>
+                    <p class="text-zinc-400">Drivers upload documents from their phone. Real-time status updates and expiration reminders keep everyone aligned.</p>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="group p-8 rounded-3xl bg-white/[0.02] border border-white/5 hover:border-orange-500/30 transition-all duration-300">
+                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Audit-Ready Reports</h3>
+                    <p class="text-zinc-400">Generate DOT-compliant reports in seconds. Complete audit trails with timestamps and digital signatures.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-20 border-y border-white/5">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div class="text-center">
+                    <div class="text-4xl md:text-5xl font-bold gradient-text mb-2">500+</div>
+                    <div class="text-zinc-400">Active Fleets</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl md:text-5xl font-bold gradient-text mb-2">50K+</div>
+                    <div class="text-zinc-400">Drivers Managed</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl md:text-5xl font-bold gradient-text mb-2">99.9%</div>
+                    <div class="text-zinc-400">Uptime SLA</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl md:text-5xl font-bold gradient-text mb-2">$2M+</div>
+                    <div class="text-zinc-400">Fines Prevented</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="py-32 relative">
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(249,115,22,0.1),transparent_70%)]"></div>
+
+        <div class="max-w-7xl mx-auto px-6 relative">
+            <div class="text-center mb-20">
+                <span class="text-sm font-semibold gradient-text uppercase tracking-wider">Testimonials</span>
+                <h2 class="text-4xl md:text-5xl font-bold mt-4">
+                    Loved by <span class="gradient-text">fleet operators</span>
+                </h2>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Testimonial 1 -->
+                <div class="p-8 rounded-3xl bg-white/[0.02] border border-white/5">
+                    <div class="text-5xl gradient-text mb-4">"</div>
+                    <p class="text-lg text-zinc-300 mb-6">VroomX cut our compliance admin time by 80%. What used to take days now takes minutes. The AI document scanner is absolutely game-changing.</p>
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center font-bold">
+                            JM
+                        </div>
+                        <div>
+                            <div class="font-semibold">James Mitchell</div>
+                            <div class="text-zinc-500 text-sm">Fleet Manager, Swift Logistics</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 2 -->
+                <div class="p-8 rounded-3xl bg-white/[0.02] border border-white/5">
+                    <div class="text-5xl gradient-text mb-4">"</div>
+                    <p class="text-lg text-zinc-300 mb-6">We haven't missed an expiration date since switching. The automated alerts saved us from a potential $15,000 fine last month alone.</p>
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center font-bold">
+                            SR
+                        </div>
+                        <div>
+                            <div class="font-semibold">Sarah Rodriguez</div>
+                            <div class="text-zinc-500 text-sm">Operations Director, Prime Freight</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 3 -->
+                <div class="p-8 rounded-3xl bg-white/[0.02] border border-white/5">
+                    <div class="text-5xl gradient-text mb-4">"</div>
+                    <p class="text-lg text-zinc-300 mb-6">The FMCSA sync feature alone is worth the subscription. Real-time safety scores and instant updates keep us proactive, not reactive.</p>
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center font-bold">
+                            DK
+                        </div>
+                        <div>
+                            <div class="font-semibold">David Kim</div>
+                            <div class="text-zinc-500 text-sm">Owner, Atlas Carriers</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="py-32 relative">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-20">
+                <span class="text-sm font-semibold gradient-text uppercase tracking-wider">Pricing</span>
+                <h2 class="text-4xl md:text-5xl font-bold mt-4 mb-6">
+                    Simple, <span class="gradient-text">transparent</span> pricing
+                </h2>
+                <p class="text-xl text-zinc-400">Start free. Scale as you grow. No hidden fees.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                <!-- Solo Plan -->
+                <div class="p-8 rounded-3xl bg-white/[0.02] border border-white/10 hover:border-white/20 transition-colors">
+                    <h3 class="text-xl font-bold mb-2">Solo</h3>
+                    <p class="text-zinc-400 mb-6">For owner-operators</p>
+                    <div class="flex items-baseline gap-1 mb-8">
+                        <span class="text-5xl font-bold">$29</span>
+                        <span class="text-zinc-400">/month</span>
+                    </div>
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-zinc-300">1 driver included</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-zinc-300">3 vehicles</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-zinc-300">All core features</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-zinc-300">Email support</span>
+                        </li>
+                    </ul>
+                    <a href="#" class="block w-full py-3 px-6 rounded-xl border border-white/20 text-center font-semibold hover:bg-white/5 transition-colors">
+                        Start Free Trial
+                    </a>
+                </div>
+
+                <!-- Fleet Plan (Popular) -->
+                <div class="relative p-8 rounded-3xl gradient-border">
+                    <div class="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full gradient-btn text-sm font-semibold">
+                        Most Popular
+                    </div>
+                    <div class="relative">
+                        <h3 class="text-xl font-bold mb-2">Fleet</h3>
+                        <p class="text-zinc-400 mb-6">For growing fleets</p>
+                        <div class="flex items-baseline gap-1 mb-8">
+                            <span class="text-5xl font-bold gradient-text">$79</span>
+                            <span class="text-zinc-400">/month</span>
+                        </div>
+                        <ul class="space-y-4 mb-8">
+                            <li class="flex items-center gap-3">
+                                <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="text-zinc-300">3 drivers included</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="text-zinc-300">+$6/extra driver</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="text-zinc-300">Unlimited vehicles</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="text-zinc-300">AI document scanning</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="text-zinc-300">Priority support</span>
+                            </li>
+                        </ul>
+                        <a href="#" class="block w-full py-3 px-6 rounded-xl gradient-btn text-center font-semibold text-white">
+                            Start Free Trial
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Pro Plan -->
+                <div class="p-8 rounded-3xl bg-white/[0.02] border border-white/10 hover:border-white/20 transition-colors">
+                    <h3 class="text-xl font-bold mb-2">Pro</h3>
+                    <p class="text-zinc-400 mb-6">For large operations</p>
+                    <div class="flex items-baseline gap-1 mb-8">
+                        <span class="text-5xl font-bold">$199</span>
+                        <span class="text-zinc-400">/month</span>
+                    </div>
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-zinc-300">10 drivers included</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-zinc-300">+$5/extra driver</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-zinc-300">FMCSA auto-sync</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-zinc-300">API access</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-zinc-300">Dedicated support</span>
+                        </li>
+                    </ul>
+                    <a href="#" class="block w-full py-3 px-6 rounded-xl border border-white/20 text-center font-semibold hover:bg-white/5 transition-colors">
+                        Contact Sales
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA Section -->
+    <section class="py-32 relative">
+        <div class="absolute inset-0 animated-gradient-bg"></div>
+
+        <div class="max-w-4xl mx-auto px-6 text-center relative">
+            <h2 class="text-4xl md:text-5xl font-bold mb-6">
+                Ready to <span class="gradient-text">transform</span> your compliance?
+            </h2>
+            <p class="text-xl text-zinc-400 mb-10">
+                Join 500+ fleets who trust VroomX to keep them compliant and on the road.
+            </p>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a href="#" class="gradient-btn px-8 py-4 rounded-2xl font-bold text-lg text-white w-full sm:w-auto">
+                    Start Your Free Trial
+                </a>
+                <a href="#" class="px-8 py-4 rounded-2xl font-semibold text-lg border border-white/20 hover:bg-white/5 transition-colors w-full sm:w-auto">
+                    Schedule Demo
+                </a>
+            </div>
+            <p class="mt-6 text-zinc-500 text-sm">No credit card required. 14-day free trial.</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/5 py-16">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid md:grid-cols-5 gap-12 mb-12">
+                <!-- Brand -->
+                <div class="md:col-span-2">
+                    <a href="#" class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-xl gradient-btn flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                        </div>
+                        <span class="text-xl font-bold">VroomX</span>
+                    </a>
+                    <p class="text-zinc-400 mb-6 max-w-sm">
+                        The modern compliance platform for trucking companies. Stay compliant, stay profitable.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="#" class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Links -->
+                <div>
+                    <h4 class="font-semibold mb-4">Product</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-zinc-400 hover:text-white transition-colors">Features</a></li>
+                        <li><a href="#" class="text-zinc-400 hover:text-white transition-colors">Pricing</a></li>
+                        <li><a href="#" class="text-zinc-400 hover:text-white transition-colors">Integrations</a></li>
+                        <li><a href="#" class="text-zinc-400 hover:text-white transition-colors">Changelog</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold mb-4">Company</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-zinc-400 hover:text-white transition-colors">About</a></li>
+                        <li><a href="#" class="text-zinc-400 hover:text-white transition-colors">Blog</a></li>
+                        <li><a href="#" class="text-zinc-400 hover:text-white transition-colors">Careers</a></li>
+                        <li><a href="#" class="text-zinc-400 hover:text-white transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold mb-4">Legal</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-zinc-400 hover:text-white transition-colors">Privacy</a></li>
+                        <li><a href="#" class="text-zinc-400 hover:text-white transition-colors">Terms</a></li>
+                        <li><a href="#" class="text-zinc-400 hover:text-white transition-colors">Security</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-zinc-500 text-sm">2025 VroomX. All rights reserved.</p>
+                <div class="flex items-center gap-6">
+                    <a href="#" class="text-zinc-500 hover:text-white text-sm transition-colors">Status</a>
+                    <a href="#" class="text-zinc-500 hover:text-white text-sm transition-colors">Documentation</a>
+                    <a href="#" class="text-zinc-500 hover:text-white text-sm transition-colors">API</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

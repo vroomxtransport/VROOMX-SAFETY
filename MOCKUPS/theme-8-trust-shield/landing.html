@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VroomX - Enterprise Fleet Compliance Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        royal: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#1d4ed8',
+                            700: '#1e40af',
+                            800: '#1e3a8a',
+                            900: '#1e3a5f',
+                        },
+                        sky: {
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                        },
+                        slate: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Source Sans 3', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        [x-cloak] { display: none !important; }
+
+        .gradient-hero {
+            background: linear-gradient(135deg, #1d4ed8 0%, #0ea5e9 50%, #1e40af 100%);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #1d4ed8 0%, #0ea5e9 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .trust-badge {
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            backdrop-filter: blur(10px);
+        }
+
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-shadow-lg {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+        }
+
+        .dashboard-preview {
+            background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 12px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .float-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased text-slate-700 bg-white" x-data="{ mobileMenu: false, demoModal: false }">
+
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-royal-600 to-sky-500 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold text-slate-800">VroomX</span>
+                    <span class="hidden sm:inline-block text-xs font-medium text-royal-600 bg-royal-50 px-2 py-1 rounded-full">Enterprise</span>
+                </div>
+
+                <!-- Desktop Nav -->
+                <nav class="hidden lg:flex items-center space-x-8">
+                    <a href="#features" class="text-slate-600 hover:text-royal-600 font-medium transition-colors">Features</a>
+                    <a href="#solutions" class="text-slate-600 hover:text-royal-600 font-medium transition-colors">Solutions</a>
+                    <a href="#security" class="text-slate-600 hover:text-royal-600 font-medium transition-colors">Security</a>
+                    <a href="#pricing" class="text-slate-600 hover:text-royal-600 font-medium transition-colors">Pricing</a>
+                    <a href="#resources" class="text-slate-600 hover:text-royal-600 font-medium transition-colors">Resources</a>
+                </nav>
+
+                <!-- CTA Buttons -->
+                <div class="hidden lg:flex items-center space-x-4">
+                    <a href="#" class="text-slate-600 hover:text-royal-600 font-medium transition-colors">Sign In</a>
+                    <button @click="demoModal = true" class="bg-royal-600 hover:bg-royal-700 text-white px-5 py-2.5 rounded-lg font-semibold transition-all">
+                        Request Demo
+                    </button>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button @click="mobileMenu = !mobileMenu" class="lg:hidden p-2 text-slate-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path x-show="!mobileMenu" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        <path x-show="mobileMenu" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div x-show="mobileMenu" x-cloak x-transition class="lg:hidden bg-white border-t border-slate-200">
+            <div class="px-4 py-4 space-y-3">
+                <a href="#features" class="block text-slate-600 hover:text-royal-600 font-medium py-2">Features</a>
+                <a href="#solutions" class="block text-slate-600 hover:text-royal-600 font-medium py-2">Solutions</a>
+                <a href="#security" class="block text-slate-600 hover:text-royal-600 font-medium py-2">Security</a>
+                <a href="#pricing" class="block text-slate-600 hover:text-royal-600 font-medium py-2">Pricing</a>
+                <a href="#resources" class="block text-slate-600 hover:text-royal-600 font-medium py-2">Resources</a>
+                <div class="pt-4 border-t border-slate-200 space-y-3">
+                    <a href="#" class="block text-slate-600 font-medium py-2">Sign In</a>
+                    <button @click="demoModal = true; mobileMenu = false" class="w-full bg-royal-600 hover:bg-royal-700 text-white px-5 py-2.5 rounded-lg font-semibold">
+                        Request Demo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="pt-16 gradient-hero min-h-screen relative overflow-hidden">
+        <!-- Background Pattern -->
+        <div class="absolute inset-0 opacity-10">
+            <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <defs>
+                    <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
+                        <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" stroke-width="0.5"/>
+                    </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#grid)"/>
+            </svg>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-20">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <!-- Left: Text + Form -->
+                <div class="text-white">
+                    <!-- Trust Badges -->
+                    <div class="flex flex-wrap gap-3 mb-8">
+                        <div class="trust-badge px-4 py-2 rounded-full flex items-center space-x-2">
+                            <svg class="w-5 h-5 text-green-300" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-sm font-medium">SOC 2 Certified</span>
+                        </div>
+                        <div class="trust-badge px-4 py-2 rounded-full flex items-center space-x-2">
+                            <svg class="w-5 h-5 text-green-300" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-sm font-medium">FMCSA Registered</span>
+                        </div>
+                        <div class="trust-badge px-4 py-2 rounded-full flex items-center space-x-2">
+                            <svg class="w-5 h-5 text-green-300" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-sm font-medium">99.9% Uptime</span>
+                        </div>
+                    </div>
+
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6">
+                        Enterprise Fleet<br/>
+                        Compliance Platform
+                    </h1>
+
+                    <p class="text-xl text-blue-100 mb-8 leading-relaxed max-w-xl">
+                        The trusted compliance solution for Fortune 500 fleets. Automate DOT compliance, reduce audit risk, and protect your business with enterprise-grade security.
+                    </p>
+
+                    <!-- Demo Request Form -->
+                    <div class="bg-white rounded-xl p-6 card-shadow-lg max-w-md">
+                        <h3 class="text-slate-800 font-semibold text-lg mb-4">Request a Demo</h3>
+                        <form class="space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <input type="text" placeholder="First Name" class="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-royal-500 focus:border-transparent text-slate-700 placeholder-slate-400">
+                                <input type="text" placeholder="Last Name" class="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-royal-500 focus:border-transparent text-slate-700 placeholder-slate-400">
+                            </div>
+                            <input type="email" placeholder="Work Email" class="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-royal-500 focus:border-transparent text-slate-700 placeholder-slate-400">
+                            <input type="text" placeholder="Company Name" class="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-royal-500 focus:border-transparent text-slate-700 placeholder-slate-400">
+                            <select class="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-royal-500 focus:border-transparent text-slate-700">
+                                <option value="">Fleet Size</option>
+                                <option value="1-50">1-50 vehicles</option>
+                                <option value="51-200">51-200 vehicles</option>
+                                <option value="201-500">201-500 vehicles</option>
+                                <option value="500+">500+ vehicles</option>
+                            </select>
+                            <button type="submit" class="w-full bg-royal-600 hover:bg-royal-700 text-white py-3 rounded-lg font-semibold transition-all">
+                                Schedule Demo
+                            </button>
+                        </form>
+                        <p class="text-xs text-slate-500 mt-4 text-center">
+                            By submitting, you agree to our <a href="#" class="text-royal-600 hover:underline">Privacy Policy</a>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Right: Dashboard Preview -->
+                <div class="hidden lg:block float-animation">
+                    <div class="dashboard-preview p-4">
+                        <!-- Mock Dashboard -->
+                        <div class="bg-white rounded-lg overflow-hidden">
+                            <!-- Dashboard Header -->
+                            <div class="bg-slate-800 px-4 py-3 flex items-center space-x-2">
+                                <div class="w-3 h-3 bg-red-400 rounded-full"></div>
+                                <div class="w-3 h-3 bg-yellow-400 rounded-full"></div>
+                                <div class="w-3 h-3 bg-green-400 rounded-full"></div>
+                            </div>
+                            <div class="p-6 space-y-4">
+                                <!-- Compliance Score -->
+                                <div class="flex items-center justify-between bg-slate-50 rounded-lg p-4">
+                                    <div>
+                                        <p class="text-slate-500 text-sm">Overall Compliance</p>
+                                        <p class="text-2xl font-bold text-slate-800">94.7%</p>
+                                    </div>
+                                    <div class="w-16 h-16 rounded-full border-4 border-green-500 flex items-center justify-center">
+                                        <span class="text-green-600 font-bold">A+</span>
+                                    </div>
+                                </div>
+                                <!-- Stats Grid -->
+                                <div class="grid grid-cols-3 gap-3">
+                                    <div class="bg-royal-50 rounded-lg p-3 text-center">
+                                        <p class="text-2xl font-bold text-royal-600">1,247</p>
+                                        <p class="text-xs text-slate-500">Active Drivers</p>
+                                    </div>
+                                    <div class="bg-sky-50 rounded-lg p-3 text-center">
+                                        <p class="text-2xl font-bold text-sky-600">856</p>
+                                        <p class="text-xs text-slate-500">Vehicles</p>
+                                    </div>
+                                    <div class="bg-green-50 rounded-lg p-3 text-center">
+                                        <p class="text-2xl font-bold text-green-600">12</p>
+                                        <p class="text-xs text-slate-500">Alerts</p>
+                                    </div>
+                                </div>
+                                <!-- Mini Chart -->
+                                <div class="bg-slate-50 rounded-lg p-4">
+                                    <p class="text-sm font-medium text-slate-700 mb-2">Compliance Trend</p>
+                                    <div class="flex items-end space-x-1 h-12">
+                                        <div class="w-full bg-royal-200 rounded-t" style="height: 60%"></div>
+                                        <div class="w-full bg-royal-300 rounded-t" style="height: 70%"></div>
+                                        <div class="w-full bg-royal-400 rounded-t" style="height: 65%"></div>
+                                        <div class="w-full bg-royal-500 rounded-t" style="height: 80%"></div>
+                                        <div class="w-full bg-royal-600 rounded-t" style="height: 90%"></div>
+                                        <div class="w-full bg-sky-500 rounded-t" style="height: 95%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Wave Separator -->
+        <div class="absolute bottom-0 left-0 right-0">
+            <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="white"/>
+            </svg>
+        </div>
+    </section>
+
+    <!-- Trusted By Section -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-slate-500 font-medium mb-8">Trusted by Fortune 500 companies worldwide</p>
+            <div class="flex flex-wrap justify-center items-center gap-8 lg:gap-16 opacity-60">
+                <!-- Company Logos (Placeholder) -->
+                <div class="flex items-center space-x-2 text-slate-400">
+                    <div class="w-10 h-10 bg-slate-200 rounded"></div>
+                    <span class="text-lg font-semibold">Enterprise Co</span>
+                </div>
+                <div class="flex items-center space-x-2 text-slate-400">
+                    <div class="w-10 h-10 bg-slate-200 rounded"></div>
+                    <span class="text-lg font-semibold">Global Logistics</span>
+                </div>
+                <div class="flex items-center space-x-2 text-slate-400">
+                    <div class="w-10 h-10 bg-slate-200 rounded"></div>
+                    <span class="text-lg font-semibold">Fleet Masters</span>
+                </div>
+                <div class="flex items-center space-x-2 text-slate-400">
+                    <div class="w-10 h-10 bg-slate-200 rounded"></div>
+                    <span class="text-lg font-semibold">TransCorp</span>
+                </div>
+                <div class="flex items-center space-x-2 text-slate-400">
+                    <div class="w-10 h-10 bg-slate-200 rounded"></div>
+                    <span class="text-lg font-semibold">Haul Pro</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-20 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="text-center">
+                    <p class="text-4xl lg:text-5xl font-bold gradient-text">50,000+</p>
+                    <p class="text-slate-600 mt-2 font-medium">Drivers Managed</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-4xl lg:text-5xl font-bold gradient-text">98%</p>
+                    <p class="text-slate-600 mt-2 font-medium">Compliance Rate</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-4xl lg:text-5xl font-bold gradient-text">$2.4M</p>
+                    <p class="text-slate-600 mt-2 font-medium">Fines Prevented</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-4xl lg:text-5xl font-bold gradient-text">500+</p>
+                    <p class="text-slate-600 mt-2 font-medium">Enterprise Clients</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-royal-600 font-semibold text-sm uppercase tracking-wider">Platform Features</span>
+                <h2 class="text-3xl lg:text-4xl font-bold text-slate-800 mt-4 mb-6">
+                    Everything You Need for Enterprise Compliance
+                </h2>
+                <p class="text-lg text-slate-600">
+                    Comprehensive tools designed for large-scale fleet operations with enterprise-grade security and reliability.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="bg-white border border-slate-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
+                    <div class="w-12 h-12 bg-royal-100 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-royal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-slate-800 mb-2">Automated Compliance Monitoring</h3>
+                    <p class="text-slate-600">Real-time monitoring of all DOT, FMCSA, and state regulations with automated alerts before violations occur.</p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="bg-white border border-slate-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
+                    <div class="w-12 h-12 bg-sky-100 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-slate-800 mb-2">Document Management</h3>
+                    <p class="text-slate-600">Centralized document storage with AI-powered extraction, expiration tracking, and audit-ready organization.</p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="bg-white border border-slate-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-slate-800 mb-2">Driver Qualification Files</h3>
+                    <p class="text-slate-600">Complete DQF management with automated verification, MVR monitoring, and compliance status dashboards.</p>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="bg-white border border-slate-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-slate-800 mb-2">Maintenance Scheduling</h3>
+                    <p class="text-slate-600">Preventive maintenance tracking, DVIR management, and automated service scheduling for your entire fleet.</p>
+                </div>
+
+                <!-- Feature 5 -->
+                <div class="bg-white border border-slate-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
+                    <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-slate-800 mb-2">Analytics & Reporting</h3>
+                    <p class="text-slate-600">Executive dashboards, trend analysis, and customizable reports for data-driven compliance decisions.</p>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="bg-white border border-slate-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
+                    <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-slate-800 mb-2">Smart Alerts</h3>
+                    <p class="text-slate-600">Proactive notifications for expiring documents, upcoming inspections, and potential compliance risks.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Security Section -->
+    <section id="security" class="py-20 bg-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <span class="text-sky-400 font-semibold text-sm uppercase tracking-wider">Enterprise Security</span>
+                    <h2 class="text-3xl lg:text-4xl font-bold text-white mt-4 mb-6">
+                        Bank-Grade Security for Your Fleet Data
+                    </h2>
+                    <p class="text-lg text-slate-300 mb-8">
+                        Your compliance data is protected by the same security standards used by financial institutions. We take data protection seriously.
+                    </p>
+
+                    <div class="space-y-4">
+                        <div class="flex items-start space-x-4">
+                            <div class="w-10 h-10 bg-sky-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <svg class="w-5 h-5 text-sky-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="text-white font-semibold">SOC 2 Type II Certified</h4>
+                                <p class="text-slate-400">Annual audits verify our security controls meet the highest standards.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-4">
+                            <div class="w-10 h-10 bg-sky-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <svg class="w-5 h-5 text-sky-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="text-white font-semibold">256-bit AES Encryption</h4>
+                                <p class="text-slate-400">All data encrypted at rest and in transit with enterprise-grade encryption.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-4">
+                            <div class="w-10 h-10 bg-sky-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <svg class="w-5 h-5 text-sky-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="text-white font-semibold">99.9% Uptime SLA</h4>
+                                <p class="text-slate-400">Enterprise-grade infrastructure with guaranteed availability.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-4">
+                            <div class="w-10 h-10 bg-sky-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <svg class="w-5 h-5 text-sky-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="text-white font-semibold">GDPR & CCPA Compliant</h4>
+                                <p class="text-slate-400">Full compliance with global data privacy regulations.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Certifications -->
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="bg-slate-700/50 rounded-xl p-6 text-center">
+                        <div class="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                            </svg>
+                        </div>
+                        <h4 class="text-white font-semibold">SOC 2</h4>
+                        <p class="text-slate-400 text-sm">Type II Certified</p>
+                    </div>
+
+                    <div class="bg-slate-700/50 rounded-xl p-6 text-center">
+                        <div class="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                        </div>
+                        <h4 class="text-white font-semibold">ISO 27001</h4>
+                        <p class="text-slate-400 text-sm">Certified</p>
+                    </div>
+
+                    <div class="bg-slate-700/50 rounded-xl p-6 text-center">
+                        <div class="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"/>
+                            </svg>
+                        </div>
+                        <h4 class="text-white font-semibold">GDPR</h4>
+                        <p class="text-slate-400 text-sm">Compliant</p>
+                    </div>
+
+                    <div class="bg-slate-700/50 rounded-xl p-6 text-center">
+                        <div class="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                            </svg>
+                        </div>
+                        <h4 class="text-white font-semibold">FMCSA</h4>
+                        <p class="text-slate-400 text-sm">Registered</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="py-20 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-royal-600 font-semibold text-sm uppercase tracking-wider">Customer Success</span>
+                <h2 class="text-3xl lg:text-4xl font-bold text-slate-800 mt-4 mb-6">
+                    Trusted by Industry Leaders
+                </h2>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Testimonial 1 -->
+                <div class="bg-white rounded-xl p-8 card-shadow">
+                    <div class="flex items-center mb-4">
+                        <div class="flex text-yellow-400">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                        </div>
+                    </div>
+                    <p class="text-slate-600 mb-6">"VroomX transformed our compliance operations. We reduced audit prep time by 80% and haven't had a single violation since implementation."</p>
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center">
+                            <span class="text-slate-600 font-semibold">JM</span>
+                        </div>
+                        <div class="ml-4">
+                            <p class="font-semibold text-slate-800">Jennifer Martinez</p>
+                            <p class="text-sm text-slate-500">VP of Safety, National Freight Lines</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 2 -->
+                <div class="bg-white rounded-xl p-8 card-shadow">
+                    <div class="flex items-center mb-4">
+                        <div class="flex text-yellow-400">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                        </div>
+                    </div>
+                    <p class="text-slate-600 mb-6">"The ROI was immediate. We saved $150,000 in potential fines in the first quarter alone. The automated alerts are a game-changer."</p>
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center">
+                            <span class="text-slate-600 font-semibold">RW</span>
+                        </div>
+                        <div class="ml-4">
+                            <p class="font-semibold text-slate-800">Robert Williams</p>
+                            <p class="text-sm text-slate-500">COO, TransContinental Logistics</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 3 -->
+                <div class="bg-white rounded-xl p-8 card-shadow">
+                    <div class="flex items-center mb-4">
+                        <div class="flex text-yellow-400">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                        </div>
+                    </div>
+                    <p class="text-slate-600 mb-6">"Implementation was seamless. The VroomX team understood our enterprise needs and delivered beyond expectations. Our 2,500 drivers are all on the platform."</p>
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center">
+                            <span class="text-slate-600 font-semibold">SC</span>
+                        </div>
+                        <div class="ml-4">
+                            <p class="font-semibold text-slate-800">Sarah Chen</p>
+                            <p class="text-sm text-slate-500">Director of Operations, Premier Trucking Inc.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 gradient-hero relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10">
+            <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <defs>
+                    <pattern id="grid2" width="10" height="10" patternUnits="userSpaceOnUse">
+                        <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" stroke-width="0.5"/>
+                    </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#grid2)"/>
+            </svg>
+        </div>
+
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+            <h2 class="text-3xl lg:text-4xl font-bold text-white mb-6">
+                Ready to Transform Your Fleet Compliance?
+            </h2>
+            <p class="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+                Join over 500 enterprise customers who trust VroomX for their compliance operations. Get started with a personalized demo today.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button @click="demoModal = true" class="bg-white text-royal-600 px-8 py-4 rounded-lg font-semibold hover:bg-slate-50 transition-all">
+                    Request Enterprise Demo
+                </button>
+                <a href="#" class="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white/10 transition-all">
+                    Contact Sales
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 mb-12">
+                <!-- Company Info -->
+                <div class="col-span-2">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 bg-gradient-to-br from-royal-600 to-sky-500 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                            </svg>
+                        </div>
+                        <span class="text-xl font-bold text-white">VroomX</span>
+                    </div>
+                    <p class="text-sm mb-4 max-w-xs">
+                        Enterprise fleet compliance platform trusted by Fortune 500 companies worldwide.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="hover:text-white transition-colors">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg>
+                        </a>
+                        <a href="#" class="hover:text-white transition-colors">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Products -->
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Products</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-white transition-colors">Compliance Suite</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Driver Management</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Document Vault</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Analytics</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Integrations</a></li>
+                    </ul>
+                </div>
+
+                <!-- Solutions -->
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Solutions</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-white transition-colors">Enterprise</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Mid-Market</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Small Fleet</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Owner Operators</a></li>
+                    </ul>
+                </div>
+
+                <!-- Resources -->
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Resources</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-white transition-colors">Documentation</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">API Reference</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Blog</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Webinars</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Case Studies</a></li>
+                    </ul>
+                </div>
+
+                <!-- Company -->
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Company</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-white transition-colors">About Us</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Careers</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Contact</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Partners</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Press</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-sm">2024 VroomX Inc. All rights reserved.</p>
+                <div class="flex space-x-6 mt-4 md:mt-0 text-sm">
+                    <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+                    <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
+                    <a href="#" class="hover:text-white transition-colors">Security</a>
+                    <a href="#" class="hover:text-white transition-colors">Status</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Demo Modal -->
+    <div x-show="demoModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto" x-transition>
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+            <div class="fixed inset-0 bg-slate-900/75 transition-opacity" @click="demoModal = false"></div>
+
+            <div class="relative bg-white rounded-xl max-w-md w-full p-8 mx-auto shadow-2xl transform transition-all">
+                <button @click="demoModal = false" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+
+                <h3 class="text-2xl font-bold text-slate-800 mb-2">Request a Demo</h3>
+                <p class="text-slate-600 mb-6">Fill out the form and our enterprise team will contact you within 24 hours.</p>
+
+                <form class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="text" placeholder="First Name" class="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-royal-500 focus:border-transparent text-slate-700 placeholder-slate-400">
+                        <input type="text" placeholder="Last Name" class="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-royal-500 focus:border-transparent text-slate-700 placeholder-slate-400">
+                    </div>
+                    <input type="email" placeholder="Work Email" class="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-royal-500 focus:border-transparent text-slate-700 placeholder-slate-400">
+                    <input type="text" placeholder="Company Name" class="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-royal-500 focus:border-transparent text-slate-700 placeholder-slate-400">
+                    <input type="tel" placeholder="Phone Number" class="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-royal-500 focus:border-transparent text-slate-700 placeholder-slate-400">
+                    <select class="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-royal-500 focus:border-transparent text-slate-700">
+                        <option value="">Fleet Size</option>
+                        <option value="1-50">1-50 vehicles</option>
+                        <option value="51-200">51-200 vehicles</option>
+                        <option value="201-500">201-500 vehicles</option>
+                        <option value="500+">500+ vehicles</option>
+                    </select>
+                    <button type="submit" class="w-full bg-royal-600 hover:bg-royal-700 text-white py-3 rounded-lg font-semibold transition-all">
+                        Schedule Demo
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

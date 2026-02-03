@@ -37,7 +37,7 @@ const violationSchema = new mongoose.Schema({
   basic: {
     type: String,
     enum: ['unsafe_driving', 'hours_of_service', 'vehicle_maintenance',
-           'controlled_substances', 'driver_fitness', 'crash_indicator'],
+           'controlled_substances', 'driver_fitness', 'crash_indicator', 'hazmat'],
     required: true
   },
   violationType: {

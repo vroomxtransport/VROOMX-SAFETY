@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - VroomX Safety Platform</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Orbitron:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  <!-- Shared CSS -->
+  <link rel="stylesheet" href="../shared/css/base.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'space-navy': '#0F172A',
+            'cyber-cyan': '#06B6D4',
+            'hot-pink': '#EC4899',
+            'neon-green': '#22D3EE',
+          },
+          fontFamily: {
+            'mono': ['JetBrains Mono', 'monospace'],
+            'display': ['Orbitron', 'sans-serif'],
+            'body': ['Inter', 'system-ui', 'sans-serif'],
+          },
+          borderRadius: {
+            'cyber': '4px',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background-color: #0F172A;
+    }
+
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    .font-display { font-family: 'Orbitron', sans-serif; }
+
+    /* Grid Pattern Background */
+    .grid-pattern {
+      background-image:
+        linear-gradient(rgba(6, 182, 212, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(6, 182, 212, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    /* Neon Glow Effects */
+    .glow-cyan {
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.3), 0 0 40px rgba(6, 182, 212, 0.1);
+    }
+
+    .glow-pink {
+      box-shadow: 0 0 20px rgba(236, 72, 153, 0.3), 0 0 40px rgba(236, 72, 153, 0.1);
+    }
+
+    .glow-cyan-sm {
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.2);
+    }
+
+    /* Border Glow */
+    .border-glow-cyan {
+      border-color: rgba(6, 182, 212, 0.5);
+      box-shadow: inset 0 0 30px rgba(6, 182, 212, 0.05), 0 0 30px rgba(6, 182, 212, 0.15);
+    }
+
+    /* Input Focus Glow */
+    .input-glow:focus {
+      outline: none;
+      border-color: #06B6D4;
+      box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2), 0 0 20px rgba(6, 182, 212, 0.1);
+    }
+
+    /* Gradient Text */
+    .gradient-text {
+      background: linear-gradient(135deg, #06B6D4 0%, #EC4899 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Scan Line Effect */
+    .scan-lines::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(6, 182, 212, 0.02) 2px,
+        rgba(6, 182, 212, 0.02) 4px
+      );
+      pointer-events: none;
+    }
+
+    /* Pulse Animation */
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(236, 72, 153, 0.3); }
+      50% { box-shadow: 0 0 40px rgba(236, 72, 153, 0.5), 0 0 60px rgba(236, 72, 153, 0.3); }
+    }
+
+    .pulse-glow {
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    /* Card Background */
+    .cyber-card {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+    }
+
+    /* Step Indicator */
+    .step-active {
+      background: linear-gradient(135deg, #06B6D4 0%, #EC4899 100%);
+    }
+
+    .step-complete {
+      background-color: #06B6D4;
+    }
+
+    .step-pending {
+      background-color: #374151;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #0F172A;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #06B6D4;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #22D3EE;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-space-navy text-white grid-pattern scan-lines" x-data="{
+  currentStep: 1,
+  showPassword: false,
+  showConfirmPassword: false,
+  isLoading: false,
+  form: {
+    companyName: '',
+    dotNumber: '',
+    fleetSize: '',
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    password: '',
+    confirmPassword: '',
+    agreeTerms: false
+  },
+  validateStep1() {
+    return this.form.companyName && this.form.dotNumber;
+  },
+  validateStep2() {
+    return this.form.firstName && this.form.lastName && this.form.email && this.form.password && this.form.password === this.form.confirmPassword && this.form.agreeTerms;
+  },
+  nextStep() {
+    if (this.currentStep === 1 && this.validateStep1()) {
+      this.currentStep = 2;
+    }
+  },
+  prevStep() {
+    if (this.currentStep > 1) {
+      this.currentStep--;
+    }
+  },
+  submitForm() {
+    if (this.validateStep2()) {
+      this.isLoading = true;
+      setTimeout(() => {
+        window.location.href = 'dashboard.html';
+      }, 2000);
+    }
+  }
+}">
+
+  <!-- Gradient Orbs (Background Decoration) -->
+  <div class="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+    <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-cyber-cyan/10 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-hot-pink/10 rounded-full blur-3xl"></div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="relative min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="p-6">
+      <div class="max-w-7xl mx-auto flex items-center justify-between">
+        <a href="landing.html" class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-cyber bg-gradient-to-br from-cyber-cyan to-hot-pink flex items-center justify-center glow-cyan-sm">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+          </div>
+          <span class="text-xl font-display font-bold text-white tracking-wider">VROOMX</span>
+        </a>
+        <a href="landing.html" class="text-sm font-mono text-gray-400 hover:text-cyber-cyan transition-colors flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+          </svg>
+          BACK TO HOME
+        </a>
+      </div>
+    </header>
+
+    <!-- Register Form -->
+    <main class="flex-1 flex items-center justify-center px-4 py-12">
+      <div class="w-full max-w-lg">
+
+        <!-- Register Card -->
+        <div class="cyber-card rounded-cyber p-8 border-glow-cyan">
+
+          <!-- Header -->
+          <div class="text-center mb-8">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-hot-pink/30 bg-hot-pink/10 mb-4">
+              <span class="w-2 h-2 bg-hot-pink rounded-full animate-pulse"></span>
+              <span class="text-xs font-mono text-hot-pink uppercase tracking-wider">14-Day Free Trial</span>
+            </div>
+            <h1 class="text-2xl font-display font-bold text-white mb-2">
+              CREATE <span class="gradient-text">ACCOUNT</span>
+            </h1>
+            <p class="text-sm text-gray-400">
+              Start your fleet compliance command center
+            </p>
+          </div>
+
+          <!-- Step Indicators -->
+          <div class="flex items-center justify-center gap-4 mb-8">
+            <!-- Step 1 -->
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-mono font-bold transition-all"
+                   :class="currentStep >= 1 ? (currentStep > 1 ? 'step-complete text-space-navy' : 'step-active text-space-navy') : 'step-pending text-gray-500'">
+                <span x-show="currentStep <= 1">1</span>
+                <svg x-show="currentStep > 1" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                </svg>
+              </div>
+              <span class="text-xs font-mono hidden sm:block" :class="currentStep >= 1 ? 'text-cyber-cyan' : 'text-gray-500'">COMPANY</span>
+            </div>
+
+            <!-- Connector -->
+            <div class="w-12 h-0.5 bg-gray-700">
+              <div class="h-full bg-cyber-cyan transition-all" :style="currentStep > 1 ? 'width: 100%' : 'width: 0%'"></div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-mono font-bold transition-all"
+                   :class="currentStep >= 2 ? 'step-active text-space-navy' : 'step-pending text-gray-500'">
+                2
+              </div>
+              <span class="text-xs font-mono hidden sm:block" :class="currentStep >= 2 ? 'text-cyber-cyan' : 'text-gray-500'">ADMIN</span>
+            </div>
+          </div>
+
+          <!-- Form -->
+          <form @submit.prevent="submitForm">
+
+            <!-- Step 1: Company Info -->
+            <div x-show="currentStep === 1" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-x-4" x-transition:enter-end="opacity-100 translate-x-0">
+
+              <div class="space-y-5">
+
+                <!-- Company Name -->
+                <div>
+                  <label for="companyName" class="block text-sm font-mono text-gray-400 mb-2">
+                    COMPANY NAME <span class="text-hot-pink">*</span>
+                  </label>
+                  <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                      </svg>
+                    </div>
+                    <input
+                      type="text"
+                      id="companyName"
+                      x-model="form.companyName"
+                      placeholder="ABC Trucking LLC"
+                      class="w-full pl-12 pr-4 py-3 bg-slate-900/50 border border-gray-700 rounded-cyber text-white placeholder-gray-500 font-mono text-sm input-glow transition-all"
+                      required
+                    >
+                  </div>
+                </div>
+
+                <!-- DOT Number -->
+                <div>
+                  <label for="dotNumber" class="block text-sm font-mono text-gray-400 mb-2">
+                    USDOT NUMBER <span class="text-hot-pink">*</span>
+                  </label>
+                  <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"/>
+                      </svg>
+                    </div>
+                    <input
+                      type="text"
+                      id="dotNumber"
+                      x-model="form.dotNumber"
+                      placeholder="3456789"
+                      class="w-full pl-12 pr-4 py-3 bg-slate-900/50 border border-gray-700 rounded-cyber text-white placeholder-gray-500 font-mono text-sm input-glow transition-all"
+                      required
+                    >
+                  </div>
+                  <p class="mt-2 text-xs text-gray-500">We'll auto-sync your FMCSA data during setup</p>
+                </div>
+
+                <!-- Fleet Size -->
+                <div>
+                  <label for="fleetSize" class="block text-sm font-mono text-gray-400 mb-2">
+                    FLEET SIZE
+                  </label>
+                  <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                      </svg>
+                    </div>
+                    <select
+                      id="fleetSize"
+                      x-model="form.fleetSize"
+                      class="w-full pl-12 pr-4 py-3 bg-slate-900/50 border border-gray-700 rounded-cyber text-white font-mono text-sm input-glow transition-all appearance-none cursor-pointer"
+                    >
+                      <option value="" class="bg-slate-900">Select fleet size</option>
+                      <option value="1" class="bg-slate-900">1 driver (Owner-Operator)</option>
+                      <option value="2-5" class="bg-slate-900">2-5 drivers</option>
+                      <option value="6-10" class="bg-slate-900">6-10 drivers</option>
+                      <option value="11-25" class="bg-slate-900">11-25 drivers</option>
+                      <option value="26-50" class="bg-slate-900">26-50 drivers</option>
+                      <option value="51+" class="bg-slate-900">51+ drivers</option>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                      <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Next Button -->
+              <button
+                type="button"
+                @click="nextStep"
+                :disabled="!validateStep1()"
+                class="w-full mt-8 py-4 text-sm font-mono font-bold text-space-navy bg-cyber-cyan rounded-cyber hover:bg-neon-green transition-all glow-cyan disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                CONTINUE
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                </svg>
+              </button>
+
+            </div>
+
+            <!-- Step 2: Admin Info -->
+            <div x-show="currentStep === 2" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-x-4" x-transition:enter-end="opacity-100 translate-x-0">
+
+              <div class="space-y-5">
+
+                <!-- Name Row -->
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label for="firstName" class="block text-sm font-mono text-gray-400 mb-2">
+                      FIRST NAME <span class="text-hot-pink">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="firstName"
+                      x-model="form.firstName"
+                      placeholder="John"
+                      class="w-full px-4 py-3 bg-slate-900/50 border border-gray-700 rounded-cyber text-white placeholder-gray-500 font-mono text-sm input-glow transition-all"
+                      required
+                    >
+                  </div>
+                  <div>
+                    <label for="lastName" class="block text-sm font-mono text-gray-400 mb-2">
+                      LAST NAME <span class="text-hot-pink">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="lastName"
+                      x-model="form.lastName"
+                      placeholder="Smith"
+                      class="w-full px-4 py-3 bg-slate-900/50 border border-gray-700 rounded-cyber text-white placeholder-gray-500 font-mono text-sm input-glow transition-all"
+                      required
+                    >
+                  </div>
+                </div>
+
+                <!-- Email -->
+                <div>
+                  <label for="email" class="block text-sm font-mono text-gray-400 mb-2">
+                    EMAIL ADDRESS <span class="text-hot-pink">*</span>
+                  </label>
+                  <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/>
+                      </svg>
+                    </div>
+                    <input
+                      type="email"
+                      id="email"
+                      x-model="form.email"
+                      placeholder="john@abctrucking.com"
+                      class="w-full pl-12 pr-4 py-3 bg-slate-900/50 border border-gray-700 rounded-cyber text-white placeholder-gray-500 font-mono text-sm input-glow transition-all"
+                      required
+                    >
+                  </div>
+                </div>
+
+                <!-- Phone (Optional) -->
+                <div>
+                  <label for="phone" class="block text-sm font-mono text-gray-400 mb-2">
+                    PHONE NUMBER
+                  </label>
+                  <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                      </svg>
+                    </div>
+                    <input
+                      type="tel"
+                      id="phone"
+                      x-model="form.phone"
+                      placeholder="(555) 123-4567"
+                      class="w-full pl-12 pr-4 py-3 bg-slate-900/50 border border-gray-700 rounded-cyber text-white placeholder-gray-500 font-mono text-sm input-glow transition-all"
+                    >
+                  </div>
+                </div>
+
+                <!-- Password -->
+                <div>
+                  <label for="password" class="block text-sm font-mono text-gray-400 mb-2">
+                    PASSWORD <span class="text-hot-pink">*</span>
+                  </label>
+                  <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                      </svg>
+                    </div>
+                    <input
+                      :type="showPassword ? 'text' : 'password'"
+                      id="password"
+                      x-model="form.password"
+                      placeholder="Min. 8 characters"
+                      class="w-full pl-12 pr-12 py-3 bg-slate-900/50 border border-gray-700 rounded-cyber text-white placeholder-gray-500 font-mono text-sm input-glow transition-all"
+                      required
+                      minlength="8"
+                    >
+                    <button
+                      type="button"
+                      @click="showPassword = !showPassword"
+                      class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-cyber-cyan transition-colors"
+                    >
+                      <svg x-show="!showPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                      </svg>
+                      <svg x-show="showPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Confirm Password -->
+                <div>
+                  <label for="confirmPassword" class="block text-sm font-mono text-gray-400 mb-2">
+                    CONFIRM PASSWORD <span class="text-hot-pink">*</span>
+                  </label>
+                  <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                      </svg>
+                    </div>
+                    <input
+                      :type="showConfirmPassword ? 'text' : 'password'"
+                      id="confirmPassword"
+                      x-model="form.confirmPassword"
+                      placeholder="Re-enter password"
+                      class="w-full pl-12 pr-12 py-3 bg-slate-900/50 border border-gray-700 rounded-cyber text-white placeholder-gray-500 font-mono text-sm input-glow transition-all"
+                      :class="form.confirmPassword && form.password !== form.confirmPassword ? 'border-red-500' : ''"
+                      required
+                    >
+                    <button
+                      type="button"
+                      @click="showConfirmPassword = !showConfirmPassword"
+                      class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-cyber-cyan transition-colors"
+                    >
+                      <svg x-show="!showConfirmPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                      </svg>
+                      <svg x-show="showConfirmPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                      </svg>
+                    </button>
+                  </div>
+                  <p x-show="form.confirmPassword && form.password !== form.confirmPassword" class="mt-2 text-xs text-red-400">
+                    Passwords do not match
+                  </p>
+                </div>
+
+                <!-- Terms Agreement -->
+                <label class="flex items-start gap-3 cursor-pointer group">
+                  <div class="relative mt-0.5">
+                    <input
+                      type="checkbox"
+                      x-model="form.agreeTerms"
+                      class="sr-only"
+                    >
+                    <div class="w-5 h-5 border border-gray-600 rounded-cyber bg-slate-900/50 group-hover:border-cyber-cyan transition-colors"
+                         :class="form.agreeTerms ? 'bg-cyber-cyan border-cyber-cyan' : ''">
+                      <svg x-show="form.agreeTerms" class="w-5 h-5 text-space-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <span class="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">
+                    I agree to the
+                    <a href="#" class="text-cyber-cyan hover:text-neon-green">Terms of Service</a>
+                    and
+                    <a href="#" class="text-cyber-cyan hover:text-neon-green">Privacy Policy</a>
+                  </span>
+                </label>
+
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="flex gap-4 mt-8">
+                <button
+                  type="button"
+                  @click="prevStep"
+                  class="flex-1 py-4 text-sm font-mono font-semibold text-gray-400 bg-slate-800/50 border border-gray-700 rounded-cyber hover:border-gray-600 hover:text-white transition-all flex items-center justify-center gap-2"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"/>
+                  </svg>
+                  BACK
+                </button>
+                <button
+                  type="submit"
+                  :disabled="!validateStep2() || isLoading"
+                  class="flex-1 py-4 text-sm font-mono font-bold text-space-navy bg-hot-pink rounded-cyber hover:bg-pink-400 transition-all pulse-glow disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  <span x-show="!isLoading">CREATE ACCOUNT</span>
+                  <span x-show="isLoading" class="flex items-center gap-2">
+                    <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    CREATING...
+                  </span>
+                </button>
+              </div>
+
+            </div>
+
+          </form>
+
+          <!-- Login Link -->
+          <p class="mt-8 text-center text-sm text-gray-500">
+            Already have an account?
+            <a href="login.html" class="font-mono text-cyber-cyan hover:text-neon-green transition-colors ml-1">
+              ACCESS SYSTEM
+            </a>
+          </p>
+
+        </div>
+
+        <!-- Features Preview -->
+        <div class="mt-8 grid grid-cols-3 gap-4">
+          <div class="text-center p-4 cyber-card rounded-cyber">
+            <div class="text-xl font-display font-bold text-cyber-cyan mb-1">14</div>
+            <div class="text-xs font-mono text-gray-500">DAY FREE TRIAL</div>
+          </div>
+          <div class="text-center p-4 cyber-card rounded-cyber">
+            <div class="text-xl font-display font-bold text-cyber-cyan mb-1">0</div>
+            <div class="text-xs font-mono text-gray-500">CREDIT CARD</div>
+          </div>
+          <div class="text-center p-4 cyber-card rounded-cyber">
+            <div class="text-xl font-display font-bold text-cyber-cyan mb-1">5min</div>
+            <div class="text-xs font-mono text-gray-500">SETUP TIME</div>
+          </div>
+        </div>
+
+        <!-- Security Badge -->
+        <div class="mt-6 flex items-center justify-center gap-4 text-xs text-gray-600">
+          <div class="flex items-center gap-1">
+            <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
+            <span>256-bit SSL</span>
+          </div>
+          <span class="text-gray-700">|</span>
+          <div class="flex items-center gap-1">
+            <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+            <span>SOC 2 Compliant</span>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="p-6">
+      <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-600 font-mono">
+        <p>&copy; 2025 VroomX Safety Platform. All rights reserved.</p>
+        <div class="flex items-center gap-4">
+          <a href="#" class="hover:text-cyber-cyan transition-colors">Privacy Policy</a>
+          <a href="#" class="hover:text-cyber-cyan transition-colors">Terms of Service</a>
+          <a href="#" class="hover:text-cyber-cyan transition-colors">Support</a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Shared JS -->
+  <script src="../shared/js/common.js"></script>
+
+</body>
+</html>

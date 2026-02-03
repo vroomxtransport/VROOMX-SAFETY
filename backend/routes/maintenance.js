@@ -13,6 +13,22 @@ function escapeRegex(string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+function normalizeAiError(error) {
+  const status = error?.status || error?.response?.status;
+  const code = error?.code || error?.response?.data?.code || error?.response?.data?.error?.code;
+  let message = error?.message || 'AI extraction failed';
+
+  if (status === 401 || status === 403) {
+    message = 'AI provider authentication failed. Check OPENAI_API_KEY and permissions.';
+  } else if (status === 429) {
+    message = 'AI provider rate limit exceeded. Please try again shortly.';
+  } else if (status >= 500) {
+    message = 'AI provider error. Please try again later.';
+  }
+
+  return { message, status, code };
+}
+
 // Apply authentication to all routes
 router.use(protect);
 router.use(restrictToCompany);
@@ -369,12 +385,27 @@ router.post('/smart-upload', checkPermission('maintenance', 'edit'), uploadSingl
   const fileUrl = getFileUrl(req.file.path);
   const filePath = req.file.path;
 
+  if (!openaiVisionService.isEnabled()) {
+    return res.json({
+      success: true,
+      aiSuccess: false,
+      message: 'File uploaded but AI document intelligence is not configured. Please set OPENAI_API_KEY.',
+      error: 'AI_NOT_CONFIGURED',
+      uploadedFile: {
+        name: req.file.originalname,
+        url: fileUrl,
+        type: 'invoice'
+      }
+    });
+  }
+
   try {
     // Use OpenAI Vision to extract data from the invoice/work order
     const extractedData = await openaiVisionService.extractMaintenanceData(filePath);
 
     res.json({
       success: true,
+      aiSuccess: true,
       message: 'Data extracted successfully',
       extractedData,
       uploadedFile: {
@@ -385,9 +416,11 @@ router.post('/smart-upload', checkPermission('maintenance', 'edit'), uploadSingl
     });
   } catch (error) {
     console.error('AI extraction error:', error);
+    const aiError = normalizeAiError(error);
     // Still return the file URL even if AI extraction fails
     res.json({
       success: true,
+      aiSuccess: false,
       message: 'File uploaded but AI extraction failed. Please fill in details manually.',
       extractedData: null,
       uploadedFile: {
@@ -395,7 +428,9 @@ router.post('/smart-upload', checkPermission('maintenance', 'edit'), uploadSingl
         url: fileUrl,
         type: 'invoice'
       },
-      error: error.message
+      error: aiError.message,
+      errorCode: aiError.code,
+      errorStatus: aiError.status
     });
   }
 }));

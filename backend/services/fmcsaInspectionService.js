@@ -13,10 +13,27 @@
 
 const FMCSAInspection = require('../models/FMCSAInspection');
 const Company = require('../models/Company');
+const Violation = require('../models/Violation');
 const NodeCache = require('node-cache');
+const { TIME_WEIGHT_FACTORS } = require('../config/fmcsaCompliance');
 
 // Cache for 6 hours
 const cache = new NodeCache({ stdTTL: 21600, checkperiod: 600 });
+
+const buildViolationKey = (inspectionNumber, violationCode, description, violationDate) => {
+  const dateKey = violationDate instanceof Date
+    ? violationDate.toISOString().split('T')[0]
+    : 'unknown';
+  return `${inspectionNumber || 'unknown'}|${violationCode || 'unknown'}|${description || 'unknown'}|${dateKey}`;
+};
+
+const calculateWeightedSeverity = (severityWeight, violationDate) => {
+  const now = new Date();
+  const date = violationDate instanceof Date ? violationDate : new Date(violationDate);
+  const yearsAgo = Math.floor((now - date) / (365.25 * 24 * 60 * 60 * 1000));
+  const timeWeight = TIME_WEIGHT_FACTORS[yearsAgo] || 0;
+  return severityWeight * timeWeight;
+};
 
 const fmcsaInspectionService = {
   /**
@@ -564,6 +581,95 @@ const fmcsaInspectionService = {
   },
 
   /**
+   * Import DataHub violations into the Violation collection for DataQ workflows
+   * @param {string} companyId - Company ID
+   * @param {object} violationsByInspection - Grouped violations keyed by inspection ID
+   * @returns {number} Count of newly created violations
+   */
+  async importDataHubViolationsToDataQ(companyId, violationsByInspection) {
+    const inspections = Object.values(violationsByInspection || {});
+    if (inspections.length === 0) return 0;
+
+    const inspectionNumbers = inspections
+      .map(i => i.reportNumber)
+      .filter(Boolean);
+
+    if (inspectionNumbers.length === 0) return 0;
+
+    const existing = await Violation.find({
+      companyId,
+      inspectionNumber: { $in: inspectionNumbers }
+    })
+      .select('inspectionNumber violationCode description violationDate')
+      .lean();
+
+    const existingKeys = new Set(
+      existing.map(v => buildViolationKey(v.inspectionNumber, v.violationCode, v.description, v.violationDate))
+    );
+
+    const docs = [];
+
+    for (const inspection of inspections) {
+      if (!inspection?.date || !inspection?.reportNumber) continue;
+
+      const location = {
+        state: inspection.state || null
+      };
+
+      for (const violation of inspection.violations || []) {
+        if (!violation?.code) continue;
+
+        const description = violation.description || `Violation ${violation.code}`;
+        const key = buildViolationKey(
+          inspection.reportNumber,
+          violation.code,
+          description,
+          inspection.date
+        );
+
+        if (existingKeys.has(key)) continue;
+
+        const severityWeight = Number.isFinite(violation.severityWeight)
+          ? violation.severityWeight
+          : parseInt(violation.severityWeight, 10) || 5;
+
+        docs.push({
+          companyId,
+          inspectionNumber: inspection.reportNumber,
+          violationDate: inspection.date,
+          location,
+          basic: violation.basic || 'vehicle_maintenance',
+          violationType: description,
+          violationCode: violation.code,
+          description,
+          severityWeight,
+          outOfService: !!violation.oos,
+          weightedSeverity: calculateWeightedSeverity(severityWeight, inspection.date),
+          inspectionType: 'roadside',
+          status: 'open',
+          history: [{
+            action: 'imported_from_fmcsa_datahub',
+            date: new Date(),
+            notes: `Imported from FMCSA DataHub (inspection ${inspection.reportNumber})`
+          }]
+        });
+
+        existingKeys.add(key);
+      }
+    }
+
+    if (docs.length === 0) return 0;
+
+    try {
+      const inserted = await Violation.insertMany(docs, { ordered: false });
+      return inserted.length;
+    } catch (error) {
+      console.error('[FMCSA Violations] Import to DataQ failed:', error.message);
+      return 0;
+    }
+  },
+
+  /**
    * Sync violation details from FMCSA DataHub SMS dataset
    * @param {string} companyId - Company ID
    * @returns {object} Sync result
@@ -689,13 +795,24 @@ const fmcsaInspectionService = {
 
       console.log(`[FMCSA Violations] Created ${createdCount} new inspections, updated ${matchedCount} existing`);
 
+      let dataqCreated = 0;
+      try {
+        dataqCreated = await this.importDataHubViolationsToDataQ(companyId, violationsByInspection);
+        if (dataqCreated > 0) {
+          console.log(`[FMCSA Violations] Imported ${dataqCreated} violations into DataQ dataset`);
+        }
+      } catch (error) {
+        console.error('[FMCSA Violations] DataQ import failed:', error.message);
+      }
+
       return {
         success: true,
         message: `Synced ${createdCount + matchedCount} inspections (${createdCount} new, ${matchedCount} updated) with ${violations.length} violations`,
         created: createdCount,
         matched: matchedCount,
         total: inspectionIds.length,
-        violationCount: violations.length
+        violationCount: violations.length,
+        dataqCreated
       };
 
     } catch (error) {
@@ -735,7 +852,8 @@ const fmcsaInspectionService = {
           success: violResult.success,
           message: violResult.message,
           matched: (violResult.matched || 0) + (violResult.created || 0),
-          total: violResult.violationCount || 0
+          total: violResult.violationCount || 0,
+          dataqCreated: violResult.dataqCreated || 0
         }
       };
 

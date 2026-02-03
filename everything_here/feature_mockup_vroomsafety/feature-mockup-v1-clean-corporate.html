@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VroomX Safety - Feature Showcase</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary: #1E3A5F;
+            --primary-light: #2D5A87;
+            --cta: #F97316;
+            --cta-hover: #EA580C;
+            --success: #22C55E;
+            --success-light: #DCFCE7;
+            --ai-accent: #6366F1;
+            --ai-light: #EEF2FF;
+            --warning: #F59E0B;
+            --warning-light: #FEF3C7;
+            --text-primary: #1E293B;
+            --text-secondary: #64748B;
+            --text-muted: #94A3B8;
+            --bg-primary: #FAFBFC;
+            --bg-secondary: #F0F4F8;
+            --bg-card: #FFFFFF;
+            --border: #E2E8F0;
+            --border-light: #F1F5F9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Subtle grid pattern overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(30, 58, 95, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(30, 58, 95, 0.02) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        /* Header */
+        .header {
+            padding: 60px 0 40px;
+            text-align: center;
+        }
+
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--ai-light);
+            color: var(--ai-accent);
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 24px;
+            animation: fadeInDown 0.6s ease both;
+        }
+
+        .header-badge i {
+            width: 14px;
+            height: 14px;
+        }
+
+        .header h1 {
+            font-family: 'Fraunces', serif;
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 16px;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            animation: fadeInUp 0.6s ease 0.1s both;
+        }
+
+        .header h1 span {
+            color: var(--cta);
+        }
+
+        .header p {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+            animation: fadeInUp 0.6s ease 0.2s both;
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 40px 0;
+            position: relative;
+            animation: fadeInUp 0.6s ease 0.3s both;
+        }
+
+        .tab-nav-inner {
+            display: flex;
+            gap: 4px;
+            background: var(--bg-secondary);
+            padding: 6px;
+            border-radius: 16px;
+            position: relative;
+        }
+
+        .tab-indicator {
+            position: absolute;
+            height: calc(100% - 12px);
+            background: var(--bg-card);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(30, 58, 95, 0.08), 0 1px 2px rgba(30, 58, 95, 0.04);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            top: 6px;
+        }
+
+        .tab-btn {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 24px;
+            background: transparent;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: color 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+        }
+
+        .tab-btn i {
+            width: 18px;
+            height: 18px;
+            transition: transform 0.3s ease;
+        }
+
+        .tab-btn:hover i {
+            transform: scale(1.1);
+        }
+
+        .tab-btn .ai-tag {
+            background: linear-gradient(135deg, var(--ai-accent) 0%, #818CF8 100%);
+            color: white;
+            font-size: 0.6rem;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        /* Feature Cards */
+        .feature-showcase {
+            padding: 20px 0 100px;
+        }
+
+        .feature-card {
+            display: none;
+            background: var(--bg-card);
+            border-radius: 32px;
+            overflow: hidden;
+            box-shadow:
+                0 4px 6px -1px rgba(30, 58, 95, 0.05),
+                0 10px 20px -5px rgba(30, 58, 95, 0.08),
+                0 25px 50px -12px rgba(30, 58, 95, 0.12);
+            border: 1px solid var(--border-light);
+        }
+
+        .feature-card.active {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            animation: cardReveal 0.5s ease both;
+        }
+
+        @keyframes cardReveal {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Visual Panel */
+        .feature-visual {
+            padding: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-visual.bg-ai {
+            background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+        }
+
+        .feature-visual.bg-navy {
+            background: linear-gradient(135deg, #F0F4F8 0%, #E2E8F0 100%);
+        }
+
+        .feature-visual.bg-success {
+            background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
+        }
+
+        .feature-visual.bg-purple {
+            background: linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%);
+        }
+
+        .feature-visual.bg-warning {
+            background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+        }
+
+        /* Decorative dots */
+        .feature-visual::before {
+            content: '';
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+            top: -50px;
+            right: -50px;
+        }
+
+        .feature-visual::after {
+            content: '';
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(249, 115, 22, 0.08) 0%, transparent 70%);
+            bottom: -30px;
+            left: -30px;
+        }
+
+        /* Mini Mockup */
+        .mini-mockup {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 400px;
+            background: var(--bg-card);
+            border-radius: 20px;
+            box-shadow:
+                0 20px 40px rgba(30, 58, 95, 0.12),
+                0 8px 16px rgba(30, 58, 95, 0.08);
+            overflow: hidden;
+            animation: floatMockup 4s ease-in-out infinite;
+        }
+
+        @keyframes floatMockup {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .mockup-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 20px;
+            background: var(--primary);
+        }
+
+        .mockup-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .mockup-dot.red { background: #FF5F57; }
+        .mockup-dot.yellow { background: #FFBD2E; }
+        .mockup-dot.green { background: #28CA42; }
+
+        .mockup-body {
+            padding: 24px;
+            min-height: 200px;
+        }
+
+        /* Chat Mockup */
+        .chat-messages {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .chat-msg {
+            display: flex;
+            gap: 12px;
+            opacity: 0;
+            animation: chatMsgIn 0.5s ease forwards;
+        }
+
+        .chat-msg:nth-child(1) { animation-delay: 0.3s; }
+        .chat-msg:nth-child(2) { animation-delay: 0.6s; }
+
+        @keyframes chatMsgIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .chat-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .chat-avatar.user {
+            background: var(--bg-secondary);
+            color: var(--text-muted);
+        }
+
+        .chat-avatar.ai {
+            background: linear-gradient(135deg, var(--ai-accent) 0%, #818CF8 100%);
+            color: white;
+        }
+
+        .chat-avatar i { width: 18px; height: 18px; }
+
+        .chat-bubble {
+            padding: 14px 18px;
+            border-radius: 16px;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            max-width: 280px;
+        }
+
+        .chat-bubble.user {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .chat-bubble.ai {
+            background: var(--ai-light);
+            color: var(--text-primary);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        /* Bar Chart Mockup */
+        .chart-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .chart-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chart-label {
+            width: 90px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .chart-track {
+            flex: 1;
+            height: 12px;
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .chart-fill {
+            height: 100%;
+            border-radius: 6px;
+            transform-origin: left;
+            animation: barGrow 1s ease forwards;
+            transform: scaleX(0);
+        }
+
+        @keyframes barGrow {
+            to { transform: scaleX(1); }
+        }
+
+        .chart-fill.green { background: linear-gradient(90deg, var(--success) 0%, #4ADE80 100%); }
+        .chart-fill.yellow { background: linear-gradient(90deg, var(--warning) 0%, #FBBF24 100%); }
+        .chart-fill.red { background: linear-gradient(90deg, #EF4444 0%, #F87171 100%); }
+
+        .chart-value {
+            width: 40px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-align: right;
+        }
+
+        /* File List Mockup */
+        .file-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px;
+            background: var(--bg-secondary);
+            border-radius: 14px;
+            opacity: 0;
+            animation: fileSlide 0.5s ease forwards;
+        }
+
+        .file-item:nth-child(1) { animation-delay: 0.2s; }
+        .file-item:nth-child(2) { animation-delay: 0.4s; }
+        .file-item:nth-child(3) { animation-delay: 0.6s; }
+
+        @keyframes fileSlide {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .file-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .file-icon i { width: 20px; height: 20px; }
+
+        .file-info { flex: 1; }
+
+        .file-name {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .file-meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .file-status {
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 5px 10px;
+            border-radius: 6px;
+        }
+
+        .file-status.valid {
+            background: var(--success-light);
+            color: #15803D;
+        }
+
+        .file-status.warning {
+            background: var(--warning-light);
+            color: #B45309;
+        }
+
+        /* DataQ Mockup */
+        .dataq-center {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .dataq-icon {
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, var(--ai-accent) 0%, #818CF8 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+            animation: iconPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes iconPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .dataq-icon i { width: 32px; height: 32px; }
+
+        .dataq-title {
+            font-family: 'Fraunces', serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .dataq-prob {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .dataq-prob span {
+            color: var(--success);
+            font-weight: 700;
+        }
+
+        /* Alerts Mockup */
+        .alert-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .alert-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px;
+            border-radius: 14px;
+            opacity: 0;
+            animation: alertPop 0.5s ease forwards;
+        }
+
+        .alert-item:nth-child(1) { animation-delay: 0.2s; }
+        .alert-item:nth-child(2) { animation-delay: 0.4s; }
+
+        @keyframes alertPop {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .alert-item.warning { background: var(--warning-light); }
+        .alert-item.success { background: var(--success-light); }
+
+        .alert-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .alert-item.warning .alert-icon {
+            background: rgba(245, 158, 11, 0.2);
+            color: #B45309;
+        }
+
+        .alert-item.success .alert-icon {
+            background: rgba(34, 197, 94, 0.2);
+            color: #15803D;
+        }
+
+        .alert-icon i { width: 18px; height: 18px; }
+
+        .alert-text { flex: 1; }
+
+        .alert-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .alert-sub {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Content Panel */
+        .feature-content {
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .content-category {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--ai-accent);
+            margin-bottom: 20px;
+            opacity: 0;
+            animation: contentFade 0.5s ease 0.2s forwards;
+        }
+
+        .content-category i { width: 16px; height: 16px; }
+
+        .feature-content h2 {
+            font-family: 'Fraunces', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 20px;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+            opacity: 0;
+            animation: contentFade 0.5s ease 0.3s forwards;
+        }
+
+        .feature-content p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 36px;
+            line-height: 1.7;
+            opacity: 0;
+            animation: contentFade 0.5s ease 0.4s forwards;
+        }
+
+        @keyframes contentFade {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Feature Grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 40px;
+            opacity: 0;
+            animation: contentFade 0.5s ease 0.5s forwards;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .feature-check {
+            width: 28px;
+            height: 28px;
+            background: var(--success-light);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--success);
+            flex-shrink: 0;
+        }
+
+        .feature-check i { width: 14px; height: 14px; }
+
+        /* CTA Button */
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 18px 36px;
+            background: linear-gradient(135deg, var(--cta) 0%, var(--cta-hover) 100%);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(249, 115, 22, 0.3);
+            opacity: 0;
+            animation: contentFade 0.5s ease 0.6s forwards;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px rgba(249, 115, 22, 0.4);
+        }
+
+        .cta-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .cta-btn i {
+            width: 20px;
+            height: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .cta-btn:hover i {
+            transform: translateX(4px);
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 1100px) {
+            .feature-card.active {
+                grid-template-columns: 1fr;
+            }
+
+            .feature-visual {
+                padding: 40px;
+            }
+
+            .feature-content {
+                padding: 40px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .tab-nav-inner {
+                flex-wrap: wrap;
+                justify-content: center;
+                max-width: 100%;
+            }
+
+            .tab-btn {
+                padding: 12px 16px;
+                font-size: 0.8rem;
+            }
+
+            .tab-btn span:not(.ai-tag) {
+                display: none;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 0 20px;
+            }
+
+            .header {
+                padding: 40px 0 20px;
+            }
+
+            .feature-content h2 {
+                font-size: 1.75rem;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-badge">
+                <i data-lucide="shield-check"></i>
+                FMCSA Compliance Platform
+            </div>
+            <h1>Stay Compliant.<br><span>Stay Profitable.</span></h1>
+            <p>Powerful tools designed for owner-operators and small fleets to manage compliance with confidence.</p>
+        </header>
+
+        <nav class="tab-nav">
+            <div class="tab-nav-inner">
+                <div class="tab-indicator" id="tabIndicator"></div>
+                <button class="tab-btn active" data-tab="0">
+                    <i data-lucide="bot"></i>
+                    <span>AI Assistant</span>
+                    <span class="ai-tag">AI</span>
+                </button>
+                <button class="tab-btn" data-tab="1">
+                    <i data-lucide="bar-chart-3"></i>
+                    <span>CSA Tracking</span>
+                </button>
+                <button class="tab-btn" data-tab="2">
+                    <i data-lucide="folder-open"></i>
+                    <span>DQF Files</span>
+                </button>
+                <button class="tab-btn" data-tab="3">
+                    <i data-lucide="file-text"></i>
+                    <span>DataQ</span>
+                    <span class="ai-tag">AI</span>
+                </button>
+                <button class="tab-btn" data-tab="4">
+                    <i data-lucide="bell-ring"></i>
+                    <span>Alerts</span>
+                </button>
+            </div>
+        </nav>
+
+        <section class="feature-showcase">
+            <!-- Card 0: AI Assistant -->
+            <article class="feature-card active" data-card="0">
+                <div class="feature-visual bg-ai">
+                    <div class="mini-mockup">
+                        <div class="mockup-header">
+                            <span class="mockup-dot red"></span>
+                            <span class="mockup-dot yellow"></span>
+                            <span class="mockup-dot green"></span>
+                        </div>
+                        <div class="mockup-body">
+                            <div class="chat-messages">
+                                <div class="chat-msg">
+                                    <div class="chat-avatar user"><i data-lucide="user"></i></div>
+                                    <div class="chat-bubble user">What's the HOS limit for property-carrying drivers?</div>
+                                </div>
+                                <div class="chat-msg">
+                                    <div class="chat-avatar ai"><i data-lucide="bot"></i></div>
+                                    <div class="chat-bubble ai">11-hour driving limit after 10 consecutive hours off duty, per FMCSA §395.3.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="feature-content">
+                    <div class="content-category">
+                        <i data-lucide="cpu"></i>
+                        AI-Powered
+                    </div>
+                    <h2>AI Regulation Assistant</h2>
+                    <p>Ask any FMCSA regulation question and get instant, accurate answers. Like having a compliance expert on call 24/7, without the hourly fees.</p>
+                    <div class="feature-grid">
+                        <div class="feature-item">
+                            <span class="feature-check"><i data-lucide="check"></i></span>
+                            Instant answers
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-check"><i data-lucide="check"></i></span>
+                            Always up-to-date
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-check"><i data-lucide="check"></i></span>
+                            Plain English
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-check"><i data-lucide="check"></i></span>
+                            24/7 available
+                        </div>
+                    </div>
+                    <a href="#" class="cta-btn">
+                        Try It Free
+                        <i data-lucide="arrow-right"></i>
+                    </a>
+                </div>
+            </article>
+
+            <!-- Card 1: CSA Tracking -->
+            <article class="feature-card" data-card="1">
+                <div class="feature-visual bg-navy">
+                    <div class="mini-mockup">
+                        <div class="mockup-header">
+                            <span class="mockup-dot red"></span>
+                            <span class="mockup-dot yellow"></span>
+                            <span class="mockup-dot green"></span>
+                        </div>
+                        <div class="mockup-body">
+                            <div class="chart-bars">
+                                <div class="chart-row">
+                                    <span class="chart-label">Unsafe Driving</span>
+                                    <div class="chart-track"><div class="chart-fill green" style="width: 32%"></div></div>
+                                    <span class="chart-value">32%</span>
+                                </div>
+                                <div class="chart-row">
+                                    <span class="chart-label">HOS Compliance</span>
+                                    <div class="chart-track"><div class="chart-fill green" style="width: 45%"></div></div>
+                                    <span class="chart-value">45%</span>
+                                </div>
+                                <div class="chart-row">
+                                    <span class="chart-label">Vehicle Maint.</span>
+                                    <div class="chart-track"><div class="chart-fill yellow" style="width: 68%"></div></div>
+                                    <span class="chart-value">68%</span>
+                                </div>
+                                <div class="chart-row">
+                                    <span class="chart-label">Driver Fitness</span>
+                                    <div class="chart-track"><div class="chart-fill green" style="width: 21%"></div></div>
+                                    <span class="chart-value">21%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="feature-content">
+                    <div class="content-category" style="color: var(--primary);">
+                        <i data-lucide="trending-up"></i>
+                        Analytics
+                    </div>
+                    <h2>CSA Score Tracking</h2>
+                    <p>Monitor your CSA scores across all 7 BASICs in real-time. Get actionable recommendations to improve your safety rating and avoid interventions.</p>
+                    <div class="feature-grid">
+                        <div class="feature-item">
+                            <span class="feature-check"><i data-lucide="check"></i></span>
+                            All 7 BASICs
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-check"><i data-lucide="check"></i></span>
+                            Historical trends
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-check"><i data-lucide="check"></i></span>
+                            Score alerts
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-check"><i data-lucide="check"></i></span>
+                            AI recommendations
+                        </div>
+                    </div>
+                    <a href="#" class="cta-btn">
+                        Check Your Score
+                        <i data-lucide="arrow-right"></i>
+                    </a>
+                </div>
+            </article>
+
+            <!-- Card 2: DQF Files -->
+            <article class="feature-card" data-card="2">
+                <div class="feature-visual bg-success">
+                    <div class="mini-mockup">
+                        <div class="mockup-header">
+                            <span class="mockup-dot red"></span>
+                            <span class="mockup-dot yellow"></span>
+                            <span class="mockup-dot green"></span>
+                        </div>
+                        <div class="mockup-body">
+                            <div class="file-list">
+                                <div class="file-item">
+                                    <div class="file-icon"><i data-lucide="id-card"></i></div>
+                                    <div class="file-info">
+                                        <div class="file-name">CDL - Mike Rodriguez</div>
+                                        <div class="file-meta">Expires Dec 2026</div>
+                                    </div>
+                                    <span class="file-status valid">Valid</span>
+                                </div>
+                                <div class="file-item">
+                                    <div class="file-icon" style="background: #DC2626;"><i data-lucide="stethoscope"></i></div>
+                                    <div class="file-info">
+                                        <div class="file-name">Medical Card</div>
+                                        <div class="file-meta">Expires Mar 2026</div>
+                                    </div>
+                                    <span class="file-status warning">45 days</span>
+                                </div>
+                                <div class="file-item">
+                                    <div class="file-icon" style="background: var(--success);"><i data-lucide="file-check"></i></div>
+                                    <div class="file-info">
+                                        <div class="file-name">MVR Report</div>
+                                        <div class="file-meta">Updated Jan 2026</div>
+                                    </div>
+                                    <span class="file-status valid">Current</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="feature-content">
+                    <div class="content-category" style="color: var(--success);">
+                        <i data-lucide="folder-open"></i>
+                        Document Management
+                    </div>
+                    <h2>DQF Management</h2>
+                    <p>Store, organize, and track all Driver Qualification Files in one secure place with automatic expiration tracking and audit-ready reports.</p>
+                    <div class="feature-grid">
+                        <div class="feature-item">
+                            <span class="feature-check"><i data-lucide="check"></i></span>
+                            Secure cloud storage
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-check"><i data-lucide="check"></i></span>
+                            Auto expiration alerts
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-check"><i data-lucide="check"></i></span>
+                            One-click reports
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-check"><i data-lucide="check"></i></span>
+                            Audit-ready
+                        </div>
+                    </div>
+                    <a href="#" class="cta-btn">
+                        Upload Documents
+                        <i data-lucide="arrow-right"></i>
+                    </a>
+                </div>
+            </article>
+
+            <!-- Card 3: DataQ Generator -->
+            <article class="feature-card" data-card="3">
+                <div class="feature-visual bg-purple">
+                    <div class="mini-mockup">
+                        <div class="mockup-header">
+                            <span class="mockup-dot red"></span>
+                            <span class="mockup-dot yellow"></span>
+                            <span class="mockup-dot green"></span>
+                        </div>
+                        <div class="mockup-body">
+                            <div class="dataq-center">
+                                <div class="dataq-icon">
+                                    <i data-lucide="file-check-2"></i>
+                                </div>
+                                <div class="dataq-title">DataQ Letter Ready</div>
+                                <div class="dataq-prob">Success probability: <span>68%</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="feature-content">
+                    <div class="content-category">
+                        <i data-lucide="cpu"></i>
+                        AI-Powered
+                    </div>
+                    <h2>DataQ Challenge Generator</h2>
+                    <p>Our AI identifies challengeable violations and drafts professional DataQ letters automatically. Fight unfair violations and protect your score.</p>
+                    <div class="feature-grid">
+                        <div class="feature-item">
+                            <span class="feature-check"><i data-lucide="check"></i></span>
+                            Auto-detect opportunities
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-check"><i data-lucide="check"></i></span>
+                            Generate letters
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-check"><i data-lucide="check"></i></span>
+                            Track status
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-check"><i data-lucide="check"></i></span>
+                            40% success rate
+                        </div>
+                    </div>
+                    <a href="#" class="cta-btn">
+                        Challenge a Violation
+                        <i data-lucide="arrow-right"></i>
+                    </a>
+                </div>
+            </article>
+
+            <!-- Card 4: Smart Alerts -->
+            <article class="feature-card" data-card="4">
+                <div class="feature-visual bg-warning">
+                    <div class="mini-mockup">
+                        <div class="mockup-header">
+                            <span class="mockup-dot red"></span>
+                            <span class="mockup-dot yellow"></span>
+                            <span class="mockup-dot green"></span>
+                        </div>
+                        <div class="mockup-body">
+                            <div class="alert-list">
+                                <div class="alert-item warning">
+                                    <div class="alert-icon"><i data-lucide="alert-triangle"></i></div>
+                                    <div class="alert-text">
+                                        <div class="alert-title">Medical Card Expiring</div>
+                                        <div class="alert-sub">Mike Rodriguez - 45 days remaining</div>
+                                    </div>
+                                </div>
+                                <div class="alert-item success">
+                                    <div class="alert-icon"><i data-lucide="check-circle"></i></div>
+                                    <div class="alert-text">
+                                        <div class="alert-title">Inspection Complete</div>
+                                        <div class="alert-sub">Truck #1042 passed all checks</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="feature-content">
+                    <div class="content-category" style="color: var(--warning);">
+                        <i data-lucide="bell-ring"></i>
+                        Notifications
+                    </div>
+                    <h2>Smart Alerts</h2>
+                    <p>Never miss an expiring document or compliance deadline. Automated reminders via email, SMS, or push notification keep you ahead of the game.</p>
+                    <div class="feature-grid">
+                        <div class="feature-item">
+                            <span class="feature-check"><i data-lucide="check"></i></span>
+                            Email, SMS, push
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-check"><i data-lucide="check"></i></span>
+                            Custom schedules
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-check"><i data-lucide="check"></i></span>
+                            Driver alerts
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-check"><i data-lucide="check"></i></span>
+                            Score notifications
+                        </div>
+                    </div>
+                    <a href="#" class="cta-btn">
+                        Set Up Alerts
+                        <i data-lucide="arrow-right"></i>
+                    </a>
+                </div>
+            </article>
+        </section>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Tab functionality
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabIndicator = document.getElementById('tabIndicator');
+        const featureCards = document.querySelectorAll('.feature-card');
+
+        function updateIndicator(btn) {
+            const rect = btn.getBoundingClientRect();
+            const parentRect = btn.parentElement.getBoundingClientRect();
+            tabIndicator.style.width = `${rect.width}px`;
+            tabIndicator.style.left = `${rect.left - parentRect.left}px`;
+        }
+
+        function showCard(index) {
+            featureCards.forEach((card, i) => {
+                card.classList.toggle('active', i === index);
+            });
+
+            // Reinitialize icons for the new card
+            setTimeout(() => lucide.createIcons(), 50);
+        }
+
+        tabBtns.forEach((btn, index) => {
+            btn.addEventListener('click', () => {
+                tabBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                updateIndicator(btn);
+                showCard(index);
+            });
+        });
+
+        // Initial indicator position
+        updateIndicator(tabBtns[0]);
+
+        // Update indicator on resize
+        window.addEventListener('resize', () => {
+            const activeBtn = document.querySelector('.tab-btn.active');
+            if (activeBtn) updateIndicator(activeBtn);
+        });
+    </script>
+</body>
+</html>

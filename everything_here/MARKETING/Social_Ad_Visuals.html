@@ -1,0 +1,1640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VroomX Safety - Social Media Ad Visuals</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #0f0f0f;
+      color: #fff;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .page-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .page-header h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .page-header h1 span {
+      color: #e11d48;
+    }
+
+    .page-header p {
+      color: #888;
+      font-size: 1.1rem;
+    }
+
+    .section-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 60px 0 30px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #222;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-title .icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .section-title .icon.facebook { background: #1877f2; }
+    .section-title .icon.instagram { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+    .section-title .icon.linkedin { background: #0a66c2; }
+    .section-title .icon.twitter { background: #000; border: 1px solid #333; }
+    .section-title .icon.youtube { background: #ff0000; }
+
+    .ads-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 30px;
+    }
+
+    @media (max-width: 500px) {
+      .ads-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .ad-container {
+      background: #1a1a1a;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid #2a2a2a;
+    }
+
+    .ad-label {
+      padding: 12px 16px;
+      background: #222;
+      font-size: 0.8rem;
+      color: #888;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .ad-label span {
+      background: #e11d48;
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    /* =====================
+       FACEBOOK AD STYLES
+       ===================== */
+    .fb-ad {
+      background: #fff;
+      color: #1c1e21;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .fb-ad-header {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      gap: 10px;
+    }
+
+    .fb-ad-avatar {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #e11d48, #be123c);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #fff;
+    }
+
+    .fb-ad-meta {
+      flex: 1;
+    }
+
+    .fb-ad-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #050505;
+    }
+
+    .fb-ad-sponsored {
+      font-size: 0.75rem;
+      color: #65676b;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .fb-ad-text {
+      padding: 0 16px 12px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: #050505;
+    }
+
+    .fb-ad-image {
+      width: 100%;
+      aspect-ratio: 1.91/1;
+      background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .fb-ad-image-content {
+      text-align: center;
+      padding: 30px;
+      z-index: 2;
+    }
+
+    .fb-ad-image h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+
+    .fb-ad-image h3 span {
+      color: #e11d48;
+    }
+
+    .fb-ad-image p {
+      color: #aaa;
+      font-size: 1rem;
+    }
+
+    .fb-ad-image .logo {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,0,0,0.7);
+      padding: 8px 14px;
+      border-radius: 8px;
+    }
+
+    .fb-ad-image .logo-icon {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, #e11d48, #be123c);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .fb-ad-image .logo-icon svg {
+      width: 16px;
+      height: 16px;
+      color: #fff;
+    }
+
+    .fb-ad-image .logo-text {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #fff;
+    }
+
+    .fb-ad-image .logo-text span {
+      color: #e11d48;
+    }
+
+    .fb-ad-link {
+      padding: 12px 16px;
+      background: #f0f2f5;
+      border-top: 1px solid #ddd;
+    }
+
+    .fb-ad-link-url {
+      font-size: 0.75rem;
+      color: #65676b;
+      text-transform: uppercase;
+    }
+
+    .fb-ad-link-title {
+      font-weight: 600;
+      font-size: 1rem;
+      color: #050505;
+      margin: 4px 0;
+    }
+
+    .fb-ad-link-desc {
+      font-size: 0.85rem;
+      color: #65676b;
+    }
+
+    .fb-ad-cta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      border-top: 1px solid #ddd;
+    }
+
+    .fb-ad-cta-btn {
+      background: #e11d48;
+      color: #fff;
+      padding: 10px 24px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .fb-ad-actions {
+      display: flex;
+      gap: 20px;
+      color: #65676b;
+      font-size: 0.9rem;
+    }
+
+    /* =====================
+       INSTAGRAM AD STYLES
+       ===================== */
+    .ig-ad {
+      background: #000;
+      color: #fff;
+      max-width: 400px;
+    }
+
+    .ig-ad-header {
+      display: flex;
+      align-items: center;
+      padding: 12px 14px;
+      gap: 10px;
+    }
+
+    .ig-ad-avatar {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+      border-radius: 50%;
+      padding: 2px;
+    }
+
+    .ig-ad-avatar-inner {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #e11d48, #be123c);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.7rem;
+    }
+
+    .ig-ad-name {
+      flex: 1;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .ig-ad-sponsored {
+      font-size: 0.7rem;
+      color: #888;
+    }
+
+    .ig-ad-image {
+      width: 100%;
+      aspect-ratio: 1/1;
+      background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ig-story {
+      aspect-ratio: 9/16;
+      max-height: 600px;
+    }
+
+    .ig-ad-image-bg {
+      position: absolute;
+      inset: 0;
+      opacity: 0.3;
+    }
+
+    .ig-ad-image-content {
+      text-align: center;
+      padding: 30px;
+      z-index: 2;
+    }
+
+    .ig-ad-image h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin-bottom: 16px;
+      line-height: 1.2;
+    }
+
+    .ig-ad-image h3 span {
+      color: #e11d48;
+    }
+
+    .ig-ad-cta-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(transparent, rgba(0,0,0,0.8));
+      padding: 40px 20px 20px;
+    }
+
+    .ig-ad-cta-btn {
+      display: block;
+      background: #e11d48;
+      color: #fff;
+      text-align: center;
+      padding: 14px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .ig-ad-actions {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 14px;
+    }
+
+    .ig-ad-icons {
+      display: flex;
+      gap: 16px;
+    }
+
+    .ig-ad-icon {
+      width: 24px;
+      height: 24px;
+      color: #fff;
+    }
+
+    .ig-ad-caption {
+      padding: 0 14px 14px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .ig-ad-caption strong {
+      font-weight: 600;
+    }
+
+    /* Carousel */
+    .ig-carousel {
+      position: relative;
+    }
+
+    .ig-carousel-slides {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+    }
+
+    .ig-carousel-slides::-webkit-scrollbar {
+      display: none;
+    }
+
+    .ig-carousel-slide {
+      flex: 0 0 100%;
+      scroll-snap-align: start;
+      aspect-ratio: 1/1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .ig-carousel-slide.red {
+      background: linear-gradient(135deg, #7f1d1d, #450a0a);
+    }
+
+    .ig-carousel-slide.green {
+      background: linear-gradient(135deg, #166534, #052e16);
+    }
+
+    .ig-carousel-slide.dark {
+      background: linear-gradient(135deg, #1a1a1a, #0a0a0a);
+    }
+
+    .ig-carousel-dots {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 6px;
+    }
+
+    .ig-carousel-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.4);
+    }
+
+    .ig-carousel-dot.active {
+      background: #fff;
+    }
+
+    .carousel-emoji {
+      font-size: 3rem;
+      margin-bottom: 16px;
+    }
+
+    .carousel-time {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 12px;
+    }
+
+    .carousel-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .carousel-desc {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.8);
+      line-height: 1.5;
+    }
+
+    /* =====================
+       LINKEDIN AD STYLES
+       ===================== */
+    .li-ad {
+      background: #fff;
+      color: #000;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .li-ad-header {
+      display: flex;
+      align-items: flex-start;
+      padding: 12px 16px;
+      gap: 10px;
+    }
+
+    .li-ad-avatar {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #e11d48, #be123c);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .li-ad-avatar svg {
+      width: 28px;
+      height: 28px;
+      color: #fff;
+    }
+
+    .li-ad-meta {
+      flex: 1;
+    }
+
+    .li-ad-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #000;
+    }
+
+    .li-ad-followers {
+      font-size: 0.8rem;
+      color: #666;
+    }
+
+    .li-ad-promoted {
+      font-size: 0.75rem;
+      color: #666;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 2px;
+    }
+
+    .li-ad-text {
+      padding: 0 16px 12px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: #000;
+    }
+
+    .li-ad-image {
+      width: 100%;
+      aspect-ratio: 1.91/1;
+      background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .li-ad-image-content {
+      text-align: center;
+      padding: 30px;
+    }
+
+    .li-ad-image h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+
+    .li-ad-image h3 span {
+      color: #e11d48;
+    }
+
+    .li-ad-image p {
+      color: #aaa;
+      font-size: 0.95rem;
+    }
+
+    .li-ad-link {
+      padding: 12px 16px;
+      background: #f3f2ef;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .li-ad-link-text h4 {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #000;
+    }
+
+    .li-ad-link-text p {
+      font-size: 0.8rem;
+      color: #666;
+    }
+
+    .li-ad-link-btn {
+      background: #0a66c2;
+      color: #fff;
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .li-ad-actions {
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 16px;
+      border-top: 1px solid #e0e0e0;
+      color: #666;
+      font-size: 0.85rem;
+    }
+
+    .li-ad-action {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+    }
+
+    /* =====================
+       TWITTER AD STYLES
+       ===================== */
+    .tw-ad {
+      background: #000;
+      color: #e7e9ea;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      border: 1px solid #2f3336;
+    }
+
+    .tw-ad-header {
+      display: flex;
+      align-items: flex-start;
+      padding: 12px 16px;
+      gap: 12px;
+    }
+
+    .tw-ad-avatar {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #e11d48, #be123c);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tw-ad-avatar svg {
+      width: 22px;
+      height: 22px;
+      color: #fff;
+    }
+
+    .tw-ad-meta {
+      flex: 1;
+    }
+
+    .tw-ad-name-row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .tw-ad-name {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .tw-ad-verified {
+      width: 18px;
+      height: 18px;
+      color: #1d9bf0;
+    }
+
+    .tw-ad-handle {
+      color: #71767b;
+      font-size: 0.9rem;
+    }
+
+    .tw-ad-promoted {
+      color: #71767b;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 2px;
+    }
+
+    .tw-ad-text {
+      padding: 0 16px 12px 68px;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+
+    .tw-ad-image {
+      margin: 0 16px 12px 68px;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid #2f3336;
+    }
+
+    .tw-ad-image-inner {
+      aspect-ratio: 1.91/1;
+      background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .tw-ad-image h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .tw-ad-image h3 span {
+      color: #e11d48;
+    }
+
+    .tw-ad-image p {
+      color: #71767b;
+      font-size: 0.9rem;
+    }
+
+    .tw-ad-actions {
+      display: flex;
+      justify-content: space-around;
+      padding: 4px 16px 12px 68px;
+      color: #71767b;
+    }
+
+    .tw-ad-action {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+    }
+
+    /* =====================
+       YOUTUBE AD STYLES
+       ===================== */
+    .yt-ad {
+      background: #0f0f0f;
+      color: #fff;
+    }
+
+    .yt-ad-video {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .yt-ad-content {
+      text-align: center;
+      padding: 30px;
+      z-index: 2;
+    }
+
+    .yt-ad-content h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 16px;
+      line-height: 1.2;
+    }
+
+    .yt-ad-content h3 span {
+      color: #e11d48;
+    }
+
+    .yt-ad-content p {
+      color: #aaa;
+      font-size: 1rem;
+      margin-bottom: 20px;
+    }
+
+    .yt-ad-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #e11d48;
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .yt-ad-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(transparent, rgba(0,0,0,0.9));
+      padding: 60px 20px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .yt-ad-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .yt-ad-avatar {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #e11d48, #be123c);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .yt-ad-avatar svg {
+      width: 22px;
+      height: 22px;
+      color: #fff;
+    }
+
+    .yt-ad-meta h4 {
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .yt-ad-meta p {
+      font-size: 0.8rem;
+      color: #aaa;
+    }
+
+    .yt-skip {
+      background: rgba(0,0,0,0.8);
+      border: 1px solid #fff;
+      color: #fff;
+      padding: 8px 16px;
+      font-size: 0.85rem;
+    }
+
+    .yt-ad-progress {
+      height: 4px;
+      background: #3f3f3f;
+    }
+
+    .yt-ad-progress-fill {
+      height: 100%;
+      width: 30%;
+      background: #ff0000;
+    }
+
+    /* =====================
+       SPECIAL ELEMENTS
+       ===================== */
+    .stats-row {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      color: #e11d48;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: #888;
+    }
+
+    .checklist {
+      text-align: left;
+      margin-top: 16px;
+    }
+
+    .checklist-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+    }
+
+    .checklist-item .check {
+      width: 20px;
+      height: 20px;
+      background: rgba(34, 197, 94, 0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #22c55e;
+      font-size: 0.7rem;
+    }
+
+    .glow-red {
+      box-shadow: 0 0 60px rgba(225, 29, 72, 0.3);
+    }
+
+    .glow-green {
+      box-shadow: 0 0 60px rgba(34, 197, 94, 0.3);
+    }
+
+    /* Grid pattern */
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    /* Blob */
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.4;
+    }
+
+    .blob-red {
+      background: #e11d48;
+    }
+
+    .blob-green {
+      background: #22c55e;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="page-header">
+      <h1>VroomX <span>Safety</span> - Social Ad Visuals</h1>
+      <p>Ready-to-use social media ad designs for all platforms</p>
+    </div>
+
+    <!-- =====================
+         FACEBOOK ADS
+         ===================== -->
+    <h2 class="section-title">
+      <span class="icon facebook">f</span>
+      Facebook Ads
+    </h2>
+
+    <div class="ads-grid">
+      <!-- FB Ad 1: CSA Score Fear -->
+      <div class="ad-container">
+        <div class="ad-label">
+          <span>Ad 1</span>
+          Pain Point - CSA Fear
+        </div>
+        <div class="fb-ad">
+          <div class="fb-ad-header">
+            <div class="fb-ad-avatar">VX</div>
+            <div class="fb-ad-meta">
+              <div class="fb-ad-name">VroomX Safety</div>
+              <div class="fb-ad-sponsored">Sponsored · 🌐</div>
+            </div>
+          </div>
+          <div class="fb-ad-text">
+            😰 That sinking feeling when you check FMCSA and your scores are climbing...<br><br>
+            Every carrier knows it. One bad inspection = months of damage.<br><br>
+            But what if you could see it coming?
+          </div>
+          <div class="fb-ad-image grid-bg">
+            <div class="blob blob-red" style="width: 200px; height: 200px; top: -50px; left: -50px;"></div>
+            <div class="fb-ad-image-content">
+              <h3>Your CSA Score<br>Just <span>Jumped 15 Points.</span><br>Now What?</h3>
+              <p>Stop reacting. Start preventing.</p>
+            </div>
+            <div class="logo">
+              <div class="logo-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+              </div>
+              <div class="logo-text">VroomX <span>Safety</span></div>
+            </div>
+          </div>
+          <div class="fb-ad-link">
+            <div class="fb-ad-link-url">vroomxsafety.com</div>
+            <div class="fb-ad-link-title">Free CSA Score Check - Instant Results</div>
+            <div class="fb-ad-link-desc">Real-time monitoring. Predictive alerts. Total compliance.</div>
+          </div>
+          <div class="fb-ad-cta">
+            <div class="fb-ad-actions">👍 Like · 💬 Comment · ↗️ Share</div>
+            <div class="fb-ad-cta-btn">Get Free Check</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FB Ad 2: Cost -->
+      <div class="ad-container">
+        <div class="ad-label">
+          <span>Ad 2</span>
+          Cost of Non-Compliance
+        </div>
+        <div class="fb-ad">
+          <div class="fb-ad-header">
+            <div class="fb-ad-avatar">VX</div>
+            <div class="fb-ad-meta">
+              <div class="fb-ad-name">VroomX Safety</div>
+              <div class="fb-ad-sponsored">Sponsored · 🌐</div>
+            </div>
+          </div>
+          <div class="fb-ad-text">
+            Let's break down what happens when DOT knocks on your door unprepared:<br><br>
+            💰 Fines: $10,000 - $50,000<br>
+            📉 Insurance increase: 20-40%<br>
+            🚫 Lost contracts: $50,000+<br><br>
+            The carriers who survive DOT audits aren't lucky. They're prepared.
+          </div>
+          <div class="fb-ad-image grid-bg">
+            <div class="blob blob-red" style="width: 250px; height: 250px; bottom: -80px; right: -80px;"></div>
+            <div class="fb-ad-image-content">
+              <h3><span>$150,000.</span><br>That's What One<br>Bad Audit Costs.</h3>
+              <div class="stats-row">
+                <div class="stat-item">
+                  <div class="stat-value">$50K</div>
+                  <div class="stat-label">Avg Fines</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">40%</div>
+                  <div class="stat-label">Insurance Spike</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">4 wks</div>
+                  <div class="stat-label">Downtime</div>
+                </div>
+              </div>
+            </div>
+            <div class="logo">
+              <div class="logo-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+              </div>
+              <div class="logo-text">VroomX <span>Safety</span></div>
+            </div>
+          </div>
+          <div class="fb-ad-link">
+            <div class="fb-ad-link-url">vroomxsafety.com</div>
+            <div class="fb-ad-link-title">Be Audit-Ready in Days, Not Months</div>
+            <div class="fb-ad-link-desc">Complete DQF tracking. Document management. One platform.</div>
+          </div>
+          <div class="fb-ad-cta">
+            <div class="fb-ad-actions">👍 Like · 💬 Comment · ↗️ Share</div>
+            <div class="fb-ad-cta-btn">Start Free Trial</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FB Ad 3: Social Proof -->
+      <div class="ad-container">
+        <div class="ad-label">
+          <span>Ad 3</span>
+          Social Proof / Results
+        </div>
+        <div class="fb-ad">
+          <div class="fb-ad-header">
+            <div class="fb-ad-avatar">VX</div>
+            <div class="fb-ad-meta">
+              <div class="fb-ad-name">VroomX Safety</div>
+              <div class="fb-ad-sponsored">Sponsored · 🌐</div>
+            </div>
+          </div>
+          <div class="fb-ad-text">
+            When Mike's Trucking came to us, they were one violation away from intervention.<br><br>
+            After 90 days with VroomX Safety:<br>
+            ✅ CSA down 23 points<br>
+            ✅ 100% driver compliance<br>
+            ✅ Passed surprise DOT inspection<br><br>
+            Your turnaround starts today.
+          </div>
+          <div class="fb-ad-image grid-bg glow-green">
+            <div class="blob blob-green" style="width: 200px; height: 200px; top: -50px; right: -50px;"></div>
+            <div class="fb-ad-image-content">
+              <h3>"We Dropped Our CSA<br>by <span style="color: #22c55e;">23 Points</span><br>in 90 Days"</h3>
+              <p style="margin-top: 16px;">— Mike R., Fleet Owner</p>
+              <div class="stats-row">
+                <div class="stat-item">
+                  <div class="stat-value" style="color: #22c55e;">78%</div>
+                  <div class="stat-label">Before</div>
+                </div>
+                <div class="stat-item" style="font-size: 2rem; color: #22c55e;">→</div>
+                <div class="stat-item">
+                  <div class="stat-value" style="color: #22c55e;">55%</div>
+                  <div class="stat-label">After</div>
+                </div>
+              </div>
+            </div>
+            <div class="logo">
+              <div class="logo-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+              </div>
+              <div class="logo-text">VroomX <span>Safety</span></div>
+            </div>
+          </div>
+          <div class="fb-ad-link">
+            <div class="fb-ad-link-url">vroomxsafety.com</div>
+            <div class="fb-ad-link-title">Join 2,500+ Carriers Who Transformed Their Compliance</div>
+            <div class="fb-ad-link-desc">14-day free trial. No credit card required.</div>
+          </div>
+          <div class="fb-ad-cta">
+            <div class="fb-ad-actions">👍 Like · 💬 Comment · ↗️ Share</div>
+            <div class="fb-ad-cta-btn">Start Transformation</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =====================
+         INSTAGRAM ADS
+         ===================== -->
+    <h2 class="section-title">
+      <span class="icon instagram">📷</span>
+      Instagram Ads
+    </h2>
+
+    <div class="ads-grid">
+      <!-- IG Ad 1: Square Post -->
+      <div class="ad-container">
+        <div class="ad-label">
+          <span>Feed Post</span>
+          Square Format (1:1)
+        </div>
+        <div class="ig-ad">
+          <div class="ig-ad-header">
+            <div class="ig-ad-avatar">
+              <div class="ig-ad-avatar-inner">VX</div>
+            </div>
+            <div>
+              <div class="ig-ad-name">vroomxsafety</div>
+              <div class="ig-ad-sponsored">Sponsored</div>
+            </div>
+          </div>
+          <div class="ig-ad-image grid-bg">
+            <div class="blob blob-red" style="width: 250px; height: 250px; top: -80px; left: -80px;"></div>
+            <div class="ig-ad-image-content">
+              <h3>Same Day.<br><span>Different Reality.</span></h3>
+              <p style="color: #888; margin: 16px 0;">Which carrier are you?</p>
+              <div class="stats-row" style="gap: 40px;">
+                <div class="stat-item">
+                  <div style="font-size: 2.5rem;">😰</div>
+                  <div class="stat-label" style="color: #e11d48;">Without VroomX</div>
+                </div>
+                <div class="stat-item">
+                  <div style="font-size: 2.5rem;">😎</div>
+                  <div class="stat-label" style="color: #22c55e;">With VroomX</div>
+                </div>
+              </div>
+            </div>
+            <div class="ig-ad-cta-overlay">
+              <div class="ig-ad-cta-btn">Learn More</div>
+            </div>
+          </div>
+          <div class="ig-ad-actions">
+            <div class="ig-ad-icons">
+              <svg class="ig-ad-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              <svg class="ig-ad-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              <svg class="ig-ad-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+            </div>
+            <svg class="ig-ad-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <div class="ig-ad-caption">
+            <strong>vroomxsafety</strong> Every morning, carriers face the same crossroads. The ones who thrive aren't luckier. They're just prepared. 💪<br><br>
+            #Trucking #FMCSA #CSAScore #FleetSafety
+          </div>
+        </div>
+      </div>
+
+      <!-- IG Ad 2: Carousel -->
+      <div class="ad-container">
+        <div class="ad-label">
+          <span>Carousel</span>
+          Swipe Through Story
+        </div>
+        <div class="ig-ad">
+          <div class="ig-ad-header">
+            <div class="ig-ad-avatar">
+              <div class="ig-ad-avatar-inner">VX</div>
+            </div>
+            <div>
+              <div class="ig-ad-name">vroomxsafety</div>
+              <div class="ig-ad-sponsored">Sponsored</div>
+            </div>
+          </div>
+          <div class="ig-carousel">
+            <div class="ig-carousel-dots">
+              <div class="ig-carousel-dot active"></div>
+              <div class="ig-carousel-dot"></div>
+              <div class="ig-carousel-dot"></div>
+              <div class="ig-carousel-dot"></div>
+            </div>
+            <div class="ig-carousel-slides">
+              <div class="ig-carousel-slide red">
+                <div class="carousel-emoji">❌</div>
+                <div class="carousel-time">WITHOUT VROOMX</div>
+                <div class="carousel-title">5:30 AM - Scrambling</div>
+                <div class="carousel-desc">Driver spends 25 minutes searching for forms. Leaves late. Paperwork missing.</div>
+              </div>
+            </div>
+            <div class="ig-ad-cta-overlay">
+              <div class="ig-ad-cta-btn">Swipe to See Difference →</div>
+            </div>
+          </div>
+          <div class="ig-ad-actions">
+            <div class="ig-ad-icons">
+              <svg class="ig-ad-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              <svg class="ig-ad-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              <svg class="ig-ad-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+            </div>
+            <svg class="ig-ad-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- IG Story -->
+      <div class="ad-container">
+        <div class="ad-label">
+          <span>Story Ad</span>
+          Vertical (9:16)
+        </div>
+        <div class="ig-ad" style="max-width: 280px;">
+          <div class="ig-ad-image ig-story grid-bg">
+            <div class="blob blob-red" style="width: 200px; height: 200px; top: 20%; left: -50px;"></div>
+            <div class="blob blob-green" style="width: 150px; height: 150px; bottom: 30%; right: -50px;"></div>
+            <div class="ig-ad-image-content">
+              <div style="position: absolute; top: 20px; left: 0; right: 0; text-align: center;">
+                <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.5); padding: 6px 12px; border-radius: 20px;">
+                  <div style="width: 24px; height: 24px; background: linear-gradient(135deg, #e11d48, #be123c); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 700;">VX</div>
+                  <span style="font-size: 0.8rem;">vroomxsafety</span>
+                  <span style="font-size: 0.7rem; color: #888;">Sponsored</span>
+                </div>
+              </div>
+
+              <h3 style="font-size: 1.8rem; margin-top: 60px;">Check Your<br><span>CSA Score</span><br>in 30 Seconds</h3>
+
+              <p style="color: #888; font-size: 0.9rem; margin: 20px 0;">Free. No signup required.</p>
+
+              <div class="checklist" style="margin: 30px auto; max-width: 200px;">
+                <div class="checklist-item">
+                  <div class="check">✓</div>
+                  <span>All 7 BASIC categories</span>
+                </div>
+                <div class="checklist-item">
+                  <div class="check">✓</div>
+                  <span>Inspection history</span>
+                </div>
+                <div class="checklist-item">
+                  <div class="check">✓</div>
+                  <span>Risk assessment</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 20px;">
+              <div style="text-align: center; margin-bottom: 10px;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="animation: bounce 1s infinite;">
+                  <path d="M18 15l-6-6-6 6"/>
+                </svg>
+              </div>
+              <div style="background: #fff; color: #000; text-align: center; padding: 14px; border-radius: 8px; font-weight: 600;">
+                Swipe Up
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =====================
+         LINKEDIN ADS
+         ===================== -->
+    <h2 class="section-title">
+      <span class="icon linkedin">in</span>
+      LinkedIn Ads
+    </h2>
+
+    <div class="ads-grid">
+      <!-- LinkedIn Ad 1 -->
+      <div class="ad-container">
+        <div class="ad-label">
+          <span>Sponsored</span>
+          B2B / Safety Directors
+        </div>
+        <div class="li-ad">
+          <div class="li-ad-header">
+            <div class="li-ad-avatar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+              </svg>
+            </div>
+            <div class="li-ad-meta">
+              <div class="li-ad-name">VroomX Safety</div>
+              <div class="li-ad-followers">2,847 followers</div>
+              <div class="li-ad-promoted">Promoted</div>
+            </div>
+          </div>
+          <div class="li-ad-text">
+            Safety Directors: You're responsible for 49 CFR compliance across the entire fleet. DQF files. Vehicle maintenance. Drug testing. CSA monitoring.<br><br>
+            And they gave you... spreadsheets? 📊<br><br>
+            It's 2025. Your compliance management should be automated, proactive, and intelligent.
+          </div>
+          <div class="li-ad-image grid-bg">
+            <div class="li-ad-image-content">
+              <h3>Safety Directors<br><span>Deserve Better Tools</span></h3>
+              <div class="checklist" style="margin-top: 20px;">
+                <div class="checklist-item">
+                  <div class="check">✓</div>
+                  <span style="color: #fff;">Automated DQF tracking</span>
+                </div>
+                <div class="checklist-item">
+                  <div class="check">✓</div>
+                  <span style="color: #fff;">Real-time CSA monitoring</span>
+                </div>
+                <div class="checklist-item">
+                  <div class="check">✓</div>
+                  <span style="color: #fff;">Proactive compliance alerts</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="li-ad-link">
+            <div class="li-ad-link-text">
+              <h4>VroomX Safety - FMCSA Compliance Platform</h4>
+              <p>vroomxsafety.com</p>
+            </div>
+            <div class="li-ad-link-btn">Learn More</div>
+          </div>
+          <div class="li-ad-actions">
+            <div class="li-ad-action">👍 Like</div>
+            <div class="li-ad-action">💬 Comment</div>
+            <div class="li-ad-action">🔄 Repost</div>
+            <div class="li-ad-action">📤 Send</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LinkedIn Ad 2 -->
+      <div class="ad-container">
+        <div class="ad-label">
+          <span>Sponsored</span>
+          Fleet Owners / CEOs
+        </div>
+        <div class="li-ad">
+          <div class="li-ad-header">
+            <div class="li-ad-avatar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+              </svg>
+            </div>
+            <div class="li-ad-meta">
+              <div class="li-ad-name">VroomX Safety</div>
+              <div class="li-ad-followers">2,847 followers</div>
+              <div class="li-ad-promoted">Promoted</div>
+            </div>
+          </div>
+          <div class="li-ad-text">
+            Did you know?<br><br>
+            → 73% of insurers check CSA scores before quoting<br>
+            → Carriers with scores above 65% pay 25-40% more<br>
+            → One intervention can cost you your best contracts<br><br>
+            Your CSA score isn't just a safety metric. It's a business metric.
+          </div>
+          <div class="li-ad-image grid-bg">
+            <div class="blob blob-red" style="width: 200px; height: 200px; bottom: -50px; left: -50px;"></div>
+            <div class="li-ad-image-content">
+              <h3>Your Insurance Company<br>Is <span>Watching</span> Your<br>CSA Score</h3>
+              <div class="stats-row" style="margin-top: 20px;">
+                <div class="stat-item">
+                  <div class="stat-value">73%</div>
+                  <div class="stat-label" style="color: #888;">Check CSA</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">40%</div>
+                  <div class="stat-label" style="color: #888;">Higher Premium</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="li-ad-link">
+            <div class="li-ad-link-text">
+              <h4>Free CSA Score Analysis</h4>
+              <p>vroomxsafety.com/csa-checker</p>
+            </div>
+            <div class="li-ad-link-btn">Check Now</div>
+          </div>
+          <div class="li-ad-actions">
+            <div class="li-ad-action">👍 Like</div>
+            <div class="li-ad-action">💬 Comment</div>
+            <div class="li-ad-action">🔄 Repost</div>
+            <div class="li-ad-action">📤 Send</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =====================
+         TWITTER/X ADS
+         ===================== -->
+    <h2 class="section-title">
+      <span class="icon twitter">𝕏</span>
+      Twitter/X Ads
+    </h2>
+
+    <div class="ads-grid">
+      <!-- Twitter Ad 1 -->
+      <div class="ad-container">
+        <div class="ad-label">
+          <span>Promoted</span>
+          Direct Response
+        </div>
+        <div class="tw-ad">
+          <div class="tw-ad-header">
+            <div class="tw-ad-avatar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+              </svg>
+            </div>
+            <div class="tw-ad-meta">
+              <div class="tw-ad-name-row">
+                <span class="tw-ad-name">VroomX Safety</span>
+                <svg class="tw-ad-verified" viewBox="0 0 24 24" fill="currentColor"><path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.084-1.336.25C14.818 2.415 13.51 1.5 12 1.5s-2.816.917-3.437 2.25c-.415-.165-.866-.25-1.336-.25-2.11 0-3.818 1.79-3.818 4 0 .494.083.964.237 1.4-1.272.65-2.147 2.018-2.147 3.6 0 1.495.782 2.798 1.942 3.486-.02.17-.032.34-.032.514 0 2.21 1.708 4 3.818 4 .47 0 .92-.086 1.335-.25.62 1.334 1.926 2.25 3.437 2.25 1.512 0 2.818-.916 3.437-2.25.415.163.865.248 1.336.248 2.11 0 3.818-1.79 3.818-4 0-.174-.012-.344-.033-.513 1.158-.687 1.943-1.99 1.943-3.484zm-6.616-3.334l-4.334 6.5c-.145.217-.382.334-.625.334-.143 0-.288-.04-.416-.126l-.115-.094-2.415-2.415c-.293-.293-.293-.768 0-1.06s.768-.294 1.06 0l1.77 1.767 3.825-5.74c.23-.345.696-.436 1.04-.207.346.23.44.696.21 1.04z"/></svg>
+              </div>
+              <div class="tw-ad-handle">@vroomxsafety</div>
+              <div class="tw-ad-promoted">Promoted</div>
+            </div>
+          </div>
+          <div class="tw-ad-text">
+            Spent $8,500 on a DOT violation last month?<br><br>
+            That's what happens when you manage compliance with spreadsheets.<br><br>
+            VroomX Safety: Real-time FMCSA monitoring. Automated alerts. Audit-ready reports.<br><br>
+            14-day free trial. No credit card.
+          </div>
+          <div class="tw-ad-image">
+            <div class="tw-ad-image-inner grid-bg">
+              <h3>Stop Managing Compliance<br>with <span>Spreadsheets</span></h3>
+              <p>There's a better way.</p>
+            </div>
+          </div>
+          <div class="tw-ad-actions">
+            <div class="tw-ad-action">💬 12</div>
+            <div class="tw-ad-action">🔄 48</div>
+            <div class="tw-ad-action">❤️ 156</div>
+            <div class="tw-ad-action">📊 2.4K</div>
+            <div class="tw-ad-action">📤</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Twitter Ad 2: Engagement -->
+      <div class="ad-container">
+        <div class="ad-label">
+          <span>Promoted</span>
+          Engagement Hook
+        </div>
+        <div class="tw-ad">
+          <div class="tw-ad-header">
+            <div class="tw-ad-avatar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+              </svg>
+            </div>
+            <div class="tw-ad-meta">
+              <div class="tw-ad-name-row">
+                <span class="tw-ad-name">VroomX Safety</span>
+                <svg class="tw-ad-verified" viewBox="0 0 24 24" fill="currentColor"><path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.084-1.336.25C14.818 2.415 13.51 1.5 12 1.5s-2.816.917-3.437 2.25c-.415-.165-.866-.25-1.336-.25-2.11 0-3.818 1.79-3.818 4 0 .494.083.964.237 1.4-1.272.65-2.147 2.018-2.147 3.6 0 1.495.782 2.798 1.942 3.486-.02.17-.032.34-.032.514 0 2.21 1.708 4 3.818 4 .47 0 .92-.086 1.335-.25.62 1.334 1.926 2.25 3.437 2.25 1.512 0 2.818-.916 3.437-2.25.415.163.865.248 1.336.248 2.11 0 3.818-1.79 3.818-4 0-.174-.012-.344-.033-.513 1.158-.687 1.943-1.99 1.943-3.484zm-6.616-3.334l-4.334 6.5c-.145.217-.382.334-.625.334-.143 0-.288-.04-.416-.126l-.115-.094-2.415-2.415c-.293-.293-.293-.768 0-1.06s.768-.294 1.06 0l1.77 1.767 3.825-5.74c.23-.345.696-.436 1.04-.207.346.23.44.696.21 1.04z"/></svg>
+              </div>
+              <div class="tw-ad-handle">@vroomxsafety</div>
+              <div class="tw-ad-promoted">Promoted</div>
+            </div>
+          </div>
+          <div class="tw-ad-text">
+            Hot take: 90% of DOT violations are preventable.<br><br>
+            The issue isn't that carriers don't care about compliance.<br><br>
+            It's that they don't have visibility until it's too late.<br><br>
+            Agree or disagree? 👇
+          </div>
+          <div class="tw-ad-actions">
+            <div class="tw-ad-action">💬 89</div>
+            <div class="tw-ad-action">🔄 234</div>
+            <div class="tw-ad-action">❤️ 512</div>
+            <div class="tw-ad-action">📊 8.7K</div>
+            <div class="tw-ad-action">📤</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =====================
+         YOUTUBE ADS
+         ===================== -->
+    <h2 class="section-title">
+      <span class="icon youtube">▶</span>
+      YouTube Ads
+    </h2>
+
+    <div class="ads-grid">
+      <!-- YouTube Pre-Roll -->
+      <div class="ad-container">
+        <div class="ad-label">
+          <span>Pre-Roll</span>
+          15 Second Skippable
+        </div>
+        <div class="yt-ad">
+          <div class="yt-ad-video grid-bg">
+            <div class="blob blob-red" style="width: 300px; height: 300px; top: -100px; left: -100px;"></div>
+            <div class="yt-ad-content">
+              <h3>Your CSA Score Just<br>Cost You a <span>$50,000</span><br>Contract.</h3>
+              <p>What if you could see it coming?</p>
+              <div class="yt-ad-cta">
+                Learn More
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </div>
+            </div>
+            <div class="yt-ad-overlay">
+              <div class="yt-ad-info">
+                <div class="yt-ad-avatar">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                  </svg>
+                </div>
+                <div class="yt-ad-meta">
+                  <h4>VroomX Safety</h4>
+                  <p>vroomxsafety.com</p>
+                </div>
+              </div>
+              <div class="yt-skip">Skip Ad ▶</div>
+            </div>
+          </div>
+          <div class="yt-ad-progress">
+            <div class="yt-ad-progress-fill"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- YouTube Display -->
+      <div class="ad-container">
+        <div class="ad-label">
+          <span>Display</span>
+          Video Thumbnail Style
+        </div>
+        <div class="yt-ad">
+          <div class="yt-ad-video grid-bg glow-red">
+            <div class="blob blob-red" style="width: 250px; height: 250px; bottom: -80px; right: -80px;"></div>
+            <div class="yt-ad-content">
+              <h3>How to <span>Lower</span> Your<br>CSA Score in 90 Days</h3>
+              <p style="margin-top: 16px;">Step-by-step compliance guide</p>
+              <div style="margin-top: 24px; display: flex; justify-content: center; gap: 20px;">
+                <div style="text-align: center;">
+                  <div style="font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 800; color: #e11d48;">2,500+</div>
+                  <div style="font-size: 0.8rem; color: #888;">Carriers</div>
+                </div>
+                <div style="text-align: center;">
+                  <div style="font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 800; color: #22c55e;">23pt</div>
+                  <div style="font-size: 0.8rem; color: #888;">Avg Drop</div>
+                </div>
+                <div style="text-align: center;">
+                  <div style="font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 800; color: #fff;">14</div>
+                  <div style="font-size: 0.8rem; color: #888;">Day Trial</div>
+                </div>
+              </div>
+            </div>
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70px; height: 70px; background: rgba(225, 29, 72, 0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+          </div>
+          <div style="padding: 12px 16px; background: #0f0f0f;">
+            <div style="font-weight: 600; font-size: 1rem; margin-bottom: 4px;">CSA Score Dropping: The Complete 90-Day System</div>
+            <div style="font-size: 0.85rem; color: #aaa;">VroomX Safety • Ad • vroomxsafety.com</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align: center; padding: 60px 0; color: #666;">
+      <p>VroomX Safety - Social Media Ad Visuals</p>
+      <p style="font-size: 0.85rem; margin-top: 8px;">Ready for deployment across all platforms</p>
+    </div>
+
+  </div>
+
+  <style>
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+  </style>
+
+</body>
+</html>

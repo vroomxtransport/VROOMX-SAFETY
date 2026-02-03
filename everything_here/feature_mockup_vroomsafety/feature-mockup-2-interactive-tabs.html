@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VroomX - Feature Section Mockup 2: Interactive Tabs</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1E3A5F;
+            --primary-light: #2D5A87;
+            --success: #22C55E;
+            --success-light: #DCFCE7;
+            --cta: #F97316;
+            --text-primary: #1E293B;
+            --text-secondary: #475569;
+            --text-muted: #94A3B8;
+            --background: #F8FAFC;
+            --card-bg: #FFFFFF;
+            --border: #E2E8F0;
+            --ai-accent: #6366F1;
+            --ai-light: #EEF2FF;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 40px 24px;
+        }
+
+        .mockup-label {
+            text-align: center;
+            padding: 16px;
+            background: var(--primary);
+            color: white;
+            font-weight: 700;
+            font-size: 0.875rem;
+            margin-bottom: 40px;
+            border-radius: 8px;
+            max-width: 1200px;
+            margin: 0 auto 40px;
+        }
+
+        .features {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .section-badge {
+            display: inline-block;
+            background: var(--success-light);
+            color: #16A34A;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .section-header p {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* TAB NAVIGATION */
+        .tab-navigation {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 48px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 24px;
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .tab-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .tab-btn.ai-tab.active {
+            background: var(--ai-accent);
+            border-color: var(--ai-accent);
+        }
+
+        .tab-btn .tab-icon {
+            font-size: 1.2rem;
+        }
+
+        .tab-btn .ai-badge {
+            background: var(--ai-accent);
+            color: white;
+            font-size: 0.6rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .tab-btn.active .ai-badge {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* TAB CONTENT AREA */
+        .tab-content-wrapper {
+            background: var(--card-bg);
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(30, 58, 95, 0.08);
+            overflow: hidden;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* FEATURE DISPLAY LAYOUT */
+        .feature-display {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            min-height: 450px;
+        }
+
+        .feature-info {
+            padding: 48px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .feature-category {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--ai-accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+        }
+
+        .feature-info h3 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .feature-info p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 28px;
+            line-height: 1.7;
+        }
+
+        .feature-bullets {
+            list-style: none;
+            margin-bottom: 32px;
+        }
+
+        .feature-bullets li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 10px 0;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .feature-bullets li::before {
+            content: '✓';
+            color: var(--success);
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .feature-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            background: var(--cta);
+            color: white;
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            width: fit-content;
+        }
+
+        .feature-cta:hover {
+            background: #EA580C;
+            transform: translateY(-2px);
+        }
+
+        /* FEATURE VISUAL */
+        .feature-visual {
+            background: linear-gradient(135deg, var(--background) 0%, #E2E8F0 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            position: relative;
+        }
+
+        .visual-mockup {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(30, 58, 95, 0.15);
+            width: 100%;
+            max-width: 400px;
+            overflow: hidden;
+        }
+
+        .mockup-header {
+            background: var(--primary);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mockup-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+        }
+
+        .mockup-dot:first-child { background: #FF5F57; }
+        .mockup-dot:nth-child(2) { background: #FFBD2E; }
+        .mockup-dot:nth-child(3) { background: #28CA42; }
+
+        .mockup-body {
+            padding: 24px;
+        }
+
+        /* AI Chat Mockup */
+        .ai-chat-mockup .chat-messages {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .chat-message {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .chat-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            flex-shrink: 0;
+        }
+
+        .chat-avatar.ai {
+            background: var(--ai-accent);
+            color: white;
+        }
+
+        .chat-bubble {
+            background: var(--background);
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            max-width: 260px;
+        }
+
+        .chat-bubble.ai {
+            background: var(--ai-light);
+        }
+
+        /* CSA Score Mockup */
+        .csa-mockup .csa-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .csa-mockup .csa-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .csa-mockup .status-pill {
+            background: var(--success-light);
+            color: #16A34A;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .csa-mockup .score-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .score-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .score-item .label {
+            width: 100px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .score-item .bar {
+            flex: 1;
+            height: 10px;
+            background: var(--border);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .score-item .fill {
+            height: 100%;
+            border-radius: 5px;
+        }
+
+        .score-item .fill.green { background: var(--success); }
+        .score-item .fill.yellow { background: #EAB308; }
+        .score-item .fill.red { background: #DC2626; }
+
+        /* DQF Mockup */
+        .dqf-mockup .file-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--background);
+            border-radius: 10px;
+        }
+
+        .file-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .file-meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .file-status {
+            font-size: 0.7rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .file-status.valid {
+            background: var(--success-light);
+            color: #16A34A;
+        }
+
+        .file-status.expiring {
+            background: #FEF9C3;
+            color: #A16207;
+        }
+
+        @media (max-width: 900px) {
+            .feature-display {
+                grid-template-columns: 1fr;
+            }
+            .feature-visual {
+                order: -1;
+                min-height: 300px;
+            }
+        }
+
+        .design-notes {
+            max-width: 1200px;
+            margin: 60px auto 0;
+            padding: 24px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 2px dashed var(--border);
+        }
+
+        .design-notes h4 {
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--primary);
+        }
+
+        .design-notes ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px 24px;
+        }
+
+        .design-notes li {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .design-notes li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--success);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="mockup-label">MOCKUP 2: INTERACTIVE TABS — Users explore features on their own terms, deep-dive into each feature</div>
+
+    <section class="features">
+        <div class="section-header">
+            <div class="section-badge">Features</div>
+            <h2>Everything You Need to Stay Compliant</h2>
+            <p>Click on any feature below to learn more about how it helps you.</p>
+        </div>
+
+        <div class="tab-navigation">
+            <button class="tab-btn active ai-tab" onclick="showTab('ai-assistant')">
+                <span class="tab-icon">🤖</span>
+                <span>AI Assistant</span>
+                <span class="ai-badge">AI</span>
+            </button>
+            <button class="tab-btn" onclick="showTab('csa-tracking')">
+                <span class="tab-icon">📊</span>
+                <span>CSA Tracking</span>
+            </button>
+            <button class="tab-btn" onclick="showTab('dqf-management')">
+                <span class="tab-icon">📁</span>
+                <span>DQF Files</span>
+            </button>
+            <button class="tab-btn ai-tab" onclick="showTab('dataq-generator')">
+                <span class="tab-icon">📝</span>
+                <span>DataQ Generator</span>
+                <span class="ai-badge">AI</span>
+            </button>
+            <button class="tab-btn" onclick="showTab('smart-alerts')">
+                <span class="tab-icon">🔔</span>
+                <span>Smart Alerts</span>
+            </button>
+        </div>
+
+        <div class="tab-content-wrapper">
+            <!-- AI Assistant Tab -->
+            <div class="tab-content active" id="ai-assistant">
+                <div class="feature-display">
+                    <div class="feature-info">
+                        <div class="feature-category">🤖 AI-Powered</div>
+                        <h3>AI Regulation Assistant</h3>
+                        <p>Ask any FMCSA regulation question and get instant, accurate answers. Like having a compliance expert on call 24/7.</p>
+                        <ul class="feature-bullets">
+                            <li>Instant answers to complex regulation questions</li>
+                            <li>Always up-to-date with latest FMCSA rules</li>
+                            <li>Plain English explanations, no legal jargon</li>
+                            <li>24/7 availability, no waiting on hold</li>
+                        </ul>
+                        <a href="#" class="feature-cta">Try It Free →</a>
+                    </div>
+                    <div class="feature-visual">
+                        <div class="visual-mockup ai-chat-mockup">
+                            <div class="mockup-header">
+                                <div class="mockup-dot"></div>
+                                <div class="mockup-dot"></div>
+                                <div class="mockup-dot"></div>
+                            </div>
+                            <div class="mockup-body">
+                                <div class="chat-messages">
+                                    <div class="chat-message">
+                                        <div class="chat-avatar">👤</div>
+                                        <div class="chat-bubble">What's the HOS limit for property-carrying drivers?</div>
+                                    </div>
+                                    <div class="chat-message">
+                                        <div class="chat-avatar ai">🤖</div>
+                                        <div class="chat-bubble ai">Property-carrying drivers have an 11-hour driving limit after 10 consecutive hours off duty. You also cannot drive beyond the 14th hour after coming on duty...</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CSA Tracking Tab -->
+            <div class="tab-content" id="csa-tracking">
+                <div class="feature-display">
+                    <div class="feature-info">
+                        <div class="feature-category">📊 Analytics</div>
+                        <h3>CSA Score Tracking</h3>
+                        <p>Monitor your CSA scores across all 7 BASICs in real-time. Get notified when scores change and understand what's affecting them.</p>
+                        <ul class="feature-bullets">
+                            <li>Track all 7 BASIC categories in one dashboard</li>
+                            <li>Historical trends and projections</li>
+                            <li>Instant alerts when scores change</li>
+                            <li>AI-powered recommendations to improve scores</li>
+                        </ul>
+                        <a href="#" class="feature-cta">Check Your Score →</a>
+                    </div>
+                    <div class="feature-visual">
+                        <div class="visual-mockup csa-mockup">
+                            <div class="mockup-header">
+                                <div class="mockup-dot"></div>
+                                <div class="mockup-dot"></div>
+                                <div class="mockup-dot"></div>
+                            </div>
+                            <div class="mockup-body">
+                                <div class="csa-header">
+                                    <span class="csa-title">CSA Score Overview</span>
+                                    <span class="status-pill">✓ Compliant</span>
+                                </div>
+                                <div class="score-bars">
+                                    <div class="score-item">
+                                        <span class="label">Unsafe Driving</span>
+                                        <div class="bar"><div class="fill green" style="width: 32%"></div></div>
+                                    </div>
+                                    <div class="score-item">
+                                        <span class="label">HOS Compliance</span>
+                                        <div class="bar"><div class="fill green" style="width: 45%"></div></div>
+                                    </div>
+                                    <div class="score-item">
+                                        <span class="label">Vehicle Maint.</span>
+                                        <div class="bar"><div class="fill yellow" style="width: 58%"></div></div>
+                                    </div>
+                                    <div class="score-item">
+                                        <span class="label">Driver Fitness</span>
+                                        <div class="bar"><div class="fill green" style="width: 21%"></div></div>
+                                    </div>
+                                    <div class="score-item">
+                                        <span class="label">Crash Indicator</span>
+                                        <div class="bar"><div class="fill green" style="width: 15%"></div></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DQF Management Tab -->
+            <div class="tab-content" id="dqf-management">
+                <div class="feature-display">
+                    <div class="feature-info">
+                        <div class="feature-category">📁 Document Management</div>
+                        <h3>DQF Management</h3>
+                        <p>Store, organize, and track all your Driver Qualification Files in one secure place. Get alerts before documents expire.</p>
+                        <ul class="feature-bullets">
+                            <li>Secure cloud storage for all driver files</li>
+                            <li>Automatic document expiration tracking</li>
+                            <li>One-click audit report generation</li>
+                            <li>Supports CDL, medical cards, MVRs, and more</li>
+                        </ul>
+                        <a href="#" class="feature-cta">Organize Your Files →</a>
+                    </div>
+                    <div class="feature-visual">
+                        <div class="visual-mockup dqf-mockup">
+                            <div class="mockup-header">
+                                <div class="mockup-dot"></div>
+                                <div class="mockup-dot"></div>
+                                <div class="mockup-dot"></div>
+                            </div>
+                            <div class="mockup-body">
+                                <div class="file-list">
+                                    <div class="file-item">
+                                        <div class="file-icon">📄</div>
+                                        <div class="file-info">
+                                            <div class="file-name">CDL - Mike Rodriguez</div>
+                                            <div class="file-meta">Expires: Dec 15, 2026</div>
+                                        </div>
+                                        <span class="file-status valid">Valid</span>
+                                    </div>
+                                    <div class="file-item">
+                                        <div class="file-icon">🏥</div>
+                                        <div class="file-info">
+                                            <div class="file-name">Medical Card - Mike R.</div>
+                                            <div class="file-meta">Expires: Mar 8, 2026</div>
+                                        </div>
+                                        <span class="file-status expiring">45 days</span>
+                                    </div>
+                                    <div class="file-item">
+                                        <div class="file-icon">📋</div>
+                                        <div class="file-info">
+                                            <div class="file-name">MVR - Mike Rodriguez</div>
+                                            <div class="file-meta">Last updated: Jan 10, 2026</div>
+                                        </div>
+                                        <span class="file-status valid">Current</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DataQ Generator Tab -->
+            <div class="tab-content" id="dataq-generator">
+                <div class="feature-display">
+                    <div class="feature-info">
+                        <div class="feature-category">🤖 AI-Powered</div>
+                        <h3>DataQ Challenge Generator</h3>
+                        <p>Our AI identifies challengeable violations and drafts DataQ letters for you. Remove unfair violations from your record automatically.</p>
+                        <ul class="feature-bullets">
+                            <li>AI scans violations for challenge opportunities</li>
+                            <li>Generates professional DataQ letters instantly</li>
+                            <li>Tracks challenge status and outcomes</li>
+                            <li>Average 40% success rate on challenges</li>
+                        </ul>
+                        <a href="#" class="feature-cta">Challenge a Violation →</a>
+                    </div>
+                    <div class="feature-visual">
+                        <div class="visual-mockup">
+                            <div class="mockup-header">
+                                <div class="mockup-dot"></div>
+                                <div class="mockup-dot"></div>
+                                <div class="mockup-dot"></div>
+                            </div>
+                            <div class="mockup-body">
+                                <div style="text-align: center; padding: 20px 0;">
+                                    <div style="font-size: 3rem; margin-bottom: 16px;">📝</div>
+                                    <div style="font-weight: 700; margin-bottom: 8px; color: var(--ai-accent);">DataQ Letter Ready</div>
+                                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">AI-generated challenge for speeding violation</div>
+                                    <div style="background: var(--background); padding: 16px; border-radius: 8px; text-align: left; font-size: 0.8rem; color: var(--text-secondary);">
+                                        <strong>Challenge Basis:</strong> Inaccurate speed measurement<br>
+                                        <strong>Success Probability:</strong> <span style="color: var(--success);">68% (High)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Smart Alerts Tab -->
+            <div class="tab-content" id="smart-alerts">
+                <div class="feature-display">
+                    <div class="feature-info">
+                        <div class="feature-category">🔔 Notifications</div>
+                        <h3>Smart Alerts</h3>
+                        <p>Never miss an expiring medical card, CDL, or annual inspection again. Automated reminders keep you compliant.</p>
+                        <ul class="feature-bullets">
+                            <li>Email, SMS, and push notifications</li>
+                            <li>Customizable alert schedules (30, 14, 7 days)</li>
+                            <li>Driver and dispatcher alerts</li>
+                            <li>CSA score change notifications</li>
+                        </ul>
+                        <a href="#" class="feature-cta">Set Up Alerts →</a>
+                    </div>
+                    <div class="feature-visual">
+                        <div class="visual-mockup">
+                            <div class="mockup-header">
+                                <div class="mockup-dot"></div>
+                                <div class="mockup-dot"></div>
+                                <div class="mockup-dot"></div>
+                            </div>
+                            <div class="mockup-body">
+                                <div style="display: flex; flex-direction: column; gap: 12px;">
+                                    <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: #FEF9C3; border-radius: 8px;">
+                                        <span style="font-size: 1.25rem;">⚠️</span>
+                                        <div>
+                                            <div style="font-size: 0.85rem; font-weight: 600;">Medical Card Expiring</div>
+                                            <div style="font-size: 0.75rem; color: var(--text-muted);">Mike R. - 45 days remaining</div>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--success-light); border-radius: 8px;">
+                                        <span style="font-size: 1.25rem;">✅</span>
+                                        <div>
+                                            <div style="font-size: 0.85rem; font-weight: 600;">Annual Inspection Complete</div>
+                                            <div style="font-size: 0.75rem; color: var(--text-muted);">Truck #1042 - Updated today</div>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--ai-light); border-radius: 8px;">
+                                        <span style="font-size: 1.25rem;">📉</span>
+                                        <div>
+                                            <div style="font-size: 0.85rem; font-weight: 600;">CSA Score Improved</div>
+                                            <div style="font-size: 0.75rem; color: var(--text-muted);">Unsafe Driving: 35% → 32%</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="design-notes">
+        <h4>Design Rationale</h4>
+        <ul>
+            <li>Tabbed interface lets users explore at their own pace</li>
+            <li>Each feature gets full attention with dedicated space</li>
+            <li>Visual mockups show product in action, not just describe it</li>
+            <li>AI features highlighted with badges on tabs</li>
+            <li>Deep information without overwhelming the initial view</li>
+            <li>Clear CTAs for each feature encourage action</li>
+        </ul>
+    </div>
+
+    <script>
+        function showTab(tabId) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Deactivate all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabId).classList.add('active');
+
+            // Activate clicked button
+            event.target.closest('.tab-btn').classList.add('active');
+        }
+    </script>
+</body>
+</html>

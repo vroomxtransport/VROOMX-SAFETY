@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VroomX Safety - Ad Images Download</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #0a0a0a; color: #fff; padding: 40px 20px; }
+    .container { max-width: 1400px; margin: 0 auto; }
+    h1 { font-family: 'Outfit', sans-serif; font-size: 2.5rem; text-align: center; margin-bottom: 10px; }
+    h1 span { color: #e11d48; }
+    .subtitle { text-align: center; color: #888; margin-bottom: 20px; }
+
+    .download-all-container { text-align: center; margin-bottom: 40px; }
+    .download-all-btn {
+      background: linear-gradient(135deg, #e11d48, #be123c);
+      color: #fff;
+      border: none;
+      padding: 16px 40px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: 'Outfit', sans-serif;
+    }
+    .download-all-btn:hover { transform: scale(1.05); box-shadow: 0 10px 40px rgba(225, 29, 72, 0.4); }
+    .download-all-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .progress-bar { width: 400px; max-width: 90%; height: 8px; background: #333; border-radius: 4px; margin: 20px auto; overflow: hidden; display: none; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, #e11d48, #f472b6); width: 0%; transition: width 0.3s; border-radius: 4px; }
+    .progress-text { color: #888; font-size: 0.9rem; margin-top: 10px; }
+
+    .section-title { font-family: 'Outfit', sans-serif; font-size: 1.5rem; margin: 50px 0 20px; padding: 15px; background: linear-gradient(90deg, #1a1a2e, transparent); border-left: 4px solid #e11d48; }
+    .section-title span { color: #e11d48; }
+
+    .ads-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+
+    .ad-card { background: #111; border-radius: 12px; overflow: hidden; border: 1px solid #222; }
+    .ad-header { padding: 10px 14px; background: #1a1a1a; display: flex; justify-content: space-between; align-items: center; }
+    .ad-title { font-size: 0.8rem; color: #888; }
+    .download-btn {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #fff;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.75rem;
+      transition: all 0.3s;
+    }
+    .download-btn:hover { transform: scale(1.05); }
+
+    /* Facebook Image - 1200x628 (1.91:1) */
+    .fb-image {
+      width: 100%;
+      aspect-ratio: 1.91/1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      padding: 20px;
+    }
+
+    /* Instagram Image - 1080x1080 (1:1) */
+    .ig-image {
+      width: 100%;
+      aspect-ratio: 1/1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      padding: 20px;
+    }
+
+    .ad-image h3 { font-family: 'Outfit', sans-serif; font-size: 1.6rem; font-weight: 800; line-height: 1.2; margin-bottom: 12px; text-align: center; color: #fff; }
+    .ad-image p { font-size: 1rem; text-align: center; }
+
+    .logo { position: absolute; bottom: 16px; right: 16px; display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.8); padding: 8px 14px; border-radius: 8px; }
+    .logo-icon { width: 24px; height: 24px; background: linear-gradient(135deg, #e11d48, #be123c); border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+    .logo-icon svg { width: 14px; height: 14px; color: #fff; }
+    .logo-text { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.8rem; color: #fff; }
+    .logo-text span { color: #e11d48; }
+
+    /* Backgrounds */
+    .bg-dark { background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1a 100%); }
+    .bg-dark p { color: #b0b0b0; }
+    .bg-red { background: linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%); }
+    .bg-red p { color: #fecaca; }
+    .bg-green { background: linear-gradient(135deg, #166534 0%, #052e16 100%); }
+    .bg-green p { color: #bbf7d0; }
+    .bg-blue { background: linear-gradient(135deg, #1e40af 0%, #1e3a5f 100%); }
+    .bg-blue p { color: #bfdbfe; }
+    .bg-purple { background: linear-gradient(135deg, #6b21a8 0%, #3b0764 100%); }
+    .bg-purple p { color: #e9d5ff; }
+    .bg-orange { background: linear-gradient(135deg, #c2410c 0%, #7c2d12 100%); }
+    .bg-orange p { color: #fed7aa; }
+    .bg-gradient-1 { background: linear-gradient(135deg, #1a1a2e 0%, #e11d48 100%); }
+    .bg-gradient-1 p { color: #fecdd3; }
+    .bg-gradient-2 { background: linear-gradient(135deg, #0f172a 0%, #1e40af 100%); }
+    .bg-gradient-2 p { color: #bfdbfe; }
+
+    .highlight { color: #e11d48 !important; }
+    .highlight-green { color: #4ade80 !important; }
+    .highlight-yellow { color: #fbbf24 !important; }
+
+    .stats-row { display: flex; gap: 30px; justify-content: center; margin-top: 16px; }
+    .stat-item { text-align: center; }
+    .stat-value { font-family: 'Outfit', sans-serif; font-size: 1.8rem; font-weight: 800; }
+    .stat-label { font-size: 0.75rem; }
+
+    .checklist { text-align: left; margin-top: 16px; display: inline-block; }
+    .check-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 0.9rem; color: #fff; }
+    .check-icon { color: #4ade80; font-weight: bold; }
+
+    .cta-btn { background: #e11d48; color: #fff; padding: 12px 24px; border-radius: 8px; font-weight: 700; font-size: 0.9rem; margin-top: 16px; display: inline-block; }
+
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>VroomX <span>Safety</span> Ad Images</h1>
+  <p class="subtitle">30 Ready-to-Use Ad Creatives - Click to Download</p>
+
+  <div class="download-all-container">
+    <button class="download-all-btn" onclick="downloadAllAds()">
+      ⬇️ Download All 30 Images
+    </button>
+    <div class="progress-bar" id="progressBar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <p class="progress-text" id="progressText"></p>
+  </div>
+
+  <!-- FACEBOOK IMAGES (1200x628) -->
+  <h2 class="section-title">🔵 <span>Facebook</span> Ad Images (1200×628)</h2>
+  <div class="ads-grid">
+
+    <!-- FB 1 -->
+    <div class="ad-card">
+      <div class="ad-header">
+        <span class="ad-title">FB #1 - CSA Fear</span>
+        <button class="download-btn" onclick="downloadAd('fb-1', 'VroomX_FB_01_CSA_Fear')">Download</button>
+      </div>
+      <div class="fb-image ad-image bg-dark" id="fb-1">
+        <h3>Your CSA Score Just<br><span class="highlight">Jumped 15 Points.</span><br>Now What?</h3>
+        <p>Stop reacting. Start preventing.</p>
+        <div class="logo"><div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div><div class="logo-text">VroomX <span>Safety</span></div></div>
+      </div>
+    </div>
+
+    <!-- FB 2 -->
+    <div class="ad-card">
+      <div class="ad-header">
+        <span class="ad-title">FB #2 - Audit Cost</span>
+        <button class="download-btn" onclick="downloadAd('fb-2', 'VroomX_FB_02_Audit_Cost')">Download</button>
+      </div>
+      <div class="fb-image ad-image bg-red" id="fb-2">
+        <h3><span class="highlight-yellow">$150,000</span><br>That's What One<br>Bad Audit Costs</h3>
+        <div class="stats-row">
+          <div class="stat-item"><div class="stat-value" style="color:#fbbf24;">$50K</div><div class="stat-label" style="color:#fecaca;">Avg Fines</div></div>
+          <div class="stat-item"><div class="stat-value" style="color:#fbbf24;">40%</div><div class="stat-label" style="color:#fecaca;">Insurance ↑</div></div>
+        </div>
+        <div class="logo"><div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div><div class="logo-text">VroomX <span>Safety</span></div></div>
+      </div>
+    </div>
+
+    <!-- FB 3 -->
+    <div class="ad-card">
+      <div class="ad-header">
+        <span class="ad-title">FB #3 - Testimonial</span>
+        <button class="download-btn" onclick="downloadAd('fb-3', 'VroomX_FB_03_Testimonial')">Download</button>
+      </div>
+      <div class="fb-image ad-image bg-green" id="fb-3">
+        <h3>"Dropped Our CSA by<br><span class="highlight-yellow">23 Points</span><br>in 90 Days"</h3>
+        <div class="stats-row">
+          <div class="stat-item"><div class="stat-value" style="color:#fbbf24;">78%</div><div class="stat-label" style="color:#bbf7d0;">Before</div></div>
+          <div class="stat-item"><div class="stat-value" style="color:#fff;">→</div></div>
+          <div class="stat-item"><div class="stat-value" style="color:#4ade80;">55%</div><div class="stat-label" style="color:#bbf7d0;">After</div></div>
+        </div>
+        <div class="logo"><div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div><div class="logo-text">VroomX <span>Safety</span></div></div>
+      </div>
+    </div>
+
+    <!-- FB 4 -->
+    <div class="ad-card">
+      <div class="ad-header">
+        <span class="ad-title">FB #4 - Time Savings</span>
+        <button class="download-btn" onclick="downloadAd('fb-4', 'VroomX_FB_04_Time_Savings')">Download</button>
+      </div>
+      <div class="fb-image ad-image bg-blue" id="fb-4">
+        <h3>Cut Compliance Time by<br><span class="highlight-yellow">70%</span></h3>
+        <p>From 15 hours to under 5 hours per week</p>
+        <div class="logo"><div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div><div class="logo-text">VroomX <span>Safety</span></div></div>
+      </div>
+    </div>
+
+    <!-- FB 5 -->
+    <div class="ad-card">
+      <div class="ad-header">
+        <span class="ad-title">FB #5 - Free CSA Check</span>
+        <button class="download-btn" onclick="downloadAd('fb-5', 'VroomX_FB_05_Free_CSA')">Download</button>
+      </div>
+      <div class="fb-image ad-image bg-purple" id="fb-5">
+        <h3>Check Your <span class="highlight-yellow">CSA Score</span><br>in 30 Seconds</h3>
+        <p>Free. No signup required.</p>
+        <div class="logo"><div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div><div class="logo-text">VroomX <span>Safety</span></div></div>
+      </div>
+    </div>
+
+    <!-- FB 6 -->
+    <div class="ad-card">
+      <div class="ad-header">
+        <span class="ad-title">FB #6 - Insurance</span>
+        <button class="download-btn" onclick="downloadAd('fb-6', 'VroomX_FB_06_Insurance')">Download</button>
+      </div>
+      <div class="fb-image ad-image bg-orange" id="fb-6">
+        <h3>Your Insurance Company<br>Is <span class="highlight-yellow">Watching</span><br>Your CSA Score</h3>
+        <div class="stats-row">
+          <div class="stat-item"><div class="stat-value" style="color:#fff;">73%</div><div class="stat-label" style="color:#fed7aa;">Check CSA</div></div>
+          <div class="stat-item"><div class="stat-value" style="color:#fff;">40%</div><div class="stat-label" style="color:#fed7aa;">Higher Rates</div></div>
+        </div>
+        <div class="logo"><div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div><div class="logo-text">VroomX <span>Safety</span></div></div>
+      </div>
+    </div>
+
+    <!-- FB 7 -->
+    <div class="ad-card">
+      <div class="ad-header">
+        <span class="ad-title">FB #7 - Expiration Alerts</span>
+        <button class="download-btn" onclick="downloadAd('fb-7', 'VroomX_FB_07_Expirations')">Download</button>
+      </div>
+      <div class="fb-image ad-image bg-dark" id="fb-7">
+        <h3>Never Miss Another<br><span class="highlight">Expiration Date</span></h3>
+        <div class="checklist">
+          <div class="check-item"><span class="check-icon">✓</span>Medical cards</div>
+          <div class="check-item"><span class="check-icon">✓</span>CDL renewals</div>
+          <div class="check-item"><span class="check-icon">✓</span>Annual inspections</div>
+        </div>
+        <div class="logo"><div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div><div class="logo-text">VroomX <span>Safety</span></div></div>
+      </div>
+    </div>
+
+    <!-- FB 8 -->
+    <div class="ad-card">
+      <div class="ad-header">
+        <span class="ad-title">FB #8 - One Click Audit</span>
+        <button class="download-btn" onclick="downloadAd('fb-8', 'VroomX_FB_08_Audit_Ready')">Download</button>
+      </div>
+      <div class="fb-image ad-image bg-gradient-1" id="fb-8">
+        <h3>DOT Audit?<br>Be Ready in<br><span class="highlight-yellow">One Click</span></h3>
+        <p>All your compliance docs, organized instantly</p>
+        <div class="logo"><div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div><div class="logo-text">VroomX <span>Safety</span></div></div>
+      </div>
+    </div>
+
+    <!-- FB 9 -->
+    <div class="ad-card">
+      <div class="ad-header">
+        <span class="ad-title">FB #9 - No Spreadsheets</span>
+        <button class="download-btn" onclick="downloadAd('fb-9', 'VroomX_FB_09_No_Spreadsheets')">Download</button>
+      </div>
+      <div class="fb-image ad-image bg-dark" id="fb-9">
+        <h3>Stop Managing Compliance<br>with <span class="highlight">Spreadsheets</span></h3>
+        <p>There's a smarter way</p>
+        <div class="logo"><div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div><div class="logo-text">VroomX <span>Safety</span></div></div>
+      </div>
+    </div>
+
+    <!-- FB 10 -->
+    <div class="ad-card">
+      <div class="ad-header">
+        <span class="ad-title">FB #10 - FMCSA Sync</span>
+        <button class="download-btn" onclick="downloadAd('fb-10', 'VroomX_FB_10_FMCSA_Sync')">Download</button>
+      </div>
+      <div class="fb-image ad-image bg-gradient-2" id="fb-10">
+        <h3>Real-Time<br><span class="highlight-yellow">FMCSA Data Sync</span></h3>
+        <p>All 7 BASICs monitored 24/7</p>
+        <div class="logo"><div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div><div class="logo-text">VroomX <span>Safety</span></div></div>
+      </div>
+    </div>
+
+    <!-- FB 11 -->
+    <div class="ad-card">
+      <div class="ad-header">
+        <span class="ad-title">FB #11 - DQF Tracking</span>
+        <button class="download-btn" onclick="downloadAd('fb-11', 'VroomX_FB_11_DQF')">Download</button>
+      </div>
+      <div class="fb-image ad-image bg-blue" id="fb-11">
+        <h3>Complete<br><span class="highlight-yellow">DQF Tracking</span><br>for Every Driver</h3>
+        <p>100% visibility. Zero surprises.</p>
+        <div class="logo"><div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div><div class="logo-text">VroomX <span>Safety</span></div></div>
+      </div>
+    </div>
+
+    <!-- FB 12 -->
+    <div class="ad-card">
+      <div class="ad-header">
+        <span class="ad-title">FB #12 - DataQ</span>
+        <button class="download-btn" onclick="downloadAd('fb-12', 'VroomX_FB_12_DataQ')">Download</button>
+      </div>
+      <div class="fb-image ad-image bg-red" id="fb-12">
+        <h3>Fight Unfair<br><span class="highlight-yellow">Violations</span><br>with DataQ</h3>
+        <p>Challenge. Track. Win.</p>
+        <div class="logo"><div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div><div class="logo-text">VroomX <span>Safety</span></div></div>
+      </div>
+    </div>
+
+    <!-- FB 13 -->
+    <div class="ad-card">
+      <div class="ad-header">
+        <span class="ad-title">FB #13 - Small Fleet</span>
+        <button class="download-btn" onclick="downloadAd('fb-13', 'VroomX_FB_13_Small_Fleet')">Download</button>
+      </div>
+      <div class="fb-image ad-image bg-purple" id="fb-13">
+        <h3>Big Fleet Compliance<br><span class="highlight-yellow">Small Fleet Pricing</span></h3>
+        <p>Starting at just $49/month</p>
+        <div class="logo"><div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div><div class="logo-text">VroomX <span>Safety</span></div></div>
+      </div>
+    </div>
+
+    <!-- FB 14 -->
+    <div class="ad-card">
+      <div class="ad-header">
+        <span class="ad-title">FB #14 - AI Assistant</span>
+        <button class="download-btn" onclick="downloadAd('fb-14', 'VroomX_FB_14_AI')">Download</button>
+      </div>
+      <div class="fb-image ad-image bg-dark" id="fb-14">
+        <h3>AI-Powered<br><span class="highlight">Compliance Assistant</span></h3>
+        <p>Ask anything. Get answers instantly.</p>
+        <div class="logo"><div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div><div class="logo-text">VroomX <span>Safety</span></div></div>
+      </div>
+    </div>
+
+    <!-- FB 15 -->
+    <div class="ad-card">
+      <div class="ad-header">
+        <span class="ad-title">FB #15 - Free Trial</span>
+        <button class="download-btn" onclick="downloadAd('fb-15', 'VroomX_FB_15_Free_Trial')">Download</button>
+      </div>
+      <div class="fb-image ad-image bg-green" id="fb-15">
+        <h3><span class="highlight-yellow">14-Day</span><br>Free Trial</h3>
+        <p>No credit card required</p>
+        <div class="checklist">
+          <div class="check-item"><span class="check-icon">✓</span>Full access to all features</div>
+          <div class="check-item"><span class="check-icon">✓</span>Real FMCSA data sync</div>
+        </div>
+        <div class="logo"><div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div><div class="logo-text">VroomX <span>Safety</span></div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- INSTAGRAM IMAGES (1080x1080) -->
+  <h2 class="section-title">📸 <span>Instagram</span> Ad Images (1080×1080)</h2>
+  <div class="ads-grid">
+
+    <!-- IG 1 -->
+    <div class="ad-card">
+      <div class="ad-header">
+        <span class="ad-title">IG #1 - CSA Check</span>
+        <button class="download-btn" onclick="downloadAd('ig-1', 'VroomX_IG_01_CSA_Check')">Download</button>
+      </div>
+      <div class="ig-image ad-image bg-dark" id="ig-1">
+        <h3>Check Your<br><span class="highlight">CSA Score</span><br>in 30 Seconds</h3>
+        <p>Free. No signup. Just your DOT#.</p>
+        <div class="cta-btn">Learn More</div>
+        <div class="logo"><div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div><div class="logo-text">VroomX <span>Safety</span></div></div>
+      </div>
+    </div>
+
+    <!-- IG 2 -->
+    <div class="ad-card">
+      <div class="ad-header">
+        <span class="ad-title">IG #2 - Same Day</span>
+        <button class="download-btn" onclick="downloadAd('ig-2', 'VroomX_IG_02_Same_Day')">Download</button>
+      </div>
+      <div class="ig-image ad-image bg-gradient-1" id="ig-2">
+        <h3>Same Day.<br>Different <span class="highlight-yellow">Reality.</span></h3>
+        <div class="stats-row" style="margin-top:20px;">
+          <div class="stat-item"><div style="font-size:2.5rem;">😰</div><div class="stat-label" style="color:#fecdd3;">Without</div></div>
+          <div class="stat-item"><div style="font-size:2.5rem;">😎</div><div class="stat-label" style="color:#bbf7d0;">With VroomX</div></div>
+        </div>
+        <div class="logo"><div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div><div class="logo-text">VroomX <span>Safety</span></div></div>
+      </div>
+    </div>
+
+    <!-- IG 3 -->
+    <div class="ad-card">
+      <div class="ad-header">
+        <span class="ad-title">IG #3 - $150K Cost</span>
+        <button class="download-btn" onclick="downloadAd('ig-3', 'VroomX_IG_03_Cost')">Download</button>
+      </div>
+      <div class="ig-image ad-image bg-red" id="ig-3">
+        <h3><span class="highlight-yellow" style="font-size:2.5rem;">$150,000</span></h3>
+        <p style="font-size:1.3rem;color:#fff;margin:10px 0;">Cost of One Bad Audit</p>
+        <p>Fines. Insurance. Lost contracts.</p>
+        <div class="cta-btn">Get Protected</div>
+        <div class="logo"><div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div><div class="logo-text">VroomX <span>Safety</span></div></div>
+      </div>
+    </div>
+
+    <!-- IG 4 -->
+    <div class="ad-card">
+      <div class="ad-header">
+        <span class="ad-title">IG #4 - 23 Point Drop</span>
+        <button class="download-btn" onclick="downloadAd('ig-4', 'VroomX_IG_04_Results')">Download</button>
+      </div>
+      <div class="ig-image ad-image bg-green" id="ig-4">
+        <h3>CSA Score<br><span class="highlight-yellow">-23 Points</span><br>in 90 Days</h3>
+        <p>Real results from real carriers.</p>
+        <div class="cta-btn">Start Your Journey</div>
+        <div class="logo"><div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div><div class="logo-text">VroomX <span>Safety</span></div></div>
+      </div>
+    </div>
+
+    <!-- IG 5 -->
+    <div class="ad-card">
+      <div class="ad-header">
+        <span class="ad-title">IG #5 - Time Savings</span>
+        <button class="download-btn" onclick="downloadAd('ig-5', 'VroomX_IG_05_Time')">Download</button>
+      </div>
+      <div class="ig-image ad-image bg-blue" id="ig-5">
+        <h3>From <span style="color:#fbbf24;">15 Hours</span><br>to <span class="highlight-green">4 Hours</span></h3>
+        <p>Cut compliance admin by 70%</p>
+        <div class="cta-btn">Save Time Now</div>
+        <div class="logo"><div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div><div class="logo-text">VroomX <span>Safety</span></div></div>
+      </div>
+    </div>
+
+    <!-- IG 6 -->
+    <div class="ad-card">
+      <div class="ad-header">
+        <span class="ad-title">IG #6 - Alert</span>
+        <button class="download-btn" onclick="downloadAd('ig-6', 'VroomX_IG_06_Alert')">Download</button>
+      </div>
+      <div class="ig-image ad-image bg-dark" id="ig-6">
+        <h3>🚨 ALERT</h3>
+        <p style="font-size:1.2rem;color:#fff;margin:16px 0;">Medical Card Expires<br>in 7 Days</p>
+        <p style="color:#4ade80;">VroomX caught it. Did you?</p>
+        <div class="cta-btn">Get Alerts</div>
+        <div class="logo"><div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div><div class="logo-text">VroomX <span>Safety</span></div></div>
+      </div>
+    </div>
+
+    <!-- IG 7 -->
+    <div class="ad-card">
+      <div class="ad-header">
+        <span class="ad-title">IG #7 - Insurance</span>
+        <button class="download-btn" onclick="downloadAd('ig-7', 'VroomX_IG_07_Insurance')">Download</button>
+      </div>
+      <div class="ig-image ad-image bg-orange" id="ig-7">
+        <h3>Your Insurance<br>Is <span class="highlight-yellow">Watching</span></h3>
+        <div class="stats-row" style="margin-top:16px;">
+          <div class="stat-item"><div class="stat-value" style="color:#fff;">73%</div><div class="stat-label" style="color:#fed7aa;">Check CSA</div></div>
+          <div class="stat-item"><div class="stat-value" style="color:#fff;">40%</div><div class="stat-label" style="color:#fed7aa;">Rate Hike</div></div>
+        </div>
+        <div class="cta-btn">Protect Your Rates</div>
+        <div class="logo"><div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div><div class="logo-text">VroomX <span>Safety</span></div></div>
+      </div>
+    </div>
+
+    <!-- IG 8 -->
+    <div class="ad-card">
+      <div class="ad-header">
+        <span class="ad-title">IG #8 - One Click Audit</span>
+        <button class="download-btn" onclick="downloadAd('ig-8', 'VroomX_IG_08_Audit')">Download</button>
+      </div>
+      <div class="ig-image ad-image bg-purple" id="ig-8">
+        <h3>DOT Audit?<br><span class="highlight-yellow">One Click</span><br>Ready.</h3>
+        <p>All docs organized instantly.</p>
+        <div class="cta-btn">Get Audit Ready</div>
+        <div class="logo"><div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div><div class="logo-text">VroomX <span>Safety</span></div></div>
+      </div>
+    </div>
+
+    <!-- IG 9 -->
+    <div class="ad-card">
+      <div class="ad-header">
+        <span class="ad-title">IG #9 - No Spreadsheets</span>
+        <button class="download-btn" onclick="downloadAd('ig-9', 'VroomX_IG_09_Spreadsheets')">Download</button>
+      </div>
+      <div class="ig-image ad-image bg-dark" id="ig-9">
+        <h3>Spreadsheets?<br><span class="highlight">It's 2025.</span></h3>
+        <p>Upgrade to real compliance software.</p>
+        <div class="cta-btn">Upgrade Now</div>
+        <div class="logo"><div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div><div class="logo-text">VroomX <span>Safety</span></div></div>
+      </div>
+    </div>
+
+    <!-- IG 10 -->
+    <div class="ad-card">
+      <div class="ad-header">
+        <span class="ad-title">IG #10 - 7 BASICs</span>
+        <button class="download-btn" onclick="downloadAd('ig-10', 'VroomX_IG_10_BASICs')">Download</button>
+      </div>
+      <div class="ig-image ad-image bg-gradient-2" id="ig-10">
+        <h3>All <span class="highlight-yellow">7 BASICs</span><br>Monitored 24/7</h3>
+        <p>Real FMCSA data. Auto-synced daily.</p>
+        <div class="cta-btn">Start Monitoring</div>
+        <div class="logo"><div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div><div class="logo-text">VroomX <span>Safety</span></div></div>
+      </div>
+    </div>
+
+    <!-- IG 11 -->
+    <div class="ad-card">
+      <div class="ad-header">
+        <span class="ad-title">IG #11 - DQF</span>
+        <button class="download-btn" onclick="downloadAd('ig-11', 'VroomX_IG_11_DQF')">Download</button>
+      </div>
+      <div class="ig-image ad-image bg-blue" id="ig-11">
+        <h3>Complete<br><span class="highlight-yellow">DQF Tracking</span></h3>
+        <p>Every driver. Every document. Every deadline.</p>
+        <div class="cta-btn">Track Drivers</div>
+        <div class="logo"><div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div><div class="logo-text">VroomX <span>Safety</span></div></div>
+      </div>
+    </div>
+
+    <!-- IG 12 -->
+    <div class="ad-card">
+      <div class="ad-header">
+        <span class="ad-title">IG #12 - Fight Back</span>
+        <button class="download-btn" onclick="downloadAd('ig-12', 'VroomX_IG_12_DataQ')">Download</button>
+      </div>
+      <div class="ig-image ad-image bg-red" id="ig-12">
+        <h3>Unfair Violation?<br><span class="highlight-yellow">Fight Back.</span></h3>
+        <p>DataQ challenge assistance built-in.</p>
+        <div class="cta-btn">Challenge Now</div>
+        <div class="logo"><div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div><div class="logo-text">VroomX <span>Safety</span></div></div>
+      </div>
+    </div>
+
+    <!-- IG 13 -->
+    <div class="ad-card">
+      <div class="ad-header">
+        <span class="ad-title">IG #13 - Small Fleet</span>
+        <button class="download-btn" onclick="downloadAd('ig-13', 'VroomX_IG_13_Small_Fleet')">Download</button>
+      </div>
+      <div class="ig-image ad-image bg-purple" id="ig-13">
+        <h3>Small Fleet.<br><span class="highlight-yellow">Big Protection.</span></h3>
+        <p>Enterprise compliance. Affordable pricing.</p>
+        <div class="cta-btn">See Pricing</div>
+        <div class="logo"><div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div><div class="logo-text">VroomX <span>Safety</span></div></div>
+      </div>
+    </div>
+
+    <!-- IG 14 -->
+    <div class="ad-card">
+      <div class="ad-header">
+        <span class="ad-title">IG #14 - AI</span>
+        <button class="download-btn" onclick="downloadAd('ig-14', 'VroomX_IG_14_AI')">Download</button>
+      </div>
+      <div class="ig-image ad-image bg-dark" id="ig-14">
+        <h3>🤖 AI<br><span class="highlight">Compliance</span><br>Assistant</h3>
+        <p>Ask anything about 49 CFR. Instant answers.</p>
+        <div class="cta-btn">Try AI</div>
+        <div class="logo"><div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div><div class="logo-text">VroomX <span>Safety</span></div></div>
+      </div>
+    </div>
+
+    <!-- IG 15 -->
+    <div class="ad-card">
+      <div class="ad-header">
+        <span class="ad-title">IG #15 - Free Trial</span>
+        <button class="download-btn" onclick="downloadAd('ig-15', 'VroomX_IG_15_Trial')">Download</button>
+      </div>
+      <div class="ig-image ad-image bg-green" id="ig-15">
+        <h3><span class="highlight-yellow">14 Days</span><br>Free</h3>
+        <p style="font-size:1.1rem;color:#fff;">Full access. No credit card.</p>
+        <div class="checklist" style="margin-top:16px;">
+          <div class="check-item"><span class="check-icon">✓</span>All features</div>
+          <div class="check-item"><span class="check-icon">✓</span>FMCSA sync</div>
+          <div class="check-item"><span class="check-icon">✓</span>Cancel anytime</div>
+        </div>
+        <div class="cta-btn">Start Free Trial</div>
+        <div class="logo"><div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div><div class="logo-text">VroomX <span>Safety</span></div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="text-align:center;padding:50px 20px;color:#666;">
+    <p>30 Ad Images Ready for Download</p>
+  </div>
+</div>
+
+<script>
+  async function downloadAd(id, filename) {
+    const element = document.getElementById(id);
+    try {
+      const canvas = await html2canvas(element, { scale: 2, useCORS: true, backgroundColor: null });
+      const link = document.createElement('a');
+      link.download = filename + '.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (e) { console.error(e); }
+  }
+
+  async function downloadAllAds() {
+    const btn = document.querySelector('.download-all-btn');
+    const progressBar = document.getElementById('progressBar');
+    const progressFill = document.getElementById('progressFill');
+    const progressText = document.getElementById('progressText');
+
+    const ads = [
+      {id:'fb-1',name:'VroomX_FB_01_CSA_Fear'},{id:'fb-2',name:'VroomX_FB_02_Audit_Cost'},{id:'fb-3',name:'VroomX_FB_03_Testimonial'},
+      {id:'fb-4',name:'VroomX_FB_04_Time_Savings'},{id:'fb-5',name:'VroomX_FB_05_Free_CSA'},{id:'fb-6',name:'VroomX_FB_06_Insurance'},
+      {id:'fb-7',name:'VroomX_FB_07_Expirations'},{id:'fb-8',name:'VroomX_FB_08_Audit_Ready'},{id:'fb-9',name:'VroomX_FB_09_No_Spreadsheets'},
+      {id:'fb-10',name:'VroomX_FB_10_FMCSA_Sync'},{id:'fb-11',name:'VroomX_FB_11_DQF'},{id:'fb-12',name:'VroomX_FB_12_DataQ'},
+      {id:'fb-13',name:'VroomX_FB_13_Small_Fleet'},{id:'fb-14',name:'VroomX_FB_14_AI'},{id:'fb-15',name:'VroomX_FB_15_Free_Trial'},
+      {id:'ig-1',name:'VroomX_IG_01_CSA_Check'},{id:'ig-2',name:'VroomX_IG_02_Same_Day'},{id:'ig-3',name:'VroomX_IG_03_Cost'},
+      {id:'ig-4',name:'VroomX_IG_04_Results'},{id:'ig-5',name:'VroomX_IG_05_Time'},{id:'ig-6',name:'VroomX_IG_06_Alert'},
+      {id:'ig-7',name:'VroomX_IG_07_Insurance'},{id:'ig-8',name:'VroomX_IG_08_Audit'},{id:'ig-9',name:'VroomX_IG_09_Spreadsheets'},
+      {id:'ig-10',name:'VroomX_IG_10_BASICs'},{id:'ig-11',name:'VroomX_IG_11_DQF'},{id:'ig-12',name:'VroomX_IG_12_DataQ'},
+      {id:'ig-13',name:'VroomX_IG_13_Small_Fleet'},{id:'ig-14',name:'VroomX_IG_14_AI'},{id:'ig-15',name:'VroomX_IG_15_Trial'}
+    ];
+
+    btn.disabled = true;
+    btn.textContent = 'Downloading...';
+    progressBar.style.display = 'block';
+
+    for (let i = 0; i < ads.length; i++) {
+      progressText.textContent = `${i + 1}/${ads.length}: ${ads[i].name}`;
+      progressFill.style.width = ((i + 1) / ads.length * 100) + '%';
+      try {
+        const canvas = await html2canvas(document.getElementById(ads[i].id), { scale: 2, useCORS: true, backgroundColor: null });
+        const link = document.createElement('a');
+        link.download = ads[i].name + '.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        await new Promise(r => setTimeout(r, 400));
+      } catch (e) { console.error(e); }
+    }
+
+    btn.disabled = false;
+    btn.textContent = '⬇️ Download All 30 Images';
+    progressText.textContent = 'Done!';
+    setTimeout(() => { progressBar.style.display = 'none'; progressText.textContent = ''; }, 2000);
+  }
+</script>
+</body>
+</html>

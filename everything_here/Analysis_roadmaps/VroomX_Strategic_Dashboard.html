@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VroomX Strategic Vision Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #1E3A5F 0%, #0F2744 100%); }
+        .card { background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .phase-line { position: relative; }
+        .phase-line::before { content: ''; position: absolute; left: 20px; top: 40px; bottom: 0; width: 2px; background: #E5E7EB; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <div class="gradient-bg text-white py-8 px-6">
+        <div class="max-w-7xl mx-auto">
+            <h1 class="text-3xl font-bold mb-2">🎯 VroomX Strategic Vision Dashboard</h1>
+            <p class="text-blue-200">FleetDrive360 Analysis + Your Roadmap + Big Ideas</p>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-6 py-8">
+
+        <!-- FleetDrive360 Analysis -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                🔍 FleetDrive360 Competitor Analysis
+            </h2>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- Pricing Card -->
+                <div class="card p-6">
+                    <h3 class="font-bold text-lg text-gray-800 mb-4">💰 Their Pricing</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center py-2 border-b">
+                            <span class="text-gray-600">Basic Plan</span>
+                            <span class="font-bold text-green-600">$5/driver/mo</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b">
+                            <span class="text-gray-600">Driver Onboarding</span>
+                            <span class="font-bold">$199/driver</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b">
+                            <span class="text-gray-600">MVR Report</span>
+                            <span class="font-bold">State + $1.80</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b">
+                            <span class="text-gray-600">D&A Consortium</span>
+                            <span class="font-bold">$185/driver/yr</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2">
+                            <span class="text-gray-600">Drug Test</span>
+                            <span class="font-bold">$55 each</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Features Card -->
+                <div class="card p-6">
+                    <h3 class="font-bold text-lg text-gray-800 mb-4">⚡ Their Features</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-center gap-2">
+                            <span class="text-green-500">✓</span>
+                            <span>Dashboard & Alerts</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-green-500">✓</span>
+                            <span>Driver Profiles</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-green-500">✓</span>
+                            <span>Vehicle Maintenance</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-green-500">✓</span>
+                            <span>Clearinghouse Queries</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-green-500">✓</span>
+                            <span>MVR Integration</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-green-500">✓</span>
+                            <span>Drug & Alcohol</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-green-500">✓</span>
+                            <span>ELD Integration</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-green-500">✓</span>
+                            <span>Mobile App</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- What They Don't Have -->
+                <div class="card p-6 border-2 border-orange-200 bg-orange-50">
+                    <h3 class="font-bold text-lg text-orange-800 mb-4">🎯 Your Opportunities</h3>
+                    <ul class="space-y-2 text-orange-900">
+                        <li class="flex items-center gap-2">
+                            <span class="text-orange-500">★</span>
+                            <span>FREE CSA Checker tool</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-orange-500">★</span>
+                            <span>Flat pricing (not per driver)</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-orange-500">★</span>
+                            <span>Safety Manager Marketplace</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-orange-500">★</span>
+                            <span>Multi-company dashboard</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-orange-500">★</span>
+                            <span>AI-powered insights</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-orange-500">★</span>
+                            <span>Simpler UI for owner-ops</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Your Big Ideas -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                💡 Your Big Ideas - Structured
+            </h2>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Safety Manager Marketplace -->
+                <div class="card p-6 border-l-4 border-blue-500">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-2xl">🤝</div>
+                        <div>
+                            <h3 class="font-bold text-lg">Safety Manager Marketplace</h3>
+                            <span class="text-sm text-gray-500">Phase 3 - Month 4-6</span>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">Connect fleets who need compliance help with independent safety managers.</p>
+
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="bg-gray-50 p-3 rounded">
+                            <h4 class="font-semibold text-sm text-gray-700 mb-2">For Fleets:</h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>• Find certified managers</li>
+                                <li>• Hourly or monthly rates</li>
+                                <li>• Reviews & ratings</li>
+                            </ul>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded">
+                            <h4 class="font-semibold text-sm text-gray-700 mb-2">For Managers:</h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>• Find new clients</li>
+                                <li>• Built-in tools</li>
+                                <li>• Get paid via platform</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="bg-green-50 p-3 rounded">
+                        <span class="font-semibold text-green-800">💰 Revenue: 15-20% commission on transactions</span>
+                    </div>
+                </div>
+
+                <!-- Multi-Company Dashboard -->
+                <div class="card p-6 border-l-4 border-purple-500">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-2xl">📊</div>
+                        <div>
+                            <h3 class="font-bold text-lg">Multi-Company Dashboard</h3>
+                            <span class="text-sm text-gray-500">Phase 2 - Month 2-3</span>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">One login for safety managers to manage multiple trucking companies.</p>
+
+                    <div class="bg-gray-100 p-4 rounded font-mono text-sm mb-4">
+                        <div class="text-gray-500 mb-2">// Safety Manager View</div>
+                        <div>✅ ABC Trucking (8 drivers)</div>
+                        <div>⚠️ XYZ Transport (3 drivers)</div>
+                        <div>✅ 123 Logistics (5 drivers)</div>
+                        <div class="text-orange-500 mt-2">🔔 12 Critical Alerts Across All</div>
+                    </div>
+
+                    <div class="bg-purple-50 p-3 rounded">
+                        <span class="font-semibold text-purple-800">💰 Pricing: $99/mo + $3/driver managed</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Website Structure -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                🏗️ Proposed Website Structure
+            </h2>
+
+            <div class="card p-6">
+                <div class="grid md:grid-cols-4 gap-6">
+                    <div>
+                        <h4 class="font-bold text-gray-700 mb-3 flex items-center gap-2">
+                            <span class="w-6 h-6 bg-blue-500 text-white rounded text-sm flex items-center justify-center">1</span>
+                            FEATURES
+                        </h4>
+                        <ul class="space-y-1 text-sm text-gray-600 ml-8">
+                            <li>Dashboard Overview</li>
+                            <li>Driver Management</li>
+                            <li>Vehicle Tracking</li>
+                            <li>Expiration Alerts</li>
+                            <li>Damage Claims</li>
+                            <li>Tickets/Violations</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-700 mb-3 flex items-center gap-2">
+                            <span class="w-6 h-6 bg-green-500 text-white rounded text-sm flex items-center justify-center">2</span>
+                            SOLUTIONS
+                        </h4>
+                        <ul class="space-y-1 text-sm text-gray-600 ml-8">
+                            <li>For Owner-Operators</li>
+                            <li>For Small Fleets</li>
+                            <li class="text-orange-600 font-medium">For Safety Managers ✨</li>
+                            <li class="text-gray-400">Enterprise (Future)</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-700 mb-3 flex items-center gap-2">
+                            <span class="w-6 h-6 bg-purple-500 text-white rounded text-sm flex items-center justify-center">3</span>
+                            RESOURCES
+                        </h4>
+                        <ul class="space-y-1 text-sm text-gray-600 ml-8">
+                            <li class="text-orange-600 font-medium">FREE CSA Checker ✨</li>
+                            <li>Blog</li>
+                            <li class="text-orange-600 font-medium">Safety Calendar ✨</li>
+                            <li>Compliance Guides</li>
+                            <li class="text-orange-600 font-medium">FAQ ✨</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-700 mb-3 flex items-center gap-2">
+                            <span class="w-6 h-6 bg-orange-500 text-white rounded text-sm flex items-center justify-center">4</span>
+                            MARKETPLACE
+                        </h4>
+                        <ul class="space-y-1 text-sm text-gray-600 ml-8">
+                            <li class="text-orange-600 font-medium">Find Safety Managers ✨</li>
+                            <li class="text-orange-600 font-medium">Become a Provider ✨</li>
+                            <li class="text-gray-400">Affiliate Program</li>
+                            <li class="text-gray-400">Partnerships</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="mt-4 text-sm text-gray-500">
+                    ✨ = New pages to create | Gray = Future
+                </div>
+            </div>
+        </section>
+
+        <!-- Phased Roadmap -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                🗺️ Complete Roadmap
+            </h2>
+
+            <div class="grid md:grid-cols-4 gap-4">
+                <!-- Phase 1 -->
+                <div class="card p-5 border-t-4 border-red-500">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-medium">PHASE 1</span>
+                        <span class="text-gray-500 text-sm">Week 1-2</span>
+                    </div>
+                    <h3 class="font-bold text-lg mb-3">MVP Launch</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li class="flex items-center gap-2">
+                            <span class="text-green-500">✓</span>
+                            Landing Page
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-yellow-500">○</span>
+                            FREE CSA Checker
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-yellow-500">○</span>
+                            Dashboard + Alerts
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-yellow-500">○</span>
+                            Drivers & Vehicles
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-yellow-500">○</span>
+                            Damage Claims
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-yellow-500">○</span>
+                            Tickets/Violations
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-yellow-500">○</span>
+                            Stripe Billing
+                        </li>
+                    </ul>
+                    <div class="mt-4 pt-4 border-t">
+                        <div class="text-xs text-gray-500">GOAL</div>
+                        <div class="font-bold text-red-600">🚀 LAUNCH</div>
+                    </div>
+                </div>
+
+                <!-- Phase 2 -->
+                <div class="card p-5 border-t-4 border-yellow-500">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm font-medium">PHASE 2</span>
+                        <span class="text-gray-500 text-sm">Month 2-3</span>
+                    </div>
+                    <h3 class="font-bold text-lg mb-3">Differentiate</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li class="flex items-center gap-2">
+                            <span class="text-gray-300">○</span>
+                            Safety Manager Portal
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-gray-300">○</span>
+                            Multi-Company Dashboard
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-gray-300">○</span>
+                            PSP Integration
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-gray-300">○</span>
+                            FAQ Page
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-gray-300">○</span>
+                            Safety Calendar
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-gray-300">○</span>
+                            Solution Pages
+                        </li>
+                    </ul>
+                    <div class="mt-4 pt-4 border-t">
+                        <div class="text-xs text-gray-500">GOAL</div>
+                        <div class="font-bold text-yellow-600">50 Users, $1.5K MRR</div>
+                    </div>
+                </div>
+
+                <!-- Phase 3 -->
+                <div class="card p-5 border-t-4 border-blue-500">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">PHASE 3</span>
+                        <span class="text-gray-500 text-sm">Month 4-6</span>
+                    </div>
+                    <h3 class="font-bold text-lg mb-3">Expansion</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li class="flex items-center gap-2">
+                            <span class="text-gray-300">○</span>
+                            Safety Manager Marketplace
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-gray-300">○</span>
+                            MVR Integration
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-gray-300">○</span>
+                            Clearinghouse Queries
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-gray-300">○</span>
+                            Drug & Alcohol Module
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-gray-300">○</span>
+                            Affiliate Program
+                        </li>
+                    </ul>
+                    <div class="mt-4 pt-4 border-t">
+                        <div class="text-xs text-gray-500">GOAL</div>
+                        <div class="font-bold text-blue-600">150 Users, $4.5K MRR</div>
+                    </div>
+                </div>
+
+                <!-- Phase 4 -->
+                <div class="card p-5 border-t-4 border-purple-500">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-medium">PHASE 4</span>
+                        <span class="text-gray-500 text-sm">Month 7-12</span>
+                    </div>
+                    <h3 class="font-bold text-lg mb-3">Scale</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li class="flex items-center gap-2">
+                            <span class="text-gray-300">○</span>
+                            Mobile App (iOS/Android)
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-gray-300">○</span>
+                            ELD Integrations
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-gray-300">○</span>
+                            Enterprise Plans
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-gray-300">○</span>
+                            API Access
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-gray-300">○</span>
+                            New Authority Services
+                        </li>
+                    </ul>
+                    <div class="mt-4 pt-4 border-t">
+                        <div class="text-xs text-gray-500">GOAL</div>
+                        <div class="font-bold text-purple-600">300 Users, $9K MRR</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Integrations Explained -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                🔗 How Integrations Work (What FD360 Does)
+            </h2>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="card p-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">🏛️</div>
+                        <h3 class="font-bold">Clearinghouse</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-4">FD360 acts as a C/TPA (Consortium/Third Party Administrator) to run queries directly from their platform.</p>
+                    <div class="bg-gray-50 p-3 rounded text-sm">
+                        <div class="font-semibold mb-2">How to Add:</div>
+                        <ul class="text-gray-600 space-y-1">
+                            <li>1. Register as C/TPA with FMCSA</li>
+                            <li>2. Get API access</li>
+                            <li>3. Build query interface</li>
+                            <li>4. Charge $5-10 per query</li>
+                        </ul>
+                    </div>
+                    <div class="mt-3 text-sm text-orange-600 font-medium">Phase 3 Priority</div>
+                </div>
+
+                <div class="card p-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">📋</div>
+                        <h3 class="font-bold">MVR Reports</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-4">They partner with MVR providers (SambaSafety, Checkr) to pull driving records on demand.</p>
+                    <div class="bg-gray-50 p-3 rounded text-sm">
+                        <div class="font-semibold mb-2">How to Add:</div>
+                        <ul class="text-gray-600 space-y-1">
+                            <li>1. Sign up with Checkr or MVRcheck</li>
+                            <li>2. Integrate their API</li>
+                            <li>3. Mark up: State fee + $5-10</li>
+                        </ul>
+                    </div>
+                    <div class="mt-3 text-sm text-yellow-600 font-medium">Phase 3 Priority</div>
+                </div>
+
+                <div class="card p-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">🔬</div>
+                        <h3 class="font-bold">PSP Reports</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-4">FMCSA's Pre-Employment Screening Program. $10/report through NIC (FMCSA's contractor).</p>
+                    <div class="bg-gray-50 p-3 rounded text-sm">
+                        <div class="font-semibold mb-2">How to Add:</div>
+                        <ul class="text-gray-600 space-y-1">
+                            <li>1. Register at psp.fmcsa.dot.gov</li>
+                            <li>2. Pay $25/year (small fleet)</li>
+                            <li>3. Get API credentials</li>
+                            <li>4. Charge $15/report (profit $5)</li>
+                        </ul>
+                    </div>
+                    <div class="mt-3 text-sm text-green-600 font-medium">Phase 2 Priority (Easy Win!)</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Revenue Model -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                💰 Revenue Streams
+            </h2>
+
+            <div class="card p-6">
+                <div class="grid md:grid-cols-4 gap-6">
+                    <div class="text-center p-4 bg-blue-50 rounded-lg">
+                        <div class="text-3xl font-bold text-blue-600 mb-2">$29-99</div>
+                        <div class="text-sm text-gray-600">Monthly Subscriptions</div>
+                        <div class="text-xs text-gray-400 mt-1">Primary Revenue</div>
+                    </div>
+                    <div class="text-center p-4 bg-green-50 rounded-lg">
+                        <div class="text-3xl font-bold text-green-600 mb-2">$15-20</div>
+                        <div class="text-sm text-gray-600">Per PSP/MVR Check</div>
+                        <div class="text-xs text-gray-400 mt-1">Add-On Revenue</div>
+                    </div>
+                    <div class="text-center p-4 bg-purple-50 rounded-lg">
+                        <div class="text-3xl font-bold text-purple-600 mb-2">15-20%</div>
+                        <div class="text-sm text-gray-600">Marketplace Commission</div>
+                        <div class="text-xs text-gray-400 mt-1">Phase 3+ Revenue</div>
+                    </div>
+                    <div class="text-center p-4 bg-orange-50 rounded-lg">
+                        <div class="text-3xl font-bold text-orange-600 mb-2">$185+</div>
+                        <div class="text-sm text-gray-600">D&A Consortium</div>
+                        <div class="text-xs text-gray-400 mt-1">Phase 3+ Revenue</div>
+                    </div>
+                </div>
+
+                <!-- Projection -->
+                <div class="mt-8">
+                    <h4 class="font-bold text-gray-700 mb-4">12-Month Revenue Projection</h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="border-b">
+                                    <th class="text-left py-2">Month</th>
+                                    <th class="text-right py-2">Users</th>
+                                    <th class="text-right py-2">Subscriptions</th>
+                                    <th class="text-right py-2">Add-Ons</th>
+                                    <th class="text-right py-2 font-bold">Total MRR</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b bg-red-50">
+                                    <td class="py-2">Month 1-2</td>
+                                    <td class="text-right">20</td>
+                                    <td class="text-right">$580</td>
+                                    <td class="text-right">$0</td>
+                                    <td class="text-right font-bold">$580</td>
+                                </tr>
+                                <tr class="border-b bg-yellow-50">
+                                    <td class="py-2">Month 3</td>
+                                    <td class="text-right">50</td>
+                                    <td class="text-right">$1,450</td>
+                                    <td class="text-right">$150</td>
+                                    <td class="text-right font-bold">$1,600</td>
+                                </tr>
+                                <tr class="border-b bg-blue-50">
+                                    <td class="py-2">Month 6</td>
+                                    <td class="text-right">150</td>
+                                    <td class="text-right">$4,000</td>
+                                    <td class="text-right">$500</td>
+                                    <td class="text-right font-bold">$4,500</td>
+                                </tr>
+                                <tr class="bg-purple-50">
+                                    <td class="py-2 font-bold">Month 12</td>
+                                    <td class="text-right font-bold">300</td>
+                                    <td class="text-right">$6,000</td>
+                                    <td class="text-right">$3,000</td>
+                                    <td class="text-right font-bold text-green-600">$9,000</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Action Items -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                ✅ Immediate Action Items
+            </h2>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="card p-6 bg-red-50 border-2 border-red-200">
+                    <h3 class="font-bold text-red-800 mb-4">🔴 THIS WEEK (MVP)</h3>
+                    <ul class="space-y-2 text-sm text-red-900">
+                        <li class="flex items-start gap-2">
+                            <span>1.</span>
+                            <span>Stay focused on MVP - don't add new features</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span>2.</span>
+                            <span>Build FREE CSA Checker</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span>3.</span>
+                            <span>Test core features end-to-end</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span>4.</span>
+                            <span>Connect Stripe billing</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span>5.</span>
+                            <span>Deploy and LAUNCH</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="card p-6 bg-yellow-50 border-2 border-yellow-200">
+                    <h3 class="font-bold text-yellow-800 mb-4">🟡 AFTER LAUNCH (Week 3-4)</h3>
+                    <ul class="space-y-2 text-sm text-yellow-900">
+                        <li class="flex items-start gap-2">
+                            <span>1.</span>
+                            <span>Create FAQ page</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span>2.</span>
+                            <span>Create Safety Calendar resource</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span>3.</span>
+                            <span>Add solution pages (owner-ops, fleets)</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span>4.</span>
+                            <span>Collect user feedback</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span>5.</span>
+                            <span>Plan Safety Manager features</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="card p-6 bg-blue-50 border-2 border-blue-200">
+                    <h3 class="font-bold text-blue-800 mb-4">🔵 MONTH 2-3</h3>
+                    <ul class="space-y-2 text-sm text-blue-900">
+                        <li class="flex items-start gap-2">
+                            <span>1.</span>
+                            <span>Build Safety Manager Portal</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span>2.</span>
+                            <span>Add Multi-Company Dashboard</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span>3.</span>
+                            <span>Integrate PSP ($25 setup, easy!)</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span>4.</span>
+                            <span>Start recruiting Safety Managers</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span>5.</span>
+                            <span>Plan marketplace beta</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bottom Line -->
+        <section class="mb-8">
+            <div class="card p-8 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+                <h2 class="text-2xl font-bold mb-4">🎯 The Bottom Line</h2>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-bold text-lg mb-2 text-blue-200">FleetDrive360's Model:</h3>
+                        <p class="text-blue-100">Software + Services for Fleets</p>
+                        <p class="text-sm text-blue-200 mt-2">Per-driver pricing, enterprise focus</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg mb-2 text-purple-200">Your Model (VroomX):</h3>
+                        <p class="text-purple-100">Platform connecting Fleets + Safety Managers</p>
+                        <p class="text-sm text-purple-200 mt-2">Flat pricing, marketplace model, owner-op focus</p>
+                    </div>
+                </div>
+                <div class="mt-6 p-4 bg-white/10 rounded-lg">
+                    <p class="text-lg font-medium">
+                        ✨ <strong>Your differentiator:</strong> The Safety Manager Marketplace is something FleetDrive360 can't easily replicate.
+                        While they sell TO fleets, you can sell to BOTH fleets AND safety managers, then connect them.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="bg-gray-800 text-white py-6 px-6 text-center">
+        <p class="text-gray-400">VroomX Strategic Vision Dashboard | Created for planning purposes</p>
+        <p class="text-sm text-gray-500 mt-2">Focus: Launch MVP first, then differentiate with Safety Manager features</p>
+    </div>
+
+</body>
+</html>

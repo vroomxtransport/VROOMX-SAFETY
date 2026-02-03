@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VroomX Dashboard - New UI Mockup v3 (Modern Card Layout)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        navy: {
+                            500: '#1E3A5F',
+                            600: '#162d4a',
+                            700: '#0f2035',
+                            800: '#091520',
+                        },
+                        lime: {
+                            400: '#c6f752',
+                            500: '#a3e635',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Lime green theme inspired by Flux health dashboard */
+        .bg-lime-gradient {
+            background: linear-gradient(135deg, #d9f99d 0%, #a3e635 100%);
+        }
+
+        /* Glassmorphism */
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-light {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        /* Custom progress ring */
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        .progress-ring__circle {
+            transition: stroke-dashoffset 0.5s ease;
+        }
+
+        /* Smooth hover */
+        .card-lift {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card-lift:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Status dot pulse */
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .pulse-dot {
+            animation: pulse-dot 2s infinite;
+        }
+
+        /* Gradient text */
+        .text-gradient {
+            background: linear-gradient(135deg, #a3e635, #84cc16);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Modern scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+        ::-webkit-scrollbar-thumb { background: rgba(163, 230, 53, 0.3); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(163, 230, 53, 0.5); }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-lime-50 via-green-50 to-emerald-50 min-h-screen font-sans">
+    <div class="flex min-h-screen">
+        <!-- Sidebar - Dark with lime accents -->
+        <aside class="fixed inset-y-0 left-0 w-72 bg-navy-800 flex flex-col">
+            <!-- Logo -->
+            <div class="p-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-2xl bg-lime-400 flex items-center justify-center shadow-lg shadow-lime-400/30">
+                        <svg class="w-7 h-7 text-navy-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="text-2xl font-black text-white">vroom</span><span class="text-2xl font-light text-lime-400">X</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 px-4 py-2 space-y-1">
+                <!-- Dashboard - Active -->
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-lime-400 text-navy-800 font-semibold">
+                    <div class="w-8 h-8 rounded-xl bg-navy-800/20 flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
+                        </svg>
+                    </div>
+                    <span>Dashboard</span>
+                    <span class="ml-auto w-2 h-2 bg-navy-800 rounded-full"></span>
+                </a>
+
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-white/60 hover:text-white hover:bg-white/5 transition-all">
+                    <div class="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                        </svg>
+                    </div>
+                    <span>VroomX AI</span>
+                    <span class="ml-auto px-2 py-0.5 text-[10px] font-bold bg-lime-400/20 text-lime-400 rounded-full">AI</span>
+                </a>
+
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-white/60 hover:text-white hover:bg-white/5 transition-all">
+                    <div class="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
+                    </div>
+                    <span>Alerts</span>
+                    <span class="ml-auto flex items-center justify-center w-6 h-6 text-[11px] font-bold bg-red-500 text-white rounded-full">3</span>
+                </a>
+
+                <div class="pt-6 pb-2 px-4">
+                    <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Fleet</p>
+                </div>
+
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-white/60 hover:text-white hover:bg-white/5 transition-all">
+                    <div class="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                    </div>
+                    <span>Drivers</span>
+                    <span class="ml-auto text-xs text-white/40">12</span>
+                </a>
+
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-white/60 hover:text-white hover:bg-white/5 transition-all">
+                    <div class="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
+                        </svg>
+                    </div>
+                    <span>Vehicles</span>
+                    <span class="ml-auto text-xs text-white/40">8</span>
+                </a>
+
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-white/60 hover:text-white hover:bg-white/5 transition-all">
+                    <div class="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                    </div>
+                    <span>Compliance</span>
+                </a>
+
+                <div class="pt-6 pb-2 px-4">
+                    <p class="text-[11px] font-semibold text-white/30 uppercase tracking-widest">Records</p>
+                </div>
+
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-white/60 hover:text-white hover:bg-white/5 transition-all">
+                    <div class="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                    </div>
+                    <span>Violations</span>
+                    <span class="ml-auto text-xs text-white/40">2</span>
+                </a>
+
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-white/60 hover:text-white hover:bg-white/5 transition-all">
+                    <div class="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+                        </svg>
+                    </div>
+                    <span>Documents</span>
+                </a>
+
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-white/60 hover:text-white hover:bg-white/5 transition-all">
+                    <div class="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
+                    <span>Reports</span>
+                </a>
+            </nav>
+
+            <!-- Upgrade Card -->
+            <div class="p-4">
+                <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 p-5">
+                    <div class="absolute -right-4 -top-4 w-20 h-20 bg-white/10 rounded-full blur-xl"></div>
+                    <div class="absolute -left-4 -bottom-4 w-16 h-16 bg-white/10 rounded-full blur-xl"></div>
+                    <h4 class="font-bold text-white mb-1">Upgrade to Pro</h4>
+                    <p class="text-xs text-white/70 mb-4">Unlock unlimited drivers & advanced features</p>
+                    <button class="w-full py-2.5 bg-white text-purple-600 text-sm font-semibold rounded-xl hover:bg-white/90 transition-colors">
+                        Upgrade Now
+                    </button>
+                </div>
+            </div>
+
+            <!-- User -->
+            <div class="p-4 border-t border-white/5">
+                <button class="w-full flex items-center gap-3 p-3 rounded-2xl hover:bg-white/5 transition-colors">
+                    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face" alt="User" class="w-11 h-11 rounded-xl object-cover ring-2 ring-lime-400">
+                    <div class="flex-1 text-left">
+                        <p class="text-sm font-semibold text-white">Leo Torres</p>
+                        <p class="text-xs text-white/50">info@vroomxtransport.com</p>
+                    </div>
+                    <svg class="w-5 h-5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 ml-72">
+            <!-- Header -->
+            <header class="sticky top-0 z-20 glass-light border-b border-gray-200/50">
+                <div class="flex items-center justify-between h-20 px-8">
+                    <div>
+                        <p class="text-sm text-gray-500">Welcome back,</p>
+                        <h1 class="text-2xl font-bold text-gray-900">Compliance Overview</h1>
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <!-- Search -->
+                        <div class="relative">
+                            <input type="text" placeholder="Search anything..." class="w-80 pl-12 pr-4 py-3 bg-white border border-gray-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-lime-500 focus:border-transparent shadow-sm">
+                            <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </div>
+
+                        <!-- Notifications -->
+                        <button class="relative p-3 bg-white border border-gray-200 rounded-2xl hover:bg-gray-50 transition-colors shadow-sm">
+                            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                            </svg>
+                            <span class="absolute -top-1 -right-1 w-5 h-5 bg-lime-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full">3</span>
+                        </button>
+
+                        <!-- Date -->
+                        <button class="flex items-center gap-2 px-4 py-3 bg-white border border-gray-200 rounded-2xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            Today
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="p-8">
+                <!-- Top Row - Hero Section -->
+                <div class="grid grid-cols-12 gap-6 mb-6">
+                    <!-- Compliance Score - Hero Card -->
+                    <div class="col-span-5 card-lift bg-gradient-to-br from-navy-700 to-navy-800 rounded-3xl p-8 relative overflow-hidden">
+                        <!-- Background decoration -->
+                        <div class="absolute top-0 right-0 w-64 h-64 bg-lime-400/10 rounded-full blur-3xl"></div>
+                        <div class="absolute bottom-0 left-0 w-48 h-48 bg-lime-400/5 rounded-full blur-2xl"></div>
+
+                        <div class="relative">
+                            <div class="flex items-center justify-between mb-6">
+                                <div>
+                                    <p class="text-white/60 text-sm mb-1">Overall Score</p>
+                                    <h2 class="text-white text-xl font-bold">Compliance Health</h2>
+                                </div>
+                                <div class="px-3 py-1.5 bg-lime-400/20 rounded-full flex items-center gap-1">
+                                    <svg class="w-4 h-4 text-lime-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+                                    </svg>
+                                    <span class="text-lime-400 text-sm font-semibold">+6pts</span>
+                                </div>
+                            </div>
+
+                            <!-- Score Circle -->
+                            <div class="flex items-center gap-8">
+                                <div class="relative">
+                                    <svg class="w-40 h-40 progress-ring" viewBox="0 0 120 120">
+                                        <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8"/>
+                                        <circle class="progress-ring__circle" cx="60" cy="60" r="54" fill="none" stroke="url(#scoreGrad)" stroke-width="8" stroke-linecap="round" stroke-dasharray="339.292" stroke-dashoffset="44"/>
+                                        <defs>
+                                            <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                <stop offset="0%" stop-color="#a3e635"/>
+                                                <stop offset="100%" stop-color="#84cc16"/>
+                                            </linearGradient>
+                                        </defs>
+                                    </svg>
+                                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                        <span class="text-5xl font-black text-white">87</span>
+                                        <span class="text-white/60 text-sm">out of 100</span>
+                                    </div>
+                                </div>
+
+                                <div class="flex-1 space-y-4">
+                                    <div>
+                                        <div class="flex items-center justify-between mb-1">
+                                            <span class="text-white/60 text-sm">DQF Files</span>
+                                            <span class="text-white text-sm font-semibold">95%</span>
+                                        </div>
+                                        <div class="h-2 bg-white/10 rounded-full overflow-hidden">
+                                            <div class="h-full bg-lime-400 rounded-full" style="width: 95%"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center justify-between mb-1">
+                                            <span class="text-white/60 text-sm">Vehicles</span>
+                                            <span class="text-white text-sm font-semibold">88%</span>
+                                        </div>
+                                        <div class="h-2 bg-white/10 rounded-full overflow-hidden">
+                                            <div class="h-full bg-lime-400 rounded-full" style="width: 88%"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center justify-between mb-1">
+                                            <span class="text-white/60 text-sm">Violations</span>
+                                            <span class="text-white text-sm font-semibold">78%</span>
+                                        </div>
+                                        <div class="h-2 bg-white/10 rounded-full overflow-hidden">
+                                            <div class="h-full bg-yellow-400 rounded-full" style="width: 78%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stats Grid -->
+                    <div class="col-span-7 grid grid-cols-3 gap-4">
+                        <!-- Active Drivers -->
+                        <div class="card-lift bg-white rounded-3xl p-6 border border-gray-100 shadow-sm">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 rounded-2xl bg-blue-100 flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                    </svg>
+                                </div>
+                                <span class="text-green-600 text-xs font-semibold bg-green-50 px-2 py-1 rounded-full">+2</span>
+                            </div>
+                            <p class="text-4xl font-black text-gray-900 mb-1">12</p>
+                            <p class="text-gray-500 text-sm">Active Drivers</p>
+                        </div>
+
+                        <!-- Fleet Vehicles -->
+                        <div class="card-lift bg-white rounded-3xl p-6 border border-gray-100 shadow-sm">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 rounded-2xl bg-purple-100 flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <p class="text-4xl font-black text-gray-900 mb-1">8</p>
+                            <p class="text-gray-500 text-sm">Fleet Vehicles</p>
+                        </div>
+
+                        <!-- Expiring Soon -->
+                        <div class="card-lift bg-white rounded-3xl p-6 border border-gray-100 shadow-sm">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 rounded-2xl bg-yellow-100 flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                </div>
+                                <span class="pulse-dot w-3 h-3 bg-yellow-500 rounded-full"></span>
+                            </div>
+                            <p class="text-4xl font-black text-yellow-600 mb-1">3</p>
+                            <p class="text-gray-500 text-sm">Expiring Soon</p>
+                        </div>
+
+                        <!-- Open Violations -->
+                        <div class="card-lift bg-white rounded-3xl p-6 border border-gray-100 shadow-sm">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 rounded-2xl bg-red-100 flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                    </svg>
+                                </div>
+                                <span class="text-green-600 text-xs font-semibold bg-green-50 px-2 py-1 rounded-full">-2</span>
+                            </div>
+                            <p class="text-4xl font-black text-gray-900 mb-1">2</p>
+                            <p class="text-gray-500 text-sm">Open Violations</p>
+                        </div>
+
+                        <!-- Drug Tests -->
+                        <div class="card-lift bg-white rounded-3xl p-6 border border-gray-100 shadow-sm">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 rounded-2xl bg-teal-100 flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <p class="text-4xl font-black text-gray-900 mb-1">6/6</p>
+                            <p class="text-gray-500 text-sm">D&A Tests (Q1)</p>
+                        </div>
+
+                        <!-- CSA Score -->
+                        <div class="card-lift bg-gradient-to-br from-lime-400 to-lime-500 rounded-3xl p-6 shadow-sm shadow-lime-500/30">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-navy-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <p class="text-4xl font-black text-navy-800 mb-1">✓</p>
+                            <p class="text-navy-800/70 text-sm font-medium">Audit Ready</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Middle Row - BASICs & Alerts -->
+                <div class="grid grid-cols-12 gap-6 mb-6">
+                    <!-- SMS BASICs -->
+                    <div class="col-span-8 bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+                        <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-gray-900">SMS BASICs</h3>
+                                    <p class="text-xs text-gray-500">Safety Measurement System</p>
+                                </div>
+                            </div>
+                            <button class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm font-medium text-gray-700 transition-colors">
+                                View Full Report →
+                            </button>
+                        </div>
+                        <div class="p-6 grid grid-cols-3 gap-4">
+                            <!-- BASIC Cards -->
+                            <div class="p-4 rounded-2xl bg-green-50 border border-green-100">
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="text-sm font-medium text-gray-700">Unsafe Driving</span>
+                                    <span class="px-2 py-0.5 text-[10px] font-bold bg-green-500 text-white rounded-full">GOOD</span>
+                                </div>
+                                <p class="text-3xl font-black text-green-600">23%</p>
+                                <p class="text-xs text-gray-500 mt-1">Threshold: 65%</p>
+                            </div>
+
+                            <div class="p-4 rounded-2xl bg-green-50 border border-green-100">
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="text-sm font-medium text-gray-700">HOS Compliance</span>
+                                    <span class="px-2 py-0.5 text-[10px] font-bold bg-green-500 text-white rounded-full">GOOD</span>
+                                </div>
+                                <p class="text-3xl font-black text-green-600">18%</p>
+                                <p class="text-xs text-gray-500 mt-1">Threshold: 65%</p>
+                            </div>
+
+                            <div class="p-4 rounded-2xl bg-yellow-50 border border-yellow-100">
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="text-sm font-medium text-gray-700">Vehicle Maint.</span>
+                                    <span class="px-2 py-0.5 text-[10px] font-bold bg-yellow-500 text-white rounded-full">WARN</span>
+                                </div>
+                                <p class="text-3xl font-black text-yellow-600">67%</p>
+                                <p class="text-xs text-gray-500 mt-1">Threshold: 80%</p>
+                            </div>
+
+                            <div class="p-4 rounded-2xl bg-green-50 border border-green-100">
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="text-sm font-medium text-gray-700">Controlled Sub.</span>
+                                    <span class="px-2 py-0.5 text-[10px] font-bold bg-green-500 text-white rounded-full">GOOD</span>
+                                </div>
+                                <p class="text-3xl font-black text-green-600">0%</p>
+                                <p class="text-xs text-gray-500 mt-1">Threshold: 80%</p>
+                            </div>
+
+                            <div class="p-4 rounded-2xl bg-green-50 border border-green-100">
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="text-sm font-medium text-gray-700">Driver Fitness</span>
+                                    <span class="px-2 py-0.5 text-[10px] font-bold bg-green-500 text-white rounded-full">GOOD</span>
+                                </div>
+                                <p class="text-3xl font-black text-green-600">12%</p>
+                                <p class="text-xs text-gray-500 mt-1">Threshold: 80%</p>
+                            </div>
+
+                            <div class="p-4 rounded-2xl bg-green-50 border border-green-100">
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="text-sm font-medium text-gray-700">Crash Indicator</span>
+                                    <span class="px-2 py-0.5 text-[10px] font-bold bg-green-500 text-white rounded-full">GOOD</span>
+                                </div>
+                                <p class="text-3xl font-black text-green-600">8%</p>
+                                <p class="text-xs text-gray-500 mt-1">Threshold: 65%</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Alerts -->
+                    <div class="col-span-4 bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+                        <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-2xl bg-red-100 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                                    </svg>
+                                </div>
+                                <h3 class="font-bold text-gray-900">Alerts</h3>
+                            </div>
+                            <span class="px-3 py-1 bg-red-100 text-red-600 text-xs font-bold rounded-full">3</span>
+                        </div>
+                        <div class="divide-y divide-gray-100">
+                            <div class="p-4 hover:bg-gray-50 transition-colors cursor-pointer">
+                                <div class="flex items-start gap-3">
+                                    <span class="w-2 h-2 mt-2 rounded-full bg-red-500 flex-shrink-0"></span>
+                                    <div>
+                                        <p class="text-sm text-gray-900 font-medium">John Smith's CDL expires</p>
+                                        <p class="text-xs text-red-600 font-semibold mt-0.5">7 days remaining</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-4 hover:bg-gray-50 transition-colors cursor-pointer">
+                                <div class="flex items-start gap-3">
+                                    <span class="w-2 h-2 mt-2 rounded-full bg-yellow-500 flex-shrink-0"></span>
+                                    <div>
+                                        <p class="text-sm text-gray-900 font-medium">Truck #104 inspection due</p>
+                                        <p class="text-xs text-yellow-600 font-semibold mt-0.5">14 days remaining</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-4 hover:bg-gray-50 transition-colors cursor-pointer">
+                                <div class="flex items-start gap-3">
+                                    <span class="w-2 h-2 mt-2 rounded-full bg-yellow-500 flex-shrink-0"></span>
+                                    <div>
+                                        <p class="text-sm text-gray-900 font-medium">Mike Johnson medical card</p>
+                                        <p class="text-xs text-yellow-600 font-semibold mt-0.5">21 days remaining</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 border-t border-gray-100">
+                            <button class="w-full py-3 text-sm font-semibold text-lime-600 hover:bg-lime-50 rounded-xl transition-colors">
+                                View All Alerts →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Row - Driver Status & Activity -->
+                <div class="grid grid-cols-12 gap-6">
+                    <!-- Driver Status -->
+                    <div class="col-span-5 bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="font-bold text-gray-900">Driver Status</h3>
+                            <button class="text-sm font-medium text-lime-600 hover:text-lime-700">View All →</button>
+                        </div>
+
+                        <div class="flex items-center gap-6">
+                            <!-- Donut Chart -->
+                            <div class="relative w-32 h-32">
+                                <svg class="w-full h-full progress-ring" viewBox="0 0 36 36">
+                                    <circle cx="18" cy="18" r="15.5" fill="none" stroke="#f3f4f6" stroke-width="3"/>
+                                    <circle cx="18" cy="18" r="15.5" fill="none" stroke="#22c55e" stroke-width="3" stroke-dasharray="73 27" stroke-dashoffset="0"/>
+                                    <circle cx="18" cy="18" r="15.5" fill="none" stroke="#eab308" stroke-width="3" stroke-dasharray="17 83" stroke-dashoffset="-73"/>
+                                    <circle cx="18" cy="18" r="15.5" fill="none" stroke="#ef4444" stroke-width="3" stroke-dasharray="10 90" stroke-dashoffset="-90"/>
+                                </svg>
+                                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                    <span class="text-2xl font-black text-gray-900">12</span>
+                                    <span class="text-xs text-gray-500">Total</span>
+                                </div>
+                            </div>
+
+                            <!-- Legend -->
+                            <div class="space-y-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-4 h-4 rounded bg-green-500"></div>
+                                    <div>
+                                        <p class="text-lg font-bold text-gray-900">9</p>
+                                        <p class="text-xs text-gray-500">Compliant</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-4 h-4 rounded bg-yellow-500"></div>
+                                    <div>
+                                        <p class="text-lg font-bold text-gray-900">2</p>
+                                        <p class="text-xs text-gray-500">Warning</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-4 h-4 rounded bg-red-500"></div>
+                                    <div>
+                                        <p class="text-lg font-bold text-gray-900">1</p>
+                                        <p class="text-xs text-gray-500">Non-Compliant</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="col-span-7 bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
+                        <h3 class="font-bold text-gray-900 mb-4">Quick Actions</h3>
+                        <div class="grid grid-cols-5 gap-3">
+                            <button class="card-lift flex flex-col items-center gap-2 p-4 rounded-2xl bg-blue-50 hover:bg-blue-100 border border-blue-100 transition-all">
+                                <div class="w-10 h-10 rounded-xl bg-blue-500 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                                    </svg>
+                                </div>
+                                <span class="text-xs font-medium text-gray-700">Add Driver</span>
+                            </button>
+                            <button class="card-lift flex flex-col items-center gap-2 p-4 rounded-2xl bg-purple-50 hover:bg-purple-100 border border-purple-100 transition-all">
+                                <div class="w-10 h-10 rounded-xl bg-purple-500 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                </div>
+                                <span class="text-xs font-medium text-gray-700">Add Vehicle</span>
+                            </button>
+                            <button class="card-lift flex flex-col items-center gap-2 p-4 rounded-2xl bg-green-50 hover:bg-green-100 border border-green-100 transition-all">
+                                <div class="w-10 h-10 rounded-xl bg-green-500 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                                    </svg>
+                                </div>
+                                <span class="text-xs font-medium text-gray-700">Upload Doc</span>
+                            </button>
+                            <button class="card-lift flex flex-col items-center gap-2 p-4 rounded-2xl bg-cyan-50 hover:bg-cyan-100 border border-cyan-100 transition-all">
+                                <div class="w-10 h-10 rounded-xl bg-cyan-500 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                </div>
+                                <span class="text-xs font-medium text-gray-700">Run Report</span>
+                            </button>
+                            <button class="card-lift flex flex-col items-center gap-2 p-4 rounded-2xl bg-gradient-to-br from-pink-50 to-purple-50 hover:from-pink-100 hover:to-purple-100 border border-pink-100 transition-all">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                    </svg>
+                                </div>
+                                <span class="text-xs font-medium text-gray-700">Ask AI</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Floating AI Chat -->
+    <button class="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-br from-lime-400 to-lime-500 hover:from-lime-300 hover:to-lime-400 rounded-full shadow-lg shadow-lime-500/40 flex items-center justify-center transition-all hover:scale-110">
+        <svg class="w-7 h-7 text-navy-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+        </svg>
+    </button>
+</body>
+</html>

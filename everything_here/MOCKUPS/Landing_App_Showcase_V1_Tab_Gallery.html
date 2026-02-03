@@ -1,0 +1,1613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VroomX App Showcase - V1: Interactive Tab Gallery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #1E3A5F;
+            --navy-light: #2D4A6F;
+            --navy-dark: #152942;
+            --orange: #EA580C;
+            --orange-light: #FB923C;
+            --green: #22C55E;
+            --green-light: #4ADE80;
+            --red: #EF4444;
+            --yellow: #F59E0B;
+            --blue: #3B82F6;
+            --bg: #F8FAFC;
+            --border: #E2E8F0;
+            --text-dark: #1E293B;
+            --text-muted: #64748B;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        /* Section Container */
+        .showcase-section {
+            position: relative;
+            padding: 120px 24px;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Floating Blob Decorations */
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            pointer-events: none;
+            animation: blobFloat 20s ease-in-out infinite;
+        }
+
+        .blob-1 {
+            width: 600px;
+            height: 600px;
+            background: linear-gradient(135deg, var(--orange) 0%, #FED7AA 100%);
+            top: -200px;
+            right: -200px;
+            animation-delay: 0s;
+        }
+
+        .blob-2 {
+            width: 500px;
+            height: 500px;
+            background: linear-gradient(135deg, var(--navy) 0%, #93C5FD 100%);
+            bottom: -150px;
+            left: -150px;
+            animation-delay: -7s;
+        }
+
+        .blob-3 {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, var(--green) 0%, #BBF7D0 100%);
+            top: 40%;
+            left: 10%;
+            animation-delay: -14s;
+        }
+
+        @keyframes blobFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -30px) scale(1.05); }
+            50% { transform: translate(-20px, 20px) scale(0.95); }
+            75% { transform: translate(20px, 30px) scale(1.02); }
+        }
+
+        /* Content Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Section Header */
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, rgba(234, 88, 12, 0.1) 0%, rgba(234, 88, 12, 0.05) 100%);
+            border: 1px solid rgba(234, 88, 12, 0.2);
+            border-radius: 100px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--orange);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 24px;
+            animation: fadeSlideUp 0.6s ease-out;
+        }
+
+        .badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--orange);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        .section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(36px, 5vw, 56px);
+            font-weight: 800;
+            color: var(--navy);
+            line-height: 1.1;
+            margin-bottom: 16px;
+            animation: fadeSlideUp 0.6s ease-out 0.1s both;
+        }
+
+        .section-title span {
+            background: linear-gradient(135deg, var(--orange) 0%, var(--orange-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-subtitle {
+            font-size: 18px;
+            color: var(--text-muted);
+            max-width: 500px;
+            margin: 0 auto;
+            line-height: 1.6;
+            animation: fadeSlideUp 0.6s ease-out 0.2s both;
+        }
+
+        @keyframes fadeSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            animation: fadeSlideUp 0.6s ease-out 0.3s both;
+        }
+
+        .tab-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 24px;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            border-color: var(--navy);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(30, 58, 95, 0.15);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+            border-color: var(--navy);
+            color: white;
+            box-shadow: 0 8px 32px rgba(30, 58, 95, 0.3);
+        }
+
+        .tab-btn.active .tab-icon {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .tab-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .tab-label {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Screenshot Container */
+        .screenshot-container {
+            position: relative;
+            animation: fadeSlideUp 0.6s ease-out 0.4s both;
+        }
+
+        /* Browser Frame */
+        .browser-frame {
+            background: white;
+            border-radius: 24px;
+            box-shadow:
+                0 4px 6px rgba(0, 0, 0, 0.02),
+                0 12px 24px rgba(0, 0, 0, 0.04),
+                0 24px 48px rgba(0, 0, 0, 0.06),
+                0 48px 96px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .browser-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 20px;
+            background: linear-gradient(180deg, #FAFBFC 0%, #F1F5F9 100%);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .browser-dots {
+            display: flex;
+            gap: 8px;
+        }
+
+        .browser-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .browser-dot.red { background: #FF5F56; }
+        .browser-dot.yellow { background: #FFBD2E; }
+        .browser-dot.green { background: #27CA40; }
+
+        .browser-url {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .browser-url svg {
+            width: 14px;
+            height: 14px;
+            color: var(--green);
+        }
+
+        .browser-url span {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* Tab Content Area */
+        .tab-content {
+            position: relative;
+            min-height: 500px;
+            background: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%);
+        }
+
+        .tab-panel {
+            position: absolute;
+            inset: 0;
+            padding: 32px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .tab-panel.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        /* Mock Dashboard UI Elements */
+        .mock-sidebar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 72px;
+            background: var(--navy);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            gap: 8px;
+        }
+
+        .mock-sidebar-item {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 18px;
+        }
+
+        .mock-sidebar-item.active {
+            background: var(--orange);
+            color: white;
+        }
+
+        .mock-main {
+            margin-left: 72px;
+            padding: 24px;
+        }
+
+        /* Dashboard Panel Content */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 280px 1fr 1fr;
+            grid-template-rows: auto auto;
+            gap: 20px;
+        }
+
+        .compliance-gauge {
+            grid-row: span 2;
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border);
+        }
+
+        .gauge-ring {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            margin: 20px 0;
+        }
+
+        .gauge-bg {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                var(--green) 0deg 270deg,
+                var(--border) 270deg 360deg
+            );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gauge-inner {
+            width: 140px;
+            height: 140px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gauge-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 48px;
+            font-weight: 800;
+            color: var(--navy);
+        }
+
+        .gauge-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .gauge-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(34, 197, 94, 0.1);
+            border-radius: 100px;
+            color: var(--green);
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .stat-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .stat-icon.blue { background: rgba(59, 130, 246, 0.1); color: var(--blue); }
+        .stat-icon.green { background: rgba(34, 197, 94, 0.1); color: var(--green); }
+        .stat-icon.orange { background: rgba(234, 88, 12, 0.1); color: var(--orange); }
+        .stat-icon.red { background: rgba(239, 68, 68, 0.1); color: var(--red); }
+
+        .stat-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--navy);
+        }
+
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            color: var(--green);
+            margin-top: 4px;
+        }
+
+        .chart-card {
+            grid-column: span 2;
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+        .chart-area {
+            height: 120px;
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            gap: 4px;
+        }
+
+        .chart-bar {
+            flex: 1;
+            background: linear-gradient(180deg, var(--green) 0%, var(--green-light) 100%);
+            border-radius: 4px 4px 0 0;
+            transition: height 0.5s ease;
+        }
+
+        /* BASICs Panel Content */
+        .basics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-left: 72px;
+            padding: 24px;
+        }
+
+        .basic-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border);
+        }
+
+        .basic-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .basic-name {
+            font-weight: 600;
+            color: var(--navy);
+            font-size: 14px;
+        }
+
+        .basic-status {
+            padding: 4px 10px;
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .basic-status.good { background: rgba(34, 197, 94, 0.1); color: var(--green); }
+        .basic-status.warning { background: rgba(245, 158, 11, 0.1); color: var(--yellow); }
+        .basic-status.critical { background: rgba(239, 68, 68, 0.1); color: var(--red); }
+
+        .basic-bar-container {
+            height: 8px;
+            background: var(--bg);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .basic-bar {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.8s ease;
+        }
+
+        .basic-bar.green { background: linear-gradient(90deg, var(--green) 0%, var(--green-light) 100%); }
+        .basic-bar.yellow { background: linear-gradient(90deg, var(--yellow) 0%, #FCD34D 100%); }
+        .basic-bar.red { background: linear-gradient(90deg, var(--red) 0%, #F87171 100%); }
+
+        .basic-value {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .basic-percentile {
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+        /* Drivers Panel Content */
+        .drivers-content {
+            margin-left: 72px;
+            padding: 24px;
+        }
+
+        .drivers-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .drivers-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--navy);
+        }
+
+        .add-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--orange);
+            color: white;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .drivers-table {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border);
+        }
+
+        .table-header {
+            display: grid;
+            grid-template-columns: 2fr 1.5fr 1fr 1fr 100px;
+            padding: 14px 20px;
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table-row {
+            display: grid;
+            grid-template-columns: 2fr 1.5fr 1fr 1fr 100px;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            align-items: center;
+        }
+
+        .driver-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .driver-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .driver-name {
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+        .driver-id {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .compliance-badge {
+            padding: 6px 12px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .compliance-badge.compliant { background: rgba(34, 197, 94, 0.1); color: var(--green); }
+        .compliance-badge.warning { background: rgba(245, 158, 11, 0.1); color: var(--yellow); }
+        .compliance-badge.expired { background: rgba(239, 68, 68, 0.1); color: var(--red); }
+
+        /* Alerts Panel Content */
+        .alerts-content {
+            margin-left: 72px;
+            padding: 24px;
+        }
+
+        .alerts-header {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .alert-count-card {
+            flex: 1;
+            padding: 16px 20px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .alert-count-card.critical { background: rgba(239, 68, 68, 0.1); }
+        .alert-count-card.warning { background: rgba(245, 158, 11, 0.1); }
+        .alert-count-card.info { background: rgba(59, 130, 246, 0.1); }
+
+        .alert-count-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .alert-count-card.critical .alert-count-icon { background: var(--red); color: white; }
+        .alert-count-card.warning .alert-count-icon { background: var(--yellow); color: white; }
+        .alert-count-card.info .alert-count-icon { background: var(--blue); color: white; }
+
+        .alert-count-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--navy);
+        }
+
+        .alert-count-label {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .alerts-kanban {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .kanban-column {
+            background: var(--bg);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .kanban-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .kanban-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .kanban-dot.red { background: var(--red); }
+        .kanban-dot.yellow { background: var(--yellow); }
+        .kanban-dot.blue { background: var(--blue); }
+
+        .alert-card {
+            background: white;
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .alert-title {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--navy);
+            margin-bottom: 4px;
+        }
+
+        .alert-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .alert-time {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        /* AI Panel Content */
+        .ai-content {
+            margin-left: 72px;
+            padding: 24px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .ai-upload-card {
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border);
+        }
+
+        .ai-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .ai-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+            border-radius: 100px;
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .ai-card-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--navy);
+        }
+
+        .upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            background: var(--bg);
+            transition: all 0.3s ease;
+        }
+
+        .upload-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 16px;
+            background: linear-gradient(135deg, var(--orange) 0%, var(--orange-light) 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 28px;
+        }
+
+        .upload-text {
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 4px;
+        }
+
+        .upload-hint {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .ai-results-card {
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border);
+        }
+
+        .ai-result-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px;
+            background: var(--bg);
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+
+        .ai-result-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .ai-result-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--navy);
+            margin-bottom: 2px;
+        }
+
+        .ai-result-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .ai-processing {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border-radius: 12px;
+        }
+
+        .ai-spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(99, 102, 241, 0.2);
+            border-top-color: #6366F1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .ai-processing-text {
+            font-weight: 600;
+            font-size: 14px;
+            color: #6366F1;
+        }
+
+        /* Feature Labels */
+        .feature-label {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: white;
+            border-radius: 100px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--navy);
+            white-space: nowrap;
+            z-index: 20;
+            animation: labelFloat 3s ease-in-out infinite;
+        }
+
+        .feature-label::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--orange);
+            border-radius: 50%;
+        }
+
+        .feature-label.label-1 {
+            top: 60px;
+            right: 40px;
+            animation-delay: 0s;
+        }
+
+        .feature-label.label-2 {
+            bottom: 100px;
+            left: 100px;
+            animation-delay: -1s;
+        }
+
+        .feature-label.label-3 {
+            top: 180px;
+            left: 40px;
+            animation-delay: -2s;
+        }
+
+        @keyframes labelFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .compliance-gauge {
+                grid-column: span 2;
+                grid-row: auto;
+            }
+
+            .basics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .ai-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .showcase-section {
+                padding: 80px 16px;
+            }
+
+            .tab-nav {
+                gap: 6px;
+            }
+
+            .tab-btn {
+                padding: 10px 16px;
+                font-size: 13px;
+            }
+
+            .tab-label {
+                display: none;
+            }
+
+            .dashboard-grid,
+            .basics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .compliance-gauge {
+                grid-column: auto;
+            }
+
+            .chart-card {
+                grid-column: auto;
+            }
+
+            .table-header,
+            .table-row {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+
+            .alerts-kanban {
+                grid-template-columns: 1fr;
+            }
+
+            .feature-label {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <section class="showcase-section">
+        <!-- Floating Blobs -->
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+
+        <div class="container">
+            <!-- Section Header -->
+            <div class="section-header">
+                <div class="badge">Platform Preview</div>
+                <h2 class="section-title">See VroomX <span>in Action</span></h2>
+                <p class="section-subtitle">Experience our powerful compliance management dashboard designed to keep your fleet safe and compliant</p>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="tab-nav">
+                <button class="tab-btn active" data-tab="dashboard">
+                    <span class="tab-icon">📊</span>
+                    <span class="tab-label">Dashboard</span>
+                </button>
+                <button class="tab-btn" data-tab="basics">
+                    <span class="tab-icon">📈</span>
+                    <span class="tab-label">BASICs Tracking</span>
+                </button>
+                <button class="tab-btn" data-tab="drivers">
+                    <span class="tab-icon">👥</span>
+                    <span class="tab-label">Driver Management</span>
+                </button>
+                <button class="tab-btn" data-tab="alerts">
+                    <span class="tab-icon">🔔</span>
+                    <span class="tab-label">Alerts Center</span>
+                </button>
+                <button class="tab-btn" data-tab="ai">
+                    <span class="tab-icon">🤖</span>
+                    <span class="tab-label">AI Features</span>
+                </button>
+            </div>
+
+            <!-- Screenshot Container -->
+            <div class="screenshot-container">
+                <div class="browser-frame">
+                    <div class="browser-header">
+                        <div class="browser-dots">
+                            <div class="browser-dot red"></div>
+                            <div class="browser-dot yellow"></div>
+                            <div class="browser-dot green"></div>
+                        </div>
+                        <div class="browser-url">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            </svg>
+                            <span>app.vroomxsafety.com/dashboard</span>
+                        </div>
+                    </div>
+
+                    <div class="tab-content">
+                        <!-- Dashboard Panel -->
+                        <div class="tab-panel active" id="panel-dashboard">
+                            <div class="mock-sidebar">
+                                <div class="mock-sidebar-item active">📊</div>
+                                <div class="mock-sidebar-item">👥</div>
+                                <div class="mock-sidebar-item">🚛</div>
+                                <div class="mock-sidebar-item">⚠️</div>
+                                <div class="mock-sidebar-item">📄</div>
+                            </div>
+                            <div class="mock-main">
+                                <div class="dashboard-grid">
+                                    <div class="compliance-gauge">
+                                        <span style="font-size: 13px; color: var(--text-muted); font-weight: 500;">Compliance Score</span>
+                                        <div class="gauge-ring">
+                                            <div class="gauge-bg">
+                                                <div class="gauge-inner">
+                                                    <span class="gauge-value">87</span>
+                                                    <span class="gauge-label">Score</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="gauge-status">
+                                            <span>✓</span> Good Standing
+                                        </div>
+                                    </div>
+
+                                    <div class="stat-card">
+                                        <div class="stat-header">
+                                            <span class="stat-label">Active Drivers</span>
+                                            <div class="stat-icon blue">👥</div>
+                                        </div>
+                                        <div class="stat-value">24</div>
+                                        <div class="stat-trend">↑ 2 this month</div>
+                                    </div>
+
+                                    <div class="stat-card">
+                                        <div class="stat-header">
+                                            <span class="stat-label">Fleet Vehicles</span>
+                                            <div class="stat-icon green">🚛</div>
+                                        </div>
+                                        <div class="stat-value">18</div>
+                                        <div class="stat-trend">↑ All operational</div>
+                                    </div>
+
+                                    <div class="stat-card">
+                                        <div class="stat-header">
+                                            <span class="stat-label">Expiring Soon</span>
+                                            <div class="stat-icon orange">📄</div>
+                                        </div>
+                                        <div class="stat-value">3</div>
+                                        <div class="stat-trend" style="color: var(--orange);">⚠ Needs attention</div>
+                                    </div>
+
+                                    <div class="stat-card">
+                                        <div class="stat-header">
+                                            <span class="stat-label">Open Violations</span>
+                                            <div class="stat-icon red">⚠️</div>
+                                        </div>
+                                        <div class="stat-value">2</div>
+                                        <div class="stat-trend" style="color: var(--red);">1 critical</div>
+                                    </div>
+
+                                    <div class="chart-card">
+                                        <div class="chart-header">
+                                            <span class="chart-title">30-Day Compliance Trend</span>
+                                            <span style="font-size: 12px; color: var(--green);">↑ 5% improvement</span>
+                                        </div>
+                                        <div class="chart-area">
+                                            <div class="chart-bar" style="height: 60%"></div>
+                                            <div class="chart-bar" style="height: 65%"></div>
+                                            <div class="chart-bar" style="height: 55%"></div>
+                                            <div class="chart-bar" style="height: 70%"></div>
+                                            <div class="chart-bar" style="height: 75%"></div>
+                                            <div class="chart-bar" style="height: 72%"></div>
+                                            <div class="chart-bar" style="height: 80%"></div>
+                                            <div class="chart-bar" style="height: 78%"></div>
+                                            <div class="chart-bar" style="height: 82%"></div>
+                                            <div class="chart-bar" style="height: 85%"></div>
+                                            <div class="chart-bar" style="height: 83%"></div>
+                                            <div class="chart-bar" style="height: 87%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="feature-label label-1">Real-time Score Updates</div>
+                            <div class="feature-label label-2">Interactive Charts</div>
+                        </div>
+
+                        <!-- BASICs Panel -->
+                        <div class="tab-panel" id="panel-basics">
+                            <div class="mock-sidebar">
+                                <div class="mock-sidebar-item">📊</div>
+                                <div class="mock-sidebar-item">👥</div>
+                                <div class="mock-sidebar-item">🚛</div>
+                                <div class="mock-sidebar-item active">📈</div>
+                                <div class="mock-sidebar-item">📄</div>
+                            </div>
+                            <div class="basics-grid">
+                                <div class="basic-card">
+                                    <div class="basic-header">
+                                        <span class="basic-name">Unsafe Driving</span>
+                                        <span class="basic-status good">Good</span>
+                                    </div>
+                                    <div class="basic-bar-container">
+                                        <div class="basic-bar green" style="width: 32%"></div>
+                                    </div>
+                                    <div class="basic-value">
+                                        <span class="basic-percentile">32%</span>
+                                        <span>Threshold: 65%</span>
+                                    </div>
+                                </div>
+
+                                <div class="basic-card">
+                                    <div class="basic-header">
+                                        <span class="basic-name">HOS Compliance</span>
+                                        <span class="basic-status warning">Warning</span>
+                                    </div>
+                                    <div class="basic-bar-container">
+                                        <div class="basic-bar yellow" style="width: 58%"></div>
+                                    </div>
+                                    <div class="basic-value">
+                                        <span class="basic-percentile">58%</span>
+                                        <span>Threshold: 65%</span>
+                                    </div>
+                                </div>
+
+                                <div class="basic-card">
+                                    <div class="basic-header">
+                                        <span class="basic-name">Vehicle Maintenance</span>
+                                        <span class="basic-status good">Good</span>
+                                    </div>
+                                    <div class="basic-bar-container">
+                                        <div class="basic-bar green" style="width: 45%"></div>
+                                    </div>
+                                    <div class="basic-value">
+                                        <span class="basic-percentile">45%</span>
+                                        <span>Threshold: 80%</span>
+                                    </div>
+                                </div>
+
+                                <div class="basic-card">
+                                    <div class="basic-header">
+                                        <span class="basic-name">Controlled Substances</span>
+                                        <span class="basic-status good">Good</span>
+                                    </div>
+                                    <div class="basic-bar-container">
+                                        <div class="basic-bar green" style="width: 12%"></div>
+                                    </div>
+                                    <div class="basic-value">
+                                        <span class="basic-percentile">12%</span>
+                                        <span>Threshold: 80%</span>
+                                    </div>
+                                </div>
+
+                                <div class="basic-card">
+                                    <div class="basic-header">
+                                        <span class="basic-name">Driver Fitness</span>
+                                        <span class="basic-status good">Good</span>
+                                    </div>
+                                    <div class="basic-bar-container">
+                                        <div class="basic-bar green" style="width: 28%"></div>
+                                    </div>
+                                    <div class="basic-value">
+                                        <span class="basic-percentile">28%</span>
+                                        <span>Threshold: 80%</span>
+                                    </div>
+                                </div>
+
+                                <div class="basic-card">
+                                    <div class="basic-header">
+                                        <span class="basic-name">Crash Indicator</span>
+                                        <span class="basic-status critical">Critical</span>
+                                    </div>
+                                    <div class="basic-bar-container">
+                                        <div class="basic-bar red" style="width: 72%"></div>
+                                    </div>
+                                    <div class="basic-value">
+                                        <span class="basic-percentile">72%</span>
+                                        <span>Threshold: 65%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="feature-label label-1">FMCSA Data Sync</div>
+                            <div class="feature-label label-3">Threshold Alerts</div>
+                        </div>
+
+                        <!-- Drivers Panel -->
+                        <div class="tab-panel" id="panel-drivers">
+                            <div class="mock-sidebar">
+                                <div class="mock-sidebar-item">📊</div>
+                                <div class="mock-sidebar-item active">👥</div>
+                                <div class="mock-sidebar-item">🚛</div>
+                                <div class="mock-sidebar-item">⚠️</div>
+                                <div class="mock-sidebar-item">📄</div>
+                            </div>
+                            <div class="drivers-content">
+                                <div class="drivers-header">
+                                    <span class="drivers-title">Driver Qualification Files</span>
+                                    <div class="add-btn">+ Add Driver</div>
+                                </div>
+                                <div class="drivers-table">
+                                    <div class="table-header">
+                                        <span>Driver</span>
+                                        <span>CDL Number</span>
+                                        <span>CDL Expiry</span>
+                                        <span>Medical Card</span>
+                                        <span>Status</span>
+                                    </div>
+                                    <div class="table-row">
+                                        <div class="driver-info">
+                                            <div class="driver-avatar">JD</div>
+                                            <div>
+                                                <div class="driver-name">John Davis</div>
+                                                <div class="driver-id">EMP-001</div>
+                                            </div>
+                                        </div>
+                                        <span style="color: var(--text-muted);">PA-12345678</span>
+                                        <span style="color: var(--green);">245 days</span>
+                                        <span style="color: var(--green);">180 days</span>
+                                        <span class="compliance-badge compliant">Compliant</span>
+                                    </div>
+                                    <div class="table-row">
+                                        <div class="driver-info">
+                                            <div class="driver-avatar">MS</div>
+                                            <div>
+                                                <div class="driver-name">Maria Santos</div>
+                                                <div class="driver-id">EMP-002</div>
+                                            </div>
+                                        </div>
+                                        <span style="color: var(--text-muted);">TX-98765432</span>
+                                        <span style="color: var(--orange);">28 days</span>
+                                        <span style="color: var(--green);">95 days</span>
+                                        <span class="compliance-badge warning">Expiring</span>
+                                    </div>
+                                    <div class="table-row">
+                                        <div class="driver-info">
+                                            <div class="driver-avatar">RJ</div>
+                                            <div>
+                                                <div class="driver-name">Robert Johnson</div>
+                                                <div class="driver-id">EMP-003</div>
+                                            </div>
+                                        </div>
+                                        <span style="color: var(--text-muted);">OH-55443322</span>
+                                        <span style="color: var(--green);">312 days</span>
+                                        <span style="color: var(--red);">Expired</span>
+                                        <span class="compliance-badge expired">Non-Compliant</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="feature-label label-1">Automated Tracking</div>
+                            <div class="feature-label label-2">Expiration Alerts</div>
+                        </div>
+
+                        <!-- Alerts Panel -->
+                        <div class="tab-panel" id="panel-alerts">
+                            <div class="mock-sidebar">
+                                <div class="mock-sidebar-item">📊</div>
+                                <div class="mock-sidebar-item">👥</div>
+                                <div class="mock-sidebar-item">🚛</div>
+                                <div class="mock-sidebar-item active">🔔</div>
+                                <div class="mock-sidebar-item">📄</div>
+                            </div>
+                            <div class="alerts-content">
+                                <div class="alerts-header">
+                                    <div class="alert-count-card critical">
+                                        <div class="alert-count-icon">🚨</div>
+                                        <div>
+                                            <div class="alert-count-value">3</div>
+                                            <div class="alert-count-label">Critical Alerts</div>
+                                        </div>
+                                    </div>
+                                    <div class="alert-count-card warning">
+                                        <div class="alert-count-icon">⚠️</div>
+                                        <div>
+                                            <div class="alert-count-value">7</div>
+                                            <div class="alert-count-label">Warnings</div>
+                                        </div>
+                                    </div>
+                                    <div class="alert-count-card info">
+                                        <div class="alert-count-icon">ℹ️</div>
+                                        <div>
+                                            <div class="alert-count-value">12</div>
+                                            <div class="alert-count-label">Info</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="alerts-kanban">
+                                    <div class="kanban-column">
+                                        <div class="kanban-header">
+                                            <div class="kanban-dot red"></div>
+                                            Critical
+                                        </div>
+                                        <div class="alert-card">
+                                            <div class="alert-title">Medical Card Expired</div>
+                                            <div class="alert-desc">Robert Johnson's medical card expired 5 days ago</div>
+                                            <div class="alert-time">2 hours ago</div>
+                                        </div>
+                                        <div class="alert-card">
+                                            <div class="alert-title">BASIC Threshold Exceeded</div>
+                                            <div class="alert-desc">Crash Indicator at 72%, above 65% threshold</div>
+                                            <div class="alert-time">1 day ago</div>
+                                        </div>
+                                    </div>
+                                    <div class="kanban-column">
+                                        <div class="kanban-header">
+                                            <div class="kanban-dot yellow"></div>
+                                            Warning
+                                        </div>
+                                        <div class="alert-card">
+                                            <div class="alert-title">CDL Expiring Soon</div>
+                                            <div class="alert-desc">Maria Santos CDL expires in 28 days</div>
+                                            <div class="alert-time">3 hours ago</div>
+                                        </div>
+                                        <div class="alert-card">
+                                            <div class="alert-title">Annual Inspection Due</div>
+                                            <div class="alert-desc">Vehicle #105 inspection due in 14 days</div>
+                                            <div class="alert-time">5 hours ago</div>
+                                        </div>
+                                    </div>
+                                    <div class="kanban-column">
+                                        <div class="kanban-header">
+                                            <div class="kanban-dot blue"></div>
+                                            Info
+                                        </div>
+                                        <div class="alert-card">
+                                            <div class="alert-title">New Driver Added</div>
+                                            <div class="alert-desc">Sarah Williams onboarded successfully</div>
+                                            <div class="alert-time">Yesterday</div>
+                                        </div>
+                                        <div class="alert-card">
+                                            <div class="alert-title">FMCSA Sync Complete</div>
+                                            <div class="alert-desc">All BASICs data refreshed from SAFER</div>
+                                            <div class="alert-time">2 days ago</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="feature-label label-1">Smart Categorization</div>
+                            <div class="feature-label label-3">Priority Escalation</div>
+                        </div>
+
+                        <!-- AI Panel -->
+                        <div class="tab-panel" id="panel-ai">
+                            <div class="mock-sidebar">
+                                <div class="mock-sidebar-item">📊</div>
+                                <div class="mock-sidebar-item">👥</div>
+                                <div class="mock-sidebar-item">🚛</div>
+                                <div class="mock-sidebar-item">⚠️</div>
+                                <div class="mock-sidebar-item active">🤖</div>
+                            </div>
+                            <div class="ai-content">
+                                <div class="ai-upload-card">
+                                    <div class="ai-card-header">
+                                        <div class="ai-badge">
+                                            <span>✨</span> AI-Powered
+                                        </div>
+                                        <span class="ai-card-title">Inspection Upload</span>
+                                    </div>
+                                    <div class="upload-zone">
+                                        <div class="upload-icon">📄</div>
+                                        <div class="upload-text">Drop inspection report here</div>
+                                        <div class="upload-hint">PDF, JPG, PNG up to 10MB</div>
+                                    </div>
+                                </div>
+                                <div class="ai-results-card">
+                                    <div class="ai-card-header">
+                                        <span class="ai-card-title">AI Analysis Results</span>
+                                    </div>
+                                    <div class="ai-result-item">
+                                        <div class="ai-result-icon">✓</div>
+                                        <div>
+                                            <div class="ai-result-title">3 Violations Detected</div>
+                                            <div class="ai-result-desc">Automatically extracted from inspection report</div>
+                                        </div>
+                                    </div>
+                                    <div class="ai-result-item">
+                                        <div class="ai-result-icon">✓</div>
+                                        <div>
+                                            <div class="ai-result-title">BASIC Categories Identified</div>
+                                            <div class="ai-result-desc">HOS Compliance, Vehicle Maintenance</div>
+                                        </div>
+                                    </div>
+                                    <div class="ai-result-item">
+                                        <div class="ai-result-icon">✓</div>
+                                        <div>
+                                            <div class="ai-result-title">DataQ Eligibility Checked</div>
+                                            <div class="ai-result-desc">1 violation eligible for challenge</div>
+                                        </div>
+                                    </div>
+                                    <div class="ai-processing">
+                                        <div class="ai-spinner"></div>
+                                        <span class="ai-processing-text">Generating challenge letter...</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="feature-label label-1">Smart Document Scan</div>
+                            <div class="feature-label label-2">Auto-Fill Violations</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Tab switching functionality
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabPanels = document.querySelectorAll('.tab-panel');
+        const browserUrl = document.querySelector('.browser-url span');
+
+        const urlMap = {
+            'dashboard': 'app.vroomxsafety.com/dashboard',
+            'basics': 'app.vroomxsafety.com/compliance/basics',
+            'drivers': 'app.vroomxsafety.com/drivers',
+            'alerts': 'app.vroomxsafety.com/alerts',
+            'ai': 'app.vroomxsafety.com/ai-assistant'
+        };
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabId = btn.dataset.tab;
+
+                // Update active tab button
+                tabBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                // Update active panel
+                tabPanels.forEach(panel => {
+                    panel.classList.remove('active');
+                    if (panel.id === `panel-${tabId}`) {
+                        panel.classList.add('active');
+                    }
+                });
+
+                // Update browser URL
+                browserUrl.textContent = urlMap[tabId];
+            });
+        });
+
+        // Animate chart bars on load
+        const chartBars = document.querySelectorAll('.chart-bar');
+        chartBars.forEach((bar, i) => {
+            const height = bar.style.height;
+            bar.style.height = '0%';
+            setTimeout(() => {
+                bar.style.height = height;
+            }, 100 + (i * 50));
+        });
+
+        // Animate BASIC bars when BASICs tab is shown
+        const basicsPanel = document.getElementById('panel-basics');
+        const basicBars = basicsPanel.querySelectorAll('.basic-bar');
+
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.target.classList.contains('active')) {
+                    basicBars.forEach((bar, i) => {
+                        const width = bar.style.width;
+                        bar.style.width = '0%';
+                        setTimeout(() => {
+                            bar.style.width = width;
+                        }, 100 + (i * 100));
+                    });
+                }
+            });
+        });
+
+        observer.observe(basicsPanel, { attributes: true, attributeFilter: ['class'] });
+    </script>
+</body>
+</html>

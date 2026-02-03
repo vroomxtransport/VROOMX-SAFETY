@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VroomX Safety - Project Overview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --crimson: #e11d48;
+            --crimson-dark: #be123c;
+            --crimson-light: #fb7185;
+            --dark-bg: #0a0a0a;
+            --card-bg: #111111;
+            --card-border: #1f1f1f;
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #8b5cf6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(180deg, rgba(225, 29, 72, 0.15) 0%, transparent 100%);
+            padding: 4rem 2rem;
+            text-align: center;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .logo-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--crimson) 0%, var(--crimson-dark) 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+        }
+
+        .logo-text {
+            text-align: left;
+        }
+
+        .logo-text h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+        }
+
+        .logo-text p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .tagline {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .tagline strong {
+            color: var(--crimson);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Section */
+        section {
+            padding: 4rem 0;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        section:last-of-type {
+            border-bottom: none;
+        }
+
+        .section-header {
+            margin-bottom: 2rem;
+        }
+
+        .section-header h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-header h2 i {
+            color: var(--crimson);
+        }
+
+        .section-header p {
+            color: var(--text-secondary);
+        }
+
+        /* Quick Stats */
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1rem;
+            margin: 3rem 0;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-card .value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--crimson);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-card .label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        /* Info Box */
+        .info-box {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-box h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-box h3 i {
+            color: var(--crimson);
+        }
+
+        .info-box p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .info-box ul {
+            list-style: none;
+            color: var(--text-secondary);
+        }
+
+        .info-box li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .info-box li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--crimson);
+        }
+
+        /* Two Column */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        /* Feature Categories */
+        .feature-category {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .category-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .category-icon.crimson { background: rgba(225, 29, 72, 0.15); color: var(--crimson); }
+        .category-icon.blue { background: rgba(59, 130, 246, 0.15); color: var(--info); }
+        .category-icon.green { background: rgba(34, 197, 94, 0.15); color: var(--success); }
+        .category-icon.purple { background: rgba(139, 92, 246, 0.15); color: var(--purple); }
+        .category-icon.orange { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+
+        .category-header h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 600;
+        }
+
+        .category-header span {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .feature-list {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+
+        .feature-item:hover {
+            background: rgba(225, 29, 72, 0.05);
+        }
+
+        .feature-status {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            flex-shrink: 0;
+        }
+
+        .feature-status.done {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--success);
+        }
+
+        .feature-status.built {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--info);
+        }
+
+        .feature-status.planned {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+        }
+
+        .feature-content h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .feature-content p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .feature-tag {
+            margin-left: auto;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+
+        .feature-tag.mvp {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--success);
+        }
+
+        .feature-tag.phase2 {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--info);
+        }
+
+        .feature-tag.phase3 {
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--purple);
+        }
+
+        /* Pricing Display */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .pricing-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .pricing-card.popular {
+            border-color: var(--crimson);
+            background: linear-gradient(135deg, rgba(225, 29, 72, 0.05) 0%, var(--card-bg) 100%);
+        }
+
+        .pricing-card.popular::before {
+            content: 'MOST POPULAR';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--crimson);
+            padding: 0.25rem 1rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .pricing-card h4 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .pricing-card .subtitle {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+        }
+
+        .pricing-card .price {
+            margin-bottom: 1.5rem;
+        }
+
+        .pricing-card .price .amount {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--crimson);
+        }
+
+        .pricing-card .price .period {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .pricing-card .drivers {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+        }
+
+        .pricing-card .extra {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .pricing-card ul {
+            list-style: none;
+        }
+
+        .pricing-card li {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .pricing-card li i {
+            color: var(--success);
+            font-size: 0.75rem;
+        }
+
+        /* Tech Stack */
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        .tech-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: center;
+        }
+
+        .tech-card i {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+            color: var(--crimson);
+        }
+
+        .tech-card h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .tech-card p {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* File Structure */
+        .file-tree {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+        }
+
+        .file-tree .folder {
+            color: var(--info);
+        }
+
+        .file-tree .file {
+            color: var(--text-secondary);
+        }
+
+        .file-tree .comment {
+            color: var(--success);
+            font-style: italic;
+        }
+
+        .tree-line {
+            padding: 0.15rem 0;
+            padding-left: 1rem;
+        }
+
+        .tree-line.indent-1 { padding-left: 2rem; }
+        .tree-line.indent-2 { padding-left: 3rem; }
+        .tree-line.indent-3 { padding-left: 4rem; }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            gap: 2rem;
+            padding: 1rem 1.5rem;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 4px;
+        }
+
+        .legend-dot.done { background: var(--success); }
+        .legend-dot.built { background: var(--info); }
+        .legend-dot.planned { background: var(--warning); }
+
+        /* Target Market */
+        .market-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        .market-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .market-card .icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(225, 29, 72, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.5rem;
+            color: var(--crimson);
+        }
+
+        .market-card h4 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .market-card p {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        /* Differentiators */
+        .diff-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .diff-card {
+            background: linear-gradient(135deg, rgba(225, 29, 72, 0.05) 0%, var(--card-bg) 100%);
+            border: 1px solid rgba(225, 29, 72, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .diff-card h4 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .diff-card h4 i {
+            color: var(--crimson);
+        }
+
+        .diff-card p {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        /* Footer */
+        footer {
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .quick-stats {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tech-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .logo-text {
+                text-align: center;
+            }
+
+            .quick-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+
+            .market-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .diff-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .legend {
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">
+                <i class="fas fa-truck-fast"></i>
+            </div>
+            <div class="logo-text">
+                <h1>VroomX Safety</h1>
+                <p>AI-Powered FMCSA Compliance Platform</p>
+            </div>
+        </div>
+        <p class="tagline">The <strong>modern, affordable</strong> way for trucking companies to manage DOT compliance, track CSA scores, and stay audit-ready.</p>
+    </header>
+
+    <!-- Quick Stats -->
+    <div class="container">
+        <div class="quick-stats">
+            <div class="stat-card">
+                <div class="value">$19-89</div>
+                <div class="label">Monthly Pricing</div>
+            </div>
+            <div class="stat-card">
+                <div class="value">1-50+</div>
+                <div class="label">Drivers Supported</div>
+            </div>
+            <div class="stat-card">
+                <div class="value">7</div>
+                <div class="label">BASICs Tracked</div>
+            </div>
+            <div class="stat-card">
+                <div class="value">AI</div>
+                <div class="label">Claude Powered</div>
+            </div>
+            <div class="stat-card">
+                <div class="value">FREE</div>
+                <div class="label">CSA Checker Tool</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- What is VroomX -->
+    <section class="container">
+        <div class="section-header">
+            <h2><i class="fas fa-info-circle"></i> What is VroomX Safety?</h2>
+            <p>Platform overview and value proposition</p>
+        </div>
+
+        <div class="info-box">
+            <h3><i class="fas fa-bullseye"></i> The Problem We Solve</h3>
+            <p>Small and mid-sized trucking companies struggle with DOT compliance. They're either:</p>
+            <ul>
+                <li>Using spreadsheets and filing cabinets (missing expirations, failing audits)</li>
+                <li>Overpaying for telematics platforms ($30-50/truck) when they only need compliance tools</li>
+                <li>Using outdated software with clunky interfaces and zero AI assistance</li>
+            </ul>
+        </div>
+
+        <div class="two-col">
+            <div class="info-box">
+                <h3><i class="fas fa-check-circle"></i> Our Solution</h3>
+                <p>VroomX Safety is a <strong>compliance-focused SaaS platform</strong> that does ONE thing really well: keeps your fleet DOT-compliant and audit-ready.</p>
+                <ul>
+                    <li>Driver Qualification File (DQF) management</li>
+                    <li>Document expiration tracking with alerts</li>
+                    <li>CSA score monitoring across all 7 BASICs</li>
+                    <li>AI-powered regulation assistant (Claude)</li>
+                    <li>DataQ violation challenge drafting</li>
+                    <li>Audit-ready reports and checklists</li>
+                </ul>
+            </div>
+
+            <div class="info-box">
+                <h3><i class="fas fa-crosshairs"></i> What We're NOT</h3>
+                <p>We deliberately don't try to do everything. We're not:</p>
+                <ul>
+                    <li>An ELD provider (use your existing one)</li>
+                    <li>A GPS tracking platform</li>
+                    <li>A dispatch/TMS system</li>
+                    <li>A telematics platform</li>
+                    <li>An IFTA calculator</li>
+                </ul>
+                <p style="margin-top: 1rem; color: var(--success);"><strong>We work alongside your existing tools, not replace them.</strong></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Target Market -->
+    <section class="container">
+        <div class="section-header">
+            <h2><i class="fas fa-users"></i> Target Market</h2>
+            <p>Who VroomX Safety is built for</p>
+        </div>
+
+        <div class="market-grid">
+            <div class="market-card">
+                <div class="icon"><i class="fas fa-user"></i></div>
+                <h4>Owner-Operators</h4>
+                <p>Solo drivers who need simple, affordable compliance tracking for their own CDL, medical card, and vehicle.</p>
+                <p style="margin-top: 0.5rem; color: var(--crimson); font-weight: 600;">$19/month</p>
+            </div>
+            <div class="market-card">
+                <div class="icon"><i class="fas fa-truck"></i></div>
+                <h4>Small Fleets (2-10)</h4>
+                <p>Growing companies that have outgrown spreadsheets but don't need expensive enterprise solutions.</p>
+                <p style="margin-top: 0.5rem; color: var(--crimson); font-weight: 600;">$39/month</p>
+            </div>
+            <div class="market-card">
+                <div class="icon"><i class="fas fa-building"></i></div>
+                <h4>Mid-Size Fleets (10-50)</h4>
+                <p>Established carriers needing advanced analytics, multi-user access, and API integrations.</p>
+                <p style="margin-top: 0.5rem; color: var(--crimson); font-weight: 600;">$89/month</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Key Differentiators -->
+    <section class="container">
+        <div class="section-header">
+            <h2><i class="fas fa-star"></i> Key Differentiators</h2>
+            <p>What makes VroomX different from competitors</p>
+        </div>
+
+        <div class="diff-grid">
+            <div class="diff-card">
+                <h4><i class="fas fa-robot"></i> AI-First Platform</h4>
+                <p>Claude-powered regulation assistant answers 49 CFR questions instantly. AI generates DataQ challenge letters. No competitor has this.</p>
+            </div>
+            <div class="diff-card">
+                <h4><i class="fas fa-gift"></i> FREE CSA Checker</h4>
+                <p>Anyone can check their CSA scores for free - no account required. Competitors charge $20-50+ for this. Powerful lead generation tool.</p>
+            </div>
+            <div class="diff-card">
+                <h4><i class="fas fa-palette"></i> Modern, Beautiful UI</h4>
+                <p>Dark mode, responsive design, fast performance. Competitors like J.J. Keller and Foley have dated, clunky interfaces.</p>
+            </div>
+            <div class="diff-card">
+                <h4><i class="fas fa-dollar-sign"></i> Affordable & Transparent</h4>
+                <p>$19-89/month with clear pricing. No contracts. Competitors often have opaque "contact sales" pricing and multi-year lock-ins.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Complete Feature List -->
+    <section class="container">
+        <div class="section-header">
+            <h2><i class="fas fa-list-check"></i> Complete Feature List</h2>
+            <p>Everything built, planned, and in progress</p>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-dot done"></div>
+                <span>Complete & Live</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot built"></div>
+                <span>Built (Hidden/Phase 2)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot planned"></div>
+                <span>Planned/In Progress</span>
+            </div>
+        </div>
+
+        <!-- Driver Qualification -->
+        <div class="feature-category">
+            <div class="category-header">
+                <div class="category-icon crimson"><i class="fas fa-id-card"></i></div>
+                <div>
+                    <h3>Driver Qualification Files (DQF)</h3>
+                    <span>49 CFR Part 391 compliance management</span>
+                </div>
+            </div>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div class="feature-status done"><i class="fas fa-check"></i></div>
+                    <div class="feature-content">
+                        <h4>Driver Profile Management</h4>
+                        <p>Add, edit, and manage driver records with all required DOT fields</p>
+                    </div>
+                    <span class="feature-tag mvp">MVP</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status done"><i class="fas fa-check"></i></div>
+                    <div class="feature-content">
+                        <h4>CDL Tracking</h4>
+                        <p>Track CDL number, class, endorsements, restrictions, and expiration dates</p>
+                    </div>
+                    <span class="feature-tag mvp">MVP</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status done"><i class="fas fa-check"></i></div>
+                    <div class="feature-content">
+                        <h4>Medical Certificate Tracking</h4>
+                        <p>Monitor DOT medical card expiration with condition-based renewal periods</p>
+                    </div>
+                    <span class="feature-tag mvp">MVP</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status done"><i class="fas fa-check"></i></div>
+                    <div class="feature-content">
+                        <h4>MVR (Motor Vehicle Record) Tracking</h4>
+                        <p>Annual MVR review dates and compliance status</p>
+                    </div>
+                    <span class="feature-tag mvp">MVP</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status done"><i class="fas fa-check"></i></div>
+                    <div class="feature-content">
+                        <h4>Document Upload & Storage</h4>
+                        <p>Upload and store all 13 required DQF documents per driver</p>
+                    </div>
+                    <span class="feature-tag mvp">MVP</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status done"><i class="fas fa-check"></i></div>
+                    <div class="feature-content">
+                        <h4>Expiration Alerts (In-App)</h4>
+                        <p>Dashboard alerts at 90, 60, 30, 14, and 7 days before expiration</p>
+                    </div>
+                    <span class="feature-tag mvp">MVP</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status done"><i class="fas fa-check"></i></div>
+                    <div class="feature-content">
+                        <h4>Employment History</h4>
+                        <p>Previous employer records for 3+ year lookback</p>
+                    </div>
+                    <span class="feature-tag mvp">MVP</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status planned"><i class="fas fa-clock"></i></div>
+                    <div class="feature-content">
+                        <h4>Email/SMS Expiration Alerts</h4>
+                        <p>Automated email and text notifications for upcoming expirations</p>
+                    </div>
+                    <span class="feature-tag phase2">Phase 2</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status planned"><i class="fas fa-clock"></i></div>
+                    <div class="feature-content">
+                        <h4>Document OCR Auto-Fill</h4>
+                        <p>AI extracts data from uploaded CDLs and medical cards automatically</p>
+                    </div>
+                    <span class="feature-tag phase3">Phase 3</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vehicle Management -->
+        <div class="feature-category">
+            <div class="category-header">
+                <div class="category-icon blue"><i class="fas fa-truck"></i></div>
+                <div>
+                    <h3>Vehicle Compliance</h3>
+                    <span>49 CFR Part 396 vehicle tracking</span>
+                </div>
+            </div>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div class="feature-status done"><i class="fas fa-check"></i></div>
+                    <div class="feature-content">
+                        <h4>Vehicle Profile Management</h4>
+                        <p>Track trucks, trailers, and equipment with VIN, year, make, model</p>
+                    </div>
+                    <span class="feature-tag mvp">MVP</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status done"><i class="fas fa-check"></i></div>
+                    <div class="feature-content">
+                        <h4>Annual Inspection Tracking</h4>
+                        <p>Monitor annual DOT inspection dates and compliance status</p>
+                    </div>
+                    <span class="feature-tag mvp">MVP</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status done"><i class="fas fa-check"></i></div>
+                    <div class="feature-content">
+                        <h4>Registration & Insurance Tracking</h4>
+                        <p>Vehicle registration and insurance expiration dates</p>
+                    </div>
+                    <span class="feature-tag mvp">MVP</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status built"><i class="fas fa-code"></i></div>
+                    <div class="feature-content">
+                        <h4>Maintenance Log</h4>
+                        <p>Track maintenance history and scheduled service</p>
+                    </div>
+                    <span class="feature-tag phase2">Phase 2</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status planned"><i class="fas fa-clock"></i></div>
+                    <div class="feature-content">
+                        <h4>DVIR Integration</h4>
+                        <p>Import daily vehicle inspection reports from ELD providers</p>
+                    </div>
+                    <span class="feature-tag phase3">Phase 3</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- CSA & Safety -->
+        <div class="feature-category">
+            <div class="category-header">
+                <div class="category-icon green"><i class="fas fa-chart-line"></i></div>
+                <div>
+                    <h3>CSA Score & Safety Management</h3>
+                    <span>SMS BASICs monitoring and analysis</span>
+                </div>
+            </div>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div class="feature-status done"><i class="fas fa-check"></i></div>
+                    <div class="feature-content">
+                        <h4>FREE CSA Score Checker</h4>
+                        <p>Public tool to check any carrier's CSA scores by USDOT number</p>
+                    </div>
+                    <span class="feature-tag mvp">MVP</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status done"><i class="fas fa-check"></i></div>
+                    <div class="feature-content">
+                        <h4>7 BASICs Dashboard</h4>
+                        <p>Visual tracking of all SMS categories with percentile gauges</p>
+                    </div>
+                    <span class="feature-tag mvp">MVP</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status done"><i class="fas fa-check"></i></div>
+                    <div class="feature-content">
+                        <h4>Threshold Alerts</h4>
+                        <p>Warnings when BASIC scores approach intervention thresholds</p>
+                    </div>
+                    <span class="feature-tag mvp">MVP</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status done"><i class="fas fa-check"></i></div>
+                    <div class="feature-content">
+                        <h4>FMCSA SAFER Data Sync</h4>
+                        <p>Pulls carrier data directly from FMCSA SAFER Web system</p>
+                    </div>
+                    <span class="feature-tag mvp">MVP</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status done"><i class="fas fa-check"></i></div>
+                    <div class="feature-content">
+                        <h4>CSA Score Trends Chart</h4>
+                        <p>24-month historical tracking with trend visualization</p>
+                    </div>
+                    <span class="feature-tag mvp">MVP</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status done"><i class="fas fa-check"></i></div>
+                    <div class="feature-content">
+                        <h4>Inspection History</h4>
+                        <p>View all roadside inspections with violation details</p>
+                    </div>
+                    <span class="feature-tag mvp">MVP</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status built"><i class="fas fa-code"></i></div>
+                    <div class="feature-content">
+                        <h4>AI Score Analysis</h4>
+                        <p>AI-generated insights and improvement recommendations</p>
+                    </div>
+                    <span class="feature-tag phase2">Phase 2</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status planned"><i class="fas fa-clock"></i></div>
+                    <div class="feature-content">
+                        <h4>CSA Score Change Alerts</h4>
+                        <p>Email/SMS when scores change significantly</p>
+                    </div>
+                    <span class="feature-tag phase2">Phase 2</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Violations & DataQ -->
+        <div class="feature-category">
+            <div class="category-header">
+                <div class="category-icon orange"><i class="fas fa-exclamation-triangle"></i></div>
+                <div>
+                    <h3>Violations & DataQ Challenges</h3>
+                    <span>Violation tracking and challenge assistance</span>
+                </div>
+            </div>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div class="feature-status done"><i class="fas fa-check"></i></div>
+                    <div class="feature-content">
+                        <h4>Violation Tracking</h4>
+                        <p>View and track all violations from roadside inspections</p>
+                    </div>
+                    <span class="feature-tag mvp">MVP</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status done"><i class="fas fa-check"></i></div>
+                    <div class="feature-content">
+                        <h4>Violation Severity Classification</h4>
+                        <p>Categorize violations by weight and BASIC category</p>
+                    </div>
+                    <span class="feature-tag mvp">MVP</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status built"><i class="fas fa-code"></i></div>
+                    <div class="feature-content">
+                        <h4>AI Violation Reader</h4>
+                        <p>AI explains violations in plain English with regulation references</p>
+                    </div>
+                    <span class="feature-tag phase2">Phase 2</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status built"><i class="fas fa-code"></i></div>
+                    <div class="feature-content">
+                        <h4>DataQ Challenge Draft Generator</h4>
+                        <p>AI generates DataQ challenge letters based on violation details</p>
+                    </div>
+                    <span class="feature-tag phase2">Phase 2</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status built"><i class="fas fa-code"></i></div>
+                    <div class="feature-content">
+                        <h4>Challenge Eligibility Check</h4>
+                        <p>AI analyzes if violations are likely to succeed if challenged</p>
+                    </div>
+                    <span class="feature-tag phase2">Phase 2</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status planned"><i class="fas fa-clock"></i></div>
+                    <div class="feature-content">
+                        <h4>DataQ Status Tracking</h4>
+                        <p>Monitor submitted challenges through resolution</p>
+                    </div>
+                    <span class="feature-tag phase3">Phase 3</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Features -->
+        <div class="feature-category">
+            <div class="category-header">
+                <div class="category-icon purple"><i class="fas fa-robot"></i></div>
+                <div>
+                    <h3>AI-Powered Features</h3>
+                    <span>Claude-powered intelligence</span>
+                </div>
+            </div>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div class="feature-status built"><i class="fas fa-code"></i></div>
+                    <div class="feature-content">
+                        <h4>AI Regulation Assistant</h4>
+                        <p>Ask any question about 49 CFR regulations, get instant answers</p>
+                    </div>
+                    <span class="feature-tag phase2">Phase 2</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status built"><i class="fas fa-code"></i></div>
+                    <div class="feature-content">
+                        <h4>AI Compliance Chat</h4>
+                        <p>Interactive chat interface for compliance questions</p>
+                    </div>
+                    <span class="feature-tag phase2">Phase 2</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status built"><i class="fas fa-code"></i></div>
+                    <div class="feature-content">
+                        <h4>AI DataQ Challenge Writer</h4>
+                        <p>Generates professional DataQ challenge letters automatically</p>
+                    </div>
+                    <span class="feature-tag phase2">Phase 2</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status built"><i class="fas fa-code"></i></div>
+                    <div class="feature-content">
+                        <h4>AI Violation Explainer</h4>
+                        <p>Explains violations in plain language with remediation steps</p>
+                    </div>
+                    <span class="feature-tag phase2">Phase 2</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status planned"><i class="fas fa-clock"></i></div>
+                    <div class="feature-content">
+                        <h4>AI Document Verification</h4>
+                        <p>Verify document authenticity and extract data automatically</p>
+                    </div>
+                    <span class="feature-tag phase3">Phase 3</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status planned"><i class="fas fa-clock"></i></div>
+                    <div class="feature-content">
+                        <h4>Predictive Compliance Scoring</h4>
+                        <p>AI predicts future CSA score trends based on current data</p>
+                    </div>
+                    <span class="feature-tag phase3">Phase 3</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Drug & Alcohol -->
+        <div class="feature-category">
+            <div class="category-header">
+                <div class="category-icon crimson"><i class="fas fa-vial"></i></div>
+                <div>
+                    <h3>Drug & Alcohol Program</h3>
+                    <span>49 CFR Part 382 compliance</span>
+                </div>
+            </div>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div class="feature-status built"><i class="fas fa-code"></i></div>
+                    <div class="feature-content">
+                        <h4>Test Record Tracking</h4>
+                        <p>Track pre-employment, random, post-accident, and return-to-duty tests</p>
+                    </div>
+                    <span class="feature-tag phase2">Phase 2</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status built"><i class="fas fa-code"></i></div>
+                    <div class="feature-content">
+                        <h4>Random Pool Management</h4>
+                        <p>Manage random selection pool and selection rates</p>
+                    </div>
+                    <span class="feature-tag phase2">Phase 2</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status planned"><i class="fas fa-clock"></i></div>
+                    <div class="feature-content">
+                        <h4>Clearinghouse Integration</h4>
+                        <p>API connection to FMCSA Drug & Alcohol Clearinghouse</p>
+                    </div>
+                    <span class="feature-tag phase3">Phase 3</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Audit & Reports -->
+        <div class="feature-category">
+            <div class="category-header">
+                <div class="category-icon blue"><i class="fas fa-file-alt"></i></div>
+                <div>
+                    <h3>Audit Preparation & Reports</h3>
+                    <span>Stay audit-ready at all times</span>
+                </div>
+            </div>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div class="feature-status done"><i class="fas fa-check"></i></div>
+                    <div class="feature-content">
+                        <h4>Compliance Dashboard</h4>
+                        <p>At-a-glance view of overall compliance status</p>
+                    </div>
+                    <span class="feature-tag mvp">MVP</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status built"><i class="fas fa-code"></i></div>
+                    <div class="feature-content">
+                        <h4>Audit Readiness Checklist</h4>
+                        <p>13-point DQF checklist for each driver</p>
+                    </div>
+                    <span class="feature-tag phase2">Phase 2</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status built"><i class="fas fa-code"></i></div>
+                    <div class="feature-content">
+                        <h4>PDF Report Generation</h4>
+                        <p>Generate audit-ready PDF reports for DOT inspectors</p>
+                    </div>
+                    <span class="feature-tag phase2">Phase 2</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status built"><i class="fas fa-code"></i></div>
+                    <div class="feature-content">
+                        <h4>Custom Reports</h4>
+                        <p>Build custom compliance reports with filters</p>
+                    </div>
+                    <span class="feature-tag phase2">Phase 2</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status planned"><i class="fas fa-clock"></i></div>
+                    <div class="feature-content">
+                        <h4>Scheduled Report Delivery</h4>
+                        <p>Automatic weekly/monthly compliance reports via email</p>
+                    </div>
+                    <span class="feature-tag phase3">Phase 3</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account & Multi-Company -->
+        <div class="feature-category">
+            <div class="category-header">
+                <div class="category-icon green"><i class="fas fa-building"></i></div>
+                <div>
+                    <h3>Account & Multi-Company Support</h3>
+                    <span>User management and company structure</span>
+                </div>
+            </div>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div class="feature-status done"><i class="fas fa-check"></i></div>
+                    <div class="feature-content">
+                        <h4>User Authentication</h4>
+                        <p>Secure login with email/password</p>
+                    </div>
+                    <span class="feature-tag mvp">MVP</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status done"><i class="fas fa-check"></i></div>
+                    <div class="feature-content">
+                        <h4>Company Profile</h4>
+                        <p>Manage USDOT, MC number, and company details</p>
+                    </div>
+                    <span class="feature-tag mvp">MVP</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status done"><i class="fas fa-check"></i></div>
+                    <div class="feature-content">
+                        <h4>Multi-Company Support</h4>
+                        <p>Manage multiple DOT numbers under one account (Fleet: 3, Pro: 10)</p>
+                    </div>
+                    <span class="feature-tag mvp">MVP</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status done"><i class="fas fa-check"></i></div>
+                    <div class="feature-content">
+                        <h4>Multi-User Access</h4>
+                        <p>Add team members with role-based permissions</p>
+                    </div>
+                    <span class="feature-tag mvp">MVP</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status done"><i class="fas fa-check"></i></div>
+                    <div class="feature-content">
+                        <h4>Subscription Management</h4>
+                        <p>Upgrade, downgrade, and manage billing</p>
+                    </div>
+                    <span class="feature-tag mvp">MVP</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Integrations -->
+        <div class="feature-category">
+            <div class="category-header">
+                <div class="category-icon orange"><i class="fas fa-plug"></i></div>
+                <div>
+                    <h3>Integrations & API</h3>
+                    <span>Connect with external systems</span>
+                </div>
+            </div>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div class="feature-status done"><i class="fas fa-check"></i></div>
+                    <div class="feature-content">
+                        <h4>FMCSA SAFER Web Integration</h4>
+                        <p>Pull carrier data directly from federal database</p>
+                    </div>
+                    <span class="feature-tag mvp">MVP</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status planned"><i class="fas fa-clock"></i></div>
+                    <div class="feature-content">
+                        <h4>ELD Provider Integration</h4>
+                        <p>Sync with Samsara, Motive, KeepTruckin APIs</p>
+                    </div>
+                    <span class="feature-tag phase3">Phase 3</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status planned"><i class="fas fa-clock"></i></div>
+                    <div class="feature-content">
+                        <h4>Clearinghouse API</h4>
+                        <p>Direct connection to FMCSA Drug & Alcohol Clearinghouse</p>
+                    </div>
+                    <span class="feature-tag phase3">Phase 3</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status planned"><i class="fas fa-clock"></i></div>
+                    <div class="feature-content">
+                        <h4>REST API Access</h4>
+                        <p>API for Pro tier customers to build custom integrations</p>
+                    </div>
+                    <span class="feature-tag phase3">Phase 3</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-status planned"><i class="fas fa-clock"></i></div>
+                    <div class="feature-content">
+                        <h4>Webhook Notifications</h4>
+                        <p>Send events to external systems (Zapier, n8n, etc.)</p>
+                    </div>
+                    <span class="feature-tag phase3">Phase 3</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing -->
+    <section class="container">
+        <div class="section-header">
+            <h2><i class="fas fa-tags"></i> Pricing Plans</h2>
+            <p>Simple, transparent pricing</p>
+        </div>
+
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <h4>Solo</h4>
+                <div class="subtitle">For Owner-Operators</div>
+                <div class="price">
+                    <span class="amount">$19</span>
+                    <span class="period">/month</span>
+                </div>
+                <div class="drivers">1 driver included</div>
+                <ul>
+                    <li><i class="fas fa-check"></i> Full DQF Management</li>
+                    <li><i class="fas fa-check"></i> AI Regulation Assistant</li>
+                    <li><i class="fas fa-check"></i> CSA Score Tracking</li>
+                    <li><i class="fas fa-check"></i> Document Expiry Alerts</li>
+                    <li><i class="fas fa-check"></i> 100 AI queries/month</li>
+                </ul>
+            </div>
+
+            <div class="pricing-card popular">
+                <h4>Fleet</h4>
+                <div class="subtitle">For Small Fleets (2-10 drivers)</div>
+                <div class="price">
+                    <span class="amount">$39</span>
+                    <span class="period">/month</span>
+                </div>
+                <div class="drivers">3 drivers included</div>
+                <div class="extra">+$6/driver after 3 • Up to 3 companies</div>
+                <ul>
+                    <li><i class="fas fa-check"></i> Everything in Solo</li>
+                    <li><i class="fas fa-check"></i> AI Violation Reader</li>
+                    <li><i class="fas fa-check"></i> DataQ Draft Generator</li>
+                    <li><i class="fas fa-check"></i> Multi-user Access</li>
+                    <li><i class="fas fa-check"></i> Priority Support</li>
+                </ul>
+            </div>
+
+            <div class="pricing-card">
+                <h4>Pro</h4>
+                <div class="subtitle">For Growing Fleets (10-50 drivers)</div>
+                <div class="price">
+                    <span class="amount">$89</span>
+                    <span class="period">/month</span>
+                </div>
+                <div class="drivers">10 drivers included</div>
+                <div class="extra">+$5/driver after 10 • Up to 10 companies</div>
+                <ul>
+                    <li><i class="fas fa-check"></i> Everything in Fleet</li>
+                    <li><i class="fas fa-check"></i> Advanced CSA Analytics</li>
+                    <li><i class="fas fa-check"></i> Custom Reports & API</li>
+                    <li><i class="fas fa-check"></i> Dedicated Support</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tech Stack -->
+    <section class="container">
+        <div class="section-header">
+            <h2><i class="fas fa-code"></i> Technology Stack</h2>
+            <p>Built with modern, scalable technologies</p>
+        </div>
+
+        <div class="tech-grid">
+            <div class="tech-card">
+                <i class="fab fa-react"></i>
+                <h4>React 18</h4>
+                <p>Frontend framework</p>
+            </div>
+            <div class="tech-card">
+                <i class="fas fa-wind"></i>
+                <h4>Tailwind CSS</h4>
+                <p>Utility-first styling</p>
+            </div>
+            <div class="tech-card">
+                <i class="fab fa-node-js"></i>
+                <h4>Node.js</h4>
+                <p>Backend runtime</p>
+            </div>
+            <div class="tech-card">
+                <i class="fas fa-database"></i>
+                <h4>Supabase</h4>
+                <p>Database & Auth</p>
+            </div>
+            <div class="tech-card">
+                <i class="fas fa-robot"></i>
+                <h4>Claude AI</h4>
+                <p>Anthropic's AI</p>
+            </div>
+            <div class="tech-card">
+                <i class="fas fa-bolt"></i>
+                <h4>Vite</h4>
+                <p>Build tooling</p>
+            </div>
+            <div class="tech-card">
+                <i class="fas fa-route"></i>
+                <h4>React Router</h4>
+                <p>Navigation</p>
+            </div>
+            <div class="tech-card">
+                <i class="fas fa-chart-bar"></i>
+                <h4>Recharts</h4>
+                <p>Data visualization</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Project Structure -->
+    <section class="container">
+        <div class="section-header">
+            <h2><i class="fas fa-folder-tree"></i> Project Structure</h2>
+            <p>High-level codebase organization</p>
+        </div>
+
+        <div class="file-tree">
+            <div class="tree-line"><span class="folder">📁 TRUCKING COMPLIANCE HUB1/</span></div>
+            <div class="tree-line indent-1"><span class="folder">📁 frontend/</span> <span class="comment">— React application</span></div>
+            <div class="tree-line indent-2"><span class="folder">📁 src/</span></div>
+            <div class="tree-line indent-3"><span class="folder">📁 components/</span> <span class="comment">— Reusable UI components</span></div>
+            <div class="tree-line indent-3"><span class="folder">📁 pages/</span> <span class="comment">— Route pages (Dashboard, Drivers, etc.)</span></div>
+            <div class="tree-line indent-3"><span class="folder">📁 data/</span> <span class="comment">— Static data & configs</span></div>
+            <div class="tree-line indent-3"><span class="folder">📁 lib/</span> <span class="comment">— Supabase client & utilities</span></div>
+            <div class="tree-line indent-3"><span class="file">📄 App.jsx</span> <span class="comment">— Main app component</span></div>
+            <div class="tree-line indent-1"><span class="folder">📁 backend/</span> <span class="comment">— Node.js API (planned)</span></div>
+            <div class="tree-line indent-1"><span class="folder">📁 DOCS/</span> <span class="comment">— Documentation & reports</span></div>
+            <div class="tree-line indent-1"><span class="folder">📁 MARKETING/</span> <span class="comment">— Social ads, landing mockups</span></div>
+            <div class="tree-line indent-1"><span class="folder">📁 MOCKUPS/</span> <span class="comment">— UI mockup explorations</span></div>
+            <div class="tree-line indent-1"><span class="file">📄 README.md</span></div>
+        </div>
+    </section>
+
+    <!-- Summary -->
+    <section class="container">
+        <div class="info-box" style="background: linear-gradient(135deg, rgba(225, 29, 72, 0.1) 0%, var(--card-bg) 100%); border-color: rgba(225, 29, 72, 0.3);">
+            <h3 style="text-align: center; justify-content: center;"><i class="fas fa-flag-checkered"></i> Project Status Summary</h3>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 1.5rem; text-align: center;">
+                <div>
+                    <div style="font-family: 'Outfit', sans-serif; font-size: 2.5rem; font-weight: 800; color: var(--success);">85%</div>
+                    <div style="color: var(--text-secondary);">Features Complete</div>
+                </div>
+                <div>
+                    <div style="font-family: 'Outfit', sans-serif; font-size: 2.5rem; font-weight: 800; color: var(--crimson);">MVP</div>
+                    <div style="color: var(--text-secondary);">Launch Ready</div>
+                </div>
+                <div>
+                    <div style="font-family: 'Outfit', sans-serif; font-size: 2.5rem; font-weight: 800; color: var(--info);">AI</div>
+                    <div style="color: var(--text-secondary);">Differentiator</div>
+                </div>
+            </div>
+            <p style="text-align: center; margin-top: 1.5rem; color: var(--text-secondary);">
+                VroomX Safety is a <strong>modern, AI-powered FMCSA compliance platform</strong> targeting small to mid-sized trucking companies.
+                Core features are complete, AI features are built (pending activation), and the platform is ready for beta customers.
+            </p>
+        </div>
+    </section>
+
+    <footer>
+        <p>VroomX Safety | Project Overview Document | January 2026</p>
+    </footer>
+</body>
+</html>

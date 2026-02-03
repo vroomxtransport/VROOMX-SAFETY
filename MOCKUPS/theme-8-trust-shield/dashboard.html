@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VroomX - Enterprise Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        royal: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#1d4ed8',
+                            700: '#1e40af',
+                            800: '#1e3a8a',
+                            900: '#1e3a5f',
+                        },
+                        sky: {
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                        },
+                        slate: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Source Sans 3', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        [x-cloak] { display: none !important; }
+
+        .card-shadow {
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-shadow-md {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Compliance Gauge */
+        .gauge-container {
+            position: relative;
+            width: 200px;
+            height: 100px;
+            overflow: hidden;
+        }
+
+        .gauge-bg {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: conic-gradient(
+                from 180deg,
+                #ef4444 0deg,
+                #f97316 36deg,
+                #eab308 72deg,
+                #22c55e 108deg,
+                #22c55e 180deg,
+                #e2e8f0 180deg,
+                #e2e8f0 360deg
+            );
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .gauge-inner {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: white;
+            position: absolute;
+            top: 30px;
+            left: 30px;
+        }
+
+        .gauge-needle {
+            width: 4px;
+            height: 70px;
+            background: linear-gradient(to top, #1e293b 0%, #1e293b 80%, transparent 80%);
+            position: absolute;
+            bottom: 0;
+            left: 98px;
+            transform-origin: bottom center;
+            transform: rotate(-45deg);
+            border-radius: 2px;
+            transition: transform 1s ease-out;
+        }
+
+        .gauge-center {
+            width: 16px;
+            height: 16px;
+            background: #1e293b;
+            border-radius: 50%;
+            position: absolute;
+            bottom: -8px;
+            left: 92px;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased bg-slate-100" x-data="{ sidebarOpen: true, notificationsOpen: false, profileOpen: false, searchOpen: false }">
+    <div class="flex h-screen overflow-hidden">
+
+        <!-- Sidebar -->
+        <aside
+            :class="sidebarOpen ? 'w-64' : 'w-20'"
+            class="bg-white border-r border-slate-200 flex-shrink-0 flex flex-col transition-all duration-300 hidden lg:flex"
+        >
+            <!-- Logo -->
+            <div class="h-16 flex items-center px-4 border-b border-slate-200">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-royal-600 to-sky-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                    </div>
+                    <span x-show="sidebarOpen" class="text-xl font-bold text-slate-800">VroomX</span>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 overflow-y-auto py-4">
+                <div class="px-3 space-y-1">
+                    <!-- Dashboard -->
+                    <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg bg-royal-50 text-royal-600">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                        </svg>
+                        <span x-show="sidebarOpen" class="font-medium">Dashboard</span>
+                    </a>
+
+                    <!-- Compliance -->
+                    <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                        <span x-show="sidebarOpen">Compliance</span>
+                    </a>
+
+                    <!-- Drivers -->
+                    <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                        <span x-show="sidebarOpen">Drivers</span>
+                    </a>
+
+                    <!-- Vehicles -->
+                    <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                        </svg>
+                        <span x-show="sidebarOpen">Vehicles</span>
+                    </a>
+
+                    <!-- Documents -->
+                    <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        <span x-show="sidebarOpen">Documents</span>
+                    </a>
+
+                    <!-- Maintenance -->
+                    <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        <span x-show="sidebarOpen">Maintenance</span>
+                    </a>
+
+                    <!-- Audits -->
+                    <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                        </svg>
+                        <span x-show="sidebarOpen">Audits</span>
+                    </a>
+
+                    <div x-show="sidebarOpen" class="pt-4 mt-4 border-t border-slate-200">
+                        <p class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Analytics</p>
+                    </div>
+
+                    <!-- Reports -->
+                    <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                        <span x-show="sidebarOpen">Reports</span>
+                    </a>
+
+                    <!-- Insights -->
+                    <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                        <span x-show="sidebarOpen">Insights</span>
+                    </a>
+                </div>
+            </nav>
+
+            <!-- Sidebar Footer -->
+            <div class="p-4 border-t border-slate-200">
+                <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <span x-show="sidebarOpen">Settings</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Header -->
+            <header class="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-4 lg:px-6 flex-shrink-0">
+                <!-- Left -->
+                <div class="flex items-center space-x-4">
+                    <!-- Sidebar Toggle -->
+                    <button @click="sidebarOpen = !sidebarOpen" class="hidden lg:block p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+
+                    <!-- Mobile Menu -->
+                    <button class="lg:hidden p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+
+                    <!-- Search -->
+                    <div class="relative hidden sm:block">
+                        <input
+                            type="text"
+                            placeholder="Search drivers, vehicles, documents..."
+                            class="w-64 lg:w-80 pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-royal-500 focus:border-transparent text-sm text-slate-700 placeholder-slate-400"
+                        >
+                        <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Right -->
+                <div class="flex items-center space-x-3">
+                    <!-- Help -->
+                    <button class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </button>
+
+                    <!-- Notifications -->
+                    <div class="relative">
+                        <button @click="notificationsOpen = !notificationsOpen" class="relative p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                            </svg>
+                            <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                        </button>
+
+                        <!-- Notifications Dropdown -->
+                        <div x-show="notificationsOpen" x-cloak @click.away="notificationsOpen = false" class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-slate-200 py-2 z-50">
+                            <div class="px-4 py-2 border-b border-slate-200">
+                                <h4 class="font-semibold text-slate-800">Notifications</h4>
+                            </div>
+                            <div class="max-h-96 overflow-y-auto">
+                                <a href="#" class="block px-4 py-3 hover:bg-slate-50 border-l-4 border-red-500">
+                                    <p class="text-sm font-medium text-slate-800">Medical Card Expiring</p>
+                                    <p class="text-xs text-slate-500 mt-1">John Smith's medical card expires in 7 days</p>
+                                    <p class="text-xs text-slate-400 mt-1">2 hours ago</p>
+                                </a>
+                                <a href="#" class="block px-4 py-3 hover:bg-slate-50 border-l-4 border-yellow-500">
+                                    <p class="text-sm font-medium text-slate-800">Annual Inspection Due</p>
+                                    <p class="text-xs text-slate-500 mt-1">Truck #T-1045 requires annual inspection</p>
+                                    <p class="text-xs text-slate-400 mt-1">5 hours ago</p>
+                                </a>
+                                <a href="#" class="block px-4 py-3 hover:bg-slate-50 border-l-4 border-royal-500">
+                                    <p class="text-sm font-medium text-slate-800">New DOT Update</p>
+                                    <p class="text-xs text-slate-500 mt-1">FMCSA published new HOS regulations</p>
+                                    <p class="text-xs text-slate-400 mt-1">1 day ago</p>
+                                </a>
+                            </div>
+                            <div class="px-4 py-2 border-t border-slate-200">
+                                <a href="#" class="text-sm text-royal-600 hover:text-royal-700 font-medium">View all notifications</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Company Selector -->
+                    <div class="hidden sm:flex items-center space-x-2 px-3 py-1.5 bg-slate-100 rounded-lg">
+                        <div class="w-6 h-6 bg-royal-600 rounded flex items-center justify-center">
+                            <span class="text-white text-xs font-semibold">A</span>
+                        </div>
+                        <span class="text-sm font-medium text-slate-700">Acme Logistics</span>
+                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </div>
+
+                    <!-- User Menu -->
+                    <div class="relative">
+                        <button @click="profileOpen = !profileOpen" class="flex items-center space-x-2">
+                            <div class="w-9 h-9 bg-gradient-to-br from-royal-500 to-sky-500 rounded-full flex items-center justify-center">
+                                <span class="text-white font-semibold text-sm">MJ</span>
+                            </div>
+                        </button>
+
+                        <!-- Profile Dropdown -->
+                        <div x-show="profileOpen" x-cloak @click.away="profileOpen = false" class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-slate-200 py-2 z-50">
+                            <div class="px-4 py-3 border-b border-slate-200">
+                                <p class="font-semibold text-slate-800">Michael Johnson</p>
+                                <p class="text-sm text-slate-500">Safety Manager</p>
+                            </div>
+                            <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">Your Profile</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">Account Settings</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">Billing</a>
+                            <div class="border-t border-slate-200 mt-2 pt-2">
+                                <a href="#" class="block px-4 py-2 text-sm text-red-600 hover:bg-slate-50">Sign Out</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content Area -->
+            <main class="flex-1 overflow-y-auto p-4 lg:p-6">
+                <!-- Page Header -->
+                <div class="mb-6">
+                    <h1 class="text-2xl font-bold text-slate-800">Compliance Dashboard</h1>
+                    <p class="text-slate-500 mt-1">Monitor your fleet's compliance status and performance</p>
+                </div>
+
+                <!-- Compliance Score & Quick Stats -->
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
+                    <!-- Compliance Gauge -->
+                    <div class="lg:col-span-1 bg-white rounded-xl p-6 card-shadow-md">
+                        <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">Overall Compliance</h3>
+                        <div class="flex flex-col items-center">
+                            <div class="gauge-container">
+                                <div class="gauge-bg"></div>
+                                <div class="gauge-inner"></div>
+                                <div class="gauge-needle" style="transform: rotate(65deg);"></div>
+                                <div class="gauge-center"></div>
+                            </div>
+                            <div class="text-center mt-4">
+                                <span class="text-4xl font-bold text-slate-800">94.7%</span>
+                                <div class="flex items-center justify-center mt-2 text-sm">
+                                    <span class="text-green-600 flex items-center">
+                                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                        2.3%
+                                    </span>
+                                    <span class="text-slate-400 ml-2">vs last month</span>
+                                </div>
+                            </div>
+                            <div class="w-full mt-4 pt-4 border-t border-slate-100">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-slate-500">Grade</span>
+                                    <span class="font-semibold text-green-600">A+</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stats Cards -->
+                    <div class="lg:col-span-3 grid grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Active Drivers -->
+                        <div class="bg-white rounded-xl p-5 card-shadow-md">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <p class="text-sm text-slate-500 font-medium">Active Drivers</p>
+                                    <p class="text-2xl font-bold text-slate-800 mt-1">1,247</p>
+                                </div>
+                                <div class="w-10 h-10 bg-royal-100 rounded-lg flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-royal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="mt-3 flex items-center text-sm">
+                                <span class="text-green-600 font-medium">1,198 compliant</span>
+                                <span class="text-slate-300 mx-2">|</span>
+                                <span class="text-red-600 font-medium">49 need attention</span>
+                            </div>
+                        </div>
+
+                        <!-- Vehicles -->
+                        <div class="bg-white rounded-xl p-5 card-shadow-md">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <p class="text-sm text-slate-500 font-medium">Fleet Vehicles</p>
+                                    <p class="text-2xl font-bold text-slate-800 mt-1">856</p>
+                                </div>
+                                <div class="w-10 h-10 bg-sky-100 rounded-lg flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="mt-3 flex items-center text-sm">
+                                <span class="text-green-600 font-medium">823 active</span>
+                                <span class="text-slate-300 mx-2">|</span>
+                                <span class="text-yellow-600 font-medium">33 in maintenance</span>
+                            </div>
+                        </div>
+
+                        <!-- Documents -->
+                        <div class="bg-white rounded-xl p-5 card-shadow-md">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <p class="text-sm text-slate-500 font-medium">Documents</p>
+                                    <p class="text-2xl font-bold text-slate-800 mt-1">4,892</p>
+                                </div>
+                                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="mt-3 flex items-center text-sm">
+                                <span class="text-green-600 font-medium">4,756 valid</span>
+                                <span class="text-slate-300 mx-2">|</span>
+                                <span class="text-red-600 font-medium">136 expiring</span>
+                            </div>
+                        </div>
+
+                        <!-- Pending Alerts -->
+                        <div class="bg-white rounded-xl p-5 card-shadow-md">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <p class="text-sm text-slate-500 font-medium">Active Alerts</p>
+                                    <p class="text-2xl font-bold text-slate-800 mt-1">12</p>
+                                </div>
+                                <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="mt-3 flex items-center text-sm">
+                                <span class="text-red-600 font-medium">3 critical</span>
+                                <span class="text-slate-300 mx-2">|</span>
+                                <span class="text-yellow-600 font-medium">9 warnings</span>
+                            </div>
+                        </div>
+
+                        <!-- Inspections -->
+                        <div class="bg-white rounded-xl p-5 card-shadow-md">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <p class="text-sm text-slate-500 font-medium">Inspections (YTD)</p>
+                                    <p class="text-2xl font-bold text-slate-800 mt-1">342</p>
+                                </div>
+                                <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="mt-3 flex items-center text-sm">
+                                <span class="text-green-600 font-medium">96% pass rate</span>
+                            </div>
+                        </div>
+
+                        <!-- Fines Avoided -->
+                        <div class="bg-white rounded-xl p-5 card-shadow-md">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <p class="text-sm text-slate-500 font-medium">Fines Avoided (YTD)</p>
+                                    <p class="text-2xl font-bold text-slate-800 mt-1">$247,500</p>
+                                </div>
+                                <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="mt-3 flex items-center text-sm">
+                                <span class="text-green-600 flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    18% vs last year
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Content Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Alerts Panel -->
+                    <div class="lg:col-span-1 bg-white rounded-xl card-shadow-md">
+                        <div class="p-4 border-b border-slate-200 flex items-center justify-between">
+                            <h3 class="font-semibold text-slate-800">Active Alerts</h3>
+                            <span class="bg-red-100 text-red-600 text-xs font-semibold px-2.5 py-1 rounded-full">12 Active</span>
+                        </div>
+                        <div class="divide-y divide-slate-100 max-h-96 overflow-y-auto">
+                            <!-- Critical Alert -->
+                            <div class="p-4 hover:bg-slate-50 cursor-pointer">
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-slate-800">Medical Card Expired</p>
+                                        <p class="text-xs text-slate-500 mt-1">Driver: James Wilson (D-0847)</p>
+                                        <p class="text-xs text-red-600 mt-1">Expired 2 days ago</p>
+                                    </div>
+                                    <span class="bg-red-100 text-red-600 text-xs font-medium px-2 py-0.5 rounded">Critical</span>
+                                </div>
+                            </div>
+
+                            <!-- Critical Alert -->
+                            <div class="p-4 hover:bg-slate-50 cursor-pointer">
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-slate-800">CDL Suspended</p>
+                                        <p class="text-xs text-slate-500 mt-1">Driver: Robert Chen (D-1023)</p>
+                                        <p class="text-xs text-red-600 mt-1">Reported today</p>
+                                    </div>
+                                    <span class="bg-red-100 text-red-600 text-xs font-medium px-2 py-0.5 rounded">Critical</span>
+                                </div>
+                            </div>
+
+                            <!-- Critical Alert -->
+                            <div class="p-4 hover:bg-slate-50 cursor-pointer">
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-slate-800">Failed Drug Test</p>
+                                        <p class="text-xs text-slate-500 mt-1">Driver: Michael Torres (D-0562)</p>
+                                        <p class="text-xs text-red-600 mt-1">Action required</p>
+                                    </div>
+                                    <span class="bg-red-100 text-red-600 text-xs font-medium px-2 py-0.5 rounded">Critical</span>
+                                </div>
+                            </div>
+
+                            <!-- Warning Alert -->
+                            <div class="p-4 hover:bg-slate-50 cursor-pointer">
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-slate-800">Medical Card Expiring</p>
+                                        <p class="text-xs text-slate-500 mt-1">Driver: Sarah Johnson (D-0234)</p>
+                                        <p class="text-xs text-yellow-600 mt-1">Expires in 7 days</p>
+                                    </div>
+                                    <span class="bg-yellow-100 text-yellow-700 text-xs font-medium px-2 py-0.5 rounded">Warning</span>
+                                </div>
+                            </div>
+
+                            <!-- Warning Alert -->
+                            <div class="p-4 hover:bg-slate-50 cursor-pointer">
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-slate-800">Annual Inspection Due</p>
+                                        <p class="text-xs text-slate-500 mt-1">Vehicle: T-1045 (Freightliner)</p>
+                                        <p class="text-xs text-yellow-600 mt-1">Due in 14 days</p>
+                                    </div>
+                                    <span class="bg-yellow-100 text-yellow-700 text-xs font-medium px-2 py-0.5 rounded">Warning</span>
+                                </div>
+                            </div>
+
+                            <!-- Warning Alert -->
+                            <div class="p-4 hover:bg-slate-50 cursor-pointer">
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-slate-800">Insurance Renewal</p>
+                                        <p class="text-xs text-slate-500 mt-1">Policy: AUTO-2024-001</p>
+                                        <p class="text-xs text-yellow-600 mt-1">Expires in 21 days</p>
+                                    </div>
+                                    <span class="bg-yellow-100 text-yellow-700 text-xs font-medium px-2 py-0.5 rounded">Warning</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 border-t border-slate-200">
+                            <a href="#" class="text-sm text-royal-600 hover:text-royal-700 font-medium flex items-center justify-center">
+                                View All Alerts
+                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Drivers Table -->
+                    <div class="lg:col-span-2 bg-white rounded-xl card-shadow-md">
+                        <div class="p-4 border-b border-slate-200 flex items-center justify-between">
+                            <h3 class="font-semibold text-slate-800">Driver Compliance Status</h3>
+                            <div class="flex items-center space-x-2">
+                                <select class="text-sm border border-slate-200 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-royal-500 focus:border-transparent">
+                                    <option>All Drivers</option>
+                                    <option>Non-Compliant</option>
+                                    <option>Expiring Soon</option>
+                                </select>
+                                <button class="text-sm text-royal-600 hover:text-royal-700 font-medium">View All</button>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-slate-50">
+                                    <tr>
+                                        <th class="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Driver</th>
+                                        <th class="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">CDL Status</th>
+                                        <th class="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Medical</th>
+                                        <th class="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Drug Test</th>
+                                        <th class="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="px-4 py-3">
+                                            <div class="flex items-center">
+                                                <div class="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center mr-3">
+                                                    <span class="text-slate-600 text-xs font-semibold">JW</span>
+                                                </div>
+                                                <div>
+                                                    <p class="text-sm font-medium text-slate-800">James Wilson</p>
+                                                    <p class="text-xs text-slate-500">D-0847</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="inline-flex items-center text-xs font-medium text-green-700">
+                                                <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></span>
+                                                Valid
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="inline-flex items-center text-xs font-medium text-red-700">
+                                                <span class="w-1.5 h-1.5 bg-red-500 rounded-full mr-1.5"></span>
+                                                Expired
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="inline-flex items-center text-xs font-medium text-green-700">
+                                                <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></span>
+                                                Clear
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="bg-red-100 text-red-700 text-xs font-medium px-2 py-1 rounded">Non-Compliant</span>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="px-4 py-3">
+                                            <div class="flex items-center">
+                                                <div class="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center mr-3">
+                                                    <span class="text-slate-600 text-xs font-semibold">SJ</span>
+                                                </div>
+                                                <div>
+                                                    <p class="text-sm font-medium text-slate-800">Sarah Johnson</p>
+                                                    <p class="text-xs text-slate-500">D-0234</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="inline-flex items-center text-xs font-medium text-green-700">
+                                                <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></span>
+                                                Valid
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="inline-flex items-center text-xs font-medium text-yellow-700">
+                                                <span class="w-1.5 h-1.5 bg-yellow-500 rounded-full mr-1.5"></span>
+                                                Exp. 7d
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="inline-flex items-center text-xs font-medium text-green-700">
+                                                <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></span>
+                                                Clear
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="bg-yellow-100 text-yellow-700 text-xs font-medium px-2 py-1 rounded">Warning</span>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="px-4 py-3">
+                                            <div class="flex items-center">
+                                                <div class="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center mr-3">
+                                                    <span class="text-slate-600 text-xs font-semibold">DM</span>
+                                                </div>
+                                                <div>
+                                                    <p class="text-sm font-medium text-slate-800">David Martinez</p>
+                                                    <p class="text-xs text-slate-500">D-0156</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="inline-flex items-center text-xs font-medium text-green-700">
+                                                <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></span>
+                                                Valid
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="inline-flex items-center text-xs font-medium text-green-700">
+                                                <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></span>
+                                                Valid
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="inline-flex items-center text-xs font-medium text-green-700">
+                                                <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></span>
+                                                Clear
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="bg-green-100 text-green-700 text-xs font-medium px-2 py-1 rounded">Compliant</span>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="px-4 py-3">
+                                            <div class="flex items-center">
+                                                <div class="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center mr-3">
+                                                    <span class="text-slate-600 text-xs font-semibold">LT</span>
+                                                </div>
+                                                <div>
+                                                    <p class="text-sm font-medium text-slate-800">Lisa Thompson</p>
+                                                    <p class="text-xs text-slate-500">D-0389</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="inline-flex items-center text-xs font-medium text-green-700">
+                                                <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></span>
+                                                Valid
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="inline-flex items-center text-xs font-medium text-green-700">
+                                                <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></span>
+                                                Valid
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="inline-flex items-center text-xs font-medium text-green-700">
+                                                <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></span>
+                                                Clear
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="bg-green-100 text-green-700 text-xs font-medium px-2 py-1 rounded">Compliant</span>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="px-4 py-3">
+                                            <div class="flex items-center">
+                                                <div class="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center mr-3">
+                                                    <span class="text-slate-600 text-xs font-semibold">RC</span>
+                                                </div>
+                                                <div>
+                                                    <p class="text-sm font-medium text-slate-800">Robert Chen</p>
+                                                    <p class="text-xs text-slate-500">D-1023</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="inline-flex items-center text-xs font-medium text-red-700">
+                                                <span class="w-1.5 h-1.5 bg-red-500 rounded-full mr-1.5"></span>
+                                                Suspended
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="inline-flex items-center text-xs font-medium text-green-700">
+                                                <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></span>
+                                                Valid
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="inline-flex items-center text-xs font-medium text-green-700">
+                                                <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></span>
+                                                Clear
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="bg-red-100 text-red-700 text-xs font-medium px-2 py-1 rounded">Non-Compliant</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Audit Status Widget -->
+                <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Audit Status -->
+                    <div class="bg-white rounded-xl card-shadow-md">
+                        <div class="p-4 border-b border-slate-200">
+                            <h3 class="font-semibold text-slate-800">Audit Readiness</h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-6">
+                                <div>
+                                    <p class="text-3xl font-bold text-slate-800">92%</p>
+                                    <p class="text-sm text-slate-500">Audit Ready Score</p>
+                                </div>
+                                <div class="w-16 h-16 rounded-full border-4 border-green-500 flex items-center justify-center">
+                                    <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span class="text-slate-600">Driver Qualification Files</span>
+                                        <span class="text-slate-800 font-medium">96%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-100 rounded-full h-2">
+                                        <div class="bg-green-500 h-2 rounded-full" style="width: 96%"></div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span class="text-slate-600">Vehicle Maintenance Records</span>
+                                        <span class="text-slate-800 font-medium">89%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-100 rounded-full h-2">
+                                        <div class="bg-sky-500 h-2 rounded-full" style="width: 89%"></div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span class="text-slate-600">Hours of Service Logs</span>
+                                        <span class="text-slate-800 font-medium">94%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-100 rounded-full h-2">
+                                        <div class="bg-royal-500 h-2 rounded-full" style="width: 94%"></div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span class="text-slate-600">Drug & Alcohol Testing</span>
+                                        <span class="text-slate-800 font-medium">88%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-100 rounded-full h-2">
+                                        <div class="bg-purple-500 h-2 rounded-full" style="width: 88%"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-6 pt-4 border-t border-slate-100">
+                                <a href="#" class="text-sm text-royal-600 hover:text-royal-700 font-medium flex items-center">
+                                    View Full Audit Report
+                                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="bg-white rounded-xl card-shadow-md">
+                        <div class="p-4 border-b border-slate-200">
+                            <h3 class="font-semibold text-slate-800">Recent Activity</h3>
+                        </div>
+                        <div class="p-4 max-h-80 overflow-y-auto">
+                            <div class="space-y-4">
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                        <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm text-slate-800"><span class="font-medium">Medical card</span> uploaded for David Martinez</p>
+                                        <p class="text-xs text-slate-500 mt-1">12 minutes ago by Sarah Admin</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-8 h-8 bg-royal-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                        <svg class="w-4 h-4 text-royal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm text-slate-800"><span class="font-medium">Compliance report</span> generated for Q4 2024</p>
+                                        <p class="text-xs text-slate-500 mt-1">45 minutes ago by System</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                        <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm text-slate-800"><span class="font-medium">Alert created</span> for Sarah Johnson medical card expiring</p>
+                                        <p class="text-xs text-slate-500 mt-1">1 hour ago by System</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-8 h-8 bg-sky-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                        <svg class="w-4 h-4 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm text-slate-800"><span class="font-medium">Vehicle T-1023</span> added to fleet</p>
+                                        <p class="text-xs text-slate-500 mt-1">2 hours ago by Mike Manager</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                        <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm text-slate-800"><span class="font-medium">New driver</span> John Adams onboarded</p>
+                                        <p class="text-xs text-slate-500 mt-1">3 hours ago by HR Team</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                        <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm text-slate-800"><span class="font-medium">Annual inspection</span> passed for T-0856</p>
+                                        <p class="text-xs text-slate-500 mt-1">5 hours ago by Inspection Team</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 border-t border-slate-200">
+                            <a href="#" class="text-sm text-royal-600 hover:text-royal-700 font-medium flex items-center justify-center">
+                                View Full Activity Log
+                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compliance - VroomX Safety Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --indigo: #4F46E5;
+            --violet: #7C3AED;
+            --pink: #EC4899;
+            --pink-light: #F472B6;
+            --gradient-primary: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+            --gradient-secondary: linear-gradient(135deg, #7C3AED 0%, #EC4899 100%);
+            --gradient-accent: linear-gradient(135deg, #EC4899 0%, #F472B6 100%);
+            --bg-primary: #F8FAFC;
+            --bg-card: #FFFFFF;
+            --text-primary: #1E293B;
+            --text-secondary: #64748B;
+            --text-muted: #94A3B8;
+            --border: #E2E8F0;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --radius: 16px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border);
+            padding: 24px 16px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 200px;
+            background: linear-gradient(180deg, rgba(79, 70, 229, 0.05) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 12px 24px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+            background: var(--gradient-primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+        }
+
+        .logo-text {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 24px;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-section {
+            margin-bottom: 24px;
+        }
+
+        .nav-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            padding: 0 12px;
+            margin-bottom: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 50px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            margin-bottom: 4px;
+        }
+
+        .nav-item:hover {
+            background: rgba(79, 70, 229, 0.08);
+            color: var(--indigo);
+        }
+
+        .nav-item.active {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+        }
+
+        .nav-item i {
+            width: 20px;
+            height: 20px;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            background: var(--gradient-accent);
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 50px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 32px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+        }
+
+        .header-left h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .header-left p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.5);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--indigo);
+            color: var(--indigo);
+        }
+
+        /* Hero Card */
+        .hero-card {
+            background: var(--gradient-primary);
+            border-radius: var(--radius);
+            padding: 32px;
+            margin-bottom: 24px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hero-left h2 {
+            font-size: 18px;
+            font-weight: 500;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .hero-number {
+            font-size: 56px;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .hero-change {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 12px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .hero-right {
+            display: flex;
+            gap: 24px;
+        }
+
+        .hero-stat {
+            text-align: center;
+            padding: 16px 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .hero-stat-label {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+
+        /* SMS BASICs Grid */
+        .basics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .basic-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 24px;
+            border: 1px solid var(--border);
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .basic-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .basic-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .basic-card:hover::before {
+            opacity: 1;
+        }
+
+        .basic-card.compliant::before {
+            background: var(--success);
+            opacity: 1;
+        }
+
+        .basic-card.warning::before {
+            background: var(--warning);
+            opacity: 1;
+        }
+
+        .basic-card.critical::before {
+            background: var(--danger);
+            opacity: 1;
+        }
+
+        .basic-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .basic-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .basic-badge {
+            padding: 4px 10px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .basic-badge.compliant {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .basic-badge.warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .basic-badge.na {
+            background: rgba(100, 116, 139, 0.1);
+            color: var(--text-secondary);
+        }
+
+        .basic-percentile {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .basic-percentile.compliant {
+            color: var(--success);
+        }
+
+        .basic-percentile.warning {
+            color: var(--warning);
+        }
+
+        .basic-threshold {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .basic-trend {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .basic-trend.down {
+            color: var(--success);
+        }
+
+        .basic-trend.up {
+            color: var(--danger);
+        }
+
+        .basic-trend.stable {
+            color: var(--text-muted);
+        }
+
+        /* Content Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 24px;
+        }
+
+        /* Compliance Summary */
+        .compliance-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .compliance-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: var(--bg-primary);
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .compliance-item:hover {
+            transform: translateX(4px);
+        }
+
+        .compliance-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .compliance-icon.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .compliance-icon.warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .compliance-icon.danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .compliance-info {
+            flex: 1;
+        }
+
+        .compliance-label {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .compliance-detail {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .compliance-value {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .compliance-value.success { color: var(--success); }
+        .compliance-value.warning { color: var(--warning); }
+        .compliance-value.danger { color: var(--danger); }
+
+        /* Recent Inspections */
+        .inspection-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .inspection-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .inspection-item:last-child {
+            border-bottom: none;
+        }
+
+        .inspection-date {
+            font-size: 12px;
+            color: var(--text-muted);
+            min-width: 80px;
+        }
+
+        .inspection-content {
+            flex: 1;
+        }
+
+        .inspection-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .inspection-detail {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .inspection-result {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .inspection-result.clean {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .inspection-result.violations {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        @media (max-width: 1400px) {
+            .basics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .basics-grid {
+                grid-template-columns: 1fr;
+            }
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+            .hero-content {
+                flex-direction: column;
+                gap: 24px;
+            }
+            .hero-right {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i data-lucide="truck"></i>
+                </div>
+                <span class="logo-text">VroomX</span>
+            </div>
+
+            <nav class="nav-section">
+                <div class="nav-label">Main</div>
+                <a href="dashboard.html" class="nav-item">
+                    <i data-lucide="layout-dashboard"></i>
+                    Dashboard
+                </a>
+                <a href="drivers.html" class="nav-item">
+                    <i data-lucide="users"></i>
+                    Drivers
+                    <span class="nav-badge">24</span>
+                </a>
+                <a href="vehicles.html" class="nav-item">
+                    <i data-lucide="truck"></i>
+                    Vehicles
+                </a>
+                <a href="compliance.html" class="nav-item active">
+                    <i data-lucide="shield-check"></i>
+                    Compliance
+                </a>
+            </nav>
+
+            <nav class="nav-section">
+                <div class="nav-label">Management</div>
+                <a href="documents.html" class="nav-item">
+                    <i data-lucide="file-text"></i>
+                    Documents
+                </a>
+                <a href="maintenance.html" class="nav-item">
+                    <i data-lucide="wrench"></i>
+                    Maintenance
+                </a>
+                <a href="violations.html" class="nav-item">
+                    <i data-lucide="alert-triangle"></i>
+                    Violations
+                    <span class="nav-badge">3</span>
+                </a>
+                <a href="tickets.html" class="nav-item">
+                    <i data-lucide="ticket"></i>
+                    Tickets
+                </a>
+                <a href="accidents.html" class="nav-item">
+                    <i data-lucide="car"></i>
+                    Accidents
+                </a>
+            </nav>
+
+            <nav class="nav-section">
+                <div class="nav-label">Safety</div>
+                <a href="drug-alcohol.html" class="nav-item">
+                    <i data-lucide="flask-conical"></i>
+                    Drug & Alcohol
+                </a>
+                <a href="damage-claims.html" class="nav-item">
+                    <i data-lucide="file-warning"></i>
+                    Damage Claims
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <i data-lucide="check-square"></i>
+                    Tasks
+                </a>
+                <a href="checklists.html" class="nav-item">
+                    <i data-lucide="clipboard-list"></i>
+                    Checklists
+                </a>
+            </nav>
+
+            <nav class="nav-section">
+                <div class="nav-label">Tools</div>
+                <a href="reports.html" class="nav-item">
+                    <i data-lucide="bar-chart-3"></i>
+                    Reports
+                </a>
+                <a href="alerts.html" class="nav-item">
+                    <i data-lucide="bell"></i>
+                    Alerts
+                    <span class="nav-badge">5</span>
+                </a>
+                <a href="ai-assistant.html" class="nav-item">
+                    <i data-lucide="sparkles"></i>
+                    AI Assistant
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <i data-lucide="settings"></i>
+                    Settings
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <h1>FMCSA Compliance</h1>
+                    <p>Monitor your SMS BASICs and safety performance</p>
+                </div>
+                <div class="header-right">
+                    <button class="btn btn-secondary">
+                        <i data-lucide="refresh-cw" style="width: 18px; height: 18px;"></i>
+                        Sync Data
+                    </button>
+                    <button class="btn btn-primary">
+                        <i data-lucide="download" style="width: 18px; height: 18px;"></i>
+                        Export Report
+                    </button>
+                </div>
+            </header>
+
+            <!-- Hero Card -->
+            <div class="hero-card">
+                <div class="hero-content">
+                    <div class="hero-left">
+                        <h2>Overall Compliance Score</h2>
+                        <div class="hero-number">87%</div>
+                        <span class="hero-change">
+                            <i data-lucide="trending-up" style="width: 16px; height: 16px;"></i>
+                            +3.2% from last month
+                        </span>
+                    </div>
+                    <div class="hero-right">
+                        <div class="hero-stat">
+                            <div class="hero-stat-value">DOT 3456789</div>
+                            <div class="hero-stat-label">DOT Number</div>
+                        </div>
+                        <div class="hero-stat">
+                            <div class="hero-stat-value">MC-123456</div>
+                            <div class="hero-stat-label">MC Number</div>
+                        </div>
+                        <div class="hero-stat">
+                            <div class="hero-stat-value">8</div>
+                            <div class="hero-stat-label">Inspections (24mo)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SMS BASICs Grid -->
+            <div class="basics-grid">
+                <div class="basic-card compliant">
+                    <div class="basic-header">
+                        <span class="basic-name">Unsafe Driving</span>
+                        <span class="basic-badge compliant">Compliant</span>
+                    </div>
+                    <div class="basic-percentile compliant">15%</div>
+                    <div class="basic-threshold">Threshold: 65%</div>
+                    <div class="basic-trend down">
+                        <i data-lucide="trending-down" style="width: 14px; height: 14px;"></i>
+                        -3% from last month
+                    </div>
+                </div>
+
+                <div class="basic-card warning">
+                    <div class="basic-header">
+                        <span class="basic-name">HOS Compliance</span>
+                        <span class="basic-badge warning">Warning</span>
+                    </div>
+                    <div class="basic-percentile warning">42%</div>
+                    <div class="basic-threshold">Threshold: 65%</div>
+                    <div class="basic-trend up">
+                        <i data-lucide="trending-up" style="width: 14px; height: 14px;"></i>
+                        +5% from last month
+                    </div>
+                </div>
+
+                <div class="basic-card compliant">
+                    <div class="basic-header">
+                        <span class="basic-name">Vehicle Maintenance</span>
+                        <span class="basic-badge compliant">Compliant</span>
+                    </div>
+                    <div class="basic-percentile compliant">8%</div>
+                    <div class="basic-threshold">Threshold: 80%</div>
+                    <div class="basic-trend down">
+                        <i data-lucide="trending-down" style="width: 14px; height: 14px;"></i>
+                        -2% from last month
+                    </div>
+                </div>
+
+                <div class="basic-card compliant">
+                    <div class="basic-header">
+                        <span class="basic-name">Controlled Substances</span>
+                        <span class="basic-badge compliant">Compliant</span>
+                    </div>
+                    <div class="basic-percentile compliant">0%</div>
+                    <div class="basic-threshold">Threshold: 80%</div>
+                    <div class="basic-trend stable">
+                        <i data-lucide="minus" style="width: 14px; height: 14px;"></i>
+                        No change
+                    </div>
+                </div>
+
+                <div class="basic-card compliant">
+                    <div class="basic-header">
+                        <span class="basic-name">Driver Fitness</span>
+                        <span class="basic-badge compliant">Compliant</span>
+                    </div>
+                    <div class="basic-percentile compliant">12%</div>
+                    <div class="basic-threshold">Threshold: 80%</div>
+                    <div class="basic-trend down">
+                        <i data-lucide="trending-down" style="width: 14px; height: 14px;"></i>
+                        -1% from last month
+                    </div>
+                </div>
+
+                <div class="basic-card">
+                    <div class="basic-header">
+                        <span class="basic-name">Hazmat Compliance</span>
+                        <span class="basic-badge na">N/A</span>
+                    </div>
+                    <div class="basic-percentile" style="color: var(--text-muted);">--</div>
+                    <div class="basic-threshold">Threshold: 80%</div>
+                    <div class="basic-trend stable">
+                        <i data-lucide="minus" style="width: 14px; height: 14px;"></i>
+                        Not applicable
+                    </div>
+                </div>
+
+                <div class="basic-card compliant">
+                    <div class="basic-header">
+                        <span class="basic-name">Crash Indicator</span>
+                        <span class="basic-badge compliant">Compliant</span>
+                    </div>
+                    <div class="basic-percentile compliant">28%</div>
+                    <div class="basic-threshold">Threshold: 65%</div>
+                    <div class="basic-trend up">
+                        <i data-lucide="trending-up" style="width: 14px; height: 14px;"></i>
+                        +2% from last month
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Grid -->
+            <div class="content-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Compliance Summary</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="compliance-list">
+                            <div class="compliance-item">
+                                <div class="compliance-icon success">
+                                    <i data-lucide="users" style="width: 20px; height: 20px;"></i>
+                                </div>
+                                <div class="compliance-info">
+                                    <div class="compliance-label">Driver Qualifications</div>
+                                    <div class="compliance-detail">9 of 12 drivers fully compliant</div>
+                                </div>
+                                <span class="compliance-value success">75%</span>
+                            </div>
+                            <div class="compliance-item">
+                                <div class="compliance-icon success">
+                                    <i data-lucide="truck" style="width: 20px; height: 20px;"></i>
+                                </div>
+                                <div class="compliance-info">
+                                    <div class="compliance-label">Vehicle Compliance</div>
+                                    <div class="compliance-detail">14 of 15 vehicles inspection-ready</div>
+                                </div>
+                                <span class="compliance-value success">93%</span>
+                            </div>
+                            <div class="compliance-item">
+                                <div class="compliance-icon warning">
+                                    <i data-lucide="file-text" style="width: 20px; height: 20px;"></i>
+                                </div>
+                                <div class="compliance-info">
+                                    <div class="compliance-label">Document Compliance</div>
+                                    <div class="compliance-detail">3 documents expiring within 30 days</div>
+                                </div>
+                                <span class="compliance-value warning">85%</span>
+                            </div>
+                            <div class="compliance-item">
+                                <div class="compliance-icon success">
+                                    <i data-lucide="flask-conical" style="width: 20px; height: 20px;"></i>
+                                </div>
+                                <div class="compliance-info">
+                                    <div class="compliance-label">D&A Program</div>
+                                    <div class="compliance-detail">All tests current, random pool up to date</div>
+                                </div>
+                                <span class="compliance-value success">100%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent Inspections</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="inspection-list">
+                            <div class="inspection-item">
+                                <div class="inspection-date">Jan 10, 2025</div>
+                                <div class="inspection-content">
+                                    <div class="inspection-title">Level 1 - Dallas, TX</div>
+                                    <div class="inspection-detail">Unit 101 - James Wilson</div>
+                                </div>
+                                <span class="inspection-result clean">Clean</span>
+                            </div>
+                            <div class="inspection-item">
+                                <div class="inspection-date">Jan 05, 2025</div>
+                                <div class="inspection-content">
+                                    <div class="inspection-title">Level 3 - Sherman, TX</div>
+                                    <div class="inspection-detail">Unit 102 - Maria Garcia</div>
+                                </div>
+                                <span class="inspection-result violations">1 Violation</span>
+                            </div>
+                            <div class="inspection-item">
+                                <div class="inspection-date">Dec 20, 2024</div>
+                                <div class="inspection-content">
+                                    <div class="inspection-title">Level 2 - Abilene, TX</div>
+                                    <div class="inspection-detail">Unit 103 - Robert Johnson</div>
+                                </div>
+                                <span class="inspection-result violations">2 Violations</span>
+                            </div>
+                            <div class="inspection-item">
+                                <div class="inspection-date">Dec 15, 2024</div>
+                                <div class="inspection-content">
+                                    <div class="inspection-title">Level 1 - El Paso, TX</div>
+                                    <div class="inspection-detail">Unit 105 - Michael Brown</div>
+                                </div>
+                                <span class="inspection-result clean">Clean</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

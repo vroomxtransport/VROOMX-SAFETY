@@ -90,7 +90,8 @@ router.post('/fmcsa/sync-violations', checkPermission('violations', 'edit'), asy
     message: result.message,
     matched: result.matched,
     total: result.total,
-    violationCount: result.violationCount
+    violationCount: result.violationCount,
+    dataqCreated: result.dataqCreated || 0
   });
 }));
 

@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VroomX - DOT Compliance Made Simple</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        'slate': {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        },
+                        'accent': '#3b82f6',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+        .hairline {
+            border-width: 1px;
+            border-color: #e2e8f0;
+        }
+    </style>
+</head>
+<body class="bg-white text-slate-900 antialiased" x-data="{ mobileMenu: false }">
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-sm z-50 border-b hairline">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <a href="#" class="text-xl font-semibold text-slate-900">VroomX</a>
+
+                <!-- Desktop Nav -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#features" class="text-sm text-slate-500 hover:text-slate-900 transition-colors">Features</a>
+                    <a href="#pricing" class="text-sm text-slate-500 hover:text-slate-900 transition-colors">Pricing</a>
+                    <a href="#" class="text-sm text-slate-500 hover:text-slate-900 transition-colors">Docs</a>
+                </div>
+
+                <!-- Auth -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="#" class="text-sm text-slate-600 hover:text-slate-900 transition-colors">Sign in</a>
+                    <a href="#" class="text-sm bg-slate-900 text-white px-4 py-2 rounded-md hover:bg-slate-800 transition-colors">Get Started</a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button @click="mobileMenu = !mobileMenu" class="md:hidden p-2 text-slate-500 hover:text-slate-900">
+                    <svg x-show="!mobileMenu" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                    <svg x-show="mobileMenu" x-cloak class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div x-show="mobileMenu" x-cloak class="md:hidden border-t hairline bg-white">
+            <div class="px-6 py-4 space-y-4">
+                <a href="#features" class="block text-sm text-slate-600 hover:text-slate-900">Features</a>
+                <a href="#pricing" class="block text-sm text-slate-600 hover:text-slate-900">Pricing</a>
+                <a href="#" class="block text-sm text-slate-600 hover:text-slate-900">Docs</a>
+                <div class="pt-4 border-t hairline space-y-3">
+                    <a href="#" class="block text-sm text-slate-600 hover:text-slate-900">Sign in</a>
+                    <a href="#" class="block text-sm bg-slate-900 text-white px-4 py-2 rounded-md text-center">Get Started</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-32 pb-20 px-6">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-semibold text-slate-900 tracking-tight leading-tight">
+                DOT Compliance Made Simple
+            </h1>
+            <p class="mt-6 text-lg text-slate-500 max-w-xl mx-auto">
+                Stop worrying about audits. VroomX automates compliance so you can focus on running your fleet.
+            </p>
+            <div class="mt-10">
+                <a href="#" class="inline-flex items-center bg-accent text-white px-6 py-3 rounded-md text-sm font-medium hover:bg-blue-600 transition-colors">
+                    Start Free Trial
+                    <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Product Screenshot -->
+    <section class="pb-24 px-6">
+        <div class="max-w-5xl mx-auto">
+            <div class="border hairline rounded-lg overflow-hidden">
+                <!-- Simple dashboard mockup -->
+                <div class="bg-slate-50 p-1">
+                    <div class="flex items-center space-x-1.5 px-3 py-2">
+                        <div class="w-3 h-3 rounded-full bg-slate-200"></div>
+                        <div class="w-3 h-3 rounded-full bg-slate-200"></div>
+                        <div class="w-3 h-3 rounded-full bg-slate-200"></div>
+                    </div>
+                </div>
+                <div class="bg-white p-8">
+                    <div class="grid grid-cols-4 gap-6 mb-8">
+                        <div class="text-center">
+                            <p class="text-3xl font-semibold text-slate-900">24</p>
+                            <p class="text-sm text-slate-500 mt-1">Active Drivers</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-3xl font-semibold text-slate-900">18</p>
+                            <p class="text-sm text-slate-500 mt-1">Vehicles</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-3xl font-semibold text-accent">98%</p>
+                            <p class="text-sm text-slate-500 mt-1">Compliance</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-3xl font-semibold text-slate-900">3</p>
+                            <p class="text-sm text-slate-500 mt-1">Alerts</p>
+                        </div>
+                    </div>
+                    <div class="border-t hairline pt-6">
+                        <div class="flex items-center justify-between py-3 border-b hairline">
+                            <span class="text-sm text-slate-600">John Smith - CDL Renewal</span>
+                            <span class="text-xs text-slate-400">Due in 14 days</span>
+                        </div>
+                        <div class="flex items-center justify-between py-3 border-b hairline">
+                            <span class="text-sm text-slate-600">Vehicle #103 - Annual Inspection</span>
+                            <span class="text-xs text-slate-400">Due in 7 days</span>
+                        </div>
+                        <div class="flex items-center justify-between py-3">
+                            <span class="text-sm text-slate-600">Drug Test - Fleet Review</span>
+                            <span class="text-xs text-slate-400">Due in 30 days</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-24 px-6 border-t hairline">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-2xl md:text-3xl font-semibold text-slate-900">Everything you need for DOT compliance</h2>
+                <p class="mt-4 text-slate-500">Simple tools that work together seamlessly.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-12">
+                <!-- Feature 1 -->
+                <div class="text-center">
+                    <div class="inline-flex items-center justify-center w-10 h-10 mb-4">
+                        <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-base font-medium text-slate-900 mb-2">Document Management</h3>
+                    <p class="text-sm text-slate-500 leading-relaxed">Store and organize all your compliance documents in one secure place.</p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="text-center">
+                    <div class="inline-flex items-center justify-center w-10 h-10 mb-4">
+                        <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-base font-medium text-slate-900 mb-2">Smart Alerts</h3>
+                    <p class="text-sm text-slate-500 leading-relaxed">Never miss an expiration date with automated reminders.</p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="text-center">
+                    <div class="inline-flex items-center justify-center w-10 h-10 mb-4">
+                        <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-base font-medium text-slate-900 mb-2">Compliance Reports</h3>
+                    <p class="text-sm text-slate-500 leading-relaxed">Generate audit-ready reports with one click.</p>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="text-center">
+                    <div class="inline-flex items-center justify-center w-10 h-10 mb-4">
+                        <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-base font-medium text-slate-900 mb-2">Driver Tracking</h3>
+                    <p class="text-sm text-slate-500 leading-relaxed">Manage driver qualifications, licenses, and certifications.</p>
+                </div>
+
+                <!-- Feature 5 -->
+                <div class="text-center">
+                    <div class="inline-flex items-center justify-center w-10 h-10 mb-4">
+                        <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-base font-medium text-slate-900 mb-2">FMCSA Sync</h3>
+                    <p class="text-sm text-slate-500 leading-relaxed">Automatic sync with FMCSA for real-time compliance status.</p>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="text-center">
+                    <div class="inline-flex items-center justify-center w-10 h-10 mb-4">
+                        <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-base font-medium text-slate-900 mb-2">Secure Storage</h3>
+                    <p class="text-sm text-slate-500 leading-relaxed">Enterprise-grade security for all your sensitive data.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonial -->
+    <section class="py-24 px-6 border-t hairline">
+        <div class="max-w-3xl mx-auto text-center">
+            <p class="text-xl md:text-2xl text-slate-700 leading-relaxed font-normal">
+                "VroomX simplified our compliance workflow completely. We went from spreadsheets and sticky notes to a single dashboard. Our last audit was a breeze."
+            </p>
+            <div class="mt-8">
+                <p class="text-sm font-medium text-slate-900">Sarah Mitchell</p>
+                <p class="text-sm text-slate-500">Safety Director, Midwest Freight Co.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="py-24 px-6 border-t hairline">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-2xl md:text-3xl font-semibold text-slate-900">Simple, transparent pricing</h2>
+                <p class="mt-4 text-slate-500">Start free. Scale as you grow.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Solo Plan -->
+                <div class="border hairline rounded-lg p-8">
+                    <h3 class="text-base font-medium text-slate-900">Solo</h3>
+                    <p class="text-sm text-slate-500 mt-2">For owner-operators</p>
+                    <div class="mt-6">
+                        <span class="text-3xl font-semibold text-slate-900">$29</span>
+                        <span class="text-slate-500">/month</span>
+                    </div>
+                    <ul class="mt-8 space-y-3">
+                        <li class="flex items-center text-sm text-slate-600">
+                            <svg class="w-4 h-4 text-slate-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            1 driver
+                        </li>
+                        <li class="flex items-center text-sm text-slate-600">
+                            <svg class="w-4 h-4 text-slate-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Unlimited documents
+                        </li>
+                        <li class="flex items-center text-sm text-slate-600">
+                            <svg class="w-4 h-4 text-slate-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Email alerts
+                        </li>
+                    </ul>
+                    <a href="#" class="mt-8 block text-center border hairline rounded-md py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
+                        Get started
+                    </a>
+                </div>
+
+                <!-- Fleet Plan -->
+                <div class="border hairline rounded-lg p-8 relative">
+                    <div class="absolute -top-3 left-1/2 -translate-x-1/2">
+                        <span class="bg-accent text-white text-xs px-3 py-1 rounded-full font-medium">Popular</span>
+                    </div>
+                    <h3 class="text-base font-medium text-slate-900">Fleet</h3>
+                    <p class="text-sm text-slate-500 mt-2">For small fleets</p>
+                    <div class="mt-6">
+                        <span class="text-3xl font-semibold text-slate-900">$79</span>
+                        <span class="text-slate-500">/month</span>
+                    </div>
+                    <ul class="mt-8 space-y-3">
+                        <li class="flex items-center text-sm text-slate-600">
+                            <svg class="w-4 h-4 text-slate-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Up to 10 drivers
+                        </li>
+                        <li class="flex items-center text-sm text-slate-600">
+                            <svg class="w-4 h-4 text-slate-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Everything in Solo
+                        </li>
+                        <li class="flex items-center text-sm text-slate-600">
+                            <svg class="w-4 h-4 text-slate-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            FMCSA sync
+                        </li>
+                        <li class="flex items-center text-sm text-slate-600">
+                            <svg class="w-4 h-4 text-slate-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Compliance reports
+                        </li>
+                    </ul>
+                    <a href="#" class="mt-8 block text-center bg-accent text-white rounded-md py-2.5 text-sm font-medium hover:bg-blue-600 transition-colors">
+                        Get started
+                    </a>
+                </div>
+
+                <!-- Pro Plan -->
+                <div class="border hairline rounded-lg p-8">
+                    <h3 class="text-base font-medium text-slate-900">Pro</h3>
+                    <p class="text-sm text-slate-500 mt-2">For large fleets</p>
+                    <div class="mt-6">
+                        <span class="text-3xl font-semibold text-slate-900">$199</span>
+                        <span class="text-slate-500">/month</span>
+                    </div>
+                    <ul class="mt-8 space-y-3">
+                        <li class="flex items-center text-sm text-slate-600">
+                            <svg class="w-4 h-4 text-slate-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Unlimited drivers
+                        </li>
+                        <li class="flex items-center text-sm text-slate-600">
+                            <svg class="w-4 h-4 text-slate-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Everything in Fleet
+                        </li>
+                        <li class="flex items-center text-sm text-slate-600">
+                            <svg class="w-4 h-4 text-slate-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            API access
+                        </li>
+                        <li class="flex items-center text-sm text-slate-600">
+                            <svg class="w-4 h-4 text-slate-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Priority support
+                        </li>
+                    </ul>
+                    <a href="#" class="mt-8 block text-center border hairline rounded-md py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
+                        Contact sales
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-24 px-6 border-t hairline">
+        <div class="max-w-2xl mx-auto text-center">
+            <h2 class="text-2xl md:text-3xl font-semibold text-slate-900">Ready to simplify compliance?</h2>
+            <p class="mt-4 text-slate-500">Start your 14-day free trial. No credit card required.</p>
+            <div class="mt-8">
+                <a href="#" class="inline-flex items-center bg-slate-900 text-white px-6 py-3 rounded-md text-sm font-medium hover:bg-slate-800 transition-colors">
+                    Start Free Trial
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t hairline py-12 px-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <a href="#" class="text-lg font-semibold text-slate-900">VroomX</a>
+                </div>
+                <div class="flex flex-wrap justify-center gap-8 text-sm text-slate-500">
+                    <a href="#" class="hover:text-slate-900 transition-colors">Features</a>
+                    <a href="#" class="hover:text-slate-900 transition-colors">Pricing</a>
+                    <a href="#" class="hover:text-slate-900 transition-colors">Docs</a>
+                    <a href="#" class="hover:text-slate-900 transition-colors">Blog</a>
+                    <a href="#" class="hover:text-slate-900 transition-colors">Privacy</a>
+                    <a href="#" class="hover:text-slate-900 transition-colors">Terms</a>
+                </div>
+            </div>
+            <div class="mt-8 pt-8 border-t hairline text-center text-sm text-slate-400">
+                <p>2026 VroomX. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+</body>
+</html>

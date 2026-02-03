@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VroomX Dashboard - New UI Mockup v2 (Data-Rich / Light Mode)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#f0f6ff',
+                            100: '#e0edff',
+                            200: '#b8d4ff',
+                            300: '#7ab3ff',
+                            400: '#3b8eff',
+                            500: '#1E3A5F',
+                            600: '#0f2a47',
+                            700: '#0c2139',
+                            800: '#09182b',
+                            900: '#06101d',
+                        },
+                        accent: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            200: '#fed7aa',
+                            300: '#fdba74',
+                            400: '#fb923c',
+                            500: '#f97316',
+                            600: '#ea580c',
+                            700: '#c2410c',
+                        },
+                        lime: {
+                            400: '#a3e635',
+                            500: '#84cc16',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Clean shadows */
+        .shadow-card {
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 20px rgba(0,0,0,0.04);
+        }
+        .shadow-card-hover {
+            box-shadow: 0 4px 25px rgba(0,0,0,0.08);
+        }
+
+        /* Smooth transitions */
+        .card-smooth {
+            transition: all 0.2s ease;
+        }
+        .card-smooth:hover {
+            transform: translateY(-1px);
+        }
+
+        /* Custom scrollbar for light mode */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f4f4f5; }
+        ::-webkit-scrollbar-thumb { background: #d4d4d8; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a1a1aa; }
+
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(135deg, #1E3A5F 0%, #f97316 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Donut chart animation */
+        @keyframes donutAnimation {
+            0% { stroke-dasharray: 0 100; }
+        }
+        .donut-segment {
+            animation: donutAnimation 1s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans">
+    <div class="flex min-h-screen">
+        <!-- Sidebar - Clean dark style -->
+        <aside class="fixed inset-y-0 left-0 w-72 bg-primary-500 flex flex-col shadow-xl">
+            <!-- Logo -->
+            <div class="p-6 border-b border-white/10">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-xl bg-white/10 backdrop-blur flex items-center justify-center">
+                        <svg class="w-7 h-7 text-accent-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="text-xl font-bold text-white">VroomX</span>
+                        <span class="text-xl font-light text-white/60"> Safety</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Company Selector -->
+            <div class="px-4 py-4 border-b border-white/10">
+                <button class="w-full flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
+                    <div class="w-10 h-10 rounded-lg bg-accent-500/20 flex items-center justify-center text-accent-400 font-bold text-sm">
+                        VT
+                    </div>
+                    <div class="flex-1 text-left">
+                        <p class="text-sm font-medium text-white truncate">VroomX Transport LLC</p>
+                        <p class="text-xs text-white/50">DOT# 1234567 • 12 Drivers</p>
+                    </div>
+                    <svg class="w-4 h-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 py-4 px-4 space-y-1 overflow-y-auto">
+                <!-- Dashboard Active -->
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-white text-primary-500 font-medium shadow-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    </svg>
+                    <span>Dashboard</span>
+                    <span class="ml-auto w-2 h-2 bg-accent-500 rounded-full"></span>
+                </a>
+
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/5 hover:text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                    </svg>
+                    <span>VroomX AI</span>
+                    <span class="ml-auto px-2 py-0.5 text-[10px] font-bold bg-blue-500/20 text-blue-300 rounded">AI</span>
+                </a>
+
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/5 hover:text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                    <span>Alerts</span>
+                    <span class="ml-auto px-2 py-0.5 text-[10px] font-bold bg-red-500 text-white rounded-full">3</span>
+                </a>
+
+                <div class="pt-4 pb-2">
+                    <p class="px-4 text-xs font-semibold text-white/30 uppercase tracking-wider">Management</p>
+                </div>
+
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/5 hover:text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                    <span>Driver Files</span>
+                </a>
+
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/5 hover:text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
+                    </svg>
+                    <span>Vehicle Files</span>
+                </a>
+
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/5 hover:text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                    <span>Compliance</span>
+                </a>
+
+                <div class="pt-4 pb-2">
+                    <p class="px-4 text-xs font-semibold text-white/30 uppercase tracking-wider">Tracking</p>
+                </div>
+
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/5 hover:text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                    <span>Violations</span>
+                </a>
+
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/5 hover:text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                    </svg>
+                    <span>Tickets</span>
+                </a>
+
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/5 hover:text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span>Damage Claims</span>
+                </a>
+
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/5 hover:text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                    </svg>
+                    <span>Drug & Alcohol</span>
+                </a>
+
+                <div class="pt-4 pb-2">
+                    <p class="px-4 text-xs font-semibold text-white/30 uppercase tracking-wider">Tools</p>
+                </div>
+
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/5 hover:text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+                    </svg>
+                    <span>Documents</span>
+                </a>
+
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/5 hover:text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <span>Reports</span>
+                </a>
+            </nav>
+
+            <!-- Plan Badge -->
+            <div class="p-4 border-t border-white/10">
+                <div class="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-accent-500/20 to-accent-600/20 border border-accent-500/30">
+                    <div class="w-8 h-8 rounded-lg bg-accent-500/30 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-accent-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-semibold text-white">Fleet Plan</p>
+                        <p class="text-xs text-white/50">3 drivers remaining</p>
+                    </div>
+                    <button class="text-xs text-accent-400 font-medium hover:text-accent-300">Upgrade</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 ml-72">
+            <!-- Header -->
+            <header class="sticky top-0 z-20 bg-white/90 backdrop-blur-xl border-b border-gray-100">
+                <div class="flex items-center justify-between h-16 px-8">
+                    <div class="flex items-center gap-4">
+                        <div>
+                            <h1 class="text-xl font-bold text-gray-900">Dashboard</h1>
+                            <p class="text-sm text-gray-500">Welcome back, Leo! 👋</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <!-- Date Range -->
+                        <button class="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm text-gray-700 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            <span>Jan 15 - Jan 22, 2026</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+
+                        <!-- Export -->
+                        <button class="flex items-center gap-2 px-4 py-2 bg-accent-500 hover:bg-accent-600 text-white font-medium rounded-xl transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                            </svg>
+                            Export Data
+                        </button>
+
+                        <!-- Notifications -->
+                        <button class="relative p-2.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                            </svg>
+                            <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
+                        </button>
+
+                        <!-- Settings -->
+                        <button class="p-2.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                        </button>
+
+                        <!-- User -->
+                        <button class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-xl transition-colors">
+                            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face" alt="User" class="w-9 h-9 rounded-xl object-cover">
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="p-8 space-y-6">
+                <!-- Top Stats Row -->
+                <div class="grid grid-cols-4 gap-4">
+                    <!-- Total Drivers -->
+                    <div class="card-smooth bg-white rounded-2xl shadow-card hover:shadow-card-hover p-5 border border-gray-100">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                </svg>
+                            </div>
+                            <span class="flex items-center gap-1 text-xs font-semibold text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+                                </svg>
+                                +2
+                            </span>
+                        </div>
+                        <p class="text-3xl font-bold text-gray-900">12</p>
+                        <p class="text-sm text-gray-500 mt-1">Active Drivers</p>
+                        <div class="mt-3 flex gap-1">
+                            <span class="px-2 py-0.5 text-[10px] font-medium bg-green-100 text-green-700 rounded">9 Compliant</span>
+                            <span class="px-2 py-0.5 text-[10px] font-medium bg-yellow-100 text-yellow-700 rounded">2 Warning</span>
+                        </div>
+                    </div>
+
+                    <!-- Total Vehicles -->
+                    <div class="card-smooth bg-white rounded-2xl shadow-card hover:shadow-card-hover p-5 border border-gray-100">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-2xl bg-purple-50 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-3xl font-bold text-gray-900">8</p>
+                        <p class="text-sm text-gray-500 mt-1">Fleet Vehicles</p>
+                        <div class="mt-3 flex gap-1">
+                            <span class="px-2 py-0.5 text-[10px] font-medium bg-green-100 text-green-700 rounded">7 Active</span>
+                            <span class="px-2 py-0.5 text-[10px] font-medium bg-orange-100 text-orange-700 rounded">1 Maintenance</span>
+                        </div>
+                    </div>
+
+                    <!-- Open Violations -->
+                    <div class="card-smooth bg-white rounded-2xl shadow-card hover:shadow-card-hover p-5 border border-gray-100">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                </svg>
+                            </div>
+                            <span class="flex items-center gap-1 text-xs font-semibold text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+                                </svg>
+                                -2
+                            </span>
+                        </div>
+                        <p class="text-3xl font-bold text-gray-900">2</p>
+                        <p class="text-sm text-gray-500 mt-1">Open Violations</p>
+                        <div class="mt-3">
+                            <span class="px-2 py-0.5 text-[10px] font-medium bg-blue-100 text-blue-700 rounded">1 DataQ in progress</span>
+                        </div>
+                    </div>
+
+                    <!-- Compliance Score -->
+                    <div class="card-smooth bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl shadow-card hover:shadow-card-hover p-5 text-white">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur flex items-center justify-center">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                                </svg>
+                            </div>
+                            <span class="flex items-center gap-1 text-xs font-semibold text-lime-400 bg-lime-400/20 px-2 py-1 rounded-full">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+                                </svg>
+                                +6
+                            </span>
+                        </div>
+                        <p class="text-4xl font-bold">87<span class="text-xl font-normal text-white/60">/100</span></p>
+                        <p class="text-sm text-white/70 mt-1">Compliance Score</p>
+                        <div class="mt-3 w-full h-2 bg-white/20 rounded-full overflow-hidden">
+                            <div class="h-full bg-lime-400 rounded-full" style="width: 87%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Content Grid -->
+                <div class="grid grid-cols-12 gap-6">
+                    <!-- SMS BASICs Chart -->
+                    <div class="col-span-8 bg-white rounded-2xl shadow-card border border-gray-100 overflow-hidden">
+                        <div class="p-5 border-b border-gray-100 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-accent-50 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-accent-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-900">SMS BASICs Overview</h3>
+                                    <p class="text-xs text-gray-500">Safety Measurement System percentiles</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <select class="text-sm text-gray-600 bg-gray-50 border-0 rounded-lg px-3 py-2 focus:ring-2 focus:ring-accent-500">
+                                    <option>Last 24 months</option>
+                                    <option>Last 12 months</option>
+                                    <option>Last 6 months</option>
+                                </select>
+                                <button class="text-sm text-accent-500 hover:text-accent-600 font-medium px-3 py-2">View Report →</button>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <!-- Horizontal bar chart style -->
+                            <div class="space-y-4">
+                                <!-- Unsafe Driving -->
+                                <div class="flex items-center gap-4">
+                                    <div class="w-36 text-sm font-medium text-gray-700">Unsafe Driving</div>
+                                    <div class="flex-1 h-8 bg-gray-100 rounded-lg overflow-hidden relative">
+                                        <div class="absolute inset-y-0 left-0 bg-green-500 rounded-lg" style="width: 23%"></div>
+                                        <div class="absolute inset-y-0 left-[65%] w-0.5 bg-red-400 opacity-50"></div>
+                                    </div>
+                                    <div class="w-16 text-right">
+                                        <span class="text-lg font-bold text-green-600">23%</span>
+                                    </div>
+                                    <span class="px-2 py-1 text-[10px] font-semibold bg-green-100 text-green-700 rounded-full">GOOD</span>
+                                </div>
+
+                                <!-- HOS Compliance -->
+                                <div class="flex items-center gap-4">
+                                    <div class="w-36 text-sm font-medium text-gray-700">HOS Compliance</div>
+                                    <div class="flex-1 h-8 bg-gray-100 rounded-lg overflow-hidden relative">
+                                        <div class="absolute inset-y-0 left-0 bg-green-500 rounded-lg" style="width: 18%"></div>
+                                        <div class="absolute inset-y-0 left-[65%] w-0.5 bg-red-400 opacity-50"></div>
+                                    </div>
+                                    <div class="w-16 text-right">
+                                        <span class="text-lg font-bold text-green-600">18%</span>
+                                    </div>
+                                    <span class="px-2 py-1 text-[10px] font-semibold bg-green-100 text-green-700 rounded-full">GOOD</span>
+                                </div>
+
+                                <!-- Vehicle Maintenance -->
+                                <div class="flex items-center gap-4">
+                                    <div class="w-36 text-sm font-medium text-gray-700">Vehicle Maint.</div>
+                                    <div class="flex-1 h-8 bg-gray-100 rounded-lg overflow-hidden relative">
+                                        <div class="absolute inset-y-0 left-0 bg-yellow-500 rounded-lg" style="width: 67%"></div>
+                                        <div class="absolute inset-y-0 left-[80%] w-0.5 bg-red-400 opacity-50"></div>
+                                    </div>
+                                    <div class="w-16 text-right">
+                                        <span class="text-lg font-bold text-yellow-600">67%</span>
+                                    </div>
+                                    <span class="px-2 py-1 text-[10px] font-semibold bg-yellow-100 text-yellow-700 rounded-full">WARN</span>
+                                </div>
+
+                                <!-- Controlled Substances -->
+                                <div class="flex items-center gap-4">
+                                    <div class="w-36 text-sm font-medium text-gray-700">Controlled Sub.</div>
+                                    <div class="flex-1 h-8 bg-gray-100 rounded-lg overflow-hidden relative">
+                                        <div class="absolute inset-y-0 left-0 bg-green-500 rounded-lg" style="width: 0%"></div>
+                                        <div class="absolute inset-y-0 left-[80%] w-0.5 bg-red-400 opacity-50"></div>
+                                    </div>
+                                    <div class="w-16 text-right">
+                                        <span class="text-lg font-bold text-green-600">0%</span>
+                                    </div>
+                                    <span class="px-2 py-1 text-[10px] font-semibold bg-green-100 text-green-700 rounded-full">GOOD</span>
+                                </div>
+
+                                <!-- Driver Fitness -->
+                                <div class="flex items-center gap-4">
+                                    <div class="w-36 text-sm font-medium text-gray-700">Driver Fitness</div>
+                                    <div class="flex-1 h-8 bg-gray-100 rounded-lg overflow-hidden relative">
+                                        <div class="absolute inset-y-0 left-0 bg-green-500 rounded-lg" style="width: 12%"></div>
+                                        <div class="absolute inset-y-0 left-[80%] w-0.5 bg-red-400 opacity-50"></div>
+                                    </div>
+                                    <div class="w-16 text-right">
+                                        <span class="text-lg font-bold text-green-600">12%</span>
+                                    </div>
+                                    <span class="px-2 py-1 text-[10px] font-semibold bg-green-100 text-green-700 rounded-full">GOOD</span>
+                                </div>
+
+                                <!-- Crash Indicator -->
+                                <div class="flex items-center gap-4">
+                                    <div class="w-36 text-sm font-medium text-gray-700">Crash Indicator</div>
+                                    <div class="flex-1 h-8 bg-gray-100 rounded-lg overflow-hidden relative">
+                                        <div class="absolute inset-y-0 left-0 bg-green-500 rounded-lg" style="width: 8%"></div>
+                                        <div class="absolute inset-y-0 left-[65%] w-0.5 bg-red-400 opacity-50"></div>
+                                    </div>
+                                    <div class="w-16 text-right">
+                                        <span class="text-lg font-bold text-green-600">8%</span>
+                                    </div>
+                                    <span class="px-2 py-1 text-[10px] font-semibold bg-green-100 text-green-700 rounded-full">GOOD</span>
+                                </div>
+                            </div>
+
+                            <!-- Legend -->
+                            <div class="flex items-center gap-6 mt-6 pt-4 border-t border-gray-100 justify-center">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                                    <span class="text-xs text-gray-600">Below Threshold</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                    <span class="text-xs text-gray-600">Warning Zone</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                                    <span class="text-xs text-gray-600">Above Threshold</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-3 h-0.5 bg-red-400"></div>
+                                    <span class="text-xs text-gray-600">FMCSA Threshold</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="col-span-4 space-y-6">
+                        <!-- Driver Qualification Donut -->
+                        <div class="bg-white rounded-2xl shadow-card border border-gray-100 p-5">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-semibold text-gray-900">DQF Status</h3>
+                                <button class="text-sm text-accent-500 hover:text-accent-600 font-medium">View All →</button>
+                            </div>
+                            <div class="flex items-center justify-center py-4">
+                                <!-- Donut Chart -->
+                                <div class="relative w-40 h-40">
+                                    <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                                        <!-- Background -->
+                                        <circle cx="18" cy="18" r="16" fill="none" stroke="#f3f4f6" stroke-width="3"/>
+                                        <!-- Compliant (green) - 75% -->
+                                        <circle class="donut-segment" cx="18" cy="18" r="16" fill="none" stroke="#22c55e" stroke-width="3" stroke-dasharray="75 25" stroke-dashoffset="0"/>
+                                        <!-- Warning (yellow) - 17% -->
+                                        <circle class="donut-segment" cx="18" cy="18" r="16" fill="none" stroke="#eab308" stroke-width="3" stroke-dasharray="17 83" stroke-dashoffset="-75"/>
+                                        <!-- Non-compliant (red) - 8% -->
+                                        <circle class="donut-segment" cx="18" cy="18" r="16" fill="none" stroke="#ef4444" stroke-width="3" stroke-dasharray="8 92" stroke-dashoffset="-92"/>
+                                    </svg>
+                                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                        <span class="text-2xl font-bold text-gray-900">75%</span>
+                                        <span class="text-xs text-gray-500">Compliant</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2 mt-2">
+                                <div class="text-center p-2 rounded-lg bg-green-50">
+                                    <p class="text-lg font-bold text-green-600">9</p>
+                                    <p class="text-[10px] text-gray-500">Compliant</p>
+                                </div>
+                                <div class="text-center p-2 rounded-lg bg-yellow-50">
+                                    <p class="text-lg font-bold text-yellow-600">2</p>
+                                    <p class="text-[10px] text-gray-500">Warning</p>
+                                </div>
+                                <div class="text-center p-2 rounded-lg bg-red-50">
+                                    <p class="text-lg font-bold text-red-600">1</p>
+                                    <p class="text-[10px] text-gray-500">Non-Comp.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Audit Readiness -->
+                        <div class="bg-white rounded-2xl shadow-card border border-gray-100 p-5">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-semibold text-gray-900">Audit Readiness</h3>
+                                <button class="px-3 py-1.5 text-xs font-medium bg-accent-500 text-white rounded-lg hover:bg-accent-600 transition-colors">Run Audit</button>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="flex items-center gap-3 p-3 rounded-xl bg-green-50 border border-green-100">
+                                    <div class="w-8 h-8 rounded-lg bg-green-500 flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium text-gray-900">DQF Files</p>
+                                        <p class="text-xs text-green-600">All compliant</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3 p-3 rounded-xl bg-green-50 border border-green-100">
+                                    <div class="w-8 h-8 rounded-lg bg-green-500 flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium text-gray-900">Vehicle Records</p>
+                                        <p class="text-xs text-green-600">Up to date</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3 p-3 rounded-xl bg-green-50 border border-green-100">
+                                    <div class="w-8 h-8 rounded-lg bg-green-500 flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium text-gray-900">Drug & Alcohol</p>
+                                        <p class="text-xs text-green-600">Program compliant</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Row - Alerts & Quick Actions -->
+                <div class="grid grid-cols-12 gap-6">
+                    <!-- Recent Alerts -->
+                    <div class="col-span-6 bg-white rounded-2xl shadow-card border border-gray-100 overflow-hidden">
+                        <div class="p-5 border-b border-gray-100 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-900">Recent Alerts</h3>
+                                    <p class="text-xs text-gray-500">3 items need your attention</p>
+                                </div>
+                            </div>
+                            <button class="text-sm text-accent-500 hover:text-accent-600 font-medium">View All →</button>
+                        </div>
+                        <div class="divide-y divide-gray-100">
+                            <div class="p-4 hover:bg-gray-50 transition-colors cursor-pointer flex items-center gap-3">
+                                <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                                <div class="flex-1">
+                                    <p class="text-sm text-gray-900">John Smith's <span class="font-medium">CDL expires</span> in <span class="text-red-600 font-semibold">7 days</span></p>
+                                    <p class="text-xs text-gray-500 mt-0.5">Driver Qualification • Critical</p>
+                                </div>
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </div>
+                            <div class="p-4 hover:bg-gray-50 transition-colors cursor-pointer flex items-center gap-3">
+                                <div class="w-2 h-2 rounded-full bg-yellow-500"></div>
+                                <div class="flex-1">
+                                    <p class="text-sm text-gray-900">Truck #104 <span class="font-medium">annual inspection</span> due in <span class="text-yellow-600 font-semibold">14 days</span></p>
+                                    <p class="text-xs text-gray-500 mt-0.5">Vehicle Files • Warning</p>
+                                </div>
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </div>
+                            <div class="p-4 hover:bg-gray-50 transition-colors cursor-pointer flex items-center gap-3">
+                                <div class="w-2 h-2 rounded-full bg-yellow-500"></div>
+                                <div class="flex-1">
+                                    <p class="text-sm text-gray-900">Mike Johnson's <span class="font-medium">medical card</span> expires in <span class="text-yellow-600 font-semibold">21 days</span></p>
+                                    <p class="text-xs text-gray-500 mt-0.5">Documents • Warning</p>
+                                </div>
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="col-span-6 bg-white rounded-2xl shadow-card border border-gray-100 p-5">
+                        <h3 class="font-semibold text-gray-900 mb-4">Quick Actions</h3>
+                        <div class="grid grid-cols-3 gap-3">
+                            <button class="card-smooth flex flex-col items-center gap-2 p-4 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-100 transition-colors">
+                                <div class="w-10 h-10 rounded-xl bg-blue-500 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                                    </svg>
+                                </div>
+                                <span class="text-xs font-medium text-gray-700">Add Driver</span>
+                            </button>
+                            <button class="card-smooth flex flex-col items-center gap-2 p-4 rounded-xl bg-purple-50 hover:bg-purple-100 border border-purple-100 transition-colors">
+                                <div class="w-10 h-10 rounded-xl bg-purple-500 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                </div>
+                                <span class="text-xs font-medium text-gray-700">Add Vehicle</span>
+                            </button>
+                            <button class="card-smooth flex flex-col items-center gap-2 p-4 rounded-xl bg-green-50 hover:bg-green-100 border border-green-100 transition-colors">
+                                <div class="w-10 h-10 rounded-xl bg-green-500 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                                    </svg>
+                                </div>
+                                <span class="text-xs font-medium text-gray-700">Upload Doc</span>
+                            </button>
+                            <button class="card-smooth flex flex-col items-center gap-2 p-4 rounded-xl bg-orange-50 hover:bg-orange-100 border border-orange-100 transition-colors">
+                                <div class="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                    </svg>
+                                </div>
+                                <span class="text-xs font-medium text-gray-700">Log Violation</span>
+                            </button>
+                            <button class="card-smooth flex flex-col items-center gap-2 p-4 rounded-xl bg-cyan-50 hover:bg-cyan-100 border border-cyan-100 transition-colors">
+                                <div class="w-10 h-10 rounded-xl bg-cyan-500 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                </div>
+                                <span class="text-xs font-medium text-gray-700">Run Report</span>
+                            </button>
+                            <button class="card-smooth flex flex-col items-center gap-2 p-4 rounded-xl bg-pink-50 hover:bg-pink-100 border border-pink-100 transition-colors">
+                                <div class="w-10 h-10 rounded-xl bg-pink-500 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                    </svg>
+                                </div>
+                                <span class="text-xs font-medium text-gray-700">Ask AI</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Floating AI Chat Button -->
+    <button class="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-br from-accent-500 to-accent-600 hover:from-accent-400 hover:to-accent-500 rounded-2xl shadow-lg shadow-accent-500/30 flex items-center justify-center transition-all hover:scale-105 hover:shadow-xl">
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+        </svg>
+    </button>
+</body>
+</html>

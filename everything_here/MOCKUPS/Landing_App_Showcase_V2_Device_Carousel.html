@@ -1,0 +1,1580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VroomX App Showcase - V2: Device Mockup Carousel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #1E3A5F;
+            --navy-light: #2D4A6F;
+            --navy-dark: #152942;
+            --orange: #EA580C;
+            --orange-light: #FB923C;
+            --green: #22C55E;
+            --green-light: #4ADE80;
+            --red: #EF4444;
+            --yellow: #F59E0B;
+            --blue: #3B82F6;
+            --indigo: #6366F1;
+            --bg: #F8FAFC;
+            --border: #E2E8F0;
+            --text-dark: #1E293B;
+            --text-muted: #64748B;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        /* Section Container */
+        .showcase-section {
+            position: relative;
+            padding: 120px 24px 160px;
+            min-height: 100vh;
+            overflow: hidden;
+            background: linear-gradient(180deg, #F8FAFC 0%, #EEF2F7 50%, #F8FAFC 100%);
+        }
+
+        /* Floating Blob Decorations */
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.35;
+            pointer-events: none;
+            animation: blobFloat 25s ease-in-out infinite;
+        }
+
+        .blob-1 {
+            width: 700px;
+            height: 700px;
+            background: linear-gradient(135deg, var(--orange) 0%, #FFEDD5 100%);
+            top: -300px;
+            right: -200px;
+            animation-delay: 0s;
+        }
+
+        .blob-2 {
+            width: 600px;
+            height: 600px;
+            background: linear-gradient(135deg, var(--navy) 0%, #BFDBFE 100%);
+            bottom: -200px;
+            left: -200px;
+            animation-delay: -8s;
+        }
+
+        .blob-3 {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, var(--green) 0%, #D1FAE5 100%);
+            top: 50%;
+            right: 10%;
+            animation-delay: -16s;
+        }
+
+        @keyframes blobFloat {
+            0%, 100% { transform: translate(0, 0) scale(1) rotate(0deg); }
+            33% { transform: translate(40px, -40px) scale(1.1) rotate(5deg); }
+            66% { transform: translate(-30px, 30px) scale(0.9) rotate(-5deg); }
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Section Header */
+        .section-header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, rgba(30, 58, 95, 0.08) 0%, rgba(30, 58, 95, 0.03) 100%);
+            border: 1px solid rgba(30, 58, 95, 0.15);
+            border-radius: 100px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--navy);
+            text-transform: uppercase;
+            letter-spacing: 2.5px;
+            margin-bottom: 28px;
+            animation: fadeSlideDown 0.8s ease-out;
+        }
+
+        .badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--orange);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(234, 88, 12, 0.4); }
+            50% { opacity: 0.8; box-shadow: 0 0 0 8px rgba(234, 88, 12, 0); }
+        }
+
+        .section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(40px, 5vw, 64px);
+            font-weight: 800;
+            color: var(--navy);
+            line-height: 1.1;
+            margin-bottom: 20px;
+            animation: fadeSlideDown 0.8s ease-out 0.1s both;
+        }
+
+        .section-title .highlight {
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title .highlight::after {
+            content: '';
+            position: absolute;
+            bottom: 8px;
+            left: 0;
+            right: 0;
+            height: 12px;
+            background: linear-gradient(90deg, rgba(234, 88, 12, 0.3) 0%, rgba(234, 88, 12, 0.1) 100%);
+            border-radius: 4px;
+            z-index: -1;
+        }
+
+        .section-subtitle {
+            font-size: 19px;
+            color: var(--text-muted);
+            max-width: 560px;
+            margin: 0 auto;
+            line-height: 1.7;
+            animation: fadeSlideDown 0.8s ease-out 0.2s both;
+        }
+
+        @keyframes fadeSlideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Carousel Container */
+        .carousel-wrapper {
+            position: relative;
+            animation: fadeSlideUp 1s ease-out 0.3s both;
+        }
+
+        @keyframes fadeSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Laptop Device Frame */
+        .laptop-frame {
+            position: relative;
+            max-width: 1100px;
+            margin: 0 auto;
+            perspective: 1500px;
+        }
+
+        .laptop-screen {
+            position: relative;
+            background: linear-gradient(180deg, #2D2D2D 0%, #1A1A1A 100%);
+            border-radius: 20px 20px 0 0;
+            padding: 16px 16px 0;
+            box-shadow:
+                0 -2px 20px rgba(0, 0, 0, 0.1),
+                inset 0 2px 4px rgba(255, 255, 255, 0.1);
+        }
+
+        .laptop-screen::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 8px;
+            background: #3D3D3D;
+            border-radius: 50%;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .laptop-bezel {
+            background: #0A0A0A;
+            border-radius: 12px 12px 0 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .laptop-base {
+            position: relative;
+            height: 18px;
+            background: linear-gradient(180deg, #D4D4D4 0%, #A8A8A8 50%, #C0C0C0 100%);
+            border-radius: 0 0 12px 12px;
+            margin: 0 -40px;
+            box-shadow:
+                0 4px 8px rgba(0, 0, 0, 0.15),
+                inset 0 2px 4px rgba(255, 255, 255, 0.5);
+        }
+
+        .laptop-base::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 6px;
+            background: linear-gradient(180deg, #B0B0B0 0%, #909090 100%);
+            border-radius: 3px;
+        }
+
+        .laptop-base::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% + 80px);
+            height: 4px;
+            background: linear-gradient(180deg, #8A8A8A 0%, #A0A0A0 100%);
+            border-radius: 0 0 20px 20px;
+        }
+
+        /* Laptop Reflection/Shadow */
+        .laptop-shadow {
+            position: absolute;
+            bottom: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 40px;
+            background: radial-gradient(ellipse, rgba(0, 0, 0, 0.2) 0%, transparent 70%);
+            filter: blur(10px);
+        }
+
+        /* Carousel Slides */
+        .carousel-viewport {
+            position: relative;
+            aspect-ratio: 16 / 10;
+            overflow: hidden;
+        }
+
+        .carousel-slide {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.6s ease, visibility 0.6s ease, transform 0.6s ease;
+            transform: scale(0.98);
+            background: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%);
+        }
+
+        .carousel-slide.active {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1);
+        }
+
+        /* Mock App UI Inside Slides */
+        .app-ui {
+            display: flex;
+            height: 100%;
+        }
+
+        .app-sidebar {
+            width: 64px;
+            background: var(--navy);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px 0;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-item {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-item.active {
+            background: var(--orange);
+            color: white;
+        }
+
+        .app-content {
+            flex: 1;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        /* Slide 1: Dashboard */
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 200px 1fr 1fr;
+            grid-template-rows: auto 1fr;
+            gap: 16px;
+            height: 100%;
+        }
+
+        .gauge-card {
+            grid-row: span 2;
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border);
+        }
+
+        .gauge-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: conic-gradient(var(--green) 0deg 270deg, var(--border) 270deg 360deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 16px 0;
+        }
+
+        .gauge-inner {
+            width: 110px;
+            height: 110px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gauge-number {
+            font-family: 'Outfit', sans-serif;
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--navy);
+        }
+
+        .gauge-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-mini {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border);
+        }
+
+        .stat-mini-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .stat-mini-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .stat-mini-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .stat-mini-icon.blue { background: rgba(59, 130, 246, 0.1); }
+        .stat-mini-icon.green { background: rgba(34, 197, 94, 0.1); }
+        .stat-mini-icon.orange { background: rgba(234, 88, 12, 0.1); }
+        .stat-mini-icon.red { background: rgba(239, 68, 68, 0.1); }
+
+        .stat-mini-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--navy);
+        }
+
+        .chart-mini {
+            grid-column: span 2;
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border);
+        }
+
+        .chart-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 4px;
+            height: 80px;
+            margin-top: 12px;
+        }
+
+        .chart-bar {
+            flex: 1;
+            background: linear-gradient(180deg, var(--green) 0%, var(--green-light) 100%);
+            border-radius: 3px 3px 0 0;
+            min-height: 10px;
+        }
+
+        /* Slide 2: BASICs */
+        .basics-layout {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            height: 100%;
+            align-content: start;
+        }
+
+        .basic-item {
+            background: white;
+            border-radius: 12px;
+            padding: 14px 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border);
+        }
+
+        .basic-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .basic-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+        .basic-badge {
+            padding: 3px 8px;
+            border-radius: 100px;
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .basic-badge.good { background: rgba(34, 197, 94, 0.1); color: var(--green); }
+        .basic-badge.warning { background: rgba(245, 158, 11, 0.1); color: var(--yellow); }
+        .basic-badge.critical { background: rgba(239, 68, 68, 0.1); color: var(--red); }
+
+        .basic-bar-bg {
+            height: 6px;
+            background: var(--bg);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 6px;
+        }
+
+        .basic-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+        }
+
+        .basic-bar-fill.green { background: linear-gradient(90deg, var(--green), var(--green-light)); }
+        .basic-bar-fill.yellow { background: linear-gradient(90deg, var(--yellow), #FCD34D); }
+        .basic-bar-fill.red { background: linear-gradient(90deg, var(--red), #F87171); }
+
+        .basic-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        .basic-percent {
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+        /* Slide 3: Drivers */
+        .drivers-layout {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .drivers-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .drivers-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--navy);
+        }
+
+        .add-btn-mini {
+            padding: 8px 14px;
+            background: var(--orange);
+            color: white;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .drivers-table-mini {
+            flex: 1;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border);
+        }
+
+        .table-head {
+            display: grid;
+            grid-template-columns: 2fr 1.5fr 1fr 1fr;
+            padding: 10px 14px;
+            background: var(--bg);
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .table-row-mini {
+            display: grid;
+            grid-template-columns: 2fr 1.5fr 1fr 1fr;
+            padding: 12px 14px;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            font-size: 11px;
+        }
+
+        .driver-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .driver-avatar-mini {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--navy), var(--navy-light));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .driver-name-mini {
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+        .driver-id-mini {
+            font-size: 9px;
+            color: var(--text-muted);
+        }
+
+        .status-badge-mini {
+            padding: 4px 8px;
+            border-radius: 100px;
+            font-size: 9px;
+            font-weight: 600;
+        }
+
+        .status-badge-mini.compliant { background: rgba(34, 197, 94, 0.1); color: var(--green); }
+        .status-badge-mini.warning { background: rgba(245, 158, 11, 0.1); color: var(--yellow); }
+        .status-badge-mini.expired { background: rgba(239, 68, 68, 0.1); color: var(--red); }
+
+        /* Slide 4: Alerts */
+        .alerts-layout {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .alerts-stats {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .alert-stat {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-stat.critical { background: rgba(239, 68, 68, 0.1); }
+        .alert-stat.warning { background: rgba(245, 158, 11, 0.1); }
+        .alert-stat.info { background: rgba(59, 130, 246, 0.1); }
+
+        .alert-stat-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+
+        .alert-stat.critical .alert-stat-icon { background: var(--red); }
+        .alert-stat.warning .alert-stat-icon { background: var(--yellow); }
+        .alert-stat.info .alert-stat-icon { background: var(--blue); }
+
+        .alert-stat-num {
+            font-family: 'Outfit', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--navy);
+        }
+
+        .alert-stat-label {
+            font-size: 9px;
+            color: var(--text-muted);
+        }
+
+        .kanban-mini {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .kanban-col {
+            background: var(--bg);
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .kanban-col-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 10px;
+        }
+
+        .kanban-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .kanban-dot.red { background: var(--red); }
+        .kanban-dot.yellow { background: var(--yellow); }
+        .kanban-dot.blue { background: var(--blue); }
+
+        .kanban-card {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+
+        .kanban-card-title {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 4px;
+        }
+
+        .kanban-card-desc {
+            font-size: 9px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* Slide 5: AI */
+        .ai-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            height: 100%;
+        }
+
+        .ai-card {
+            background: white;
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border);
+        }
+
+        .ai-card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .ai-pill {
+            padding: 5px 10px;
+            background: linear-gradient(135deg, var(--indigo), #8B5CF6);
+            border-radius: 100px;
+            color: white;
+            font-size: 9px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .ai-card-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--navy);
+        }
+
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            background: var(--bg);
+        }
+
+        .upload-icon-box {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 12px;
+            background: linear-gradient(135deg, var(--orange), var(--orange-light));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .upload-text {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 4px;
+        }
+
+        .upload-hint {
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        .ai-result {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 12px;
+            background: var(--bg);
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .ai-result-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .ai-result-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 2px;
+        }
+
+        .ai-result-desc {
+            font-size: 9px;
+            color: var(--text-muted);
+        }
+
+        .ai-processing-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+            border-radius: 10px;
+        }
+
+        .spinner-mini {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(99, 102, 241, 0.2);
+            border-top-color: var(--indigo);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .ai-processing-text {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--indigo);
+        }
+
+        /* Navigation Arrows */
+        .carousel-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 56px;
+            height: 56px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 20;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .carousel-nav:hover {
+            background: var(--navy);
+            border-color: var(--navy);
+            transform: translateY(-50%) scale(1.05);
+        }
+
+        .carousel-nav:hover svg {
+            stroke: white;
+        }
+
+        .carousel-nav svg {
+            width: 24px;
+            height: 24px;
+            stroke: var(--navy);
+            stroke-width: 2;
+            fill: none;
+            transition: stroke 0.3s ease;
+        }
+
+        .carousel-nav.prev {
+            left: -80px;
+        }
+
+        .carousel-nav.next {
+            right: -80px;
+        }
+
+        /* Carousel Indicators */
+        .carousel-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+            margin-top: 50px;
+        }
+
+        .slide-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--navy);
+            text-align: center;
+            transition: all 0.4s ease;
+        }
+
+        .slide-title span {
+            color: var(--orange);
+        }
+
+        .carousel-dots {
+            display: flex;
+            gap: 12px;
+        }
+
+        .carousel-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--border);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .carousel-dot::before {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border: 2px solid transparent;
+            border-radius: 50%;
+            transition: border-color 0.3s ease;
+        }
+
+        .carousel-dot:hover {
+            background: var(--navy-light);
+        }
+
+        .carousel-dot.active {
+            background: var(--orange);
+            transform: scale(1.1);
+        }
+
+        .carousel-dot.active::before {
+            border-color: rgba(234, 88, 12, 0.3);
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            width: 200px;
+            height: 3px;
+            background: var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--orange), var(--orange-light));
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .carousel-nav {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .showcase-section {
+                padding: 80px 16px 120px;
+            }
+
+            .laptop-base {
+                margin: 0 -20px;
+            }
+
+            .app-sidebar {
+                width: 48px;
+            }
+
+            .sidebar-item {
+                width: 32px;
+                height: 32px;
+                font-size: 12px;
+            }
+
+            .app-content {
+                padding: 12px;
+            }
+
+            .dashboard-layout {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .gauge-card {
+                grid-column: span 2;
+                grid-row: auto;
+            }
+
+            .chart-mini {
+                grid-column: span 2;
+            }
+
+            .basics-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .ai-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .kanban-mini {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <section class="showcase-section">
+        <!-- Floating Blobs -->
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+
+        <div class="container">
+            <!-- Section Header -->
+            <div class="section-header">
+                <div class="badge">Platform Preview</div>
+                <h2 class="section-title">Your Compliance <span class="highlight">Command Center</span></h2>
+                <p class="section-subtitle">Everything you need to stay DOT-compliant in one powerful dashboard. Real-time monitoring, instant alerts, and AI-powered insights.</p>
+            </div>
+
+            <!-- Carousel -->
+            <div class="carousel-wrapper">
+                <!-- Navigation Arrows -->
+                <button class="carousel-nav prev" aria-label="Previous slide">
+                    <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+                </button>
+                <button class="carousel-nav next" aria-label="Next slide">
+                    <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+                </button>
+
+                <!-- Laptop Frame -->
+                <div class="laptop-frame">
+                    <div class="laptop-screen">
+                        <div class="laptop-bezel">
+                            <div class="carousel-viewport">
+                                <!-- Slide 1: Dashboard -->
+                                <div class="carousel-slide active" data-slide="0">
+                                    <div class="app-ui">
+                                        <div class="app-sidebar">
+                                            <div class="sidebar-item active">📊</div>
+                                            <div class="sidebar-item">👥</div>
+                                            <div class="sidebar-item">🚛</div>
+                                            <div class="sidebar-item">🔔</div>
+                                            <div class="sidebar-item">📄</div>
+                                        </div>
+                                        <div class="app-content">
+                                            <div class="dashboard-layout">
+                                                <div class="gauge-card">
+                                                    <span style="font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Compliance Score</span>
+                                                    <div class="gauge-circle">
+                                                        <div class="gauge-inner">
+                                                            <span class="gauge-number">87</span>
+                                                            <span class="gauge-label">Score</span>
+                                                        </div>
+                                                    </div>
+                                                    <div style="display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(34, 197, 94, 0.1); border-radius: 100px; font-size: 11px; font-weight: 600; color: var(--green);">✓ Good Standing</div>
+                                                </div>
+                                                <div class="stat-mini">
+                                                    <div class="stat-mini-header">
+                                                        <span class="stat-mini-label">Active Drivers</span>
+                                                        <div class="stat-mini-icon blue">👥</div>
+                                                    </div>
+                                                    <div class="stat-mini-value">24</div>
+                                                </div>
+                                                <div class="stat-mini">
+                                                    <div class="stat-mini-header">
+                                                        <span class="stat-mini-label">Fleet Vehicles</span>
+                                                        <div class="stat-mini-icon green">🚛</div>
+                                                    </div>
+                                                    <div class="stat-mini-value">18</div>
+                                                </div>
+                                                <div class="stat-mini">
+                                                    <div class="stat-mini-header">
+                                                        <span class="stat-mini-label">Expiring Soon</span>
+                                                        <div class="stat-mini-icon orange">📄</div>
+                                                    </div>
+                                                    <div class="stat-mini-value">3</div>
+                                                </div>
+                                                <div class="stat-mini">
+                                                    <div class="stat-mini-header">
+                                                        <span class="stat-mini-label">Open Violations</span>
+                                                        <div class="stat-mini-icon red">⚠️</div>
+                                                    </div>
+                                                    <div class="stat-mini-value">2</div>
+                                                </div>
+                                                <div class="chart-mini">
+                                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                                        <span style="font-size: 12px; font-weight: 600; color: var(--navy);">30-Day Trend</span>
+                                                        <span style="font-size: 10px; color: var(--green);">↑ 5%</span>
+                                                    </div>
+                                                    <div class="chart-bars">
+                                                        <div class="chart-bar" style="height: 50%"></div>
+                                                        <div class="chart-bar" style="height: 55%"></div>
+                                                        <div class="chart-bar" style="height: 45%"></div>
+                                                        <div class="chart-bar" style="height: 60%"></div>
+                                                        <div class="chart-bar" style="height: 65%"></div>
+                                                        <div class="chart-bar" style="height: 70%"></div>
+                                                        <div class="chart-bar" style="height: 68%"></div>
+                                                        <div class="chart-bar" style="height: 75%"></div>
+                                                        <div class="chart-bar" style="height: 72%"></div>
+                                                        <div class="chart-bar" style="height: 80%"></div>
+                                                        <div class="chart-bar" style="height: 78%"></div>
+                                                        <div class="chart-bar" style="height: 85%"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Slide 2: BASICs -->
+                                <div class="carousel-slide" data-slide="1">
+                                    <div class="app-ui">
+                                        <div class="app-sidebar">
+                                            <div class="sidebar-item">📊</div>
+                                            <div class="sidebar-item">👥</div>
+                                            <div class="sidebar-item">🚛</div>
+                                            <div class="sidebar-item active">📈</div>
+                                            <div class="sidebar-item">📄</div>
+                                        </div>
+                                        <div class="app-content">
+                                            <div class="basics-layout">
+                                                <div class="basic-item">
+                                                    <div class="basic-top">
+                                                        <span class="basic-name">Unsafe Driving</span>
+                                                        <span class="basic-badge good">Good</span>
+                                                    </div>
+                                                    <div class="basic-bar-bg"><div class="basic-bar-fill green" style="width: 32%"></div></div>
+                                                    <div class="basic-stats"><span class="basic-percent">32%</span><span>Threshold: 65%</span></div>
+                                                </div>
+                                                <div class="basic-item">
+                                                    <div class="basic-top">
+                                                        <span class="basic-name">HOS Compliance</span>
+                                                        <span class="basic-badge warning">Warning</span>
+                                                    </div>
+                                                    <div class="basic-bar-bg"><div class="basic-bar-fill yellow" style="width: 58%"></div></div>
+                                                    <div class="basic-stats"><span class="basic-percent">58%</span><span>Threshold: 65%</span></div>
+                                                </div>
+                                                <div class="basic-item">
+                                                    <div class="basic-top">
+                                                        <span class="basic-name">Vehicle Maintenance</span>
+                                                        <span class="basic-badge good">Good</span>
+                                                    </div>
+                                                    <div class="basic-bar-bg"><div class="basic-bar-fill green" style="width: 45%"></div></div>
+                                                    <div class="basic-stats"><span class="basic-percent">45%</span><span>Threshold: 80%</span></div>
+                                                </div>
+                                                <div class="basic-item">
+                                                    <div class="basic-top">
+                                                        <span class="basic-name">Controlled Substances</span>
+                                                        <span class="basic-badge good">Good</span>
+                                                    </div>
+                                                    <div class="basic-bar-bg"><div class="basic-bar-fill green" style="width: 12%"></div></div>
+                                                    <div class="basic-stats"><span class="basic-percent">12%</span><span>Threshold: 80%</span></div>
+                                                </div>
+                                                <div class="basic-item">
+                                                    <div class="basic-top">
+                                                        <span class="basic-name">Driver Fitness</span>
+                                                        <span class="basic-badge good">Good</span>
+                                                    </div>
+                                                    <div class="basic-bar-bg"><div class="basic-bar-fill green" style="width: 28%"></div></div>
+                                                    <div class="basic-stats"><span class="basic-percent">28%</span><span>Threshold: 80%</span></div>
+                                                </div>
+                                                <div class="basic-item">
+                                                    <div class="basic-top">
+                                                        <span class="basic-name">Crash Indicator</span>
+                                                        <span class="basic-badge critical">Critical</span>
+                                                    </div>
+                                                    <div class="basic-bar-bg"><div class="basic-bar-fill red" style="width: 72%"></div></div>
+                                                    <div class="basic-stats"><span class="basic-percent">72%</span><span>Threshold: 65%</span></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Slide 3: Drivers -->
+                                <div class="carousel-slide" data-slide="2">
+                                    <div class="app-ui">
+                                        <div class="app-sidebar">
+                                            <div class="sidebar-item">📊</div>
+                                            <div class="sidebar-item active">👥</div>
+                                            <div class="sidebar-item">🚛</div>
+                                            <div class="sidebar-item">🔔</div>
+                                            <div class="sidebar-item">📄</div>
+                                        </div>
+                                        <div class="app-content">
+                                            <div class="drivers-layout">
+                                                <div class="drivers-header">
+                                                    <span class="drivers-title">Driver Qualification Files</span>
+                                                    <div class="add-btn-mini">+ Add Driver</div>
+                                                </div>
+                                                <div class="drivers-table-mini">
+                                                    <div class="table-head">
+                                                        <span>Driver</span>
+                                                        <span>CDL Number</span>
+                                                        <span>CDL Expiry</span>
+                                                        <span>Status</span>
+                                                    </div>
+                                                    <div class="table-row-mini">
+                                                        <div class="driver-cell">
+                                                            <div class="driver-avatar-mini">JD</div>
+                                                            <div>
+                                                                <div class="driver-name-mini">John Davis</div>
+                                                                <div class="driver-id-mini">EMP-001</div>
+                                                            </div>
+                                                        </div>
+                                                        <span style="color: var(--text-muted); font-size: 11px;">PA-12345678</span>
+                                                        <span style="color: var(--green); font-size: 11px;">245 days</span>
+                                                        <span class="status-badge-mini compliant">Compliant</span>
+                                                    </div>
+                                                    <div class="table-row-mini">
+                                                        <div class="driver-cell">
+                                                            <div class="driver-avatar-mini">MS</div>
+                                                            <div>
+                                                                <div class="driver-name-mini">Maria Santos</div>
+                                                                <div class="driver-id-mini">EMP-002</div>
+                                                            </div>
+                                                        </div>
+                                                        <span style="color: var(--text-muted); font-size: 11px;">TX-98765432</span>
+                                                        <span style="color: var(--orange); font-size: 11px;">28 days</span>
+                                                        <span class="status-badge-mini warning">Expiring</span>
+                                                    </div>
+                                                    <div class="table-row-mini">
+                                                        <div class="driver-cell">
+                                                            <div class="driver-avatar-mini">RJ</div>
+                                                            <div>
+                                                                <div class="driver-name-mini">Robert Johnson</div>
+                                                                <div class="driver-id-mini">EMP-003</div>
+                                                            </div>
+                                                        </div>
+                                                        <span style="color: var(--text-muted); font-size: 11px;">OH-55443322</span>
+                                                        <span style="color: var(--red); font-size: 11px;">Expired</span>
+                                                        <span class="status-badge-mini expired">Non-Compliant</span>
+                                                    </div>
+                                                    <div class="table-row-mini">
+                                                        <div class="driver-cell">
+                                                            <div class="driver-avatar-mini">SW</div>
+                                                            <div>
+                                                                <div class="driver-name-mini">Sarah Williams</div>
+                                                                <div class="driver-id-mini">EMP-004</div>
+                                                            </div>
+                                                        </div>
+                                                        <span style="color: var(--text-muted); font-size: 11px;">CA-11223344</span>
+                                                        <span style="color: var(--green); font-size: 11px;">180 days</span>
+                                                        <span class="status-badge-mini compliant">Compliant</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Slide 4: Alerts -->
+                                <div class="carousel-slide" data-slide="3">
+                                    <div class="app-ui">
+                                        <div class="app-sidebar">
+                                            <div class="sidebar-item">📊</div>
+                                            <div class="sidebar-item">👥</div>
+                                            <div class="sidebar-item">🚛</div>
+                                            <div class="sidebar-item active">🔔</div>
+                                            <div class="sidebar-item">📄</div>
+                                        </div>
+                                        <div class="app-content">
+                                            <div class="alerts-layout">
+                                                <div class="alerts-stats">
+                                                    <div class="alert-stat critical">
+                                                        <div class="alert-stat-icon">🚨</div>
+                                                        <div>
+                                                            <div class="alert-stat-num">3</div>
+                                                            <div class="alert-stat-label">Critical</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="alert-stat warning">
+                                                        <div class="alert-stat-icon">⚠️</div>
+                                                        <div>
+                                                            <div class="alert-stat-num">7</div>
+                                                            <div class="alert-stat-label">Warnings</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="alert-stat info">
+                                                        <div class="alert-stat-icon">ℹ️</div>
+                                                        <div>
+                                                            <div class="alert-stat-num">12</div>
+                                                            <div class="alert-stat-label">Info</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="kanban-mini">
+                                                    <div class="kanban-col">
+                                                        <div class="kanban-col-header"><div class="kanban-dot red"></div>Critical</div>
+                                                        <div class="kanban-card">
+                                                            <div class="kanban-card-title">Medical Card Expired</div>
+                                                            <div class="kanban-card-desc">Robert Johnson - 5 days ago</div>
+                                                        </div>
+                                                        <div class="kanban-card">
+                                                            <div class="kanban-card-title">BASIC Threshold</div>
+                                                            <div class="kanban-card-desc">Crash Indicator at 72%</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="kanban-col">
+                                                        <div class="kanban-col-header"><div class="kanban-dot yellow"></div>Warning</div>
+                                                        <div class="kanban-card">
+                                                            <div class="kanban-card-title">CDL Expiring Soon</div>
+                                                            <div class="kanban-card-desc">Maria Santos - 28 days</div>
+                                                        </div>
+                                                        <div class="kanban-card">
+                                                            <div class="kanban-card-title">Inspection Due</div>
+                                                            <div class="kanban-card-desc">Vehicle #105 - 14 days</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="kanban-col">
+                                                        <div class="kanban-col-header"><div class="kanban-dot blue"></div>Info</div>
+                                                        <div class="kanban-card">
+                                                            <div class="kanban-card-title">New Driver Added</div>
+                                                            <div class="kanban-card-desc">Sarah Williams onboarded</div>
+                                                        </div>
+                                                        <div class="kanban-card">
+                                                            <div class="kanban-card-title">FMCSA Sync</div>
+                                                            <div class="kanban-card-desc">Data refreshed from SAFER</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Slide 5: AI -->
+                                <div class="carousel-slide" data-slide="4">
+                                    <div class="app-ui">
+                                        <div class="app-sidebar">
+                                            <div class="sidebar-item">📊</div>
+                                            <div class="sidebar-item">👥</div>
+                                            <div class="sidebar-item">🚛</div>
+                                            <div class="sidebar-item">🔔</div>
+                                            <div class="sidebar-item active">🤖</div>
+                                        </div>
+                                        <div class="app-content">
+                                            <div class="ai-layout">
+                                                <div class="ai-card">
+                                                    <div class="ai-card-header">
+                                                        <div class="ai-pill">✨ AI-Powered</div>
+                                                        <span class="ai-card-title">Inspection Upload</span>
+                                                    </div>
+                                                    <div class="upload-area">
+                                                        <div class="upload-icon-box">📄</div>
+                                                        <div class="upload-text">Drop inspection report</div>
+                                                        <div class="upload-hint">PDF, JPG, PNG up to 10MB</div>
+                                                    </div>
+                                                </div>
+                                                <div class="ai-card">
+                                                    <div class="ai-card-header">
+                                                        <span class="ai-card-title">AI Analysis Results</span>
+                                                    </div>
+                                                    <div class="ai-result">
+                                                        <div class="ai-result-icon">✓</div>
+                                                        <div>
+                                                            <div class="ai-result-title">3 Violations Detected</div>
+                                                            <div class="ai-result-desc">Auto-extracted from report</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="ai-result">
+                                                        <div class="ai-result-icon">✓</div>
+                                                        <div>
+                                                            <div class="ai-result-title">BASIC Categories Identified</div>
+                                                            <div class="ai-result-desc">HOS, Vehicle Maintenance</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="ai-processing-bar">
+                                                        <div class="spinner-mini"></div>
+                                                        <span class="ai-processing-text">Generating challenge letter...</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="laptop-base"></div>
+                    <div class="laptop-shadow"></div>
+                </div>
+
+                <!-- Carousel Controls -->
+                <div class="carousel-controls">
+                    <div class="slide-title">
+                        <span>Dashboard</span> — Real-time Compliance Overview
+                    </div>
+                    <div class="carousel-dots">
+                        <button class="carousel-dot active" data-slide="0" aria-label="Slide 1"></button>
+                        <button class="carousel-dot" data-slide="1" aria-label="Slide 2"></button>
+                        <button class="carousel-dot" data-slide="2" aria-label="Slide 3"></button>
+                        <button class="carousel-dot" data-slide="3" aria-label="Slide 4"></button>
+                        <button class="carousel-dot" data-slide="4" aria-label="Slide 5"></button>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const slides = document.querySelectorAll('.carousel-slide');
+        const dots = document.querySelectorAll('.carousel-dot');
+        const prevBtn = document.querySelector('.carousel-nav.prev');
+        const nextBtn = document.querySelector('.carousel-nav.next');
+        const slideTitle = document.querySelector('.slide-title');
+        const progressFill = document.querySelector('.progress-fill');
+
+        const slideTitles = [
+            { highlight: 'Dashboard', text: 'Real-time Compliance Overview' },
+            { highlight: 'BASICs Tracking', text: 'SMS Score Monitoring' },
+            { highlight: 'Driver Management', text: 'DQF Files & Credentials' },
+            { highlight: 'Alerts Center', text: 'Smart Notification System' },
+            { highlight: 'AI Features', text: 'Intelligent Document Processing' }
+        ];
+
+        let currentSlide = 0;
+        let autoplayInterval;
+        let progressInterval;
+        const autoplayDelay = 5000;
+
+        function goToSlide(index) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            dots.forEach(dot => dot.classList.remove('active'));
+
+            slides[index].classList.add('active');
+            dots[index].classList.add('active');
+
+            slideTitle.innerHTML = `<span>${slideTitles[index].highlight}</span> — ${slideTitles[index].text}`;
+
+            currentSlide = index;
+            resetProgress();
+        }
+
+        function nextSlide() {
+            const next = (currentSlide + 1) % slides.length;
+            goToSlide(next);
+        }
+
+        function prevSlide() {
+            const prev = (currentSlide - 1 + slides.length) % slides.length;
+            goToSlide(prev);
+        }
+
+        function resetProgress() {
+            progressFill.style.transition = 'none';
+            progressFill.style.width = '0%';
+            setTimeout(() => {
+                progressFill.style.transition = `width ${autoplayDelay}ms linear`;
+                progressFill.style.width = '100%';
+            }, 50);
+        }
+
+        function startAutoplay() {
+            resetProgress();
+            autoplayInterval = setInterval(nextSlide, autoplayDelay);
+        }
+
+        function stopAutoplay() {
+            clearInterval(autoplayInterval);
+            progressFill.style.transition = 'none';
+        }
+
+        // Event listeners
+        prevBtn.addEventListener('click', () => {
+            stopAutoplay();
+            prevSlide();
+            startAutoplay();
+        });
+
+        nextBtn.addEventListener('click', () => {
+            stopAutoplay();
+            nextSlide();
+            startAutoplay();
+        });
+
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                stopAutoplay();
+                goToSlide(index);
+                startAutoplay();
+            });
+        });
+
+        // Pause on hover
+        const carouselWrapper = document.querySelector('.carousel-wrapper');
+        carouselWrapper.addEventListener('mouseenter', stopAutoplay);
+        carouselWrapper.addEventListener('mouseleave', startAutoplay);
+
+        // Start autoplay
+        startAutoplay();
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                stopAutoplay();
+                prevSlide();
+                startAutoplay();
+            } else if (e.key === 'ArrowRight') {
+                stopAutoplay();
+                nextSlide();
+                startAutoplay();
+            }
+        });
+    </script>
+</body>
+</html>

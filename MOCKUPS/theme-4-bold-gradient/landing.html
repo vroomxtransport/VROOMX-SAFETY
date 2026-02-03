@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VroomX Safety Platform - Fleet Compliance Made Simple</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../shared/css/base.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            'heading': ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            'body': ['Inter', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            primary: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              200: '#c7d2fe',
+              300: '#a5b4fc',
+              400: '#818cf8',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              800: '#3730a3',
+              900: '#312e81',
+            },
+            violet: {
+              500: '#8b5cf6',
+              600: '#7c3aed',
+            },
+            pink: {
+              500: '#ec4899',
+              600: '#db2777',
+            },
+            cyan: {
+              400: '#22d3ee',
+              500: '#06b6d4',
+            }
+          },
+          borderRadius: {
+            '2xl': '16px',
+            '3xl': '24px',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    h1, h2, h3, h4, h5, h6 { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+
+    /* Gradient text */
+    .gradient-text {
+      background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #EC4899 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .gradient-text-cyan {
+      background: linear-gradient(135deg, #06B6D4 0%, #3B82F6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Gradient backgrounds */
+    .gradient-primary {
+      background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #EC4899 100%);
+    }
+
+    .gradient-secondary {
+      background: linear-gradient(135deg, #06B6D4 0%, #3B82F6 100%);
+    }
+
+    .gradient-hero {
+      background: linear-gradient(135deg, #eef2ff 0%, #fdf4ff 50%, #fce7f3 100%);
+    }
+
+    /* Animated gradient */
+    @keyframes gradient-shift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .animate-gradient {
+      background-size: 200% 200%;
+      animation: gradient-shift 8s ease infinite;
+    }
+
+    /* Floating blob animation */
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      33% { transform: translate(30px, -30px) rotate(120deg); }
+      66% { transform: translate(-20px, 20px) rotate(240deg); }
+    }
+
+    @keyframes float-reverse {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      33% { transform: translate(-30px, 30px) rotate(-120deg); }
+      66% { transform: translate(20px, -20px) rotate(-240deg); }
+    }
+
+    .animate-float {
+      animation: float 20s ease-in-out infinite;
+    }
+
+    .animate-float-reverse {
+      animation: float-reverse 25s ease-in-out infinite;
+    }
+
+    /* Blob shapes */
+    .blob {
+      border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+      filter: blur(60px);
+    }
+
+    /* Glassmorphism */
+    .glass {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .glass-dark {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Card hover glow */
+    .card-glow:hover {
+      box-shadow: 0 0 40px rgba(124, 58, 237, 0.15);
+    }
+
+    /* Button glow */
+    .btn-glow:hover {
+      box-shadow: 0 0 30px rgba(124, 58, 237, 0.4);
+    }
+
+    /* Gradient border */
+    .gradient-border {
+      position: relative;
+      background: white;
+    }
+
+    .gradient-border::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      padding: 2px;
+      background: linear-gradient(135deg, #4F46E5, #7C3AED, #EC4899);
+      border-radius: inherit;
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+    }
+
+    /* Counter animation */
+    @keyframes count-up {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-count {
+      animation: count-up 0.8s ease-out forwards;
+    }
+
+    /* Smooth scrolling */
+    html { scroll-behavior: smooth; }
+  </style>
+</head>
+<body class="bg-white font-body text-gray-700 antialiased" x-data="{ mobileMenuOpen: false }">
+
+  <!-- Header -->
+  <header class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 lg:h-20">
+
+        <!-- Logo -->
+        <a href="landing.html" class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl gradient-primary flex items-center justify-center">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
+          </div>
+          <span class="text-xl font-bold font-heading text-gray-900">VroomX</span>
+        </a>
+
+        <!-- Desktop Nav -->
+        <nav class="hidden lg:flex items-center gap-8">
+          <a href="#features" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">Features</a>
+          <a href="#pricing" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">Pricing</a>
+          <a href="#testimonials" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">Testimonials</a>
+          <a href="#" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">Resources</a>
+        </nav>
+
+        <!-- Desktop CTA -->
+        <div class="hidden lg:flex items-center gap-4">
+          <a href="login.html" class="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">Sign In</a>
+          <a href="register.html" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-semibold text-white gradient-primary hover:opacity-90 btn-glow transition-all duration-300 transform hover:scale-105">
+            Start Free Trial
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+            </svg>
+          </a>
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <button @click="mobileMenuOpen = !mobileMenuOpen" class="lg:hidden p-2 rounded-xl hover:bg-gray-100 transition-colors">
+          <svg x-show="!mobileMenuOpen" class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+          <svg x-show="mobileMenuOpen" x-cloak class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div x-show="mobileMenuOpen" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="lg:hidden bg-white border-t border-gray-100">
+      <div class="px-4 py-6 space-y-4">
+        <a href="#features" class="block text-base font-medium text-gray-700 hover:text-violet-600">Features</a>
+        <a href="#pricing" class="block text-base font-medium text-gray-700 hover:text-violet-600">Pricing</a>
+        <a href="#testimonials" class="block text-base font-medium text-gray-700 hover:text-violet-600">Testimonials</a>
+        <a href="#" class="block text-base font-medium text-gray-700 hover:text-violet-600">Resources</a>
+        <hr class="border-gray-200">
+        <a href="login.html" class="block text-base font-medium text-gray-700">Sign In</a>
+        <a href="register.html" class="block w-full text-center px-5 py-3 rounded-2xl text-base font-semibold text-white gradient-primary">Start Free Trial</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="relative pt-32 lg:pt-40 pb-20 lg:pb-32 overflow-hidden">
+    <!-- Animated Background -->
+    <div class="absolute inset-0 gradient-hero"></div>
+
+    <!-- Floating Blobs -->
+    <div class="absolute top-20 left-10 w-72 h-72 bg-indigo-400/30 blob animate-float"></div>
+    <div class="absolute top-40 right-20 w-96 h-96 bg-pink-400/20 blob animate-float-reverse"></div>
+    <div class="absolute bottom-20 left-1/3 w-80 h-80 bg-violet-400/25 blob animate-float"></div>
+    <div class="absolute bottom-40 right-1/4 w-64 h-64 bg-cyan-400/20 blob animate-float-reverse"></div>
+
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+
+        <!-- Hero Content -->
+        <div class="text-center lg:text-left">
+          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 backdrop-blur border border-violet-200 mb-6">
+            <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+            <span class="text-sm font-medium text-gray-700">Trusted by 500+ fleets nationwide</span>
+          </div>
+
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold font-heading leading-tight mb-6">
+            <span class="text-gray-900">Fleet Safety</span>
+            <br>
+            <span class="gradient-text">Made Effortless</span>
+          </h1>
+
+          <p class="text-lg lg:text-xl text-gray-600 mb-8 max-w-xl mx-auto lg:mx-0">
+            Stop juggling spreadsheets. VroomX automates DOT compliance, tracks expirations, and keeps your fleet inspection-ready 24/7.
+          </p>
+
+          <div class="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
+            <a href="register.html" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl text-base font-bold text-white gradient-primary btn-glow transition-all duration-300 transform hover:scale-105">
+              Start 14-Day Free Trial
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+              </svg>
+            </a>
+            <a href="#demo" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl text-base font-semibold text-gray-700 bg-white border-2 border-gray-200 hover:border-violet-300 hover:bg-violet-50 transition-all duration-300">
+              <svg class="w-5 h-5 text-violet-600" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+              Watch Demo
+            </a>
+          </div>
+
+          <div class="flex items-center gap-6 mt-8 justify-center lg:justify-start">
+            <div class="flex -space-x-2">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 border-2 border-white flex items-center justify-center text-white text-xs font-bold">JM</div>
+              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-violet-400 to-violet-600 border-2 border-white flex items-center justify-center text-white text-xs font-bold">SK</div>
+              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 border-2 border-white flex items-center justify-center text-white text-xs font-bold">AL</div>
+              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-cyan-600 border-2 border-white flex items-center justify-center text-white text-xs font-bold">+</div>
+            </div>
+            <div class="text-left">
+              <div class="flex items-center gap-1">
+                <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+              </div>
+              <p class="text-sm text-gray-500">4.9/5 from 200+ reviews</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hero Illustration / Mockup -->
+        <div class="relative">
+          <div class="relative bg-white rounded-3xl shadow-2xl p-4 transform hover:scale-[1.02] transition-transform duration-500">
+            <!-- Dashboard Mockup -->
+            <div class="bg-gradient-to-br from-gray-50 to-violet-50 rounded-2xl p-6">
+              <!-- Mini Header -->
+              <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-xl gradient-primary"></div>
+                  <div class="h-3 w-20 bg-gray-300 rounded"></div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-full bg-violet-100"></div>
+                </div>
+              </div>
+
+              <!-- Stats Grid -->
+              <div class="grid grid-cols-3 gap-4 mb-6">
+                <div class="bg-white rounded-2xl p-4 shadow-sm">
+                  <div class="text-2xl font-bold gradient-text">98%</div>
+                  <div class="text-xs text-gray-500">Compliant</div>
+                </div>
+                <div class="bg-white rounded-2xl p-4 shadow-sm">
+                  <div class="text-2xl font-bold text-cyan-500">24</div>
+                  <div class="text-xs text-gray-500">Drivers</div>
+                </div>
+                <div class="bg-white rounded-2xl p-4 shadow-sm">
+                  <div class="text-2xl font-bold text-pink-500">3</div>
+                  <div class="text-xs text-gray-500">Expiring</div>
+                </div>
+              </div>
+
+              <!-- Chart Placeholder -->
+              <div class="bg-white rounded-2xl p-4 shadow-sm">
+                <div class="h-3 w-24 bg-gray-200 rounded mb-4"></div>
+                <div class="flex items-end gap-2 h-24">
+                  <div class="flex-1 rounded-t-lg gradient-primary" style="height: 60%"></div>
+                  <div class="flex-1 rounded-t-lg gradient-primary" style="height: 80%"></div>
+                  <div class="flex-1 rounded-t-lg gradient-primary" style="height: 40%"></div>
+                  <div class="flex-1 rounded-t-lg gradient-primary" style="height: 90%"></div>
+                  <div class="flex-1 rounded-t-lg gradient-primary" style="height: 70%"></div>
+                  <div class="flex-1 rounded-t-lg gradient-secondary" style="height: 95%"></div>
+                  <div class="flex-1 rounded-t-lg gradient-secondary" style="height: 75%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Floating Elements -->
+          <div class="absolute -top-4 -right-4 bg-white rounded-2xl shadow-xl p-4 animate-float">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center">
+                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+              </div>
+              <div>
+                <div class="text-sm font-semibold text-gray-900">All Clear!</div>
+                <div class="text-xs text-gray-500">DOT audit ready</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="absolute -bottom-4 -left-4 bg-white rounded-2xl shadow-xl p-4 animate-float-reverse">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center">
+                <svg class="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                </svg>
+              </div>
+              <div>
+                <div class="text-sm font-semibold text-gray-900">Auto-Alert</div>
+                <div class="text-xs text-gray-500">30 days before expiry</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Logos Section -->
+  <section class="py-12 bg-white border-y border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <p class="text-center text-sm font-medium text-gray-500 mb-8">Trusted by forward-thinking fleets</p>
+      <div class="flex flex-wrap items-center justify-center gap-x-12 gap-y-6 opacity-60 grayscale">
+        <div class="h-8 w-24 bg-gray-300 rounded"></div>
+        <div class="h-8 w-28 bg-gray-300 rounded"></div>
+        <div class="h-8 w-20 bg-gray-300 rounded"></div>
+        <div class="h-8 w-32 bg-gray-300 rounded"></div>
+        <div class="h-8 w-24 bg-gray-300 rounded"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="py-20 lg:py-32">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <!-- Section Header -->
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <span class="inline-block px-4 py-1.5 rounded-full text-sm font-semibold gradient-primary text-white mb-4">Features</span>
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold font-heading text-gray-900 mb-4">
+          Everything You Need to
+          <span class="gradient-text">Stay Compliant</span>
+        </h2>
+        <p class="text-lg text-gray-600">
+          Powerful tools designed for fleet managers who want to spend less time on paperwork and more time growing their business.
+        </p>
+      </div>
+
+      <!-- Features Grid -->
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <!-- Feature Card 1 -->
+        <div class="group relative bg-white rounded-2xl p-6 border border-gray-200 hover:border-violet-300 card-glow transition-all duration-300 hover:-translate-y-1">
+          <div class="absolute top-0 left-0 right-0 h-1 rounded-t-2xl gradient-primary"></div>
+          <div class="w-12 h-12 rounded-2xl bg-violet-100 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+            <svg class="w-6 h-6 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold font-heading text-gray-900 mb-2">Document Vault</h3>
+          <p class="text-gray-600 text-sm">
+            Centralized storage for CDLs, medical cards, MVRs, and more. Never lose a document again.
+          </p>
+        </div>
+
+        <!-- Feature Card 2 -->
+        <div class="group relative bg-white rounded-2xl p-6 border border-gray-200 hover:border-violet-300 card-glow transition-all duration-300 hover:-translate-y-1">
+          <div class="absolute top-0 left-0 right-0 h-1 rounded-t-2xl gradient-primary"></div>
+          <div class="w-12 h-12 rounded-2xl bg-pink-100 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+            <svg class="w-6 h-6 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold font-heading text-gray-900 mb-2">Smart Alerts</h3>
+          <p class="text-gray-600 text-sm">
+            Automated reminders 90, 60, and 30 days before expirations. Email, SMS, or push notifications.
+          </p>
+        </div>
+
+        <!-- Feature Card 3 -->
+        <div class="group relative bg-white rounded-2xl p-6 border border-gray-200 hover:border-violet-300 card-glow transition-all duration-300 hover:-translate-y-1">
+          <div class="absolute top-0 left-0 right-0 h-1 rounded-t-2xl gradient-primary"></div>
+          <div class="w-12 h-12 rounded-2xl bg-indigo-100 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+            <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold font-heading text-gray-900 mb-2">Compliance Dashboard</h3>
+          <p class="text-gray-600 text-sm">
+            Real-time visibility into your fleet's compliance status. Drill down by driver, vehicle, or document type.
+          </p>
+        </div>
+
+        <!-- Feature Card 4 -->
+        <div class="group relative bg-white rounded-2xl p-6 border border-gray-200 hover:border-violet-300 card-glow transition-all duration-300 hover:-translate-y-1">
+          <div class="absolute top-0 left-0 right-0 h-1 rounded-t-2xl gradient-secondary"></div>
+          <div class="w-12 h-12 rounded-2xl bg-cyan-100 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+            <svg class="w-6 h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold font-heading text-gray-900 mb-2">AI Document Scan</h3>
+          <p class="text-gray-600 text-sm">
+            Upload any document and our AI extracts expiration dates, license numbers, and key data automatically.
+          </p>
+        </div>
+
+        <!-- Feature Card 5 -->
+        <div class="group relative bg-white rounded-2xl p-6 border border-gray-200 hover:border-violet-300 card-glow transition-all duration-300 hover:-translate-y-1">
+          <div class="absolute top-0 left-0 right-0 h-1 rounded-t-2xl gradient-secondary"></div>
+          <div class="w-12 h-12 rounded-2xl bg-blue-100 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold font-heading text-gray-900 mb-2">Driver Profiles</h3>
+          <p class="text-gray-600 text-sm">
+            Complete driver records with qualifications, training history, violations, and performance metrics.
+          </p>
+        </div>
+
+        <!-- Feature Card 6 -->
+        <div class="group relative bg-white rounded-2xl p-6 border border-gray-200 hover:border-violet-300 card-glow transition-all duration-300 hover:-translate-y-1">
+          <div class="absolute top-0 left-0 right-0 h-1 rounded-t-2xl gradient-secondary"></div>
+          <div class="w-12 h-12 rounded-2xl bg-green-100 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold font-heading text-gray-900 mb-2">DOT Audit Ready</h3>
+          <p class="text-gray-600 text-sm">
+            Generate audit reports instantly. All documents organized and accessible when inspectors come calling.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="py-20 relative overflow-hidden" x-data="{ visible: false }" x-intersect.once="visible = true">
+    <!-- Background -->
+    <div class="absolute inset-0 gradient-primary opacity-95"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(0,0,0,0.3)_100%)]"></div>
+
+    <!-- Floating shapes -->
+    <div class="absolute top-0 left-0 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
+
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+
+        <!-- Stat 1 -->
+        <div class="text-center" x-show="visible" x-transition.duration.500ms.delay.100ms>
+          <div class="text-5xl lg:text-6xl font-extrabold font-heading text-white mb-2">500+</div>
+          <div class="text-white/80 font-medium">Fleets Managed</div>
+        </div>
+
+        <!-- Stat 2 -->
+        <div class="text-center" x-show="visible" x-transition.duration.500ms.delay.200ms>
+          <div class="text-5xl lg:text-6xl font-extrabold font-heading text-white mb-2">15K+</div>
+          <div class="text-white/80 font-medium">Drivers Compliant</div>
+        </div>
+
+        <!-- Stat 3 -->
+        <div class="text-center" x-show="visible" x-transition.duration.500ms.delay.300ms>
+          <div class="text-5xl lg:text-6xl font-extrabold font-heading text-white mb-2">99.8%</div>
+          <div class="text-white/80 font-medium">Uptime</div>
+        </div>
+
+        <!-- Stat 4 -->
+        <div class="text-center" x-show="visible" x-transition.duration.500ms.delay.400ms>
+          <div class="text-5xl lg:text-6xl font-extrabold font-heading text-white mb-2">4.9</div>
+          <div class="text-white/80 font-medium">Customer Rating</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section id="pricing" class="py-20 lg:py-32 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <!-- Section Header -->
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <span class="inline-block px-4 py-1.5 rounded-full text-sm font-semibold gradient-primary text-white mb-4">Pricing</span>
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold font-heading text-gray-900 mb-4">
+          Simple, Transparent
+          <span class="gradient-text">Pricing</span>
+        </h2>
+        <p class="text-lg text-gray-600">
+          Start free, upgrade as you grow. No hidden fees, cancel anytime.
+        </p>
+      </div>
+
+      <!-- Pricing Cards -->
+      <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+
+        <!-- Solo Plan -->
+        <div class="bg-white rounded-3xl p-8 border border-gray-200 hover:border-gray-300 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+          <div class="mb-6">
+            <h3 class="text-xl font-bold font-heading text-gray-900 mb-2">Solo</h3>
+            <p class="text-gray-600 text-sm">For owner-operators</p>
+          </div>
+          <div class="mb-6">
+            <span class="text-4xl font-extrabold font-heading text-gray-900">$29</span>
+            <span class="text-gray-500">/month</span>
+          </div>
+          <ul class="space-y-3 mb-8">
+            <li class="flex items-center gap-3 text-sm text-gray-600">
+              <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              1 driver included
+            </li>
+            <li class="flex items-center gap-3 text-sm text-gray-600">
+              <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              Unlimited documents
+            </li>
+            <li class="flex items-center gap-3 text-sm text-gray-600">
+              <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              Email alerts
+            </li>
+            <li class="flex items-center gap-3 text-sm text-gray-600">
+              <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              Basic reports
+            </li>
+          </ul>
+          <a href="register.html" class="block w-full text-center py-3 px-6 rounded-2xl font-semibold text-violet-600 border-2 border-violet-200 hover:border-violet-400 hover:bg-violet-50 transition-all duration-300">
+            Start Free Trial
+          </a>
+        </div>
+
+        <!-- Fleet Plan (Popular) -->
+        <div class="relative bg-white rounded-3xl p-8 border-2 border-violet-400 hover:border-violet-500 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl shadow-lg gradient-border">
+          <div class="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-xs font-bold text-white gradient-primary">
+            Most Popular
+          </div>
+          <div class="mb-6">
+            <h3 class="text-xl font-bold font-heading text-gray-900 mb-2">Fleet</h3>
+            <p class="text-gray-600 text-sm">For growing fleets</p>
+          </div>
+          <div class="mb-6">
+            <span class="text-4xl font-extrabold font-heading gradient-text">$79</span>
+            <span class="text-gray-500">/month</span>
+          </div>
+          <ul class="space-y-3 mb-8">
+            <li class="flex items-center gap-3 text-sm text-gray-600">
+              <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              3 drivers included
+            </li>
+            <li class="flex items-center gap-3 text-sm text-gray-600">
+              <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              $6/additional driver
+            </li>
+            <li class="flex items-center gap-3 text-sm text-gray-600">
+              <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              AI document scanning
+            </li>
+            <li class="flex items-center gap-3 text-sm text-gray-600">
+              <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              SMS + Email alerts
+            </li>
+            <li class="flex items-center gap-3 text-sm text-gray-600">
+              <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              Advanced analytics
+            </li>
+          </ul>
+          <a href="register.html" class="block w-full text-center py-3 px-6 rounded-2xl font-semibold text-white gradient-primary btn-glow transition-all duration-300 transform hover:scale-105">
+            Start Free Trial
+          </a>
+        </div>
+
+        <!-- Pro Plan -->
+        <div class="bg-white rounded-3xl p-8 border border-gray-200 hover:border-gray-300 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+          <div class="mb-6">
+            <h3 class="text-xl font-bold font-heading text-gray-900 mb-2">Pro</h3>
+            <p class="text-gray-600 text-sm">For enterprise fleets</p>
+          </div>
+          <div class="mb-6">
+            <span class="text-4xl font-extrabold font-heading text-gray-900">$199</span>
+            <span class="text-gray-500">/month</span>
+          </div>
+          <ul class="space-y-3 mb-8">
+            <li class="flex items-center gap-3 text-sm text-gray-600">
+              <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              10 drivers included
+            </li>
+            <li class="flex items-center gap-3 text-sm text-gray-600">
+              <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              $5/additional driver
+            </li>
+            <li class="flex items-center gap-3 text-sm text-gray-600">
+              <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              API access
+            </li>
+            <li class="flex items-center gap-3 text-sm text-gray-600">
+              <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              Custom integrations
+            </li>
+            <li class="flex items-center gap-3 text-sm text-gray-600">
+              <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              Dedicated support
+            </li>
+          </ul>
+          <a href="register.html" class="block w-full text-center py-3 px-6 rounded-2xl font-semibold text-violet-600 border-2 border-violet-200 hover:border-violet-400 hover:bg-violet-50 transition-all duration-300">
+            Contact Sales
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section id="testimonials" class="py-20 lg:py-32 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <!-- Section Header -->
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <span class="inline-block px-4 py-1.5 rounded-full text-sm font-semibold gradient-primary text-white mb-4">Testimonials</span>
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold font-heading text-gray-900 mb-4">
+          Loved by
+          <span class="gradient-text">Fleet Managers</span>
+        </h2>
+        <p class="text-lg text-gray-600">
+          See what our customers have to say about VroomX Safety Platform.
+        </p>
+      </div>
+
+      <!-- Testimonials Grid -->
+      <div class="grid md:grid-cols-3 gap-8">
+
+        <!-- Testimonial 1 -->
+        <div class="bg-gray-50 rounded-3xl p-8 relative">
+          <div class="absolute top-6 left-6 text-6xl font-serif gradient-text opacity-30">"</div>
+          <div class="relative">
+            <p class="text-gray-700 mb-6 leading-relaxed">
+              VroomX cut our compliance admin time by 80%. We used to spend hours every week tracking expirations - now it's automatic.
+            </p>
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-full gradient-primary flex items-center justify-center text-white font-bold">
+                JM
+              </div>
+              <div>
+                <div class="font-semibold text-gray-900">James Mitchell</div>
+                <div class="text-sm text-gray-500">Fleet Manager, ABC Trucking</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Testimonial 2 -->
+        <div class="bg-gray-50 rounded-3xl p-8 relative">
+          <div class="absolute top-6 left-6 text-6xl font-serif gradient-text opacity-30">"</div>
+          <div class="relative">
+            <p class="text-gray-700 mb-6 leading-relaxed">
+              We passed our DOT audit with flying colors. The auditor was impressed with how organized our documentation was. Thank you VroomX!
+            </p>
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-full gradient-secondary flex items-center justify-center text-white font-bold">
+                SK
+              </div>
+              <div>
+                <div class="font-semibold text-gray-900">Sarah Kim</div>
+                <div class="text-sm text-gray-500">Owner, Kim Logistics</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Testimonial 3 -->
+        <div class="bg-gray-50 rounded-3xl p-8 relative">
+          <div class="absolute top-6 left-6 text-6xl font-serif gradient-text opacity-30">"</div>
+          <div class="relative">
+            <p class="text-gray-700 mb-6 leading-relaxed">
+              The AI document scanning is a game-changer. Upload a photo and it extracts all the dates. Our drivers love how easy it is.
+            </p>
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center text-white font-bold">
+                AL
+              </div>
+              <div>
+                <div class="font-semibold text-gray-900">Alex Lopez</div>
+                <div class="text-sm text-gray-500">Safety Director, FastFreight</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-20 lg:py-32 relative overflow-hidden">
+    <!-- Background -->
+    <div class="absolute inset-0 gradient-primary animate-gradient"></div>
+
+    <!-- Floating Blobs -->
+    <div class="absolute top-0 left-10 w-64 h-64 bg-white/10 blob animate-float"></div>
+    <div class="absolute bottom-0 right-10 w-96 h-96 bg-white/5 blob animate-float-reverse"></div>
+
+    <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold font-heading text-white mb-6">
+        Ready to Simplify Fleet Compliance?
+      </h2>
+      <p class="text-xl text-white/90 mb-10 max-w-2xl mx-auto">
+        Join 500+ fleets who trust VroomX to keep their drivers and vehicles compliant. Start your free trial today.
+      </p>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <a href="register.html" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl text-base font-bold text-violet-600 bg-white hover:bg-gray-50 transition-all duration-300 transform hover:scale-105 shadow-xl">
+          Start 14-Day Free Trial
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+          </svg>
+        </a>
+        <a href="#" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl text-base font-semibold text-white border-2 border-white/30 hover:bg-white/10 transition-all duration-300">
+          Schedule Demo
+        </a>
+      </div>
+      <p class="mt-6 text-sm text-white/70">No credit card required. Cancel anytime.</p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 pt-16 pb-8">
+    <!-- Gradient Divider -->
+    <div class="h-1 gradient-primary"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12">
+      <div class="grid md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
+
+        <!-- Brand -->
+        <div class="lg:col-span-2">
+          <a href="landing.html" class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-2xl gradient-primary flex items-center justify-center">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+              </svg>
+            </div>
+            <span class="text-xl font-bold font-heading text-white">VroomX</span>
+          </a>
+          <p class="text-gray-400 text-sm max-w-xs mb-6">
+            The modern fleet compliance platform that automates DOT documentation and keeps your drivers on the road.
+          </p>
+          <div class="flex gap-4">
+            <a href="#" class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors">
+              <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg>
+            </a>
+            <a href="#" class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors">
+              <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Product -->
+        <div>
+          <h4 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">Product</h4>
+          <ul class="space-y-3">
+            <li><a href="#features" class="text-gray-400 hover:text-white text-sm transition-colors">Features</a></li>
+            <li><a href="#pricing" class="text-gray-400 hover:text-white text-sm transition-colors">Pricing</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Integrations</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Changelog</a></li>
+          </ul>
+        </div>
+
+        <!-- Company -->
+        <div>
+          <h4 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">Company</h4>
+          <ul class="space-y-3">
+            <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">About</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Blog</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Careers</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Contact</a></li>
+          </ul>
+        </div>
+
+        <!-- Legal -->
+        <div>
+          <h4 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">Legal</h4>
+          <ul class="space-y-3">
+            <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Privacy Policy</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Terms of Service</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Security</a></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+        <p class="text-sm text-gray-500">&copy; 2025 VroomX Safety Platform. All rights reserved.</p>
+        <div class="flex items-center gap-6">
+          <a href="#" class="text-sm text-gray-500 hover:text-gray-400 transition-colors">Privacy</a>
+          <a href="#" class="text-sm text-gray-500 hover:text-gray-400 transition-colors">Terms</a>
+          <a href="#" class="text-sm text-gray-500 hover:text-gray-400 transition-colors">Cookies</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../shared/js/common.js"></script>
+</body>
+</html>

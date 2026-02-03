@@ -223,75 +223,89 @@ const Maintenance = () => {
     setSmartUploading(true);
     try {
       const response = await maintenanceAPI.smartUpload(file);
-      if (response.data.success) {
-        const data = response.data.extractedData?.data;
-        if (data) {
-          // Auto-match vehicle by unitNumber, VIN, or licensePlate from extracted data
-          let matchedVehicleId = '';
-          if (data.vehicleInfo) {
-            const matchedVehicle = vehicles.find(v =>
-              (data.vehicleInfo.unitNumber && v.unitNumber?.toLowerCase() === data.vehicleInfo.unitNumber?.toLowerCase()) ||
-              (data.vehicleInfo.vin && v.vin?.toLowerCase() === data.vehicleInfo.vin?.toLowerCase()) ||
-              (data.vehicleInfo.licensePlate && v.licensePlate?.toLowerCase() === data.vehicleInfo.licensePlate?.toLowerCase())
-            );
-            if (matchedVehicle) {
-              matchedVehicleId = matchedVehicle._id;
-              toast.success(`Matched vehicle: ${matchedVehicle.unitNumber}`);
-            }
-          }
+      const {
+        success,
+        aiSuccess,
+        extractedData,
+        uploadedFile,
+        message,
+        error
+      } = response.data || {};
 
-          // Map extracted parts to form format
-          const mappedParts = data.partsUsed?.map(p => ({
-            partName: p.description || p.partName || '',
-            partNumber: p.partNumber || '',
-            quantity: p.quantity || 1,
-            cost: p.cost || 0
-          })) || [];
+      if (!success) {
+        toast.error(message || 'Could not upload document');
+        return;
+      }
 
-          // Auto-fill form with ALL extracted data
-          setFormData(prev => ({
-            ...prev,
-            vehicleId: matchedVehicleId || prev.vehicleId,
-            recordType: data.recordType || prev.recordType,
-            serviceDate: data.serviceDate || prev.serviceDate,
-            odometerReading: data.odometerReading || prev.odometerReading,
-            description: data.description || prev.description,
-            provider: {
-              name: data.provider?.name || prev.provider.name,
-              address: data.provider?.address || prev.provider.address,
-              phone: data.provider?.phone || prev.provider.phone,
-              mechanic: prev.provider.mechanic
-            },
-            laborCost: data.laborCost || prev.laborCost,
-            partsCost: data.partsCost || prev.partsCost,
-            partsUsed: mappedParts.length > 0 ? mappedParts : prev.partsUsed,
-            nextServiceDate: data.nextServiceDate || prev.nextServiceDate,
-            nextServiceMileage: data.nextServiceMileage || prev.nextServiceMileage,
-            notes: data.notes || prev.notes,
-            invoiceNumber: data.invoiceNumber || prev.invoiceNumber
-          }));
+      // Store uploaded file info for attachment
+      if (uploadedFile) {
+        setUploadedFile(uploadedFile);
+      }
 
-          // Show confidence-based message
-          const confidence = data.confidence || 0;
-          if (confidence >= 0.8) {
-            toast.success('Data extracted with high confidence! Please review and complete the form.');
-          } else if (confidence >= 0.5) {
-            toast.success('Data extracted. Some fields may need verification.');
-          } else {
-            toast.success('Data extracted with low confidence. Please verify all fields.');
-          }
-        } else {
-          toast.error(response.data.error || 'Could not extract data from document. Please fill in details manually.');
+      const data = extractedData?.data;
+      if (!aiSuccess || !data) {
+        toast.error(error || message || 'Could not extract data from document. Please fill in details manually.');
+        return;
+      }
+
+      // Auto-match vehicle by unitNumber, VIN, or licensePlate from extracted data
+      let matchedVehicleId = '';
+      if (data.vehicleInfo) {
+        const matchedVehicle = vehicles.find(v =>
+          (data.vehicleInfo.unitNumber && v.unitNumber?.toLowerCase() === data.vehicleInfo.unitNumber?.toLowerCase()) ||
+          (data.vehicleInfo.vin && v.vin?.toLowerCase() === data.vehicleInfo.vin?.toLowerCase()) ||
+          (data.vehicleInfo.licensePlate && v.licensePlate?.toLowerCase() === data.vehicleInfo.licensePlate?.toLowerCase())
+        );
+        if (matchedVehicle) {
+          matchedVehicleId = matchedVehicle._id;
+          toast.success(`Matched vehicle: ${matchedVehicle.unitNumber}`);
         }
-        // Store uploaded file info for attachment
-        if (response.data.uploadedFile) {
-          setUploadedFile(response.data.uploadedFile);
-        }
+      }
+
+      // Map extracted parts to form format
+      const mappedParts = data.partsUsed?.map(p => ({
+        partName: p.description || p.partName || '',
+        partNumber: p.partNumber || '',
+        quantity: p.quantity || 1,
+        cost: p.cost || 0
+      })) || [];
+
+      // Auto-fill form with ALL extracted data
+      setFormData(prev => ({
+        ...prev,
+        vehicleId: matchedVehicleId || prev.vehicleId,
+        recordType: data.recordType || prev.recordType,
+        serviceDate: data.serviceDate || prev.serviceDate,
+        odometerReading: data.odometerReading || prev.odometerReading,
+        description: data.description || prev.description,
+        provider: {
+          name: data.provider?.name || prev.provider.name,
+          address: data.provider?.address || prev.provider.address,
+          phone: data.provider?.phone || prev.provider.phone,
+          mechanic: prev.provider.mechanic
+        },
+        laborCost: data.laborCost || prev.laborCost,
+        partsCost: data.partsCost || prev.partsCost,
+        partsUsed: mappedParts.length > 0 ? mappedParts : prev.partsUsed,
+        nextServiceDate: data.nextServiceDate || prev.nextServiceDate,
+        nextServiceMileage: data.nextServiceMileage || prev.nextServiceMileage,
+        notes: data.notes || prev.notes,
+        invoiceNumber: data.invoiceNumber || prev.invoiceNumber
+      }));
+
+      // Show confidence-based message
+      const confidence = data.confidence || 0;
+      if (confidence >= 0.8) {
+        toast.success('Data extracted with high confidence! Please review and complete the form.');
+      } else if (confidence >= 0.5) {
+        toast.success('Data extracted. Some fields may need verification.');
       } else {
-        toast.error('Could not extract data from the document');
+        toast.success('Data extracted with low confidence. Please verify all fields.');
       }
     } catch (error) {
-      toast.error('Failed to process document');
+      const message = error.response?.data?.message || error.response?.data?.error || error.message || 'Failed to process document';
+      toast.error(message);
+      console.error('Smart upload failed:', error.response?.data || error);
     } finally {
       setSmartUploading(false);
       e.target.value = ''; // Reset input

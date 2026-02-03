@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - VroomX Safety Platform</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link rel="stylesheet" href="../../shared/css/base.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            'sans': ['Inter', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            'primary': '#18181B',
+            'surface': '#FFFFFF',
+            'border': '#E4E4E7',
+            'muted': '#71717A',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .nav-link { position: relative; }
+    .nav-link.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 6px;
+      height: 6px;
+      background: #18181B;
+      border-radius: 50%;
+    }
+    .nav-link.active { font-weight: 500; color: #18181B; }
+    .nav-link:hover { color: #18181B; }
+  </style>
+</head>
+<body class="bg-white text-zinc-900 min-h-screen" x-data="{ sidebarOpen: true }">
+
+  <!-- Sidebar - 240px width -->
+  <aside class="fixed left-0 top-0 h-full w-60 bg-white border-r border-zinc-200 z-40 flex flex-col">
+
+    <!-- Logo -->
+    <div class="h-16 flex items-center px-6">
+      <span class="text-lg font-semibold tracking-tight">VroomX</span>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="flex-1 px-4 py-2 space-y-0.5 overflow-y-auto">
+      <a href="dashboard.html" class="nav-link active flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-900">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+        </svg>
+        Dashboard
+      </a>
+
+      <div class="pt-6 pb-2">
+        <span class="px-4 text-xs font-medium text-zinc-400 uppercase tracking-wider">Fleet</span>
+      </div>
+
+      <a href="drivers.html" class="nav-link flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-500">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+        Drivers
+      </a>
+
+      <a href="vehicles.html" class="nav-link flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-500">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+        </svg>
+        Vehicles
+      </a>
+
+      <div class="pt-6 pb-2">
+        <span class="px-4 text-xs font-medium text-zinc-400 uppercase tracking-wider">Compliance</span>
+      </div>
+
+      <a href="compliance.html" class="nav-link flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-500">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+        </svg>
+        FMCSA Dashboard
+      </a>
+
+      <a href="documents.html" class="nav-link flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-500">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+        </svg>
+        Documents
+      </a>
+
+      <div class="pt-6 pb-2">
+        <span class="px-4 text-xs font-medium text-zinc-400 uppercase tracking-wider">Workflow</span>
+      </div>
+
+      <a href="#" class="nav-link flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-500">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+        </svg>
+        Tasks
+      </a>
+
+      <a href="#" class="nav-link flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-500">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+        </svg>
+        Alerts
+        <span class="ml-auto text-xs bg-zinc-900 text-white px-1.5 py-0.5 rounded">5</span>
+      </a>
+    </nav>
+
+    <!-- User -->
+    <div class="p-4 border-t border-zinc-200">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 bg-zinc-100 rounded-full flex items-center justify-center text-sm font-medium text-zinc-600">JS</div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-zinc-900 truncate">John Smith</p>
+          <p class="text-xs text-zinc-500">Safety Manager</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="ml-60">
+
+    <!-- Header -->
+    <header class="h-16 border-b border-zinc-200 flex items-center justify-between px-8 sticky top-0 bg-white z-10">
+      <div>
+        <h1 class="text-lg font-semibold text-zinc-900">Dashboard</h1>
+        <p class="text-sm text-zinc-500">ABC Trucking LLC</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <button class="p-2 text-zinc-400 hover:text-zinc-600">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+        </button>
+        <button class="p-2 text-zinc-400 hover:text-zinc-600 relative">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+          </svg>
+          <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-zinc-900 rounded-full"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <div class="p-8">
+
+      <!-- Stats Grid -->
+      <div class="grid grid-cols-4 gap-6 mb-8">
+
+        <div class="border border-zinc-200 rounded-lg p-6">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-sm text-zinc-500">Active Drivers</span>
+            <svg class="w-5 h-5 text-zinc-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+          </div>
+          <p class="text-3xl font-semibold text-zinc-900">12</p>
+          <p class="text-sm text-zinc-400 mt-1">9 compliant</p>
+        </div>
+
+        <div class="border border-zinc-200 rounded-lg p-6">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-sm text-zinc-500">Fleet Vehicles</span>
+            <svg class="w-5 h-5 text-zinc-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+            </svg>
+          </div>
+          <p class="text-3xl font-semibold text-zinc-900">15</p>
+          <p class="text-sm text-zinc-400 mt-1">1 in maintenance</p>
+        </div>
+
+        <div class="border border-zinc-200 rounded-lg p-6">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-sm text-zinc-500">Expiring Docs</span>
+            <svg class="w-5 h-5 text-zinc-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+          </div>
+          <p class="text-3xl font-semibold text-amber-600">3</p>
+          <p class="text-sm text-zinc-400 mt-1">Within 30 days</p>
+        </div>
+
+        <div class="border border-zinc-200 rounded-lg p-6">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-sm text-zinc-500">Open Violations</span>
+            <svg class="w-5 h-5 text-zinc-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+          </div>
+          <p class="text-3xl font-semibold text-red-600">2</p>
+          <p class="text-sm text-zinc-400 mt-1">Needs attention</p>
+        </div>
+
+      </div>
+
+      <!-- Compliance Overview -->
+      <div class="border border-zinc-200 rounded-lg p-6 mb-8">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-base font-semibold text-zinc-900">Compliance Overview</h2>
+          <a href="compliance.html" class="text-sm text-zinc-500 hover:text-zinc-900">View Details</a>
+        </div>
+        <div class="flex items-start gap-12">
+          <div class="text-center">
+            <p class="text-5xl font-bold text-zinc-900">87</p>
+            <p class="text-sm text-zinc-500 mt-2">Overall Score</p>
+          </div>
+          <div class="flex-1">
+            <div class="grid grid-cols-3 gap-4 mb-6">
+              <div class="text-center py-4 bg-zinc-50 rounded-lg">
+                <p class="text-2xl font-semibold text-green-600">9</p>
+                <p class="text-xs text-zinc-500 mt-1">Compliant</p>
+              </div>
+              <div class="text-center py-4 bg-zinc-50 rounded-lg">
+                <p class="text-2xl font-semibold text-amber-600">2</p>
+                <p class="text-xs text-zinc-500 mt-1">Warning</p>
+              </div>
+              <div class="text-center py-4 bg-zinc-50 rounded-lg">
+                <p class="text-2xl font-semibold text-red-600">1</p>
+                <p class="text-xs text-zinc-500 mt-1">Non-Compliant</p>
+              </div>
+            </div>
+            <div class="space-y-3">
+              <div class="flex items-center gap-4">
+                <span class="text-sm text-zinc-600 w-40">Unsafe Driving</span>
+                <div class="flex-1 h-2 bg-zinc-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-green-500 rounded-full" style="width: 15%"></div>
+                </div>
+                <span class="text-sm font-medium text-zinc-900 w-12 text-right">15%</span>
+              </div>
+              <div class="flex items-center gap-4">
+                <span class="text-sm text-zinc-600 w-40">HOS Compliance</span>
+                <div class="flex-1 h-2 bg-zinc-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-amber-500 rounded-full" style="width: 42%"></div>
+                </div>
+                <span class="text-sm font-medium text-zinc-900 w-12 text-right">42%</span>
+              </div>
+              <div class="flex items-center gap-4">
+                <span class="text-sm text-zinc-600 w-40">Vehicle Maintenance</span>
+                <div class="flex-1 h-2 bg-zinc-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-green-500 rounded-full" style="width: 8%"></div>
+                </div>
+                <span class="text-sm font-medium text-zinc-900 w-12 text-right">8%</span>
+              </div>
+              <div class="flex items-center gap-4">
+                <span class="text-sm text-zinc-600 w-40">Driver Fitness</span>
+                <div class="flex-1 h-2 bg-zinc-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-green-500 rounded-full" style="width: 12%"></div>
+                </div>
+                <span class="text-sm font-medium text-zinc-900 w-12 text-right">12%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Two Column Layout -->
+      <div class="grid grid-cols-3 gap-6">
+
+        <!-- Recent Activity -->
+        <div class="col-span-2 border border-zinc-200 rounded-lg">
+          <div class="px-6 py-4 border-b border-zinc-200">
+            <h2 class="font-medium text-zinc-900">Recent Activity</h2>
+          </div>
+          <div class="divide-y divide-zinc-100">
+            <div class="px-6 py-4 flex items-start gap-4">
+              <div class="w-8 h-8 bg-red-50 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm text-zinc-900">New HOS Violation - <span class="font-medium">Jennifer Davis</span></p>
+                <p class="text-xs text-zinc-400 mt-1">False report of driver's record of duty status</p>
+              </div>
+              <span class="text-xs text-zinc-400">2 days ago</span>
+            </div>
+            <div class="px-6 py-4 flex items-start gap-4">
+              <div class="w-8 h-8 bg-amber-50 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm text-zinc-900">CDL Expiring Soon - <span class="font-medium">Maria Garcia</span></p>
+                <p class="text-xs text-zinc-400 mt-1">Expires in 14 days on Feb 20, 2025</p>
+              </div>
+              <span class="text-xs text-zinc-400">5 days ago</span>
+            </div>
+            <div class="px-6 py-4 flex items-start gap-4">
+              <div class="w-8 h-8 bg-green-50 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm text-zinc-900">Drug Test Completed - <span class="font-medium">James Wilson</span></p>
+                <p class="text-xs text-zinc-400 mt-1">Random test - Negative result</p>
+              </div>
+              <span class="text-xs text-zinc-400">1 week ago</span>
+            </div>
+            <div class="px-6 py-4 flex items-start gap-4">
+              <div class="w-8 h-8 bg-blue-50 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm text-zinc-900">Annual Inspection Completed - <span class="font-medium">Unit 101</span></p>
+                <p class="text-xs text-zinc-400 mt-1">Next inspection due Jan 10, 2026</p>
+              </div>
+              <span class="text-xs text-zinc-400">1 week ago</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="space-y-6">
+          <!-- Active Alerts -->
+          <div class="border border-zinc-200 rounded-lg">
+            <div class="px-6 py-4 border-b border-zinc-200 flex items-center justify-between">
+              <h2 class="font-medium text-zinc-900">Active Alerts</h2>
+              <span class="text-xs bg-red-50 text-red-600 px-2 py-0.5 rounded">5</span>
+            </div>
+            <div class="p-4 space-y-3">
+              <div class="p-3 bg-red-50 rounded-lg">
+                <p class="text-sm font-medium text-red-800">Medical Card Expired</p>
+                <p class="text-xs text-red-600 mt-0.5">Maria Garcia - Jan 15, 2025</p>
+              </div>
+              <div class="p-3 bg-amber-50 rounded-lg">
+                <p class="text-sm font-medium text-amber-800">CDL Expiring Soon</p>
+                <p class="text-xs text-amber-600 mt-0.5">Maria Garcia - 14 days</p>
+              </div>
+              <div class="p-3 bg-amber-50 rounded-lg">
+                <p class="text-sm font-medium text-amber-800">MVR Expiring Soon</p>
+                <p class="text-xs text-amber-600 mt-0.5">Robert Johnson - 5 days</p>
+              </div>
+            </div>
+            <div class="px-4 pb-4">
+              <a href="#" class="text-sm text-zinc-500 hover:text-zinc-900">View all alerts</a>
+            </div>
+          </div>
+
+          <!-- Pending Tasks -->
+          <div class="border border-zinc-200 rounded-lg">
+            <div class="px-6 py-4 border-b border-zinc-200 flex items-center justify-between">
+              <h2 class="font-medium text-zinc-900">Pending Tasks</h2>
+              <span class="text-xs bg-zinc-100 text-zinc-600 px-2 py-0.5 rounded">5</span>
+            </div>
+            <div class="p-4 space-y-3">
+              <label class="flex items-start gap-3 cursor-pointer">
+                <input type="checkbox" class="mt-0.5 w-4 h-4 rounded border-zinc-300 text-zinc-900 focus:ring-zinc-500">
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm text-zinc-900">Schedule Medical Exam - Maria Garcia</p>
+                  <p class="text-xs text-red-600">Due today</p>
+                </div>
+              </label>
+              <label class="flex items-start gap-3 cursor-pointer">
+                <input type="checkbox" class="mt-0.5 w-4 h-4 rounded border-zinc-300 text-zinc-900 focus:ring-zinc-500">
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm text-zinc-900">Review HOS Violation - Jennifer Davis</p>
+                  <p class="text-xs text-amber-600">Due in 5 days</p>
+                </div>
+              </label>
+              <label class="flex items-start gap-3 cursor-pointer">
+                <input type="checkbox" class="mt-0.5 w-4 h-4 rounded border-zinc-300 text-zinc-900 focus:ring-zinc-500">
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm text-zinc-900">Renew Maria Garcia's CDL</p>
+                  <p class="text-xs text-zinc-500">Due Feb 5</p>
+                </div>
+              </label>
+            </div>
+            <div class="px-4 pb-4">
+              <a href="#" class="text-sm text-zinc-500 hover:text-zinc-900">View all tasks</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <script src="../../shared/js/common.js"></script>
+  <script src="../../shared/data/mock-data.js"></script>
+
+</body>
+</html>

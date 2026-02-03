@@ -454,7 +454,8 @@ export const maintenanceAPI = {
     const formData = new FormData();
     formData.append('file', file);
     return api.post('/maintenance/smart-upload', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 60000
     });
   }
 };

@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - VroomX</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        'slate': {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        },
+                        'accent': '#3b82f6',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+        .hairline {
+            border-width: 1px;
+            border-color: #e2e8f0;
+        }
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="bg-white text-slate-900 antialiased" x-data="{ sidebarOpen: false, currentPage: 'dashboard' }">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar Overlay (Mobile) -->
+        <div
+            x-show="sidebarOpen"
+            x-cloak
+            @click="sidebarOpen = false"
+            class="fixed inset-0 bg-slate-900/20 z-40 lg:hidden"
+        ></div>
+
+        <!-- Sidebar -->
+        <aside
+            :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+            class="fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r hairline transform transition-transform duration-200 lg:translate-x-0"
+        >
+            <div class="flex flex-col h-full">
+                <!-- Logo -->
+                <div class="flex items-center justify-between h-16 px-6 border-b hairline">
+                    <a href="landing.html" class="text-lg font-semibold text-slate-900">VroomX</a>
+                    <button @click="sidebarOpen = false" class="lg:hidden p-1 text-slate-400 hover:text-slate-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+                    <a
+                        href="#"
+                        @click.prevent="currentPage = 'dashboard'"
+                        :class="currentPage === 'dashboard' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'"
+                        class="flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                    >
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a
+                        href="#"
+                        @click.prevent="currentPage = 'drivers'"
+                        :class="currentPage === 'drivers' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'"
+                        class="flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                    >
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                        Drivers
+                    </a>
+                    <a
+                        href="#"
+                        @click.prevent="currentPage = 'vehicles'"
+                        :class="currentPage === 'vehicles' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'"
+                        class="flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                    >
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                        </svg>
+                        Vehicles
+                    </a>
+                    <a
+                        href="#"
+                        @click.prevent="currentPage = 'documents'"
+                        :class="currentPage === 'documents' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'"
+                        class="flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                    >
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        Documents
+                    </a>
+                    <a
+                        href="#"
+                        @click.prevent="currentPage = 'alerts'"
+                        :class="currentPage === 'alerts' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'"
+                        class="flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                    >
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
+                        Alerts
+                        <span class="ml-auto bg-accent text-white text-xs px-2 py-0.5 rounded-full">3</span>
+                    </a>
+                    <a
+                        href="#"
+                        @click.prevent="currentPage = 'reports'"
+                        :class="currentPage === 'reports' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'"
+                        class="flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                    >
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                        Reports
+                    </a>
+
+                    <div class="pt-6 mt-6 border-t hairline">
+                        <p class="px-3 text-xs font-medium text-slate-400 uppercase tracking-wider">Settings</p>
+                    </div>
+                    <a
+                        href="#"
+                        @click.prevent="currentPage = 'company'"
+                        :class="currentPage === 'company' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'"
+                        class="flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                    >
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                        </svg>
+                        Company
+                    </a>
+                    <a
+                        href="#"
+                        @click.prevent="currentPage = 'settings'"
+                        :class="currentPage === 'settings' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'"
+                        class="flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                    >
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        Settings
+                    </a>
+                </nav>
+
+                <!-- User -->
+                <div class="border-t hairline p-4">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center">
+                            <span class="text-sm font-medium text-slate-600">JD</span>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-slate-900">John Doe</p>
+                            <p class="text-xs text-slate-500">Fleet Manager</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Header -->
+            <header class="h-16 border-b hairline bg-white flex items-center justify-between px-6">
+                <div class="flex items-center">
+                    <button @click="sidebarOpen = true" class="lg:hidden p-2 -ml-2 text-slate-500 hover:text-slate-900">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                    <h1 class="text-lg font-medium text-slate-900 lg:ml-0 ml-2">Dashboard</h1>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <!-- Search -->
+                    <div class="hidden md:block relative">
+                        <input
+                            type="text"
+                            placeholder="Search..."
+                            class="w-64 pl-10 pr-4 py-2 text-sm border hairline rounded-md bg-white focus:outline-none focus:border-slate-300 placeholder-slate-400"
+                        >
+                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                    </div>
+
+                    <!-- Notifications -->
+                    <button class="relative p-2 text-slate-500 hover:text-slate-900 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
+                        <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-accent rounded-full"></span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <main class="flex-1 overflow-y-auto bg-white p-6">
+                <!-- Stats -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+                    <div class="py-4">
+                        <p class="text-4xl font-semibold text-slate-900">24</p>
+                        <p class="text-sm text-slate-500 mt-1">Active Drivers</p>
+                    </div>
+                    <div class="py-4">
+                        <p class="text-4xl font-semibold text-slate-900">18</p>
+                        <p class="text-sm text-slate-500 mt-1">Vehicles</p>
+                    </div>
+                    <div class="py-4">
+                        <p class="text-4xl font-semibold text-accent">98%</p>
+                        <p class="text-sm text-slate-500 mt-1">Compliance Rate</p>
+                    </div>
+                    <div class="py-4">
+                        <p class="text-4xl font-semibold text-slate-900">3</p>
+                        <p class="text-sm text-slate-500 mt-1">Active Alerts</p>
+                    </div>
+                </div>
+
+                <!-- Alerts Section -->
+                <div class="mb-8">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-base font-medium text-slate-900">Upcoming Expirations</h2>
+                        <a href="#" class="text-sm text-accent hover:underline">View all</a>
+                    </div>
+                    <div class="border hairline rounded-md overflow-hidden">
+                        <div class="divide-y divide-slate-200">
+                            <div class="flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors">
+                                <div class="flex items-center">
+                                    <div class="w-2 h-2 rounded-full bg-amber-400 mr-3"></div>
+                                    <div>
+                                        <p class="text-sm text-slate-900">John Smith - CDL Renewal</p>
+                                        <p class="text-xs text-slate-500">Commercial Driver's License</p>
+                                    </div>
+                                </div>
+                                <span class="text-xs text-slate-500">Due in 14 days</span>
+                            </div>
+                            <div class="flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors">
+                                <div class="flex items-center">
+                                    <div class="w-2 h-2 rounded-full bg-red-400 mr-3"></div>
+                                    <div>
+                                        <p class="text-sm text-slate-900">Vehicle #103 - Annual Inspection</p>
+                                        <p class="text-xs text-slate-500">DOT Annual Inspection</p>
+                                    </div>
+                                </div>
+                                <span class="text-xs text-slate-500">Due in 7 days</span>
+                            </div>
+                            <div class="flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors">
+                                <div class="flex items-center">
+                                    <div class="w-2 h-2 rounded-full bg-slate-300 mr-3"></div>
+                                    <div>
+                                        <p class="text-sm text-slate-900">Drug Test - Fleet Review</p>
+                                        <p class="text-xs text-slate-500">Random Drug Testing</p>
+                                    </div>
+                                </div>
+                                <span class="text-xs text-slate-500">Due in 30 days</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Drivers Table -->
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-base font-medium text-slate-900">Drivers</h2>
+                        <button class="text-sm text-accent hover:underline flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            Add Driver
+                        </button>
+                    </div>
+                    <div class="border hairline rounded-md overflow-hidden">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="border-b hairline bg-slate-50">
+                                    <th class="text-left text-xs font-medium text-slate-500 uppercase tracking-wider px-4 py-3">Name</th>
+                                    <th class="text-left text-xs font-medium text-slate-500 uppercase tracking-wider px-4 py-3 hidden md:table-cell">CDL Number</th>
+                                    <th class="text-left text-xs font-medium text-slate-500 uppercase tracking-wider px-4 py-3 hidden md:table-cell">CDL Expiry</th>
+                                    <th class="text-left text-xs font-medium text-slate-500 uppercase tracking-wider px-4 py-3">Status</th>
+                                    <th class="text-right text-xs font-medium text-slate-500 uppercase tracking-wider px-4 py-3"></th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200">
+                                <tr class="hover:bg-slate-50 transition-colors">
+                                    <td class="px-4 py-3">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center mr-3">
+                                                <span class="text-xs font-medium text-slate-600">JS</span>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-medium text-slate-900">John Smith</p>
+                                                <p class="text-xs text-slate-500 md:hidden">CDL-12345678</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3 hidden md:table-cell">
+                                        <span class="text-sm text-slate-600">CDL-12345678</span>
+                                    </td>
+                                    <td class="px-4 py-3 hidden md:table-cell">
+                                        <span class="text-sm text-slate-600">Feb 15, 2026</span>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium text-amber-700 bg-amber-50 rounded">
+                                            Expiring Soon
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 text-right">
+                                        <button class="text-slate-400 hover:text-slate-600 transition-colors">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5l7 7-7 7"/>
+                                            </svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 transition-colors">
+                                    <td class="px-4 py-3">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center mr-3">
+                                                <span class="text-xs font-medium text-slate-600">MJ</span>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-medium text-slate-900">Mike Johnson</p>
+                                                <p class="text-xs text-slate-500 md:hidden">CDL-87654321</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3 hidden md:table-cell">
+                                        <span class="text-sm text-slate-600">CDL-87654321</span>
+                                    </td>
+                                    <td class="px-4 py-3 hidden md:table-cell">
+                                        <span class="text-sm text-slate-600">Aug 22, 2026</span>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium text-green-700 bg-green-50 rounded">
+                                            Compliant
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 text-right">
+                                        <button class="text-slate-400 hover:text-slate-600 transition-colors">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5l7 7-7 7"/>
+                                            </svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 transition-colors">
+                                    <td class="px-4 py-3">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center mr-3">
+                                                <span class="text-xs font-medium text-slate-600">SW</span>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-medium text-slate-900">Sarah Williams</p>
+                                                <p class="text-xs text-slate-500 md:hidden">CDL-11223344</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3 hidden md:table-cell">
+                                        <span class="text-sm text-slate-600">CDL-11223344</span>
+                                    </td>
+                                    <td class="px-4 py-3 hidden md:table-cell">
+                                        <span class="text-sm text-slate-600">Nov 30, 2026</span>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium text-green-700 bg-green-50 rounded">
+                                            Compliant
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 text-right">
+                                        <button class="text-slate-400 hover:text-slate-600 transition-colors">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5l7 7-7 7"/>
+                                            </svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 transition-colors">
+                                    <td class="px-4 py-3">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center mr-3">
+                                                <span class="text-xs font-medium text-slate-600">RD</span>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-medium text-slate-900">Robert Davis</p>
+                                                <p class="text-xs text-slate-500 md:hidden">CDL-55667788</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3 hidden md:table-cell">
+                                        <span class="text-sm text-slate-600">CDL-55667788</span>
+                                    </td>
+                                    <td class="px-4 py-3 hidden md:table-cell">
+                                        <span class="text-sm text-slate-600">Mar 15, 2027</span>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium text-green-700 bg-green-50 rounded">
+                                            Compliant
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 text-right">
+                                        <button class="text-slate-400 hover:text-slate-600 transition-colors">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5l7 7-7 7"/>
+                                            </svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 transition-colors">
+                                    <td class="px-4 py-3">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center mr-3">
+                                                <span class="text-xs font-medium text-slate-600">EB</span>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-medium text-slate-900">Emily Brown</p>
+                                                <p class="text-xs text-slate-500 md:hidden">CDL-99001122</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3 hidden md:table-cell">
+                                        <span class="text-sm text-slate-600">CDL-99001122</span>
+                                    </td>
+                                    <td class="px-4 py-3 hidden md:table-cell">
+                                        <span class="text-sm text-slate-600">Jan 8, 2026</span>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium text-red-700 bg-red-50 rounded">
+                                            Expired
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 text-right">
+                                        <button class="text-slate-400 hover:text-slate-600 transition-colors">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5l7 7-7 7"/>
+                                            </svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="flex items-center justify-between mt-4">
+                        <p class="text-sm text-slate-500">Showing 5 of 24 drivers</p>
+                        <div class="flex items-center space-x-2">
+                            <button class="px-3 py-1.5 text-sm text-slate-500 border hairline rounded hover:bg-slate-50 transition-colors disabled:opacity-50" disabled>
+                                Previous
+                            </button>
+                            <button class="px-3 py-1.5 text-sm text-slate-700 border hairline rounded hover:bg-slate-50 transition-colors">
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+</body>
+</html>

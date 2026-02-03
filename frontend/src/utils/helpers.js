@@ -70,7 +70,8 @@ export const basicCategories = {
   vehicle_maintenance: { label: 'Vehicle Maintenance', threshold: 80 },
   controlled_substances: { label: 'Controlled Substances', threshold: 80 },
   driver_fitness: { label: 'Driver Fitness', threshold: 80 },
-  crash_indicator: { label: 'Crash Indicator', threshold: 65 }
+  crash_indicator: { label: 'Crash Indicator', threshold: 65 },
+  hazmat: { label: 'Hazmat', threshold: 80 }
 };
 
 // Format currency

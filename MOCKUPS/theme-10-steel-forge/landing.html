@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VroomX - BUILT FOR THE ROAD | Industrial-Grade Fleet Compliance</title>
+    <meta name="description" content="Industrial-strength DOT compliance management. Built tough for trucking companies that demand reliability. Track, manage, and stay compliant.">
+
+    <!-- Google Fonts - Bebas Neue & Roboto -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            950: '#18181b',
+                            900: '#27272a',
+                            800: '#3f3f46',
+                            700: '#52525b',
+                            600: '#71717a',
+                            500: '#a1a1aa',
+                            400: '#d4d4d8',
+                            300: '#e4e4e7',
+                            200: '#f4f4f5',
+                            100: '#fafafa',
+                        },
+                        steel: {
+                            DEFAULT: '#71717a',
+                            light: '#a1a1aa',
+                            dark: '#52525b',
+                        },
+                        safety: {
+                            orange: '#ea580c',
+                            'orange-dark': '#c2410c',
+                            'orange-light': '#fb923c',
+                            'orange-glow': '#fdba74',
+                        },
+                        forge: {
+                            red: '#dc2626',
+                            green: '#16a34a',
+                            yellow: '#ca8a04',
+                        }
+                    },
+                    fontFamily: {
+                        'bebas': ['Bebas Neue', 'Impact', 'sans-serif'],
+                        'roboto': ['Roboto', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'forge': '0 4px 0 0 #27272a',
+                        'forge-lg': '0 6px 0 0 #27272a',
+                        'forge-orange': '0 4px 0 0 #c2410c',
+                        'inner-forge': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.3)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        /* Industrial Theme Styles */
+        .font-industrial {
+            font-family: 'Bebas Neue', Impact, sans-serif;
+            letter-spacing: 0.08em;
+        }
+
+        /* Safety Stripes - Diagonal */
+        .safety-stripes {
+            background: repeating-linear-gradient(
+                -45deg,
+                #ea580c,
+                #ea580c 12px,
+                #27272a 12px,
+                #27272a 24px
+            );
+        }
+
+        .safety-stripes-subtle {
+            background: repeating-linear-gradient(
+                -45deg,
+                transparent,
+                transparent 20px,
+                rgba(234, 88, 12, 0.08) 20px,
+                rgba(234, 88, 12, 0.08) 40px
+            );
+        }
+
+        /* Steel Texture */
+        .steel-texture {
+            background-image:
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 4px 4px;
+        }
+
+        /* Diamond Plate Pattern */
+        .diamond-plate {
+            background-image:
+                linear-gradient(45deg, rgba(255,255,255,0.05) 25%, transparent 25%),
+                linear-gradient(-45deg, rgba(255,255,255,0.05) 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.05) 75%),
+                linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.05) 75%);
+            background-size: 8px 8px;
+            background-position: 0 0, 0 4px, 4px -4px, -4px 0px;
+        }
+
+        /* Industrial Button */
+        .btn-forge {
+            position: relative;
+            border: 3px solid #27272a;
+            box-shadow: 0 4px 0 0 #27272a;
+            transition: all 0.1s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .btn-forge:hover {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 0 #27272a;
+        }
+
+        .btn-forge:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .btn-forge-orange {
+            background-color: #ea580c;
+            color: white;
+            border-color: #c2410c;
+            box-shadow: 0 4px 0 0 #c2410c;
+        }
+
+        .btn-forge-orange:hover {
+            background-color: #c2410c;
+            box-shadow: 0 2px 0 0 #9a3412;
+        }
+
+        /* Industrial Card */
+        .card-forge {
+            border: 3px solid #27272a;
+            box-shadow: 0 4px 0 0 #27272a;
+            background-color: white;
+        }
+
+        .card-forge-dark {
+            border: 3px solid #3f3f46;
+            box-shadow: 0 4px 0 0 #18181b;
+            background-color: #27272a;
+        }
+
+        /* Heavy Border Accent */
+        .border-heavy {
+            border-width: 4px;
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 14px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #27272a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #ea580c;
+            border: 3px solid #27272a;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #fb923c;
+        }
+
+        /* Stats Counter Animation */
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stat-animate {
+            animation: countUp 0.6s ease-out forwards;
+        }
+
+        /* Rivets Decoration */
+        .rivet::before,
+        .rivet::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: radial-gradient(circle at 30% 30%, #71717a, #3f3f46);
+            border-radius: 50%;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .rivet::before {
+            top: 8px;
+            left: 8px;
+        }
+
+        .rivet::after {
+            top: 8px;
+            right: 8px;
+        }
+    </style>
+</head>
+<body class="bg-charcoal-200 font-roboto text-charcoal-900" x-data="{ mobileMenu: false, showDemo: false }">
+
+    <!-- Safety Stripe Top Banner -->
+    <div class="safety-stripes h-2"></div>
+
+    <!-- Top Utility Bar -->
+    <div class="bg-charcoal-950 text-white py-2 border-b-2 border-charcoal-800">
+        <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
+            <div class="flex items-center gap-6">
+                <span class="text-charcoal-500 text-sm font-medium tracking-wide">INDUSTRIAL-GRADE COMPLIANCE</span>
+            </div>
+            <div class="flex items-center gap-6">
+                <a href="tel:1-800-VROOMX1" class="flex items-center gap-2 text-safety-orange font-bold text-lg hover:text-safety-orange-light transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                    </svg>
+                    <span class="hidden sm:inline">1-800-VROOMX1</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Header -->
+    <header class="bg-charcoal-900 border-b-4 border-safety-orange sticky top-0 z-50 steel-texture">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo -->
+                <a href="#" class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-safety-orange flex items-center justify-center border-2 border-safety-orange-dark relative">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="font-bebas text-3xl text-white tracking-wider">VROOMX</span>
+                        <span class="block text-xs text-charcoal-500 tracking-widest uppercase">SAFETY PLATFORM</span>
+                    </div>
+                </a>
+
+                <!-- Desktop Navigation -->
+                <nav class="hidden lg:flex items-center gap-1">
+                    <a href="#features" class="font-bebas text-lg text-white tracking-wider px-5 py-2 hover:bg-charcoal-800 hover:text-safety-orange transition-colors">FEATURES</a>
+                    <a href="#stats" class="font-bebas text-lg text-white tracking-wider px-5 py-2 hover:bg-charcoal-800 hover:text-safety-orange transition-colors">RESULTS</a>
+                    <a href="#pricing" class="font-bebas text-lg text-white tracking-wider px-5 py-2 hover:bg-charcoal-800 hover:text-safety-orange transition-colors">PRICING</a>
+                    <a href="#testimonials" class="font-bebas text-lg text-white tracking-wider px-5 py-2 hover:bg-charcoal-800 hover:text-safety-orange transition-colors">TESTIMONIALS</a>
+                </nav>
+
+                <!-- CTA Buttons -->
+                <div class="hidden lg:flex items-center gap-4">
+                    <a href="login.html" class="font-bebas text-lg text-white tracking-wider px-4 py-2 hover:text-safety-orange transition-colors">LOGIN</a>
+                    <a href="register.html" class="btn-forge-orange font-bebas text-lg tracking-wider px-6 py-2">
+                        START FREE TRIAL
+                    </a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button @click="mobileMenu = !mobileMenu" class="lg:hidden text-white p-2 hover:bg-charcoal-800 transition-colors">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path x-show="!mobileMenu" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        <path x-show="mobileMenu" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div x-show="mobileMenu" x-transition class="lg:hidden bg-charcoal-950 border-t-2 border-charcoal-800">
+            <div class="px-4 py-6 space-y-3">
+                <a href="#features" class="block font-bebas text-xl text-white tracking-wider py-2 hover:text-safety-orange">FEATURES</a>
+                <a href="#stats" class="block font-bebas text-xl text-white tracking-wider py-2 hover:text-safety-orange">RESULTS</a>
+                <a href="#pricing" class="block font-bebas text-xl text-white tracking-wider py-2 hover:text-safety-orange">PRICING</a>
+                <a href="#testimonials" class="block font-bebas text-xl text-white tracking-wider py-2 hover:text-safety-orange">TESTIMONIALS</a>
+                <hr class="border-charcoal-700 my-4">
+                <a href="login.html" class="block font-bebas text-xl text-white tracking-wider py-2">LOGIN</a>
+                <a href="register.html" class="block btn-forge-orange font-bebas text-xl tracking-wider px-6 py-3 text-center mt-4">START FREE TRIAL</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="relative bg-charcoal-900 overflow-hidden min-h-[90vh] flex items-center">
+        <!-- Background Image with Overlay -->
+        <div class="absolute inset-0">
+            <img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=1920&q=80"
+                 alt="Semi truck fleet on highway"
+                 class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-gradient-to-r from-charcoal-950 via-charcoal-950/90 to-charcoal-950/60"></div>
+            <div class="absolute inset-0 steel-texture opacity-50"></div>
+        </div>
+
+        <!-- Safety Stripe Accent - Bottom -->
+        <div class="absolute bottom-0 left-0 right-0 h-3 safety-stripes"></div>
+
+        <!-- Content -->
+        <div class="relative max-w-7xl mx-auto px-4 py-20 lg:py-32">
+            <div class="max-w-4xl">
+                <!-- Badge -->
+                <div class="inline-flex items-center gap-3 bg-charcoal-900/80 border-2 border-safety-orange px-4 py-2 mb-8 backdrop-blur-sm">
+                    <span class="w-3 h-3 bg-forge-green rounded-full animate-pulse"></span>
+                    <span class="font-roboto font-bold text-white text-sm tracking-widest uppercase">TRUSTED BY 2,500+ FLEETS NATIONWIDE</span>
+                </div>
+
+                <!-- Main Headline -->
+                <h1 class="font-bebas text-6xl sm:text-7xl md:text-8xl lg:text-9xl text-white leading-[0.9] mb-6">
+                    BUILT FOR<br>
+                    <span class="text-safety-orange">THE ROAD</span>
+                </h1>
+
+                <p class="font-roboto text-xl md:text-2xl text-charcoal-400 mb-10 max-w-2xl leading-relaxed">
+                    Industrial-strength compliance management that keeps your fleet moving. No downtime. No excuses. Just results.
+                </p>
+
+                <!-- CTA Buttons -->
+                <div class="flex flex-col sm:flex-row gap-4 mb-12">
+                    <a href="register.html" class="btn-forge-orange font-bebas text-2xl tracking-wider px-10 py-4 text-center inline-flex items-center justify-center gap-3">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                        START 14-DAY FREE TRIAL
+                    </a>
+                    <button @click="showDemo = true" class="btn-forge bg-white text-charcoal-900 font-bebas text-2xl tracking-wider px-10 py-4 inline-flex items-center justify-center gap-3">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                        WATCH DEMO
+                    </button>
+                </div>
+
+                <!-- Trust Points -->
+                <div class="flex flex-wrap gap-8 text-charcoal-400">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-6 h-6 text-forge-green" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="font-bold uppercase tracking-wide">No credit card required</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <svg class="w-6 h-6 text-forge-green" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="font-bold uppercase tracking-wide">5-minute setup</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <svg class="w-6 h-6 text-forge-green" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="font-bold uppercase tracking-wide">Cancel anytime</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section id="stats" class="bg-charcoal-950 py-16 border-y-4 border-charcoal-800 diamond-plate">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Stat 1 -->
+                <div class="text-center p-6 border-2 border-charcoal-800 bg-charcoal-900">
+                    <div class="font-bebas text-5xl md:text-6xl text-safety-orange mb-2">1M+</div>
+                    <div class="font-bebas text-xl text-charcoal-400 tracking-wider">MILES TRACKED</div>
+                </div>
+                <!-- Stat 2 -->
+                <div class="text-center p-6 border-2 border-charcoal-800 bg-charcoal-900">
+                    <div class="font-bebas text-5xl md:text-6xl text-safety-orange mb-2">2,500+</div>
+                    <div class="font-bebas text-xl text-charcoal-400 tracking-wider">FLEETS SERVED</div>
+                </div>
+                <!-- Stat 3 -->
+                <div class="text-center p-6 border-2 border-charcoal-800 bg-charcoal-900">
+                    <div class="font-bebas text-5xl md:text-6xl text-safety-orange mb-2">99.9%</div>
+                    <div class="font-bebas text-xl text-charcoal-400 tracking-wider">UPTIME</div>
+                </div>
+                <!-- Stat 4 -->
+                <div class="text-center p-6 border-2 border-charcoal-800 bg-charcoal-900">
+                    <div class="font-bebas text-5xl md:text-6xl text-safety-orange mb-2">$2.1M</div>
+                    <div class="font-bebas text-xl text-charcoal-400 tracking-wider">FINES PREVENTED</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trust Badges -->
+    <section class="bg-charcoal-200 py-10 border-b-4 border-charcoal-300">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex flex-wrap items-center justify-center gap-8 lg:gap-16">
+                <div class="flex items-center gap-3">
+                    <div class="w-14 h-14 bg-charcoal-900 flex items-center justify-center border-2 border-charcoal-700">
+                        <span class="font-bebas text-xl text-white">DOT</span>
+                    </div>
+                    <span class="font-bebas text-lg text-charcoal-700 tracking-wider">DOT COMPLIANT</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="w-14 h-14 bg-charcoal-900 flex items-center justify-center border-2 border-charcoal-700">
+                        <span class="font-bebas text-sm text-white">FMCSA</span>
+                    </div>
+                    <span class="font-bebas text-lg text-charcoal-700 tracking-wider">FMCSA READY</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="w-14 h-14 bg-charcoal-900 flex items-center justify-center border-2 border-charcoal-700">
+                        <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
+                        </svg>
+                    </div>
+                    <span class="font-bebas text-lg text-charcoal-700 tracking-wider">256-BIT ENCRYPTED</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="w-14 h-14 bg-charcoal-900 flex items-center justify-center border-2 border-charcoal-700">
+                        <span class="font-bebas text-xs text-white">SOC2</span>
+                    </div>
+                    <span class="font-bebas text-lg text-charcoal-700 tracking-wider">SOC 2 CERTIFIED</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="bg-charcoal-100 py-20 lg:py-28 safety-stripes-subtle">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="font-bebas text-5xl md:text-6xl text-charcoal-900 mb-4">ENGINEERED FOR PERFORMANCE</h2>
+                <p class="font-roboto text-xl text-charcoal-600 max-w-2xl mx-auto">Heavy-duty tools built to handle the demands of modern fleet management.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Feature 1 -->
+                <div class="card-forge p-0 overflow-hidden">
+                    <div class="h-2 bg-safety-orange"></div>
+                    <div class="p-6">
+                        <div class="w-16 h-16 bg-charcoal-900 flex items-center justify-center mb-4 border-2 border-charcoal-700">
+                            <svg class="w-8 h-8 text-safety-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                            </svg>
+                        </div>
+                        <h3 class="font-bebas text-2xl text-charcoal-900 tracking-wider mb-3">SMART ALERTS</h3>
+                        <p class="text-charcoal-600 leading-relaxed">Automated notifications 90, 60, 30, and 7 days before expiration. Never miss a deadline again.</p>
+                    </div>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="card-forge p-0 overflow-hidden">
+                    <div class="h-2 bg-safety-orange"></div>
+                    <div class="p-6">
+                        <div class="w-16 h-16 bg-charcoal-900 flex items-center justify-center mb-4 border-2 border-charcoal-700">
+                            <svg class="w-8 h-8 text-safety-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+                        <h3 class="font-bebas text-2xl text-charcoal-900 tracking-wider mb-3">DOCUMENT VAULT</h3>
+                        <p class="text-charcoal-600 leading-relaxed">Secure cloud storage for CDLs, medical cards, drug tests, and inspection reports. Access anywhere.</p>
+                    </div>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="card-forge p-0 overflow-hidden">
+                    <div class="h-2 bg-safety-orange"></div>
+                    <div class="p-6">
+                        <div class="w-16 h-16 bg-charcoal-900 flex items-center justify-center mb-4 border-2 border-charcoal-700">
+                            <svg class="w-8 h-8 text-safety-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                            </svg>
+                        </div>
+                        <h3 class="font-bebas text-2xl text-charcoal-900 tracking-wider mb-3">AUDIT-READY REPORTS</h3>
+                        <p class="text-charcoal-600 leading-relaxed">Generate professional compliance reports in seconds. Always prepared for DOT inspections.</p>
+                    </div>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="card-forge p-0 overflow-hidden">
+                    <div class="h-2 bg-safety-orange"></div>
+                    <div class="p-6">
+                        <div class="w-16 h-16 bg-charcoal-900 flex items-center justify-center mb-4 border-2 border-charcoal-700">
+                            <svg class="w-8 h-8 text-safety-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                        </div>
+                        <h3 class="font-bebas text-2xl text-charcoal-900 tracking-wider mb-3">DRIVER MANAGEMENT</h3>
+                        <p class="text-charcoal-600 leading-relaxed">Complete DQ file tracking with automated compliance scoring. Know who's road-ready at a glance.</p>
+                    </div>
+                </div>
+
+                <!-- Feature 5 -->
+                <div class="card-forge p-0 overflow-hidden">
+                    <div class="h-2 bg-safety-orange"></div>
+                    <div class="p-6">
+                        <div class="w-16 h-16 bg-charcoal-900 flex items-center justify-center mb-4 border-2 border-charcoal-700">
+                            <svg class="w-8 h-8 text-safety-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                            </svg>
+                        </div>
+                        <h3 class="font-bebas text-2xl text-charcoal-900 tracking-wider mb-3">CSA MONITORING</h3>
+                        <p class="text-charcoal-600 leading-relaxed">Real-time BASIC score tracking with predictive alerts. Stay ahead of intervention thresholds.</p>
+                    </div>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="card-forge p-0 overflow-hidden">
+                    <div class="h-2 bg-safety-orange"></div>
+                    <div class="p-6">
+                        <div class="w-16 h-16 bg-charcoal-900 flex items-center justify-center mb-4 border-2 border-charcoal-700">
+                            <svg class="w-8 h-8 text-safety-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <h3 class="font-bebas text-2xl text-charcoal-900 tracking-wider mb-3">MOBILE ACCESS</h3>
+                        <p class="text-charcoal-600 leading-relaxed">Full platform access on any device. Drivers can upload documents directly from the road.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="bg-charcoal-900 py-20 lg:py-28 steel-texture">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="font-bebas text-5xl md:text-6xl text-white mb-4">NO-NONSENSE PRICING</h2>
+                <p class="font-roboto text-xl text-charcoal-400">Straightforward plans. No hidden fees. No surprises.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                <!-- Solo Plan -->
+                <div class="card-forge-dark overflow-hidden">
+                    <div class="p-6">
+                        <div class="text-center mb-6">
+                            <h3 class="font-bebas text-2xl text-charcoal-400 tracking-wider mb-2">OWNER-OPERATOR</h3>
+                            <div class="font-bebas text-6xl text-white mb-1">$29</div>
+                            <div class="text-charcoal-500 font-medium">/month</div>
+                        </div>
+
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-center gap-3 text-charcoal-300">
+                                <svg class="w-5 h-5 text-forge-green flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>1 Driver</span>
+                            </li>
+                            <li class="flex items-center gap-3 text-charcoal-300">
+                                <svg class="w-5 h-5 text-forge-green flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>3 Vehicles</span>
+                            </li>
+                            <li class="flex items-center gap-3 text-charcoal-300">
+                                <svg class="w-5 h-5 text-forge-green flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>Unlimited Documents</span>
+                            </li>
+                            <li class="flex items-center gap-3 text-charcoal-300">
+                                <svg class="w-5 h-5 text-forge-green flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>Email & SMS Alerts</span>
+                            </li>
+                        </ul>
+
+                        <a href="register.html" class="block w-full bg-charcoal-700 text-white font-bebas text-xl tracking-wider text-center py-3 border-2 border-charcoal-600 hover:bg-charcoal-600 transition-colors">
+                            START FREE TRIAL
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Fleet Plan - Featured -->
+                <div class="relative transform md:-translate-y-4">
+                    <div class="absolute -top-0 left-0 right-0 h-3 safety-stripes"></div>
+                    <div class="bg-safety-orange border-4 border-safety-orange-dark overflow-hidden">
+                        <div class="p-6">
+                            <div class="text-center mb-6">
+                                <span class="inline-block bg-charcoal-900 text-safety-orange font-bebas text-sm tracking-wider px-4 py-1 mb-3">MOST POPULAR</span>
+                                <h3 class="font-bebas text-2xl text-white tracking-wider mb-2">SMALL FLEET</h3>
+                                <div class="font-bebas text-6xl text-white mb-1">$99</div>
+                                <div class="text-white/70 font-medium">/month</div>
+                            </div>
+
+                            <ul class="space-y-3 mb-8">
+                                <li class="flex items-center gap-3 text-white">
+                                    <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>Up to 10 Drivers</span>
+                                </li>
+                                <li class="flex items-center gap-3 text-white">
+                                    <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>Unlimited Vehicles</span>
+                                </li>
+                                <li class="flex items-center gap-3 text-white">
+                                    <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>CSA Score Monitoring</span>
+                                </li>
+                                <li class="flex items-center gap-3 text-white">
+                                    <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>Audit Prep Reports</span>
+                                </li>
+                                <li class="flex items-center gap-3 text-white">
+                                    <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>Priority Support</span>
+                                </li>
+                            </ul>
+
+                            <a href="register.html" class="btn-forge block w-full bg-white text-charcoal-900 font-bebas text-xl tracking-wider text-center py-3">
+                                START FREE TRIAL
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Enterprise Plan -->
+                <div class="card-forge-dark overflow-hidden">
+                    <div class="p-6">
+                        <div class="text-center mb-6">
+                            <h3 class="font-bebas text-2xl text-charcoal-400 tracking-wider mb-2">ENTERPRISE</h3>
+                            <div class="font-bebas text-6xl text-white mb-1">$249</div>
+                            <div class="text-charcoal-500 font-medium">/month</div>
+                        </div>
+
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-center gap-3 text-charcoal-300">
+                                <svg class="w-5 h-5 text-forge-green flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>Unlimited Drivers</span>
+                            </li>
+                            <li class="flex items-center gap-3 text-charcoal-300">
+                                <svg class="w-5 h-5 text-forge-green flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>Unlimited Vehicles</span>
+                            </li>
+                            <li class="flex items-center gap-3 text-charcoal-300">
+                                <svg class="w-5 h-5 text-forge-green flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>API Access</span>
+                            </li>
+                            <li class="flex items-center gap-3 text-charcoal-300">
+                                <svg class="w-5 h-5 text-forge-green flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>Custom Integrations</span>
+                            </li>
+                            <li class="flex items-center gap-3 text-charcoal-300">
+                                <svg class="w-5 h-5 text-forge-green flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>Dedicated Account Manager</span>
+                            </li>
+                        </ul>
+
+                        <a href="#contact" class="block w-full bg-charcoal-700 text-white font-bebas text-xl tracking-wider text-center py-3 border-2 border-charcoal-600 hover:bg-charcoal-600 transition-colors">
+                            CONTACT SALES
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Guarantee -->
+            <div class="text-center mt-12">
+                <div class="inline-flex items-center gap-4 bg-charcoal-800 border-2 border-charcoal-700 px-8 py-4">
+                    <svg class="w-10 h-10 text-forge-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                    <span class="font-bebas text-xl text-white tracking-wider">30-DAY MONEY-BACK GUARANTEE - NO QUESTIONS ASKED</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="bg-charcoal-200 py-20 lg:py-28">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="font-bebas text-5xl md:text-6xl text-charcoal-900 mb-4">TRUSTED BY THE INDUSTRY</h2>
+                <p class="font-roboto text-xl text-charcoal-600">Real results from real trucking companies.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- Testimonial 1 -->
+                <div class="card-forge p-6">
+                    <div class="flex items-center gap-1 mb-4">
+                        <svg class="w-6 h-6 text-safety-orange" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                        <svg class="w-6 h-6 text-safety-orange" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                        <svg class="w-6 h-6 text-safety-orange" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                        <svg class="w-6 h-6 text-safety-orange" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                        <svg class="w-6 h-6 text-safety-orange" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                    </div>
+                    <p class="text-charcoal-700 mb-6 leading-relaxed">"Passed our DOT audit with zero deficiencies for the first time in 15 years. The auditor couldn't believe how organized we were. VroomX paid for itself 10x over."</p>
+                    <div class="flex items-center gap-4 pt-4 border-t-2 border-charcoal-300">
+                        <div class="w-14 h-14 bg-charcoal-300 rounded-full overflow-hidden border-2 border-charcoal-400">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Mike Johnson" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <div class="font-bebas text-lg text-charcoal-900 tracking-wider">MIKE JOHNSON</div>
+                            <div class="text-charcoal-600 text-sm">Johnson Trucking, TX - 23 trucks</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 2 -->
+                <div class="card-forge p-6">
+                    <div class="flex items-center gap-1 mb-4">
+                        <svg class="w-6 h-6 text-safety-orange" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                        <svg class="w-6 h-6 text-safety-orange" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                        <svg class="w-6 h-6 text-safety-orange" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                        <svg class="w-6 h-6 text-safety-orange" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                        <svg class="w-6 h-6 text-safety-orange" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                    </div>
+                    <p class="text-charcoal-700 mb-6 leading-relaxed">"Used to spend every Sunday updating spreadsheets. Now I get a text if something needs attention. Got my weekends back and my wife is happier."</p>
+                    <div class="flex items-center gap-4 pt-4 border-t-2 border-charcoal-300">
+                        <div class="w-14 h-14 bg-charcoal-300 rounded-full overflow-hidden border-2 border-charcoal-400">
+                            <img src="https://randomuser.me/api/portraits/men/45.jpg" alt="Bobby Williams" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <div class="font-bebas text-lg text-charcoal-900 tracking-wider">BOBBY WILLIAMS</div>
+                            <div class="text-charcoal-600 text-sm">Owner-Operator, GA</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 3 -->
+                <div class="card-forge p-6">
+                    <div class="flex items-center gap-1 mb-4">
+                        <svg class="w-6 h-6 text-safety-orange" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                        <svg class="w-6 h-6 text-safety-orange" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                        <svg class="w-6 h-6 text-safety-orange" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                        <svg class="w-6 h-6 text-safety-orange" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                        <svg class="w-6 h-6 text-safety-orange" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                    </div>
+                    <p class="text-charcoal-700 mb-6 leading-relaxed">"The CSA monitoring caught a pattern in our violations we never noticed. Fixed it before hitting intervention thresholds. Saved our operating authority."</p>
+                    <div class="flex items-center gap-4 pt-4 border-t-2 border-charcoal-300">
+                        <div class="w-14 h-14 bg-charcoal-300 rounded-full overflow-hidden border-2 border-charcoal-400">
+                            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Sarah Martinez" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <div class="font-bebas text-lg text-charcoal-900 tracking-wider">SARAH MARTINEZ</div>
+                            <div class="text-charcoal-600 text-sm">Safety Director, Martinez Transport - 87 trucks</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="relative bg-safety-orange py-20 overflow-hidden">
+        <div class="absolute inset-0 safety-stripes-subtle opacity-30"></div>
+        <div class="relative max-w-4xl mx-auto px-4 text-center">
+            <h2 class="font-bebas text-5xl md:text-7xl text-white mb-6">READY TO GET ROLLING?</h2>
+            <p class="font-roboto text-xl text-white/90 mb-10 max-w-2xl mx-auto">Join 2,500+ trucking companies who trust VroomX to keep their fleet compliant and on the road.</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="register.html" class="btn-forge bg-white text-charcoal-900 font-bebas text-2xl tracking-wider px-12 py-4 inline-flex items-center justify-center">
+                    START YOUR FREE TRIAL
+                </a>
+                <a href="tel:1-800-VROOMX1" class="btn-forge bg-charcoal-900 text-white font-bebas text-2xl tracking-wider px-12 py-4 inline-flex items-center justify-center gap-3">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                    </svg>
+                    CALL NOW
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact" class="bg-charcoal-950 border-t-4 border-charcoal-800">
+        <!-- Contact Bar -->
+        <div class="bg-charcoal-900 py-8 border-b-2 border-charcoal-800">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+                    <a href="tel:1-800-VROOMX1" class="flex items-center gap-4 text-white hover:text-safety-orange transition-colors">
+                        <div class="w-14 h-14 bg-safety-orange flex items-center justify-center border-2 border-safety-orange-dark">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="font-bebas text-2xl tracking-wider">1-800-VROOMX1</div>
+                            <div class="text-charcoal-500 text-sm">Mon-Fri 6AM-8PM CST</div>
+                        </div>
+                    </a>
+                    <a href="mailto:support@vroomx.com" class="flex items-center gap-4 text-white hover:text-safety-orange transition-colors">
+                        <div class="w-14 h-14 bg-charcoal-800 flex items-center justify-center border-2 border-charcoal-700">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="font-bebas text-xl tracking-wider">SUPPORT@VROOMX.COM</div>
+                            <div class="text-charcoal-500 text-sm">Response within 2 hours</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Footer -->
+        <div class="max-w-7xl mx-auto px-4 py-12">
+            <div class="grid md:grid-cols-4 gap-8">
+                <!-- Brand -->
+                <div>
+                    <a href="#" class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 bg-safety-orange flex items-center justify-center border-2 border-safety-orange-dark">
+                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/>
+                            </svg>
+                        </div>
+                        <span class="font-bebas text-2xl text-white tracking-wider">VROOMX</span>
+                    </a>
+                    <p class="text-charcoal-500 text-sm mb-6">Industrial-strength DOT compliance for trucking companies that demand reliability.</p>
+                    <div class="flex items-center gap-3">
+                        <a href="#" class="w-10 h-10 bg-charcoal-800 flex items-center justify-center text-charcoal-500 hover:text-white hover:bg-charcoal-700 border-2 border-charcoal-700 transition-colors">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-charcoal-800 flex items-center justify-center text-charcoal-500 hover:text-white hover:bg-charcoal-700 border-2 border-charcoal-700 transition-colors">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-charcoal-800 flex items-center justify-center text-charcoal-500 hover:text-white hover:bg-charcoal-700 border-2 border-charcoal-700 transition-colors">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Product -->
+                <div>
+                    <h4 class="font-bebas text-lg text-white tracking-wider mb-4">PRODUCT</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#features" class="text-charcoal-500 hover:text-white transition-colors">Features</a></li>
+                        <li><a href="#pricing" class="text-charcoal-500 hover:text-white transition-colors">Pricing</a></li>
+                        <li><a href="#" class="text-charcoal-500 hover:text-white transition-colors">Integrations</a></li>
+                        <li><a href="#" class="text-charcoal-500 hover:text-white transition-colors">API</a></li>
+                    </ul>
+                </div>
+
+                <!-- Company -->
+                <div>
+                    <h4 class="font-bebas text-lg text-white tracking-wider mb-4">COMPANY</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-charcoal-500 hover:text-white transition-colors">About Us</a></li>
+                        <li><a href="#" class="text-charcoal-500 hover:text-white transition-colors">Blog</a></li>
+                        <li><a href="#" class="text-charcoal-500 hover:text-white transition-colors">Careers</a></li>
+                        <li><a href="#contact" class="text-charcoal-500 hover:text-white transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+
+                <!-- Legal -->
+                <div>
+                    <h4 class="font-bebas text-lg text-white tracking-wider mb-4">LEGAL</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-charcoal-500 hover:text-white transition-colors">Privacy Policy</a></li>
+                        <li><a href="#" class="text-charcoal-500 hover:text-white transition-colors">Terms of Service</a></li>
+                        <li><a href="#" class="text-charcoal-500 hover:text-white transition-colors">Security</a></li>
+                        <li><a href="#" class="text-charcoal-500 hover:text-white transition-colors">GDPR</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Bar -->
+        <div class="border-t-2 border-charcoal-800">
+            <div class="max-w-7xl mx-auto px-4 py-6">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                    <p class="text-charcoal-600 text-sm">&copy; 2026 VroomX Safety Platform. All rights reserved.</p>
+                    <p class="text-charcoal-600 text-sm font-medium">BUILT TOUGH. BUILT TO LAST.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Safety Stripe Bottom -->
+        <div class="safety-stripes h-2"></div>
+    </footer>
+
+    <!-- Demo Modal -->
+    <div x-show="showDemo" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal-950/90" @click.self="showDemo = false">
+        <div class="bg-charcoal-900 border-4 border-charcoal-700 max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            <div class="flex items-center justify-between p-4 border-b-2 border-charcoal-700 bg-charcoal-800">
+                <h3 class="font-bebas text-2xl text-white tracking-wider">PLATFORM DEMO</h3>
+                <button @click="showDemo = false" class="text-charcoal-400 hover:text-white p-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="aspect-video bg-charcoal-950 flex items-center justify-center">
+                <div class="text-center">
+                    <svg class="w-20 h-20 text-safety-orange mx-auto mb-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                    <p class="text-charcoal-400 font-bebas text-xl tracking-wider">Demo video would play here</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

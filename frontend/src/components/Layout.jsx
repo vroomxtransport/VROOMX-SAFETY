@@ -311,10 +311,13 @@ const Layout = () => {
             if (item.section) {
               if (sidebarCollapsed) return null;
               return (
-                <div key={item.section} className="pt-4 pb-2 px-3">
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-300">
-                    {item.section}
-                  </span>
+                <div key={item.section} className="pt-6 pb-2 px-3">
+                  <div className="flex items-center gap-2">
+                    <span className="w-1 h-4 rounded-full bg-gradient-to-b from-orange-400 to-orange-500" />
+                    <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                      {item.section}
+                    </span>
+                  </div>
                 </div>
               );
             }
@@ -326,16 +329,22 @@ const Layout = () => {
                 key={item.name}
                 to={item.path}
                 title={sidebarCollapsed ? item.name : undefined}
-                className={`relative flex items-center rounded-lg transition-all duration-200 group ${
+                className={`relative flex items-center rounded-lg transition-all duration-200 group hover:-translate-y-0.5 hover:shadow-md dark:hover:shadow-white/5 ${
                   sidebarCollapsed ? 'justify-center px-2 py-2.5' : 'gap-3 px-3 py-2.5'
                 } ${isActive
-                    ? 'bg-accent-50 dark:bg-white/10 text-accent-600 dark:text-white'
-                    : 'text-zinc-600 dark:text-white/70 hover:bg-zinc-100 dark:hover:bg-white/5 hover:text-zinc-900 dark:hover:text-white'
+                    ? 'bg-orange-50 dark:bg-white/[0.08] text-orange-600 dark:text-white shadow-sm'
+                    : 'text-zinc-700 dark:text-white/80 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100/80 dark:hover:bg-white/5'
                   }`}
                 onClick={() => setSidebarOpen(false)}
               >
-                {/* Icon */}
-                <Icon className="w-5 h-5 flex-shrink-0" />
+                {/* Icon with container */}
+                <span className={`flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 ${
+                  isActive
+                    ? 'bg-orange-500/15 text-orange-500'
+                    : 'bg-zinc-100 dark:bg-white/5 text-orange-500/70 group-hover:bg-zinc-200 dark:group-hover:bg-white/10 group-hover:text-orange-500'
+                }`}>
+                  <Icon className="w-[18px] h-[18px]" />
+                </span>
 
                 {!sidebarCollapsed && (
                   <>

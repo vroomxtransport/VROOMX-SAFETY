@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VroomX - Feature Mockup 4B: Scroll-Triggered Split Showcase</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary: #1E3A5F;
+            --primary-light: #2D5A87;
+            --primary-dark: #152A45;
+            --success: #22C55E;
+            --success-light: #DCFCE7;
+            --success-dark: #16A34A;
+            --cta: #F97316;
+            --cta-hover: #EA580C;
+            --text-primary: #1E293B;
+            --text-secondary: #475569;
+            --text-muted: #94A3B8;
+            --background: #F8FAFC;
+            --card-bg: #FFFFFF;
+            --border: #E2E8F0;
+            --ai-accent: #6366F1;
+            --ai-light: #EEF2FF;
+            --ai-dark: #4F46E5;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #0F172A;
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .mockup-label {
+            text-align: center;
+            padding: 16px;
+            background: var(--cta);
+            color: white;
+            font-weight: 700;
+            font-size: 0.875rem;
+            margin: 40px auto;
+            border-radius: 12px;
+            max-width: 1200px;
+        }
+
+        /* Section Header */
+        .section-header {
+            text-align: center;
+            padding: 100px 24px 80px;
+            max-width: 900px;
+            margin: 0 auto;
+            color: white;
+        }
+
+        .section-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .section-header h2 {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 24px;
+            line-height: 1.1;
+        }
+
+        .section-header p {
+            font-size: 1.3rem;
+            color: rgba(255,255,255,0.7);
+        }
+
+        /* STICKY SPLIT LAYOUT */
+        .features-container {
+            position: relative;
+        }
+
+        .feature-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* LEFT: Sticky Visual */
+        .visual-column {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .visual-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transition: opacity 0.6s ease, background 0.6s ease;
+        }
+
+        .visual-background.ai {
+            background: linear-gradient(135deg, var(--ai-accent) 0%, var(--ai-dark) 100%);
+        }
+
+        .visual-background.primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        }
+
+        .visual-background.success {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+        }
+
+        .visual-background.warning {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+        }
+
+        /* Animated grid pattern */
+        .grid-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Visual cards stack */
+        .visual-cards-container {
+            position: relative;
+            z-index: 2;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .visual-card {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            background: var(--card-bg);
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 50px 100px rgba(0,0,0,0.3);
+            opacity: 0;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+        }
+
+        .visual-card.active {
+            opacity: 1;
+            pointer-events: auto;
+            animation: cardEnter 0.6s ease forwards;
+        }
+
+        @keyframes cardEnter {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -40%) scale(0.9) rotateX(10deg);
+            }
+            100% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1) rotateX(0);
+            }
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .dots {
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .dot.red { background: #FF5F57; }
+        .dot.yellow { background: #FFBD2E; }
+        .dot.green { background: #28CA42; }
+
+        .card-title {
+            flex: 1;
+            text-align: center;
+            color: rgba(255,255,255,0.6);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .card-body {
+            padding: 28px;
+            background: var(--background);
+            min-height: 320px;
+        }
+
+        /* RIGHT: Scrolling Content */
+        .content-column {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-section {
+            min-height: 100vh;
+            padding: 100px 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            color: white;
+            position: relative;
+        }
+
+        .content-section::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .content-section.active::before {
+            background: linear-gradient(180deg, var(--cta) 0%, var(--ai-accent) 100%);
+        }
+
+        .content-number {
+            font-size: 6rem;
+            font-weight: 900;
+            color: rgba(255,255,255,0.1);
+            line-height: 1;
+            margin-bottom: 20px;
+        }
+
+        .content-category {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+
+        .content-section.visible .content-category {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content-category.ai { color: var(--ai-accent); }
+        .content-category.core { color: var(--success); }
+        .content-category.alert { color: var(--cta); }
+
+        .content-category i {
+            width: 18px;
+            height: 18px;
+        }
+
+        .content-section h3 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 24px;
+            line-height: 1.15;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease 0.1s;
+        }
+
+        .content-section.visible h3 {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content-description {
+            font-size: 1.15rem;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 40px;
+            line-height: 1.8;
+            max-width: 500px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease 0.2s;
+        }
+
+        .content-section.visible .content-description {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Feature Pills */
+        .feature-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 40px;
+        }
+
+        .feature-pill {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 20px;
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.9);
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+
+        .content-section.visible .feature-pill {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .content-section.visible .feature-pill:nth-child(1) { transition-delay: 0.3s; }
+        .content-section.visible .feature-pill:nth-child(2) { transition-delay: 0.4s; }
+        .content-section.visible .feature-pill:nth-child(3) { transition-delay: 0.5s; }
+        .content-section.visible .feature-pill:nth-child(4) { transition-delay: 0.6s; }
+
+        .feature-pill:hover {
+            background: rgba(255,255,255,0.15);
+            transform: translateX(8px);
+        }
+
+        .pill-icon {
+            width: 28px;
+            height: 28px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pill-icon i {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* CTA Button */
+        .content-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 18px 36px;
+            background: linear-gradient(135deg, var(--cta) 0%, var(--cta-hover) 100%);
+            color: white;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: all 0.4s ease;
+            width: fit-content;
+            opacity: 0;
+            transform: translateY(20px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .content-section.visible .content-cta {
+            opacity: 1;
+            transform: translateY(0);
+            transition-delay: 0.7s;
+        }
+
+        .content-cta::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .content-cta:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 50px rgba(249, 115, 22, 0.4);
+        }
+
+        .content-cta:hover::before {
+            left: 100%;
+        }
+
+        .content-cta i {
+            width: 20px;
+            height: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .content-cta:hover i {
+            transform: translateX(6px);
+        }
+
+        /* Visual Card Contents */
+        .chat-ui {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .chat-msg {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .chat-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .chat-avatar.user { background: linear-gradient(135deg, var(--border) 0%, #CBD5E1 100%); color: var(--text-muted); }
+        .chat-avatar.ai { background: linear-gradient(135deg, var(--ai-accent) 0%, var(--ai-dark) 100%); color: white; }
+
+        .chat-avatar i { width: 20px; height: 20px; }
+
+        .chat-bubble {
+            background: var(--card-bg);
+            padding: 16px 20px;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            max-width: 300px;
+            line-height: 1.6;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .chat-bubble.ai {
+            background: linear-gradient(135deg, var(--ai-light) 0%, #E0E7FF 100%);
+        }
+
+        /* CSA UI */
+        .csa-ui {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .csa-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .csa-title {
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .csa-title i { width: 22px; height: 22px; color: var(--primary); }
+
+        .csa-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--success-light);
+            color: var(--success-dark);
+            padding: 8px 14px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .csa-status i { width: 14px; height: 14px; }
+
+        .csa-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .csa-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .csa-label {
+            width: 100px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .csa-label i { width: 14px; height: 14px; }
+
+        .csa-track {
+            flex: 1;
+            height: 12px;
+            background: var(--card-bg);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .csa-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 1s ease;
+        }
+
+        .csa-fill.green { background: linear-gradient(90deg, var(--success) 0%, #34D399 100%); }
+        .csa-fill.yellow { background: linear-gradient(90deg, #EAB308 0%, #FBBF24 100%); }
+
+        .csa-value {
+            width: 45px;
+            text-align: right;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        /* Files UI */
+        .files-ui {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .file-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px;
+            background: var(--card-bg);
+            border-radius: 14px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .file-row:hover {
+            transform: translateX(8px);
+        }
+
+        .file-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .file-icon.blue { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); }
+        .file-icon.red { background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%); }
+        .file-icon.purple { background: linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%); }
+
+        .file-icon i { width: 24px; height: 24px; }
+
+        .file-info { flex: 1; }
+        .file-name { font-weight: 600; margin-bottom: 2px; }
+        .file-meta { font-size: 0.75rem; color: var(--text-muted); }
+
+        .file-status {
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .file-status.valid { background: var(--success-light); color: var(--success-dark); }
+        .file-status.warning { background: #FEF3C7; color: #B45309; }
+
+        /* Alerts UI */
+        .alerts-ui {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .alert-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .alert-row:hover { transform: translateX(6px); }
+
+        .alert-row.warning { background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); }
+        .alert-row.success { background: linear-gradient(135deg, var(--success-light) 0%, #A7F3D0 100%); }
+        .alert-row.info { background: linear-gradient(135deg, var(--ai-light) 0%, #C7D2FE 100%); }
+
+        .alert-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .alert-row.warning .alert-icon { background: rgba(245, 158, 11, 0.2); color: #B45309; }
+        .alert-row.success .alert-icon { background: rgba(34, 197, 94, 0.2); color: var(--success-dark); }
+        .alert-row.info .alert-icon { background: rgba(99, 102, 241, 0.2); color: var(--ai-accent); }
+
+        .alert-icon i { width: 20px; height: 20px; }
+
+        .alert-content { flex: 1; }
+        .alert-title { font-weight: 600; font-size: 0.9rem; margin-bottom: 2px; }
+        .alert-subtitle { font-size: 0.75rem; color: var(--text-muted); }
+        .alert-time { font-size: 0.7rem; color: var(--text-muted); }
+
+        /* Progress indicator */
+        .progress-indicator {
+            position: fixed;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        .progress-dot {
+            width: 12px;
+            height: 12px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .progress-dot.active {
+            background: var(--cta);
+            transform: scale(1.3);
+            box-shadow: 0 0 15px var(--cta);
+        }
+
+        .progress-dot:hover {
+            background: rgba(255,255,255,0.5);
+        }
+
+        /* Responsive */
+        @media (max-width: 1000px) {
+            .feature-section {
+                grid-template-columns: 1fr;
+            }
+            .visual-column {
+                position: relative;
+                height: auto;
+                min-height: 500px;
+            }
+            .content-section {
+                padding: 60px 30px;
+            }
+            .content-section h3 {
+                font-size: 2rem;
+            }
+            .progress-indicator {
+                display: none;
+            }
+        }
+
+        .design-notes {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 24px;
+        }
+
+        .design-notes-inner {
+            padding: 28px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            border: 2px dashed var(--border);
+        }
+
+        .design-notes h4 {
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .design-notes ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px 32px;
+        }
+
+        .design-notes li {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            padding-left: 24px;
+            position: relative;
+        }
+
+        .design-notes li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--success);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="mockup-label">MOCKUP 4B: Scroll-Triggered Split Showcase — Sticky visual panel, scrolling content, progress dots</div>
+
+    <div class="section-header">
+        <div class="section-badge">
+            <i data-lucide="sparkles" style="width:16px;height:16px;"></i>
+            Powerful Features
+        </div>
+        <h2>Everything You Need to Stay Compliant</h2>
+        <p>Scroll to explore our powerful tools designed for owner-operators and small fleets.</p>
+    </div>
+
+    <!-- Progress Indicator -->
+    <div class="progress-indicator">
+        <div class="progress-dot active" data-index="0"></div>
+        <div class="progress-dot" data-index="1"></div>
+        <div class="progress-dot" data-index="2"></div>
+        <div class="progress-dot" data-index="3"></div>
+    </div>
+
+    <div class="features-container">
+        <div class="feature-section">
+            <!-- Sticky Visual Column -->
+            <div class="visual-column">
+                <div class="visual-background ai" id="visualBg0"></div>
+                <div class="visual-background primary" id="visualBg1" style="opacity: 0;"></div>
+                <div class="visual-background success" id="visualBg2" style="opacity: 0;"></div>
+                <div class="visual-background warning" id="visualBg3" style="opacity: 0;"></div>
+                <div class="grid-pattern"></div>
+
+                <div class="visual-cards-container">
+                    <!-- Card 0: AI Assistant -->
+                    <div class="visual-card active" id="visualCard0">
+                        <div class="card-header">
+                            <div class="dots">
+                                <div class="dot red"></div>
+                                <div class="dot yellow"></div>
+                                <div class="dot green"></div>
+                            </div>
+                            <span class="card-title">AI Regulation Assistant</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="chat-ui">
+                                <div class="chat-msg">
+                                    <div class="chat-avatar user"><i data-lucide="user"></i></div>
+                                    <div class="chat-bubble">What's the HOS limit for property-carrying drivers?</div>
+                                </div>
+                                <div class="chat-msg">
+                                    <div class="chat-avatar ai"><i data-lucide="bot"></i></div>
+                                    <div class="chat-bubble ai">Property-carrying drivers have an 11-hour driving limit after 10 consecutive hours off duty. Per §395.3, you also cannot drive beyond the 14th hour.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 1: CSA Tracking -->
+                    <div class="visual-card" id="visualCard1">
+                        <div class="card-header">
+                            <div class="dots">
+                                <div class="dot red"></div>
+                                <div class="dot yellow"></div>
+                                <div class="dot green"></div>
+                            </div>
+                            <span class="card-title">CSA Dashboard</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="csa-ui">
+                                <div class="csa-header">
+                                    <span class="csa-title"><i data-lucide="shield-check"></i> CSA Overview</span>
+                                    <span class="csa-status"><i data-lucide="check-circle-2"></i> Compliant</span>
+                                </div>
+                                <div class="csa-bars">
+                                    <div class="csa-row">
+                                        <span class="csa-label"><i data-lucide="car"></i> Unsafe</span>
+                                        <div class="csa-track"><div class="csa-fill green" style="width: 32%"></div></div>
+                                        <span class="csa-value">32%</span>
+                                    </div>
+                                    <div class="csa-row">
+                                        <span class="csa-label"><i data-lucide="clock"></i> HOS</span>
+                                        <div class="csa-track"><div class="csa-fill green" style="width: 45%"></div></div>
+                                        <span class="csa-value">45%</span>
+                                    </div>
+                                    <div class="csa-row">
+                                        <span class="csa-label"><i data-lucide="wrench"></i> Vehicle</span>
+                                        <div class="csa-track"><div class="csa-fill yellow" style="width: 58%"></div></div>
+                                        <span class="csa-value">58%</span>
+                                    </div>
+                                    <div class="csa-row">
+                                        <span class="csa-label"><i data-lucide="heart-pulse"></i> Fitness</span>
+                                        <div class="csa-track"><div class="csa-fill green" style="width: 21%"></div></div>
+                                        <span class="csa-value">21%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: DQF Files -->
+                    <div class="visual-card" id="visualCard2">
+                        <div class="card-header">
+                            <div class="dots">
+                                <div class="dot red"></div>
+                                <div class="dot yellow"></div>
+                                <div class="dot green"></div>
+                            </div>
+                            <span class="card-title">Driver Qualification Files</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="files-ui">
+                                <div class="file-row">
+                                    <div class="file-icon blue"><i data-lucide="id-card"></i></div>
+                                    <div class="file-info">
+                                        <div class="file-name">CDL - Mike Rodriguez</div>
+                                        <div class="file-meta">Expires: Dec 15, 2026</div>
+                                    </div>
+                                    <span class="file-status valid">Valid</span>
+                                </div>
+                                <div class="file-row">
+                                    <div class="file-icon red"><i data-lucide="stethoscope"></i></div>
+                                    <div class="file-info">
+                                        <div class="file-name">Medical Card - Mike R.</div>
+                                        <div class="file-meta">Expires: Mar 8, 2026</div>
+                                    </div>
+                                    <span class="file-status warning">45 days</span>
+                                </div>
+                                <div class="file-row">
+                                    <div class="file-icon purple"><i data-lucide="file-text"></i></div>
+                                    <div class="file-info">
+                                        <div class="file-name">MVR - Mike Rodriguez</div>
+                                        <div class="file-meta">Updated: Jan 10, 2026</div>
+                                    </div>
+                                    <span class="file-status valid">Current</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Smart Alerts -->
+                    <div class="visual-card" id="visualCard3">
+                        <div class="card-header">
+                            <div class="dots">
+                                <div class="dot red"></div>
+                                <div class="dot yellow"></div>
+                                <div class="dot green"></div>
+                            </div>
+                            <span class="card-title">Notification Center</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="alerts-ui">
+                                <div class="alert-row warning">
+                                    <div class="alert-icon"><i data-lucide="alert-triangle"></i></div>
+                                    <div class="alert-content">
+                                        <div class="alert-title">Medical Card Expiring</div>
+                                        <div class="alert-subtitle">Mike R. - 45 days</div>
+                                    </div>
+                                    <span class="alert-time">2h ago</span>
+                                </div>
+                                <div class="alert-row success">
+                                    <div class="alert-icon"><i data-lucide="check-circle"></i></div>
+                                    <div class="alert-content">
+                                        <div class="alert-title">Inspection Complete</div>
+                                        <div class="alert-subtitle">Truck #1042</div>
+                                    </div>
+                                    <span class="alert-time">5h ago</span>
+                                </div>
+                                <div class="alert-row info">
+                                    <div class="alert-icon"><i data-lucide="trending-down"></i></div>
+                                    <div class="alert-content">
+                                        <div class="alert-title">CSA Improved</div>
+                                        <div class="alert-subtitle">35% → 32%</div>
+                                    </div>
+                                    <span class="alert-time">1d ago</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scrolling Content Column -->
+            <div class="content-column">
+                <!-- Section 0: AI Assistant -->
+                <div class="content-section visible" data-index="0">
+                    <span class="content-number">01</span>
+                    <div class="content-category ai">
+                        <i data-lucide="cpu"></i>
+                        AI-Powered
+                    </div>
+                    <h3>AI Regulation Assistant</h3>
+                    <p class="content-description">Ask any FMCSA regulation question and get instant, accurate answers. Like having a compliance expert on call 24/7, without the hourly fees.</p>
+                    <div class="feature-pills">
+                        <div class="feature-pill">
+                            <span class="pill-icon"><i data-lucide="zap"></i></span>
+                            Instant answers
+                        </div>
+                        <div class="feature-pill">
+                            <span class="pill-icon"><i data-lucide="refresh-cw"></i></span>
+                            Always up-to-date
+                        </div>
+                        <div class="feature-pill">
+                            <span class="pill-icon"><i data-lucide="message-circle"></i></span>
+                            Plain English
+                        </div>
+                        <div class="feature-pill">
+                            <span class="pill-icon"><i data-lucide="clock"></i></span>
+                            24/7 available
+                        </div>
+                    </div>
+                    <a href="#" class="content-cta">
+                        Try It Free
+                        <i data-lucide="arrow-right"></i>
+                    </a>
+                </div>
+
+                <!-- Section 1: CSA Tracking -->
+                <div class="content-section" data-index="1">
+                    <span class="content-number">02</span>
+                    <div class="content-category core">
+                        <i data-lucide="trending-up"></i>
+                        Analytics
+                    </div>
+                    <h3>CSA Score Tracking</h3>
+                    <p class="content-description">Monitor your CSA scores across all 7 BASICs in real-time. Understand what's affecting your numbers and get actionable recommendations.</p>
+                    <div class="feature-pills">
+                        <div class="feature-pill">
+                            <span class="pill-icon"><i data-lucide="layout-dashboard"></i></span>
+                            All 7 BASICs
+                        </div>
+                        <div class="feature-pill">
+                            <span class="pill-icon"><i data-lucide="line-chart"></i></span>
+                            Historical trends
+                        </div>
+                        <div class="feature-pill">
+                            <span class="pill-icon"><i data-lucide="bell"></i></span>
+                            Score alerts
+                        </div>
+                        <div class="feature-pill">
+                            <span class="pill-icon"><i data-lucide="lightbulb"></i></span>
+                            AI recommendations
+                        </div>
+                    </div>
+                    <a href="#" class="content-cta">
+                        Check Your Score
+                        <i data-lucide="arrow-right"></i>
+                    </a>
+                </div>
+
+                <!-- Section 2: DQF Management -->
+                <div class="content-section" data-index="2">
+                    <span class="content-number">03</span>
+                    <div class="content-category core">
+                        <i data-lucide="folder-open"></i>
+                        Documents
+                    </div>
+                    <h3>DQF Management</h3>
+                    <p class="content-description">Store, organize, and track all your Driver Qualification Files in one secure place. Get alerts before documents expire.</p>
+                    <div class="feature-pills">
+                        <div class="feature-pill">
+                            <span class="pill-icon"><i data-lucide="cloud"></i></span>
+                            Secure cloud
+                        </div>
+                        <div class="feature-pill">
+                            <span class="pill-icon"><i data-lucide="calendar-clock"></i></span>
+                            Auto expiration
+                        </div>
+                        <div class="feature-pill">
+                            <span class="pill-icon"><i data-lucide="file-down"></i></span>
+                            One-click reports
+                        </div>
+                        <div class="feature-pill">
+                            <span class="pill-icon"><i data-lucide="shield-check"></i></span>
+                            Audit-ready
+                        </div>
+                    </div>
+                    <a href="#" class="content-cta">
+                        Upload Documents
+                        <i data-lucide="arrow-right"></i>
+                    </a>
+                </div>
+
+                <!-- Section 3: Smart Alerts -->
+                <div class="content-section" data-index="3">
+                    <span class="content-number">04</span>
+                    <div class="content-category alert">
+                        <i data-lucide="bell-ring"></i>
+                        Notifications
+                    </div>
+                    <h3>Smart Alerts</h3>
+                    <p class="content-description">Never miss an expiring document or compliance deadline. Automated reminders via email, SMS, or push keep you on track.</p>
+                    <div class="feature-pills">
+                        <div class="feature-pill">
+                            <span class="pill-icon"><i data-lucide="mail"></i></span>
+                            Email & SMS
+                        </div>
+                        <div class="feature-pill">
+                            <span class="pill-icon"><i data-lucide="calendar"></i></span>
+                            Custom schedules
+                        </div>
+                        <div class="feature-pill">
+                            <span class="pill-icon"><i data-lucide="users"></i></span>
+                            Team alerts
+                        </div>
+                        <div class="feature-pill">
+                            <span class="pill-icon"><i data-lucide="bar-chart"></i></span>
+                            Score changes
+                        </div>
+                    </div>
+                    <a href="#" class="content-cta">
+                        Set Up Alerts
+                        <i data-lucide="arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="design-notes">
+        <div class="design-notes-inner">
+            <h4>
+                <i data-lucide="info" style="width:20px;height:20px;"></i>
+                Design Improvements in This Revision
+            </h4>
+            <ul>
+                <li>Sticky visual panel stays while content scrolls</li>
+                <li>Visual cards swap with smooth 3D rotation animation</li>
+                <li>Animated grid pattern in backgrounds</li>
+                <li>Scroll-triggered content reveals with staggered delays</li>
+                <li>Progress dots indicate current section</li>
+                <li>Feature pills with hover slide effect</li>
+                <li>Dark theme creates immersive experience</li>
+                <li>Professional Lucide icons throughout</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        const sections = document.querySelectorAll('.content-section');
+        const cards = document.querySelectorAll('.visual-card');
+        const backgrounds = document.querySelectorAll('.visual-background');
+        const progressDots = document.querySelectorAll('.progress-dot');
+        let currentIndex = 0;
+
+        function updateVisuals(index) {
+            if (index === currentIndex) return;
+            currentIndex = index;
+
+            // Update cards
+            cards.forEach((card, i) => {
+                card.classList.toggle('active', i === index);
+            });
+
+            // Update backgrounds
+            backgrounds.forEach((bg, i) => {
+                bg.style.opacity = i === index ? '1' : '0';
+            });
+
+            // Update progress dots
+            progressDots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+
+            // Re-init icons
+            setTimeout(() => lucide.createIcons(), 100);
+        }
+
+        // Intersection Observer for content sections
+        const observerOptions = {
+            threshold: 0.5,
+            rootMargin: '-100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    const index = parseInt(entry.target.dataset.index);
+                    updateVisuals(index);
+                }
+            });
+        }, observerOptions);
+
+        sections.forEach(section => {
+            observer.observe(section);
+        });
+
+        // Progress dot click handlers
+        progressDots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                sections[index].scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+    </script>
+</body>
+</html>

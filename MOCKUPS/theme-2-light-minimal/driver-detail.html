@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>James Wilson - VroomX Safety Platform</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link rel="stylesheet" href="../../shared/css/base.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            'sans': ['Inter', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            'primary': '#18181B',
+            'surface': '#FFFFFF',
+            'border': '#E4E4E7',
+            'muted': '#71717A',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .nav-link { position: relative; }
+    .nav-link.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 6px;
+      height: 6px;
+      background: #18181B;
+      border-radius: 50%;
+    }
+    .nav-link.active { font-weight: 500; color: #18181B; }
+    .nav-link:hover { color: #18181B; }
+    .tab-btn { position: relative; }
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -1px;
+      height: 2px;
+      background: #18181B;
+    }
+    .tab-btn.active { color: #18181B; font-weight: 500; }
+  </style>
+</head>
+<body class="bg-white text-zinc-900 min-h-screen" x-data="{ activeTab: 'overview' }">
+
+  <!-- Sidebar -->
+  <aside class="fixed left-0 top-0 h-full w-60 bg-white border-r border-zinc-200 z-40 flex flex-col">
+    <div class="h-16 flex items-center px-6">
+      <span class="text-lg font-semibold tracking-tight">VroomX</span>
+    </div>
+
+    <nav class="flex-1 px-4 py-2 space-y-0.5 overflow-y-auto">
+      <a href="dashboard.html" class="nav-link flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-500">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+        </svg>
+        Dashboard
+      </a>
+
+      <div class="pt-6 pb-2">
+        <span class="px-4 text-xs font-medium text-zinc-400 uppercase tracking-wider">Fleet</span>
+      </div>
+
+      <a href="drivers.html" class="nav-link active flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-900">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+        Drivers
+      </a>
+
+      <a href="vehicles.html" class="nav-link flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-500">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+        </svg>
+        Vehicles
+      </a>
+
+      <div class="pt-6 pb-2">
+        <span class="px-4 text-xs font-medium text-zinc-400 uppercase tracking-wider">Compliance</span>
+      </div>
+
+      <a href="compliance.html" class="nav-link flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-500">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+        </svg>
+        FMCSA Dashboard
+      </a>
+
+      <a href="documents.html" class="nav-link flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-500">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+        </svg>
+        Documents
+      </a>
+
+      <div class="pt-6 pb-2">
+        <span class="px-4 text-xs font-medium text-zinc-400 uppercase tracking-wider">Workflow</span>
+      </div>
+
+      <a href="#" class="nav-link flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-500">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+        </svg>
+        Tasks
+      </a>
+
+      <a href="#" class="nav-link flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-500">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+        </svg>
+        Alerts
+        <span class="ml-auto text-xs bg-zinc-900 text-white px-1.5 py-0.5 rounded">5</span>
+      </a>
+    </nav>
+
+    <div class="p-4 border-t border-zinc-200">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 bg-zinc-100 rounded-full flex items-center justify-center text-sm font-medium text-zinc-600">JS</div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-zinc-900 truncate">John Smith</p>
+          <p class="text-xs text-zinc-500">Safety Manager</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="ml-60">
+    <!-- Header -->
+    <header class="h-16 border-b border-zinc-200 flex items-center justify-between px-8 sticky top-0 bg-white z-10">
+      <div class="flex items-center gap-4">
+        <a href="drivers.html" class="text-zinc-400 hover:text-zinc-600">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 19l-7-7 7-7"/>
+          </svg>
+        </a>
+        <div>
+          <h1 class="text-lg font-semibold text-zinc-900">James Wilson</h1>
+          <p class="text-sm text-zinc-500">EMP-1001</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <button class="px-4 py-2 text-sm font-medium text-zinc-700 border border-zinc-200 rounded-lg hover:bg-zinc-50">Edit</button>
+        <button class="px-4 py-2 text-sm font-medium text-white bg-zinc-900 rounded-lg hover:bg-zinc-800">Upload Document</button>
+      </div>
+    </header>
+
+    <!-- Driver Header Section -->
+    <div class="px-8 py-6 border-b border-zinc-200">
+      <div class="flex items-start gap-6">
+        <div class="w-20 h-20 bg-zinc-100 rounded-full flex items-center justify-center text-2xl font-semibold text-zinc-600">JW</div>
+        <div class="flex-1">
+          <div class="flex items-center gap-3 mb-2">
+            <h2 class="text-xl font-semibold text-zinc-900">James Wilson</h2>
+            <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium text-green-700 bg-green-50 rounded">Compliant</span>
+          </div>
+          <div class="flex items-center gap-6 text-sm text-zinc-500">
+            <span>CDL: D12345678</span>
+            <span>Class A - TX</span>
+            <span>Endorsements: H, N, T</span>
+            <span>Hired: Mar 15, 2022</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="px-8 border-b border-zinc-200">
+      <div class="flex gap-6">
+        <button @click="activeTab = 'overview'" :class="activeTab === 'overview' ? 'active' : ''" class="tab-btn py-3 text-sm text-zinc-500 hover:text-zinc-900">Overview</button>
+        <button @click="activeTab = 'documents'" :class="activeTab === 'documents' ? 'active' : ''" class="tab-btn py-3 text-sm text-zinc-500 hover:text-zinc-900">Documents</button>
+        <button @click="activeTab = 'violations'" :class="activeTab === 'violations' ? 'active' : ''" class="tab-btn py-3 text-sm text-zinc-500 hover:text-zinc-900">Violations</button>
+        <button @click="activeTab = 'training'" :class="activeTab === 'training' ? 'active' : ''" class="tab-btn py-3 text-sm text-zinc-500 hover:text-zinc-900">Training</button>
+      </div>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="p-8">
+      <!-- Overview Tab -->
+      <div x-show="activeTab === 'overview'" class="space-y-6">
+        <!-- Compliance Cards -->
+        <div class="grid grid-cols-4 gap-4">
+          <div class="border border-zinc-200 rounded-lg p-5">
+            <p class="text-sm text-zinc-500 mb-1">Medical Card</p>
+            <p class="text-lg font-semibold text-zinc-900">Mar 22, 2025</p>
+            <p class="text-xs text-amber-600 mt-1">Expires in 49 days</p>
+          </div>
+          <div class="border border-zinc-200 rounded-lg p-5">
+            <p class="text-sm text-zinc-500 mb-1">CDL License</p>
+            <p class="text-lg font-semibold text-zinc-900">Aug 15, 2025</p>
+            <p class="text-xs text-zinc-500 mt-1">Expires in 195 days</p>
+          </div>
+          <div class="border border-zinc-200 rounded-lg p-5">
+            <p class="text-sm text-zinc-500 mb-1">Clearinghouse</p>
+            <p class="text-lg font-semibold text-zinc-900">Jun 10, 2025</p>
+            <p class="text-xs text-zinc-500 mt-1">Expires in 129 days</p>
+          </div>
+          <div class="border border-zinc-200 rounded-lg p-5">
+            <p class="text-sm text-zinc-500 mb-1">MVR</p>
+            <p class="text-lg font-semibold text-zinc-900">Feb 28, 2025</p>
+            <p class="text-xs text-amber-600 mt-1">Expires in 27 days</p>
+          </div>
+        </div>
+
+        <!-- Two Column Layout -->
+        <div class="grid grid-cols-2 gap-6">
+          <!-- Contact Information -->
+          <div class="border border-zinc-200 rounded-lg p-6">
+            <h3 class="text-base font-semibold text-zinc-900 mb-4">Contact Information</h3>
+            <div class="space-y-3">
+              <div class="flex justify-between">
+                <span class="text-sm text-zinc-500">Phone</span>
+                <span class="text-sm text-zinc-900">(555) 123-4567</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-sm text-zinc-500">Email</span>
+                <span class="text-sm text-zinc-900">james.wilson@abctrucking.com</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-sm text-zinc-500">Address</span>
+                <span class="text-sm text-zinc-900">456 Oak Street, Dallas, TX 75201</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-sm text-zinc-500">Date of Birth</span>
+                <span class="text-sm text-zinc-900">Jun 12, 1985</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Employment Details -->
+          <div class="border border-zinc-200 rounded-lg p-6">
+            <h3 class="text-base font-semibold text-zinc-900 mb-4">Employment Details</h3>
+            <div class="space-y-3">
+              <div class="flex justify-between">
+                <span class="text-sm text-zinc-500">Employee ID</span>
+                <span class="text-sm text-zinc-900">EMP-1001</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-sm text-zinc-500">Hire Date</span>
+                <span class="text-sm text-zinc-900">Mar 15, 2022</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-sm text-zinc-500">Status</span>
+                <span class="text-sm text-green-600">Active</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-sm text-zinc-500">Tenure</span>
+                <span class="text-sm text-zinc-900">2 years, 10 months</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="border border-zinc-200 rounded-lg p-6">
+          <h3 class="text-base font-semibold text-zinc-900 mb-4">Recent Activity</h3>
+          <div class="space-y-4">
+            <div class="flex items-start gap-4">
+              <div class="w-8 h-8 bg-green-50 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm text-zinc-900">Drug Test Completed - Negative</p>
+                <p class="text-xs text-zinc-500 mt-0.5">Random test at Quest Diagnostics</p>
+              </div>
+              <span class="text-xs text-zinc-400">Jan 18, 2025</span>
+            </div>
+            <div class="flex items-start gap-4">
+              <div class="w-8 h-8 bg-amber-50 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm text-zinc-900">Violation Recorded - HOS</p>
+                <p class="text-xs text-zinc-500 mt-0.5">395.8(a) - Failing to maintain complete record</p>
+              </div>
+              <span class="text-xs text-zinc-400">Jan 15, 2025</span>
+            </div>
+            <div class="flex items-start gap-4">
+              <div class="w-8 h-8 bg-blue-50 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm text-zinc-900">Document Uploaded - CDL</p>
+                <p class="text-xs text-zinc-500 mt-0.5">Updated CDL copy on file</p>
+              </div>
+              <span class="text-xs text-zinc-400">Aug 20, 2024</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Documents Tab -->
+      <div x-show="activeTab === 'documents'" class="space-y-4">
+        <div class="flex items-center justify-between mb-4">
+          <p class="text-sm text-zinc-500">6 documents on file</p>
+        </div>
+
+        <div class="border border-zinc-200 rounded-lg divide-y divide-zinc-100">
+          <div class="flex items-center justify-between px-6 py-4 hover:bg-zinc-50">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 bg-zinc-100 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-zinc-900">CDL License</p>
+                <p class="text-xs text-zinc-500">Uploaded Aug 20, 2024</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="text-right">
+                <p class="text-sm text-zinc-900">Expires Aug 15, 2025</p>
+                <p class="text-xs text-zinc-500">195 days</p>
+              </div>
+              <span class="px-2 py-0.5 text-xs font-medium text-green-700 bg-green-50 rounded">Valid</span>
+              <button class="text-zinc-400 hover:text-zinc-600">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between px-6 py-4 hover:bg-zinc-50">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 bg-zinc-100 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-zinc-900">Medical Card</p>
+                <p class="text-xs text-zinc-500">Uploaded Mar 25, 2024</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="text-right">
+                <p class="text-sm text-zinc-900">Expires Mar 22, 2025</p>
+                <p class="text-xs text-amber-600">49 days</p>
+              </div>
+              <span class="px-2 py-0.5 text-xs font-medium text-amber-700 bg-amber-50 rounded">Expiring Soon</span>
+              <button class="text-zinc-400 hover:text-zinc-600">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between px-6 py-4 hover:bg-zinc-50">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 bg-zinc-100 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-zinc-900">Clearinghouse Query</p>
+                <p class="text-xs text-zinc-500">Uploaded Jun 15, 2024</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="text-right">
+                <p class="text-sm text-zinc-900">Expires Jun 10, 2025</p>
+                <p class="text-xs text-zinc-500">129 days</p>
+              </div>
+              <span class="px-2 py-0.5 text-xs font-medium text-green-700 bg-green-50 rounded">Valid</span>
+              <button class="text-zinc-400 hover:text-zinc-600">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between px-6 py-4 hover:bg-zinc-50">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 bg-zinc-100 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-zinc-900">MVR Report</p>
+                <p class="text-xs text-zinc-500">Uploaded Mar 1, 2024</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="text-right">
+                <p class="text-sm text-zinc-900">Expires Feb 28, 2025</p>
+                <p class="text-xs text-amber-600">27 days</p>
+              </div>
+              <span class="px-2 py-0.5 text-xs font-medium text-amber-700 bg-amber-50 rounded">Expiring Soon</span>
+              <button class="text-zinc-400 hover:text-zinc-600">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Violations Tab -->
+      <div x-show="activeTab === 'violations'" class="space-y-4">
+        <div class="flex items-center justify-between mb-4">
+          <p class="text-sm text-zinc-500">1 violation on record</p>
+        </div>
+
+        <div class="border border-zinc-200 rounded-lg">
+          <div class="px-6 py-4">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="px-2 py-0.5 text-xs font-medium text-amber-700 bg-amber-50 rounded">Warning</span>
+                  <span class="text-sm font-medium text-zinc-900">395.8(a)</span>
+                </div>
+                <p class="text-sm text-zinc-600">Failing to maintain complete driver's record of duty status</p>
+                <div class="flex items-center gap-4 mt-2 text-xs text-zinc-500">
+                  <span>Jan 15, 2025</span>
+                  <span>I-35, Dallas TX</span>
+                  <span>5 points</span>
+                </div>
+              </div>
+              <span class="px-2 py-0.5 text-xs font-medium text-blue-700 bg-blue-50 rounded">Open</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Training Tab -->
+      <div x-show="activeTab === 'training'" class="space-y-4">
+        <div class="flex items-center justify-between mb-4">
+          <p class="text-sm text-zinc-500">All training requirements met</p>
+        </div>
+
+        <div class="border border-zinc-200 rounded-lg divide-y divide-zinc-100">
+          <div class="flex items-center justify-between px-6 py-4">
+            <div>
+              <p class="text-sm font-medium text-zinc-900">Entry-Level Driver Training</p>
+              <p class="text-xs text-zinc-500">Completed Mar 15, 2022</p>
+            </div>
+            <span class="px-2 py-0.5 text-xs font-medium text-green-700 bg-green-50 rounded">Completed</span>
+          </div>
+          <div class="flex items-center justify-between px-6 py-4">
+            <div>
+              <p class="text-sm font-medium text-zinc-900">Hazmat Training</p>
+              <p class="text-xs text-zinc-500">Completed Sep 20, 2024</p>
+            </div>
+            <span class="px-2 py-0.5 text-xs font-medium text-green-700 bg-green-50 rounded">Completed</span>
+          </div>
+          <div class="flex items-center justify-between px-6 py-4">
+            <div>
+              <p class="text-sm font-medium text-zinc-900">Defensive Driving Course</p>
+              <p class="text-xs text-zinc-500">Completed Jan 10, 2024</p>
+            </div>
+            <span class="px-2 py-0.5 text-xs font-medium text-green-700 bg-green-50 rounded">Completed</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../shared/js/common.js"></script>
+  <script src="../../shared/data/mock-data.js"></script>
+</body>
+</html>

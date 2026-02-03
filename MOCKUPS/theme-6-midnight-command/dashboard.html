@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | VroomX</title>
+
+    <!-- Google Fonts - Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            950: '#020617',
+                            900: '#0f172a',
+                            800: '#1e293b',
+                            700: '#334155',
+                            600: '#475569',
+                            500: '#64748b',
+                            400: '#94a3b8',
+                            300: '#cbd5e1',
+                            200: '#e2e8f0',
+                            100: '#f1f5f9',
+                        },
+                        cyan: {
+                            DEFAULT: '#06b6d4',
+                            light: '#22d3ee',
+                            dark: '#0891b2',
+                            glow: 'rgba(6, 182, 212, 0.5)',
+                        }
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'glow': '0 0 20px rgba(6, 182, 212, 0.3)',
+                        'glow-lg': '0 0 40px rgba(6, 182, 212, 0.4)',
+                        'glow-sm': '0 0 10px rgba(6, 182, 212, 0.2)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        * {
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+
+        /* Glassmorphism */
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-light {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.9) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        /* Cyan glow effect */
+        .glow-cyan {
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
+        }
+
+        /* Active nav item */
+        .nav-item-active {
+            background: linear-gradient(90deg, rgba(6, 182, 212, 0.15) 0%, transparent 100%);
+            border-left: 2px solid #06b6d4;
+        }
+
+        /* Gradient text */
+        .text-gradient {
+            background: linear-gradient(135deg, #06b6d4 0%, #22d3ee 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.5);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(100, 116, 139, 0.8);
+        }
+
+        /* Chart placeholder animation */
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+
+        .chart-bar {
+            animation: pulse-slow 2s ease-in-out infinite;
+        }
+
+        /* Status indicator pulse */
+        .status-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body class="bg-navy-950 text-white font-inter antialiased" x-data="{ sidebarOpen: true, searchOpen: false }">
+
+    <!-- Background gradient effects -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-0 left-0 w-96 h-96 bg-cyan/5 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 right-0 w-96 h-96 bg-cyan/3 rounded-full blur-3xl"></div>
+    </div>
+
+    <div class="flex min-h-screen relative">
+
+        <!-- Sidebar -->
+        <aside class="sidebar fixed left-0 top-0 h-full w-64 z-40 flex flex-col" :class="{ '-translate-x-full': !sidebarOpen, 'translate-x-0': sidebarOpen }" style="transition: transform 0.3s ease;">
+
+            <!-- Logo -->
+            <div class="p-6 border-b border-white/5">
+                <a href="landing.html" class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan to-cyan-dark flex items-center justify-center shadow-glow">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold text-white">VroomX</span>
+                </a>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 overflow-y-auto py-4 px-3">
+                <!-- Main -->
+                <div class="mb-6">
+                    <p class="px-3 mb-2 text-xs font-medium text-navy-500 uppercase tracking-wider">Main</p>
+
+                    <a href="#" class="nav-item-active flex items-center gap-3 px-3 py-2.5 rounded-lg text-white mb-1">
+                        <svg class="w-5 h-5 text-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                        </svg>
+                        <span class="text-sm font-medium">Dashboard</span>
+                    </a>
+
+                    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-navy-400 hover:text-white hover:bg-white/5 transition-all mb-1">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
+                        <span class="text-sm font-medium">Alerts</span>
+                        <span class="ml-auto bg-amber-500/20 text-amber-400 text-xs font-semibold px-2 py-0.5 rounded-full">5</span>
+                    </a>
+                </div>
+
+                <!-- Fleet -->
+                <div class="mb-6">
+                    <p class="px-3 mb-2 text-xs font-medium text-navy-500 uppercase tracking-wider">Fleet</p>
+
+                    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-navy-400 hover:text-white hover:bg-white/5 transition-all mb-1">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        <span class="text-sm font-medium">Drivers</span>
+                    </a>
+
+                    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-navy-400 hover:text-white hover:bg-white/5 transition-all mb-1">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                        </svg>
+                        <span class="text-sm font-medium">Vehicles</span>
+                    </a>
+                </div>
+
+                <!-- Compliance -->
+                <div class="mb-6">
+                    <p class="px-3 mb-2 text-xs font-medium text-navy-500 uppercase tracking-wider">Compliance</p>
+
+                    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-navy-400 hover:text-white hover:bg-white/5 transition-all mb-1">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                        <span class="text-sm font-medium">FMCSA Status</span>
+                    </a>
+
+                    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-navy-400 hover:text-white hover:bg-white/5 transition-all mb-1">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        <span class="text-sm font-medium">Documents</span>
+                    </a>
+
+                    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-navy-400 hover:text-white hover:bg-white/5 transition-all mb-1">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                        </svg>
+                        <span class="text-sm font-medium">Drug & Alcohol</span>
+                    </a>
+                </div>
+
+                <!-- Safety -->
+                <div class="mb-6">
+                    <p class="px-3 mb-2 text-xs font-medium text-navy-500 uppercase tracking-wider">Safety</p>
+
+                    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-navy-400 hover:text-white hover:bg-white/5 transition-all mb-1">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                        <span class="text-sm font-medium">Violations</span>
+                    </a>
+
+                    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-navy-400 hover:text-white hover:bg-white/5 transition-all mb-1">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                        <span class="text-sm font-medium">Accidents</span>
+                    </a>
+                </div>
+
+                <!-- Reports -->
+                <div class="mb-6">
+                    <p class="px-3 mb-2 text-xs font-medium text-navy-500 uppercase tracking-wider">Reports</p>
+
+                    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-navy-400 hover:text-white hover:bg-white/5 transition-all mb-1">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        <span class="text-sm font-medium">Analytics</span>
+                    </a>
+                </div>
+            </nav>
+
+            <!-- User section -->
+            <div class="p-4 border-t border-white/5">
+                <div class="glass-light rounded-xl p-3 flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan to-cyan-dark flex items-center justify-center text-white font-semibold text-sm">
+                        JD
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-white truncate">John Doe</p>
+                        <p class="text-xs text-navy-400 truncate">Fleet Manager</p>
+                    </div>
+                    <button class="text-navy-400 hover:text-white transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 ml-64" :class="{ 'ml-0': !sidebarOpen, 'ml-64': sidebarOpen }" style="transition: margin-left 0.3s ease;">
+
+            <!-- Top Header -->
+            <header class="glass sticky top-0 z-30 px-6 py-4 flex items-center justify-between">
+                <!-- Left side -->
+                <div class="flex items-center gap-4">
+                    <button @click="sidebarOpen = !sidebarOpen" class="text-navy-400 hover:text-white transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                    <div>
+                        <h1 class="text-xl font-semibold text-white">Dashboard</h1>
+                        <p class="text-sm text-navy-400">Welcome back, John</p>
+                    </div>
+                </div>
+
+                <!-- Right side -->
+                <div class="flex items-center gap-4">
+                    <!-- Search -->
+                    <div class="relative hidden md:block">
+                        <input type="text" placeholder="Search..." class="w-64 bg-navy-800/50 border border-white/10 rounded-xl px-4 py-2.5 pl-10 text-sm text-white placeholder-navy-500 focus:outline-none focus:border-cyan/50 focus:ring-1 focus:ring-cyan/50 transition-all">
+                        <svg class="w-4 h-4 text-navy-500 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        <kbd class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-navy-500 bg-navy-700/50 px-1.5 py-0.5 rounded">CMD+K</kbd>
+                    </div>
+
+                    <!-- Notifications -->
+                    <button class="relative p-2.5 rounded-xl bg-navy-800/50 border border-white/10 text-navy-400 hover:text-white hover:border-white/20 transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
+                        <span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-xs font-semibold flex items-center justify-center">3</span>
+                    </button>
+
+                    <!-- User Avatar -->
+                    <button class="flex items-center gap-3 p-1.5 pr-3 rounded-xl bg-navy-800/50 border border-white/10 hover:border-white/20 transition-all">
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan to-cyan-dark flex items-center justify-center text-white font-semibold text-xs">
+                            JD
+                        </div>
+                        <svg class="w-4 h-4 text-navy-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="p-6">
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+
+                    <!-- Stat Card 1 - Drivers -->
+                    <div class="glass-card rounded-2xl p-6 hover:border-cyan/20 transition-all group">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="w-12 h-12 rounded-xl bg-cyan/10 flex items-center justify-center group-hover:bg-cyan/20 transition-colors">
+                                <svg class="w-6 h-6 text-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                            </div>
+                            <span class="text-xs text-green-400 bg-green-400/10 px-2 py-1 rounded-full flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                                +3
+                            </span>
+                        </div>
+                        <p class="text-3xl font-bold text-white mb-1">47</p>
+                        <p class="text-sm text-navy-400">Active Drivers</p>
+                    </div>
+
+                    <!-- Stat Card 2 - Compliance Score -->
+                    <div class="glass-card rounded-2xl p-6 hover:border-cyan/20 transition-all group">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="w-12 h-12 rounded-xl bg-cyan/10 flex items-center justify-center group-hover:bg-cyan/20 transition-colors">
+                                <svg class="w-6 h-6 text-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                                </svg>
+                            </div>
+                            <span class="text-xs text-green-400 bg-green-400/10 px-2 py-1 rounded-full flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                                +2%
+                            </span>
+                        </div>
+                        <p class="text-3xl font-bold text-gradient mb-1">94%</p>
+                        <p class="text-sm text-navy-400">Compliance Score</p>
+                        <div class="mt-3 h-1.5 bg-navy-700 rounded-full overflow-hidden">
+                            <div class="h-full w-[94%] bg-gradient-to-r from-cyan to-cyan-light rounded-full"></div>
+                        </div>
+                    </div>
+
+                    <!-- Stat Card 3 - Alerts -->
+                    <div class="glass-card rounded-2xl p-6 hover:border-amber-500/20 transition-all group">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center group-hover:bg-amber-500/20 transition-colors">
+                                <svg class="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                </svg>
+                            </div>
+                            <span class="text-xs text-amber-400 bg-amber-400/10 px-2 py-1 rounded-full flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 bg-amber-400 rounded-full status-pulse"></span>
+                                2 critical
+                            </span>
+                        </div>
+                        <p class="text-3xl font-bold text-amber-400 mb-1">5</p>
+                        <p class="text-sm text-navy-400">Open Alerts</p>
+                    </div>
+
+                    <!-- Stat Card 4 - Vehicles -->
+                    <div class="glass-card rounded-2xl p-6 hover:border-cyan/20 transition-all group">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center group-hover:bg-purple-500/20 transition-colors">
+                                <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                                </svg>
+                            </div>
+                            <span class="text-xs text-green-400 bg-green-400/10 px-2 py-1 rounded-full flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                                +5
+                            </span>
+                        </div>
+                        <p class="text-3xl font-bold text-white mb-1">32</p>
+                        <p class="text-sm text-navy-400">Active Vehicles</p>
+                    </div>
+                </div>
+
+                <!-- Main Content Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                    <!-- Left Column - 2/3 width -->
+                    <div class="lg:col-span-2 space-y-6">
+
+                        <!-- Chart Card -->
+                        <div class="glass-card rounded-2xl overflow-hidden">
+                            <div class="p-6 border-b border-white/5 flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-white">Compliance Overview</h3>
+                                    <p class="text-sm text-navy-400">Last 30 days performance</p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button class="px-3 py-1.5 text-sm text-navy-400 hover:text-white transition-colors">Week</button>
+                                    <button class="px-3 py-1.5 text-sm bg-cyan/10 text-cyan rounded-lg">Month</button>
+                                    <button class="px-3 py-1.5 text-sm text-navy-400 hover:text-white transition-colors">Year</button>
+                                </div>
+                            </div>
+                            <div class="p-6">
+                                <!-- Chart Placeholder -->
+                                <div class="h-64 flex items-end gap-3 px-4">
+                                    <div class="flex-1 flex flex-col items-center gap-2">
+                                        <div class="w-full bg-cyan/20 rounded-t chart-bar" style="height: 65%; animation-delay: 0s;"></div>
+                                        <span class="text-xs text-navy-500">Mon</span>
+                                    </div>
+                                    <div class="flex-1 flex flex-col items-center gap-2">
+                                        <div class="w-full bg-cyan/30 rounded-t chart-bar" style="height: 72%; animation-delay: 0.1s;"></div>
+                                        <span class="text-xs text-navy-500">Tue</span>
+                                    </div>
+                                    <div class="flex-1 flex flex-col items-center gap-2">
+                                        <div class="w-full bg-cyan/40 rounded-t chart-bar" style="height: 68%; animation-delay: 0.2s;"></div>
+                                        <span class="text-xs text-navy-500">Wed</span>
+                                    </div>
+                                    <div class="flex-1 flex flex-col items-center gap-2">
+                                        <div class="w-full bg-cyan/50 rounded-t chart-bar" style="height: 82%; animation-delay: 0.3s;"></div>
+                                        <span class="text-xs text-navy-500">Thu</span>
+                                    </div>
+                                    <div class="flex-1 flex flex-col items-center gap-2">
+                                        <div class="w-full bg-cyan/60 rounded-t chart-bar" style="height: 78%; animation-delay: 0.4s;"></div>
+                                        <span class="text-xs text-navy-500">Fri</span>
+                                    </div>
+                                    <div class="flex-1 flex flex-col items-center gap-2">
+                                        <div class="w-full bg-cyan/70 rounded-t chart-bar" style="height: 88%; animation-delay: 0.5s;"></div>
+                                        <span class="text-xs text-navy-500">Sat</span>
+                                    </div>
+                                    <div class="flex-1 flex flex-col items-center gap-2">
+                                        <div class="w-full bg-gradient-to-t from-cyan to-cyan-light rounded-t" style="height: 94%;"></div>
+                                        <span class="text-xs text-navy-500">Sun</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Activity -->
+                        <div class="glass-card rounded-2xl overflow-hidden">
+                            <div class="p-6 border-b border-white/5 flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-white">Recent Activity</h3>
+                                <a href="#" class="text-sm text-cyan hover:text-cyan-light transition-colors">View all</a>
+                            </div>
+                            <div class="divide-y divide-white/5">
+                                <!-- Activity Item 1 -->
+                                <div class="p-4 flex items-start gap-4 hover:bg-white/[0.02] transition-colors">
+                                    <div class="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center flex-shrink-0">
+                                        <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-white">Driver Qualification File Updated</p>
+                                        <p class="text-sm text-navy-400">Sarah Davis completed annual training certification</p>
+                                        <p class="text-xs text-navy-500 mt-1">15 minutes ago</p>
+                                    </div>
+                                </div>
+
+                                <!-- Activity Item 2 -->
+                                <div class="p-4 flex items-start gap-4 hover:bg-white/[0.02] transition-colors">
+                                    <div class="w-10 h-10 rounded-xl bg-cyan/10 flex items-center justify-center flex-shrink-0">
+                                        <svg class="w-5 h-5 text-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-white">Vehicle Maintenance Completed</p>
+                                        <p class="text-sm text-navy-400">Unit #TRK-1592 - Oil change and tire rotation</p>
+                                        <p class="text-xs text-navy-500 mt-1">2 hours ago</p>
+                                    </div>
+                                </div>
+
+                                <!-- Activity Item 3 -->
+                                <div class="p-4 flex items-start gap-4 hover:bg-white/[0.02] transition-colors">
+                                    <div class="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center flex-shrink-0">
+                                        <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-white">New Violation Recorded</p>
+                                        <p class="text-sm text-navy-400">HOS violation - Tom Anderson - 30 minute break rule</p>
+                                        <p class="text-xs text-navy-500 mt-1">4 hours ago</p>
+                                    </div>
+                                </div>
+
+                                <!-- Activity Item 4 -->
+                                <div class="p-4 flex items-start gap-4 hover:bg-white/[0.02] transition-colors">
+                                    <div class="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center flex-shrink-0">
+                                        <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-white">Drug Test Completed</p>
+                                        <p class="text-sm text-navy-400">Robert Williams - Random test - Negative result</p>
+                                        <p class="text-xs text-navy-500 mt-1">Yesterday</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column - 1/3 width -->
+                    <div class="space-y-6">
+
+                        <!-- Quick Actions -->
+                        <div class="glass-card rounded-2xl p-6">
+                            <h3 class="text-lg font-semibold text-white mb-4">Quick Actions</h3>
+                            <div class="grid grid-cols-2 gap-3">
+                                <button class="flex flex-col items-center gap-2 p-4 rounded-xl bg-navy-800/50 border border-white/5 hover:border-cyan/20 hover:bg-navy-800 transition-all group">
+                                    <div class="w-10 h-10 rounded-lg bg-cyan/10 flex items-center justify-center group-hover:bg-cyan/20 transition-colors">
+                                        <svg class="w-5 h-5 text-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                                        </svg>
+                                    </div>
+                                    <span class="text-xs font-medium text-navy-300">Add Driver</span>
+                                </button>
+
+                                <button class="flex flex-col items-center gap-2 p-4 rounded-xl bg-navy-800/50 border border-white/5 hover:border-cyan/20 hover:bg-navy-800 transition-all group">
+                                    <div class="w-10 h-10 rounded-lg bg-cyan/10 flex items-center justify-center group-hover:bg-cyan/20 transition-colors">
+                                        <svg class="w-5 h-5 text-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                        </svg>
+                                    </div>
+                                    <span class="text-xs font-medium text-navy-300">Add Vehicle</span>
+                                </button>
+
+                                <button class="flex flex-col items-center gap-2 p-4 rounded-xl bg-navy-800/50 border border-white/5 hover:border-cyan/20 hover:bg-navy-800 transition-all group">
+                                    <div class="w-10 h-10 rounded-lg bg-cyan/10 flex items-center justify-center group-hover:bg-cyan/20 transition-colors">
+                                        <svg class="w-5 h-5 text-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                                        </svg>
+                                    </div>
+                                    <span class="text-xs font-medium text-navy-300">Upload Doc</span>
+                                </button>
+
+                                <button class="flex flex-col items-center gap-2 p-4 rounded-xl bg-navy-800/50 border border-white/5 hover:border-cyan/20 hover:bg-navy-800 transition-all group">
+                                    <div class="w-10 h-10 rounded-lg bg-cyan/10 flex items-center justify-center group-hover:bg-cyan/20 transition-colors">
+                                        <svg class="w-5 h-5 text-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                        </svg>
+                                    </div>
+                                    <span class="text-xs font-medium text-navy-300">Run Report</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Expiring Documents -->
+                        <div class="glass-card rounded-2xl overflow-hidden">
+                            <div class="p-6 border-b border-white/5 flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-white">Expiring Soon</h3>
+                                <a href="#" class="text-sm text-cyan hover:text-cyan-light transition-colors">View all</a>
+                            </div>
+                            <div class="p-4 space-y-3">
+                                <!-- Document 1 - Critical -->
+                                <div class="p-3 rounded-xl bg-red-500/10 border border-red-500/20">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <span class="text-sm font-medium text-white">Medical Card</span>
+                                        <span class="text-xs text-red-400 font-semibold">EXPIRED</span>
+                                    </div>
+                                    <p class="text-xs text-navy-400">Mike Johnson</p>
+                                </div>
+
+                                <!-- Document 2 - Warning -->
+                                <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <span class="text-sm font-medium text-white">CDL License</span>
+                                        <span class="text-xs text-amber-400 font-semibold">7 days</span>
+                                    </div>
+                                    <p class="text-xs text-navy-400">Sarah Davis</p>
+                                </div>
+
+                                <!-- Document 3 - Warning -->
+                                <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <span class="text-sm font-medium text-white">Annual Inspection</span>
+                                        <span class="text-xs text-amber-400 font-semibold">12 days</span>
+                                    </div>
+                                    <p class="text-xs text-navy-400">TRK-2847</p>
+                                </div>
+
+                                <!-- Document 4 - Good -->
+                                <div class="p-3 rounded-xl bg-navy-800/50 border border-white/5">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <span class="text-sm font-medium text-white">HazMat Endorsement</span>
+                                        <span class="text-xs text-green-400 font-semibold">30 days</span>
+                                    </div>
+                                    <p class="text-xs text-navy-400">Robert Williams</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Compliance Breakdown -->
+                        <div class="glass-card rounded-2xl p-6">
+                            <h3 class="text-lg font-semibold text-white mb-4">Compliance Breakdown</h3>
+                            <div class="space-y-4">
+                                <!-- Driver Compliance -->
+                                <div>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-sm text-navy-300">Driver</span>
+                                        <span class="text-sm font-semibold text-green-400">96%</span>
+                                    </div>
+                                    <div class="h-2 bg-navy-700 rounded-full overflow-hidden">
+                                        <div class="h-full w-[96%] bg-green-400 rounded-full"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Vehicle Compliance -->
+                                <div>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-sm text-navy-300">Vehicle</span>
+                                        <span class="text-sm font-semibold text-green-400">92%</span>
+                                    </div>
+                                    <div class="h-2 bg-navy-700 rounded-full overflow-hidden">
+                                        <div class="h-full w-[92%] bg-green-400 rounded-full"></div>
+                                    </div>
+                                </div>
+
+                                <!-- HOS Compliance -->
+                                <div>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-sm text-navy-300">HOS</span>
+                                        <span class="text-sm font-semibold text-amber-400">88%</span>
+                                    </div>
+                                    <div class="h-2 bg-navy-700 rounded-full overflow-hidden">
+                                        <div class="h-full w-[88%] bg-amber-400 rounded-full"></div>
+                                    </div>
+                                </div>
+
+                                <!-- HazMat Compliance -->
+                                <div>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-sm text-navy-300">HazMat</span>
+                                        <span class="text-sm font-semibold text-green-400">100%</span>
+                                    </div>
+                                    <div class="h-2 bg-navy-700 rounded-full overflow-hidden">
+                                        <div class="h-full w-full bg-gradient-to-r from-cyan to-cyan-light rounded-full"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checklists - VroomX Safety Platform</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/css/base.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'deep-navy': '#0F172A',
+            'navy-light': '#1E293B',
+            'navy-lighter': '#334155',
+            'cyan-electric': '#06B6D4',
+            'cyan-glow': '#22D3EE',
+            'hot-pink': '#EC4899',
+            'pink-glow': '#F472B6',
+          },
+          fontFamily: {
+            'mono': ['JetBrains Mono', 'monospace'],
+            'sans': ['Inter', 'sans-serif'],
+          },
+          borderRadius: {
+            'cyber': '4px',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0F172A;
+      background-image:
+        linear-gradient(rgba(6, 182, 212, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(6, 182, 212, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+    }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    .glow-cyan { box-shadow: 0 0 20px rgba(6, 182, 212, 0.4); }
+    .glow-pink { box-shadow: 0 0 20px rgba(236, 72, 153, 0.4); }
+    .nav-link-active {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(236, 72, 153, 0.1));
+      border-left: 2px solid #06B6D4;
+    }
+    .cyber-card {
+      background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+      border: 1px solid rgba(6, 182, 212, 0.2);
+    }
+    .cyber-card:hover {
+      border-color: rgba(6, 182, 212, 0.5);
+      box-shadow: 0 0 30px rgba(6, 182, 212, 0.15);
+    }
+    .progress-bar {
+      background: linear-gradient(90deg, #06B6D4 0%, #22D3EE 100%);
+    }
+    .checklist-item {
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid #334155;
+      border-radius: 4px;
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .checklist-item:checked {
+      background: linear-gradient(135deg, #06B6D4, #22D3EE);
+      border-color: #06B6D4;
+    }
+    .checklist-item:checked::after {
+      content: '\\2713';
+      display: block;
+      text-align: center;
+      color: #0F172A;
+      font-weight: bold;
+      font-size: 12px;
+      line-height: 14px;
+    }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #1E293B; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+  </style>
+</head>
+<body class="min-h-screen text-gray-100" x-data="{ sidebarOpen: true, showModal: false, expandedChecklist: 'CHK001' }">
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside :class="sidebarOpen ? 'w-64' : 'w-20'" class="fixed left-0 top-0 h-full bg-deep-navy border-r border-navy-lighter/50 transition-all duration-300 z-40">
+      <!-- Logo -->
+      <div class="h-16 flex items-center px-4 border-b border-navy-lighter/50">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-cyber bg-gradient-to-br from-cyan-electric to-hot-pink flex items-center justify-center">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+          </div>
+          <span x-show="sidebarOpen" class="font-mono font-bold text-xl text-white">Vroom<span class="text-cyan-electric">X</span></span>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="p-4 space-y-2">
+        <div class="mb-6">
+          <p x-show="sidebarOpen" class="text-xs font-mono text-gray-500 uppercase tracking-wider mb-3 px-3">Overview</p>
+          <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-cyber text-gray-400 hover:text-cyan-electric hover:bg-navy-light/50 transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            <span x-show="sidebarOpen" class="font-medium">Dashboard</span>
+          </a>
+          <a href="ai-assistant.html" class="flex items-center gap-3 px-3 py-2.5 rounded-cyber text-gray-400 hover:text-cyan-electric hover:bg-navy-light/50 transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+            <span x-show="sidebarOpen" class="font-medium">VroomX AI</span>
+            <span x-show="sidebarOpen" class="ml-auto text-xs bg-gradient-to-r from-cyan-electric to-hot-pink text-white px-2 py-0.5 rounded-full font-mono">AI</span>
+          </a>
+          <a href="alerts.html" class="flex items-center gap-3 px-3 py-2.5 rounded-cyber text-gray-400 hover:text-cyan-electric hover:bg-navy-light/50 transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+            <span x-show="sidebarOpen" class="font-medium">Alerts</span>
+            <span x-show="sidebarOpen" class="ml-auto text-xs bg-hot-pink/20 text-hot-pink px-2 py-0.5 rounded-full font-mono">5</span>
+          </a>
+          <a href="tasks.html" class="flex items-center gap-3 px-3 py-2.5 rounded-cyber text-gray-400 hover:text-cyan-electric hover:bg-navy-light/50 transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+            <span x-show="sidebarOpen" class="font-medium">Tasks</span>
+          </a>
+        </div>
+
+        <div class="mb-6">
+          <p x-show="sidebarOpen" class="text-xs font-mono text-gray-500 uppercase tracking-wider mb-3 px-3">Management</p>
+          <a href="compliance.html" class="flex items-center gap-3 px-3 py-2.5 rounded-cyber text-gray-400 hover:text-cyan-electric hover:bg-navy-light/50 transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            <span x-show="sidebarOpen" class="font-medium">FMCSA Dashboard</span>
+          </a>
+          <a href="drivers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-cyber text-gray-400 hover:text-cyan-electric hover:bg-navy-light/50 transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            <span x-show="sidebarOpen" class="font-medium">Driver Files</span>
+          </a>
+          <a href="vehicles.html" class="flex items-center gap-3 px-3 py-2.5 rounded-cyber text-gray-400 hover:text-cyan-electric hover:bg-navy-light/50 transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+            <span x-show="sidebarOpen" class="font-medium">Vehicle Files</span>
+          </a>
+          <a href="maintenance.html" class="flex items-center gap-3 px-3 py-2.5 rounded-cyber text-gray-400 hover:text-cyan-electric hover:bg-navy-light/50 transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <span x-show="sidebarOpen" class="font-medium">Maintenance</span>
+          </a>
+        </div>
+
+        <div class="mb-6">
+          <p x-show="sidebarOpen" class="text-xs font-mono text-gray-500 uppercase tracking-wider mb-3 px-3">Tracking</p>
+          <a href="tickets.html" class="flex items-center gap-3 px-3 py-2.5 rounded-cyber text-gray-400 hover:text-cyan-electric hover:bg-navy-light/50 transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/></svg>
+            <span x-show="sidebarOpen" class="font-medium">Tickets</span>
+          </a>
+          <a href="accidents.html" class="flex items-center gap-3 px-3 py-2.5 rounded-cyber text-gray-400 hover:text-cyan-electric hover:bg-navy-light/50 transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            <span x-show="sidebarOpen" class="font-medium">Accidents</span>
+          </a>
+          <a href="damage-claims.html" class="flex items-center gap-3 px-3 py-2.5 rounded-cyber text-gray-400 hover:text-cyan-electric hover:bg-navy-light/50 transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span x-show="sidebarOpen" class="font-medium">Damage Claims</span>
+          </a>
+          <a href="drug-alcohol.html" class="flex items-center gap-3 px-3 py-2.5 rounded-cyber text-gray-400 hover:text-cyan-electric hover:bg-navy-light/50 transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+            <span x-show="sidebarOpen" class="font-medium">Drug & Alcohol</span>
+          </a>
+        </div>
+
+        <div>
+          <p x-show="sidebarOpen" class="text-xs font-mono text-gray-500 uppercase tracking-wider mb-3 px-3">Tools</p>
+          <a href="documents.html" class="flex items-center gap-3 px-3 py-2.5 rounded-cyber text-gray-400 hover:text-cyan-electric hover:bg-navy-light/50 transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+            <span x-show="sidebarOpen" class="font-medium">Documents</span>
+          </a>
+          <a href="checklists.html" class="nav-link-active flex items-center gap-3 px-3 py-2.5 rounded-cyber text-cyan-electric transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            <span x-show="sidebarOpen" class="font-medium">Checklists</span>
+          </a>
+          <a href="reports.html" class="flex items-center gap-3 px-3 py-2.5 rounded-cyber text-gray-400 hover:text-cyan-electric hover:bg-navy-light/50 transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <span x-show="sidebarOpen" class="font-medium">Reports</span>
+          </a>
+          <a href="settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-cyber text-gray-400 hover:text-cyan-electric hover:bg-navy-light/50 transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <span x-show="sidebarOpen" class="font-medium">Settings</span>
+          </a>
+        </div>
+      </nav>
+
+      <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-navy-lighter/50">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-cyber bg-gradient-to-br from-cyan-electric/20 to-hot-pink/20 border border-cyan-electric/30 flex items-center justify-center">
+            <span class="font-mono font-bold text-cyan-electric">JS</span>
+          </div>
+          <div x-show="sidebarOpen">
+            <p class="font-medium text-white text-sm">John Smith</p>
+            <p class="text-xs text-gray-500">Safety Manager</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main :class="sidebarOpen ? 'ml-64' : 'ml-20'" class="flex-1 transition-all duration-300">
+      <!-- Header -->
+      <header class="h-16 bg-deep-navy/80 backdrop-blur-sm border-b border-navy-lighter/50 flex items-center justify-between px-6 sticky top-0 z-30">
+        <div class="flex items-center gap-4">
+          <button @click="sidebarOpen = !sidebarOpen" class="p-2 rounded-cyber hover:bg-navy-light text-gray-400 hover:text-cyan-electric transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <div>
+            <h1 class="font-mono font-bold text-xl text-white">Checklists</h1>
+            <p class="text-sm text-gray-500">Manage compliance checklists and onboarding</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-4">
+          <button class="p-2 rounded-cyber hover:bg-navy-light text-gray-400 hover:text-cyan-electric transition-colors relative">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+            <span class="absolute top-1 right-1 w-2 h-2 bg-hot-pink rounded-full"></span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <div class="p-6">
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div class="cyber-card rounded-cyber p-4 transition-all">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-gray-400 text-sm">Active Checklists</span>
+              <div class="w-8 h-8 rounded-cyber bg-cyan-electric/10 flex items-center justify-center">
+                <svg class="w-4 h-4 text-cyan-electric" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+              </div>
+            </div>
+            <p class="font-mono text-2xl font-bold text-white">3</p>
+            <p class="text-xs text-gray-500 mt-1">In progress</p>
+          </div>
+
+          <div class="cyber-card rounded-cyber p-4 transition-all">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-gray-400 text-sm">Items Completed</span>
+              <div class="w-8 h-8 rounded-cyber bg-green-500/10 flex items-center justify-center">
+                <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
+            </div>
+            <p class="font-mono text-2xl font-bold text-green-400">16</p>
+            <p class="text-xs text-gray-500 mt-1">Of 25 total</p>
+          </div>
+
+          <div class="cyber-card rounded-cyber p-4 transition-all">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-gray-400 text-sm">Pending Items</span>
+              <div class="w-8 h-8 rounded-cyber bg-yellow-500/10 flex items-center justify-center">
+                <svg class="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
+            </div>
+            <p class="font-mono text-2xl font-bold text-yellow-400">9</p>
+            <p class="text-xs text-gray-500 mt-1">Remaining</p>
+          </div>
+
+          <div class="cyber-card rounded-cyber p-4 transition-all">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-gray-400 text-sm">Completion Rate</span>
+              <div class="w-8 h-8 rounded-cyber bg-purple-500/10 flex items-center justify-center">
+                <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+              </div>
+            </div>
+            <p class="font-mono text-2xl font-bold text-purple-400">64%</p>
+            <p class="text-xs text-gray-500 mt-1">Average</p>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex justify-end mb-6">
+          <button @click="showModal = true" class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-hot-pink to-pink-glow text-white rounded-cyber font-mono font-medium glow-pink hover:opacity-90 transition-all">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            New Checklist
+          </button>
+        </div>
+
+        <!-- Checklists -->
+        <div class="space-y-4">
+          <!-- Checklist 1 -->
+          <div class="cyber-card rounded-cyber overflow-hidden transition-all">
+            <div class="p-4 cursor-pointer" @click="expandedChecklist = expandedChecklist === 'CHK001' ? null : 'CHK001'">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 rounded-cyber bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-3">
+                      <h3 class="font-mono font-bold text-white">New Driver Onboarding</h3>
+                      <span class="px-2 py-0.5 rounded-cyber bg-blue-500/20 text-blue-400 text-xs font-mono">In Progress</span>
+                    </div>
+                    <p class="text-sm text-gray-400">Jessica White - Complete all required steps for new driver qualification</p>
+                    <div class="flex items-center gap-4 mt-2 text-sm">
+                      <span class="text-gray-500">Due: Feb 15, 2025</span>
+                      <span class="text-cyan-electric font-mono">8 of 12 completed</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-4">
+                  <div class="w-32">
+                    <div class="flex justify-between text-xs mb-1">
+                      <span class="text-gray-500">Progress</span>
+                      <span class="text-cyan-electric font-mono">67%</span>
+                    </div>
+                    <div class="h-2 bg-navy-lighter rounded-full overflow-hidden">
+                      <div class="h-full progress-bar rounded-full" style="width: 67%"></div>
+                    </div>
+                  </div>
+                  <svg class="w-5 h-5 text-gray-400 transition-transform" :class="expandedChecklist === 'CHK001' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </div>
+              </div>
+            </div>
+            <div x-show="expandedChecklist === 'CHK001'" x-collapse class="border-t border-navy-lighter/50 p-4 bg-navy-light/30">
+              <div class="space-y-2">
+                <div class="flex items-center gap-3 p-2 rounded-cyber hover:bg-navy-light/50 transition-colors">
+                  <input type="checkbox" class="checklist-item" checked>
+                  <span class="text-gray-300 line-through">Collect CDL copy</span>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded-cyber hover:bg-navy-light/50 transition-colors">
+                  <input type="checkbox" class="checklist-item" checked>
+                  <span class="text-gray-300 line-through">Verify CDL with DMV</span>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded-cyber hover:bg-navy-light/50 transition-colors">
+                  <input type="checkbox" class="checklist-item" checked>
+                  <span class="text-gray-300 line-through">Medical card on file</span>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded-cyber hover:bg-navy-light/50 transition-colors">
+                  <input type="checkbox" class="checklist-item" checked>
+                  <span class="text-gray-300 line-through">Pre-employment drug test</span>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded-cyber hover:bg-navy-light/50 transition-colors">
+                  <input type="checkbox" class="checklist-item" checked>
+                  <span class="text-gray-300 line-through">MVR obtained</span>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded-cyber hover:bg-navy-light/50 transition-colors">
+                  <input type="checkbox" class="checklist-item" checked>
+                  <span class="text-gray-300 line-through">Clearinghouse query</span>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded-cyber hover:bg-navy-light/50 transition-colors">
+                  <input type="checkbox" class="checklist-item" checked>
+                  <span class="text-gray-300 line-through">Background check</span>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded-cyber hover:bg-navy-light/50 transition-colors">
+                  <input type="checkbox" class="checklist-item" checked>
+                  <span class="text-gray-300 line-through">Road test completed</span>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded-cyber hover:bg-navy-light/50 transition-colors">
+                  <input type="checkbox" class="checklist-item">
+                  <span class="text-gray-300">Safety orientation</span>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded-cyber hover:bg-navy-light/50 transition-colors">
+                  <input type="checkbox" class="checklist-item">
+                  <span class="text-gray-300">Policy acknowledgments signed</span>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded-cyber hover:bg-navy-light/50 transition-colors">
+                  <input type="checkbox" class="checklist-item">
+                  <span class="text-gray-300">W-4 and I-9 completed</span>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded-cyber hover:bg-navy-light/50 transition-colors">
+                  <input type="checkbox" class="checklist-item">
+                  <span class="text-gray-300">Equipment issued</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Checklist 2 -->
+          <div class="cyber-card rounded-cyber overflow-hidden transition-all">
+            <div class="p-4 cursor-pointer" @click="expandedChecklist = expandedChecklist === 'CHK002' ? null : 'CHK002'">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 rounded-cyber bg-cyan-electric/20 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-6 h-6 text-cyan-electric" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-3">
+                      <h3 class="font-mono font-bold text-white">Annual Driver Review - James Wilson</h3>
+                      <span class="px-2 py-0.5 rounded-cyber bg-blue-500/20 text-blue-400 text-xs font-mono">In Progress</span>
+                    </div>
+                    <p class="text-sm text-gray-400">Complete annual driver qualification file review</p>
+                    <div class="flex items-center gap-4 mt-2 text-sm">
+                      <span class="text-gray-500">Due: Mar 15, 2025</span>
+                      <span class="text-cyan-electric font-mono">4 of 6 completed</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-4">
+                  <div class="w-32">
+                    <div class="flex justify-between text-xs mb-1">
+                      <span class="text-gray-500">Progress</span>
+                      <span class="text-cyan-electric font-mono">67%</span>
+                    </div>
+                    <div class="h-2 bg-navy-lighter rounded-full overflow-hidden">
+                      <div class="h-full progress-bar rounded-full" style="width: 67%"></div>
+                    </div>
+                  </div>
+                  <svg class="w-5 h-5 text-gray-400 transition-transform" :class="expandedChecklist === 'CHK002' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </div>
+              </div>
+            </div>
+            <div x-show="expandedChecklist === 'CHK002'" x-collapse class="border-t border-navy-lighter/50 p-4 bg-navy-light/30">
+              <div class="space-y-2">
+                <div class="flex items-center gap-3 p-2 rounded-cyber hover:bg-navy-light/50 transition-colors">
+                  <input type="checkbox" class="checklist-item" checked>
+                  <span class="text-gray-300 line-through">Review driving record</span>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded-cyber hover:bg-navy-light/50 transition-colors">
+                  <input type="checkbox" class="checklist-item" checked>
+                  <span class="text-gray-300 line-through">Verify medical card current</span>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded-cyber hover:bg-navy-light/50 transition-colors">
+                  <input type="checkbox" class="checklist-item" checked>
+                  <span class="text-gray-300 line-through">Annual Clearinghouse query</span>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded-cyber hover:bg-navy-light/50 transition-colors">
+                  <input type="checkbox" class="checklist-item" checked>
+                  <span class="text-gray-300 line-through">Review violation history</span>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded-cyber hover:bg-navy-light/50 transition-colors">
+                  <input type="checkbox" class="checklist-item">
+                  <span class="text-gray-300">Update emergency contacts</span>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded-cyber hover:bg-navy-light/50 transition-colors">
+                  <input type="checkbox" class="checklist-item">
+                  <span class="text-gray-300">Driver performance review</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Checklist 3 -->
+          <div class="cyber-card rounded-cyber overflow-hidden transition-all">
+            <div class="p-4 cursor-pointer" @click="expandedChecklist = expandedChecklist === 'CHK003' ? null : 'CHK003'">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 rounded-cyber bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-3">
+                      <h3 class="font-mono font-bold text-white">Quarterly Safety Audit</h3>
+                      <span class="px-2 py-0.5 rounded-cyber bg-gray-500/20 text-gray-400 text-xs font-mono">Not Started</span>
+                    </div>
+                    <p class="text-sm text-gray-400">Q1 2025 internal safety audit</p>
+                    <div class="flex items-center gap-4 mt-2 text-sm">
+                      <span class="text-gray-500">Due: Mar 31, 2025</span>
+                      <span class="text-gray-500 font-mono">0 of 7 completed</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-4">
+                  <div class="w-32">
+                    <div class="flex justify-between text-xs mb-1">
+                      <span class="text-gray-500">Progress</span>
+                      <span class="text-gray-500 font-mono">0%</span>
+                    </div>
+                    <div class="h-2 bg-navy-lighter rounded-full overflow-hidden">
+                      <div class="h-full progress-bar rounded-full" style="width: 0%"></div>
+                    </div>
+                  </div>
+                  <svg class="w-5 h-5 text-gray-400 transition-transform" :class="expandedChecklist === 'CHK003' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </div>
+              </div>
+            </div>
+            <div x-show="expandedChecklist === 'CHK003'" x-collapse class="border-t border-navy-lighter/50 p-4 bg-navy-light/30">
+              <div class="space-y-2">
+                <div class="flex items-center gap-3 p-2 rounded-cyber hover:bg-navy-light/50 transition-colors">
+                  <input type="checkbox" class="checklist-item">
+                  <span class="text-gray-300">Review all DQF files</span>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded-cyber hover:bg-navy-light/50 transition-colors">
+                  <input type="checkbox" class="checklist-item">
+                  <span class="text-gray-300">Audit vehicle inspection reports</span>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded-cyber hover:bg-navy-light/50 transition-colors">
+                  <input type="checkbox" class="checklist-item">
+                  <span class="text-gray-300">Review HOS compliance</span>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded-cyber hover:bg-navy-light/50 transition-colors">
+                  <input type="checkbox" class="checklist-item">
+                  <span class="text-gray-300">Check D&A program compliance</span>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded-cyber hover:bg-navy-light/50 transition-colors">
+                  <input type="checkbox" class="checklist-item">
+                  <span class="text-gray-300">Verify maintenance records</span>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded-cyber hover:bg-navy-light/50 transition-colors">
+                  <input type="checkbox" class="checklist-item">
+                  <span class="text-gray-300">Review accident files</span>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded-cyber hover:bg-navy-light/50 transition-colors">
+                  <input type="checkbox" class="checklist-item">
+                  <span class="text-gray-300">Prepare audit report</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- New Checklist Modal -->
+  <div x-show="showModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4" style="display: none;">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="showModal = false"></div>
+    <div class="relative w-full max-w-lg cyber-card rounded-cyber overflow-hidden" @click.away="showModal = false">
+      <div class="p-6 border-b border-navy-lighter/50">
+        <div class="flex items-center justify-between">
+          <h3 class="font-mono font-bold text-lg text-white">New Checklist</h3>
+          <button @click="showModal = false" class="p-2 rounded-cyber hover:bg-navy-light text-gray-400 hover:text-white transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="p-6 space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-400 mb-2">Checklist Name</label>
+          <input type="text" placeholder="Enter checklist name..." class="w-full bg-navy-light border border-navy-lighter rounded-cyber px-4 py-2.5 text-white focus:border-cyan-electric focus:outline-none focus:ring-1 focus:ring-cyan-electric/50">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-400 mb-2">Template</label>
+          <select class="w-full bg-navy-light border border-navy-lighter rounded-cyber px-4 py-2.5 text-white focus:border-cyan-electric focus:outline-none focus:ring-1 focus:ring-cyan-electric/50">
+            <option value="">Select template...</option>
+            <option>New Driver Onboarding</option>
+            <option>Annual Driver Review</option>
+            <option>Quarterly Safety Audit</option>
+            <option>Vehicle Inspection Checklist</option>
+            <option>Custom (blank)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-400 mb-2">Assign To</label>
+          <select class="w-full bg-navy-light border border-navy-lighter rounded-cyber px-4 py-2.5 text-white focus:border-cyan-electric focus:outline-none focus:ring-1 focus:ring-cyan-electric/50">
+            <option value="">Select driver (optional)...</option>
+            <option>James Wilson</option>
+            <option>Maria Garcia</option>
+            <option>Robert Johnson</option>
+            <option>Sarah Williams</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-400 mb-2">Due Date</label>
+          <input type="date" class="w-full bg-navy-light border border-navy-lighter rounded-cyber px-4 py-2.5 text-white focus:border-cyan-electric focus:outline-none focus:ring-1 focus:ring-cyan-electric/50">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-400 mb-2">Description</label>
+          <textarea rows="3" class="w-full bg-navy-light border border-navy-lighter rounded-cyber px-4 py-2.5 text-white focus:border-cyan-electric focus:outline-none focus:ring-1 focus:ring-cyan-electric/50 resize-none" placeholder="Optional description..."></textarea>
+        </div>
+      </div>
+      <div class="p-6 border-t border-navy-lighter/50 flex justify-end gap-3">
+        <button @click="showModal = false" class="px-4 py-2 rounded-cyber bg-navy-light text-gray-400 hover:text-white font-medium transition-colors">
+          Cancel
+        </button>
+        <button class="px-4 py-2 rounded-cyber bg-gradient-to-r from-cyan-electric to-cyan-glow text-deep-navy font-mono font-medium glow-cyan hover:opacity-90 transition-all">
+          Create Checklist
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../shared/js/common.js"></script>
+  <script src="../../shared/data/mock-data.js"></script>
+</body>
+</html>

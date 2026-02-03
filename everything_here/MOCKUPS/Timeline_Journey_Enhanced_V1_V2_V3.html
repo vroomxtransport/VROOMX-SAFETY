@@ -1,0 +1,1730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VroomX Safety - Enhanced Timeline Journey Mockups</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0a0a0f;
+      color: #fff;
+      line-height: 1.6;
+    }
+
+    .mockup-header {
+      text-align: center;
+      padding: 60px 20px 40px;
+      background: linear-gradient(180deg, #1a1a2e 0%, #0a0a0f 100%);
+    }
+
+    .mockup-header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #00d4ff, #7c3aed);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+
+    .mockup-header p {
+      color: #8892b0;
+      font-size: 1.1rem;
+    }
+
+    .mockup-separator {
+      text-align: center;
+      padding: 80px 20px 40px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      margin-top: 60px;
+    }
+
+    .mockup-separator h2 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+
+    .mockup-separator p {
+      color: #8892b0;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* ========================================
+       VERSION 1: CINEMATIC SPLIT TIMELINE
+       ======================================== */
+    .v1-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 60px 20px 100px;
+    }
+
+    .v1-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .v1-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(220, 38, 38, 0.15);
+      border: 1px solid rgba(220, 38, 38, 0.3);
+      padding: 8px 20px;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #f87171;
+      margin-bottom: 24px;
+    }
+
+    .v1-badge svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .v1-title {
+      font-size: 3.5rem;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+
+    .v1-title .highlight {
+      background: linear-gradient(135deg, #dc2626, #f97316);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .v1-subtitle {
+      font-size: 1.25rem;
+      color: #8892b0;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .v1-timeline-wrapper {
+      display: grid;
+      grid-template-columns: 1fr 80px 1fr;
+      gap: 0;
+      position: relative;
+    }
+
+    .v1-timeline-side {
+      padding: 40px;
+      border-radius: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .v1-timeline-side.chaos {
+      background: linear-gradient(135deg, rgba(127, 29, 29, 0.4) 0%, rgba(30, 20, 20, 0.8) 100%);
+      border: 1px solid rgba(220, 38, 38, 0.3);
+    }
+
+    .v1-timeline-side.control {
+      background: linear-gradient(135deg, rgba(22, 101, 52, 0.4) 0%, rgba(20, 30, 20, 0.8) 100%);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .v1-side-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .v1-side-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .v1-side-icon.chaos-icon {
+      background: linear-gradient(135deg, #dc2626, #f97316);
+    }
+
+    .v1-side-icon.control-icon {
+      background: linear-gradient(135deg, #22c55e, #10b981);
+    }
+
+    .v1-side-icon svg {
+      width: 28px;
+      height: 28px;
+      color: #fff;
+    }
+
+    .v1-side-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .v1-side-subtitle {
+      font-size: 0.9rem;
+      color: #8892b0;
+    }
+
+    .v1-event {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 32px;
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+
+    .v1-timeline-side.control .v1-event {
+      transform: translateX(30px);
+    }
+
+    .v1-event.animate {
+      animation: v1SlideIn 0.6s ease forwards;
+    }
+
+    .v1-timeline-side.control .v1-event.animate {
+      animation: v1SlideInRight 0.6s ease forwards;
+    }
+
+    @keyframes v1SlideIn {
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes v1SlideInRight {
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .v1-event-time {
+      width: 70px;
+      flex-shrink: 0;
+      text-align: right;
+      padding-top: 4px;
+    }
+
+    .v1-event-time span {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #64748b;
+    }
+
+    .v1-event-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 6px;
+      position: relative;
+    }
+
+    .v1-timeline-side.chaos .v1-event-dot {
+      background: #dc2626;
+      box-shadow: 0 0 20px rgba(220, 38, 38, 0.5);
+    }
+
+    .v1-timeline-side.control .v1-event-dot {
+      background: #22c55e;
+      box-shadow: 0 0 20px rgba(34, 197, 94, 0.5);
+    }
+
+    .v1-event-dot::after {
+      content: '';
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2px;
+      height: 60px;
+      background: rgba(255,255,255,0.1);
+    }
+
+    .v1-event:last-child .v1-event-dot::after {
+      display: none;
+    }
+
+    .v1-event-content h4 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .v1-event-content p {
+      font-size: 0.9rem;
+      color: #8892b0;
+      line-height: 1.5;
+    }
+
+    .v1-center-divider {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .v1-vs-badge {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #1e1e2e, #2a2a3e);
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: #fff;
+      z-index: 10;
+    }
+
+    .v1-center-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.2) 20%, rgba(255,255,255,0.2) 80%, transparent 100%);
+    }
+
+    .v1-outcome {
+      margin-top: 40px;
+      padding: 24px;
+      border-radius: 16px;
+      text-align: center;
+    }
+
+    .v1-timeline-side.chaos .v1-outcome {
+      background: rgba(220, 38, 38, 0.15);
+      border: 1px solid rgba(220, 38, 38, 0.3);
+    }
+
+    .v1-timeline-side.control .v1-outcome {
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .v1-outcome-value {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .v1-timeline-side.chaos .v1-outcome-value {
+      color: #f87171;
+    }
+
+    .v1-timeline-side.control .v1-outcome-value {
+      color: #4ade80;
+    }
+
+    .v1-outcome-label {
+      font-size: 0.9rem;
+      color: #8892b0;
+    }
+
+    .v1-cta-section {
+      text-align: center;
+      margin-top: 60px;
+      padding: 40px;
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(0, 212, 255, 0.1) 100%);
+      border-radius: 24px;
+      border: 1px solid rgba(124, 58, 237, 0.2);
+    }
+
+    .v1-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .v1-logo-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #7c3aed, #00d4ff);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .v1-logo-icon svg {
+      width: 28px;
+      height: 28px;
+      color: #fff;
+    }
+
+    .v1-logo-text {
+      font-size: 1.8rem;
+      font-weight: 800;
+    }
+
+    .v1-logo-text span {
+      background: linear-gradient(135deg, #7c3aed, #00d4ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .v1-cta-text {
+      font-size: 1.25rem;
+      color: #8892b0;
+      margin-bottom: 24px;
+    }
+
+    .v1-cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, #7c3aed, #00d4ff);
+      color: #fff;
+      padding: 16px 40px;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+    }
+
+    .v1-cta-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 40px rgba(124, 58, 237, 0.4);
+    }
+
+    .v1-controls {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 12px;
+      background: rgba(20, 20, 30, 0.95);
+      padding: 12px 20px;
+      border-radius: 50px;
+      border: 1px solid rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+    }
+
+    .v1-control-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 25px;
+      border: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .v1-control-btn.play {
+      background: linear-gradient(135deg, #7c3aed, #00d4ff);
+      color: #fff;
+    }
+
+    .v1-control-btn.reset {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+
+    .v1-control-btn:hover {
+      transform: scale(1.05);
+    }
+
+    /* ========================================
+       VERSION 2: HORIZONTAL SCROLL JOURNEY
+       ======================================== */
+    .v2-container {
+      max-width: 100%;
+      padding: 60px 0 100px;
+      overflow: hidden;
+    }
+
+    .v2-header {
+      text-align: center;
+      padding: 0 20px;
+      margin-bottom: 60px;
+    }
+
+    .v2-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .v2-logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #7c3aed, #00d4ff);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .v2-logo-icon svg {
+      width: 24px;
+      height: 24px;
+      color: #fff;
+    }
+
+    .v2-logo-text {
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .v2-logo-text span {
+      background: linear-gradient(135deg, #7c3aed, #00d4ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .v2-title {
+      font-size: 3rem;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    .v2-subtitle {
+      font-size: 1.2rem;
+      color: #8892b0;
+    }
+
+    .v2-scroll-wrapper {
+      position: relative;
+    }
+
+    .v2-track {
+      display: flex;
+      gap: 40px;
+      padding: 40px 60px;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .v2-track::-webkit-scrollbar {
+      display: none;
+    }
+
+    .v2-section {
+      flex-shrink: 0;
+      width: 500px;
+    }
+
+    .v2-section-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 30px;
+      padding: 20px 24px;
+      border-radius: 16px;
+    }
+
+    .v2-section.without .v2-section-header {
+      background: linear-gradient(135deg, rgba(220, 38, 38, 0.2), rgba(30, 20, 20, 0.8));
+      border: 1px solid rgba(220, 38, 38, 0.3);
+    }
+
+    .v2-section.with .v2-section-header {
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(20, 30, 20, 0.8));
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .v2-section-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .v2-section.without .v2-section-icon {
+      background: #dc2626;
+    }
+
+    .v2-section.with .v2-section-icon {
+      background: #22c55e;
+    }
+
+    .v2-section-icon svg {
+      width: 24px;
+      height: 24px;
+      color: #fff;
+    }
+
+    .v2-section-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+
+    .v2-section-subtitle {
+      font-size: 0.85rem;
+      color: #8892b0;
+    }
+
+    .v2-timeline {
+      position: relative;
+      padding-left: 30px;
+    }
+
+    .v2-timeline::before {
+      content: '';
+      position: absolute;
+      left: 8px;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      border-radius: 2px;
+    }
+
+    .v2-section.without .v2-timeline::before {
+      background: linear-gradient(180deg, #dc2626, #7f1d1d);
+    }
+
+    .v2-section.with .v2-timeline::before {
+      background: linear-gradient(180deg, #22c55e, #166534);
+    }
+
+    .v2-event {
+      position: relative;
+      margin-bottom: 24px;
+      padding: 20px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.5s ease;
+    }
+
+    .v2-event.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .v2-event::before {
+      content: '';
+      position: absolute;
+      left: -26px;
+      top: 24px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .v2-section.without .v2-event::before {
+      background: #dc2626;
+      box-shadow: 0 0 15px rgba(220, 38, 38, 0.5);
+    }
+
+    .v2-section.with .v2-event::before {
+      background: #22c55e;
+      box-shadow: 0 0 15px rgba(34, 197, 94, 0.5);
+    }
+
+    .v2-event-time {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #64748b;
+      margin-bottom: 8px;
+    }
+
+    .v2-event-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .v2-event-desc {
+      font-size: 0.85rem;
+      color: #8892b0;
+    }
+
+    .v2-divider {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 120px;
+    }
+
+    .v2-divider-badge {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #7c3aed, #00d4ff);
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 40px rgba(124, 58, 237, 0.4);
+    }
+
+    .v2-divider-badge svg {
+      width: 32px;
+      height: 32px;
+      color: #fff;
+    }
+
+    .v2-divider-text {
+      margin-top: 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #8892b0;
+    }
+
+    .v2-scroll-hint {
+      position: absolute;
+      right: 30px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #64748b;
+      font-size: 0.85rem;
+      animation: v2Pulse 2s infinite;
+    }
+
+    @keyframes v2Pulse {
+      0%, 100% { opacity: 0.5; transform: translateY(-50%) translateX(0); }
+      50% { opacity: 1; transform: translateY(-50%) translateX(10px); }
+    }
+
+    .v2-cta-section {
+      text-align: center;
+      margin-top: 60px;
+      padding: 0 20px;
+    }
+
+    .v2-cta-card {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 40px;
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.15), rgba(0, 212, 255, 0.15));
+      border-radius: 24px;
+      border: 1px solid rgba(124, 58, 237, 0.3);
+    }
+
+    .v2-cta-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .v2-cta-desc {
+      color: #8892b0;
+      margin-bottom: 24px;
+    }
+
+    .v2-cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, #7c3aed, #00d4ff);
+      color: #fff;
+      padding: 14px 32px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .v2-cta-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(124, 58, 237, 0.4);
+    }
+
+    /* ========================================
+       VERSION 3: INTERACTIVE CARD FLIP
+       ======================================== */
+    .v3-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 60px 20px 100px;
+    }
+
+    .v3-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .v3-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding: 12px 24px;
+      background: rgba(124, 58, 237, 0.1);
+      border-radius: 50px;
+      border: 1px solid rgba(124, 58, 237, 0.2);
+    }
+
+    .v3-logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #7c3aed, #00d4ff);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .v3-logo-icon svg {
+      width: 20px;
+      height: 20px;
+      color: #fff;
+    }
+
+    .v3-logo-text {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .v3-logo-text span {
+      background: linear-gradient(135deg, #7c3aed, #00d4ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .v3-title {
+      font-size: 3rem;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    .v3-subtitle {
+      font-size: 1.2rem;
+      color: #8892b0;
+      max-width: 600px;
+      margin: 0 auto 30px;
+    }
+
+    .v3-toggle-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .v3-toggle-label {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #64748b;
+      transition: color 0.3s ease;
+    }
+
+    .v3-toggle-label.active {
+      color: #fff;
+    }
+
+    .v3-toggle-label.chaos.active {
+      color: #f87171;
+    }
+
+    .v3-toggle-label.control.active {
+      color: #4ade80;
+    }
+
+    .v3-toggle-switch {
+      width: 80px;
+      height: 40px;
+      background: linear-gradient(135deg, #dc2626, #f97316);
+      border-radius: 20px;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.4s ease;
+    }
+
+    .v3-toggle-switch.on {
+      background: linear-gradient(135deg, #22c55e, #10b981);
+    }
+
+    .v3-toggle-switch::before {
+      content: '';
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 32px;
+      height: 32px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+
+    .v3-toggle-switch.on::before {
+      transform: translateX(40px);
+    }
+
+    .v3-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      margin-top: 50px;
+    }
+
+    .v3-flip-card {
+      height: 280px;
+      perspective: 1000px;
+    }
+
+    .v3-card-inner {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    .v3-flip-card.flipped .v3-card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .v3-card-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 20px;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .v3-card-front {
+      background: linear-gradient(135deg, rgba(127, 29, 29, 0.5), rgba(30, 20, 20, 0.9));
+      border: 1px solid rgba(220, 38, 38, 0.3);
+    }
+
+    .v3-card-back {
+      background: linear-gradient(135deg, rgba(22, 101, 52, 0.5), rgba(20, 30, 20, 0.9));
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      transform: rotateY(180deg);
+    }
+
+    .v3-card-time {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #64748b;
+      margin-bottom: 12px;
+    }
+
+    .v3-card-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .v3-card-front .v3-card-icon {
+      background: rgba(220, 38, 38, 0.3);
+    }
+
+    .v3-card-back .v3-card-icon {
+      background: rgba(34, 197, 94, 0.3);
+    }
+
+    .v3-card-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .v3-card-front .v3-card-icon svg {
+      color: #f87171;
+    }
+
+    .v3-card-back .v3-card-icon svg {
+      color: #4ade80;
+    }
+
+    .v3-card-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .v3-card-desc {
+      font-size: 0.95rem;
+      color: #8892b0;
+      flex-grow: 1;
+    }
+
+    .v3-card-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      align-self: flex-start;
+    }
+
+    .v3-card-front .v3-card-badge {
+      background: rgba(220, 38, 38, 0.2);
+      color: #f87171;
+    }
+
+    .v3-card-back .v3-card-badge {
+      background: rgba(34, 197, 94, 0.2);
+      color: #4ade80;
+    }
+
+    .v3-results {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 40px;
+    }
+
+    .v3-result-card {
+      padding: 30px;
+      border-radius: 20px;
+      text-align: center;
+      transition: all 0.5s ease;
+    }
+
+    .v3-result-card.chaos {
+      background: linear-gradient(135deg, rgba(127, 29, 29, 0.4), rgba(30, 20, 20, 0.8));
+      border: 1px solid rgba(220, 38, 38, 0.3);
+      opacity: 1;
+    }
+
+    .v3-result-card.chaos.hidden {
+      opacity: 0.3;
+    }
+
+    .v3-result-card.control {
+      background: linear-gradient(135deg, rgba(22, 101, 52, 0.4), rgba(20, 30, 20, 0.8));
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      opacity: 0.3;
+    }
+
+    .v3-result-card.control.visible {
+      opacity: 1;
+    }
+
+    .v3-result-value {
+      font-size: 3rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .v3-result-card.chaos .v3-result-value {
+      color: #f87171;
+    }
+
+    .v3-result-card.control .v3-result-value {
+      color: #4ade80;
+    }
+
+    .v3-result-label {
+      font-size: 1rem;
+      color: #8892b0;
+    }
+
+    .v3-cta-section {
+      text-align: center;
+      margin-top: 60px;
+    }
+
+    .v3-cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(135deg, #7c3aed, #00d4ff);
+      color: #fff;
+      padding: 18px 48px;
+      border-radius: 14px;
+      font-size: 1.15rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+    }
+
+    .v3-cta-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 40px rgba(124, 58, 237, 0.4);
+    }
+
+    .v3-cta-subtext {
+      margin-top: 16px;
+      font-size: 0.9rem;
+      color: #64748b;
+    }
+
+    @media (max-width: 768px) {
+      .v1-timeline-wrapper {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+
+      .v1-center-divider {
+        display: none;
+      }
+
+      .v1-title, .v2-title, .v3-title {
+        font-size: 2rem;
+      }
+
+      .v3-cards-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .v3-results {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="mockup-header">
+    <h1>VroomX Safety - Timeline Journey</h1>
+    <p>3 Enhanced Variations with Solid UI & Branding</p>
+  </div>
+
+  <!-- ========================================
+       VERSION 1: CINEMATIC SPLIT TIMELINE
+       ======================================== -->
+  <div class="mockup-separator">
+    <h2>Version 1: Cinematic Split Timeline</h2>
+    <p>Side-by-side comparison with synchronized animations, bold typography, and dramatic contrast between chaos and control.</p>
+  </div>
+
+  <section class="v1-container" id="v1">
+    <div class="v1-header">
+      <div class="v1-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+        The $150K Problem
+      </div>
+      <h2 class="v1-title">Same Day. <span class="highlight">Different Reality.</span></h2>
+      <p class="v1-subtitle">Watch how a typical morning unfolds for two trucking companies - one managing compliance manually, and one powered by VroomX Safety.</p>
+    </div>
+
+    <div class="v1-timeline-wrapper">
+      <!-- CHAOS SIDE -->
+      <div class="v1-timeline-side chaos">
+        <div class="v1-side-header">
+          <div class="v1-side-icon chaos-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+            </svg>
+          </div>
+          <div>
+            <div class="v1-side-title">Without VroomX</div>
+            <div class="v1-side-subtitle">Manual compliance management</div>
+          </div>
+        </div>
+
+        <div class="v1-event" data-delay="0">
+          <div class="v1-event-time"><span>5:30 AM</span></div>
+          <div class="v1-event-dot"></div>
+          <div class="v1-event-content">
+            <h4>Pre-Trip Chaos</h4>
+            <p>Driver forgets to log pre-trip inspection. Paperwork is incomplete, but truck leaves anyway.</p>
+          </div>
+        </div>
+
+        <div class="v1-event" data-delay="200">
+          <div class="v1-event-time"><span>7:15 AM</span></div>
+          <div class="v1-event-dot"></div>
+          <div class="v1-event-content">
+            <h4>Surprise Roadside Stop</h4>
+            <p>DOT officer pulls over for inspection. Missing medical card discovered. Vehicle placed out of service.</p>
+          </div>
+        </div>
+
+        <div class="v1-event" data-delay="400">
+          <div class="v1-event-time"><span>9:00 AM</span></div>
+          <div class="v1-event-dot"></div>
+          <div class="v1-event-content">
+            <h4>Violation Snowball</h4>
+            <p>3 violations issued: Driver Fitness, Vehicle Maintenance, Hours of Service. CSA score tanks.</p>
+          </div>
+        </div>
+
+        <div class="v1-event" data-delay="600">
+          <div class="v1-event-time"><span>11:30 AM</span></div>
+          <div class="v1-event-dot"></div>
+          <div class="v1-event-content">
+            <h4>Load Missed</h4>
+            <p>Delivery deadline missed. Customer furious. Contract in jeopardy. Backup driver 4 hours away.</p>
+          </div>
+        </div>
+
+        <div class="v1-outcome">
+          <div class="v1-outcome-value">-$12,500</div>
+          <div class="v1-outcome-label">Lost in one morning</div>
+        </div>
+      </div>
+
+      <!-- CENTER DIVIDER -->
+      <div class="v1-center-divider">
+        <div class="v1-center-line"></div>
+        <div class="v1-vs-badge">VS</div>
+      </div>
+
+      <!-- CONTROL SIDE -->
+      <div class="v1-timeline-side control">
+        <div class="v1-side-header">
+          <div class="v1-side-icon control-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="v1-side-title">With VroomX Safety</div>
+            <div class="v1-side-subtitle">AI-powered compliance automation</div>
+          </div>
+        </div>
+
+        <div class="v1-event" data-delay="100">
+          <div class="v1-event-time"><span>5:30 AM</span></div>
+          <div class="v1-event-dot"></div>
+          <div class="v1-event-content">
+            <h4>Smart Pre-Trip Alert</h4>
+            <p>VroomX sends automated reminder. Digital inspection completed in 3 minutes via mobile app.</p>
+          </div>
+        </div>
+
+        <div class="v1-event" data-delay="300">
+          <div class="v1-event-time"><span>5:45 AM</span></div>
+          <div class="v1-event-dot"></div>
+          <div class="v1-event-content">
+            <h4>Proactive Compliance Check</h4>
+            <p>System detects medical card expiring in 5 days. Renewal scheduled automatically.</p>
+          </div>
+        </div>
+
+        <div class="v1-event" data-delay="500">
+          <div class="v1-event-time"><span>7:15 AM</span></div>
+          <div class="v1-event-dot"></div>
+          <div class="v1-event-content">
+            <h4>Clean Inspection</h4>
+            <p>Same DOT officer, same checkpoint. All documents digital and current. Driver waves through.</p>
+          </div>
+        </div>
+
+        <div class="v1-event" data-delay="700">
+          <div class="v1-event-time"><span>9:30 AM</span></div>
+          <div class="v1-event-dot"></div>
+          <div class="v1-event-content">
+            <h4>Early Delivery</h4>
+            <p>Load delivered 30 minutes ahead of schedule. Customer happy. Contract renewed for another year.</p>
+          </div>
+        </div>
+
+        <div class="v1-outcome">
+          <div class="v1-outcome-value">+$8,200</div>
+          <div class="v1-outcome-label">Gained in one morning</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="v1-cta-section">
+      <div class="v1-logo">
+        <div class="v1-logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+          </svg>
+        </div>
+        <div class="v1-logo-text"><span>VroomX</span> Safety</div>
+      </div>
+      <p class="v1-cta-text">Join 2,500+ carriers who chose the green timeline</p>
+      <button class="v1-cta-btn">
+        Start Your Free Trial
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- ========================================
+       VERSION 2: HORIZONTAL SCROLL JOURNEY
+       ======================================== -->
+  <div class="mockup-separator">
+    <h2>Version 2: Horizontal Scroll Journey</h2>
+    <p>Immersive horizontal scrolling experience that takes users through the day, with a dramatic "switch" moment in the middle.</p>
+  </div>
+
+  <section class="v2-container" id="v2">
+    <div class="v2-header">
+      <div class="v2-logo">
+        <div class="v2-logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+          </svg>
+        </div>
+        <div class="v2-logo-text"><span>VroomX</span> Safety</div>
+      </div>
+      <h2 class="v2-title">Your Morning, Two Ways</h2>
+      <p class="v2-subtitle">Scroll through both realities. See the difference VroomX makes.</p>
+    </div>
+
+    <div class="v2-scroll-wrapper">
+      <div class="v2-track" id="v2Track">
+        <!-- WITHOUT VROOMX -->
+        <div class="v2-section without">
+          <div class="v2-section-header">
+            <div class="v2-section-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+              </svg>
+            </div>
+            <div>
+              <div class="v2-section-title">Without VroomX</div>
+              <div class="v2-section-subtitle">The Old Way</div>
+            </div>
+          </div>
+
+          <div class="v2-timeline">
+            <div class="v2-event visible">
+              <div class="v2-event-time">5:30 AM</div>
+              <div class="v2-event-title">Scrambling Start</div>
+              <div class="v2-event-desc">Driver can't find inspection forms. Spends 20 minutes searching through paperwork.</div>
+            </div>
+            <div class="v2-event visible">
+              <div class="v2-event-time">6:45 AM</div>
+              <div class="v2-event-title">Blind Spot</div>
+              <div class="v2-event-desc">No one noticed driver's medical card expired 2 weeks ago. Truck is non-compliant.</div>
+            </div>
+            <div class="v2-event visible">
+              <div class="v2-event-time">8:30 AM</div>
+              <div class="v2-event-title">The Pullover</div>
+              <div class="v2-event-desc">DOT inspector finds 4 violations. Vehicle goes out of service. Driver stranded.</div>
+            </div>
+            <div class="v2-event visible">
+              <div class="v2-event-time">12:00 PM</div>
+              <div class="v2-event-title">Damage Done</div>
+              <div class="v2-event-desc">CSA score jumps 15 points. Insurance company sends notice. Customer cancels order.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DIVIDER -->
+        <div class="v2-divider">
+          <div class="v2-divider-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+          </div>
+          <div class="v2-divider-text">Switch to VroomX</div>
+        </div>
+
+        <!-- WITH VROOMX -->
+        <div class="v2-section with">
+          <div class="v2-section-header">
+            <div class="v2-section-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
+            </div>
+            <div>
+              <div class="v2-section-title">With VroomX Safety</div>
+              <div class="v2-section-subtitle">The Smart Way</div>
+            </div>
+          </div>
+
+          <div class="v2-timeline">
+            <div class="v2-event visible">
+              <div class="v2-event-time">5:30 AM</div>
+              <div class="v2-event-title">Instant Digital Inspection</div>
+              <div class="v2-event-desc">Driver opens app, completes inspection in 3 minutes. All data synced to cloud.</div>
+            </div>
+            <div class="v2-event visible">
+              <div class="v2-event-time">Previous Week</div>
+              <div class="v2-event-title">Proactive Alert</div>
+              <div class="v2-event-desc">VroomX detected expiring medical card 14 days ahead. Renewal completed seamlessly.</div>
+            </div>
+            <div class="v2-event visible">
+              <div class="v2-event-time">8:30 AM</div>
+              <div class="v2-event-title">Clean Checkpoint</div>
+              <div class="v2-event-desc">Same checkpoint, same inspector. All documents current. Driver continues route.</div>
+            </div>
+            <div class="v2-event visible">
+              <div class="v2-event-time">10:00 AM</div>
+              <div class="v2-event-title">Success Delivered</div>
+              <div class="v2-event-desc">Load arrives early. Customer extends contract. CSA score stays pristine at 12%.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="v2-scroll-hint">
+        Scroll to explore
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="v2-cta-section">
+      <div class="v2-cta-card">
+        <h3 class="v2-cta-title">Choose Your Reality</h3>
+        <p class="v2-cta-desc">Join thousands of carriers who switched to VroomX Safety and never looked back.</p>
+        <a href="#" class="v2-cta-btn">
+          Start Free Trial
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================
+       VERSION 3: INTERACTIVE CARD FLIP
+       ======================================== -->
+  <div class="mockup-separator">
+    <h2>Version 3: Interactive Card Flip</h2>
+    <p>Gamified toggle experience where users flip between scenarios. Cards animate to reveal the VroomX advantage.</p>
+  </div>
+
+  <section class="v3-container" id="v3">
+    <div class="v3-header">
+      <div class="v3-logo">
+        <div class="v3-logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+          </svg>
+        </div>
+        <div class="v3-logo-text"><span>VroomX</span> Safety</div>
+      </div>
+
+      <h2 class="v3-title">Flip the Script</h2>
+      <p class="v3-subtitle">Toggle between realities. See how VroomX Safety transforms every moment of your compliance journey.</p>
+
+      <div class="v3-toggle-container">
+        <span class="v3-toggle-label chaos active" id="v3LabelChaos">Without VroomX</span>
+        <div class="v3-toggle-switch" id="v3Toggle"></div>
+        <span class="v3-toggle-label control" id="v3LabelControl">With VroomX</span>
+      </div>
+    </div>
+
+    <div class="v3-cards-grid">
+      <!-- Card 1 -->
+      <div class="v3-flip-card" id="v3Card1">
+        <div class="v3-card-inner">
+          <div class="v3-card-face v3-card-front">
+            <div class="v3-card-time">5:30 AM - Pre-Trip</div>
+            <div class="v3-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+            </div>
+            <h4 class="v3-card-title">Lost in Paperwork</h4>
+            <p class="v3-card-desc">Driver spends 25 minutes searching for inspection forms. Truck leaves late without proper documentation.</p>
+            <div class="v3-card-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              25 min wasted
+            </div>
+          </div>
+          <div class="v3-card-face v3-card-back">
+            <div class="v3-card-time">5:30 AM - Pre-Trip</div>
+            <div class="v3-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+              </svg>
+            </div>
+            <h4 class="v3-card-title">3-Minute Digital Check</h4>
+            <p class="v3-card-desc">Driver opens VroomX app, completes guided inspection with photo capture. Data synced instantly.</p>
+            <div class="v3-card-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 13l4 4L19 7"/>
+              </svg>
+              22 min saved
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="v3-flip-card" id="v3Card2">
+        <div class="v3-card-inner">
+          <div class="v3-card-face v3-card-front">
+            <div class="v3-card-time">6:45 AM - Documents</div>
+            <div class="v3-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+              </svg>
+            </div>
+            <h4 class="v3-card-title">Expired Medical Card</h4>
+            <p class="v3-card-desc">Nobody noticed driver's medical certificate expired 2 weeks ago. Truck is operating non-compliant.</p>
+            <div class="v3-card-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+              Critical violation
+            </div>
+          </div>
+          <div class="v3-card-face v3-card-back">
+            <div class="v3-card-time">14 Days Earlier</div>
+            <div class="v3-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+              </svg>
+            </div>
+            <h4 class="v3-card-title">Proactive Alert Sent</h4>
+            <p class="v3-card-desc">VroomX detected expiring cert 14 days ahead. Automatic reminder sent, renewal scheduled online.</p>
+            <div class="v3-card-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 13l4 4L19 7"/>
+              </svg>
+              Violation prevented
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="v3-flip-card" id="v3Card3">
+        <div class="v3-card-inner">
+          <div class="v3-card-face v3-card-front">
+            <div class="v3-card-time">8:30 AM - Roadside</div>
+            <div class="v3-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+              </svg>
+            </div>
+            <h4 class="v3-card-title">Out of Service</h4>
+            <p class="v3-card-desc">DOT inspector finds 4 violations. Vehicle placed out of service. Driver stranded for 6 hours.</p>
+            <div class="v3-card-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              $8,500 penalty
+            </div>
+          </div>
+          <div class="v3-card-face v3-card-back">
+            <div class="v3-card-time">8:30 AM - Roadside</div>
+            <div class="v3-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <h4 class="v3-card-title">Clean Inspection</h4>
+            <p class="v3-card-desc">Same inspector, same checkpoint. All digital documents current. Driver waves through in 5 minutes.</p>
+            <div class="v3-card-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 13l4 4L19 7"/>
+              </svg>
+              Zero violations
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="v3-flip-card" id="v3Card4">
+        <div class="v3-card-inner">
+          <div class="v3-card-face v3-card-front">
+            <div class="v3-card-time">End of Day</div>
+            <div class="v3-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/>
+              </svg>
+            </div>
+            <h4 class="v3-card-title">CSA Score Spike</h4>
+            <p class="v3-card-desc">CSA percentile jumps from 45% to 72%. Insurance company sends warning notice. Customers concerned.</p>
+            <div class="v3-card-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+              </svg>
+              +27% increase
+            </div>
+          </div>
+          <div class="v3-card-face v3-card-back">
+            <div class="v3-card-time">End of Day</div>
+            <div class="v3-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+              </svg>
+            </div>
+            <h4 class="v3-card-title">Score Maintained</h4>
+            <p class="v3-card-desc">CSA score stays at pristine 12%. Insurance offers 15% discount. Customer extends 3-year contract.</p>
+            <div class="v3-card-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 13l4 4L19 7"/>
+              </svg>
+              12% percentile
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="v3-results">
+      <div class="v3-result-card chaos" id="v3ResultChaos">
+        <div class="v3-result-value">-$18,500</div>
+        <div class="v3-result-label">Lost this month without VroomX</div>
+      </div>
+      <div class="v3-result-card control" id="v3ResultControl">
+        <div class="v3-result-value">+$12,200</div>
+        <div class="v3-result-label">Gained this month with VroomX</div>
+      </div>
+    </div>
+
+    <div class="v3-cta-section">
+      <button class="v3-cta-btn">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+        </svg>
+        Start Your VroomX Journey
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </button>
+      <p class="v3-cta-subtext">No credit card required. 14-day free trial.</p>
+    </div>
+  </section>
+
+  <!-- CONTROLS -->
+  <div class="v1-controls">
+    <button class="v1-control-btn play" id="playBtn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M8 5v14l11-7z"/>
+      </svg>
+      Play Animation
+    </button>
+    <button class="v1-control-btn reset" id="resetBtn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"/>
+        <path d="M3 3v5h5"/>
+      </svg>
+      Reset
+    </button>
+  </div>
+
+  <script>
+    // VERSION 1: ANIMATION CONTROLLER
+    const v1Events = document.querySelectorAll('#v1 .v1-event');
+    let v1Playing = false;
+    let v1Timeout = null;
+
+    function playV1Animation() {
+      resetV1Animation();
+      v1Playing = true;
+      document.getElementById('playBtn').innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <rect x="6" y="4" width="4" height="16"/>
+          <rect x="14" y="4" width="4" height="16"/>
+        </svg>
+        Pause
+      `;
+
+      v1Events.forEach((event, index) => {
+        const delay = parseInt(event.dataset.delay) || (index * 200);
+        setTimeout(() => {
+          if (v1Playing) {
+            event.classList.add('animate');
+          }
+        }, delay + 300);
+      });
+    }
+
+    function resetV1Animation() {
+      v1Playing = false;
+      v1Events.forEach(event => {
+        event.classList.remove('animate');
+      });
+      document.getElementById('playBtn').innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M8 5v14l11-7z"/>
+        </svg>
+        Play Animation
+      `;
+    }
+
+    document.getElementById('playBtn').addEventListener('click', () => {
+      if (v1Playing) {
+        v1Playing = false;
+        document.getElementById('playBtn').innerHTML = `
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+          Play Animation
+        `;
+      } else {
+        playV1Animation();
+      }
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', resetV1Animation);
+
+    // Auto-play on scroll into view
+    const v1Observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && !v1Playing) {
+          setTimeout(playV1Animation, 500);
+        }
+      });
+    }, { threshold: 0.3 });
+
+    v1Observer.observe(document.querySelector('#v1'));
+
+    // VERSION 3: TOGGLE CONTROLLER
+    const v3Toggle = document.getElementById('v3Toggle');
+    const v3Cards = document.querySelectorAll('.v3-flip-card');
+    const v3LabelChaos = document.getElementById('v3LabelChaos');
+    const v3LabelControl = document.getElementById('v3LabelControl');
+    const v3ResultChaos = document.getElementById('v3ResultChaos');
+    const v3ResultControl = document.getElementById('v3ResultControl');
+    let v3IsOn = false;
+
+    v3Toggle.addEventListener('click', () => {
+      v3IsOn = !v3IsOn;
+      v3Toggle.classList.toggle('on', v3IsOn);
+
+      v3Cards.forEach((card, index) => {
+        setTimeout(() => {
+          card.classList.toggle('flipped', v3IsOn);
+        }, index * 100);
+      });
+
+      v3LabelChaos.classList.toggle('active', !v3IsOn);
+      v3LabelControl.classList.toggle('active', v3IsOn);
+      v3ResultChaos.classList.toggle('hidden', v3IsOn);
+      v3ResultControl.classList.toggle('visible', v3IsOn);
+    });
+  </script>
+
+</body>
+</html>
