@@ -64,14 +64,12 @@ Plans:
   4. Inspection details are pulled from SaferWebAPI and stored
   5. Sync errors are logged to console but do not crash the server
   6. Company record shows last sync time and success/failure status
-**Plans**: TBD
+**Plans**: 3 plans (Wave 1 -> 2 -> 3 sequential)
 
 Plans:
-- [ ] 03-01: Cron job setup and orchestrator service
-- [ ] 03-02: CSA BASIC score sync (fmcsaSyncService)
-- [ ] 03-03: Violation sync from DataHub
-- [ ] 03-04: Inspection sync from SaferWebAPI
-- [ ] 03-05: Sync status tracking per company
+- [ ] 03-01-PLAN.md - Company syncStatus schema extension
+- [ ] 03-02-PLAN.md - Sync orchestrator service coordinating existing FMCSA services
+- [ ] 03-03-PLAN.md - Cron job registration in server.js
 
 ### Phase 4: Entity Linking
 **Goal**: Violations automatically link to drivers and vehicles with confidence scoring
@@ -146,7 +144,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | ✓ Verified | 2026-02-03 |
 | 2. Migration | 1/1 | ✓ Verified | 2026-02-03 |
-| 3. Sync Infrastructure | 0/5 | Not started | - |
+| 3. Sync Infrastructure | 0/3 | Planned | - |
 | 4. Entity Linking | 0/3 | Not started | - |
 | 5. UI Integration | 0/4 | Not started | - |
 | 6. DataQ Integration | 0/2 | Not started | - |
@@ -158,4 +156,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 *Phase 1 completed: 2026-02-03*
 *Phase 2 planned: 2026-02-03*
 *Phase 2 completed: 2026-02-03*
-*Total phases: 7 | Total plans: 22 | Requirements covered: 29*
+*Phase 3 planned: 2026-02-03*
+*Total phases: 7 | Total plans: 20 | Requirements covered: 29*
