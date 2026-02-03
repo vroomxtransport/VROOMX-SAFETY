@@ -146,6 +146,26 @@ fmcsaInspectionSchema.virtual('violationsByBasic').get(function() {
   return breakdown;
 });
 
+/**
+ * Virtual that returns violation count from either source.
+ * During migration: prefers violationRefs if populated, falls back to embedded.
+ * After migration: violationRefs will always be used.
+ */
+fmcsaInspectionSchema.virtual('violationCount').get(function() {
+  if (this.violationRefs && this.violationRefs.length > 0) {
+    return this.violationRefs.length;
+  }
+  return this.violations?.length || 0;
+});
+
+/**
+ * Virtual that indicates whether this inspection has been migrated.
+ * True if violationRefs is populated, false if still using embedded violations.
+ */
+fmcsaInspectionSchema.virtual('isMigrated').get(function() {
+  return this.violationRefs && this.violationRefs.length > 0;
+});
+
 // Calculate time weights for violations based on inspection age
 fmcsaInspectionSchema.methods.calculateTimeWeights = function() {
   const now = new Date();
