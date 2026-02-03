@@ -3,6 +3,11 @@ const mongoose = require('mongoose');
 /**
  * FMCSA Inspection Model
  * Stores inspection records imported from FMCSA SMS system
+ *
+ * NOTE: This model is transitioning from embedded violations to referenced violations.
+ * - violations[] (DEPRECATED): Legacy embedded array, kept for migration
+ * - violationRefs[]: References to Violation documents (SSOT)
+ * See Phase 2 migration plan for details.
  */
 const fmcsaInspectionSchema = new mongoose.Schema({
   companyId: {
@@ -59,7 +64,11 @@ const fmcsaInspectionSchema = new mongoose.Schema({
     default: 0
   },
 
-  // Individual Violations
+  /**
+   * @deprecated Use violationRefs[] instead. This embedded array will be removed after Phase 2 migration.
+   * Violations should be stored in the Violation collection and referenced here.
+   * Migration: Phase 2 will extract these to Violation documents and populate violationRefs.
+   */
   violations: [{
     code: String,           // CFR code (e.g., "395.8A")
     description: String,
@@ -79,6 +88,13 @@ const fmcsaInspectionSchema = new mongoose.Schema({
       enum: ['driver', 'vehicle', 'hazmat', 'other']
     },
     timeWeight: Number      // Calculated time weight (3x, 2x, 1x based on age)
+  }],
+
+  // References to Violation documents (SSOT)
+  // Populated after Phase 2 migration extracts embedded violations
+  violationRefs: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Violation'
   }],
 
   // Unit Information (if available)
@@ -110,6 +126,9 @@ fmcsaInspectionSchema.index({ companyId: 1, reportNumber: 1 }, { unique: true })
 
 // Index for date-based queries
 fmcsaInspectionSchema.index({ companyId: 1, inspectionDate: -1 });
+
+// Index for finding inspections by linked violations
+fmcsaInspectionSchema.index({ violationRefs: 1 });
 
 // Virtual for total OOS violations in this inspection
 fmcsaInspectionSchema.virtual('oosViolationCount').get(function() {
