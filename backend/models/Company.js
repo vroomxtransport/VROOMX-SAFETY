@@ -129,7 +129,21 @@ const companySchema = new mongoose.Schema({
       driver: { type: Number }
     },
     lastFetched: { type: Date },
-    dataSource: { type: String }
+    dataSource: { type: String },
+    // Sync status tracking for Phase 3 orchestrator
+    syncStatus: {
+      lastRun: { type: Date },
+      success: { type: Boolean },
+      errors: [{
+        source: { type: String, enum: ['csa_scores', 'violations', 'inspections'] },
+        error: String,
+        timestamp: { type: Date, default: Date.now }
+      }],
+      // Track each data source independently for partial success
+      csaScoresLastSync: { type: Date },
+      violationsLastSync: { type: Date },
+      inspectionsLastSync: { type: Date }
+    }
   },
 
   // VroomX Compliance Score (0-100)
