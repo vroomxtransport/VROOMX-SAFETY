@@ -83,8 +83,8 @@ Plans:
 **Plans**: 3 plans (Wave 1: 04-01, Wave 2: 04-02 + 04-03 parallel)
 
 Plans:
-- [ ] 04-01-PLAN.md — Entity linking service with driver/vehicle matching logic
-- [ ] 04-02-PLAN.md — Orchestrator integration (call linking after sync)
+- [x] 04-01-PLAN.md — Entity linking service with driver/vehicle matching logic
+- [x] 04-02-PLAN.md — Orchestrator integration (call linking after sync)
 - [ ] 04-03-PLAN.md — Review queue API endpoint for manual confirmation
 
 ### Phase 5: UI Integration
@@ -145,7 +145,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 1. Foundation | 3/3 | ✓ Verified | 2026-02-03 |
 | 2. Migration | 1/1 | ✓ Verified | 2026-02-03 |
 | 3. Sync Infrastructure | 3/3 | ✓ Verified | 2026-02-03 |
-| 4. Entity Linking | 0/3 | Planned | - |
+| 4. Entity Linking | 2/3 | In progress | - |
 | 5. UI Integration | 0/4 | Not started | - |
 | 6. DataQ Integration | 0/2 | Not started | - |
 | 7. Polish | 0/4 | Not started | - |
