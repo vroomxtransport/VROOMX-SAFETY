@@ -10,18 +10,18 @@ See: PROJECT.md (updated 2026-02-03)
 ## Current Position
 
 Phase: 5 of 7 (UI Integration)
-Plan: 0 of 4 in current phase
-Status: Ready to plan
-Last activity: 2026-02-03 - Phase 4 (Entity Linking) verified and complete
+Plan: 1 of 4 in current phase
+Status: In progress
+Last activity: 2026-02-03 - Completed 05-01-PLAN.md (Vehicle OOS Service)
 
-Progress: [=========--] 71%
+Progress: [==========-] 79%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10
+- Total plans completed: 11
 - Average duration: 2 min
-- Total execution time: 0.32 hours
+- Total execution time: 0.34 hours
 
 **By Phase:**
 
@@ -31,9 +31,10 @@ Progress: [=========--] 71%
 | 02-migration | 1 | 2 min | 2.0 min |
 | 03-sync-infrastructure | 3 | 5 min | 1.7 min |
 | 04-entity-linking | 3 | 5 min | 1.7 min |
+| 05-ui-integration | 1 | 1 min | 1.0 min |
 
 **Recent Trend:**
-- Last 5 plans: 2 min, 1 min, 2 min, 1 min, 2 min
+- Last 5 plans: 1 min, 2 min, 1 min, 2 min, 1 min
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -69,6 +70,9 @@ Recent decisions affecting current work:
 - [04-02]: Linking errors do not fail overall sync - follows same isolation pattern as other steps
 - [04-03]: Lazy require FMCSAInspection in review-queue handler - reduces import overhead for infrequent use
 - [04-03]: Separate query for unitInfo (not populate) - inspectionNumber is string, not ObjectId
+- [05-01]: OOS rate uses simple percentage (not weighted like driver CSA scores) - vehicles don't have CSA percentiles
+- [05-01]: Include driver info in vehicle violations (who was driving) - useful for accountability
+- [05-01]: Include hazmat in BASIC categories (7 total) - vehicles can have hazmat violations
 
 ### Pending Todos
 
@@ -82,8 +86,8 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-03
-Stopped at: Phase 4 (Entity Linking) complete - all plans executed and verified
+Stopped at: Completed 05-01-PLAN.md (Vehicle OOS Service)
 Resume file: None
 
 ---
-*Next step: `/gsd:discuss-phase 5` to gather context for UI Integration phase*
+*Next step: Execute 05-02-PLAN.md (Vehicle Stats API Route)*
