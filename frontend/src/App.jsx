@@ -108,15 +108,9 @@ const LegacyVehicleRedirect = () => {
 const PublicRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner size="lg" />
-      </div>
-    );
-  }
-
-  if (isAuthenticated) {
+  // Don't block public routes while checking auth - render immediately
+  // If user is logged in, redirect after auth check completes
+  if (!loading && isAuthenticated) {
     return <Navigate to="/app/dashboard" replace />;
   }
 
