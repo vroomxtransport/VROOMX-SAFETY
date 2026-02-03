@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { driversAPI, violationsAPI } from '../utils/api';
+import { driversAPI, violationsAPI, damageClaimsAPI } from '../utils/api';
 import { formatDate, daysUntilExpiry, formatPhone, basicCategories } from '../utils/helpers';
 import toast from 'react-hot-toast';
 import {
   FiArrowLeft, FiUpload, FiEdit2, FiFileText, FiCalendar, FiUser,
   FiPhone, FiMail, FiCheck, FiAlertCircle, FiShield, FiLink,
   FiClipboard, FiTruck, FiMapPin, FiChevronDown, FiChevronUp,
-  FiClock, FiAward, FiFolder, FiUsers, FiCreditCard
+  FiClock, FiAward, FiFolder, FiUsers, FiCreditCard, FiDollarSign
 } from 'react-icons/fi';
 import LoadingSpinner from '../components/LoadingSpinner';
 import StatusBadge from '../components/StatusBadge';
@@ -101,10 +101,14 @@ const DriverDetail = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editFormData, setEditFormData] = useState(null);
   const [editSubmitting, setEditSubmitting] = useState(false);
+  const [driverClaims, setDriverClaims] = useState([]);
+  const [claimsLoading, setClaimsLoading] = useState(false);
+  const [selectedClaim, setSelectedClaim] = useState(null);
 
   useEffect(() => {
     fetchDriver();
     fetchCSAData();
+    fetchDriverClaims();
   }, [id]);
 
   const fetchDriver = async () => {
@@ -131,6 +135,19 @@ const DriverDetail = () => {
     }
   };
 
+  const fetchDriverClaims = async () => {
+    if (!id) return;
+    setClaimsLoading(true);
+    try {
+      const response = await damageClaimsAPI.getAll({ driverId: id, limit: 50 });
+      setDriverClaims(response.data.claims || []);
+    } catch (error) {
+      console.error('Failed to fetch driver claims:', error);
+    } finally {
+      setClaimsLoading(false);
+    }
+  };
+
   const handleUnlinkViolation = async (violationId) => {
     if (!confirm('Unlink this violation from the driver?')) return;
     try {
@@ -149,6 +166,18 @@ const DriverDetail = () => {
       case 'Low': return 'text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-500/20';
       default: return 'text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-700';
     }
+  };
+
+  const getClaimStatusColor = (status) => {
+    const colors = {
+      open: 'bg-warning-100 text-warning-700 dark:bg-warning-500/20 dark:text-warning-400',
+      under_investigation: 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400',
+      pending_settlement: 'bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-400',
+      settled: 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400',
+      closed: 'bg-zinc-100 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-300',
+      denied: 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400'
+    };
+    return colors[status] || colors.closed;
   };
 
   const handleFileUpload = async (e) => {
@@ -412,6 +441,14 @@ const DriverDetail = () => {
           badge={csaData?.totalViolations}
         >
           Safety & CSA
+        </TabButton>
+        <TabButton
+          active={activeTab === 'claims'}
+          onClick={() => setActiveTab('claims')}
+          icon={FiDollarSign}
+          badge={driverClaims.length}
+        >
+          Claims
         </TabButton>
       </div>
 
@@ -967,6 +1004,87 @@ const DriverDetail = () => {
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {activeTab === 'claims' && (
+        <div className="space-y-6">
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="bg-white dark:bg-zinc-900 rounded-xl p-4 border border-zinc-200 dark:border-zinc-700">
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">Total Claims</p>
+              <p className="text-2xl font-bold text-zinc-900 dark:text-white">{driverClaims.length}</p>
+            </div>
+            <div className="bg-white dark:bg-zinc-900 rounded-xl p-4 border border-zinc-200 dark:border-zinc-700">
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">Open Claims</p>
+              <p className="text-2xl font-bold text-warning-600">
+                {driverClaims.filter(c => ['open', 'under_investigation', 'pending_settlement'].includes(c.status)).length}
+              </p>
+            </div>
+            <div className="bg-white dark:bg-zinc-900 rounded-xl p-4 border border-zinc-200 dark:border-zinc-700">
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">Driver at Fault</p>
+              <p className="text-2xl font-bold text-red-600">
+                {driverClaims.filter(c => c.faultParty === 'driver').length}
+              </p>
+            </div>
+          </div>
+
+          {/* Claims List */}
+          <div className="card">
+            <div className="card-header">
+              <h3 className="font-semibold flex items-center gap-2">
+                <FiDollarSign className="w-4 h-4 text-primary-500" />
+                Damage Claims
+              </h3>
+            </div>
+            <div className="card-body">
+              {claimsLoading ? (
+                <div className="flex justify-center py-8">
+                  <LoadingSpinner />
+                </div>
+              ) : driverClaims.length === 0 ? (
+                <div className="text-center py-8">
+                  <FiDollarSign className="w-12 h-12 mx-auto mb-3 text-zinc-300 dark:text-zinc-600" />
+                  <p className="text-sm text-zinc-500 dark:text-zinc-400">No claims found for this driver</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {driverClaims.map(claim => (
+                    <Link
+                      key={claim._id}
+                      to={`/app/damage-claims?claimId=${claim._id}`}
+                      className="block bg-zinc-50 dark:bg-zinc-800/50 rounded-lg p-4 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors border border-transparent hover:border-primary-300 dark:hover:border-primary-600"
+                    >
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-medium text-zinc-900 dark:text-white">{claim.claimNumber}</p>
+                          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                            {new Date(claim.incidentDate).toLocaleDateString()} • {claim.damageType?.replace('_', ' ')}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${getClaimStatusColor(claim.status)}`}>
+                            {claim.status?.replace('_', ' ')}
+                          </span>
+                          <p className="text-sm font-semibold text-zinc-900 dark:text-white mt-1">
+                            ${claim.claimAmount?.toLocaleString() || 0}
+                          </p>
+                        </div>
+                      </div>
+                      {claim.description && (
+                        <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-2 line-clamp-2">{claim.description}</p>
+                      )}
+                      {claim.faultParty === 'driver' && (
+                        <span className="inline-block mt-2 px-2 py-0.5 text-xs font-medium bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 rounded">
+                          Driver at Fault
+                        </span>
+                      )}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
