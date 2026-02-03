@@ -502,12 +502,6 @@ const Billing = () => {
                 </div>
                 Document Expiry Alerts
               </li>
-              <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
-                <div className="w-5 h-5 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
-                  <FiCheck className="w-3 h-3 text-success-600 dark:text-success-400" />
-                </div>
-                100 AI queries/month
-              </li>
             </ul>
 
             <button
@@ -590,7 +584,7 @@ const Billing = () => {
                 <div className="w-5 h-5 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-success-600 dark:text-success-400" />
                 </div>
-                AI Violation Reader
+                DataQ AI Analysis
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
                 <div className="w-5 h-5 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
@@ -608,7 +602,7 @@ const Billing = () => {
                 <div className="w-5 h-5 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-success-600 dark:text-success-400" />
                 </div>
-                Priority Support
+                Email Support
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
                 <div className="w-5 h-5 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
@@ -722,13 +716,13 @@ const Billing = () => {
                 <div className="w-5 h-5 rounded-full bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-accent-600 dark:text-accent-400" />
                 </div>
-                Custom Reports & API Access
+                Custom Reports
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
                 <div className="w-5 h-5 rounded-full bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-accent-600 dark:text-accent-400" />
                 </div>
-                Dedicated Support
+                Priority Email Support
               </li>
             </ul>
 

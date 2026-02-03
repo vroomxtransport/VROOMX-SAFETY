@@ -207,7 +207,7 @@ userSchema.virtual('fullName').get(function() {
 userSchema.virtual('limits').get(function() {
   const plans = {
     free_trial: { maxCompanies: 1, maxDriversPerCompany: 1, maxVehiclesPerCompany: 1 },
-    solo: { maxCompanies: 1, maxDriversPerCompany: 1, maxVehiclesPerCompany: Infinity },
+    solo: { maxCompanies: 1, maxDriversPerCompany: 1, maxVehiclesPerCompany: 1 },
     fleet: { maxCompanies: 3, maxDriversPerCompany: Infinity, maxVehiclesPerCompany: Infinity },
     pro: { maxCompanies: 10, maxDriversPerCompany: Infinity, maxVehiclesPerCompany: Infinity }
   };

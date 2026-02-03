@@ -167,8 +167,7 @@ export const pricingPlans = [
       'Full DQF Management',
       'AI Regulation Assistant',
       'CSA Score Tracking',
-      'Document Expiry Alerts',
-      '100 AI queries/month'
+      'Document Expiry Alerts'
     ],
     popular: false,
     color: 'primary',
@@ -185,10 +184,10 @@ export const pricingPlans = [
       'Everything in Solo',
       '3 drivers included',
       'Up to 3 Companies',
-      'AI Violation Reader',
+      'DataQ AI Analysis',
       'DataQ Draft Generator',
       'Multi-user Access',
-      'Priority Support'
+      'Email Support'
     ],
     popular: true,
     color: 'cta',
@@ -206,8 +205,8 @@ export const pricingPlans = [
       '10 drivers included',
       'Up to 10 Companies',
       'Advanced CSA Analytics',
-      'Custom Reports & API Access',
-      'Dedicated Support'
+      'Custom Reports',
+      'Priority Email Support'
     ],
     popular: false,
     color: 'primary',

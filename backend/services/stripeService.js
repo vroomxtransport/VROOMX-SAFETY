@@ -36,7 +36,7 @@ const PLAN_METADATA = {
   },
   fleet: {
     plan: 'fleet',
-    maxCompanies: 1,
+    maxCompanies: 3,
     maxDriversPerCompany: -1, // unlimited but charged per driver
     maxVehiclesPerCompany: -1,
     includedDrivers: 3,
@@ -44,7 +44,7 @@ const PLAN_METADATA = {
   },
   pro: {
     plan: 'pro',
-    maxCompanies: -1, // unlimited
+    maxCompanies: 10,
     maxDriversPerCompany: -1,
     maxVehiclesPerCompany: -1,
     includedDrivers: 10,
