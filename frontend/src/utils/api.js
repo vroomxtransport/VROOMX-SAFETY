@@ -131,6 +131,7 @@ export const violationsAPI = {
   unlinkDriver: (id) => api.delete(`/violations/${id}/link-driver`),
   getUnassigned: (params) => api.get('/violations/unassigned', { params }),
   bulkLink: (violationIds, driverId) => api.post('/violations/bulk-link', { violationIds, driverId }),
+  getReviewQueue: (params = {}) => api.get('/violations/review-queue', { params }),
   // DataQ AI-powered analysis methods
   getDataQOpportunities: (params) => api.get('/violations/dataq-opportunities', { params }),
   getDataQDashboard: () => api.get('/violations/dataq-dashboard'),
