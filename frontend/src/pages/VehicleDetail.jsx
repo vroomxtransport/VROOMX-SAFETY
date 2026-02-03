@@ -1035,9 +1035,9 @@ const VehicleDetail = () => {
                                   <span className="text-xs px-1.5 py-0.5 bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-400 rounded">OOS</span>
                                 )}
                               </div>
-                              {violation.driverInfo && (
+                              {violation.driver && (
                                 <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-                                  Driver: {violation.driverInfo.firstName} {violation.driverInfo.lastName}
+                                  Driver: {violation.driver.firstName} {violation.driver.lastName}
                                 </p>
                               )}
                             </div>
