@@ -104,18 +104,18 @@ Plans:
 - [x] 05-03-PLAN.md — Vehicle Safety tab UI in VehicleDetail.jsx
 
 ### Phase 6: DataQ Integration
-**Goal**: Synced violations flow into DataQ challenge workflow with AI analysis
+**Goal**: Synced violations automatically scored for DataQ challenge potential after each sync
 **Depends on**: Phase 5
 **Requirements**: DATQ-01, DATQ-02, DATQ-03
 **Success Criteria** (what must be TRUE):
-  1. Newly imported violations appear in the DataQ opportunities list
-  2. DataQ opportunities list refreshes after each sync completes
-  3. AI analysis runs on new violations in background (not blocking sync)
-**Plans**: TBD
+  1. Newly imported violations appear in the DataQ opportunities list (ALREADY COMPLETE - existing endpoint queries open violations)
+  2. DataQ opportunities list refreshes after each sync completes (via post-sync scoring)
+  3. AI analysis runs on new violations in background (not blocking sync) - local scoring by default
+**Plans**: 2 plans (Wave 1 -> 2 sequential)
 
 Plans:
-- [ ] 06-01: DataQ opportunity generation from synced violations
-- [ ] 06-02: Post-sync AI analysis job
+- [ ] 06-01-PLAN.md — DataQ infrastructure: Company schema extension + bulk analysis service method
+- [ ] 06-02-PLAN.md — Orchestrator integration: step 5 DataQ analysis after entity linking
 
 ### Phase 7: Polish
 **Goal**: Users can see sync status and manually manage unlinked violations
@@ -146,7 +146,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 3. Sync Infrastructure | 3/3 | ✓ Verified | 2026-02-03 |
 | 4. Entity Linking | 3/3 | ✓ Verified | 2026-02-03 |
 | 5. UI Integration | 3/3 | ✓ Verified | 2026-02-03 |
-| 6. DataQ Integration | 0/2 | Not started | - |
+| 6. DataQ Integration | 0/2 | Planned | - |
 | 7. Polish | 0/4 | Not started | - |
 
 ---
@@ -161,4 +161,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 *Phase 4 completed: 2026-02-03*
 *Phase 5 planned: 2026-02-03*
 *Phase 5 completed: 2026-02-03*
+*Phase 6 planned: 2026-02-03*
 *Total phases: 7 | Total plans: 19 | Requirements covered: 29*
