@@ -180,7 +180,42 @@ const violationSchema = new mongoose.Schema({
     content: String,
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     createdAt: { type: Date, default: Date.now }
-  }]
+  }],
+
+  // FMCSA Sync Metadata - tracks data origin for sync pipeline (Phase 3)
+  syncMetadata: {
+    source: {
+      type: String,
+      enum: ['manual', 'datahub_api', 'saferweb_api', 'fmcsa_sms'],
+      default: 'manual'
+    },
+    importedAt: Date,
+    externalId: String,
+    lastVerified: Date
+  },
+
+  // Entity Linking Metadata - for Phase 4 entity linking
+  linkingMetadata: {
+    driverConfidence: {
+      type: Number,
+      min: 0,
+      max: 100
+    },
+    vehicleConfidence: {
+      type: Number,
+      min: 0,
+      max: 100
+    },
+    linkingMethod: {
+      type: String,
+      enum: ['cdl_exact', 'cdl_fuzzy', 'vin_exact', 'vin_fuzzy', 'unit_number', 'manual', null]
+    },
+    linkedAt: Date,
+    reviewRequired: {
+      type: Boolean,
+      default: false
+    }
+  }
 }, {
   timestamps: true,
   toJSON: { virtuals: true },
