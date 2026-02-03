@@ -23,12 +23,12 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Automatic Sync
 
-- [ ] **SYNC-01**: Background cron job syncs FMCSA data every 6 hours
-- [ ] **SYNC-02**: Sync pulls CSA BASIC scores from FMCSA SAFER
-- [ ] **SYNC-03**: Sync pulls violations from DataHub API
-- [ ] **SYNC-04**: Sync pulls inspection details from SaferWebAPI
-- [ ] **SYNC-05**: Sync errors are logged but don't crash the application
-- [ ] **SYNC-06**: Sync status (last run, success/failure) stored per company
+- [x] **SYNC-01**: Background cron job syncs FMCSA data every 6 hours
+- [x] **SYNC-02**: Sync pulls CSA BASIC scores from FMCSA SAFER
+- [x] **SYNC-03**: Sync pulls violations from DataHub API
+- [x] **SYNC-04**: Sync pulls inspection details from SaferWebAPI
+- [x] **SYNC-05**: Sync errors are logged but don't crash the application
+- [x] **SYNC-06**: Sync status (last run, success/failure) stored per company
 
 ### Driver Linking
 
@@ -103,12 +103,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CONF-02 | Phase 1 | Complete |
 | CONF-03 | Phase 1 | Complete |
 | CONF-04 | Phase 1 | Complete |
-| SYNC-01 | Phase 3 | Pending |
-| SYNC-02 | Phase 3 | Pending |
-| SYNC-03 | Phase 3 | Pending |
-| SYNC-04 | Phase 3 | Pending |
-| SYNC-05 | Phase 3 | Pending |
-| SYNC-06 | Phase 3 | Pending |
+| SYNC-01 | Phase 3 | Complete |
+| SYNC-02 | Phase 3 | Complete |
+| SYNC-03 | Phase 3 | Complete |
+| SYNC-04 | Phase 3 | Complete |
+| SYNC-05 | Phase 3 | Complete |
+| SYNC-06 | Phase 3 | Complete |
 | DRVR-01 | Phase 4 | Pending |
 | DRVR-02 | Phase 4 | Pending |
 | DRVR-03 | Phase 5 | Pending |
@@ -132,4 +132,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-03*
-*Last updated: 2026-02-03 after Phase 2 completion*
+*Last updated: 2026-02-03 after Phase 3 completion*
