@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/auth');
-const { getUsageStats } = require('../middleware/subscriptionLimits');
+const { getUsageStats, AI_QUERY_QUOTAS } = require('../middleware/subscriptionLimits');
 const stripeService = require('../services/stripeService');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const auditService = require('../services/auditService');
+const aiUsageService = require('../services/aiUsageService');
 
 // Price configuration for display
 const PRICING = {
@@ -41,13 +42,14 @@ const PRICING = {
       '3 drivers included',
       '+$6/driver after 3',
       'Everything in Solo',
-      'AI Violation Reader',
+      'DataQ AI Analysis',
       'DataQ Draft Generator',
       'Multi-user Access',
-      'Priority Support'
+      'Email Support',
+      '500 AI queries/month'
     ],
     limits: {
-      maxCompanies: 1,
+      maxCompanies: 3,
       maxDriversPerCompany: 'unlimited', // Unlimited but charges per driver
       maxVehiclesPerCompany: 'unlimited'
     }
@@ -66,11 +68,11 @@ const PRICING = {
       'Everything in Fleet',
       'Advanced CSA Analytics',
       'Custom Reports',
-      'API Access',
-      'Dedicated Support'
+      'Priority Email Support',
+      'Unlimited AI queries'
     ],
     limits: {
-      maxCompanies: 'unlimited',
+      maxCompanies: 10,
       maxDriversPerCompany: 'unlimited',
       maxVehiclesPerCompany: 'unlimited'
     }
@@ -95,6 +97,19 @@ router.get('/subscription', protect, asyncHandler(async (req, res) => {
 
   // Get usage stats
   const usage = await getUsageStats(user);
+
+  // Get AI usage stats
+  const plan = user.subscription?.plan || 'free_trial';
+  const aiUsage = await aiUsageService.getUsageStats(user._id);
+  const aiQuota = AI_QUERY_QUOTAS[plan];
+
+  // Add AI usage to usage object
+  usage.aiQueries = {
+    current: aiUsage.count,
+    limit: aiQuota === -1 ? 'unlimited' : aiQuota,
+    remaining: aiQuota === -1 ? 'unlimited' : Math.max(0, aiQuota - aiUsage.count),
+    month: aiUsage.month
+  };
 
   // Get Stripe subscription details if available
   let stripeSubscription = null;

@@ -167,7 +167,8 @@ export const pricingPlans = [
       'Full DQF Management',
       'AI Regulation Assistant',
       'CSA Score Tracking',
-      'Document Expiry Alerts'
+      'Document Expiry Alerts',
+      '100 AI queries/month'
     ],
     popular: false,
     color: 'primary',

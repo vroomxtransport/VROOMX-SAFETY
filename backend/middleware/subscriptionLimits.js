@@ -1,5 +1,14 @@
 const { Driver, Vehicle } = require('../models');
 const stripeService = require('../services/stripeService');
+const AIQueryUsage = require('../models/AIQueryUsage');
+
+// AI Query quotas by plan (per month)
+const AI_QUERY_QUOTAS = {
+  free_trial: 20,
+  solo: 100,
+  fleet: 500,
+  pro: -1  // unlimited
+};
 
 // Plan configurations for per-driver billing
 const PLAN_CONFIG = {
@@ -249,11 +258,55 @@ const getUsageStats = async (user) => {
   };
 };
 
+/**
+ * Check AI query quota before allowing AI requests
+ */
+const checkAIQueryQuota = async (req, res, next) => {
+  try {
+    const user = req.user;
+    const plan = user.subscription?.plan || 'free_trial';
+    const quota = AI_QUERY_QUOTAS[plan];
+
+    // Pro plan has unlimited
+    if (quota === -1) {
+      req.aiQuota = { quota: -1, current: 0, remaining: -1, unlimited: true };
+      return next();
+    }
+
+    // Get current month usage
+    const now = new Date();
+    const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const record = await AIQueryUsage.findOne({ userId: user._id, month });
+    const current = record?.count || 0;
+
+    if (current >= quota) {
+      return res.status(429).json({
+        success: false,
+        message: `Monthly AI query limit reached (${quota} queries/month on ${plan} plan). Upgrade for more.`,
+        code: 'AI_QUOTA_EXCEEDED',
+        quota,
+        current,
+        plan,
+        upgradeUrl: '/billing'
+      });
+    }
+
+    // Attach quota info to request for response
+    req.aiQuota = { quota, current, remaining: quota - current };
+    next();
+  } catch (error) {
+    console.error('Error checking AI quota:', error);
+    next(); // Don't block on check failure
+  }
+};
+
 module.exports = {
   checkCompanyLimit,
   checkDriverLimit,
   checkVehicleLimit,
   getUsageStats,
   reportDriverUsage,
-  PLAN_CONFIG
+  checkAIQueryQuota,
+  PLAN_CONFIG,
+  AI_QUERY_QUOTAS
 };

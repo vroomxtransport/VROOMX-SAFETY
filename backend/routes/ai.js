@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { protect, restrictToCompany, checkPermission } = require('../middleware/auth');
+const { checkAIQueryQuota } = require('../middleware/subscriptionLimits');
 const aiService = require('../services/aiService');
+const aiUsageService = require('../services/aiUsageService');
 const dataQAnalysisService = require('../services/dataQAnalysisService');
 const { Violation, Company } = require('../models');
 
@@ -40,7 +42,7 @@ setInterval(() => {
 // @route   POST /api/ai/regulation-query
 // @desc    Ask a compliance regulation question
 // @access  Private
-router.post('/regulation-query', protect, async (req, res) => {
+router.post('/regulation-query', protect, checkAIQueryQuota, async (req, res) => {
   try {
     const { question, context } = req.body;
 
@@ -68,6 +70,9 @@ router.post('/regulation-query', protect, async (req, res) => {
     // Query the AI
     const response = await aiService.query('regulationAssistant', userMessage);
 
+    // Track usage (fire-and-forget)
+    aiUsageService.trackQuery(req.user._id, response.usage?.inputTokens, response.usage?.outputTokens);
+
     // Parse the response into structured format
     const parsed = aiService.parseRegulationResponse(response.content);
 
@@ -77,7 +82,8 @@ router.post('/regulation-query', protect, async (req, res) => {
         answer: response.content,
         cfrCitations: parsed.cfrCitations,
         actionItems: parsed.actionItems,
-        usage: response.usage
+        usage: response.usage,
+        quota: req.aiQuota
       }
     });
   } catch (error) {
@@ -92,7 +98,7 @@ router.post('/regulation-query', protect, async (req, res) => {
 // @route   POST /api/ai/analyze-dqf
 // @desc    Analyze driver qualification file for compliance
 // @access  Private
-router.post('/analyze-dqf', protect, async (req, res) => {
+router.post('/analyze-dqf', protect, checkAIQueryQuota, async (req, res) => {
   try {
     const { driverId, driverName, documents, expirationDates } = req.body;
 
@@ -117,12 +123,16 @@ router.post('/analyze-dqf', protect, async (req, res) => {
       expirationDates: expirationDates || {}
     });
 
+    // Track usage (fire-and-forget)
+    aiUsageService.trackQuery(req.user._id, response.usage?.inputTokens, response.usage?.outputTokens);
+
     res.json({
       success: true,
       data: {
         analysis: response.content,
         driverId,
-        usage: response.usage
+        usage: response.usage,
+        quota: req.aiQuota
       }
     });
   } catch (error) {
@@ -137,7 +147,7 @@ router.post('/analyze-dqf', protect, async (req, res) => {
 // @route   POST /api/ai/analyze-csa-risk
 // @desc    Analyze CSA/SMS risk profile
 // @access  Private
-router.post('/analyze-csa-risk', protect, async (req, res) => {
+router.post('/analyze-csa-risk', protect, checkAIQueryQuota, async (req, res) => {
   try {
     const { violations, currentBASICs, fleetSize } = req.body;
 
@@ -162,11 +172,15 @@ router.post('/analyze-csa-risk', protect, async (req, res) => {
       fleetSize: fleetSize || 1
     });
 
+    // Track usage (fire-and-forget)
+    aiUsageService.trackQuery(req.user._id, response.usage?.inputTokens, response.usage?.outputTokens);
+
     res.json({
       success: true,
       data: {
         analysis: response.content,
-        usage: response.usage
+        usage: response.usage,
+        quota: req.aiQuota
       }
     });
   } catch (error) {
@@ -181,7 +195,7 @@ router.post('/analyze-csa-risk', protect, async (req, res) => {
 // @route   POST /api/ai/generate-dataq
 // @desc    Generate DataQ challenge letter
 // @access  Private
-router.post('/generate-dataq', protect, async (req, res) => {
+router.post('/generate-dataq', protect, checkAIQueryQuota, async (req, res) => {
   try {
     const { violation, evidence, reason } = req.body;
 
@@ -206,11 +220,15 @@ router.post('/generate-dataq', protect, async (req, res) => {
       reason
     });
 
+    // Track usage (fire-and-forget)
+    aiUsageService.trackQuery(req.user._id, response.usage?.inputTokens, response.usage?.outputTokens);
+
     res.json({
       success: true,
       data: {
         challengeLetter: response.content,
-        usage: response.usage
+        usage: response.usage,
+        quota: req.aiQuota
       }
     });
   } catch (error) {
@@ -280,7 +298,7 @@ router.get('/suggested-questions', protect, (req, res) => {
 // @route   POST /api/ai/analyze-dataq-opportunities
 // @desc    Bulk analyze violations for DataQ challenge opportunities
 // @access  Private
-router.post('/analyze-dataq-opportunities', protect, restrictToCompany, checkPermission('violations', 'view'), async (req, res) => {
+router.post('/analyze-dataq-opportunities', protect, checkAIQueryQuota, restrictToCompany, checkPermission('violations', 'view'), async (req, res) => {
   try {
     const { minScore = 40, limit = 20, basic } = req.body;
 
@@ -297,9 +315,13 @@ router.post('/analyze-dataq-opportunities', protect, restrictToCompany, checkPer
       { minScore, limit, basic }
     );
 
+    // Track usage (fire-and-forget) - local analysis, minimal tokens
+    aiUsageService.trackQuery(req.user._id, 0, 0);
+
     res.json({
       success: true,
-      data: result
+      data: result,
+      quota: req.aiQuota
     });
   } catch (error) {
     console.error('DataQ opportunities analysis error:', error);
@@ -313,7 +335,7 @@ router.post('/analyze-dataq-opportunities', protect, restrictToCompany, checkPer
 // @route   POST /api/ai/analyze-violation/:id
 // @desc    Deep AI analysis of a single violation for DataQ challenge
 // @access  Private
-router.post('/analyze-violation/:id', protect, restrictToCompany, checkPermission('violations', 'view'), async (req, res) => {
+router.post('/analyze-violation/:id', protect, checkAIQueryQuota, restrictToCompany, checkPermission('violations', 'view'), async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -358,6 +380,9 @@ router.post('/analyze-violation/:id', protect, restrictToCompany, checkPermissio
           } : null
         });
         aiAnalysis = aiResult.analysis;
+
+        // Track usage when AI is actually called
+        aiUsageService.trackQuery(req.user._id, aiResult.usage?.inputTokens, aiResult.usage?.outputTokens);
       } catch (aiError) {
         console.error('AI analysis failed:', aiError.message);
         // Continue with basic analysis only
@@ -385,7 +410,8 @@ router.post('/analyze-violation/:id', protect, restrictToCompany, checkPermissio
           vehicle: violation.vehicleId
         },
         basicAnalysis,
-        aiAnalysis
+        aiAnalysis,
+        quota: req.aiQuota
       }
     });
   } catch (error) {
@@ -400,7 +426,7 @@ router.post('/analyze-violation/:id', protect, restrictToCompany, checkPermissio
 // @route   POST /api/ai/generate-dataq-letter/:id
 // @desc    Generate a professional DataQ challenge letter for a violation
 // @access  Private
-router.post('/generate-dataq-letter/:id', protect, restrictToCompany, checkPermission('violations', 'edit'), async (req, res) => {
+router.post('/generate-dataq-letter/:id', protect, checkAIQueryQuota, restrictToCompany, checkPermission('violations', 'edit'), async (req, res) => {
   try {
     const { id } = req.params;
     const { challengeType, reason, evidenceList } = req.body;
@@ -453,6 +479,9 @@ router.post('/generate-dataq-letter/:id', protect, restrictToCompany, checkPermi
       evidenceList: evidenceList || []
     });
 
+    // Track usage (fire-and-forget)
+    aiUsageService.trackQuery(req.user._id, letterResult.usage?.inputTokens, letterResult.usage?.outputTokens);
+
     // Save the generated letter to the violation
     await dataQAnalysisService.saveGeneratedLetter(id, {
       content: letterResult.letter,
@@ -465,7 +494,8 @@ router.post('/generate-dataq-letter/:id', protect, restrictToCompany, checkPermi
         letter: letterResult.letter,
         challengeType,
         generatedAt: new Date(),
-        usage: letterResult.usage
+        usage: letterResult.usage,
+        quota: req.aiQuota
       }
     });
   } catch (error) {
