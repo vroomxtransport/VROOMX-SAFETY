@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Foundation** - Data model schema changes and configuration validation
 - [x] **Phase 2: Migration** - Move embedded violations to single source of truth
 - [x] **Phase 3: Sync Infrastructure** - Background cron jobs and sync services
-- [ ] **Phase 4: Entity Linking** - Automatic driver/vehicle matching logic
+- [x] **Phase 4: Entity Linking** - Automatic driver/vehicle matching logic
 - [ ] **Phase 5: UI Integration** - Display linked violations in profiles
 - [ ] **Phase 6: DataQ Integration** - Connect sync to DataQ challenge workflow
 - [ ] **Phase 7: Polish** - Sync status UI and manual review queue
@@ -85,7 +85,7 @@ Plans:
 Plans:
 - [x] 04-01-PLAN.md — Entity linking service with driver/vehicle matching logic
 - [x] 04-02-PLAN.md — Orchestrator integration (call linking after sync)
-- [ ] 04-03-PLAN.md — Review queue API endpoint for manual confirmation
+- [x] 04-03-PLAN.md — Review queue API endpoint for manual confirmation
 
 ### Phase 5: UI Integration
 **Goal**: Drivers and vehicles show their linked violations with CSA impact calculations
@@ -145,7 +145,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 1. Foundation | 3/3 | ✓ Verified | 2026-02-03 |
 | 2. Migration | 1/1 | ✓ Verified | 2026-02-03 |
 | 3. Sync Infrastructure | 3/3 | ✓ Verified | 2026-02-03 |
-| 4. Entity Linking | 2/3 | In progress | - |
+| 4. Entity Linking | 3/3 | ✓ Verified | 2026-02-03 |
 | 5. UI Integration | 0/4 | Not started | - |
 | 6. DataQ Integration | 0/2 | Not started | - |
 | 7. Polish | 0/4 | Not started | - |
@@ -159,4 +159,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 *Phase 3 planned: 2026-02-03*
 *Phase 3 completed: 2026-02-03*
 *Phase 4 planned: 2026-02-03*
+*Phase 4 completed: 2026-02-03*
 *Total phases: 7 | Total plans: 20 | Requirements covered: 29*

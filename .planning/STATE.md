@@ -67,6 +67,8 @@ Recent decisions affecting current work:
 - [04-01]: VIN/unit number matching not available - FMCSAInspection.unitInfo doesn't include these fields
 - [04-02]: Entity linking runs as step 4 after violations sync - ensures violations exist before linking
 - [04-02]: Linking errors do not fail overall sync - follows same isolation pattern as other steps
+- [04-03]: Lazy require FMCSAInspection in review-queue handler - reduces import overhead for infrequent use
+- [04-03]: Separate query for unitInfo (not populate) - inspectionNumber is string, not ObjectId
 
 ### Pending Todos
 
@@ -80,8 +82,8 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-03
-Stopped at: Completed 04-02-PLAN.md (Linking Integration)
+Stopped at: Completed 04-03-PLAN.md (Review Queue API) - Phase 4 complete
 Resume file: None
 
 ---
-*Next step: Execute 04-03-PLAN.md (Review Queue API)*
+*Next step: Plan Phase 5 (Alert Generation)*
