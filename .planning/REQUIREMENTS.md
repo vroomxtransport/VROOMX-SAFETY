@@ -11,8 +11,8 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 - [x] **DATA-01**: Violation model is the single source of truth for all FMCSA violations
 - [x] **DATA-02**: FMCSAInspection model references Violation documents (not embedded array)
-- [ ] **DATA-03**: Existing embedded violations migrated to Violation collection
-- [ ] **DATA-04**: No duplicate violation records exist after migration
+- [x] **DATA-03**: Existing embedded violations migrated to Violation collection
+- [x] **DATA-04**: No duplicate violation records exist after migration
 
 ### Configuration
 
@@ -97,8 +97,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | DATA-01 | Phase 1 | Complete |
 | DATA-02 | Phase 1 | Complete |
-| DATA-03 | Phase 2 | Pending |
-| DATA-04 | Phase 2 | Pending |
+| DATA-03 | Phase 2 | Complete |
+| DATA-04 | Phase 2 | Complete |
 | CONF-01 | Phase 1 | Complete |
 | CONF-02 | Phase 1 | Complete |
 | CONF-03 | Phase 1 | Complete |
@@ -132,4 +132,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-03*
-*Last updated: 2026-02-03 after Phase 1 completion*
+*Last updated: 2026-02-03 after Phase 2 completion*

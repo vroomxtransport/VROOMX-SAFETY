@@ -13,7 +13,7 @@ This milestone establishes FMCSA data as a reliable, automatically-synced founda
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - Data model schema changes and configuration validation
-- [ ] **Phase 2: Migration** - Move embedded violations to single source of truth
+- [x] **Phase 2: Migration** - Move embedded violations to single source of truth
 - [ ] **Phase 3: Sync Infrastructure** - Background cron jobs and sync services
 - [ ] **Phase 4: Entity Linking** - Automatic driver/vehicle matching logic
 - [ ] **Phase 5: UI Integration** - Display linked violations in profiles
@@ -51,7 +51,7 @@ Plans:
 **Plans**: 1 plan (Wave 1)
 
 Plans:
-- [ ] 02-01-PLAN.md - Migration script with batch processing, checkpoints, and verification
+- [x] 02-01-PLAN.md - Migration script with batch processing, checkpoints, and verification
 
 ### Phase 3: Sync Infrastructure
 **Goal**: FMCSA data syncs automatically every 6 hours without manual intervention
@@ -145,7 +145,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | ✓ Verified | 2026-02-03 |
-| 2. Migration | 0/1 | Planned | - |
+| 2. Migration | 1/1 | ✓ Verified | 2026-02-03 |
 | 3. Sync Infrastructure | 0/5 | Not started | - |
 | 4. Entity Linking | 0/3 | Not started | - |
 | 5. UI Integration | 0/4 | Not started | - |
@@ -157,4 +157,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 *Phase 1 planned: 2026-02-03*
 *Phase 1 completed: 2026-02-03*
 *Phase 2 planned: 2026-02-03*
+*Phase 2 completed: 2026-02-03*
 *Total phases: 7 | Total plans: 22 | Requirements covered: 29*
