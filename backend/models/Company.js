@@ -142,7 +142,8 @@ const companySchema = new mongoose.Schema({
       // Track each data source independently for partial success
       csaScoresLastSync: { type: Date },
       violationsLastSync: { type: Date },
-      inspectionsLastSync: { type: Date }
+      inspectionsLastSync: { type: Date },
+      linkingLastRun: { type: Date }
     }
   },
 
