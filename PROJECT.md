@@ -279,6 +279,21 @@ npm run dev  # Starts on port 5173
 
 ## Changelog
 
+### 2026-02-03 (Dark Mode & Sidebar UI Fixes)
+- **Fix:** Dark mode persisting after logout causing invisible text on public pages
+  - Root cause: `logout()` in AuthContext cleared auth state but not the theme localStorage key
+  - When users enabled dark mode in-app and logged out, public pages (login, landing, blog, register) showed washed-out/invisible text due to light text colors on light backgrounds
+  - Fix: Clear `vroomx-theme` localStorage and remove `.dark` class on logout
+  - Defense-in-depth: All public pages now force light mode on mount
+  - Files: `frontend/src/context/AuthContext.jsx`, `frontend/src/pages/Login.jsx`, `frontend/src/pages/Register.jsx`, `frontend/src/pages/Blog.jsx`, `frontend/src/pages/Landing.jsx`
+- **UI:** Sidebar text and icon enhancements for better visibility and scannability
+  - Section headers: Added orange gradient accent bar, increased font size (11px→12px), improved contrast
+  - Icon containers: Added 32px rounded background with orange tint, distinct hover/active states
+  - Text contrast: Improved from zinc-600/white-70 to zinc-700/white-80
+  - Hover effect: Nav items lift slightly (-0.5px) with soft shadow on hover
+  - Active state: Orange-50 background with shadow and left accent bar
+  - Files: `frontend/src/components/Layout.jsx`, `frontend/src/index.css`
+
 ### 2026-02-02 (AI-Powered DataQ Challenge System)
 - **Feature:** AI-Powered DataQ Challenge Analysis
   - Automatic identification of challengeable violations with scoring algorithm (0-100)
