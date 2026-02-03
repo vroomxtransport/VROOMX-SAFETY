@@ -48,10 +48,10 @@ Plans:
   2. Violation documents are linked back to inspections via inspectionNumber
   3. No duplicate violation records exist (verified by inspectionNumber+violationCode+date uniqueness)
   4. Migration is idempotent (can run multiple times safely)
-**Plans**: TBD
+**Plans**: 1 plan (Wave 1)
 
 Plans:
-- [ ] 02-01: Migration script and verification
+- [ ] 02-01-PLAN.md - Migration script with batch processing, checkpoints, and verification
 
 ### Phase 3: Sync Infrastructure
 **Goal**: FMCSA data syncs automatically every 6 hours without manual intervention
@@ -156,4 +156,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 *Roadmap created: 2026-02-03*
 *Phase 1 planned: 2026-02-03*
 *Phase 1 completed: 2026-02-03*
+*Phase 2 planned: 2026-02-03*
 *Total phases: 7 | Total plans: 22 | Requirements covered: 29*
