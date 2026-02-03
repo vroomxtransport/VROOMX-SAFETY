@@ -32,12 +32,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Server startup fails with clear error message if SAFERWEB_API_KEY missing
   4. Server startup fails with clear error message if SOCRATA_APP_TOKEN missing
   5. Environment variable documentation includes all new FMCSA-related vars
-**Plans**: TBD
+**Plans**: 3 plans (Wave 1 - all parallel)
 
 Plans:
-- [ ] 01-01: Violation schema enhancements and index creation
-- [ ] 01-02: FMCSAInspection model refactor
-- [ ] 01-03: Environment configuration and startup validation
+- [ ] 01-01-PLAN.md - Violation schema enhancements (syncMetadata, linkingMetadata, unique index)
+- [ ] 01-02-PLAN.md - FMCSAInspection model refactor (violationRefs, deprecation notices)
+- [ ] 01-03-PLAN.md - Environment configuration and startup validation
 
 ### Phase 2: Migration
 **Goal**: All existing embedded violations migrated to Violation collection with no duplicates
@@ -144,7 +144,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/3 | Not started | - |
+| 1. Foundation | 0/3 | Planned | - |
 | 2. Migration | 0/1 | Not started | - |
 | 3. Sync Infrastructure | 0/5 | Not started | - |
 | 4. Entity Linking | 0/3 | Not started | - |
@@ -154,4 +154,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 
 ---
 *Roadmap created: 2026-02-03*
+*Phase 1 planned: 2026-02-03*
 *Total phases: 7 | Total plans: 22 | Requirements covered: 29*
