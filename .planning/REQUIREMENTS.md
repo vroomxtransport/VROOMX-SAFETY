@@ -32,15 +32,15 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Driver Linking
 
-- [ ] **DRVR-01**: Violations auto-linked to drivers by CDL number match
-- [ ] **DRVR-02**: Uncertain matches (no exact CDL match) flagged for manual review
+- [x] **DRVR-01**: Violations auto-linked to drivers by CDL number match
+- [x] **DRVR-02**: Uncertain matches (no exact CDL match) flagged for manual review
 - [ ] **DRVR-03**: Driver profile shows all linked violations
 - [ ] **DRVR-04**: Driver CSA impact calculated from linked violations
 
 ### Vehicle Linking
 
-- [ ] **VHCL-01**: Violations auto-linked to vehicles by VIN or unit number match
-- [ ] **VHCL-02**: Uncertain matches flagged for manual review
+- [x] **VHCL-01**: Violations auto-linked to vehicles by license plate match (VIN/unit number not available in unitInfo schema)
+- [x] **VHCL-02**: Uncertain matches flagged for manual review
 - [ ] **VHCL-03**: Vehicle profile shows all linked violations
 - [ ] **VHCL-04**: Vehicle OOS rate calculated from linked violations
 
@@ -109,12 +109,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SYNC-04 | Phase 3 | Complete |
 | SYNC-05 | Phase 3 | Complete |
 | SYNC-06 | Phase 3 | Complete |
-| DRVR-01 | Phase 4 | Pending |
-| DRVR-02 | Phase 4 | Pending |
+| DRVR-01 | Phase 4 | Complete |
+| DRVR-02 | Phase 4 | Complete |
 | DRVR-03 | Phase 5 | Pending |
 | DRVR-04 | Phase 5 | Pending |
-| VHCL-01 | Phase 4 | Pending |
-| VHCL-02 | Phase 4 | Pending |
+| VHCL-01 | Phase 4 | Complete |
+| VHCL-02 | Phase 4 | Complete |
 | VHCL-03 | Phase 5 | Pending |
 | VHCL-04 | Phase 5 | Pending |
 | DATQ-01 | Phase 6 | Pending |
@@ -132,4 +132,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-03*
-*Last updated: 2026-02-03 after Phase 3 completion*
+*Last updated: 2026-02-03 after Phase 4 completion*
