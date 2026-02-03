@@ -9,17 +9,17 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Data Model (SSOT)
 
-- [ ] **DATA-01**: Violation model is the single source of truth for all FMCSA violations
-- [ ] **DATA-02**: FMCSAInspection model references Violation documents (not embedded array)
+- [x] **DATA-01**: Violation model is the single source of truth for all FMCSA violations
+- [x] **DATA-02**: FMCSAInspection model references Violation documents (not embedded array)
 - [ ] **DATA-03**: Existing embedded violations migrated to Violation collection
 - [ ] **DATA-04**: No duplicate violation records exist after migration
 
 ### Configuration
 
-- [ ] **CONF-01**: SaferWebAPI key configured and validated at startup
-- [ ] **CONF-02**: Socrata app token configured for DataHub API (1000 req/hr)
-- [ ] **CONF-03**: Server startup fails with clear error if required FMCSA env vars missing
-- [ ] **CONF-04**: Environment variable documentation updated
+- [x] **CONF-01**: SaferWebAPI key configured and validated at startup
+- [x] **CONF-02**: Socrata app token configured for DataHub API (1000 req/hr)
+- [x] **CONF-03**: Server startup fails with clear error if required FMCSA env vars missing
+- [x] **CONF-04**: Environment variable documentation updated
 
 ### Automatic Sync
 
@@ -95,14 +95,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DATA-01 | Phase 1 | Pending |
-| DATA-02 | Phase 1 | Pending |
+| DATA-01 | Phase 1 | Complete |
+| DATA-02 | Phase 1 | Complete |
 | DATA-03 | Phase 2 | Pending |
 | DATA-04 | Phase 2 | Pending |
-| CONF-01 | Phase 1 | Pending |
-| CONF-02 | Phase 1 | Pending |
-| CONF-03 | Phase 1 | Pending |
-| CONF-04 | Phase 1 | Pending |
+| CONF-01 | Phase 1 | Complete |
+| CONF-02 | Phase 1 | Complete |
+| CONF-03 | Phase 1 | Complete |
+| CONF-04 | Phase 1 | Complete |
 | SYNC-01 | Phase 3 | Pending |
 | SYNC-02 | Phase 3 | Pending |
 | SYNC-03 | Phase 3 | Pending |
@@ -132,4 +132,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-03*
-*Last updated: 2026-02-03 after roadmap creation*
+*Last updated: 2026-02-03 after Phase 1 completion*
