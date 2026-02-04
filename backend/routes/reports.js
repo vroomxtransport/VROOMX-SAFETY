@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { Driver, Vehicle, Violation, DrugAlcoholTest, Document, Accident, Company } = require('../models');
+const mongoose = require('mongoose');
+const { Driver, Vehicle, Violation, DrugAlcoholTest, Document, Accident, Company, MaintenanceRecord } = require('../models');
 const { protect, checkPermission, restrictToCompany } = require('../middleware/auth');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const pdf = require('../utils/pdfGenerator');
@@ -671,6 +672,780 @@ router.get('/drug-alcohol-summary', checkPermission('reports', 'view'), asyncHan
         driverName: t.driverId ? `${t.driverId.firstName} ${t.driverId.lastName}` : null,
         testType: t.testType,
         overallResult: t.overallResult
+      }))
+    }
+  });
+}));
+
+// @route   GET /api/reports/dataq-history
+// @desc    Generate DataQ Challenge History report with success rates and CSA points saved
+// @access  Private
+router.get('/dataq-history', checkPermission('reports', 'view'), asyncHandler(async (req, res) => {
+  const { format = 'json', startDate, endDate, driverIds } = req.query;
+  const companyId = req.companyFilter.companyId;
+
+  // Query violations with DataQ challenges submitted
+  const query = {
+    companyId,
+    'dataQChallenge.submitted': true
+  };
+
+  if (startDate || endDate) {
+    query['dataQChallenge.submissionDate'] = {};
+    if (startDate) query['dataQChallenge.submissionDate'].$gte = new Date(startDate);
+    if (endDate) query['dataQChallenge.submissionDate'].$lte = new Date(endDate);
+  }
+
+  if (driverIds) {
+    const ids = driverIds.split(',').filter(Boolean);
+    if (ids.length > 0) query.driverId = { $in: ids };
+  }
+
+  const [violations, company] = await Promise.all([
+    Violation.find(query)
+      .populate('driverId', 'firstName lastName')
+      .sort('-dataQChallenge.submissionDate')
+      .lean(),
+    Company.findById(companyId)
+  ]);
+
+  // Map challenges and calculate metrics
+  const challenges = violations.map(v => ({
+    inspectionNumber: v.inspectionNumber,
+    violationType: v.violationType,
+    violationCode: v.violationCode,
+    violationDate: v.violationDate,
+    basic: v.basic,
+    severityWeight: v.severityWeight,
+    submissionDate: v.dataQChallenge.submissionDate,
+    caseNumber: v.dataQChallenge.caseNumber,
+    challengeType: v.dataQChallenge.challengeType,
+    status: v.dataQChallenge.status,
+    responseDate: v.dataQChallenge.responseDate,
+    driverName: v.driverId ? `${v.driverId.firstName} ${v.driverId.lastName}` : null,
+    csaPointsSaved: v.dataQChallenge.status === 'accepted' ? (v.severityWeight || 0) : 0
+  }));
+
+  const accepted = challenges.filter(c => c.status === 'accepted');
+  const denied = challenges.filter(c => c.status === 'denied');
+  const pending = challenges.filter(c => ['pending', 'under_review'].includes(c.status));
+  const withdrawn = challenges.filter(c => c.status === 'withdrawn');
+
+  // Success rate: accepted / (accepted + denied) - exclude pending/withdrawn
+  const resolved = accepted.length + denied.length;
+  const successRate = resolved > 0 ? Math.round((accepted.length / resolved) * 100) : 0;
+  const totalCsaPointsSaved = challenges.reduce((sum, c) => sum + c.csaPointsSaved, 0);
+
+  // CSV export
+  if (format === 'csv') {
+    const rows = challenges.map(c => ({
+      inspectionNumber: c.inspectionNumber || '-',
+      violationType: c.violationType || '-',
+      violationCode: c.violationCode || '-',
+      violationDate: c.violationDate ? new Date(c.violationDate).toLocaleDateString() : '-',
+      basic: c.basic || '-',
+      severityWeight: c.severityWeight != null ? String(c.severityWeight) : '-',
+      submissionDate: c.submissionDate ? new Date(c.submissionDate).toLocaleDateString() : '-',
+      caseNumber: c.caseNumber || '-',
+      challengeType: c.challengeType || '-',
+      status: c.status || '-',
+      responseDate: c.responseDate ? new Date(c.responseDate).toLocaleDateString() : '-',
+      driverName: c.driverName || '-',
+      csaPointsSaved: String(c.csaPointsSaved)
+    }));
+
+    exportService.streamCSV(res, {
+      reportType: 'dataq-history-report',
+      headers: {
+        inspectionNumber: 'Inspection Number',
+        violationType: 'Violation Type',
+        violationCode: 'Violation Code',
+        violationDate: 'Violation Date',
+        basic: 'BASIC',
+        severityWeight: 'Severity Weight',
+        submissionDate: 'Submission Date',
+        caseNumber: 'Case Number',
+        challengeType: 'Challenge Type',
+        status: 'Status',
+        responseDate: 'Response Date',
+        driverName: 'Driver',
+        csaPointsSaved: 'CSA Points Saved'
+      },
+      rows
+    });
+    return;
+  }
+
+  // Excel export
+  if (format === 'xlsx') {
+    const rows = challenges.map(c => ({
+      inspectionNumber: c.inspectionNumber || '-',
+      violationType: c.violationType || '-',
+      violationCode: c.violationCode || '-',
+      violationDate: c.violationDate ? new Date(c.violationDate).toLocaleDateString() : '-',
+      basic: c.basic || '-',
+      severityWeight: c.severityWeight != null ? String(c.severityWeight) : '-',
+      submissionDate: c.submissionDate ? new Date(c.submissionDate).toLocaleDateString() : '-',
+      caseNumber: c.caseNumber || '-',
+      challengeType: c.challengeType || '-',
+      status: c.status || '-',
+      responseDate: c.responseDate ? new Date(c.responseDate).toLocaleDateString() : '-',
+      driverName: c.driverName || '-',
+      csaPointsSaved: String(c.csaPointsSaved)
+    }));
+
+    await exportService.streamExcel(res, {
+      reportType: 'dataq-history-report',
+      sheetName: 'DataQ Challenge History',
+      columns: [
+        { header: 'Inspection Number', key: 'inspectionNumber', width: 18 },
+        { header: 'Violation Type', key: 'violationType', width: 25 },
+        { header: 'Violation Code', key: 'violationCode', width: 12 },
+        { header: 'Violation Date', key: 'violationDate', width: 15 },
+        { header: 'BASIC', key: 'basic', width: 18 },
+        { header: 'Severity Weight', key: 'severityWeight', width: 12 },
+        { header: 'Submission Date', key: 'submissionDate', width: 15 },
+        { header: 'Case Number', key: 'caseNumber', width: 15 },
+        { header: 'Challenge Type', key: 'challengeType', width: 15 },
+        { header: 'Status', key: 'status', width: 12 },
+        { header: 'Response Date', key: 'responseDate', width: 15 },
+        { header: 'Driver', key: 'driverName', width: 20 },
+        { header: 'CSA Points Saved', key: 'csaPointsSaved', width: 15 }
+      ],
+      rows
+    });
+    return;
+  }
+
+  // PDF export
+  if (format === 'pdf') {
+    const doc = pdf.createDocument();
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="dataq-challenge-history.pdf"');
+
+    doc.pipe(res);
+
+    // Header
+    pdf.addHeader(doc, company, 'DataQ Challenge History Report');
+
+    // Summary box
+    pdf.addSummaryBox(doc, 'Summary', [
+      { value: challenges.length, label: 'Total Submissions' },
+      { value: accepted.length, label: 'Accepted' },
+      { value: `${successRate}%`, label: 'Success Rate' },
+      { value: totalCsaPointsSaved, label: 'Est. CSA Points Saved' }
+    ]);
+
+    // Status breakdown
+    doc.moveDown(1);
+    pdf.addSectionTitle(doc, 'Challenge Status Breakdown');
+    const statusHeaders = ['Status', 'Count'];
+    const statusRows = [
+      ['Accepted', accepted.length],
+      ['Denied', denied.length],
+      ['Pending/Under Review', pending.length],
+      ['Withdrawn', withdrawn.length]
+    ];
+    pdf.addTable(doc, statusHeaders, statusRows, [200, 100]);
+
+    // Challenge details table
+    doc.moveDown(1);
+    pdf.addSectionTitle(doc, 'Challenge Details');
+
+    if (challenges.length > 0) {
+      const detailHeaders = ['Submission Date', 'Violation Type', 'BASIC', 'Status', 'Points Saved'];
+      const detailRows = challenges.slice(0, 30).map(c => [
+        pdf.formatDate(c.submissionDate),
+        (c.violationType || '-').substring(0, 25),
+        c.basic || '-',
+        c.status || '-',
+        c.csaPointsSaved
+      ]);
+      pdf.addTable(doc, detailHeaders, detailRows, [90, 140, 80, 80, 70]);
+
+      if (challenges.length > 30) {
+        doc.moveDown(0.5);
+        doc.fontSize(9).fillColor(pdf.COLORS.lightText)
+           .text(`Showing 30 of ${challenges.length} challenges. Export to CSV/Excel for complete data.`);
+      }
+    } else {
+      doc.fontSize(10).fillColor(pdf.COLORS.lightText).text('No DataQ challenges submitted.');
+    }
+
+    // Note about CSA points
+    doc.moveDown(1);
+    doc.fontSize(9).fillColor(pdf.COLORS.lightText)
+       .text('Note: CSA points saved is an estimate based on severity weight of accepted challenges.');
+
+    pdf.addFooter(doc);
+    doc.end();
+    return;
+  }
+
+  // JSON response
+  return res.json({
+    success: true,
+    report: {
+      type: 'DataQ Challenge History Report',
+      generatedAt: new Date(),
+      company: { name: company.name, dotNumber: company.dotNumber },
+      summary: {
+        totalSubmissions: challenges.length,
+        accepted: accepted.length,
+        denied: denied.length,
+        pending: pending.length,
+        withdrawn: withdrawn.length,
+        successRate,
+        estimatedCsaPointsSaved: totalCsaPointsSaved
+      },
+      challenges
+    }
+  });
+}));
+
+// @route   GET /api/reports/accident-summary
+// @desc    Generate Accident Summary report with DOT reportable status and costs
+// @access  Private
+router.get('/accident-summary', checkPermission('reports', 'view'), asyncHandler(async (req, res) => {
+  const { format = 'json', startDate, endDate, driverIds, vehicleIds } = req.query;
+  const companyId = req.companyFilter.companyId;
+
+  const query = { companyId };
+
+  if (startDate || endDate) {
+    query.accidentDate = {};
+    if (startDate) query.accidentDate.$gte = new Date(startDate);
+    if (endDate) query.accidentDate.$lte = new Date(endDate);
+  }
+
+  if (driverIds) {
+    const ids = driverIds.split(',').filter(Boolean);
+    if (ids.length > 0) query.driverId = { $in: ids };
+  }
+
+  if (vehicleIds) {
+    const ids = vehicleIds.split(',').filter(Boolean);
+    if (ids.length > 0) query.vehicleId = { $in: ids };
+  }
+
+  const [accidents, company] = await Promise.all([
+    Accident.find(query)
+      .populate('driverId', 'firstName lastName')
+      .populate('vehicleId', 'unitNumber')
+      .sort('-accidentDate')
+      .lean(),
+    Company.findById(companyId)
+  ]);
+
+  // Calculate summary metrics
+  const dotReportable = accidents.filter(a => a.isDotRecordable);
+  const fatalities = accidents.filter(a => a.recordableCriteria?.fatality);
+  const injuries = accidents.filter(a => a.recordableCriteria?.injury && !a.recordableCriteria?.fatality);
+  const towAways = accidents.filter(a =>
+    a.recordableCriteria?.towAway &&
+    !a.recordableCriteria?.fatality &&
+    !a.recordableCriteria?.injury
+  );
+
+  // Calculate total cost
+  const totalCost = accidents.reduce((sum, a) => {
+    const cost = a.totalEstimatedCost ||
+      ((a.vehicleDamage?.estimatedCost || 0) + (a.cargoDamage?.estimatedCost || 0) + (a.propertyDamage?.estimatedCost || 0));
+    return sum + cost;
+  }, 0);
+
+  const totalInjuries = accidents.reduce((sum, a) => sum + (a.totalInjuries || a.injuries?.length || 0), 0);
+  const totalFatalities = accidents.reduce((sum, a) =>
+    sum + (a.totalFatalities || a.injuries?.filter(i => i.severity === 'fatal').length || 0), 0);
+
+  // Helper to format currency
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount || 0);
+  };
+
+  // CSV export
+  if (format === 'csv') {
+    const rows = accidents.map(a => ({
+      accidentDate: a.accidentDate ? new Date(a.accidentDate).toLocaleDateString() : '-',
+      location: a.location ? `${a.location.city || ''}, ${a.location.state || ''}`.trim().replace(/^,\s*/, '') : '-',
+      driverName: a.driverId ? `${a.driverId.firstName} ${a.driverId.lastName}` : '-',
+      vehicleUnit: a.vehicleId?.unitNumber || '-',
+      isDotRecordable: a.isDotRecordable ? 'Yes' : 'No',
+      severity: a.severity || '-',
+      accidentType: a.accidentType || '-',
+      injuries: String(a.totalInjuries || a.injuries?.length || 0),
+      fatalities: String(a.totalFatalities || a.injuries?.filter(i => i.severity === 'fatal').length || 0),
+      estimatedCost: formatCurrency(a.totalEstimatedCost || 0),
+      status: a.status || '-'
+    }));
+
+    exportService.streamCSV(res, {
+      reportType: 'accident-summary-report',
+      headers: {
+        accidentDate: 'Date',
+        location: 'Location',
+        driverName: 'Driver',
+        vehicleUnit: 'Vehicle',
+        isDotRecordable: 'DOT Reportable',
+        severity: 'Severity',
+        accidentType: 'Type',
+        injuries: 'Injuries',
+        fatalities: 'Fatalities',
+        estimatedCost: 'Est. Cost',
+        status: 'Status'
+      },
+      rows
+    });
+    return;
+  }
+
+  // Excel export
+  if (format === 'xlsx') {
+    const rows = accidents.map(a => ({
+      accidentDate: a.accidentDate ? new Date(a.accidentDate).toLocaleDateString() : '-',
+      location: a.location ? `${a.location.city || ''}, ${a.location.state || ''}`.trim().replace(/^,\s*/, '') : '-',
+      driverName: a.driverId ? `${a.driverId.firstName} ${a.driverId.lastName}` : '-',
+      vehicleUnit: a.vehicleId?.unitNumber || '-',
+      isDotRecordable: a.isDotRecordable ? 'Yes' : 'No',
+      severity: a.severity || '-',
+      accidentType: a.accidentType || '-',
+      injuries: String(a.totalInjuries || a.injuries?.length || 0),
+      fatalities: String(a.totalFatalities || a.injuries?.filter(i => i.severity === 'fatal').length || 0),
+      estimatedCost: formatCurrency(a.totalEstimatedCost || 0),
+      status: a.status || '-'
+    }));
+
+    await exportService.streamExcel(res, {
+      reportType: 'accident-summary-report',
+      sheetName: 'Accident Summary',
+      columns: [
+        { header: 'Date', key: 'accidentDate', width: 12 },
+        { header: 'Location', key: 'location', width: 20 },
+        { header: 'Driver', key: 'driverName', width: 20 },
+        { header: 'Vehicle', key: 'vehicleUnit', width: 12 },
+        { header: 'DOT Reportable', key: 'isDotRecordable', width: 14 },
+        { header: 'Severity', key: 'severity', width: 12 },
+        { header: 'Type', key: 'accidentType', width: 15 },
+        { header: 'Injuries', key: 'injuries', width: 10 },
+        { header: 'Fatalities', key: 'fatalities', width: 10 },
+        { header: 'Est. Cost', key: 'estimatedCost', width: 15 },
+        { header: 'Status', key: 'status', width: 15 }
+      ],
+      rows
+    });
+    return;
+  }
+
+  // PDF export
+  if (format === 'pdf') {
+    const doc = pdf.createDocument();
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="accident-summary-report.pdf"');
+
+    doc.pipe(res);
+
+    // Header
+    pdf.addHeader(doc, company, 'Accident Summary Report');
+
+    // Date range info
+    if (startDate || endDate) {
+      doc.fontSize(10)
+         .fillColor(pdf.COLORS.lightText)
+         .text(`Date Range: ${startDate || 'Beginning'} to ${endDate || 'Present'}`);
+      doc.moveDown(1);
+    }
+
+    // Summary box
+    pdf.addSummaryBox(doc, 'Summary', [
+      { value: accidents.length, label: 'Total Accidents' },
+      { value: dotReportable.length, label: 'DOT Reportable' },
+      { value: totalInjuries, label: 'Total Injuries' },
+      { value: totalFatalities, label: 'Total Fatalities' }
+    ]);
+
+    // Financial summary
+    doc.moveDown(1);
+    pdf.addSectionTitle(doc, 'Financial Impact');
+    doc.fontSize(11).fillColor(pdf.COLORS.text)
+       .text(`Total Estimated Cost: ${formatCurrency(totalCost)}`, { continued: false });
+    doc.moveDown(0.5);
+
+    // Recordable criteria breakdown
+    pdf.addSectionTitle(doc, 'DOT Recordable Breakdown');
+    const criteriaHeaders = ['Criteria', 'Count'];
+    const criteriaRows = [
+      ['Fatalities', fatalities.length],
+      ['Injuries (requiring off-scene treatment)', injuries.length],
+      ['Tow-aways (disabling damage)', towAways.length],
+      ['Total DOT Reportable', dotReportable.length]
+    ];
+    pdf.addTable(doc, criteriaHeaders, criteriaRows, [250, 100]);
+
+    // Accident details table
+    doc.moveDown(1);
+    pdf.addSectionTitle(doc, 'Accident Details');
+
+    if (accidents.length > 0) {
+      const detailHeaders = ['Date', 'Location', 'Driver', 'DOT Rep.', 'Cost'];
+      const detailRows = accidents.slice(0, 25).map(a => [
+        pdf.formatDate(a.accidentDate),
+        a.location ? `${a.location.city || ''}, ${a.location.state || ''}`.substring(0, 15) : '-',
+        a.driverId ? `${a.driverId.firstName} ${a.driverId.lastName}`.substring(0, 18) : '-',
+        a.isDotRecordable ? 'Yes' : 'No',
+        formatCurrency(a.totalEstimatedCost || 0)
+      ]);
+      pdf.addTable(doc, detailHeaders, detailRows, [70, 100, 120, 60, 90]);
+
+      if (accidents.length > 25) {
+        doc.moveDown(0.5);
+        doc.fontSize(9).fillColor(pdf.COLORS.lightText)
+           .text(`Showing 25 of ${accidents.length} accidents. Export to CSV/Excel for complete data.`);
+      }
+    } else {
+      doc.fontSize(10).fillColor(pdf.COLORS.lightText).text('No accidents recorded in this period.');
+    }
+
+    pdf.addFooter(doc);
+    doc.end();
+    return;
+  }
+
+  // JSON response
+  return res.json({
+    success: true,
+    report: {
+      type: 'Accident Summary Report',
+      generatedAt: new Date(),
+      company: { name: company.name, dotNumber: company.dotNumber },
+      dateRange: { start: startDate, end: endDate },
+      summary: {
+        totalAccidents: accidents.length,
+        dotReportable: dotReportable.length,
+        totalInjuries,
+        totalFatalities,
+        totalEstimatedCost: totalCost,
+        byRecordableCriteria: {
+          fatalities: fatalities.length,
+          injuries: injuries.length,
+          towAways: towAways.length
+        }
+      },
+      accidents: accidents.map(a => ({
+        accidentDate: a.accidentDate,
+        location: a.location,
+        driverName: a.driverId ? `${a.driverId.firstName} ${a.driverId.lastName}` : null,
+        vehicleUnit: a.vehicleId?.unitNumber,
+        isDotRecordable: a.isDotRecordable,
+        severity: a.severity,
+        accidentType: a.accidentType,
+        injuries: a.totalInjuries || a.injuries?.length || 0,
+        fatalities: a.totalFatalities || a.injuries?.filter(i => i.severity === 'fatal').length || 0,
+        estimatedCost: a.totalEstimatedCost || 0,
+        status: a.status
+      }))
+    }
+  });
+}));
+
+// @route   GET /api/reports/maintenance-costs
+// @desc    Generate Maintenance Cost report with aggregation by vehicle, category, and vendor
+// @access  Private
+router.get('/maintenance-costs', checkPermission('reports', 'view'), asyncHandler(async (req, res) => {
+  const { format = 'json', startDate, endDate, vehicleIds } = req.query;
+  const companyId = req.companyFilter.companyId;
+
+  // Build match stage for aggregation
+  const matchStage = {
+    companyId: new mongoose.Types.ObjectId(companyId)
+  };
+
+  if (startDate || endDate) {
+    matchStage.serviceDate = {};
+    if (startDate) matchStage.serviceDate.$gte = new Date(startDate);
+    if (endDate) matchStage.serviceDate.$lte = new Date(endDate);
+  }
+
+  if (vehicleIds) {
+    const ids = vehicleIds.split(',').filter(Boolean);
+    if (ids.length > 0) {
+      matchStage.vehicleId = { $in: ids.map(id => new mongoose.Types.ObjectId(id)) };
+    }
+  }
+
+  // Run aggregations in parallel
+  const [byVehicle, byCategory, byVendor, totals, company] = await Promise.all([
+    MaintenanceRecord.aggregate([
+      { $match: matchStage },
+      { $group: {
+          _id: '$vehicleId',
+          totalCost: { $sum: '$totalCost' },
+          laborCost: { $sum: '$laborCost' },
+          partsCost: { $sum: '$partsCost' },
+          recordCount: { $sum: 1 }
+        }
+      },
+      { $lookup: {
+          from: 'vehicles',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'vehicle'
+        }
+      },
+      { $unwind: { path: '$vehicle', preserveNullAndEmptyArrays: true } },
+      { $project: {
+          vehicleId: '$_id',
+          unitNumber: '$vehicle.unitNumber',
+          totalCost: 1,
+          laborCost: 1,
+          partsCost: 1,
+          recordCount: 1
+        }
+      },
+      { $sort: { totalCost: -1 } }
+    ]),
+
+    MaintenanceRecord.aggregate([
+      { $match: matchStage },
+      { $group: {
+          _id: '$recordType',
+          totalCost: { $sum: '$totalCost' },
+          recordCount: { $sum: 1 }
+        }
+      },
+      { $sort: { totalCost: -1 } }
+    ]),
+
+    MaintenanceRecord.aggregate([
+      { $match: { ...matchStage, 'provider.name': { $exists: true, $ne: '' } } },
+      { $group: {
+          _id: '$provider.name',
+          totalCost: { $sum: '$totalCost' },
+          recordCount: { $sum: 1 }
+        }
+      },
+      { $sort: { totalCost: -1 } }
+    ]),
+
+    MaintenanceRecord.aggregate([
+      { $match: matchStage },
+      { $group: {
+          _id: null,
+          totalCost: { $sum: '$totalCost' },
+          laborCost: { $sum: '$laborCost' },
+          partsCost: { $sum: '$partsCost' },
+          recordCount: { $sum: 1 }
+        }
+      }
+    ]),
+
+    Company.findById(companyId)
+  ]);
+
+  const summary = totals[0] || { totalCost: 0, laborCost: 0, partsCost: 0, recordCount: 0 };
+
+  // Helper to format currency
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount || 0);
+  };
+
+  // CSV export - combine all sections
+  if (format === 'csv') {
+    const rows = [
+      { section: 'Summary', item: 'Total Cost', cost: formatCurrency(summary.totalCost), records: String(summary.recordCount) },
+      { section: 'Summary', item: 'Labor Cost', cost: formatCurrency(summary.laborCost), records: '-' },
+      { section: 'Summary', item: 'Parts Cost', cost: formatCurrency(summary.partsCost), records: '-' },
+      ...byVehicle.map(v => ({
+        section: 'By Vehicle',
+        item: v.unitNumber || 'Unknown',
+        cost: formatCurrency(v.totalCost),
+        records: String(v.recordCount)
+      })),
+      ...byCategory.map(c => ({
+        section: 'By Category',
+        item: c._id?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Unknown',
+        cost: formatCurrency(c.totalCost),
+        records: String(c.recordCount)
+      })),
+      ...byVendor.map(v => ({
+        section: 'By Vendor',
+        item: v._id || 'Unknown',
+        cost: formatCurrency(v.totalCost),
+        records: String(v.recordCount)
+      }))
+    ];
+
+    exportService.streamCSV(res, {
+      reportType: 'maintenance-cost-report',
+      headers: {
+        section: 'Section',
+        item: 'Item',
+        cost: 'Total Cost',
+        records: 'Records'
+      },
+      rows
+    });
+    return;
+  }
+
+  // Excel export
+  if (format === 'xlsx') {
+    const rows = [
+      { section: 'Summary', item: 'Total Cost', cost: formatCurrency(summary.totalCost), laborCost: formatCurrency(summary.laborCost), partsCost: formatCurrency(summary.partsCost), records: String(summary.recordCount) },
+      ...byVehicle.map(v => ({
+        section: 'By Vehicle',
+        item: v.unitNumber || 'Unknown',
+        cost: formatCurrency(v.totalCost),
+        laborCost: formatCurrency(v.laborCost),
+        partsCost: formatCurrency(v.partsCost),
+        records: String(v.recordCount)
+      })),
+      ...byCategory.map(c => ({
+        section: 'By Category',
+        item: c._id?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Unknown',
+        cost: formatCurrency(c.totalCost),
+        laborCost: '-',
+        partsCost: '-',
+        records: String(c.recordCount)
+      })),
+      ...byVendor.map(v => ({
+        section: 'By Vendor',
+        item: v._id || 'Unknown',
+        cost: formatCurrency(v.totalCost),
+        laborCost: '-',
+        partsCost: '-',
+        records: String(v.recordCount)
+      }))
+    ];
+
+    await exportService.streamExcel(res, {
+      reportType: 'maintenance-cost-report',
+      sheetName: 'Maintenance Costs',
+      columns: [
+        { header: 'Section', key: 'section', width: 15 },
+        { header: 'Item', key: 'item', width: 25 },
+        { header: 'Total Cost', key: 'cost', width: 15 },
+        { header: 'Labor Cost', key: 'laborCost', width: 15 },
+        { header: 'Parts Cost', key: 'partsCost', width: 15 },
+        { header: 'Records', key: 'records', width: 10 }
+      ],
+      rows
+    });
+    return;
+  }
+
+  // PDF export
+  if (format === 'pdf') {
+    const doc = pdf.createDocument();
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="maintenance-cost-report.pdf"');
+
+    doc.pipe(res);
+
+    // Header
+    pdf.addHeader(doc, company, 'Maintenance Cost Report');
+
+    // Date range info
+    if (startDate || endDate) {
+      doc.fontSize(10)
+         .fillColor(pdf.COLORS.lightText)
+         .text(`Date Range: ${startDate || 'Beginning'} to ${endDate || 'Present'}`);
+      doc.moveDown(1);
+    }
+
+    // Summary box
+    pdf.addSummaryBox(doc, 'Cost Summary', [
+      { value: formatCurrency(summary.totalCost), label: 'Total Cost' },
+      { value: formatCurrency(summary.laborCost), label: 'Labor' },
+      { value: formatCurrency(summary.partsCost), label: 'Parts' },
+      { value: summary.recordCount, label: 'Records' }
+    ]);
+
+    // Top 10 by Vehicle
+    doc.moveDown(1);
+    pdf.addSectionTitle(doc, 'Top 10 by Vehicle');
+    if (byVehicle.length > 0) {
+      const vehicleHeaders = ['Unit Number', 'Total Cost', 'Labor', 'Parts', 'Records'];
+      const vehicleRows = byVehicle.slice(0, 10).map(v => [
+        v.unitNumber || 'Unknown',
+        formatCurrency(v.totalCost),
+        formatCurrency(v.laborCost),
+        formatCurrency(v.partsCost),
+        v.recordCount
+      ]);
+      pdf.addTable(doc, vehicleHeaders, vehicleRows, [80, 90, 90, 90, 60]);
+    } else {
+      doc.fontSize(10).fillColor(pdf.COLORS.lightText).text('No maintenance records found.');
+    }
+
+    // By Category
+    doc.moveDown(1);
+    pdf.addSectionTitle(doc, 'By Category');
+    if (byCategory.length > 0) {
+      const categoryHeaders = ['Category', 'Total Cost', 'Records'];
+      const categoryRows = byCategory.map(c => [
+        c._id?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Unknown',
+        formatCurrency(c.totalCost),
+        c.recordCount
+      ]);
+      pdf.addTable(doc, categoryHeaders, categoryRows, [200, 120, 80]);
+    } else {
+      doc.fontSize(10).fillColor(pdf.COLORS.lightText).text('No categories found.');
+    }
+
+    // Top 10 by Vendor
+    doc.moveDown(1);
+    pdf.addSectionTitle(doc, 'Top 10 by Vendor');
+    if (byVendor.length > 0) {
+      const vendorHeaders = ['Vendor', 'Total Cost', 'Records'];
+      const vendorRows = byVendor.slice(0, 10).map(v => [
+        (v._id || 'Unknown').substring(0, 30),
+        formatCurrency(v.totalCost),
+        v.recordCount
+      ]);
+      pdf.addTable(doc, vendorHeaders, vendorRows, [200, 120, 80]);
+    } else {
+      doc.fontSize(10).fillColor(pdf.COLORS.lightText).text('No vendor data available.');
+    }
+
+    pdf.addFooter(doc);
+    doc.end();
+    return;
+  }
+
+  // JSON response
+  return res.json({
+    success: true,
+    report: {
+      type: 'Maintenance Cost Report',
+      generatedAt: new Date(),
+      company: { name: company.name, dotNumber: company.dotNumber },
+      dateRange: { start: startDate, end: endDate },
+      summary: {
+        totalCost: summary.totalCost,
+        laborCost: summary.laborCost,
+        partsCost: summary.partsCost,
+        recordCount: summary.recordCount
+      },
+      byVehicle: byVehicle.map(v => ({
+        vehicleId: v.vehicleId,
+        unitNumber: v.unitNumber,
+        totalCost: v.totalCost,
+        laborCost: v.laborCost,
+        partsCost: v.partsCost,
+        recordCount: v.recordCount
+      })),
+      byCategory: byCategory.map(c => ({
+        category: c._id,
+        totalCost: c.totalCost,
+        recordCount: c.recordCount
+      })),
+      byVendor: byVendor.map(v => ({
+        vendor: v._id,
+        totalCost: v.totalCost,
+        recordCount: v.recordCount
       }))
     }
   });
