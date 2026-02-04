@@ -1,16 +1,35 @@
-import { useState } from 'react';
-import { reportsAPI } from '../utils/api';
+import { useState, useEffect, useCallback } from 'react';
+import { reportsAPI, driversAPI, vehiclesAPI } from '../utils/api';
 import { downloadBlob } from '../utils/helpers';
 import toast from 'react-hot-toast';
 import { FiFileText, FiDownload, FiUsers, FiTruck, FiAlertTriangle, FiClipboard } from 'react-icons/fi';
 import LoadingSpinner from '../components/LoadingSpinner';
+import ReportFilters from '../components/filters/ReportFilters';
+import { REPORT_FILTER_CONFIG } from '../utils/reportFilterConfig';
 
 const Reports = () => {
   const [generating, setGenerating] = useState({});
-  const [dateRange, setDateRange] = useState({
-    startDate: '',
-    endDate: ''
-  });
+  const [drivers, setDrivers] = useState([]);
+  const [vehicles, setVehicles] = useState([]);
+  const [activeFilters, setActiveFilters] = useState({});
+  const [selectedReportId, setSelectedReportId] = useState('dqf');
+
+  // Fetch drivers and vehicles for filter dropdowns
+  useEffect(() => {
+    const fetchFilterData = async () => {
+      try {
+        const [driversRes, vehiclesRes] = await Promise.all([
+          driversAPI.getAll({ status: 'active', limit: 500 }),
+          vehiclesAPI.getAll({ status: 'active', limit: 500 })
+        ]);
+        setDrivers(driversRes.data.drivers || driversRes.data || []);
+        setVehicles(vehiclesRes.data.vehicles || vehiclesRes.data || []);
+      } catch (error) {
+        console.error('Failed to load filter data:', error);
+      }
+    };
+    fetchFilterData();
+  }, []);
 
   const reports = [
     {
@@ -35,8 +54,7 @@ const Reports = () => {
       description: 'Violation history with BASIC categories, severity weights, and DataQ status.',
       icon: FiAlertTriangle,
       color: 'red',
-      api: reportsAPI.getViolationsReport,
-      hasDateRange: true
+      api: reportsAPI.getViolationsReport
     },
     {
       id: 'audit',
@@ -48,6 +66,10 @@ const Reports = () => {
     }
   ];
 
+  const handleFilterChange = useCallback((filters) => {
+    setActiveFilters(filters);
+  }, []);
+
   const handleGenerateReport = async (reportId, format = 'pdf') => {
     const report = reports.find(r => r.id === reportId);
     if (!report) return;
@@ -55,11 +77,30 @@ const Reports = () => {
     setGenerating({ ...generating, [reportId]: format });
 
     try {
-      const params = {
-        format,
-        ...(report.hasDateRange && dateRange.startDate && { startDate: dateRange.startDate }),
-        ...(report.hasDateRange && dateRange.endDate && { endDate: dateRange.endDate })
-      };
+      // Build params from active filters + format
+      const config = REPORT_FILTER_CONFIG[reportId] || {};
+      const params = { format };
+
+      if (config.enableDateRange && activeFilters.startDate) {
+        params.startDate = activeFilters.startDate;
+      }
+      if (config.enableDateRange && activeFilters.endDate) {
+        params.endDate = activeFilters.endDate;
+      }
+      if (config.enableDriverFilter && activeFilters.driverIds?.length) {
+        params.driverIds = activeFilters.driverIds;
+      }
+      if (config.enableVehicleFilter && activeFilters.vehicleIds?.length) {
+        params.vehicleIds = activeFilters.vehicleIds;
+      }
+      if (config.enableStatusFilter && activeFilters.status) {
+        // For violations, use 'status' param name
+        if (reportId === 'violations') {
+          params.status = activeFilters.status;
+        } else {
+          params.complianceStatus = activeFilters.status;
+        }
+      }
 
       const response = await report.api(params);
 
@@ -85,6 +126,9 @@ const Reports = () => {
     green: { bg: 'bg-green-100', text: 'text-green-600' }
   };
 
+  // Get filter config for selected report
+  const selectedConfig = REPORT_FILTER_CONFIG[selectedReportId] || {};
+
   return (
     <div className="space-y-4 lg:space-y-6">
       {/* Header */}
@@ -93,30 +137,34 @@ const Reports = () => {
         <p className="text-zinc-600 dark:text-zinc-300">Generate and export compliance reports in PDF, CSV, or Excel format</p>
       </div>
 
-      {/* Date Range Filter (for applicable reports) */}
-      <div className="card p-4">
-        <h3 className="font-medium mb-3">Date Range Filter (for Violations Report)</h3>
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div>
-            <label className="form-label">Start Date</label>
-            <input
-              type="date"
-              className="form-input"
-              value={dateRange.startDate}
-              onChange={(e) => setDateRange({ ...dateRange, startDate: e.target.value })}
-            />
-          </div>
-          <div>
-            <label className="form-label">End Date</label>
-            <input
-              type="date"
-              className="form-input"
-              value={dateRange.endDate}
-              onChange={(e) => setDateRange({ ...dateRange, endDate: e.target.value })}
-            />
-          </div>
-        </div>
+      {/* Report Type Selector */}
+      <div className="flex flex-wrap gap-2">
+        {reports.map((report) => (
+          <button
+            key={report.id}
+            onClick={() => setSelectedReportId(report.id)}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+              selectedReportId === report.id
+                ? 'bg-primary-600 text-white'
+                : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700'
+            }`}
+          >
+            {report.title}
+          </button>
+        ))}
       </div>
+
+      {/* Report Filters */}
+      <ReportFilters
+        onFilterChange={handleFilterChange}
+        enableDateRange={selectedConfig.enableDateRange}
+        enableDriverFilter={selectedConfig.enableDriverFilter}
+        enableVehicleFilter={selectedConfig.enableVehicleFilter}
+        enableStatusFilter={selectedConfig.enableStatusFilter}
+        drivers={drivers}
+        vehicles={vehicles}
+        statusOptions={selectedConfig.statusOptions || []}
+      />
 
       {/* Report Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
@@ -124,9 +172,16 @@ const Reports = () => {
           const Icon = report.icon;
           const colors = colorClasses[report.color];
           const isGenerating = generating[report.id];
+          const isSelected = selectedReportId === report.id;
 
           return (
-            <div key={report.id} className="group card hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer">
+            <div
+              key={report.id}
+              onClick={() => setSelectedReportId(report.id)}
+              className={`group card hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer ${
+                isSelected ? 'ring-2 ring-primary-500' : ''
+              }`}
+            >
               <div className="card-body">
                 <div className="flex items-start space-x-4">
                   <div className={`w-12 h-12 ${colors.bg} rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300`}>
@@ -138,7 +193,7 @@ const Reports = () => {
 
                     <div className="flex flex-wrap gap-2 mt-4">
                       <button
-                        onClick={() => handleGenerateReport(report.id, 'pdf')}
+                        onClick={(e) => { e.stopPropagation(); handleGenerateReport(report.id, 'pdf'); }}
                         disabled={isGenerating}
                         className="btn btn-primary btn-sm flex items-center"
                       >
@@ -150,7 +205,7 @@ const Reports = () => {
                         PDF
                       </button>
                       <button
-                        onClick={() => handleGenerateReport(report.id, 'csv')}
+                        onClick={(e) => { e.stopPropagation(); handleGenerateReport(report.id, 'csv'); }}
                         disabled={isGenerating}
                         className="btn btn-secondary btn-sm flex items-center"
                       >
@@ -162,7 +217,7 @@ const Reports = () => {
                         CSV
                       </button>
                       <button
-                        onClick={() => handleGenerateReport(report.id, 'xlsx')}
+                        onClick={(e) => { e.stopPropagation(); handleGenerateReport(report.id, 'xlsx'); }}
                         disabled={isGenerating}
                         className="btn btn-secondary btn-sm flex items-center"
                       >
@@ -174,7 +229,7 @@ const Reports = () => {
                         Excel
                       </button>
                       <button
-                        onClick={() => handleGenerateReport(report.id, 'json')}
+                        onClick={(e) => { e.stopPropagation(); handleGenerateReport(report.id, 'json'); }}
                         disabled={isGenerating}
                         className="btn btn-secondary btn-sm flex items-center"
                       >
