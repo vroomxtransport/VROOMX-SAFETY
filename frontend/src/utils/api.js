@@ -264,7 +264,22 @@ export const reportsAPI = {
     },
     responseType: ['pdf', 'csv', 'xlsx'].includes(params.format) ? 'blob' : 'json',
     ...(['pdf', 'csv', 'xlsx'].includes(params.format) && { timeout: 300000 })
-  })
+  }),
+  // Preview endpoint - returns first 10 rows with metadata
+  getPreview: (reportType, params) => {
+    const endpoints = {
+      'dqf': '/reports/dqf/preview',
+      'vehicle': '/reports/vehicle-maintenance/preview',
+      'violations': '/reports/violations/preview',
+      'audit': '/reports/audit/preview',
+      'document-expiration': '/reports/document-expiration/preview',
+      'drug-alcohol': '/reports/drug-alcohol-summary/preview',
+      'dataq-history': '/reports/dataq-history/preview',
+      'accident-summary': '/reports/accident-summary/preview',
+      'maintenance-costs': '/reports/maintenance-costs/preview'
+    };
+    return api.get(endpoints[reportType], { params });
+  }
 };
 
 export const scheduledReportsAPI = {
@@ -639,4 +654,14 @@ export const integrationsAPI = {
 // Announcements API - Public announcements
 export const announcementsAPI = {
   getActive: () => api.get('/announcements/active'),
+};
+
+// Report Templates API - Save/load report configurations
+export const reportTemplatesAPI = {
+  getAll: (params) => api.get('/report-templates', { params }),
+  getById: (id) => api.get(`/report-templates/${id}`),
+  create: (data) => api.post('/report-templates', data),
+  update: (id, data) => api.put(`/report-templates/${id}`, data),
+  delete: (id) => api.delete(`/report-templates/${id}`),
+  duplicate: (id) => api.post(`/report-templates/${id}/duplicate`)
 };
