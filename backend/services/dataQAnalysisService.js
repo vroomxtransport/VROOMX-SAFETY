@@ -453,6 +453,58 @@ async function saveAnalysisToViolation(violationId, analysis) {
 }
 
 /**
+ * Run bulk analysis on recently synced violations for a company
+ *
+ * This is called after FMCSA sync to automatically score new violations
+ * for DataQ challenge potential. Uses local scoring only (no AI calls)
+ * for cost efficiency.
+ *
+ * @param {ObjectId} companyId - The company ID
+ * @param {Object} options - Options for bulk analysis
+ * @param {number} options.maxViolations - Maximum violations to analyze (default 50)
+ * @param {number} options.hoursCutoff - Hours to look back for recently synced (default 24)
+ * @returns {Object} Results { analyzed, skipped, errors }
+ */
+async function runBulkAnalysis(companyId, options = {}) {
+  const { maxViolations = 50, hoursCutoff = 24 } = options;
+
+  const recentCutoff = new Date(Date.now() - hoursCutoff * 60 * 60 * 1000);
+
+  // Find recently synced violations that haven't been analyzed yet
+  const violations = await Violation.find({
+    companyId,
+    'syncMetadata.importedAt': { $gte: recentCutoff },
+    'dataQChallenge.aiAnalysis': { $exists: false },
+    status: { $in: ['open', 'upheld'] }
+  })
+  .sort({ severityWeight: -1 }) // Prioritize high-impact violations
+  .limit(maxViolations);
+
+  const results = { analyzed: 0, skipped: 0, errors: [] };
+
+  // Sequential processing to avoid overwhelming the database
+  for (const violation of violations) {
+    try {
+      const scoreDetails = calculateChallengeScore(violation);
+
+      await saveAnalysisToViolation(violation._id, {
+        score: scoreDetails.score,
+        factors: scoreDetails.factors,
+        deductions: scoreDetails.deductions,
+        category: scoreDetails.category,
+        confidence: scoreDetails.score >= 75 ? 'high' : scoreDetails.score >= 50 ? 'medium' : 'low'
+      });
+
+      results.analyzed++;
+    } catch (err) {
+      results.errors.push({ violationId: violation._id.toString(), error: err.message });
+    }
+  }
+
+  return results;
+}
+
+/**
  * Save generated letter to a violation
  *
  * @param {ObjectId} violationId - The violation ID
@@ -486,6 +538,7 @@ module.exports = {
   saveAnalysisToViolation,
   saveGeneratedLetter,
   calculateChallengeScore,
+  runBulkAnalysis,
   ERROR_PRONE_VIOLATION_CODES,
   CHALLENGE_TYPE_MAPPING,
   EVIDENCE_RECOMMENDATIONS
