@@ -10,6 +10,7 @@ import FieldSelector from '../components/reports/FieldSelector';
 import ReportPreview from '../components/reports/ReportPreview';
 import TemplateManager from '../components/reports/TemplateManager';
 import ReportHistoryList from '../components/reports/ReportHistoryList';
+import ReportDataModal from '../components/reports/ReportDataModal';
 import { REPORT_FIELD_DEFINITIONS, getDefaultFields } from '../utils/reportFieldConfig';
 
 const Reports = () => {
@@ -21,6 +22,12 @@ const Reports = () => {
   const [selectedReportId, setSelectedReportId] = useState('dqf');
   const [selectedFields, setSelectedFields] = useState({});
   const [showPreview, setShowPreview] = useState(false);
+  const [reportDataModal, setReportDataModal] = useState({
+    isOpen: false,
+    data: null,
+    reportType: null,
+    reportTitle: null
+  });
 
   // Initialize fields when report type changes
   useEffect(() => {
@@ -186,8 +193,13 @@ const Reports = () => {
         downloadBlob(response.data, `${report.id}-report-${Date.now()}.${extension}`);
         toast.success(`${format.toUpperCase()} report downloaded successfully`);
       } else {
-        // JSON preview could be shown in a modal
-        toast.success('Report data retrieved');
+        // JSON preview - open modal with data
+        setReportDataModal({
+          isOpen: true,
+          data: response.data,
+          reportType: report.id,
+          reportTitle: report.title
+        });
       }
     } catch (error) {
       toast.error(`Failed to generate ${report.title}`);
@@ -478,6 +490,15 @@ const Reports = () => {
       </div>
         </>
       )}
+
+      {/* Report Data Modal */}
+      <ReportDataModal
+        isOpen={reportDataModal.isOpen}
+        onClose={() => setReportDataModal({ isOpen: false, data: null, reportType: null, reportTitle: null })}
+        data={reportDataModal.data}
+        reportType={reportDataModal.reportType}
+        reportTitle={reportDataModal.reportTitle}
+      />
     </div>
   );
 };

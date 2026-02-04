@@ -41,7 +41,16 @@ export const REPORT_FIELD_DEFINITIONS = {
       { key: 'annualInspectionExpiry', label: 'Annual Inspection Expiry', default: true, type: 'date' },
       { key: 'lastMaintenanceDate', label: 'Last Maintenance Date', default: false, type: 'date' },
       { key: 'mileage', label: 'Current Mileage', default: false, type: 'number' },
-      { key: 'overallStatus', label: 'Overall Status', default: true, type: 'string' }
+      { key: 'overallStatus', label: 'Overall Status', default: true, type: 'string' },
+      { key: 'totalMaintenanceRecords', label: 'Total Maintenance Records', default: false, type: 'number' },
+      { key: 'totalMaintenanceCost', label: 'Total Maintenance Cost', default: false, type: 'number' },
+      { key: 'lastRepairDate', label: 'Last Repair Date', default: false, type: 'date' },
+      { key: 'lastRepairDescription', label: 'Last Repair', default: false, type: 'string' },
+      { key: 'lastRepairCost', label: 'Last Repair Cost', default: false, type: 'number' },
+      { key: 'lastPMDate', label: 'Last PM Date', default: false, type: 'date' },
+      { key: 'nextPMDue', label: 'Next PM Due', default: false, type: 'date' },
+      { key: 'openDefects', label: 'Open Defects', default: false, type: 'number' },
+      { key: 'recentDVIRs', label: 'Recent DVIRs (30 days)', default: false, type: 'number' }
     ]
   },
 

@@ -10,12 +10,24 @@ const pdf = require('../utils/pdfGenerator');
 const emailService = require('../services/emailService');
 const exportService = require('../services/exportService');
 const reportHistoryService = require('../services/reportHistoryService');
-const { addDays, startOfYear } = require('date-fns');
+const { addDays, startOfYear, format: formatDateFns, parseISO, isValid } = require('date-fns');
 const { format: formatCSV } = require('@fast-csv/format');
 const { REPORT_FIELD_DEFINITIONS, validateFields } = require('../config/reportFieldDefinitions');
 
 // Preview limit for preview endpoints
 const PREVIEW_LIMIT = 10;
+
+// Helper to format dates consistently across all reports
+const formatReportDate = (date) => {
+  if (!date) return '-';
+  try {
+    const parsed = typeof date === 'string' ? parseISO(date) : new Date(date);
+    if (!isValid(parsed)) return '-';
+    return formatDateFns(parsed, 'MM/dd/yyyy');
+  } catch {
+    return '-';
+  }
+};
 
 // Helper to filter row data to selected fields
 const filterRowToFields = (row, selectedFields) => {
@@ -228,7 +240,56 @@ router.get('/vehicle-maintenance/preview', checkPermission('reports', 'view'), a
     .limit(PREVIEW_LIMIT)
     .lean();
 
-  const allRows = vehicles.map(v => buildVehicleRow(v));
+  // Fetch maintenance records for preview vehicles
+  const vehicleIdsList = vehicles.map(v => v._id);
+  const maintenanceRecords = await MaintenanceRecord.find({
+    companyId,
+    vehicleId: { $in: vehicleIdsList }
+  }).sort({ serviceDate: -1 }).lean();
+
+  // Group maintenance records by vehicle
+  const maintenanceByVehicle = {};
+  maintenanceRecords.forEach(record => {
+    const vid = record.vehicleId.toString();
+    if (!maintenanceByVehicle[vid]) maintenanceByVehicle[vid] = [];
+    maintenanceByVehicle[vid].push(record);
+  });
+
+  // Helper to calculate maintenance stats for preview
+  const getPreviewStats = (vehicleId, dvirRecords = [], pmSchedule = null) => {
+    const records = maintenanceByVehicle[vehicleId.toString()] || [];
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const repairs = records.filter(r => r.recordType !== 'preventive_maintenance' && r.recordType !== 'pm');
+    const lastRepair = repairs[0];
+    const pmRecords = records.filter(r => r.recordType === 'preventive_maintenance' || r.recordType === 'pm');
+    const lastPM = pmRecords[0];
+    const totalCost = records.reduce((sum, r) => sum + (r.totalCost || 0), 0);
+    const openDefects = (dvirRecords || []).filter(dvir =>
+      dvir.defects?.some(d => d.status === 'open' || d.status === 'pending')
+    ).length;
+    const recentDVIRs = (dvirRecords || []).filter(dvir =>
+      dvir.inspectionDate && new Date(dvir.inspectionDate) >= thirtyDaysAgo
+    ).length;
+
+    return {
+      totalRecords: records.length,
+      totalCost,
+      lastRepairDate: lastRepair?.serviceDate || null,
+      lastRepairDescription: lastRepair?.description || null,
+      lastRepairCost: lastRepair?.totalCost || null,
+      lastPMDate: lastPM?.serviceDate || null,
+      nextPMDue: pmSchedule?.nextDueDate || null,
+      openDefects,
+      recentDVIRs
+    };
+  };
+
+  const allRows = vehicles.map(v => {
+    const stats = getPreviewStats(v._id, v.dvirRecords, v.pmSchedule);
+    return buildVehicleRow(v, stats);
+  });
   const rows = selectedFields ? allRows.map(row => filterRowToFields(row, selectedFields)) : allRows;
 
   return res.json(buildPreviewResponse(rows, selectedFields, 'vehicle', totalCount));
@@ -528,15 +589,15 @@ const buildDqfRow = (d) => ({
   cdlNumber: d.cdl?.number || '-',
   cdlState: d.cdl?.state || '-',
   cdlClass: d.cdl?.class || '-',
-  cdlExpiry: d.cdl?.expiryDate ? new Date(d.cdl.expiryDate).toLocaleDateString() : '-',
-  medicalExpiry: d.medicalCard?.expiryDate ? new Date(d.medicalCard.expiryDate).toLocaleDateString() : '-',
+  cdlExpiry: formatReportDate(d.cdl?.expiryDate),
+  medicalExpiry: formatReportDate(d.medicalCard?.expiryDate),
   overallStatus: d.complianceStatus?.overall || '-',
-  clearinghouseQueryDate: d.clearinghouse?.lastQueryDate ? new Date(d.clearinghouse.lastQueryDate).toLocaleDateString() : '-',
+  clearinghouseQueryDate: formatReportDate(d.clearinghouse?.lastQueryDate),
   clearinghouseStatus: d.clearinghouse?.status || '-',
-  mvrReviewDate: d.documents?.mvrReviews?.[0]?.reviewDate ? new Date(d.documents.mvrReviews[0].reviewDate).toLocaleDateString() : '-',
+  mvrReviewDate: formatReportDate(d.documents?.mvrReviews?.[0]?.reviewDate),
   mvrApproved: d.documents?.mvrReviews?.[0]?.approved != null ? (d.documents.mvrReviews[0].approved ? 'Yes' : 'No') : '-',
   employmentVerificationStatus: getEmploymentVerificationStatus(d.documents?.employmentVerification),
-  roadTestDate: d.documents?.roadTest?.date ? new Date(d.documents.roadTest.date).toLocaleDateString() : '-',
+  roadTestDate: formatReportDate(d.documents?.roadTest?.date),
   roadTestResult: d.documents?.roadTest?.result || (d.documents?.roadTest?.waived ? 'Waived' : '-')
 });
 
@@ -757,7 +818,7 @@ const buildDocExpirationRow = (doc, now) => {
     documentType: doc.documentType || '-',
     entityName,
     entityType,
-    expirationDate: expiryDate.toLocaleDateString(),
+    expirationDate: formatReportDate(doc.expiryDate),
     daysUntilExpiry: daysUntil,
     urgency
   };
@@ -958,7 +1019,7 @@ router.get('/document-expiration', checkPermission('reports', 'view'), asyncHand
 const buildDrugAlcoholRow = (t) => ({
   driverName: t.driverId ? `${t.driverId.firstName} ${t.driverId.lastName}` : '-',
   testType: t.testType?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || '-',
-  testDate: t.testDate ? new Date(t.testDate).toLocaleDateString() : '-',
+  testDate: formatReportDate(t.testDate),
   result: t.overallResult || '-',
   randomPoolIncluded: t.testType === 'random' ? 'Yes' : 'No',
   clearinghouseStatus: t.clearinghouseReported ? 'Reported' : 'Not Reported'
@@ -1183,12 +1244,12 @@ router.get('/drug-alcohol-summary', checkPermission('reports', 'view'), asyncHan
 // Helper to build DataQ history row
 const buildDataQRow = (v) => ({
   caseNumber: v.dataQChallenge.caseNumber || '-',
-  submittedDate: v.dataQChallenge.submissionDate ? new Date(v.dataQChallenge.submissionDate).toLocaleDateString() : '-',
+  submittedDate: formatReportDate(v.dataQChallenge.submissionDate),
   violationCode: v.violationCode || '-',
   basic: v.basic || '-',
   originalSeverity: v.severityWeight != null ? v.severityWeight : '-',
   status: v.dataQChallenge.status || '-',
-  resolvedDate: v.dataQChallenge.responseDate ? new Date(v.dataQChallenge.responseDate).toLocaleDateString() : '-',
+  resolvedDate: formatReportDate(v.dataQChallenge.responseDate),
   outcome: v.dataQChallenge.status === 'accepted' ? 'Accepted' : (v.dataQChallenge.status === 'denied' ? 'Denied' : '-'),
   pointsSaved: v.dataQChallenge.status === 'accepted' ? (v.severityWeight || 0) : 0
 });
@@ -1386,9 +1447,8 @@ router.get('/dataq-history', checkPermission('reports', 'view'), asyncHandler(as
 
 // Helper to build accident summary row
 const buildAccidentRow = (a) => {
-  const formatCurrency = (amount) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount || 0);
   return {
-    accidentDate: a.accidentDate ? new Date(a.accidentDate).toLocaleDateString() : '-',
+    accidentDate: formatReportDate(a.accidentDate),
     driverName: a.driverId ? `${a.driverId.firstName} ${a.driverId.lastName}` : '-',
     vehicleUnit: a.vehicleId?.unitNumber || '-',
     location: a.location ? `${a.location.city || ''}, ${a.location.state || ''}`.trim().replace(/^,\s*/, '') : '-',
@@ -1624,7 +1684,7 @@ router.get('/accident-summary', checkPermission('reports', 'view'), asyncHandler
 const buildMaintenanceCostRow = (r) => ({
   workOrderNumber: r.workOrderNumber || '-',
   vehicleUnit: r.vehicleId?.unitNumber || '-',
-  serviceDate: r.serviceDate ? new Date(r.serviceDate).toLocaleDateString() : '-',
+  serviceDate: formatReportDate(r.serviceDate),
   category: r.recordType?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || '-',
   vendor: r.provider?.name || '-',
   description: r.description || '-',
@@ -1913,7 +1973,7 @@ router.get('/maintenance-costs', checkPermission('reports', 'view'), asyncHandle
 }));
 
 // Helper to build vehicle maintenance row
-const buildVehicleRow = (v) => ({
+const buildVehicleRow = (v, maintenanceStats = null) => ({
   unitNumber: v.unitNumber || '-',
   vin: v.vin || '-',
   make: v.make || '-',
@@ -1921,13 +1981,23 @@ const buildVehicleRow = (v) => ({
   year: v.year || '-',
   type: v.vehicleType || '-',
   status: v.status || '-',
-  annualInspectionDate: v.annualInspection?.lastInspectionDate ? new Date(v.annualInspection.lastInspectionDate).toLocaleDateString() : '-',
-  annualInspectionExpiry: v.annualInspection?.nextDueDate ? new Date(v.annualInspection.nextDueDate).toLocaleDateString() : '-',
+  annualInspectionDate: formatReportDate(v.annualInspection?.lastInspectionDate),
+  annualInspectionExpiry: formatReportDate(v.annualInspection?.nextDueDate),
   lastMaintenanceDate: v.maintenanceLog?.length > 0 && v.maintenanceLog[v.maintenanceLog.length - 1]?.date
-    ? new Date(v.maintenanceLog[v.maintenanceLog.length - 1].date).toLocaleDateString()
+    ? formatReportDate(v.maintenanceLog[v.maintenanceLog.length - 1].date)
     : '-',
   mileage: v.mileage || '-',
-  overallStatus: v.complianceStatus?.overall || '-'
+  overallStatus: v.complianceStatus?.overall || '-',
+  // Maintenance stats from MaintenanceRecord collection (if provided)
+  totalMaintenanceRecords: maintenanceStats?.totalRecords ?? '-',
+  totalMaintenanceCost: maintenanceStats?.totalCost ?? '-',
+  lastRepairDate: maintenanceStats?.lastRepairDate ? formatReportDate(maintenanceStats.lastRepairDate) : '-',
+  lastRepairDescription: maintenanceStats?.lastRepairDescription ?? '-',
+  lastRepairCost: maintenanceStats?.lastRepairCost ?? '-',
+  lastPMDate: maintenanceStats?.lastPMDate ? formatReportDate(maintenanceStats.lastPMDate) : '-',
+  nextPMDue: maintenanceStats?.nextPMDue ? formatReportDate(maintenanceStats.nextPMDue) : '-',
+  openDefects: maintenanceStats?.openDefects ?? '-',
+  recentDVIRs: maintenanceStats?.recentDVIRs ?? '-'
 });
 
 // @route   GET /api/reports/vehicle-maintenance
@@ -1964,11 +2034,75 @@ router.get('/vehicle-maintenance', checkPermission('reports', 'view'), asyncHand
     if (endDate) query['annualInspection.nextDueDate'].$lte = new Date(endDate);
   }
 
-  const vehicles = await Vehicle.find(query).sort({ unitNumber: 1 });
+  const vehicles = await Vehicle.find(query).sort({ unitNumber: 1 }).lean();
   const company = await Company.findById(companyId);
 
-  // Build rows using field definitions format
-  const allRows = vehicles.map(buildVehicleRow);
+  // Fetch maintenance records for all vehicles
+  const vehicleIdsList = vehicles.map(v => v._id);
+  const maintenanceRecords = await MaintenanceRecord.find({
+    companyId,
+    vehicleId: { $in: vehicleIdsList }
+  }).sort({ serviceDate: -1 }).lean();
+
+  // Group maintenance records by vehicle
+  const maintenanceByVehicle = {};
+  maintenanceRecords.forEach(record => {
+    const vid = record.vehicleId.toString();
+    if (!maintenanceByVehicle[vid]) maintenanceByVehicle[vid] = [];
+    maintenanceByVehicle[vid].push(record);
+  });
+
+  // Helper to calculate maintenance stats for a vehicle
+  const getMaintenanceStats = (vehicleId, dvirRecords = [], pmSchedule = null) => {
+    const records = maintenanceByVehicle[vehicleId.toString()] || [];
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    // Find last repair (non-PM records)
+    const repairs = records.filter(r => r.recordType !== 'preventive_maintenance' && r.recordType !== 'pm');
+    const lastRepair = repairs[0];
+
+    // Find last PM
+    const pmRecords = records.filter(r => r.recordType === 'preventive_maintenance' || r.recordType === 'pm');
+    const lastPM = pmRecords[0];
+
+    // Calculate total cost
+    const totalCost = records.reduce((sum, r) => sum + (r.totalCost || 0), 0);
+
+    // Count open defects from dvirRecords
+    const openDefects = (dvirRecords || []).filter(dvir =>
+      dvir.defects?.some(d => d.status === 'open' || d.status === 'pending')
+    ).length;
+
+    // Count recent DVIRs
+    const recentDVIRs = (dvirRecords || []).filter(dvir =>
+      dvir.inspectionDate && new Date(dvir.inspectionDate) >= thirtyDaysAgo
+    ).length;
+
+    // Calculate next PM due from pmSchedule
+    let nextPMDue = null;
+    if (pmSchedule?.nextDueDate) {
+      nextPMDue = pmSchedule.nextDueDate;
+    }
+
+    return {
+      totalRecords: records.length,
+      totalCost,
+      lastRepairDate: lastRepair?.serviceDate || null,
+      lastRepairDescription: lastRepair?.description || null,
+      lastRepairCost: lastRepair?.totalCost || null,
+      lastPMDate: lastPM?.serviceDate || null,
+      nextPMDue,
+      openDefects,
+      recentDVIRs
+    };
+  };
+
+  // Build rows using field definitions format with maintenance stats
+  const allRows = vehicles.map(v => {
+    const stats = getMaintenanceStats(v._id, v.dvirRecords, v.pmSchedule);
+    return buildVehicleRow(v, stats);
+  });
   const rows = selectedFields ? allRows.map(row => filterRowToFields(row, selectedFields)) : allRows;
 
   // CSV export with history tracking
@@ -2019,18 +2153,19 @@ router.get('/vehicle-maintenance', checkPermission('reports', 'view'), asyncHand
     // Summary
     const compliant = vehicles.filter(v => v.complianceStatus?.overall === 'compliant').length;
     const inMaintenance = vehicles.filter(v => v.status === 'maintenance').length;
+    const totalMaintenanceCost = maintenanceRecords.reduce((sum, r) => sum + (r.totalCost || 0), 0);
 
     pdf.addSummaryBox(doc, 'Summary', [
       { value: vehicles.length, label: 'Total Vehicles' },
       { value: compliant, label: 'Compliant' },
-      { value: inMaintenance, label: 'In Maintenance' }
+      { value: `$${totalMaintenanceCost.toLocaleString()}`, label: 'Total Maint. Cost' }
     ]);
 
     // Vehicle table
     pdf.addSectionTitle(doc, 'Fleet Overview');
 
-    const headers = ['Unit #', 'Type', 'VIN', 'Status', 'Next Inspection'];
-    const rows = vehicles.map(v => [
+    const pdfHeaders = ['Unit #', 'Type', 'VIN', 'Status', 'Next Inspection'];
+    const pdfRows = vehicles.map(v => [
       v.unitNumber,
       v.vehicleType || '-',
       v.vin ? `...${v.vin.slice(-6)}` : '-',
@@ -2038,24 +2173,36 @@ router.get('/vehicle-maintenance', checkPermission('reports', 'view'), asyncHand
       pdf.formatDate(v.annualInspection?.nextDueDate)
     ]);
 
-    pdf.addTable(doc, headers, rows, [70, 80, 80, 80, 100]);
+    pdf.addTable(doc, pdfHeaders, pdfRows, [70, 80, 80, 80, 100]);
 
-    // Maintenance details per vehicle
-    vehicles.forEach((v, index) => {
-      const recentMaintenance = v.maintenanceLog?.slice(-5) || [];
-      if (recentMaintenance.length > 0) {
+    // Maintenance details per vehicle - now showing MaintenanceRecord data
+    vehicles.forEach((v) => {
+      const vehicleRecords = maintenanceByVehicle[v._id.toString()] || [];
+      const recentRecords = vehicleRecords.slice(0, 10);
+
+      if (recentRecords.length > 0) {
         doc.moveDown(1);
-        pdf.addSectionTitle(doc, `Unit ${v.unitNumber} - Recent Maintenance`);
+        pdf.addSectionTitle(doc, `Unit ${v.unitNumber} - Maintenance History`);
 
-        const maintHeaders = ['Date', 'Type', 'Description', 'Mileage'];
-        const maintRows = recentMaintenance.map(m => [
-          pdf.formatDate(m.date),
-          m.maintenanceType || '-',
-          m.description?.substring(0, 30) || '-',
-          m.mileage || '-'
+        const maintHeaders = ['Date', 'Type', 'Description', 'Vendor', 'Cost'];
+        const maintRows = recentRecords.map(m => [
+          pdf.formatDate(m.serviceDate),
+          m.recordType?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || '-',
+          (m.description || '-').substring(0, 25),
+          m.provider?.name || '-',
+          m.totalCost ? `$${m.totalCost.toLocaleString()}` : '-'
         ]);
 
-        pdf.addTable(doc, maintHeaders, maintRows, [100, 100, 150, 80]);
+        pdf.addTable(doc, maintHeaders, maintRows, [80, 80, 120, 80, 70]);
+      }
+
+      // Show open defects if any
+      const openDefects = (v.dvirRecords || []).filter(dvir =>
+        dvir.defects?.some(d => d.status === 'open' || d.status === 'pending')
+      );
+      if (openDefects.length > 0) {
+        doc.moveDown(0.5);
+        doc.fontSize(10).fillColor('#dc2626').text(`Open Defects: ${openDefects.length}`, { underline: false });
       }
     });
 
@@ -2064,24 +2211,59 @@ router.get('/vehicle-maintenance', checkPermission('reports', 'view'), asyncHand
     return;
   }
 
+  // JSON response with enhanced data
   return res.json({
     success: true,
     report: {
       type: 'Vehicle Maintenance',
       generatedAt: new Date(),
       company: { name: company.name, dotNumber: company.dotNumber },
-      vehicles: vehicles.map(v => ({
-        unitNumber: v.unitNumber,
-        vin: v.vin,
-        type: v.vehicleType,
-        status: v.status,
-        annualInspection: {
-          lastDate: v.annualInspection?.lastInspectionDate,
-          nextDue: v.annualInspection?.nextDueDate,
-          status: v.complianceStatus?.inspectionStatus
-        },
-        maintenanceLog: v.maintenanceLog?.slice(-10) || []
-      }))
+      summary: {
+        totalVehicles: vehicles.length,
+        compliant: vehicles.filter(v => v.complianceStatus?.overall === 'compliant').length,
+        inMaintenance: vehicles.filter(v => v.status === 'maintenance').length,
+        totalMaintenanceRecords: maintenanceRecords.length,
+        totalMaintenanceCost: maintenanceRecords.reduce((sum, r) => sum + (r.totalCost || 0), 0)
+      },
+      vehicles: vehicles.map(v => {
+        const vehicleRecords = maintenanceByVehicle[v._id.toString()] || [];
+        const stats = getMaintenanceStats(v._id, v.dvirRecords, v.pmSchedule);
+
+        return {
+          unitNumber: v.unitNumber,
+          vin: v.vin,
+          type: v.vehicleType,
+          status: v.status,
+          mileage: v.mileage,
+          annualInspection: {
+            lastDate: v.annualInspection?.lastInspectionDate,
+            nextDue: v.annualInspection?.nextDueDate,
+            status: v.complianceStatus?.inspectionStatus
+          },
+          maintenanceStats: stats,
+          maintenanceRecords: vehicleRecords.slice(0, 20).map(r => ({
+            workOrderNumber: r.workOrderNumber,
+            serviceDate: r.serviceDate,
+            recordType: r.recordType,
+            description: r.description,
+            vendor: r.provider?.name,
+            totalCost: r.totalCost,
+            mileage: r.mileage
+          })),
+          dvirSummary: {
+            total: (v.dvirRecords || []).length,
+            openDefects: (v.dvirRecords || []).filter(dvir =>
+              dvir.defects?.some(d => d.status === 'open' || d.status === 'pending')
+            ).length
+          },
+          pmSchedule: v.pmSchedule ? {
+            interval: v.pmSchedule.interval,
+            lastCompletedDate: v.pmSchedule.lastCompletedDate,
+            nextDueDate: v.pmSchedule.nextDueDate,
+            nextDueMileage: v.pmSchedule.nextDueMileage
+          } : null
+        };
+      })
     }
   });
 }));
@@ -2089,7 +2271,7 @@ router.get('/vehicle-maintenance', checkPermission('reports', 'view'), asyncHand
 // Helper to build violations row
 const buildViolationRow = (v) => ({
   inspectionNumber: v.inspectionNumber || '-',
-  violationDate: v.violationDate ? new Date(v.violationDate).toLocaleDateString() : '-',
+  violationDate: formatReportDate(v.violationDate),
   violationType: v.violationType || '-',
   violationCode: v.violationCode || '-',
   description: v.description || '-',

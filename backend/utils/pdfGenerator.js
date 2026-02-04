@@ -1,4 +1,5 @@
 const PDFDocument = require('pdfkit');
+const { format, isValid } = require('date-fns');
 
 /**
  * PDF Generator utility for compliance reports
@@ -51,7 +52,7 @@ const addHeader = (doc, company, reportTitle) => {
   // Generation date
   doc.fontSize(9)
      .fillColor(COLORS.lightText)
-     .text(`Generated: ${new Date().toLocaleString()}`, { align: 'left' });
+     .text(`Generated: ${format(new Date(), 'MM/dd/yyyy h:mm a')} UTC`, { align: 'left' });
 
   // Divider line
   doc.moveDown(0.5);
@@ -216,7 +217,13 @@ const addFooter = (doc) => {
  */
 const formatDate = (date) => {
   if (!date) return '-';
-  return new Date(date).toLocaleDateString();
+  try {
+    const parsed = typeof date === 'string' ? new Date(date) : date;
+    if (!isValid(parsed) || isNaN(parsed.getTime())) return '-';
+    return format(parsed, 'MM/dd/yyyy');
+  } catch {
+    return '-';
+  }
 };
 
 /**
