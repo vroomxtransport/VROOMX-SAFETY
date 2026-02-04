@@ -217,6 +217,15 @@ npm run dev  # Starts on port 5173
 
 ### Validated (Shipped)
 
+**v2.0 Enhanced Reports Module (2026-02-04):**
+- ✓ CSV/Excel export for all 9 report types with UTF-8 encoding
+- ✓ Unified filtering: date presets, multi-select drivers/vehicles, status filters
+- ✓ DQF extended with 49 CFR 391.51 fields (Clearinghouse, MVR, employment verification)
+- ✓ 5 new FMCSA reports: Document Expiration, Drug & Alcohol, DataQ History, Accident, Maintenance Cost
+- ✓ Report builder with field selection, templates, and 10-row preview
+- ✓ Report history with 90-day retention and re-download capability
+- ✓ Pre-built FMCSA templates (DQF Audit, Vehicle Inspection, Violations Summary)
+
 **v1 FMCSA Data Sync Overhaul (2026-02-03):**
 - ✓ Automatic 6-hour FMCSA data sync with 5-step orchestrator pipeline
 - ✓ Violation model as single source of truth with sync/linking metadata
@@ -240,20 +249,7 @@ npm run dev  # Starts on port 5173
 - ✓ Comprehensive admin panel overhaul
 - ✓ MVP Hardening (JWT, error handlers, rate limiting)
 
-## Current Milestone: v2.0 Enhanced Reports Module
-
-**Goal:** Transform the basic report system into a comprehensive, FMCSA-compliant reporting platform with custom report builder, advanced filtering, and export capabilities.
-
-**Target features:**
-- Report Builder — users create custom reports by selecting fields, filters, and groupings
-- Advanced Filtering — all reports support driver/vehicle/date/status filters
-- Multiple Export Formats — PDF, CSV, Excel with FMCSA-compliant formatting
-- Report History & Preview — track generated reports, preview before download
-- New Report Types — Expiration Calendar, Accident Summary, Cost Analysis, DOT Audit Prep
-- FMCSA Compliance — reports formatted per DOT requirements for audit-readiness
-
 ### In Progress
-- v2.0 Enhanced Reports Module (see above)
 - Marketing and user acquisition
 - Mobile responsiveness improvements
 - Authenticated file download endpoint (replaces static /uploads)
