@@ -1691,7 +1691,7 @@ router.get('/accident-summary', checkPermission('reports', 'view'), asyncHandler
 
 // Helper to build maintenance cost row from record
 const buildMaintenanceCostRow = (r) => ({
-  workOrderNumber: r.workOrderNumber || '-',
+  invoiceNumber: r.invoiceNumber || '-',
   vehicleUnit: r.vehicleId?.unitNumber || '-',
   serviceDate: formatReportDate(r.serviceDate),
   category: r.recordType?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || '-',
@@ -1940,6 +1940,29 @@ router.get('/maintenance-costs', checkPermission('reports', 'view'), asyncHandle
       doc.fontSize(10).fillColor(pdf.COLORS.lightText).text('No vendor data available.');
     }
 
+    // Recent Maintenance Records (Individual line items)
+    doc.moveDown(1);
+    pdf.addSectionTitle(doc, 'Recent Maintenance Records');
+    if (records.length > 0) {
+      const recordHeaders = ['Date', 'Vehicle', 'Category', 'Description', 'Cost'];
+      const recordRows = records.slice(0, 25).map(r => [
+        pdf.formatDate(r.serviceDate),
+        r.vehicleId?.unitNumber || '-',
+        r.recordType?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || '-',
+        (r.description || '-').substring(0, 30),
+        formatCurrency(r.totalCost)
+      ]);
+      pdf.addTable(doc, recordHeaders, recordRows, [70, 60, 100, 130, 70], { zebraStripe: true });
+
+      if (records.length > 25) {
+        doc.moveDown(0.5);
+        doc.fontSize(9).fillColor(pdf.COLORS.lightText)
+           .text(`Showing 25 of ${records.length} records. Export to CSV/Excel for full data.`);
+      }
+    } else {
+      doc.fontSize(10).fillColor(pdf.COLORS.lightText).text('No maintenance records found.');
+    }
+
     pdf.addFooter(doc);
     doc.end();
     return;
@@ -2131,10 +2154,69 @@ router.get('/vehicle-maintenance', checkPermission('reports', 'view'), asyncHand
     return;
   }
 
-  // Excel export with history tracking
+  // Excel export with history tracking - includes maintenance records sheet
   if (format === 'xlsx') {
     const { columns } = buildExportConfig('vehicle', selectedFields);
-    const fileBuffer = await createExcelBuffer('Vehicle Maintenance', columns, rows);
+
+    // Create workbook with two sheets
+    const workbook = new ExcelJS.Workbook();
+
+    // Sheet 1: Vehicle Summary
+    const summarySheet = workbook.addWorksheet('Vehicle Summary');
+    summarySheet.columns = columns;
+
+    // Style header row
+    const summaryHeaderRow = summarySheet.getRow(1);
+    summaryHeaderRow.font = { bold: true };
+    summaryHeaderRow.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFE8E8E8' }
+    };
+    summaryHeaderRow.alignment = { horizontal: 'center', vertical: 'middle' };
+    rows.forEach(row => summarySheet.addRow(row));
+
+    // Sheet 2: Maintenance Records
+    const recordsSheet = workbook.addWorksheet('Maintenance Records');
+    recordsSheet.columns = [
+      { header: 'Vehicle', key: 'vehicle', width: 15 },
+      { header: 'Date', key: 'date', width: 12 },
+      { header: 'Type', key: 'type', width: 20 },
+      { header: 'Description', key: 'description', width: 40 },
+      { header: 'Vendor', key: 'vendor', width: 25 },
+      { header: 'Labor Cost', key: 'laborCost', width: 12 },
+      { header: 'Parts Cost', key: 'partsCost', width: 12 },
+      { header: 'Total Cost', key: 'totalCost', width: 12 }
+    ];
+
+    // Style records header row
+    const recordsHeaderRow = recordsSheet.getRow(1);
+    recordsHeaderRow.font = { bold: true };
+    recordsHeaderRow.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFE8E8E8' }
+    };
+    recordsHeaderRow.alignment = { horizontal: 'center', vertical: 'middle' };
+
+    // Create a map of vehicle IDs to unit numbers for lookup
+    const vehicleMap = {};
+    vehicles.forEach(v => { vehicleMap[v._id.toString()] = v.unitNumber; });
+
+    maintenanceRecords.forEach(r => {
+      recordsSheet.addRow({
+        vehicle: vehicleMap[r.vehicleId?.toString()] || '-',
+        date: formatReportDate(r.serviceDate),
+        type: r.recordType?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || '-',
+        description: r.description || '-',
+        vendor: r.provider?.name || '-',
+        laborCost: r.laborCost || 0,
+        partsCost: r.partsCost || 0,
+        totalCost: r.totalCost || 0
+      });
+    });
+
+    const fileBuffer = await workbook.xlsx.writeBuffer();
     await trackReportExport(req, res, {
       fileBuffer,
       format: 'xlsx',

@@ -139,7 +139,7 @@ export const REPORT_FIELD_DEFINITIONS = {
   'maintenance-costs': {
     name: 'Maintenance Costs Report',
     fields: [
-      { key: 'workOrderNumber', label: 'Work Order Number', default: true, type: 'string' },
+      { key: 'invoiceNumber', label: 'Invoice Number', default: true, type: 'string' },
       { key: 'vehicleUnit', label: 'Vehicle Unit', default: true, type: 'string' },
       { key: 'serviceDate', label: 'Service Date', default: true, type: 'date' },
       { key: 'category', label: 'Category', default: true, type: 'string' },
