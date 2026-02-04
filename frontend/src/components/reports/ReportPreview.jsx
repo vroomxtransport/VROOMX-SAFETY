@@ -85,6 +85,8 @@ const ReportPreview = ({
         }
       case 'boolean':
         return value ? 'Yes' : 'No';
+      case 'year':
+        return String(value);
       case 'number':
         return typeof value === 'number' ? value.toLocaleString() : value;
       default:

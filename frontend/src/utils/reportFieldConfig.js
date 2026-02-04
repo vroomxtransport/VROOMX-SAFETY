@@ -34,7 +34,7 @@ export const REPORT_FIELD_DEFINITIONS = {
       { key: 'vin', label: 'VIN', default: true, type: 'string' },
       { key: 'make', label: 'Make', default: true, type: 'string' },
       { key: 'model', label: 'Model', default: true, type: 'string' },
-      { key: 'year', label: 'Year', default: true, type: 'number' },
+      { key: 'year', label: 'Year', default: true, type: 'year' },
       { key: 'type', label: 'Vehicle Type', default: false, type: 'string' },
       { key: 'status', label: 'Status', default: true, type: 'string' },
       { key: 'annualInspectionDate', label: 'Annual Inspection Date', default: true, type: 'date' },
