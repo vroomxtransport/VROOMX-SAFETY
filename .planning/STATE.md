@@ -10,11 +10,11 @@ See: PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 11 of 12 (Report Builder)
-Plan: 1 of 3
+Plan: 2 of 3
 Status: In progress
-Last activity: 2026-02-04 - Completed 11-01-PLAN.md (Report Template Backend Foundation)
+Last activity: 2026-02-04 - Completed 11-02-PLAN.md (Report Field Filtering and Preview Endpoints)
 
-Progress: [████████████░░░░░░░░] 62% (8/13 plans)
+Progress: [█████████████░░░░░░░] 69% (9/13 plans)
 
 ## Milestone History
 
@@ -24,9 +24,9 @@ Progress: [████████████░░░░░░░░] 62% (8/
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 8 (v2.0)
-- Average duration: 3.9min
-- Total execution time: 32min
+- Total plans completed: 9 (v2.0)
+- Average duration: 4.2min
+- Total execution time: 38min
 
 **By Phase:**
 
@@ -35,11 +35,11 @@ Progress: [████████████░░░░░░░░] 62% (8/
 | 08-export-foundation | 2 | 12min | 6min |
 | 09-unified-filtering | 2 | 6min | 3min |
 | 10-fmcsa-compliance-reports | 3 | 12min | 4min |
-| 11-report-builder | 1 | 2min | 2min |
+| 11-report-builder | 2 | 8min | 4min |
 
 **Recent Trend:**
-- Last 5 plans: 10-01 (4min), 10-02 (5min), 10-03 (3min), 11-01 (2min)
-- Trend: Stable at ~3min
+- Last 5 plans: 10-02 (5min), 10-03 (3min), 11-01 (2min), 11-02 (6min)
+- Trend: Stable at ~4min
 
 *Updated after each plan completion*
 
@@ -82,6 +82,10 @@ v2.0 decisions:
 | System template protection via 403 | 11-01 | Prevent users from breaking pre-built FMCSA templates |
 | Field validation via config | 11-01 | Single source of truth for valid fields per report type |
 | Duplicate creates user-owned template | 11-01 | Users can customize copies without affecting originals |
+| Row builders defined inline near endpoints | 11-02 | Locality of data mapping logic |
+| Preview endpoints before main routes | 11-02 | Express matches more specific routes first |
+| Fields param returns all if omitted | 11-02 | Backward compatibility with existing API |
+| buildPreviewResponse helper | 11-02 | DRY pattern for consistent preview response |
 
 ### Pending Todos
 
@@ -94,8 +98,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-04
-Stopped at: Completed 11-01-PLAN.md
+Stopped at: Completed 11-02-PLAN.md
 Resume file: None
 
 ---
-*v2.0 milestone in progress. Phase 11 plan 1 complete. ReportTemplate model and CRUD routes ready. Ready for 11-02 (Frontend Field Selector).*
+*v2.0 milestone in progress. Phase 11 plan 2 complete. All 9 report endpoints support field filtering and preview. Ready for 11-03 (Frontend Field Selector UI).*
