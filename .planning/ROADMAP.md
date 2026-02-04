@@ -18,7 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Entity Linking** - Automatic driver/vehicle matching logic
 - [x] **Phase 5: UI Integration** - Display linked violations in profiles
 - [x] **Phase 6: DataQ Integration** - Connect sync to DataQ challenge workflow
-- [ ] **Phase 7: Polish** - Sync status UI and manual review queue
+- [x] **Phase 7: Polish** - Sync status UI and manual review queue
 
 ## Phase Details
 
@@ -129,8 +129,8 @@ Plans:
 **Plans**: 2 plans (Wave 1 - all parallel)
 
 Plans:
-- [ ] 07-01-PLAN.md — Dashboard sync status indicator + manual sync button + toast notifications
-- [ ] 07-02-PLAN.md — Unlinked violations review page with driver linking
+- [x] 07-01-PLAN.md — Dashboard sync status indicator + manual sync button + toast notifications
+- [x] 07-02-PLAN.md — Unlinked violations review page with driver linking
 
 ## Progress
 
@@ -145,7 +145,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 4. Entity Linking | 3/3 | ✓ Verified | 2026-02-03 |
 | 5. UI Integration | 3/3 | ✓ Verified | 2026-02-03 |
 | 6. DataQ Integration | 2/2 | ✓ Verified | 2026-02-03 |
-| 7. Polish | 0/2 | Planned | - |
+| 7. Polish | 2/2 | ✓ Verified | 2026-02-03 |
 
 ---
 *Roadmap created: 2026-02-03*
@@ -162,4 +162,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 *Phase 6 planned: 2026-02-03*
 *Phase 6 completed: 2026-02-03*
 *Phase 7 planned: 2026-02-03*
+*Phase 7 completed: 2026-02-03*
 *Total phases: 7 | Total plans: 17 | Requirements covered: 29*

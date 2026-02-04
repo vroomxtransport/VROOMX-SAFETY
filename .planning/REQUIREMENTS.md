@@ -52,10 +52,10 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### User Interface
 
-- [ ] **UI-01**: Dashboard shows "Last synced: X ago" indicator
-- [ ] **UI-02**: Manual "Sync Now" button available for immediate refresh
-- [ ] **UI-03**: Unlinked violations page shows items needing manual review
-- [ ] **UI-04**: Toast notification when new violations are imported
+- [x] **UI-01**: Dashboard shows "Last synced: X ago" indicator
+- [x] **UI-02**: Manual "Sync Now" button available for immediate refresh
+- [x] **UI-03**: Unlinked violations page shows items needing manual review
+- [x] **UI-04**: Toast notification when new violations are imported
 
 ## v2 Requirements
 
@@ -120,10 +120,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DATQ-01 | Phase 6 | Complete |
 | DATQ-02 | Phase 6 | Complete |
 | DATQ-03 | Phase 6 | Complete |
-| UI-01 | Phase 7 | Pending |
-| UI-02 | Phase 7 | Pending |
-| UI-03 | Phase 7 | Pending |
-| UI-04 | Phase 7 | Pending |
+| UI-01 | Phase 7 | Complete |
+| UI-02 | Phase 7 | Complete |
+| UI-03 | Phase 7 | Complete |
+| UI-04 | Phase 7 | Complete |
 
 **Coverage:**
 - v1 requirements: 29 total
@@ -132,4 +132,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-03*
-*Last updated: 2026-02-03 after Phase 6 completion*
+*Last updated: 2026-02-03 after Phase 7 completion*
