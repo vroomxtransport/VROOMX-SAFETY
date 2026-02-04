@@ -28,15 +28,19 @@ if (process.env.NODE_ENV === 'production') {
   const productionEnvVars = [
     'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET',
     'STRIPE_SOLO_PRICE_ID', 'STRIPE_FLEET_PRICE_ID', 'STRIPE_PRO_PRICE_ID',
-    'RESEND_API_KEY', 'FRONTEND_URL',
-    // FMCSA Data Sync (Phase 3)
-    'SAFERWEB_API_KEY',      // SaferWebAPI for inspection details
-    'SOCRATA_APP_TOKEN'      // DataHub API for violations (1000 req/hr)
+    'RESEND_API_KEY', 'FRONTEND_URL'
   ];
   const missingProdVars = productionEnvVars.filter(v => !process.env[v]);
   if (missingProdVars.length > 0) {
     console.error(`FATAL: Missing production environment variables: ${missingProdVars.join(', ')}`);
     process.exit(1);
+  }
+
+  // FMCSA credentials are optional - sync features disabled without them
+  const fmcsaVars = ['SAFERWEB_API_KEY', 'SOCRATA_APP_TOKEN'];
+  const missingFmcsa = fmcsaVars.filter(v => !process.env[v]);
+  if (missingFmcsa.length > 0) {
+    console.warn(`WARNING: Missing FMCSA credentials (${missingFmcsa.join(', ')}). FMCSA auto-sync will be disabled.`);
   }
 }
 
@@ -320,6 +324,11 @@ app.listen(PORT, () => {
 
   // Sync FMCSA data every 6 hours (CSA scores, violations, inspection stats)
   cron.schedule('0 */6 * * *', async () => {
+    // Skip if FMCSA credentials not configured
+    if (!process.env.SAFERWEB_API_KEY || !process.env.SOCRATA_APP_TOKEN) {
+      console.log('[Cron] FMCSA sync skipped - credentials not configured');
+      return;
+    }
     console.log('[Cron] Running FMCSA data sync...');
     try {
       const fmcsaSyncOrchestrator = require('./services/fmcsaSyncOrchestrator');

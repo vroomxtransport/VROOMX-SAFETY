@@ -206,6 +206,14 @@ router.get('/sync-status', protect, restrictToCompany, async (req, res) => {
  */
 router.post('/sync-violations', protect, restrictToCompany, syncLimiter, async (req, res) => {
   try {
+    // Check if FMCSA credentials are configured
+    if (!process.env.SAFERWEB_API_KEY || !process.env.SOCRATA_APP_TOKEN) {
+      return res.status(503).json({
+        success: false,
+        message: 'FMCSA sync not available - API credentials not configured'
+      });
+    }
+
     const { forceRefresh = false } = req.body;
 
     // Start sync (can take 30-60 seconds for large carriers)
