@@ -15,7 +15,7 @@ This milestone transforms VroomX Safety from basic PDF-only reporting to a compr
 - [x] **Phase 8: Export Foundation** - CSV/Excel export services with streaming architecture
 - [x] **Phase 9: Unified Filtering** - Date range, driver/vehicle/status filters across all reports
 - [x] **Phase 10: FMCSA Compliance Reports** - Enhanced DQF fields, new report types, audit formatting
-- [ ] **Phase 11: Report Builder** - Field selector, templates, preview functionality
+- [x] **Phase 11: Report Builder** - Field selector, templates, preview functionality
 - [ ] **Phase 12: Report History** - Generation tracking with re-download capability
 
 ## Phase Details
@@ -83,9 +83,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 11-01-PLAN.md — ReportTemplate model, field definitions config, and template CRUD routes
-- [ ] 11-02-PLAN.md — Extend report endpoints with fields param and add preview endpoints
-- [ ] 11-03-PLAN.md — FieldSelector, ReportPreview, TemplateManager components and Reports page integration
+- [x] 11-01-PLAN.md — ReportTemplate model, field definitions config, and template CRUD routes
+- [x] 11-02-PLAN.md — Extend report endpoints with fields param and add preview endpoints
+- [x] 11-03-PLAN.md — FieldSelector, ReportPreview, TemplateManager components and Reports page integration
 
 ### Phase 12: Report History
 **Goal**: Users can view previously generated reports and re-download them within retention period
@@ -112,7 +112,7 @@ Phases execute in numeric order: 8 -> 9 -> 10 -> 11 -> 12
 | 8. Export Foundation | v2.0 | 2/2 | Complete | 2026-02-04 |
 | 9. Unified Filtering | v2.0 | 2/2 | Complete | 2026-02-04 |
 | 10. FMCSA Compliance Reports | v2.0 | 3/3 | Complete | 2026-02-04 |
-| 11. Report Builder | v2.0 | 0/3 | Planned | - |
+| 11. Report Builder | v2.0 | 3/3 | Complete | 2026-02-04 |
 | 12. Report History | v2.0 | 0/2 | Not started | - |
 
 ---

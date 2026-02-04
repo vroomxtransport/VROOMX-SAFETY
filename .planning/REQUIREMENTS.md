@@ -31,12 +31,12 @@ Requirements for Enhanced Reports Module release. Each maps to roadmap phases.
 
 ### Report Builder
 
-- [ ] **BLDR-01**: User can select which fields/columns appear in report via checkboxes
-- [ ] **BLDR-02**: User can save current filter + field configuration as named template
-- [ ] **BLDR-03**: User can load saved template to regenerate report with same settings
-- [ ] **BLDR-04**: User can preview report (first 10 rows) before downloading full report
-- [ ] **BLDR-05**: System provides pre-built FMCSA templates (DQF Audit, Vehicle Inspection, Violations Summary)
-- [ ] **BLDR-06**: User can duplicate and customize pre-built templates
+- [x] **BLDR-01**: User can select which fields/columns appear in report via checkboxes
+- [x] **BLDR-02**: User can save current filter + field configuration as named template
+- [x] **BLDR-03**: User can load saved template to regenerate report with same settings
+- [x] **BLDR-04**: User can preview report (first 10 rows) before downloading full report
+- [x] **BLDR-05**: System provides pre-built FMCSA templates (DQF Audit, Vehicle Inspection, Violations Summary)
+- [x] **BLDR-06**: User can duplicate and customize pre-built templates
 
 ### Report History
 
@@ -101,12 +101,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FMCS-07 | Phase 10 | Complete |
 | FMCS-08 | Phase 10 | Complete |
 | FMCS-09 | Phase 10 | Complete |
-| BLDR-01 | Phase 11 | Pending |
-| BLDR-02 | Phase 11 | Pending |
-| BLDR-03 | Phase 11 | Pending |
-| BLDR-04 | Phase 11 | Pending |
-| BLDR-05 | Phase 11 | Pending |
-| BLDR-06 | Phase 11 | Pending |
+| BLDR-01 | Phase 11 | Complete |
+| BLDR-02 | Phase 11 | Complete |
+| BLDR-03 | Phase 11 | Complete |
+| BLDR-04 | Phase 11 | Complete |
+| BLDR-05 | Phase 11 | Complete |
+| BLDR-06 | Phase 11 | Complete |
 | HIST-01 | Phase 12 | Pending |
 | HIST-02 | Phase 12 | Pending |
 | HIST-03 | Phase 12 | Pending |
@@ -126,4 +126,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-04*
-*Last updated: 2026-02-04 after Phase 10 completion*
+*Last updated: 2026-02-04 after Phase 11 completion*
