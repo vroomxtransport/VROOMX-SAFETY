@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { reportsAPI, driversAPI, vehiclesAPI } from '../utils/api';
 import { downloadBlob } from '../utils/helpers';
 import toast from 'react-hot-toast';
-import { FiFileText, FiDownload, FiUsers, FiTruck, FiAlertTriangle, FiClipboard, FiCalendar, FiActivity } from 'react-icons/fi';
+import { FiFileText, FiDownload, FiUsers, FiTruck, FiAlertTriangle, FiClipboard, FiCalendar, FiActivity, FiDollarSign } from 'react-icons/fi';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ReportFilters from '../components/filters/ReportFilters';
 import { REPORT_FILTER_CONFIG } from '../utils/reportFilterConfig';
@@ -79,6 +79,30 @@ const Reports = () => {
       icon: FiActivity,
       color: 'purple',
       api: reportsAPI.getDrugAlcoholReport
+    },
+    {
+      id: 'dataq-history',
+      title: 'DataQ Challenge History',
+      description: 'Challenge submissions, outcomes, success rate, and estimated CSA points saved.',
+      icon: FiFileText,
+      color: 'indigo',
+      api: reportsAPI.getDataQHistoryReport
+    },
+    {
+      id: 'accident-summary',
+      title: 'Accident Summary',
+      description: 'Accident history with DOT reportable status, injuries, fatalities, and costs.',
+      icon: FiAlertTriangle,
+      color: 'red',
+      api: reportsAPI.getAccidentSummaryReport
+    },
+    {
+      id: 'maintenance-costs',
+      title: 'Maintenance Cost Report',
+      description: 'Spending analysis by vehicle, category, and vendor.',
+      icon: FiDollarSign,
+      color: 'green',
+      api: reportsAPI.getMaintenanceCostReport
     }
   ];
 
@@ -141,7 +165,8 @@ const Reports = () => {
     red: { bg: 'bg-red-100', text: 'text-red-600' },
     green: { bg: 'bg-green-100', text: 'text-green-600' },
     yellow: { bg: 'bg-yellow-100', text: 'text-yellow-600' },
-    purple: { bg: 'bg-purple-100', text: 'text-purple-600' }
+    purple: { bg: 'bg-purple-100', text: 'text-purple-600' },
+    indigo: { bg: 'bg-indigo-100', text: 'text-indigo-600' }
   };
 
   // Get filter config for selected report

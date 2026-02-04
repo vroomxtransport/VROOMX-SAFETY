@@ -239,6 +239,31 @@ export const reportsAPI = {
     params,
     responseType: ['pdf', 'csv', 'xlsx'].includes(params.format) ? 'blob' : 'json',
     ...(['pdf', 'csv', 'xlsx'].includes(params.format) && { timeout: 300000 })
+  }),
+  getDataQHistoryReport: (params) => api.get('/reports/dataq-history', {
+    params: {
+      ...params,
+      driverIds: params.driverIds?.length ? params.driverIds.join(',') : undefined
+    },
+    responseType: ['pdf', 'csv', 'xlsx'].includes(params.format) ? 'blob' : 'json',
+    ...(['pdf', 'csv', 'xlsx'].includes(params.format) && { timeout: 300000 })
+  }),
+  getAccidentSummaryReport: (params) => api.get('/reports/accident-summary', {
+    params: {
+      ...params,
+      driverIds: params.driverIds?.length ? params.driverIds.join(',') : undefined,
+      vehicleIds: params.vehicleIds?.length ? params.vehicleIds.join(',') : undefined
+    },
+    responseType: ['pdf', 'csv', 'xlsx'].includes(params.format) ? 'blob' : 'json',
+    ...(['pdf', 'csv', 'xlsx'].includes(params.format) && { timeout: 300000 })
+  }),
+  getMaintenanceCostReport: (params) => api.get('/reports/maintenance-costs', {
+    params: {
+      ...params,
+      vehicleIds: params.vehicleIds?.length ? params.vehicleIds.join(',') : undefined
+    },
+    responseType: ['pdf', 'csv', 'xlsx'].includes(params.format) ? 'blob' : 'json',
+    ...(['pdf', 'csv', 'xlsx'].includes(params.format) && { timeout: 300000 })
   })
 };
 

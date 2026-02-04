@@ -73,5 +73,32 @@ export const REPORT_FILTER_CONFIG = {
     enableStatusFilter: false,
     dateFilterField: 'testDate',
     statusOptions: []
+  },
+
+  'dataq-history': {
+    enableDateRange: true,
+    enableDriverFilter: true,
+    enableVehicleFilter: false,
+    enableStatusFilter: false,
+    dateFilterField: 'dataQChallenge.submissionDate',
+    statusOptions: []
+  },
+
+  'accident-summary': {
+    enableDateRange: true,
+    enableDriverFilter: true,
+    enableVehicleFilter: true,
+    enableStatusFilter: false,
+    dateFilterField: 'accidentDate',
+    statusOptions: []
+  },
+
+  'maintenance-costs': {
+    enableDateRange: true,
+    enableDriverFilter: false,
+    enableVehicleFilter: true,
+    enableStatusFilter: false,
+    dateFilterField: 'serviceDate',
+    statusOptions: []
   }
 };
