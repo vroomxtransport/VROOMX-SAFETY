@@ -29,11 +29,11 @@ This milestone transforms VroomX Safety from basic PDF-only reporting to a compr
   2. User can download any existing report as Excel file (.xlsx) with formatted headers and proper column widths
   3. Large reports (50+ drivers, multi-year data) complete without memory errors or timeouts
   4. Downloaded files have descriptive names including report type and generation timestamp
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 08-01: CSV/Excel export services
-- [ ] 08-02: Integration with existing reports
+- [ ] 08-01-PLAN.md — Create exportService with streaming CSV/Excel and extend backend report routes
+- [ ] 08-02-PLAN.md — Add CSV/Excel buttons to Reports page and update frontend API client
 
 ### Phase 9: Unified Filtering
 **Goal**: Users can filter any report by date range, driver, vehicle, and status with convenient presets
@@ -109,7 +109,7 @@ Phases execute in numeric order: 8 -> 9 -> 10 -> 11 -> 12
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 8. Export Foundation | v2.0 | 0/2 | Not started | - |
+| 8. Export Foundation | v2.0 | 0/2 | Planned | - |
 | 9. Unified Filtering | v2.0 | 0/2 | Not started | - |
 | 10. FMCSA Compliance Reports | v2.0 | 0/3 | Not started | - |
 | 11. Report Builder | v2.0 | 0/3 | Not started | - |
