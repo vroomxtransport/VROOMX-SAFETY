@@ -63,12 +63,12 @@ Plans:
   5. User can generate Accident Summary Report showing DOT reportable status, injuries, fatalities, and costs
   6. User can generate Maintenance Cost Report showing spending by vehicle, category, and vendor
   7. All PDF reports display company DOT number and generation timestamp in header, with consistent formatting suitable for DOT audit presentation
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 10-01: Enhanced DQF fields and audit formatting
-- [ ] 10-02: Document Expiration and Drug & Alcohol reports
-- [ ] 10-03: DataQ, Accident, and Maintenance reports
+- [ ] 10-01-PLAN.md — Extend DQF endpoint with 49 CFR 391.51 compliance fields (Clearinghouse, MVR, employment verification)
+- [ ] 10-02-PLAN.md — Create Document Expiration and Drug & Alcohol Summary report endpoints
+- [ ] 10-03-PLAN.md — Create DataQ Challenge History, Accident Summary, and Maintenance Cost report endpoints
 
 ### Phase 11: Report Builder
 **Goal**: Users can customize report content with field selection, save configurations as templates, and preview before downloading
