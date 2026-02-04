@@ -665,3 +665,13 @@ export const reportTemplatesAPI = {
   delete: (id) => api.delete(`/report-templates/${id}`),
   duplicate: (id) => api.post(`/report-templates/${id}/duplicate`)
 };
+
+// Report History API - View and re-download previously generated reports
+export const reportHistoryAPI = {
+  getAll: (params) => api.get('/report-history', { params }),
+  getById: (id) => api.get(`/report-history/${id}`),
+  download: (id) => api.get(`/report-history/${id}/download`, {
+    responseType: 'blob',
+    timeout: 300000 // 5 minutes for large files
+  })
+};
