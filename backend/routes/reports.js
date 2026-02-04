@@ -14,11 +14,32 @@ router.use(restrictToCompany);
 // @desc    Generate Driver Qualification File report
 // @access  Private
 router.get('/dqf', checkPermission('reports', 'view'), asyncHandler(async (req, res) => {
-  const { driverId, format = 'json' } = req.query;
+  const { driverId, driverIds, startDate, endDate, complianceStatus, format = 'json' } = req.query;
   const companyId = req.companyFilter.companyId;
 
   const query = { companyId, status: 'active' };
-  if (driverId) query._id = driverId;
+
+  // Multi-select driver filter (takes precedence over single driverId)
+  if (driverIds) {
+    const ids = driverIds.split(',').filter(Boolean);
+    if (ids.length > 0) {
+      query._id = { $in: ids };
+    }
+  } else if (driverId) {
+    query._id = driverId;
+  }
+
+  // Compliance status filter
+  if (complianceStatus) {
+    query['complianceStatus.overall'] = complianceStatus;
+  }
+
+  // Date range filter on hireDate
+  if (startDate || endDate) {
+    query.hireDate = {};
+    if (startDate) query.hireDate.$gte = new Date(startDate);
+    if (endDate) query.hireDate.$lte = new Date(endDate);
+  }
 
   const drivers = await Driver.find(query).select('-ssn');
   const company = await Company.findById(companyId);
@@ -169,11 +190,32 @@ router.get('/dqf', checkPermission('reports', 'view'), asyncHandler(async (req, 
 // @desc    Generate Vehicle Maintenance report
 // @access  Private
 router.get('/vehicle-maintenance', checkPermission('reports', 'view'), asyncHandler(async (req, res) => {
-  const { vehicleId, startDate, endDate, format = 'json' } = req.query;
+  const { vehicleId, vehicleIds, startDate, endDate, complianceStatus, format = 'json' } = req.query;
   const companyId = req.companyFilter.companyId;
 
   const query = { companyId };
-  if (vehicleId) query._id = vehicleId;
+
+  // Multi-select vehicle filter (takes precedence over single vehicleId)
+  if (vehicleIds) {
+    const ids = vehicleIds.split(',').filter(Boolean);
+    if (ids.length > 0) {
+      query._id = { $in: ids };
+    }
+  } else if (vehicleId) {
+    query._id = vehicleId;
+  }
+
+  // Compliance status filter
+  if (complianceStatus) {
+    query['complianceStatus.overall'] = complianceStatus;
+  }
+
+  // Date range filter on annualInspection.nextDueDate
+  if (startDate || endDate) {
+    query['annualInspection.nextDueDate'] = {};
+    if (startDate) query['annualInspection.nextDueDate'].$gte = new Date(startDate);
+    if (endDate) query['annualInspection.nextDueDate'].$lte = new Date(endDate);
+  }
 
   const vehicles = await Vehicle.find(query);
   const company = await Company.findById(companyId);
@@ -313,14 +355,37 @@ router.get('/vehicle-maintenance', checkPermission('reports', 'view'), asyncHand
 // @desc    Generate Violations report
 // @access  Private
 router.get('/violations', checkPermission('reports', 'view'), asyncHandler(async (req, res) => {
-  const { startDate, endDate, format = 'json' } = req.query;
+  const { startDate, endDate, driverIds, vehicleIds, status, format = 'json' } = req.query;
   const companyId = req.companyFilter.companyId;
 
   const query = { companyId };
+
+  // Date range filter
   if (startDate || endDate) {
     query.violationDate = {};
     if (startDate) query.violationDate.$gte = new Date(startDate);
     if (endDate) query.violationDate.$lte = new Date(endDate);
+  }
+
+  // Multi-select driver filter
+  if (driverIds) {
+    const ids = driverIds.split(',').filter(Boolean);
+    if (ids.length > 0) {
+      query.driverId = { $in: ids };
+    }
+  }
+
+  // Multi-select vehicle filter
+  if (vehicleIds) {
+    const ids = vehicleIds.split(',').filter(Boolean);
+    if (ids.length > 0) {
+      query.vehicleId = { $in: ids };
+    }
+  }
+
+  // Status filter
+  if (status) {
+    query.status = status;
   }
 
   const violations = await Violation.find(query)
