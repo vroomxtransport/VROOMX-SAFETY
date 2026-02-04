@@ -11,11 +11,11 @@ Requirements for Enhanced Reports Module release. Each maps to roadmap phases.
 
 - [x] **EXPF-01**: User can export any report as CSV file
 - [x] **EXPF-02**: User can export any report as Excel file (.xlsx) with formatted headers
-- [ ] **EXPF-03**: User can filter any report by date range (start/end dates)
-- [ ] **EXPF-04**: User can filter any report by driver (single or multiple)
-- [ ] **EXPF-05**: User can filter any report by vehicle (single or multiple)
-- [ ] **EXPF-06**: User can filter any report by status (active, expired, compliant, etc.)
-- [ ] **EXPF-07**: User can select dynamic date range presets (Last 30 days, This quarter, YTD, Custom)
+- [x] **EXPF-03**: User can filter any report by date range (start/end dates)
+- [x] **EXPF-04**: User can filter any report by driver (single or multiple)
+- [x] **EXPF-05**: User can filter any report by vehicle (single or multiple)
+- [x] **EXPF-06**: User can filter any report by status (active, expired, compliant, etc.)
+- [x] **EXPF-07**: User can select dynamic date range presets (Last 30 days, This quarter, YTD, Custom)
 
 ### FMCSA Compliance
 
@@ -87,11 +87,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | EXPF-01 | Phase 8 | Complete |
 | EXPF-02 | Phase 8 | Complete |
-| EXPF-03 | Phase 9 | Pending |
-| EXPF-04 | Phase 9 | Pending |
-| EXPF-05 | Phase 9 | Pending |
-| EXPF-06 | Phase 9 | Pending |
-| EXPF-07 | Phase 9 | Pending |
+| EXPF-03 | Phase 9 | Complete |
+| EXPF-04 | Phase 9 | Complete |
+| EXPF-05 | Phase 9 | Complete |
+| EXPF-06 | Phase 9 | Complete |
+| EXPF-07 | Phase 9 | Complete |
 | FMCS-01 | Phase 10 | Pending |
 | FMCS-02 | Phase 10 | Pending |
 | FMCS-03 | Phase 10 | Pending |
@@ -126,4 +126,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-04*
-*Last updated: 2026-02-04 after Phase 8 completion*
+*Last updated: 2026-02-04 after Phase 9 completion*
