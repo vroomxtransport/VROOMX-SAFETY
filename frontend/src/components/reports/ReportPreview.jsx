@@ -49,7 +49,7 @@ const ReportPreview = ({
       }
 
       const response = await reportsAPI.getPreview(reportType, params);
-      setPreviewData(response.data);
+      setPreviewData(response.data.preview);
     } catch (err) {
       console.error('Preview fetch error:', err);
       setError(err.response?.data?.error || 'Failed to load preview');
