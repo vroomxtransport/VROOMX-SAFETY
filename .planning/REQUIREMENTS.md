@@ -19,15 +19,15 @@ Requirements for Enhanced Reports Module release. Each maps to roadmap phases.
 
 ### FMCSA Compliance
 
-- [ ] **FMCS-01**: DQF report includes Clearinghouse query date per driver
-- [ ] **FMCS-02**: DQF report includes MVR review date per driver
-- [ ] **FMCS-03**: DQF report includes safety performance history investigation status
-- [ ] **FMCS-04**: DQF report includes employment application verification status
-- [ ] **FMCS-05**: User can generate Document Expiration Report showing items expiring in 30/60/90 days
-- [ ] **FMCS-06**: User can generate Drug & Alcohol Summary Report with testing compliance status
-- [ ] **FMCS-07**: Drug & Alcohol Report shows random pool compliance (50% drug, 10% alcohol)
-- [ ] **FMCS-08**: All reports include company DOT number and generation timestamp in header
-- [ ] **FMCS-09**: PDF reports use consistent formatting suitable for DOT audit presentation
+- [x] **FMCS-01**: DQF report includes Clearinghouse query date per driver
+- [x] **FMCS-02**: DQF report includes MVR review date per driver
+- [x] **FMCS-03**: DQF report includes safety performance history investigation status
+- [x] **FMCS-04**: DQF report includes employment application verification status
+- [x] **FMCS-05**: User can generate Document Expiration Report showing items expiring in 30/60/90 days
+- [x] **FMCS-06**: User can generate Drug & Alcohol Summary Report with testing compliance status
+- [x] **FMCS-07**: Drug & Alcohol Report shows random pool compliance (50% drug, 10% alcohol)
+- [x] **FMCS-08**: All reports include company DOT number and generation timestamp in header
+- [x] **FMCS-09**: PDF reports use consistent formatting suitable for DOT audit presentation
 
 ### Report Builder
 
@@ -47,13 +47,13 @@ Requirements for Enhanced Reports Module release. Each maps to roadmap phases.
 
 ### New Report Types
 
-- [ ] **NRPT-01**: User can generate DataQ Challenge History Report
-- [ ] **NRPT-02**: DataQ report shows challenge submissions, outcomes, success rate
-- [ ] **NRPT-03**: DataQ report shows estimated CSA points saved from accepted challenges
-- [ ] **NRPT-04**: User can generate Accident Summary Report
-- [ ] **NRPT-05**: Accident report shows DOT reportable status, injuries, fatalities, costs
-- [ ] **NRPT-06**: User can generate Maintenance Cost Report
-- [ ] **NRPT-07**: Maintenance report shows spending by vehicle, category, and vendor
+- [x] **NRPT-01**: User can generate DataQ Challenge History Report
+- [x] **NRPT-02**: DataQ report shows challenge submissions, outcomes, success rate
+- [x] **NRPT-03**: DataQ report shows estimated CSA points saved from accepted challenges
+- [x] **NRPT-04**: User can generate Accident Summary Report
+- [x] **NRPT-05**: Accident report shows DOT reportable status, injuries, fatalities, costs
+- [x] **NRPT-06**: User can generate Maintenance Cost Report
+- [x] **NRPT-07**: Maintenance report shows spending by vehicle, category, and vendor
 
 ## Future Requirements (v2.1+)
 
@@ -92,15 +92,15 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EXPF-05 | Phase 9 | Complete |
 | EXPF-06 | Phase 9 | Complete |
 | EXPF-07 | Phase 9 | Complete |
-| FMCS-01 | Phase 10 | Pending |
-| FMCS-02 | Phase 10 | Pending |
-| FMCS-03 | Phase 10 | Pending |
-| FMCS-04 | Phase 10 | Pending |
-| FMCS-05 | Phase 10 | Pending |
-| FMCS-06 | Phase 10 | Pending |
-| FMCS-07 | Phase 10 | Pending |
-| FMCS-08 | Phase 10 | Pending |
-| FMCS-09 | Phase 10 | Pending |
+| FMCS-01 | Phase 10 | Complete |
+| FMCS-02 | Phase 10 | Complete |
+| FMCS-03 | Phase 10 | Complete |
+| FMCS-04 | Phase 10 | Complete |
+| FMCS-05 | Phase 10 | Complete |
+| FMCS-06 | Phase 10 | Complete |
+| FMCS-07 | Phase 10 | Complete |
+| FMCS-08 | Phase 10 | Complete |
+| FMCS-09 | Phase 10 | Complete |
 | BLDR-01 | Phase 11 | Pending |
 | BLDR-02 | Phase 11 | Pending |
 | BLDR-03 | Phase 11 | Pending |
@@ -111,13 +111,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | HIST-02 | Phase 12 | Pending |
 | HIST-03 | Phase 12 | Pending |
 | HIST-04 | Phase 12 | Pending |
-| NRPT-01 | Phase 10 | Pending |
-| NRPT-02 | Phase 10 | Pending |
-| NRPT-03 | Phase 10 | Pending |
-| NRPT-04 | Phase 10 | Pending |
-| NRPT-05 | Phase 10 | Pending |
-| NRPT-06 | Phase 10 | Pending |
-| NRPT-07 | Phase 10 | Pending |
+| NRPT-01 | Phase 10 | Complete |
+| NRPT-02 | Phase 10 | Complete |
+| NRPT-03 | Phase 10 | Complete |
+| NRPT-04 | Phase 10 | Complete |
+| NRPT-05 | Phase 10 | Complete |
+| NRPT-06 | Phase 10 | Complete |
+| NRPT-07 | Phase 10 | Complete |
 
 **Coverage:**
 - v2.0 requirements: 33 total
@@ -126,4 +126,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-04*
-*Last updated: 2026-02-04 after Phase 9 completion*
+*Last updated: 2026-02-04 after Phase 10 completion*
