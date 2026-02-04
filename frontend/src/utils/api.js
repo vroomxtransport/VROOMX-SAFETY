@@ -225,6 +225,20 @@ export const reportsAPI = {
     params,
     responseType: ['pdf', 'csv', 'xlsx'].includes(params.format) ? 'blob' : 'json',
     ...(['pdf', 'csv', 'xlsx'].includes(params.format) && { timeout: 300000 })
+  }),
+  getDocumentExpirationReport: (params) => api.get('/reports/document-expiration', {
+    params: {
+      ...params,
+      driverIds: params.driverIds?.length ? params.driverIds.join(',') : undefined,
+      vehicleIds: params.vehicleIds?.length ? params.vehicleIds.join(',') : undefined
+    },
+    responseType: ['pdf', 'csv', 'xlsx'].includes(params.format) ? 'blob' : 'json',
+    ...(['pdf', 'csv', 'xlsx'].includes(params.format) && { timeout: 300000 })
+  }),
+  getDrugAlcoholReport: (params) => api.get('/reports/drug-alcohol-summary', {
+    params,
+    responseType: ['pdf', 'csv', 'xlsx'].includes(params.format) ? 'blob' : 'json',
+    ...(['pdf', 'csv', 'xlsx'].includes(params.format) && { timeout: 300000 })
   })
 };
 

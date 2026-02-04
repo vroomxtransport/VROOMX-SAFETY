@@ -55,5 +55,23 @@ export const REPORT_FILTER_CONFIG = {
     enableStatusFilter: false,
     dateFilterField: null,
     statusOptions: []
+  },
+
+  'document-expiration': {
+    enableDateRange: false, // Uses fixed windows, not date range
+    enableDriverFilter: true,
+    enableVehicleFilter: true,
+    enableStatusFilter: false,
+    dateFilterField: null,
+    statusOptions: []
+  },
+
+  'drug-alcohol': {
+    enableDateRange: true, // Allows specifying reporting period
+    enableDriverFilter: false,
+    enableVehicleFilter: false,
+    enableStatusFilter: false,
+    dateFilterField: 'testDate',
+    statusOptions: []
   }
 };

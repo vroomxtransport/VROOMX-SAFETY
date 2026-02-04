@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { reportsAPI, driversAPI, vehiclesAPI } from '../utils/api';
 import { downloadBlob } from '../utils/helpers';
 import toast from 'react-hot-toast';
-import { FiFileText, FiDownload, FiUsers, FiTruck, FiAlertTriangle, FiClipboard } from 'react-icons/fi';
+import { FiFileText, FiDownload, FiUsers, FiTruck, FiAlertTriangle, FiClipboard, FiCalendar, FiActivity } from 'react-icons/fi';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ReportFilters from '../components/filters/ReportFilters';
 import { REPORT_FILTER_CONFIG } from '../utils/reportFilterConfig';
@@ -63,6 +63,22 @@ const Reports = () => {
       icon: FiClipboard,
       color: 'green',
       api: reportsAPI.getAuditReport
+    },
+    {
+      id: 'document-expiration',
+      title: 'Document Expiration Report',
+      description: 'Documents expiring within 30, 60, or 90 days grouped by urgency window.',
+      icon: FiCalendar,
+      color: 'yellow',
+      api: reportsAPI.getDocumentExpirationReport
+    },
+    {
+      id: 'drug-alcohol',
+      title: 'Drug & Alcohol Summary',
+      description: 'Testing compliance status with random pool percentages (50% drug, 10% alcohol).',
+      icon: FiActivity,
+      color: 'purple',
+      api: reportsAPI.getDrugAlcoholReport
     }
   ];
 
@@ -123,7 +139,9 @@ const Reports = () => {
     blue: { bg: 'bg-blue-100', text: 'text-blue-600' },
     orange: { bg: 'bg-orange-100', text: 'text-orange-600' },
     red: { bg: 'bg-red-100', text: 'text-red-600' },
-    green: { bg: 'bg-green-100', text: 'text-green-600' }
+    green: { bg: 'bg-green-100', text: 'text-green-600' },
+    yellow: { bg: 'bg-yellow-100', text: 'text-yellow-600' },
+    purple: { bg: 'bg-purple-100', text: 'text-purple-600' }
   };
 
   // Get filter config for selected report
