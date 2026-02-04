@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { dashboardAPI, csaAPI, fmcsaInspectionsAPI, driversAPI } from '../utils/api';
+import { dashboardAPI, csaAPI, fmcsaInspectionsAPI, driversAPI, fmcsaAPI } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import {
   FiUsers, FiTruck, FiAlertTriangle, FiClock,
@@ -27,6 +27,8 @@ const Dashboard = () => {
   const [benchmarkData, setBenchmarkData] = useState(null);
   const [recentInspections, setRecentInspections] = useState([]);
   const [topRiskDrivers, setTopRiskDrivers] = useState([]);
+  const [syncStatus, setSyncStatus] = useState(null);
+  const [syncing, setSyncing] = useState(false);
 
   useEffect(() => {
     fetchDashboard();
@@ -34,14 +36,15 @@ const Dashboard = () => {
 
   const fetchDashboard = async () => {
     try {
-      const [dashboardRes, trendRes, complianceRes, historyRes, benchmarkRes, inspectionsRes, riskDriversRes] = await Promise.all([
+      const [dashboardRes, trendRes, complianceRes, historyRes, benchmarkRes, inspectionsRes, riskDriversRes, syncStatusRes] = await Promise.all([
         dashboardAPI.get(),
         csaAPI.getTrendSummary(30).catch(() => null),
         dashboardAPI.getComplianceScore().catch(() => null),
         dashboardAPI.getComplianceHistory(30).catch(() => null),
         csaAPI.getBenchmark().catch(() => null),
         fmcsaInspectionsAPI.getRecent(5).catch(() => null),
-        driversAPI.getRiskRanking(5).catch(() => null)
+        driversAPI.getRiskRanking(5).catch(() => null),
+        fmcsaAPI.getSyncStatus().catch(() => null)
       ]);
       setData(dashboardRes.data.dashboard);
       if (trendRes?.data) {
@@ -61,6 +64,9 @@ const Dashboard = () => {
       }
       if (riskDriversRes?.data?.drivers) {
         setTopRiskDrivers(riskDriversRes.data.drivers);
+      }
+      if (syncStatusRes?.data) {
+        setSyncStatus(syncStatusRes.data);
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to load dashboard');
@@ -184,6 +190,26 @@ const Dashboard = () => {
 
     return `${monthNames[date.getMonth()]} ${date.getDate()} (${dayNames[date.getDay()]})`;
   };
+
+  // Format last sync time as relative time
+  const formatLastSync = (date) => {
+    if (!date) return 'Never synced';
+    const d = new Date(date);
+    const now = new Date();
+    const diff = now - d;
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes} min ago`;
+    if (hours < 24) return `${hours}h ago`;
+    return `${days}d ago`;
+  };
+
+  // Check if sync data is stale (>6 hours)
+  const isDataStale = syncStatus?.lastSync &&
+    (Date.now() - new Date(syncStatus.lastSync).getTime()) > 6 * 60 * 60 * 1000;
 
   if (loading) {
     return (
