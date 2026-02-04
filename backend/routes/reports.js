@@ -55,6 +55,371 @@ const parseFieldsParam = (fieldsParam, reportType) => {
 router.use(protect);
 router.use(restrictToCompany);
 
+// ============================================
+// PREVIEW ENDPOINTS (must be before main routes)
+// ============================================
+
+// Helper to build preview response
+const buildPreviewResponse = (rows, selectedFields, reportType, totalCount) => {
+  const fieldDefs = REPORT_FIELD_DEFINITIONS[reportType]?.fields || [];
+  const fieldsToUse = selectedFields || fieldDefs.map(f => f.key);
+
+  const columns = fieldsToUse.map(key => {
+    const def = fieldDefs.find(f => f.key === key);
+    return {
+      key,
+      label: def?.label || key,
+      type: def?.type || 'string'
+    };
+  });
+
+  return {
+    success: true,
+    preview: {
+      rows,
+      columns,
+      totalCount,
+      previewCount: rows.length,
+      hasMore: totalCount > PREVIEW_LIMIT
+    }
+  };
+};
+
+// @route   GET /api/reports/dqf/preview
+// @desc    Preview DQF report - first 10 rows with metadata
+// @access  Private
+router.get('/dqf/preview', checkPermission('reports', 'view'), asyncHandler(async (req, res) => {
+  const { driverIds, fields } = req.query;
+  const companyId = req.companyFilter.companyId;
+
+  const selectedFields = parseFieldsParam(fields, 'dqf');
+
+  const query = { companyId, status: 'active' };
+  if (driverIds) {
+    const ids = driverIds.split(',').filter(Boolean);
+    if (ids.length > 0) query._id = { $in: ids };
+  }
+
+  const totalCount = await Driver.countDocuments(query);
+  const drivers = await Driver.find(query)
+    .select('-ssn')
+    .sort({ lastName: 1, firstName: 1 })
+    .limit(PREVIEW_LIMIT)
+    .lean();
+
+  const allRows = drivers.map(d => buildDqfRow(d));
+  const rows = selectedFields ? allRows.map(row => filterRowToFields(row, selectedFields)) : allRows;
+
+  return res.json(buildPreviewResponse(rows, selectedFields, 'dqf', totalCount));
+}));
+
+// @route   GET /api/reports/vehicle-maintenance/preview
+// @desc    Preview Vehicle Maintenance report
+// @access  Private
+router.get('/vehicle-maintenance/preview', checkPermission('reports', 'view'), asyncHandler(async (req, res) => {
+  const { vehicleIds, fields } = req.query;
+  const companyId = req.companyFilter.companyId;
+
+  const selectedFields = parseFieldsParam(fields, 'vehicle');
+
+  const query = { companyId };
+  if (vehicleIds) {
+    const ids = vehicleIds.split(',').filter(Boolean);
+    if (ids.length > 0) query._id = { $in: ids };
+  }
+
+  const totalCount = await Vehicle.countDocuments(query);
+  const vehicles = await Vehicle.find(query)
+    .sort({ unitNumber: 1 })
+    .limit(PREVIEW_LIMIT)
+    .lean();
+
+  const allRows = vehicles.map(v => buildVehicleRow(v));
+  const rows = selectedFields ? allRows.map(row => filterRowToFields(row, selectedFields)) : allRows;
+
+  return res.json(buildPreviewResponse(rows, selectedFields, 'vehicle', totalCount));
+}));
+
+// @route   GET /api/reports/violations/preview
+// @desc    Preview Violations report
+// @access  Private
+router.get('/violations/preview', checkPermission('reports', 'view'), asyncHandler(async (req, res) => {
+  const { driverIds, vehicleIds, fields } = req.query;
+  const companyId = req.companyFilter.companyId;
+
+  const selectedFields = parseFieldsParam(fields, 'violations');
+
+  const query = { companyId };
+  if (driverIds) {
+    const ids = driverIds.split(',').filter(Boolean);
+    if (ids.length > 0) query.driverId = { $in: ids };
+  }
+  if (vehicleIds) {
+    const ids = vehicleIds.split(',').filter(Boolean);
+    if (ids.length > 0) query.vehicleId = { $in: ids };
+  }
+
+  const totalCount = await Violation.countDocuments(query);
+  const violations = await Violation.find(query)
+    .populate('driverId', 'firstName lastName')
+    .populate('vehicleId', 'unitNumber')
+    .sort('-violationDate')
+    .limit(PREVIEW_LIMIT)
+    .lean();
+
+  const allRows = violations.map(v => buildViolationRow(v));
+  const rows = selectedFields ? allRows.map(row => filterRowToFields(row, selectedFields)) : allRows;
+
+  return res.json(buildPreviewResponse(rows, selectedFields, 'violations', totalCount));
+}));
+
+// @route   GET /api/reports/audit/preview
+// @desc    Preview Audit report
+// @access  Private
+router.get('/audit/preview', checkPermission('reports', 'export'), asyncHandler(async (req, res) => {
+  const { fields } = req.query;
+  const companyId = req.companyFilter.companyId;
+
+  const selectedFields = parseFieldsParam(fields, 'audit');
+
+  const [company, drivers, vehicles, violations, drugTests, documents] = await Promise.all([
+    Company.findById(companyId),
+    Driver.find({ companyId, status: 'active' }),
+    Vehicle.find({ companyId, status: { $in: ['active', 'maintenance'] } }),
+    Violation.find({ companyId }).sort('-violationDate').limit(50),
+    DrugAlcoholTest.find({ companyId }).sort('-testDate').limit(50),
+    Document.find({ companyId, isDeleted: false })
+  ]);
+
+  const auditData = {
+    driverQualification: {
+      totalActive: drivers.length,
+      compliant: drivers.filter(d => d.complianceStatus?.overall === 'compliant').length,
+      withIssues: drivers.filter(d => d.complianceStatus?.overall !== 'compliant').length
+    },
+    vehicles: {
+      total: vehicles.length,
+      compliant: vehicles.filter(v => v.complianceStatus?.overall === 'compliant').length,
+      needingAttention: vehicles.filter(v => v.complianceStatus?.overall !== 'compliant').length
+    },
+    violations: {
+      total: violations.length,
+      open: violations.filter(v => v.status === 'open').length,
+      disputed: violations.filter(v => v.status === 'dispute_in_progress').length
+    },
+    drugAlcohol: {
+      totalTests: drugTests.length
+    },
+    documents: {
+      total: documents.length,
+      expiringSoon: documents.filter(d => d.status === 'due_soon').length,
+      expired: documents.filter(d => d.status === 'expired').length
+    }
+  };
+
+  const allRows = [
+    { section: 'Company', metric: 'Name', value: company?.name || '-' },
+    { section: 'Company', metric: 'DOT Number', value: company?.dotNumber || '-' },
+    { section: 'Drivers', metric: 'Total Active', value: String(auditData.driverQualification.totalActive) },
+    { section: 'Drivers', metric: 'Compliant', value: String(auditData.driverQualification.compliant) },
+    { section: 'Vehicles', metric: 'Total', value: String(auditData.vehicles.total) },
+    { section: 'Vehicles', metric: 'Compliant', value: String(auditData.vehicles.compliant) },
+    { section: 'Violations', metric: 'Total (Last 50)', value: String(auditData.violations.total) },
+    { section: 'Documents', metric: 'Total', value: String(auditData.documents.total) },
+    { section: 'Documents', metric: 'Expiring Soon', value: String(auditData.documents.expiringSoon) },
+    { section: 'Documents', metric: 'Expired', value: String(auditData.documents.expired) }
+  ];
+
+  const totalCount = allRows.length;
+  const limitedRows = allRows.slice(0, PREVIEW_LIMIT);
+  const rows = selectedFields ? limitedRows.map(row => filterRowToFields(row, selectedFields)) : limitedRows;
+
+  return res.json(buildPreviewResponse(rows, selectedFields, 'audit', totalCount));
+}));
+
+// @route   GET /api/reports/document-expiration/preview
+// @desc    Preview Document Expiration report
+// @access  Private
+router.get('/document-expiration/preview', checkPermission('reports', 'view'), asyncHandler(async (req, res) => {
+  const { driverIds, vehicleIds, fields } = req.query;
+  const companyId = req.companyFilter.companyId;
+
+  const selectedFields = parseFieldsParam(fields, 'document-expiration');
+
+  const now = new Date();
+  const ninetyDays = addDays(now, 90);
+
+  const query = {
+    companyId,
+    isDeleted: false,
+    expiryDate: { $exists: true, $lte: ninetyDays }
+  };
+
+  if (driverIds) {
+    const ids = driverIds.split(',').filter(Boolean);
+    if (ids.length > 0) query.driverId = { $in: ids };
+  }
+  if (vehicleIds) {
+    const ids = vehicleIds.split(',').filter(Boolean);
+    if (ids.length > 0) query.vehicleId = { $in: ids };
+  }
+
+  const totalCount = await Document.countDocuments(query);
+  const documents = await Document.find(query)
+    .populate('driverId', 'firstName lastName')
+    .populate('vehicleId', 'unitNumber')
+    .sort('expiryDate')
+    .limit(PREVIEW_LIMIT)
+    .lean();
+
+  const allRows = documents.map(doc => buildDocExpirationRow(doc, now));
+  const rows = selectedFields ? allRows.map(row => filterRowToFields(row, selectedFields)) : allRows;
+
+  return res.json(buildPreviewResponse(rows, selectedFields, 'document-expiration', totalCount));
+}));
+
+// @route   GET /api/reports/drug-alcohol-summary/preview
+// @desc    Preview Drug & Alcohol report
+// @access  Private
+router.get('/drug-alcohol-summary/preview', checkPermission('reports', 'view'), asyncHandler(async (req, res) => {
+  const { startDate, endDate, fields } = req.query;
+  const companyId = req.companyFilter.companyId;
+
+  const selectedFields = parseFieldsParam(fields, 'drug-alcohol');
+
+  const yearStart = startDate ? new Date(startDate) : startOfYear(new Date());
+  const yearEnd = endDate ? new Date(endDate) : new Date();
+
+  const query = {
+    companyId,
+    testDate: { $gte: yearStart, $lte: yearEnd }
+  };
+
+  const totalCount = await DrugAlcoholTest.countDocuments(query);
+  const tests = await DrugAlcoholTest.find(query)
+    .populate('driverId', 'firstName lastName')
+    .sort('-testDate')
+    .limit(PREVIEW_LIMIT)
+    .lean();
+
+  const allRows = tests.map(t => buildDrugAlcoholRow(t));
+  const rows = selectedFields ? allRows.map(row => filterRowToFields(row, selectedFields)) : allRows;
+
+  return res.json(buildPreviewResponse(rows, selectedFields, 'drug-alcohol', totalCount));
+}));
+
+// @route   GET /api/reports/dataq-history/preview
+// @desc    Preview DataQ History report
+// @access  Private
+router.get('/dataq-history/preview', checkPermission('reports', 'view'), asyncHandler(async (req, res) => {
+  const { startDate, endDate, driverIds, fields } = req.query;
+  const companyId = req.companyFilter.companyId;
+
+  const selectedFields = parseFieldsParam(fields, 'dataq-history');
+
+  const query = {
+    companyId,
+    'dataQChallenge.submitted': true
+  };
+
+  if (startDate || endDate) {
+    query['dataQChallenge.submissionDate'] = {};
+    if (startDate) query['dataQChallenge.submissionDate'].$gte = new Date(startDate);
+    if (endDate) query['dataQChallenge.submissionDate'].$lte = new Date(endDate);
+  }
+  if (driverIds) {
+    const ids = driverIds.split(',').filter(Boolean);
+    if (ids.length > 0) query.driverId = { $in: ids };
+  }
+
+  const totalCount = await Violation.countDocuments(query);
+  const violations = await Violation.find(query)
+    .populate('driverId', 'firstName lastName')
+    .sort('-dataQChallenge.submissionDate')
+    .limit(PREVIEW_LIMIT)
+    .lean();
+
+  const allRows = violations.map(v => buildDataQRow(v));
+  const rows = selectedFields ? allRows.map(row => filterRowToFields(row, selectedFields)) : allRows;
+
+  return res.json(buildPreviewResponse(rows, selectedFields, 'dataq-history', totalCount));
+}));
+
+// @route   GET /api/reports/accident-summary/preview
+// @desc    Preview Accident Summary report
+// @access  Private
+router.get('/accident-summary/preview', checkPermission('reports', 'view'), asyncHandler(async (req, res) => {
+  const { startDate, endDate, driverIds, vehicleIds, fields } = req.query;
+  const companyId = req.companyFilter.companyId;
+
+  const selectedFields = parseFieldsParam(fields, 'accident-summary');
+
+  const query = { companyId };
+  if (startDate || endDate) {
+    query.accidentDate = {};
+    if (startDate) query.accidentDate.$gte = new Date(startDate);
+    if (endDate) query.accidentDate.$lte = new Date(endDate);
+  }
+  if (driverIds) {
+    const ids = driverIds.split(',').filter(Boolean);
+    if (ids.length > 0) query.driverId = { $in: ids };
+  }
+  if (vehicleIds) {
+    const ids = vehicleIds.split(',').filter(Boolean);
+    if (ids.length > 0) query.vehicleId = { $in: ids };
+  }
+
+  const totalCount = await Accident.countDocuments(query);
+  const accidents = await Accident.find(query)
+    .populate('driverId', 'firstName lastName')
+    .populate('vehicleId', 'unitNumber')
+    .sort('-accidentDate')
+    .limit(PREVIEW_LIMIT)
+    .lean();
+
+  const allRows = accidents.map(a => buildAccidentRow(a));
+  const rows = selectedFields ? allRows.map(row => filterRowToFields(row, selectedFields)) : allRows;
+
+  return res.json(buildPreviewResponse(rows, selectedFields, 'accident-summary', totalCount));
+}));
+
+// @route   GET /api/reports/maintenance-costs/preview
+// @desc    Preview Maintenance Costs report
+// @access  Private
+router.get('/maintenance-costs/preview', checkPermission('reports', 'view'), asyncHandler(async (req, res) => {
+  const { startDate, endDate, vehicleIds, fields } = req.query;
+  const companyId = req.companyFilter.companyId;
+
+  const selectedFields = parseFieldsParam(fields, 'maintenance-costs');
+
+  const query = { companyId };
+  if (startDate || endDate) {
+    query.serviceDate = {};
+    if (startDate) query.serviceDate.$gte = new Date(startDate);
+    if (endDate) query.serviceDate.$lte = new Date(endDate);
+  }
+  if (vehicleIds) {
+    const ids = vehicleIds.split(',').filter(Boolean);
+    if (ids.length > 0) query.vehicleId = { $in: ids };
+  }
+
+  const totalCount = await MaintenanceRecord.countDocuments(query);
+  const records = await MaintenanceRecord.find(query)
+    .populate('vehicleId', 'unitNumber')
+    .sort('-serviceDate')
+    .limit(PREVIEW_LIMIT)
+    .lean();
+
+  const allRows = records.map(r => buildMaintenanceCostRow(r));
+  const rows = selectedFields ? allRows.map(row => filterRowToFields(row, selectedFields)) : allRows;
+
+  return res.json(buildPreviewResponse(rows, selectedFields, 'maintenance-costs', totalCount));
+}));
+
+// ============================================
+// MAIN REPORT ENDPOINTS
+// ============================================
+
 // Helper to calculate employment verification status
 const getEmploymentVerificationStatus = (verifications) => {
   if (!verifications || verifications.length === 0) return 'missing';
