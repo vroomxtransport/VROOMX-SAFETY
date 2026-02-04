@@ -8,16 +8,88 @@ const pdf = require('../utils/pdfGenerator');
 const emailService = require('../services/emailService');
 const exportService = require('../services/exportService');
 const { addDays, startOfYear } = require('date-fns');
+const { REPORT_FIELD_DEFINITIONS, validateFields } = require('../config/reportFieldDefinitions');
+
+// Preview limit for preview endpoints
+const PREVIEW_LIMIT = 10;
+
+// Helper to filter row data to selected fields
+const filterRowToFields = (row, selectedFields) => {
+  if (!selectedFields) return row;
+  const filtered = {};
+  selectedFields.forEach(key => {
+    if (row.hasOwnProperty(key)) filtered[key] = row[key];
+  });
+  return filtered;
+};
+
+// Helper to build export headers/columns from selected fields
+const buildExportConfig = (reportType, selectedFields) => {
+  const fieldDefs = REPORT_FIELD_DEFINITIONS[reportType]?.fields || [];
+  const exportFields = selectedFields || fieldDefs.map(f => f.key);
+
+  const headers = {};
+  const columns = [];
+  exportFields.forEach(key => {
+    const def = fieldDefs.find(f => f.key === key);
+    if (def) {
+      headers[key] = def.label;
+      columns.push({ header: def.label, key, width: 15 });
+    }
+  });
+  return { headers, columns };
+};
+
+// Helper to parse and validate fields query parameter
+const parseFieldsParam = (fieldsParam, reportType) => {
+  if (!fieldsParam) return null; // null means return all fields
+  const selectedFields = fieldsParam.split(',').map(f => f.trim()).filter(Boolean);
+  const validation = validateFields(reportType, selectedFields);
+  if (!validation.valid) {
+    const error = validation.error || `Invalid fields: ${validation.invalidFields.join(', ')}`;
+    throw new AppError(error, 400);
+  }
+  return selectedFields;
+};
 
 router.use(protect);
 router.use(restrictToCompany);
+
+// Helper to calculate employment verification status
+const getEmploymentVerificationStatus = (verifications) => {
+  if (!verifications || verifications.length === 0) return 'missing';
+  const hasVerified = verifications.some(v => v.verified);
+  return hasVerified ? 'complete' : 'pending';
+};
+
+// Helper to build DQF row data from driver document
+const buildDqfRow = (d) => ({
+  driverName: `${d.firstName} ${d.lastName}`,
+  employeeId: d.employeeId || '-',
+  cdlNumber: d.cdl?.number || '-',
+  cdlState: d.cdl?.state || '-',
+  cdlClass: d.cdl?.class || '-',
+  cdlExpiry: d.cdl?.expiryDate ? new Date(d.cdl.expiryDate).toLocaleDateString() : '-',
+  medicalExpiry: d.medicalCard?.expiryDate ? new Date(d.medicalCard.expiryDate).toLocaleDateString() : '-',
+  overallStatus: d.complianceStatus?.overall || '-',
+  clearinghouseQueryDate: d.clearinghouse?.lastQueryDate ? new Date(d.clearinghouse.lastQueryDate).toLocaleDateString() : '-',
+  clearinghouseStatus: d.clearinghouse?.status || '-',
+  mvrReviewDate: d.documents?.mvrReviews?.[0]?.reviewDate ? new Date(d.documents.mvrReviews[0].reviewDate).toLocaleDateString() : '-',
+  mvrApproved: d.documents?.mvrReviews?.[0]?.approved != null ? (d.documents.mvrReviews[0].approved ? 'Yes' : 'No') : '-',
+  employmentVerificationStatus: getEmploymentVerificationStatus(d.documents?.employmentVerification),
+  roadTestDate: d.documents?.roadTest?.date ? new Date(d.documents.roadTest.date).toLocaleDateString() : '-',
+  roadTestResult: d.documents?.roadTest?.result || (d.documents?.roadTest?.waived ? 'Waived' : '-')
+});
 
 // @route   GET /api/reports/dqf
 // @desc    Generate Driver Qualification File report
 // @access  Private
 router.get('/dqf', checkPermission('reports', 'view'), asyncHandler(async (req, res) => {
-  const { driverId, driverIds, startDate, endDate, complianceStatus, format = 'json' } = req.query;
+  const { driverId, driverIds, startDate, endDate, complianceStatus, format = 'json', fields } = req.query;
   const companyId = req.companyFilter.companyId;
+
+  // Parse and validate fields parameter
+  const selectedFields = parseFieldsParam(fields, 'dqf');
 
   const query = { companyId, status: 'active' };
 
@@ -43,47 +115,19 @@ router.get('/dqf', checkPermission('reports', 'view'), asyncHandler(async (req, 
     if (endDate) query.hireDate.$lte = new Date(endDate);
   }
 
-  const drivers = await Driver.find(query).select('-ssn');
+  const drivers = await Driver.find(query).select('-ssn').sort({ lastName: 1, firstName: 1 });
   const company = await Company.findById(companyId);
 
-  // Helper to calculate employment verification status
-  const getEmploymentVerificationStatus = (verifications) => {
-    if (!verifications || verifications.length === 0) return 'missing';
-    const hasVerified = verifications.some(v => v.verified);
-    return hasVerified ? 'complete' : 'pending';
-  };
+  // Build rows and filter to selected fields
+  const allRows = drivers.map(buildDqfRow);
+  const rows = selectedFields ? allRows.map(row => filterRowToFields(row, selectedFields)) : allRows;
 
   // CSV export
   if (format === 'csv') {
-    const rows = drivers.map(d => ({
-      driverName: `${d.firstName} ${d.lastName}`,
-      employeeId: d.employeeId || '-',
-      cdlNumber: d.cdl?.number || '-',
-      cdlState: d.cdl?.state || '-',
-      cdlExpiry: d.cdl?.expiryDate ? new Date(d.cdl.expiryDate).toLocaleDateString() : '-',
-      medicalExpiry: d.medicalCard?.expiryDate ? new Date(d.medicalCard.expiryDate).toLocaleDateString() : '-',
-      overallStatus: d.complianceStatus?.overall || '-',
-      clearinghouseQueryDate: d.clearinghouse?.lastQueryDate ? new Date(d.clearinghouse.lastQueryDate).toLocaleDateString() : '-',
-      clearinghouseStatus: d.clearinghouse?.status || '-',
-      mvrReviewDate: d.documents?.mvrReviews?.[0]?.reviewDate ? new Date(d.documents.mvrReviews[0].reviewDate).toLocaleDateString() : '-',
-      employmentVerificationStatus: getEmploymentVerificationStatus(d.documents?.employmentVerification)
-    }));
-
+    const { headers } = buildExportConfig('dqf', selectedFields);
     exportService.streamCSV(res, {
       reportType: 'dqf-report',
-      headers: {
-        driverName: 'Driver Name',
-        employeeId: 'Employee ID',
-        cdlNumber: 'CDL Number',
-        cdlState: 'CDL State',
-        cdlExpiry: 'CDL Expiry',
-        medicalExpiry: 'Medical Expiry',
-        overallStatus: 'Overall Status',
-        clearinghouseQueryDate: 'Clearinghouse Query Date',
-        clearinghouseStatus: 'Clearinghouse Status',
-        mvrReviewDate: 'MVR Review Date',
-        employmentVerificationStatus: 'Employment Verification'
-      },
+      headers,
       rows
     });
     return;
@@ -91,36 +135,11 @@ router.get('/dqf', checkPermission('reports', 'view'), asyncHandler(async (req, 
 
   // Excel export
   if (format === 'xlsx') {
-    const rows = drivers.map(d => ({
-      driverName: `${d.firstName} ${d.lastName}`,
-      employeeId: d.employeeId || '-',
-      cdlNumber: d.cdl?.number || '-',
-      cdlState: d.cdl?.state || '-',
-      cdlExpiry: d.cdl?.expiryDate ? new Date(d.cdl.expiryDate).toLocaleDateString() : '-',
-      medicalExpiry: d.medicalCard?.expiryDate ? new Date(d.medicalCard.expiryDate).toLocaleDateString() : '-',
-      overallStatus: d.complianceStatus?.overall || '-',
-      clearinghouseQueryDate: d.clearinghouse?.lastQueryDate ? new Date(d.clearinghouse.lastQueryDate).toLocaleDateString() : '-',
-      clearinghouseStatus: d.clearinghouse?.status || '-',
-      mvrReviewDate: d.documents?.mvrReviews?.[0]?.reviewDate ? new Date(d.documents.mvrReviews[0].reviewDate).toLocaleDateString() : '-',
-      employmentVerificationStatus: getEmploymentVerificationStatus(d.documents?.employmentVerification)
-    }));
-
+    const { columns } = buildExportConfig('dqf', selectedFields);
     await exportService.streamExcel(res, {
       reportType: 'dqf-report',
       sheetName: 'Driver Qualification Files',
-      columns: [
-        { header: 'Driver Name', key: 'driverName', width: 25 },
-        { header: 'Employee ID', key: 'employeeId', width: 15 },
-        { header: 'CDL Number', key: 'cdlNumber', width: 15 },
-        { header: 'CDL State', key: 'cdlState', width: 15 },
-        { header: 'CDL Expiry', key: 'cdlExpiry', width: 15 },
-        { header: 'Medical Expiry', key: 'medicalExpiry', width: 15 },
-        { header: 'Overall Status', key: 'overallStatus', width: 15 },
-        { header: 'Clearinghouse Query Date', key: 'clearinghouseQueryDate', width: 18 },
-        { header: 'Clearinghouse Status', key: 'clearinghouseStatus', width: 15 },
-        { header: 'MVR Review Date', key: 'mvrReviewDate', width: 18 },
-        { header: 'Employment Verification', key: 'employmentVerificationStatus', width: 20 }
-      ],
+      columns,
       rows
     });
     return;
@@ -248,12 +267,39 @@ router.get('/dqf', checkPermission('reports', 'view'), asyncHandler(async (req, 
   });
 }));
 
+// Helper to build document expiration row
+const buildDocExpirationRow = (doc, now) => {
+  const expiryDate = new Date(doc.expiryDate);
+  const daysUntil = Math.ceil((expiryDate - now) / (1000 * 60 * 60 * 24));
+  let urgency = 'Within 90 Days';
+  if (daysUntil < 0) urgency = 'Expired';
+  else if (daysUntil <= 30) urgency = 'Within 30 Days';
+  else if (daysUntil <= 60) urgency = 'Within 60 Days';
+
+  const entityName = doc.driverId
+    ? `${doc.driverId.firstName} ${doc.driverId.lastName}`
+    : (doc.vehicleId?.unitNumber || '-');
+  const entityType = doc.driverId ? 'Driver' : (doc.vehicleId ? 'Vehicle' : '-');
+
+  return {
+    documentType: doc.documentType || '-',
+    entityName,
+    entityType,
+    expirationDate: expiryDate.toLocaleDateString(),
+    daysUntilExpiry: daysUntil,
+    urgency
+  };
+};
+
 // @route   GET /api/reports/document-expiration
 // @desc    Generate Document Expiration report grouped by urgency window
 // @access  Private
 router.get('/document-expiration', checkPermission('reports', 'view'), asyncHandler(async (req, res) => {
-  const { format = 'json', driverIds, vehicleIds } = req.query;
+  const { format = 'json', driverIds, vehicleIds, fields } = req.query;
   const companyId = req.companyFilter.companyId;
+
+  // Parse and validate fields parameter
+  const selectedFields = parseFieldsParam(fields, 'document-expiration');
 
   const now = new Date();
   const thirtyDays = addDays(now, 30);
@@ -309,7 +355,7 @@ router.get('/document-expiration', checkPermission('reports', 'view'), asyncHand
     }
   });
 
-  // Helper to map document for output
+  // Helper to map document for output (legacy format for JSON/PDF)
   const mapDocument = (doc) => ({
     documentType: doc.documentType,
     category: doc.category,
@@ -319,26 +365,16 @@ router.get('/document-expiration', checkPermission('reports', 'view'), asyncHand
     vehicleUnit: doc.vehicleId?.unitNumber || null
   });
 
+  // Build flat rows for export (using field definitions format)
+  const allRows = documents.map(doc => buildDocExpirationRow(doc, now));
+  const rows = selectedFields ? allRows.map(row => filterRowToFields(row, selectedFields)) : allRows;
+
   // CSV export
   if (format === 'csv') {
-    const rows = [
-      ...expired.map(d => ({ window: 'Expired', ...mapDocument(d), expiryDate: new Date(d.expiryDate).toLocaleDateString() })),
-      ...within30Days.map(d => ({ window: 'Within 30 Days', ...mapDocument(d), expiryDate: new Date(d.expiryDate).toLocaleDateString() })),
-      ...within60Days.map(d => ({ window: 'Within 60 Days', ...mapDocument(d), expiryDate: new Date(d.expiryDate).toLocaleDateString() })),
-      ...within90Days.map(d => ({ window: 'Within 90 Days', ...mapDocument(d), expiryDate: new Date(d.expiryDate).toLocaleDateString() }))
-    ];
-
+    const { headers } = buildExportConfig('document-expiration', selectedFields);
     exportService.streamCSV(res, {
       reportType: 'document-expiration-report',
-      headers: {
-        window: 'Window',
-        documentType: 'Document Type',
-        category: 'Category',
-        name: 'Name',
-        expiryDate: 'Expiry Date',
-        driverName: 'Driver',
-        vehicleUnit: 'Vehicle'
-      },
+      headers,
       rows
     });
     return;
@@ -346,25 +382,11 @@ router.get('/document-expiration', checkPermission('reports', 'view'), asyncHand
 
   // Excel export
   if (format === 'xlsx') {
-    const rows = [
-      ...expired.map(d => ({ window: 'Expired', ...mapDocument(d), expiryDate: new Date(d.expiryDate).toLocaleDateString() })),
-      ...within30Days.map(d => ({ window: 'Within 30 Days', ...mapDocument(d), expiryDate: new Date(d.expiryDate).toLocaleDateString() })),
-      ...within60Days.map(d => ({ window: 'Within 60 Days', ...mapDocument(d), expiryDate: new Date(d.expiryDate).toLocaleDateString() })),
-      ...within90Days.map(d => ({ window: 'Within 90 Days', ...mapDocument(d), expiryDate: new Date(d.expiryDate).toLocaleDateString() }))
-    ];
-
+    const { columns } = buildExportConfig('document-expiration', selectedFields);
     await exportService.streamExcel(res, {
       reportType: 'document-expiration-report',
       sheetName: 'Document Expiration',
-      columns: [
-        { header: 'Window', key: 'window', width: 18 },
-        { header: 'Document Type', key: 'documentType', width: 20 },
-        { header: 'Category', key: 'category', width: 15 },
-        { header: 'Name', key: 'name', width: 25 },
-        { header: 'Expiry Date', key: 'expiryDate', width: 15 },
-        { header: 'Driver', key: 'driverName', width: 20 },
-        { header: 'Vehicle', key: 'vehicleUnit', width: 12 }
-      ],
+      columns,
       rows
     });
     return;
@@ -447,12 +469,25 @@ router.get('/document-expiration', checkPermission('reports', 'view'), asyncHand
   });
 }));
 
+// Helper to build drug/alcohol test row
+const buildDrugAlcoholRow = (t) => ({
+  driverName: t.driverId ? `${t.driverId.firstName} ${t.driverId.lastName}` : '-',
+  testType: t.testType?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || '-',
+  testDate: t.testDate ? new Date(t.testDate).toLocaleDateString() : '-',
+  result: t.overallResult || '-',
+  randomPoolIncluded: t.testType === 'random' ? 'Yes' : 'No',
+  clearinghouseStatus: t.clearinghouseReported ? 'Reported' : 'Not Reported'
+});
+
 // @route   GET /api/reports/drug-alcohol-summary
 // @desc    Generate Drug & Alcohol testing compliance summary
 // @access  Private
 router.get('/drug-alcohol-summary', checkPermission('reports', 'view'), asyncHandler(async (req, res) => {
-  const { format = 'json', startDate, endDate } = req.query;
+  const { format = 'json', startDate, endDate, fields } = req.query;
   const companyId = req.companyFilter.companyId;
+
+  // Parse and validate fields parameter
+  const selectedFields = parseFieldsParam(fields, 'drug-alcohol');
 
   // Default to calendar year for random testing compliance
   const yearStart = startDate ? new Date(startDate) : startOfYear(new Date());
@@ -463,7 +498,7 @@ router.get('/drug-alcohol-summary', checkPermission('reports', 'view'), asyncHan
     DrugAlcoholTest.find({
       companyId,
       testDate: { $gte: yearStart, $lte: yearEnd }
-    }).populate('driverId', 'firstName lastName').lean(),
+    }).populate('driverId', 'firstName lastName').sort({ testDate: -1 }).lean(),
     Company.findById(companyId)
   ]);
 
@@ -497,27 +532,16 @@ router.get('/drug-alcohol-summary', checkPermission('reports', 'view'), asyncHan
     return acc;
   }, {});
 
+  // Build test record rows (for field filtering mode)
+  const allRows = tests.map(buildDrugAlcoholRow);
+  const rows = selectedFields ? allRows.map(row => filterRowToFields(row, selectedFields)) : allRows;
+
   // CSV export
   if (format === 'csv') {
-    const rows = [
-      { section: 'Summary', metric: 'Active Drivers', value: String(activeDrivers) },
-      { section: 'Summary', metric: 'Report Period', value: `${yearStart.toLocaleDateString()} - ${yearEnd.toLocaleDateString()}` },
-      { section: 'Random Pool Compliance', metric: 'Required Drug Tests (50%)', value: String(requiredDrugTests) },
-      { section: 'Random Pool Compliance', metric: 'Completed Drug Tests', value: String(randomDrugTests.length) },
-      { section: 'Random Pool Compliance', metric: 'Drug Compliance %', value: `${drugCompliancePercent}%` },
-      { section: 'Random Pool Compliance', metric: 'Required Alcohol Tests (10%)', value: String(requiredAlcoholTests) },
-      { section: 'Random Pool Compliance', metric: 'Completed Alcohol Tests', value: String(randomAlcoholTests.length) },
-      { section: 'Random Pool Compliance', metric: 'Alcohol Compliance %', value: `${alcoholCompliancePercent}%` },
-      ...Object.entries(byType).map(([type, stats]) => ({
-        section: 'Tests by Type',
-        metric: type,
-        value: `${stats.total} (${stats.negative} neg, ${stats.positive} pos)`
-      }))
-    ];
-
+    const { headers } = buildExportConfig('drug-alcohol', selectedFields);
     exportService.streamCSV(res, {
       reportType: 'drug-alcohol-summary',
-      headers: { section: 'Section', metric: 'Metric', value: 'Value' },
+      headers,
       rows
     });
     return;
@@ -525,30 +549,11 @@ router.get('/drug-alcohol-summary', checkPermission('reports', 'view'), asyncHan
 
   // Excel export
   if (format === 'xlsx') {
-    const rows = [
-      { section: 'Summary', metric: 'Active Drivers', value: String(activeDrivers) },
-      { section: 'Summary', metric: 'Report Period', value: `${yearStart.toLocaleDateString()} - ${yearEnd.toLocaleDateString()}` },
-      { section: 'Random Pool Compliance', metric: 'Required Drug Tests (50%)', value: String(requiredDrugTests) },
-      { section: 'Random Pool Compliance', metric: 'Completed Drug Tests', value: String(randomDrugTests.length) },
-      { section: 'Random Pool Compliance', metric: 'Drug Compliance %', value: `${drugCompliancePercent}%` },
-      { section: 'Random Pool Compliance', metric: 'Required Alcohol Tests (10%)', value: String(requiredAlcoholTests) },
-      { section: 'Random Pool Compliance', metric: 'Completed Alcohol Tests', value: String(randomAlcoholTests.length) },
-      { section: 'Random Pool Compliance', metric: 'Alcohol Compliance %', value: `${alcoholCompliancePercent}%` },
-      ...Object.entries(byType).map(([type, stats]) => ({
-        section: 'Tests by Type',
-        metric: type,
-        value: `${stats.total} (${stats.negative} neg, ${stats.positive} pos)`
-      }))
-    ];
-
+    const { columns } = buildExportConfig('drug-alcohol', selectedFields);
     await exportService.streamExcel(res, {
       reportType: 'drug-alcohol-summary',
       sheetName: 'Drug & Alcohol Summary',
-      columns: [
-        { header: 'Section', key: 'section', width: 25 },
-        { header: 'Metric', key: 'metric', width: 30 },
-        { header: 'Value', key: 'value', width: 25 }
-      ],
+      columns,
       rows
     });
     return;
@@ -677,12 +682,28 @@ router.get('/drug-alcohol-summary', checkPermission('reports', 'view'), asyncHan
   });
 }));
 
+// Helper to build DataQ history row
+const buildDataQRow = (v) => ({
+  caseNumber: v.dataQChallenge.caseNumber || '-',
+  submittedDate: v.dataQChallenge.submissionDate ? new Date(v.dataQChallenge.submissionDate).toLocaleDateString() : '-',
+  violationCode: v.violationCode || '-',
+  basic: v.basic || '-',
+  originalSeverity: v.severityWeight != null ? v.severityWeight : '-',
+  status: v.dataQChallenge.status || '-',
+  resolvedDate: v.dataQChallenge.responseDate ? new Date(v.dataQChallenge.responseDate).toLocaleDateString() : '-',
+  outcome: v.dataQChallenge.status === 'accepted' ? 'Accepted' : (v.dataQChallenge.status === 'denied' ? 'Denied' : '-'),
+  pointsSaved: v.dataQChallenge.status === 'accepted' ? (v.severityWeight || 0) : 0
+});
+
 // @route   GET /api/reports/dataq-history
 // @desc    Generate DataQ Challenge History report with success rates and CSA points saved
 // @access  Private
 router.get('/dataq-history', checkPermission('reports', 'view'), asyncHandler(async (req, res) => {
-  const { format = 'json', startDate, endDate, driverIds } = req.query;
+  const { format = 'json', startDate, endDate, driverIds, fields } = req.query;
   const companyId = req.companyFilter.companyId;
+
+  // Parse and validate fields parameter
+  const selectedFields = parseFieldsParam(fields, 'dataq-history');
 
   // Query violations with DataQ challenges submitted
   const query = {
@@ -736,41 +757,16 @@ router.get('/dataq-history', checkPermission('reports', 'view'), asyncHandler(as
   const successRate = resolved > 0 ? Math.round((accepted.length / resolved) * 100) : 0;
   const totalCsaPointsSaved = challenges.reduce((sum, c) => sum + c.csaPointsSaved, 0);
 
+  // Build rows using field definitions format
+  const allRows = violations.map(buildDataQRow);
+  const rows = selectedFields ? allRows.map(row => filterRowToFields(row, selectedFields)) : allRows;
+
   // CSV export
   if (format === 'csv') {
-    const rows = challenges.map(c => ({
-      inspectionNumber: c.inspectionNumber || '-',
-      violationType: c.violationType || '-',
-      violationCode: c.violationCode || '-',
-      violationDate: c.violationDate ? new Date(c.violationDate).toLocaleDateString() : '-',
-      basic: c.basic || '-',
-      severityWeight: c.severityWeight != null ? String(c.severityWeight) : '-',
-      submissionDate: c.submissionDate ? new Date(c.submissionDate).toLocaleDateString() : '-',
-      caseNumber: c.caseNumber || '-',
-      challengeType: c.challengeType || '-',
-      status: c.status || '-',
-      responseDate: c.responseDate ? new Date(c.responseDate).toLocaleDateString() : '-',
-      driverName: c.driverName || '-',
-      csaPointsSaved: String(c.csaPointsSaved)
-    }));
-
+    const { headers } = buildExportConfig('dataq-history', selectedFields);
     exportService.streamCSV(res, {
       reportType: 'dataq-history-report',
-      headers: {
-        inspectionNumber: 'Inspection Number',
-        violationType: 'Violation Type',
-        violationCode: 'Violation Code',
-        violationDate: 'Violation Date',
-        basic: 'BASIC',
-        severityWeight: 'Severity Weight',
-        submissionDate: 'Submission Date',
-        caseNumber: 'Case Number',
-        challengeType: 'Challenge Type',
-        status: 'Status',
-        responseDate: 'Response Date',
-        driverName: 'Driver',
-        csaPointsSaved: 'CSA Points Saved'
-      },
+      headers,
       rows
     });
     return;
@@ -778,40 +774,11 @@ router.get('/dataq-history', checkPermission('reports', 'view'), asyncHandler(as
 
   // Excel export
   if (format === 'xlsx') {
-    const rows = challenges.map(c => ({
-      inspectionNumber: c.inspectionNumber || '-',
-      violationType: c.violationType || '-',
-      violationCode: c.violationCode || '-',
-      violationDate: c.violationDate ? new Date(c.violationDate).toLocaleDateString() : '-',
-      basic: c.basic || '-',
-      severityWeight: c.severityWeight != null ? String(c.severityWeight) : '-',
-      submissionDate: c.submissionDate ? new Date(c.submissionDate).toLocaleDateString() : '-',
-      caseNumber: c.caseNumber || '-',
-      challengeType: c.challengeType || '-',
-      status: c.status || '-',
-      responseDate: c.responseDate ? new Date(c.responseDate).toLocaleDateString() : '-',
-      driverName: c.driverName || '-',
-      csaPointsSaved: String(c.csaPointsSaved)
-    }));
-
+    const { columns } = buildExportConfig('dataq-history', selectedFields);
     await exportService.streamExcel(res, {
       reportType: 'dataq-history-report',
       sheetName: 'DataQ Challenge History',
-      columns: [
-        { header: 'Inspection Number', key: 'inspectionNumber', width: 18 },
-        { header: 'Violation Type', key: 'violationType', width: 25 },
-        { header: 'Violation Code', key: 'violationCode', width: 12 },
-        { header: 'Violation Date', key: 'violationDate', width: 15 },
-        { header: 'BASIC', key: 'basic', width: 18 },
-        { header: 'Severity Weight', key: 'severityWeight', width: 12 },
-        { header: 'Submission Date', key: 'submissionDate', width: 15 },
-        { header: 'Case Number', key: 'caseNumber', width: 15 },
-        { header: 'Challenge Type', key: 'challengeType', width: 15 },
-        { header: 'Status', key: 'status', width: 12 },
-        { header: 'Response Date', key: 'responseDate', width: 15 },
-        { header: 'Driver', key: 'driverName', width: 20 },
-        { header: 'CSA Points Saved', key: 'csaPointsSaved', width: 15 }
-      ],
+      columns,
       rows
     });
     return;
@@ -904,12 +871,32 @@ router.get('/dataq-history', checkPermission('reports', 'view'), asyncHandler(as
   });
 }));
 
+// Helper to build accident summary row
+const buildAccidentRow = (a) => {
+  const formatCurrency = (amount) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount || 0);
+  return {
+    accidentDate: a.accidentDate ? new Date(a.accidentDate).toLocaleDateString() : '-',
+    driverName: a.driverId ? `${a.driverId.firstName} ${a.driverId.lastName}` : '-',
+    vehicleUnit: a.vehicleId?.unitNumber || '-',
+    location: a.location ? `${a.location.city || ''}, ${a.location.state || ''}`.trim().replace(/^,\s*/, '') : '-',
+    dotReportable: a.isDotRecordable ? 'Yes' : 'No',
+    injuries: a.totalInjuries || a.injuries?.length || 0,
+    fatalities: a.totalFatalities || a.injuries?.filter(i => i.severity === 'fatal').length || 0,
+    hazmatRelease: a.hazmatRelease ? 'Yes' : 'No',
+    estimatedCost: a.totalEstimatedCost || 0,
+    status: a.status || '-'
+  };
+};
+
 // @route   GET /api/reports/accident-summary
 // @desc    Generate Accident Summary report with DOT reportable status and costs
 // @access  Private
 router.get('/accident-summary', checkPermission('reports', 'view'), asyncHandler(async (req, res) => {
-  const { format = 'json', startDate, endDate, driverIds, vehicleIds } = req.query;
+  const { format = 'json', startDate, endDate, driverIds, vehicleIds, fields } = req.query;
   const companyId = req.companyFilter.companyId;
+
+  // Parse and validate fields parameter
+  const selectedFields = parseFieldsParam(fields, 'accident-summary');
 
   const query = { companyId };
 
@@ -964,37 +951,16 @@ router.get('/accident-summary', checkPermission('reports', 'view'), asyncHandler
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount || 0);
   };
 
+  // Build rows using field definitions format
+  const allRows = accidents.map(buildAccidentRow);
+  const rows = selectedFields ? allRows.map(row => filterRowToFields(row, selectedFields)) : allRows;
+
   // CSV export
   if (format === 'csv') {
-    const rows = accidents.map(a => ({
-      accidentDate: a.accidentDate ? new Date(a.accidentDate).toLocaleDateString() : '-',
-      location: a.location ? `${a.location.city || ''}, ${a.location.state || ''}`.trim().replace(/^,\s*/, '') : '-',
-      driverName: a.driverId ? `${a.driverId.firstName} ${a.driverId.lastName}` : '-',
-      vehicleUnit: a.vehicleId?.unitNumber || '-',
-      isDotRecordable: a.isDotRecordable ? 'Yes' : 'No',
-      severity: a.severity || '-',
-      accidentType: a.accidentType || '-',
-      injuries: String(a.totalInjuries || a.injuries?.length || 0),
-      fatalities: String(a.totalFatalities || a.injuries?.filter(i => i.severity === 'fatal').length || 0),
-      estimatedCost: formatCurrency(a.totalEstimatedCost || 0),
-      status: a.status || '-'
-    }));
-
+    const { headers } = buildExportConfig('accident-summary', selectedFields);
     exportService.streamCSV(res, {
       reportType: 'accident-summary-report',
-      headers: {
-        accidentDate: 'Date',
-        location: 'Location',
-        driverName: 'Driver',
-        vehicleUnit: 'Vehicle',
-        isDotRecordable: 'DOT Reportable',
-        severity: 'Severity',
-        accidentType: 'Type',
-        injuries: 'Injuries',
-        fatalities: 'Fatalities',
-        estimatedCost: 'Est. Cost',
-        status: 'Status'
-      },
+      headers,
       rows
     });
     return;
@@ -1002,36 +968,11 @@ router.get('/accident-summary', checkPermission('reports', 'view'), asyncHandler
 
   // Excel export
   if (format === 'xlsx') {
-    const rows = accidents.map(a => ({
-      accidentDate: a.accidentDate ? new Date(a.accidentDate).toLocaleDateString() : '-',
-      location: a.location ? `${a.location.city || ''}, ${a.location.state || ''}`.trim().replace(/^,\s*/, '') : '-',
-      driverName: a.driverId ? `${a.driverId.firstName} ${a.driverId.lastName}` : '-',
-      vehicleUnit: a.vehicleId?.unitNumber || '-',
-      isDotRecordable: a.isDotRecordable ? 'Yes' : 'No',
-      severity: a.severity || '-',
-      accidentType: a.accidentType || '-',
-      injuries: String(a.totalInjuries || a.injuries?.length || 0),
-      fatalities: String(a.totalFatalities || a.injuries?.filter(i => i.severity === 'fatal').length || 0),
-      estimatedCost: formatCurrency(a.totalEstimatedCost || 0),
-      status: a.status || '-'
-    }));
-
+    const { columns } = buildExportConfig('accident-summary', selectedFields);
     await exportService.streamExcel(res, {
       reportType: 'accident-summary-report',
       sheetName: 'Accident Summary',
-      columns: [
-        { header: 'Date', key: 'accidentDate', width: 12 },
-        { header: 'Location', key: 'location', width: 20 },
-        { header: 'Driver', key: 'driverName', width: 20 },
-        { header: 'Vehicle', key: 'vehicleUnit', width: 12 },
-        { header: 'DOT Reportable', key: 'isDotRecordable', width: 14 },
-        { header: 'Severity', key: 'severity', width: 12 },
-        { header: 'Type', key: 'accidentType', width: 15 },
-        { header: 'Injuries', key: 'injuries', width: 10 },
-        { header: 'Fatalities', key: 'fatalities', width: 10 },
-        { header: 'Est. Cost', key: 'estimatedCost', width: 15 },
-        { header: 'Status', key: 'status', width: 15 }
-      ],
+      columns,
       rows
     });
     return;
@@ -1149,12 +1090,28 @@ router.get('/accident-summary', checkPermission('reports', 'view'), asyncHandler
   });
 }));
 
+// Helper to build maintenance cost row from record
+const buildMaintenanceCostRow = (r) => ({
+  workOrderNumber: r.workOrderNumber || '-',
+  vehicleUnit: r.vehicleId?.unitNumber || '-',
+  serviceDate: r.serviceDate ? new Date(r.serviceDate).toLocaleDateString() : '-',
+  category: r.recordType?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || '-',
+  vendor: r.provider?.name || '-',
+  description: r.description || '-',
+  laborCost: r.laborCost || 0,
+  partsCost: r.partsCost || 0,
+  totalCost: r.totalCost || 0
+});
+
 // @route   GET /api/reports/maintenance-costs
 // @desc    Generate Maintenance Cost report with aggregation by vehicle, category, and vendor
 // @access  Private
 router.get('/maintenance-costs', checkPermission('reports', 'view'), asyncHandler(async (req, res) => {
-  const { format = 'json', startDate, endDate, vehicleIds } = req.query;
+  const { format = 'json', startDate, endDate, vehicleIds, fields } = req.query;
   const companyId = req.companyFilter.companyId;
+
+  // Parse and validate fields parameter
+  const selectedFields = parseFieldsParam(fields, 'maintenance-costs');
 
   // Build match stage for aggregation
   const matchStage = {
@@ -1174,8 +1131,20 @@ router.get('/maintenance-costs', checkPermission('reports', 'view'), asyncHandle
     }
   }
 
-  // Run aggregations in parallel
-  const [byVehicle, byCategory, byVendor, totals, company] = await Promise.all([
+  // Build query for individual records
+  const recordQuery = { companyId };
+  if (startDate || endDate) {
+    recordQuery.serviceDate = {};
+    if (startDate) recordQuery.serviceDate.$gte = new Date(startDate);
+    if (endDate) recordQuery.serviceDate.$lte = new Date(endDate);
+  }
+  if (vehicleIds) {
+    const ids = vehicleIds.split(',').filter(Boolean);
+    if (ids.length > 0) recordQuery.vehicleId = { $in: ids };
+  }
+
+  // Run aggregations and fetch individual records in parallel
+  const [byVehicle, byCategory, byVendor, totals, records, company] = await Promise.all([
     MaintenanceRecord.aggregate([
       { $match: matchStage },
       { $group: {
@@ -1240,6 +1209,11 @@ router.get('/maintenance-costs', checkPermission('reports', 'view'), asyncHandle
       }
     ]),
 
+    MaintenanceRecord.find(recordQuery)
+      .populate('vehicleId', 'unitNumber')
+      .sort('-serviceDate')
+      .lean(),
+
     Company.findById(companyId)
   ]);
 
@@ -1250,40 +1224,16 @@ router.get('/maintenance-costs', checkPermission('reports', 'view'), asyncHandle
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount || 0);
   };
 
-  // CSV export - combine all sections
-  if (format === 'csv') {
-    const rows = [
-      { section: 'Summary', item: 'Total Cost', cost: formatCurrency(summary.totalCost), records: String(summary.recordCount) },
-      { section: 'Summary', item: 'Labor Cost', cost: formatCurrency(summary.laborCost), records: '-' },
-      { section: 'Summary', item: 'Parts Cost', cost: formatCurrency(summary.partsCost), records: '-' },
-      ...byVehicle.map(v => ({
-        section: 'By Vehicle',
-        item: v.unitNumber || 'Unknown',
-        cost: formatCurrency(v.totalCost),
-        records: String(v.recordCount)
-      })),
-      ...byCategory.map(c => ({
-        section: 'By Category',
-        item: c._id?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Unknown',
-        cost: formatCurrency(c.totalCost),
-        records: String(c.recordCount)
-      })),
-      ...byVendor.map(v => ({
-        section: 'By Vendor',
-        item: v._id || 'Unknown',
-        cost: formatCurrency(v.totalCost),
-        records: String(v.recordCount)
-      }))
-    ];
+  // Build rows using field definitions format (individual records)
+  const allRows = records.map(buildMaintenanceCostRow);
+  const rows = selectedFields ? allRows.map(row => filterRowToFields(row, selectedFields)) : allRows;
 
+  // CSV export
+  if (format === 'csv') {
+    const { headers } = buildExportConfig('maintenance-costs', selectedFields);
     exportService.streamCSV(res, {
       reportType: 'maintenance-cost-report',
-      headers: {
-        section: 'Section',
-        item: 'Item',
-        cost: 'Total Cost',
-        records: 'Records'
-      },
+      headers,
       rows
     });
     return;
@@ -1291,45 +1241,11 @@ router.get('/maintenance-costs', checkPermission('reports', 'view'), asyncHandle
 
   // Excel export
   if (format === 'xlsx') {
-    const rows = [
-      { section: 'Summary', item: 'Total Cost', cost: formatCurrency(summary.totalCost), laborCost: formatCurrency(summary.laborCost), partsCost: formatCurrency(summary.partsCost), records: String(summary.recordCount) },
-      ...byVehicle.map(v => ({
-        section: 'By Vehicle',
-        item: v.unitNumber || 'Unknown',
-        cost: formatCurrency(v.totalCost),
-        laborCost: formatCurrency(v.laborCost),
-        partsCost: formatCurrency(v.partsCost),
-        records: String(v.recordCount)
-      })),
-      ...byCategory.map(c => ({
-        section: 'By Category',
-        item: c._id?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Unknown',
-        cost: formatCurrency(c.totalCost),
-        laborCost: '-',
-        partsCost: '-',
-        records: String(c.recordCount)
-      })),
-      ...byVendor.map(v => ({
-        section: 'By Vendor',
-        item: v._id || 'Unknown',
-        cost: formatCurrency(v.totalCost),
-        laborCost: '-',
-        partsCost: '-',
-        records: String(v.recordCount)
-      }))
-    ];
-
+    const { columns } = buildExportConfig('maintenance-costs', selectedFields);
     await exportService.streamExcel(res, {
       reportType: 'maintenance-cost-report',
       sheetName: 'Maintenance Costs',
-      columns: [
-        { header: 'Section', key: 'section', width: 15 },
-        { header: 'Item', key: 'item', width: 25 },
-        { header: 'Total Cost', key: 'cost', width: 15 },
-        { header: 'Labor Cost', key: 'laborCost', width: 15 },
-        { header: 'Parts Cost', key: 'partsCost', width: 15 },
-        { header: 'Records', key: 'records', width: 10 }
-      ],
+      columns,
       rows
     });
     return;
@@ -1451,12 +1367,33 @@ router.get('/maintenance-costs', checkPermission('reports', 'view'), asyncHandle
   });
 }));
 
+// Helper to build vehicle maintenance row
+const buildVehicleRow = (v) => ({
+  unitNumber: v.unitNumber || '-',
+  vin: v.vin || '-',
+  make: v.make || '-',
+  model: v.model || '-',
+  year: v.year || '-',
+  type: v.vehicleType || '-',
+  status: v.status || '-',
+  annualInspectionDate: v.annualInspection?.lastInspectionDate ? new Date(v.annualInspection.lastInspectionDate).toLocaleDateString() : '-',
+  annualInspectionExpiry: v.annualInspection?.nextDueDate ? new Date(v.annualInspection.nextDueDate).toLocaleDateString() : '-',
+  lastMaintenanceDate: v.maintenanceLog?.length > 0 && v.maintenanceLog[v.maintenanceLog.length - 1]?.date
+    ? new Date(v.maintenanceLog[v.maintenanceLog.length - 1].date).toLocaleDateString()
+    : '-',
+  mileage: v.mileage || '-',
+  overallStatus: v.complianceStatus?.overall || '-'
+});
+
 // @route   GET /api/reports/vehicle-maintenance
 // @desc    Generate Vehicle Maintenance report
 // @access  Private
 router.get('/vehicle-maintenance', checkPermission('reports', 'view'), asyncHandler(async (req, res) => {
-  const { vehicleId, vehicleIds, startDate, endDate, complianceStatus, format = 'json' } = req.query;
+  const { vehicleId, vehicleIds, startDate, endDate, complianceStatus, format = 'json', fields } = req.query;
   const companyId = req.companyFilter.companyId;
+
+  // Parse and validate fields parameter
+  const selectedFields = parseFieldsParam(fields, 'vehicle');
 
   const query = { companyId };
 
@@ -1482,25 +1419,19 @@ router.get('/vehicle-maintenance', checkPermission('reports', 'view'), asyncHand
     if (endDate) query['annualInspection.nextDueDate'].$lte = new Date(endDate);
   }
 
-  const vehicles = await Vehicle.find(query);
+  const vehicles = await Vehicle.find(query).sort({ unitNumber: 1 });
   const company = await Company.findById(companyId);
+
+  // Build rows using field definitions format
+  const allRows = vehicles.map(buildVehicleRow);
+  const rows = selectedFields ? allRows.map(row => filterRowToFields(row, selectedFields)) : allRows;
 
   // CSV export
   if (format === 'csv') {
-    const rows = vehicles.map(v => ({
-      unitNumber: v.unitNumber || '-',
-      vehicleType: v.vehicleType || '-',
-      vin: v.vin || '-',
-      status: v.status || '-',
-      nextInspection: v.annualInspection?.nextDueDate ? new Date(v.annualInspection.nextDueDate).toLocaleDateString() : '-',
-      lastMaintenance: v.maintenanceLog?.length > 0 && v.maintenanceLog[v.maintenanceLog.length - 1]?.date
-        ? new Date(v.maintenanceLog[v.maintenanceLog.length - 1].date).toLocaleDateString()
-        : '-'
-    }));
-
+    const { headers } = buildExportConfig('vehicle', selectedFields);
     exportService.streamCSV(res, {
       reportType: 'vehicle-maintenance-report',
-      headers: { unitNumber: 'Unit Number', vehicleType: 'Vehicle Type', vin: 'VIN', status: 'Status', nextInspection: 'Next Inspection', lastMaintenance: 'Last Maintenance' },
+      headers,
       rows
     });
     return;
@@ -1508,28 +1439,11 @@ router.get('/vehicle-maintenance', checkPermission('reports', 'view'), asyncHand
 
   // Excel export
   if (format === 'xlsx') {
-    const rows = vehicles.map(v => ({
-      unitNumber: v.unitNumber || '-',
-      vehicleType: v.vehicleType || '-',
-      vin: v.vin || '-',
-      status: v.status || '-',
-      nextInspection: v.annualInspection?.nextDueDate ? new Date(v.annualInspection.nextDueDate).toLocaleDateString() : '-',
-      lastMaintenance: v.maintenanceLog?.length > 0 && v.maintenanceLog[v.maintenanceLog.length - 1]?.date
-        ? new Date(v.maintenanceLog[v.maintenanceLog.length - 1].date).toLocaleDateString()
-        : '-'
-    }));
-
+    const { columns } = buildExportConfig('vehicle', selectedFields);
     await exportService.streamExcel(res, {
       reportType: 'vehicle-maintenance-report',
       sheetName: 'Vehicle Maintenance',
-      columns: [
-        { header: 'Unit Number', key: 'unitNumber', width: 12 },
-        { header: 'Vehicle Type', key: 'vehicleType', width: 15 },
-        { header: 'VIN', key: 'vin', width: 20 },
-        { header: 'Status', key: 'status', width: 12 },
-        { header: 'Next Inspection', key: 'nextInspection', width: 15 },
-        { header: 'Last Maintenance', key: 'lastMaintenance', width: 15 }
-      ],
+      columns,
       rows
     });
     return;
@@ -1616,12 +1530,31 @@ router.get('/vehicle-maintenance', checkPermission('reports', 'view'), asyncHand
   });
 }));
 
+// Helper to build violations row
+const buildViolationRow = (v) => ({
+  inspectionNumber: v.inspectionNumber || '-',
+  violationDate: v.violationDate ? new Date(v.violationDate).toLocaleDateString() : '-',
+  violationType: v.violationType || '-',
+  violationCode: v.violationCode || '-',
+  description: v.description || '-',
+  basic: v.basic || '-',
+  severityWeight: v.severityWeight != null ? v.severityWeight : '-',
+  driverName: v.driverId ? `${v.driverId.firstName} ${v.driverId.lastName}` : '-',
+  vehicleUnit: v.vehicleId?.unitNumber || '-',
+  status: v.status || '-',
+  dataQStatus: v.dataQChallenge?.submitted ? v.dataQChallenge.status : '-',
+  dataQCaseNumber: v.dataQChallenge?.caseNumber || '-'
+});
+
 // @route   GET /api/reports/violations
 // @desc    Generate Violations report
 // @access  Private
 router.get('/violations', checkPermission('reports', 'view'), asyncHandler(async (req, res) => {
-  const { startDate, endDate, driverIds, vehicleIds, status, format = 'json' } = req.query;
+  const { startDate, endDate, driverIds, vehicleIds, status, format = 'json', fields } = req.query;
   const companyId = req.companyFilter.companyId;
+
+  // Parse and validate fields parameter
+  const selectedFields = parseFieldsParam(fields, 'violations');
 
   const query = { companyId };
 
@@ -1660,22 +1593,16 @@ router.get('/violations', checkPermission('reports', 'view'), asyncHandler(async
 
   const company = await Company.findById(companyId);
 
+  // Build rows using field definitions format
+  const allRows = violations.map(buildViolationRow);
+  const rows = selectedFields ? allRows.map(row => filterRowToFields(row, selectedFields)) : allRows;
+
   // CSV export
   if (format === 'csv') {
-    const rows = violations.map(v => ({
-      violationDate: v.violationDate ? new Date(v.violationDate).toLocaleDateString() : '-',
-      violationType: v.violationType || '-',
-      basic: v.basic || '-',
-      severityWeight: v.severityWeight != null ? String(v.severityWeight) : '-',
-      driverName: v.driverId ? `${v.driverId.firstName} ${v.driverId.lastName}` : '-',
-      vehicleUnit: v.vehicleId?.unitNumber || '-',
-      status: v.status || '-',
-      dataQStatus: v.dataQChallenge?.submitted ? v.dataQChallenge.status : '-'
-    }));
-
+    const { headers } = buildExportConfig('violations', selectedFields);
     exportService.streamCSV(res, {
       reportType: 'violations-report',
-      headers: { violationDate: 'Date', violationType: 'Violation Type', basic: 'BASIC', severityWeight: 'Severity', driverName: 'Driver', vehicleUnit: 'Vehicle', status: 'Status', dataQStatus: 'DataQ Status' },
+      headers,
       rows
     });
     return;
@@ -1683,30 +1610,11 @@ router.get('/violations', checkPermission('reports', 'view'), asyncHandler(async
 
   // Excel export
   if (format === 'xlsx') {
-    const rows = violations.map(v => ({
-      violationDate: v.violationDate ? new Date(v.violationDate).toLocaleDateString() : '-',
-      violationType: v.violationType || '-',
-      basic: v.basic || '-',
-      severityWeight: v.severityWeight != null ? String(v.severityWeight) : '-',
-      driverName: v.driverId ? `${v.driverId.firstName} ${v.driverId.lastName}` : '-',
-      vehicleUnit: v.vehicleId?.unitNumber || '-',
-      status: v.status || '-',
-      dataQStatus: v.dataQChallenge?.submitted ? v.dataQChallenge.status : '-'
-    }));
-
+    const { columns } = buildExportConfig('violations', selectedFields);
     await exportService.streamExcel(res, {
       reportType: 'violations-report',
       sheetName: 'Violations Summary',
-      columns: [
-        { header: 'Date', key: 'violationDate', width: 12 },
-        { header: 'Violation Type', key: 'violationType', width: 25 },
-        { header: 'BASIC', key: 'basic', width: 20 },
-        { header: 'Severity', key: 'severityWeight', width: 10 },
-        { header: 'Driver', key: 'driverName', width: 25 },
-        { header: 'Vehicle', key: 'vehicleUnit', width: 12 },
-        { header: 'Status', key: 'status', width: 15 },
-        { header: 'DataQ Status', key: 'dataQStatus', width: 15 }
-      ],
+      columns,
       rows
     });
     return;
@@ -1810,8 +1718,11 @@ router.get('/violations', checkPermission('reports', 'view'), asyncHandler(async
 // @desc    Generate full audit report
 // @access  Private
 router.get('/audit', checkPermission('reports', 'export'), asyncHandler(async (req, res) => {
-  const { format = 'json' } = req.query;
+  const { format = 'json', fields } = req.query;
   const companyId = req.companyFilter.companyId;
+
+  // Parse and validate fields parameter
+  const selectedFields = parseFieldsParam(fields, 'audit');
 
   const [company, drivers, vehicles, violations, drugTests, documents] = await Promise.all([
     Company.findById(companyId),
@@ -1860,74 +1771,50 @@ router.get('/audit', checkPermission('reports', 'export'), asyncHandler(async (r
     }
   };
 
-  // CSV export - flatten audit data into rows
-  if (format === 'csv') {
-    const rows = [
-      { section: 'Company', metric: 'Name', value: company.name || '-' },
-      { section: 'Company', metric: 'DOT Number', value: company.dotNumber || '-' },
-      { section: 'Company', metric: 'MC Number', value: company.mcNumber || '-' },
-      { section: 'Drivers', metric: 'Total Active', value: String(auditData.driverQualification.totalActive) },
-      { section: 'Drivers', metric: 'Compliant', value: String(auditData.driverQualification.compliant) },
-      { section: 'Drivers', metric: 'With Issues', value: String(auditData.driverQualification.withIssues) },
-      { section: 'Vehicles', metric: 'Total', value: String(auditData.vehicles.total) },
-      { section: 'Vehicles', metric: 'Compliant', value: String(auditData.vehicles.compliant) },
-      { section: 'Vehicles', metric: 'Needs Attention', value: String(auditData.vehicles.needingAttention) },
-      { section: 'Violations', metric: 'Total (Last 50)', value: String(auditData.violations.total) },
-      { section: 'Violations', metric: 'Open', value: String(auditData.violations.open) },
-      { section: 'Violations', metric: 'In Dispute', value: String(auditData.violations.disputed) },
-      { section: 'Drug/Alcohol', metric: 'Total Tests', value: String(auditData.drugAlcohol.totalTests) },
-      ...Object.entries(auditData.drugAlcohol.byType).map(([type, count]) => ({
-        section: 'Drug/Alcohol',
-        metric: `Tests - ${type}`,
-        value: String(count)
-      })),
-      { section: 'Documents', metric: 'Total', value: String(auditData.documents.total) },
-      { section: 'Documents', metric: 'Expiring Soon', value: String(auditData.documents.expiringSoon) },
-      { section: 'Documents', metric: 'Expired', value: String(auditData.documents.expired) }
-    ];
+  // Build audit rows in section/metric/value format
+  const allRows = [
+    { section: 'Company', metric: 'Name', value: company.name || '-' },
+    { section: 'Company', metric: 'DOT Number', value: company.dotNumber || '-' },
+    { section: 'Company', metric: 'MC Number', value: company.mcNumber || '-' },
+    { section: 'Drivers', metric: 'Total Active', value: String(auditData.driverQualification.totalActive) },
+    { section: 'Drivers', metric: 'Compliant', value: String(auditData.driverQualification.compliant) },
+    { section: 'Drivers', metric: 'With Issues', value: String(auditData.driverQualification.withIssues) },
+    { section: 'Vehicles', metric: 'Total', value: String(auditData.vehicles.total) },
+    { section: 'Vehicles', metric: 'Compliant', value: String(auditData.vehicles.compliant) },
+    { section: 'Vehicles', metric: 'Needs Attention', value: String(auditData.vehicles.needingAttention) },
+    { section: 'Violations', metric: 'Total (Last 50)', value: String(auditData.violations.total) },
+    { section: 'Violations', metric: 'Open', value: String(auditData.violations.open) },
+    { section: 'Violations', metric: 'In Dispute', value: String(auditData.violations.disputed) },
+    { section: 'Drug/Alcohol', metric: 'Total Tests', value: String(auditData.drugAlcohol.totalTests) },
+    ...Object.entries(auditData.drugAlcohol.byType).map(([type, count]) => ({
+      section: 'Drug/Alcohol',
+      metric: `Tests - ${type}`,
+      value: String(count)
+    })),
+    { section: 'Documents', metric: 'Total', value: String(auditData.documents.total) },
+    { section: 'Documents', metric: 'Expiring Soon', value: String(auditData.documents.expiringSoon) },
+    { section: 'Documents', metric: 'Expired', value: String(auditData.documents.expired) }
+  ];
+  const rows = selectedFields ? allRows.map(row => filterRowToFields(row, selectedFields)) : allRows;
 
+  // CSV export
+  if (format === 'csv') {
+    const { headers } = buildExportConfig('audit', selectedFields);
     exportService.streamCSV(res, {
       reportType: 'audit-report',
-      headers: { section: 'Section', metric: 'Metric', value: 'Value' },
+      headers,
       rows
     });
     return;
   }
 
-  // Excel export - flatten audit data into rows
+  // Excel export
   if (format === 'xlsx') {
-    const rows = [
-      { section: 'Company', metric: 'Name', value: company.name || '-' },
-      { section: 'Company', metric: 'DOT Number', value: company.dotNumber || '-' },
-      { section: 'Company', metric: 'MC Number', value: company.mcNumber || '-' },
-      { section: 'Drivers', metric: 'Total Active', value: String(auditData.driverQualification.totalActive) },
-      { section: 'Drivers', metric: 'Compliant', value: String(auditData.driverQualification.compliant) },
-      { section: 'Drivers', metric: 'With Issues', value: String(auditData.driverQualification.withIssues) },
-      { section: 'Vehicles', metric: 'Total', value: String(auditData.vehicles.total) },
-      { section: 'Vehicles', metric: 'Compliant', value: String(auditData.vehicles.compliant) },
-      { section: 'Vehicles', metric: 'Needs Attention', value: String(auditData.vehicles.needingAttention) },
-      { section: 'Violations', metric: 'Total (Last 50)', value: String(auditData.violations.total) },
-      { section: 'Violations', metric: 'Open', value: String(auditData.violations.open) },
-      { section: 'Violations', metric: 'In Dispute', value: String(auditData.violations.disputed) },
-      { section: 'Drug/Alcohol', metric: 'Total Tests', value: String(auditData.drugAlcohol.totalTests) },
-      ...Object.entries(auditData.drugAlcohol.byType).map(([type, count]) => ({
-        section: 'Drug/Alcohol',
-        metric: `Tests - ${type}`,
-        value: String(count)
-      })),
-      { section: 'Documents', metric: 'Total', value: String(auditData.documents.total) },
-      { section: 'Documents', metric: 'Expiring Soon', value: String(auditData.documents.expiringSoon) },
-      { section: 'Documents', metric: 'Expired', value: String(auditData.documents.expired) }
-    ];
-
+    const { columns } = buildExportConfig('audit', selectedFields);
     await exportService.streamExcel(res, {
       reportType: 'audit-report',
       sheetName: 'Comprehensive Audit',
-      columns: [
-        { header: 'Section', key: 'section', width: 20 },
-        { header: 'Metric', key: 'metric', width: 30 },
-        { header: 'Value', key: 'value', width: 15 }
-      ],
+      columns,
       rows
     });
     return;
