@@ -213,45 +213,32 @@ npm run dev  # Starts on port 5173
 
 ---
 
-## Current Status (Jan 2026)
+## Current Status (Feb 2026)
 
-### Completed
-- Full authentication system with RBAC
-- Driver/Vehicle/Violation management
-- Document management with expiration alerts
-- CSA score tracking and estimation
-- Stripe billing integration (live mode)
-- Landing page + public CSA Checker
-- Dark/light mode theming
-- All P0-P4 API tests passing
-- Free trial limits (1 driver, 1 vehicle, 1 company)
-- **Full security audit & remediation (32 vulnerabilities fixed)**
-  - Rate limiting, NoSQL injection prevention, XSS sanitization
-  - Helmet security headers, CORS hardening, JWT algorithm pinning
-  - File upload security, admin audit logging, error sanitization
-- **Email notification system (Resend)** - 9 email types with branded templates
-  - Welcome, email verification, password reset, payment success/failure
-  - Trial ending, company invitation, compliance alert digest, report email
-  - Email preferences UI in Settings, EmailLog audit trail
-- **Audit log system** - Full route instrumentation across all API endpoints
-  - AuditLog model with action/resource/detail tracking
-  - Company-scoped audit log tab in Settings (admin/owner only)
-  - Export to CSV support
-- **Per-email rate limiting** - Auth rate limiter keys on IP+email so blocking one email doesn't block others
-- **Rate limit countdown UI** - Login page shows exact countdown timer when rate limited
-- **Comprehensive admin panel overhaul** - Analytics, user/company power tools, system operations
-  - Analytics dashboard with MRR, churn, signup trends, revenue by plan, active users, top companies
-  - User power tools: create, bulk actions, force password reset, detail drawer with login history
-  - Company power tools: edit (DOT read-only), activate/deactivate, member role management
-  - Email log viewer with search/filter and detail modal
-  - Announcement system with global dismissible banners
-  - Feature flags with `useFeatureFlag()` hook and FeatureFlagContext
-  - Maintenance mode with middleware, admin toggle, and auto-retry maintenance page
-  - System health monitoring: DB status, uptime, memory, service status
+### Validated (Shipped)
 
-- **MVP Hardening (Tier 0+1)** — JWT 1h expiry, production env var validation, process error handlers, health check DB ping, driver/vehicle race condition fix, ErrorBoundary, 404 page, ConfirmDialog, Axios timeout, 45+ backend console.log removed
-- **Competitive Analysis** — Direct competitor deep dive (DOTDriverFiles, FleetDrive360, My Safety Manager, AvatarFleet) in roadmap.html
-- **Secret Rotation (Tier 0)** — Rotated MongoDB Atlas password, OpenAI API key, Resend API key; all 13 env vars verified in Render; `.env` confirmed never committed to git history (purge not needed)
+**v1 FMCSA Data Sync Overhaul (2026-02-03):**
+- ✓ Automatic 6-hour FMCSA data sync with 5-step orchestrator pipeline
+- ✓ Violation model as single source of truth with sync/linking metadata
+- ✓ Entity linking auto-matches violations to drivers (CDL) and vehicles (license plate)
+- ✓ Vehicle Safety tab with OOS rate and BASIC breakdown
+- ✓ DataQ analysis automatically scores violations for challenge potential
+- ✓ Dashboard sync status with manual refresh and toast notifications
+- ✓ Unlinked violations review page for manual entity assignment
+
+**Previous:**
+- ✓ Full authentication system with RBAC
+- ✓ Driver/Vehicle/Violation management
+- ✓ Document management with expiration alerts
+- ✓ CSA score tracking and estimation
+- ✓ Stripe billing integration (live mode)
+- ✓ Landing page + public CSA Checker
+- ✓ Dark/light mode theming
+- ✓ Full security audit & remediation (32 vulnerabilities fixed)
+- ✓ Email notification system (Resend) - 9 email types
+- ✓ Audit log system with route instrumentation
+- ✓ Comprehensive admin panel overhaul
+- ✓ MVP Hardening (JWT, error handlers, rate limiting)
 
 ### In Progress
 - Marketing and user acquisition
@@ -274,6 +261,9 @@ npm run dev  # Starts on port 5173
 - httpOnly cookie JWT storage (replaces localStorage)
 - Refresh token rotation
 - Sentry APM / error monitoring
+- BullMQ job queue (replaces node-cron for sync)
+- Configurable sync frequency per company
+- Sync health dashboard with job monitoring
 
 ---
 

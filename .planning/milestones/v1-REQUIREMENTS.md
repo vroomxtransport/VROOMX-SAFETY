@@ -1,3 +1,13 @@
+# Requirements Archive: v1 FMCSA Data Sync Overhaul
+
+**Archived:** 2026-02-04
+**Status:** ✅ SHIPPED
+
+This is the archived requirements specification for v1.
+For current requirements, see `.planning/REQUIREMENTS.md` (created for next milestone).
+
+---
+
 # Requirements: FMCSA Data Sync Overhaul
 
 **Defined:** 2026-02-03
@@ -131,5 +141,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 - Unmapped: 0
 
 ---
-*Requirements defined: 2026-02-03*
-*Last updated: 2026-02-03 after Phase 7 completion*
+
+## Milestone Summary
+
+**Shipped:** 29 of 29 v1 requirements
+**Adjusted:**
+- VHCL-01: Changed from "VIN/unit number" to "license plate" - unitInfo schema doesn't include VIN/unit number fields
+**Dropped:** None
+
+---
+*Archived: 2026-02-04 as part of v1 milestone completion*
