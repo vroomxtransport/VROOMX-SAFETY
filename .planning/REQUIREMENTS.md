@@ -40,10 +40,10 @@ Requirements for Enhanced Reports Module release. Each maps to roadmap phases.
 
 ### Report History
 
-- [ ] **HIST-01**: System tracks report generation history (who, what type, when, filters used)
-- [ ] **HIST-02**: User can view list of previously generated reports
-- [ ] **HIST-03**: User can re-download previously generated report (90-day retention)
-- [ ] **HIST-04**: Report history shows filter parameters used for each generation
+- [x] **HIST-01**: System tracks report generation history (who, what type, when, filters used)
+- [x] **HIST-02**: User can view list of previously generated reports
+- [x] **HIST-03**: User can re-download previously generated report (90-day retention)
+- [x] **HIST-04**: Report history shows filter parameters used for each generation
 
 ### New Report Types
 
@@ -107,10 +107,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BLDR-04 | Phase 11 | Complete |
 | BLDR-05 | Phase 11 | Complete |
 | BLDR-06 | Phase 11 | Complete |
-| HIST-01 | Phase 12 | Pending |
-| HIST-02 | Phase 12 | Pending |
-| HIST-03 | Phase 12 | Pending |
-| HIST-04 | Phase 12 | Pending |
+| HIST-01 | Phase 12 | Complete |
+| HIST-02 | Phase 12 | Complete |
+| HIST-03 | Phase 12 | Complete |
+| HIST-04 | Phase 12 | Complete |
 | NRPT-01 | Phase 10 | Complete |
 | NRPT-02 | Phase 10 | Complete |
 | NRPT-03 | Phase 10 | Complete |
@@ -126,4 +126,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-04*
-*Last updated: 2026-02-04 after Phase 11 completion*
+*Last updated: 2026-02-04 after Phase 12 completion (v2.0 complete)*

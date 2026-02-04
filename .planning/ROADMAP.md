@@ -8,7 +8,7 @@ This milestone transforms VroomX Safety from basic PDF-only reporting to a compr
 
 - v1.0 FMCSA Data Sync Overhaul - Phases 1-7 (shipped 2026-02-03)
   - See: .planning/milestones/v1-ROADMAP.md
-- **v2.0 Enhanced Reports Module** - Phases 8-12 (in progress)
+- **v2.0 Enhanced Reports Module** - Phases 8-12 (shipped 2026-02-04)
 
 ## Phases
 
@@ -16,7 +16,7 @@ This milestone transforms VroomX Safety from basic PDF-only reporting to a compr
 - [x] **Phase 9: Unified Filtering** - Date range, driver/vehicle/status filters across all reports
 - [x] **Phase 10: FMCSA Compliance Reports** - Enhanced DQF fields, new report types, audit formatting
 - [x] **Phase 11: Report Builder** - Field selector, templates, preview functionality
-- [ ] **Phase 12: Report History** - Generation tracking with re-download capability
+- [x] **Phase 12: Report History** - Generation tracking with re-download capability
 
 ## Phase Details
 
@@ -99,8 +99,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 12-01-PLAN.md — ReportHistory model with TTL, service for file management, and API routes for list/download
-- [ ] 12-02-PLAN.md — Integrate history tracking into exports, create ReportHistoryList component, add to Reports page
+- [x] 12-01-PLAN.md — ReportHistory model with TTL, service for file management, and API routes for list/download
+- [x] 12-02-PLAN.md — Integrate history tracking into exports, create ReportHistoryList component, add to Reports page
 
 ## Progress
 
@@ -113,7 +113,7 @@ Phases execute in numeric order: 8 -> 9 -> 10 -> 11 -> 12
 | 9. Unified Filtering | v2.0 | 2/2 | Complete | 2026-02-04 |
 | 10. FMCSA Compliance Reports | v2.0 | 3/3 | Complete | 2026-02-04 |
 | 11. Report Builder | v2.0 | 3/3 | Complete | 2026-02-04 |
-| 12. Report History | v2.0 | 0/2 | Not started | - |
+| 12. Report History | v2.0 | 2/2 | Complete | 2026-02-04 |
 
 ---
 *Roadmap created: 2026-02-04*
