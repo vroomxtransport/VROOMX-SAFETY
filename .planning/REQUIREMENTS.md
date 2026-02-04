@@ -46,9 +46,9 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### DataQ Integration
 
-- [ ] **DATQ-01**: Imported violations automatically available in DataQ module
-- [ ] **DATQ-02**: DataQ opportunities list updates after each sync
-- [ ] **DATQ-03**: AI analysis runs on new violations after sync (background)
+- [x] **DATQ-01**: Imported violations automatically available in DataQ module
+- [x] **DATQ-02**: DataQ opportunities list updates after each sync
+- [x] **DATQ-03**: AI analysis runs on new violations after sync (background)
 
 ### User Interface
 
@@ -117,9 +117,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | VHCL-02 | Phase 4 | Complete |
 | VHCL-03 | Phase 5 | Complete |
 | VHCL-04 | Phase 5 | Complete |
-| DATQ-01 | Phase 6 | Pending |
-| DATQ-02 | Phase 6 | Pending |
-| DATQ-03 | Phase 6 | Pending |
+| DATQ-01 | Phase 6 | Complete |
+| DATQ-02 | Phase 6 | Complete |
+| DATQ-03 | Phase 6 | Complete |
 | UI-01 | Phase 7 | Pending |
 | UI-02 | Phase 7 | Pending |
 | UI-03 | Phase 7 | Pending |
@@ -132,4 +132,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-03*
-*Last updated: 2026-02-03 after Phase 5 completion*
+*Last updated: 2026-02-03 after Phase 6 completion*
