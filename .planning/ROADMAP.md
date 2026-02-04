@@ -45,11 +45,11 @@ Plans:
   3. User can filter any report by selecting one or multiple vehicles from a dropdown
   4. User can filter any report by status (active, expired, compliant, non-compliant as applicable)
   5. User can select date presets (Last 30 days, This quarter, YTD, Custom) and see date fields auto-populate
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 09-01: Filter infrastructure and API
-- [ ] 09-02: Filter UI components
+- [ ] 09-01-PLAN.md — Create date presets utility, filter config, and extend backend routes with multi-select params
+- [ ] 09-02-PLAN.md — Create reusable filter components and integrate into Reports page
 
 ### Phase 10: FMCSA Compliance Reports
 **Goal**: Reports include all FMCSA-required fields and new report types for comprehensive compliance tracking
@@ -110,7 +110,7 @@ Phases execute in numeric order: 8 -> 9 -> 10 -> 11 -> 12
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 8. Export Foundation | v2.0 | 2/2 | Complete | 2026-02-04 |
-| 9. Unified Filtering | v2.0 | 0/2 | Not started | - |
+| 9. Unified Filtering | v2.0 | 0/2 | Planned | - |
 | 10. FMCSA Compliance Reports | v2.0 | 0/3 | Not started | - |
 | 11. Report Builder | v2.0 | 0/3 | Not started | - |
 | 12. Report History | v2.0 | 0/2 | Not started | - |
