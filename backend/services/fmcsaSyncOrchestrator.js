@@ -5,6 +5,8 @@
  * 1. CSA BASIC scores (fmcsaSyncService -> SAFER)
  * 2. Violation details (fmcsaInspectionService -> DataHub)
  * 3. Inspection stats (fmcsaViolationService -> SaferWebAPI)
+ * 4. Entity linking (entityLinkingService -> drivers/vehicles)
+ * 5. DataQ analysis (dataQAnalysisService -> challenge scoring)
  *
  * Designed for cron job usage - never throws, always logs errors.
  */
