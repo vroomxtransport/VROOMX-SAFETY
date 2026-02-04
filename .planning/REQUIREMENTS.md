@@ -9,8 +9,8 @@ Requirements for Enhanced Reports Module release. Each maps to roadmap phases.
 
 ### Export & Filtering
 
-- [ ] **EXPF-01**: User can export any report as CSV file
-- [ ] **EXPF-02**: User can export any report as Excel file (.xlsx) with formatted headers
+- [x] **EXPF-01**: User can export any report as CSV file
+- [x] **EXPF-02**: User can export any report as Excel file (.xlsx) with formatted headers
 - [ ] **EXPF-03**: User can filter any report by date range (start/end dates)
 - [ ] **EXPF-04**: User can filter any report by driver (single or multiple)
 - [ ] **EXPF-05**: User can filter any report by vehicle (single or multiple)
@@ -85,8 +85,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| EXPF-01 | Phase 8 | Pending |
-| EXPF-02 | Phase 8 | Pending |
+| EXPF-01 | Phase 8 | Complete |
+| EXPF-02 | Phase 8 | Complete |
 | EXPF-03 | Phase 9 | Pending |
 | EXPF-04 | Phase 9 | Pending |
 | EXPF-05 | Phase 9 | Pending |
@@ -126,4 +126,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-04*
-*Last updated: 2026-02-04 after roadmap creation*
+*Last updated: 2026-02-04 after Phase 8 completion*
