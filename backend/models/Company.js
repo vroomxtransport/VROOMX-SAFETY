@@ -135,7 +135,7 @@ const companySchema = new mongoose.Schema({
       lastRun: { type: Date },
       success: { type: Boolean },
       errors: [{
-        source: { type: String, enum: ['csa_scores', 'violations', 'inspections', 'entity_linking'] },
+        source: { type: String, enum: ['csa_scores', 'violations', 'inspections', 'entity_linking', 'dataq_analysis'] },
         error: String,
         timestamp: { type: Date, default: Date.now }
       }],
@@ -143,7 +143,10 @@ const companySchema = new mongoose.Schema({
       csaScoresLastSync: { type: Date },
       violationsLastSync: { type: Date },
       inspectionsLastSync: { type: Date },
-      linkingLastRun: { type: Date }
+      linkingLastRun: { type: Date },
+      // DataQ analysis tracking
+      dataQAnalysisLastRun: { type: Date },
+      dataQAnalysisCount: { type: Number }
     }
   },
 
