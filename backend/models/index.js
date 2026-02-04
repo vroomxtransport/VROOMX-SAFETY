@@ -26,6 +26,7 @@ const SystemConfig = require('./SystemConfig');
 const Ticket = require('./Ticket');
 const Integration = require('./Integration');
 const SamsaraRecord = require('./SamsaraRecord');
+const WebhookEvent = require('./WebhookEvent');
 
 module.exports = {
   User,
@@ -55,5 +56,6 @@ module.exports = {
   SystemConfig,
   Ticket,
   Integration,
-  SamsaraRecord
+  SamsaraRecord,
+  WebhookEvent
 };

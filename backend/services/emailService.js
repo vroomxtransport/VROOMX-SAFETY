@@ -323,7 +323,7 @@ const emailService = {
   },
 
   /**
-   * Trial ending reminder.
+   * Trial ending reminder (uses user's trialDaysRemaining virtual).
    */
   async sendTrialEnding(user) {
     if (!this.shouldSend(user, 'billing')) return null;
@@ -337,6 +337,38 @@ const emailService = {
       variables: {
         firstName: user.firstName,
         daysRemaining: String(daysRemaining),
+        upgradeUrl: `${FRONTEND_URL}/app/settings?tab=billing`,
+      },
+      category: 'billing',
+      userId: user._id,
+    });
+  },
+
+  /**
+   * Trial ending reminder with explicit options (for Stripe webhook).
+   * @param {object} user - User document
+   * @param {object} options - { trialEndDate, daysRemaining }
+   */
+  async sendTrialEndingReminder(user, options = {}) {
+    if (!this.shouldSend(user, 'billing')) return null;
+
+    const daysRemaining = options.daysRemaining || 3;
+    const trialEndDate = options.trialEndDate
+      ? new Date(options.trialEndDate).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        })
+      : null;
+
+    return this.send({
+      to: user.email,
+      subject: `Your Trial Ends in ${daysRemaining} Day${daysRemaining === 1 ? '' : 's'}`,
+      templateName: 'trial-ending',
+      variables: {
+        firstName: user.firstName,
+        daysRemaining: String(daysRemaining),
+        trialEndDate: trialEndDate || '',
         upgradeUrl: `${FRONTEND_URL}/app/settings?tab=billing`,
       },
       category: 'billing',

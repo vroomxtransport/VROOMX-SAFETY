@@ -1,5 +1,6 @@
 const Stripe = require('stripe');
 const User = require('../models/User');
+const WebhookEvent = require('../models/WebhookEvent');
 const emailService = require('./emailService');
 
 // Initialize Stripe with secret key (handle missing key for development)
@@ -181,9 +182,29 @@ const stripeService = {
   },
 
   /**
-   * Handle Stripe webhook events
+   * Handle Stripe webhook events with idempotency protection
    */
   async handleWebhook(event) {
+    // Idempotency check - prevent duplicate processing
+    const existing = await WebhookEvent.findOne({ eventId: event.id });
+    if (existing) {
+      console.log(`[Stripe Webhook] Event ${event.id} (${event.type}) already processed, skipping`);
+      return { status: 'duplicate', eventId: event.id };
+    }
+
+    // Mark event as processing
+    const webhookRecord = await WebhookEvent.create({
+      eventId: event.id,
+      eventType: event.type,
+      status: 'processing',
+      metadata: {
+        apiVersion: event.api_version,
+        created: event.created
+      }
+    });
+
+    console.log(`[Stripe Webhook] Processing event ${event.id} (${event.type})`);
+
     try {
       switch (event.type) {
         case 'checkout.session.completed':
@@ -199,6 +220,10 @@ const stripeService = {
           await this.handleSubscriptionDeleted(event.data.object);
           break;
 
+        case 'customer.subscription.trial_will_end':
+          await this.handleTrialWillEnd(event.data.object);
+          break;
+
         case 'invoice.payment_succeeded':
           await this.handlePaymentSucceeded(event.data.object);
           break;
@@ -207,11 +232,28 @@ const stripeService = {
           await this.handlePaymentFailed(event.data.object);
           break;
 
+        case 'invoice.finalization_failed':
+          await this.handleInvoiceFinalizationFailed(event.data.object);
+          break;
+
         default:
+          console.log(`[Stripe Webhook] Unhandled event type: ${event.type}`);
           break;
       }
+
+      // Mark as completed
+      webhookRecord.status = 'completed';
+      await webhookRecord.save();
+
+      console.log(`[Stripe Webhook] Successfully processed event ${event.id} (${event.type})`);
+      return { status: 'processed', eventId: event.id };
     } catch (error) {
-      console.error(`Error handling webhook event ${event.type}:`, error);
+      // Mark as failed with error details
+      webhookRecord.status = 'failed';
+      webhookRecord.error = error.message;
+      await webhookRecord.save();
+
+      console.error(`[Stripe Webhook] Error processing event ${event.id} (${event.type}):`, error);
       throw error;
     }
   },
@@ -355,6 +397,61 @@ const stripeService = {
         user.subscription.status = 'past_due';
         await user.save({ validateBeforeSave: false });
         emailService.sendPaymentFailed(user).catch(() => {});
+      }
+    }
+  },
+
+  /**
+   * Handle customer.subscription.trial_will_end event
+   * Sends notification to user 3 days before trial expires
+   */
+  async handleTrialWillEnd(subscription) {
+    const userId = subscription.metadata?.userId;
+    let user;
+
+    if (userId) {
+      user = await User.findById(userId);
+    } else {
+      // Fallback: find by Stripe customer ID
+      user = await User.findOne({ stripeCustomerId: subscription.customer });
+    }
+
+    if (!user) {
+      console.error('[Stripe Webhook] User not found for trial_will_end event');
+      return;
+    }
+
+    const trialEnd = new Date(subscription.trial_end * 1000);
+    const daysRemaining = Math.ceil((trialEnd - new Date()) / (1000 * 60 * 60 * 24));
+
+    console.log(`[Stripe Webhook] Trial ending for user ${user.email} in ${daysRemaining} days`);
+
+    // Send trial ending email notification
+    emailService.sendTrialEndingReminder(user, {
+      trialEndDate: trialEnd,
+      daysRemaining
+    }).catch(err => {
+      console.error('[Stripe Webhook] Failed to send trial ending email:', err);
+    });
+  },
+
+  /**
+   * Handle invoice.finalization_failed event
+   * Logs the failure for debugging
+   */
+  async handleInvoiceFinalizationFailed(invoice) {
+    console.error('[Stripe Webhook] Invoice finalization failed:', {
+      invoiceId: invoice.id,
+      customerId: invoice.customer,
+      subscriptionId: invoice.subscription,
+      error: invoice.last_finalization_error
+    });
+
+    // Try to find user and log the issue
+    if (invoice.customer) {
+      const user = await User.findOne({ stripeCustomerId: invoice.customer });
+      if (user) {
+        console.error(`[Stripe Webhook] Invoice finalization failed for user: ${user.email}`);
       }
     }
   },
