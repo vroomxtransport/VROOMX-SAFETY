@@ -80,12 +80,12 @@ Plans:
   3. User can load a saved template and regenerate report with identical settings
   4. User can preview first 10 rows of report data before committing to full download
   5. System provides pre-built FMCSA templates (DQF Audit, Vehicle Inspection, Violations Summary) that user can duplicate and customize
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 11-01: Field registry and ReportTemplate model
-- [ ] 11-02: Report builder UI with preview
-- [ ] 11-03: Pre-built templates and customization
+- [ ] 11-01-PLAN.md — ReportTemplate model, field definitions config, and template CRUD routes
+- [ ] 11-02-PLAN.md — Extend report endpoints with fields param and add preview endpoints
+- [ ] 11-03-PLAN.md — FieldSelector, ReportPreview, TemplateManager components and Reports page integration
 
 ### Phase 12: Report History
 **Goal**: Users can view previously generated reports and re-download them within retention period
@@ -112,7 +112,7 @@ Phases execute in numeric order: 8 -> 9 -> 10 -> 11 -> 12
 | 8. Export Foundation | v2.0 | 2/2 | Complete | 2026-02-04 |
 | 9. Unified Filtering | v2.0 | 2/2 | Complete | 2026-02-04 |
 | 10. FMCSA Compliance Reports | v2.0 | 3/3 | Complete | 2026-02-04 |
-| 11. Report Builder | v2.0 | 0/3 | Not started | - |
+| 11. Report Builder | v2.0 | 0/3 | Planned | - |
 | 12. Report History | v2.0 | 0/2 | Not started | - |
 
 ---
