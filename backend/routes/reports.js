@@ -44,6 +44,13 @@ router.get('/dqf', checkPermission('reports', 'view'), asyncHandler(async (req, 
   const drivers = await Driver.find(query).select('-ssn');
   const company = await Company.findById(companyId);
 
+  // Helper to calculate employment verification status
+  const getEmploymentVerificationStatus = (verifications) => {
+    if (!verifications || verifications.length === 0) return 'missing';
+    const hasVerified = verifications.some(v => v.verified);
+    return hasVerified ? 'complete' : 'pending';
+  };
+
   // CSV export
   if (format === 'csv') {
     const rows = drivers.map(d => ({
@@ -53,12 +60,28 @@ router.get('/dqf', checkPermission('reports', 'view'), asyncHandler(async (req, 
       cdlState: d.cdl?.state || '-',
       cdlExpiry: d.cdl?.expiryDate ? new Date(d.cdl.expiryDate).toLocaleDateString() : '-',
       medicalExpiry: d.medicalCard?.expiryDate ? new Date(d.medicalCard.expiryDate).toLocaleDateString() : '-',
-      overallStatus: d.complianceStatus?.overall || '-'
+      overallStatus: d.complianceStatus?.overall || '-',
+      clearinghouseQueryDate: d.clearinghouse?.lastQueryDate ? new Date(d.clearinghouse.lastQueryDate).toLocaleDateString() : '-',
+      clearinghouseStatus: d.clearinghouse?.status || '-',
+      mvrReviewDate: d.documents?.mvrReviews?.[0]?.reviewDate ? new Date(d.documents.mvrReviews[0].reviewDate).toLocaleDateString() : '-',
+      employmentVerificationStatus: getEmploymentVerificationStatus(d.documents?.employmentVerification)
     }));
 
     exportService.streamCSV(res, {
       reportType: 'dqf-report',
-      headers: { driverName: 'Driver Name', employeeId: 'Employee ID', cdlNumber: 'CDL Number', cdlState: 'CDL State', cdlExpiry: 'CDL Expiry', medicalExpiry: 'Medical Expiry', overallStatus: 'Overall Status' },
+      headers: {
+        driverName: 'Driver Name',
+        employeeId: 'Employee ID',
+        cdlNumber: 'CDL Number',
+        cdlState: 'CDL State',
+        cdlExpiry: 'CDL Expiry',
+        medicalExpiry: 'Medical Expiry',
+        overallStatus: 'Overall Status',
+        clearinghouseQueryDate: 'Clearinghouse Query Date',
+        clearinghouseStatus: 'Clearinghouse Status',
+        mvrReviewDate: 'MVR Review Date',
+        employmentVerificationStatus: 'Employment Verification'
+      },
       rows
     });
     return;
@@ -73,7 +96,11 @@ router.get('/dqf', checkPermission('reports', 'view'), asyncHandler(async (req, 
       cdlState: d.cdl?.state || '-',
       cdlExpiry: d.cdl?.expiryDate ? new Date(d.cdl.expiryDate).toLocaleDateString() : '-',
       medicalExpiry: d.medicalCard?.expiryDate ? new Date(d.medicalCard.expiryDate).toLocaleDateString() : '-',
-      overallStatus: d.complianceStatus?.overall || '-'
+      overallStatus: d.complianceStatus?.overall || '-',
+      clearinghouseQueryDate: d.clearinghouse?.lastQueryDate ? new Date(d.clearinghouse.lastQueryDate).toLocaleDateString() : '-',
+      clearinghouseStatus: d.clearinghouse?.status || '-',
+      mvrReviewDate: d.documents?.mvrReviews?.[0]?.reviewDate ? new Date(d.documents.mvrReviews[0].reviewDate).toLocaleDateString() : '-',
+      employmentVerificationStatus: getEmploymentVerificationStatus(d.documents?.employmentVerification)
     }));
 
     await exportService.streamExcel(res, {
@@ -86,7 +113,11 @@ router.get('/dqf', checkPermission('reports', 'view'), asyncHandler(async (req, 
         { header: 'CDL State', key: 'cdlState', width: 15 },
         { header: 'CDL Expiry', key: 'cdlExpiry', width: 15 },
         { header: 'Medical Expiry', key: 'medicalExpiry', width: 15 },
-        { header: 'Overall Status', key: 'overallStatus', width: 15 }
+        { header: 'Overall Status', key: 'overallStatus', width: 15 },
+        { header: 'Clearinghouse Query Date', key: 'clearinghouseQueryDate', width: 18 },
+        { header: 'Clearinghouse Status', key: 'clearinghouseStatus', width: 15 },
+        { header: 'MVR Review Date', key: 'mvrReviewDate', width: 18 },
+        { header: 'Employment Verification', key: 'employmentVerificationStatus', width: 20 }
       ],
       rows
     });
@@ -146,6 +177,23 @@ router.get('/dqf', checkPermission('reports', 'view'), asyncHandler(async (req, 
         ['Hire Date', pdf.formatDate(d.hireDate)],
         ['Overall Status', d.complianceStatus?.overall]
       ]);
+
+      // 391.51 Compliance section
+      doc.moveDown(0.5);
+      pdf.addSectionTitle(doc, '49 CFR 391.51 Compliance');
+      pdf.addKeyValuePairs(doc, [
+        ['Clearinghouse Query Date', pdf.formatDate(d.clearinghouse?.lastQueryDate)],
+        ['Clearinghouse Query Type', d.clearinghouse?.queryType || '-'],
+        ['Clearinghouse Status', d.clearinghouse?.status || '-'],
+        ['MVR Review Date', pdf.formatDate(d.documents?.mvrReviews?.[0]?.reviewDate)],
+        ['MVR Reviewer', d.documents?.mvrReviews?.[0]?.reviewerName || '-'],
+        ['MVR Approved', d.documents?.mvrReviews?.[0]?.approved != null ? (d.documents.mvrReviews[0].approved ? 'Yes' : 'No') : '-'],
+        ['Employment Verification', getEmploymentVerificationStatus(d.documents?.employmentVerification)],
+        ['Application Received', pdf.formatDate(d.documents?.employmentApplication?.dateReceived)],
+        ['Application Complete', d.documents?.employmentApplication?.complete ? 'Yes' : 'No'],
+        ['Road Test Date', pdf.formatDate(d.documents?.roadTest?.date)],
+        ['Road Test Result', d.documents?.roadTest?.result || (d.documents?.roadTest?.waived ? 'Waived' : '-')]
+      ]);
     });
 
     pdf.addFooter(doc);
@@ -180,7 +228,19 @@ router.get('/dqf', checkPermission('reports', 'view'), asyncHandler(async (req, 
           employmentApplication: !!d.documents?.employmentApplication?.complete,
           roadTest: !!d.documents?.roadTest?.result,
           mvrReviews: d.documents?.mvrReviews?.length || 0
-        }
+        },
+        // 391.51 Compliance fields
+        clearinghouseQueryDate: d.clearinghouse?.lastQueryDate || null,
+        clearinghouseQueryType: d.clearinghouse?.queryType || null,
+        mvrReviewDate: d.documents?.mvrReviews?.[0]?.reviewDate || null,
+        mvrReviewerName: d.documents?.mvrReviews?.[0]?.reviewerName || null,
+        mvrApproved: d.documents?.mvrReviews?.[0]?.approved ?? null,
+        employmentVerificationStatus: getEmploymentVerificationStatus(d.documents?.employmentVerification),
+        employmentApplicationReceived: d.documents?.employmentApplication?.dateReceived || null,
+        employmentApplicationComplete: d.documents?.employmentApplication?.complete ?? false,
+        roadTestDate: d.documents?.roadTest?.date || null,
+        roadTestResult: d.documents?.roadTest?.result || null,
+        roadTestWaived: d.documents?.roadTest?.waived ?? false
       }))
     }
   });
