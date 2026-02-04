@@ -47,6 +47,7 @@ import NotFound from './pages/NotFound';
 // Lazy load chart-heavy pages to reduce initial bundle size
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Compliance = lazy(() => import('./pages/Compliance'));
+const UnlinkedViolations = lazy(() => import('./pages/UnlinkedViolations'));
 
 // Admin pages
 import AdminLayout from './pages/admin/AdminLayout';
@@ -227,6 +228,7 @@ function App() {
           <Route path="vehicles" element={<Vehicles />} />
           <Route path="vehicles/:id" element={<VehicleDetail />} />
           <Route path="violations" element={<Violations />} />
+          <Route path="unlinked-violations" element={<Suspense fallback={<LoadingSpinner size="lg" />}><UnlinkedViolations /></Suspense>} />
           <Route path="tickets" element={<Tickets />} />
           <Route path="damage-claims" element={<DamageClaims />} />
           <Route path="drug-alcohol" element={<DrugAlcohol />} />
