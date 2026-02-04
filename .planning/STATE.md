@@ -10,11 +10,11 @@ See: PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 12 of 12 (Report History)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-02-04 - Phase 11 Report Builder complete (verified)
+Plan: 1 of 3 complete
+Status: In progress
+Last activity: 2026-02-04 - Completed 12-01-PLAN.md (Report History Backend)
 
-Progress: [████████████████░░░░] 80% (4/5 phases)
+Progress: [████████████████████] 85% (11/13 plans)
 
 ## Milestone History
 
@@ -24,9 +24,9 @@ Progress: [████████████████░░░░] 80% (4/
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10 (v2.0)
-- Average duration: 4.2min
-- Total execution time: 42min
+- Total plans completed: 11 (v2.0)
+- Average duration: 4.0min
+- Total execution time: 44min
 
 **By Phase:**
 
@@ -36,10 +36,11 @@ Progress: [████████████████░░░░] 80% (4/
 | 09-unified-filtering | 2 | 6min | 3min |
 | 10-fmcsa-compliance-reports | 3 | 12min | 4min |
 | 11-report-builder | 3 | 12min | 4min |
+| 12-report-history | 1 | 2min | 2min |
 
 **Recent Trend:**
-- Last 5 plans: 10-03 (3min), 11-01 (2min), 11-02 (6min), 11-03 (4min)
-- Trend: Stable at ~4min
+- Last 5 plans: 11-01 (2min), 11-02 (6min), 11-03 (4min), 12-01 (2min)
+- Trend: Stable at ~3.5min
 
 *Updated after each plan completion*
 
@@ -89,6 +90,9 @@ v2.0 decisions:
 | Checkbox grid layout for field selection | 11-03 | Visual and tactile field selection experience |
 | 300ms debounce on preview fetch | 11-03 | Prevent excessive API calls during rapid changes |
 | System templates grouped separately | 11-03 | Clear distinction between FMCSA defaults and user customizations |
+| TTL via expiresAt field (expireAfterSeconds: 0) | 12-01 | Per-document expiration timing control |
+| Store reports in uploads/reports/{companyId}/ | 12-01 | Company isolation for file storage |
+| HTTP 410 Gone for expired reports | 12-01 | Distinguish expired from missing resources |
 
 ### Pending Todos
 
@@ -101,8 +105,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-04
-Stopped at: Phase 11 complete, verified, ready for Phase 12
+Stopped at: Completed 12-01-PLAN.md (Report History Backend)
 Resume file: None
 
 ---
-*v2.0 milestone in progress. Phase 11 complete. Report Builder with field selection, preview, and templates fully implemented. Ready for Phase 12 (Report History).*
+*v2.0 milestone in progress. Phase 12 plan 01 complete. ReportHistory model, file service, and API endpoints implemented. Ready for 12-02 (Integration with report exports).*
