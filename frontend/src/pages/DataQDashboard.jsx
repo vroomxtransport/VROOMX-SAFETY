@@ -21,12 +21,13 @@ const DataQDashboard = () => {
   const [selectedViolation, setSelectedViolation] = useState(null);
   const [showLetterModal, setShowLetterModal] = useState(false);
   const [minScore, setMinScore] = useState(40);
+  const [selectedBasic, setSelectedBasic] = useState('');
   const [autoSyncing, setAutoSyncing] = useState(false);
   const autoSyncAttempted = useRef(false);
 
   useEffect(() => {
     fetchData();
-  }, [minScore]);
+  }, [minScore, selectedBasic]);
 
   const fetchData = async () => {
     try {
@@ -35,7 +36,7 @@ const DataQDashboard = () => {
 
       const [dashboardRes, opportunitiesRes] = await Promise.all([
         violationsAPI.getDataQDashboard(),
-        violationsAPI.getDataQOpportunities({ minScore, limit: 10 })
+        violationsAPI.getDataQOpportunities({ minScore, limit: 10, basic: selectedBasic || undefined })
       ]);
 
       const dashboardStats = dashboardRes.data.stats;
@@ -67,7 +68,7 @@ const DataQDashboard = () => {
         // Re-fetch after sync attempt
         const [dashboardRes2, opportunitiesRes2] = await Promise.all([
           violationsAPI.getDataQDashboard(),
-          violationsAPI.getDataQOpportunities({ minScore, limit: 10 })
+          violationsAPI.getDataQOpportunities({ minScore, limit: 10, basic: selectedBasic || undefined })
         ]);
 
         setStats(dashboardRes2.data.stats);
@@ -281,18 +282,30 @@ const DataQDashboard = () => {
                 <p className="text-xs text-zinc-500 dark:text-zinc-400">AI-identified violations with high challenge potential</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
               <div className="flex items-center gap-2">
                 <FiFilter className="w-4 h-4 text-zinc-400" />
+                <select
+                  value={selectedBasic}
+                  onChange={(e) => setSelectedBasic(e.target.value)}
+                  className="form-select text-sm py-1.5"
+                >
+                  <option value="">All Categories</option>
+                  {Object.entries(basicCategories).map(([key, { label }]) => (
+                    <option key={key} value={key}>{label}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex items-center gap-2">
                 <select
                   value={minScore}
                   onChange={(e) => setMinScore(parseInt(e.target.value))}
                   className="form-select text-sm py-1.5"
                 >
-                  <option value={75}>High Potential Only (75+)</option>
-                  <option value={50}>Medium & High (50+)</option>
+                  <option value={75}>High Potential (75+)</option>
+                  <option value={50}>Medium+ (50+)</option>
                   <option value={40}>All Opportunities (40+)</option>
-                  <option value={0}>Show All</option>
+                  <option value={0}>Show All Scores</option>
                 </select>
               </div>
             </div>
