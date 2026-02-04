@@ -5,6 +5,7 @@ const { protect, checkPermission, restrictToCompany } = require('../middleware/a
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const pdf = require('../utils/pdfGenerator');
 const emailService = require('../services/emailService');
+const exportService = require('../services/exportService');
 
 router.use(protect);
 router.use(restrictToCompany);
@@ -21,6 +22,55 @@ router.get('/dqf', checkPermission('reports', 'view'), asyncHandler(async (req, 
 
   const drivers = await Driver.find(query).select('-ssn');
   const company = await Company.findById(companyId);
+
+  // CSV export
+  if (format === 'csv') {
+    const rows = drivers.map(d => ({
+      driverName: `${d.firstName} ${d.lastName}`,
+      employeeId: d.employeeId || '-',
+      cdlNumber: d.cdl?.number || '-',
+      cdlState: d.cdl?.state || '-',
+      cdlExpiry: d.cdl?.expiryDate ? new Date(d.cdl.expiryDate).toLocaleDateString() : '-',
+      medicalExpiry: d.medicalCard?.expiryDate ? new Date(d.medicalCard.expiryDate).toLocaleDateString() : '-',
+      overallStatus: d.complianceStatus?.overall || '-'
+    }));
+
+    exportService.streamCSV(res, {
+      reportType: 'dqf-report',
+      headers: { driverName: 'Driver Name', employeeId: 'Employee ID', cdlNumber: 'CDL Number', cdlState: 'CDL State', cdlExpiry: 'CDL Expiry', medicalExpiry: 'Medical Expiry', overallStatus: 'Overall Status' },
+      rows
+    });
+    return;
+  }
+
+  // Excel export
+  if (format === 'xlsx') {
+    const rows = drivers.map(d => ({
+      driverName: `${d.firstName} ${d.lastName}`,
+      employeeId: d.employeeId || '-',
+      cdlNumber: d.cdl?.number || '-',
+      cdlState: d.cdl?.state || '-',
+      cdlExpiry: d.cdl?.expiryDate ? new Date(d.cdl.expiryDate).toLocaleDateString() : '-',
+      medicalExpiry: d.medicalCard?.expiryDate ? new Date(d.medicalCard.expiryDate).toLocaleDateString() : '-',
+      overallStatus: d.complianceStatus?.overall || '-'
+    }));
+
+    await exportService.streamExcel(res, {
+      reportType: 'dqf-report',
+      sheetName: 'Driver Qualification Files',
+      columns: [
+        { header: 'Driver Name', key: 'driverName', width: 25 },
+        { header: 'Employee ID', key: 'employeeId', width: 15 },
+        { header: 'CDL Number', key: 'cdlNumber', width: 15 },
+        { header: 'CDL State', key: 'cdlState', width: 15 },
+        { header: 'CDL Expiry', key: 'cdlExpiry', width: 15 },
+        { header: 'Medical Expiry', key: 'medicalExpiry', width: 15 },
+        { header: 'Overall Status', key: 'overallStatus', width: 15 }
+      ],
+      rows
+    });
+    return;
+  }
 
   if (format === 'pdf') {
     const doc = pdf.createDocument();
@@ -127,6 +177,56 @@ router.get('/vehicle-maintenance', checkPermission('reports', 'view'), asyncHand
 
   const vehicles = await Vehicle.find(query);
   const company = await Company.findById(companyId);
+
+  // CSV export
+  if (format === 'csv') {
+    const rows = vehicles.map(v => ({
+      unitNumber: v.unitNumber || '-',
+      vehicleType: v.vehicleType || '-',
+      vin: v.vin || '-',
+      status: v.status || '-',
+      nextInspection: v.annualInspection?.nextDueDate ? new Date(v.annualInspection.nextDueDate).toLocaleDateString() : '-',
+      lastMaintenance: v.maintenanceLog?.length > 0 && v.maintenanceLog[v.maintenanceLog.length - 1]?.date
+        ? new Date(v.maintenanceLog[v.maintenanceLog.length - 1].date).toLocaleDateString()
+        : '-'
+    }));
+
+    exportService.streamCSV(res, {
+      reportType: 'vehicle-maintenance-report',
+      headers: { unitNumber: 'Unit Number', vehicleType: 'Vehicle Type', vin: 'VIN', status: 'Status', nextInspection: 'Next Inspection', lastMaintenance: 'Last Maintenance' },
+      rows
+    });
+    return;
+  }
+
+  // Excel export
+  if (format === 'xlsx') {
+    const rows = vehicles.map(v => ({
+      unitNumber: v.unitNumber || '-',
+      vehicleType: v.vehicleType || '-',
+      vin: v.vin || '-',
+      status: v.status || '-',
+      nextInspection: v.annualInspection?.nextDueDate ? new Date(v.annualInspection.nextDueDate).toLocaleDateString() : '-',
+      lastMaintenance: v.maintenanceLog?.length > 0 && v.maintenanceLog[v.maintenanceLog.length - 1]?.date
+        ? new Date(v.maintenanceLog[v.maintenanceLog.length - 1].date).toLocaleDateString()
+        : '-'
+    }));
+
+    await exportService.streamExcel(res, {
+      reportType: 'vehicle-maintenance-report',
+      sheetName: 'Vehicle Maintenance',
+      columns: [
+        { header: 'Unit Number', key: 'unitNumber', width: 12 },
+        { header: 'Vehicle Type', key: 'vehicleType', width: 15 },
+        { header: 'VIN', key: 'vin', width: 20 },
+        { header: 'Status', key: 'status', width: 12 },
+        { header: 'Next Inspection', key: 'nextInspection', width: 15 },
+        { header: 'Last Maintenance', key: 'lastMaintenance', width: 15 }
+      ],
+      rows
+    });
+    return;
+  }
 
   if (format === 'pdf') {
     const doc = pdf.createDocument();
