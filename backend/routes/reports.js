@@ -330,6 +330,58 @@ router.get('/violations', checkPermission('reports', 'view'), asyncHandler(async
 
   const company = await Company.findById(companyId);
 
+  // CSV export
+  if (format === 'csv') {
+    const rows = violations.map(v => ({
+      violationDate: v.violationDate ? new Date(v.violationDate).toLocaleDateString() : '-',
+      violationType: v.violationType || '-',
+      basic: v.basic || '-',
+      severityWeight: v.severityWeight != null ? String(v.severityWeight) : '-',
+      driverName: v.driverId ? `${v.driverId.firstName} ${v.driverId.lastName}` : '-',
+      vehicleUnit: v.vehicleId?.unitNumber || '-',
+      status: v.status || '-',
+      dataQStatus: v.dataQChallenge?.submitted ? v.dataQChallenge.status : '-'
+    }));
+
+    exportService.streamCSV(res, {
+      reportType: 'violations-report',
+      headers: { violationDate: 'Date', violationType: 'Violation Type', basic: 'BASIC', severityWeight: 'Severity', driverName: 'Driver', vehicleUnit: 'Vehicle', status: 'Status', dataQStatus: 'DataQ Status' },
+      rows
+    });
+    return;
+  }
+
+  // Excel export
+  if (format === 'xlsx') {
+    const rows = violations.map(v => ({
+      violationDate: v.violationDate ? new Date(v.violationDate).toLocaleDateString() : '-',
+      violationType: v.violationType || '-',
+      basic: v.basic || '-',
+      severityWeight: v.severityWeight != null ? String(v.severityWeight) : '-',
+      driverName: v.driverId ? `${v.driverId.firstName} ${v.driverId.lastName}` : '-',
+      vehicleUnit: v.vehicleId?.unitNumber || '-',
+      status: v.status || '-',
+      dataQStatus: v.dataQChallenge?.submitted ? v.dataQChallenge.status : '-'
+    }));
+
+    await exportService.streamExcel(res, {
+      reportType: 'violations-report',
+      sheetName: 'Violations Summary',
+      columns: [
+        { header: 'Date', key: 'violationDate', width: 12 },
+        { header: 'Violation Type', key: 'violationType', width: 25 },
+        { header: 'BASIC', key: 'basic', width: 20 },
+        { header: 'Severity', key: 'severityWeight', width: 10 },
+        { header: 'Driver', key: 'driverName', width: 25 },
+        { header: 'Vehicle', key: 'vehicleUnit', width: 12 },
+        { header: 'Status', key: 'status', width: 15 },
+        { header: 'DataQ Status', key: 'dataQStatus', width: 15 }
+      ],
+      rows
+    });
+    return;
+  }
+
   if (format === 'pdf') {
     const doc = pdf.createDocument();
 
@@ -477,6 +529,79 @@ router.get('/audit', checkPermission('reports', 'export'), asyncHandler(async (r
       expired: documents.filter(d => d.status === 'expired').length
     }
   };
+
+  // CSV export - flatten audit data into rows
+  if (format === 'csv') {
+    const rows = [
+      { section: 'Company', metric: 'Name', value: company.name || '-' },
+      { section: 'Company', metric: 'DOT Number', value: company.dotNumber || '-' },
+      { section: 'Company', metric: 'MC Number', value: company.mcNumber || '-' },
+      { section: 'Drivers', metric: 'Total Active', value: String(auditData.driverQualification.totalActive) },
+      { section: 'Drivers', metric: 'Compliant', value: String(auditData.driverQualification.compliant) },
+      { section: 'Drivers', metric: 'With Issues', value: String(auditData.driverQualification.withIssues) },
+      { section: 'Vehicles', metric: 'Total', value: String(auditData.vehicles.total) },
+      { section: 'Vehicles', metric: 'Compliant', value: String(auditData.vehicles.compliant) },
+      { section: 'Vehicles', metric: 'Needs Attention', value: String(auditData.vehicles.needingAttention) },
+      { section: 'Violations', metric: 'Total (Last 50)', value: String(auditData.violations.total) },
+      { section: 'Violations', metric: 'Open', value: String(auditData.violations.open) },
+      { section: 'Violations', metric: 'In Dispute', value: String(auditData.violations.disputed) },
+      { section: 'Drug/Alcohol', metric: 'Total Tests', value: String(auditData.drugAlcohol.totalTests) },
+      ...Object.entries(auditData.drugAlcohol.byType).map(([type, count]) => ({
+        section: 'Drug/Alcohol',
+        metric: `Tests - ${type}`,
+        value: String(count)
+      })),
+      { section: 'Documents', metric: 'Total', value: String(auditData.documents.total) },
+      { section: 'Documents', metric: 'Expiring Soon', value: String(auditData.documents.expiringSoon) },
+      { section: 'Documents', metric: 'Expired', value: String(auditData.documents.expired) }
+    ];
+
+    exportService.streamCSV(res, {
+      reportType: 'audit-report',
+      headers: { section: 'Section', metric: 'Metric', value: 'Value' },
+      rows
+    });
+    return;
+  }
+
+  // Excel export - flatten audit data into rows
+  if (format === 'xlsx') {
+    const rows = [
+      { section: 'Company', metric: 'Name', value: company.name || '-' },
+      { section: 'Company', metric: 'DOT Number', value: company.dotNumber || '-' },
+      { section: 'Company', metric: 'MC Number', value: company.mcNumber || '-' },
+      { section: 'Drivers', metric: 'Total Active', value: String(auditData.driverQualification.totalActive) },
+      { section: 'Drivers', metric: 'Compliant', value: String(auditData.driverQualification.compliant) },
+      { section: 'Drivers', metric: 'With Issues', value: String(auditData.driverQualification.withIssues) },
+      { section: 'Vehicles', metric: 'Total', value: String(auditData.vehicles.total) },
+      { section: 'Vehicles', metric: 'Compliant', value: String(auditData.vehicles.compliant) },
+      { section: 'Vehicles', metric: 'Needs Attention', value: String(auditData.vehicles.needingAttention) },
+      { section: 'Violations', metric: 'Total (Last 50)', value: String(auditData.violations.total) },
+      { section: 'Violations', metric: 'Open', value: String(auditData.violations.open) },
+      { section: 'Violations', metric: 'In Dispute', value: String(auditData.violations.disputed) },
+      { section: 'Drug/Alcohol', metric: 'Total Tests', value: String(auditData.drugAlcohol.totalTests) },
+      ...Object.entries(auditData.drugAlcohol.byType).map(([type, count]) => ({
+        section: 'Drug/Alcohol',
+        metric: `Tests - ${type}`,
+        value: String(count)
+      })),
+      { section: 'Documents', metric: 'Total', value: String(auditData.documents.total) },
+      { section: 'Documents', metric: 'Expiring Soon', value: String(auditData.documents.expiringSoon) },
+      { section: 'Documents', metric: 'Expired', value: String(auditData.documents.expired) }
+    ];
+
+    await exportService.streamExcel(res, {
+      reportType: 'audit-report',
+      sheetName: 'Comprehensive Audit',
+      columns: [
+        { header: 'Section', key: 'section', width: 20 },
+        { header: 'Metric', key: 'metric', width: 30 },
+        { header: 'Value', key: 'value', width: 15 }
+      ],
+      rows
+    });
+    return;
+  }
 
   if (format === 'pdf') {
     const doc = pdf.createDocument();
