@@ -682,18 +682,25 @@ const fmcsaInspectionService = {
       }
 
       const dotNumber = company.dotNumber;
-      console.log(`[FMCSA Violations] Fetching violations for DOT ${dotNumber} from DataHub SMS dataset`);
+
+      // Build headers with Socrata App Token if available
+      const headers = { 'Accept': 'application/json' };
+      const socrataToken = process.env.SOCRATA_APP_TOKEN;
+      if (socrataToken) {
+        headers['X-App-Token'] = socrataToken;
+        console.log(`[FMCSA Violations] Fetching violations for DOT ${dotNumber} (with app token)`);
+      } else {
+        console.warn(`[FMCSA Violations] Fetching violations for DOT ${dotNumber} (NO TOKEN - rate limited)`);
+      }
 
       // Fetch from SMS Input - Violation dataset (8mt8-2mdr)
       const url = `https://datahub.transportation.gov/resource/8mt8-2mdr.json?$where=dot_number='${dotNumber}'&$limit=2000`;
 
-      const response = await fetch(url, {
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
+      const response = await fetch(url, { headers });
 
       if (!response.ok) {
+        const errorText = await response.text().catch(() => '');
+        console.error(`[FMCSA Violations] DataHub API error ${response.status}: ${errorText}`);
         throw new Error(`DataHub API error: ${response.status}`);
       }
 

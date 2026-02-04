@@ -228,9 +228,15 @@ router.post('/sync-violations', protect, restrictToCompany, syncLimiter, async (
     });
   } catch (error) {
     console.error('[FMCSA Sync] Error:', error.message);
+
+    // Check if it might be a token issue
+    const tokenConfigured = !!process.env.SOCRATA_APP_TOKEN;
+
     res.status(500).json({
       success: false,
-      message: 'Sync failed: ' + error.message
+      message: tokenConfigured
+        ? 'Sync failed: ' + error.message
+        : 'Sync failed (SOCRATA_APP_TOKEN not configured): ' + error.message
     });
   }
 });
