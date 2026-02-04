@@ -196,17 +196,28 @@ export const accidentsAPI = {
 
 export const reportsAPI = {
   getDqfReport: (params) => api.get('/reports/dqf', {
-    params,
+    params: {
+      ...params,
+      // Convert arrays to comma-separated strings, omit if empty
+      driverIds: params.driverIds?.length ? params.driverIds.join(',') : undefined
+    },
     responseType: ['pdf', 'csv', 'xlsx'].includes(params.format) ? 'blob' : 'json',
     ...(['pdf', 'csv', 'xlsx'].includes(params.format) && { timeout: 300000 })
   }),
   getVehicleMaintenanceReport: (params) => api.get('/reports/vehicle-maintenance', {
-    params,
+    params: {
+      ...params,
+      vehicleIds: params.vehicleIds?.length ? params.vehicleIds.join(',') : undefined
+    },
     responseType: ['pdf', 'csv', 'xlsx'].includes(params.format) ? 'blob' : 'json',
     ...(['pdf', 'csv', 'xlsx'].includes(params.format) && { timeout: 300000 })
   }),
   getViolationsReport: (params) => api.get('/reports/violations', {
-    params,
+    params: {
+      ...params,
+      driverIds: params.driverIds?.length ? params.driverIds.join(',') : undefined,
+      vehicleIds: params.vehicleIds?.length ? params.vehicleIds.join(',') : undefined
+    },
     responseType: ['pdf', 'csv', 'xlsx'].includes(params.format) ? 'blob' : 'json',
     ...(['pdf', 'csv', 'xlsx'].includes(params.format) && { timeout: 300000 })
   }),
