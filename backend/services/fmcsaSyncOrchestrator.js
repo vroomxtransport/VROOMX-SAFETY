@@ -14,6 +14,7 @@ const fmcsaSyncService = require('./fmcsaSyncService');
 const fmcsaInspectionService = require('./fmcsaInspectionService');
 const fmcsaViolationService = require('./fmcsaViolationService');
 const entityLinkingService = require('./entityLinkingService');
+const dataQAnalysisService = require('./dataQAnalysisService');
 
 const fmcsaSyncOrchestrator = {
   /**
@@ -127,6 +128,18 @@ const fmcsaSyncOrchestrator = {
       errors.push({ source: 'entity_linking', error: err.message, timestamp: new Date() });
     }
 
+    // 5. Run DataQ analysis on newly-synced violations
+    try {
+      console.log(`[FMCSA Orchestrator] Running DataQ analysis for company ${companyId}`);
+      const dataQResult = await dataQAnalysisService.runBulkAnalysis(companyId);
+      timestamps.dataQAnalysisLastRun = new Date();
+      timestamps.dataQAnalysisCount = dataQResult.analyzed;
+      console.log(`[FMCSA Orchestrator] DataQ analysis complete: ${dataQResult.analyzed} violations scored`);
+    } catch (err) {
+      console.error(`[FMCSA Orchestrator] DataQ analysis failed:`, err.message);
+      errors.push({ source: 'dataq_analysis', error: err.message, timestamp: new Date() });
+    }
+
     // Update Company sync status
     const success = errors.length === 0;
     await Company.updateOne(
@@ -139,7 +152,9 @@ const fmcsaSyncOrchestrator = {
           ...(timestamps.csaScoresLastSync && { 'fmcsaData.syncStatus.csaScoresLastSync': timestamps.csaScoresLastSync }),
           ...(timestamps.violationsLastSync && { 'fmcsaData.syncStatus.violationsLastSync': timestamps.violationsLastSync }),
           ...(timestamps.inspectionsLastSync && { 'fmcsaData.syncStatus.inspectionsLastSync': timestamps.inspectionsLastSync }),
-          ...(timestamps.linkingLastRun && { 'fmcsaData.syncStatus.linkingLastRun': timestamps.linkingLastRun })
+          ...(timestamps.linkingLastRun && { 'fmcsaData.syncStatus.linkingLastRun': timestamps.linkingLastRun }),
+          ...(timestamps.dataQAnalysisLastRun && { 'fmcsaData.syncStatus.dataQAnalysisLastRun': timestamps.dataQAnalysisLastRun }),
+          ...(timestamps.dataQAnalysisCount !== undefined && { 'fmcsaData.syncStatus.dataQAnalysisCount': timestamps.dataQAnalysisCount })
         }
       }
     );
