@@ -35,7 +35,7 @@ const Reports = () => {
     {
       id: 'dqf',
       title: 'Driver Qualification Files',
-      description: 'Complete DQ file status report with expiration dates and compliance status for all drivers.',
+      description: 'Complete DQ file status report with 49 CFR 391.51 compliance fields including Clearinghouse, MVR, and employment verification status.',
       icon: FiUsers,
       color: 'blue',
       api: reportsAPI.getDqfReport
