@@ -6,6 +6,7 @@ const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const pdf = require('../utils/pdfGenerator');
 const emailService = require('../services/emailService');
 const exportService = require('../services/exportService');
+const { addDays, startOfYear } = require('date-fns');
 
 router.use(protect);
 router.use(restrictToCompany);
@@ -241,6 +242,435 @@ router.get('/dqf', checkPermission('reports', 'view'), asyncHandler(async (req, 
         roadTestDate: d.documents?.roadTest?.date || null,
         roadTestResult: d.documents?.roadTest?.result || null,
         roadTestWaived: d.documents?.roadTest?.waived ?? false
+      }))
+    }
+  });
+}));
+
+// @route   GET /api/reports/document-expiration
+// @desc    Generate Document Expiration report grouped by urgency window
+// @access  Private
+router.get('/document-expiration', checkPermission('reports', 'view'), asyncHandler(async (req, res) => {
+  const { format = 'json', driverIds, vehicleIds } = req.query;
+  const companyId = req.companyFilter.companyId;
+
+  const now = new Date();
+  const thirtyDays = addDays(now, 30);
+  const sixtyDays = addDays(now, 60);
+  const ninetyDays = addDays(now, 90);
+
+  const query = {
+    companyId,
+    isDeleted: false,
+    expiryDate: { $exists: true, $lte: ninetyDays }
+  };
+
+  // Multi-select driver filter
+  if (driverIds) {
+    const ids = driverIds.split(',').filter(Boolean);
+    if (ids.length > 0) {
+      query.driverId = { $in: ids };
+    }
+  }
+
+  // Multi-select vehicle filter
+  if (vehicleIds) {
+    const ids = vehicleIds.split(',').filter(Boolean);
+    if (ids.length > 0) {
+      query.vehicleId = { $in: ids };
+    }
+  }
+
+  const documents = await Document.find(query)
+    .populate('driverId', 'firstName lastName')
+    .populate('vehicleId', 'unitNumber')
+    .sort('expiryDate')
+    .lean();
+
+  const company = await Company.findById(companyId);
+
+  // Group documents into exclusive windows
+  const expired = [];
+  const within30Days = [];
+  const within60Days = [];
+  const within90Days = [];
+
+  documents.forEach(doc => {
+    const expiryDate = new Date(doc.expiryDate);
+    if (expiryDate < now) {
+      expired.push(doc);
+    } else if (expiryDate <= thirtyDays) {
+      within30Days.push(doc);
+    } else if (expiryDate <= sixtyDays) {
+      within60Days.push(doc);
+    } else {
+      within90Days.push(doc);
+    }
+  });
+
+  // Helper to map document for output
+  const mapDocument = (doc) => ({
+    documentType: doc.documentType,
+    category: doc.category,
+    name: doc.name,
+    expiryDate: doc.expiryDate,
+    driverName: doc.driverId ? `${doc.driverId.firstName} ${doc.driverId.lastName}` : null,
+    vehicleUnit: doc.vehicleId?.unitNumber || null
+  });
+
+  // CSV export
+  if (format === 'csv') {
+    const rows = [
+      ...expired.map(d => ({ window: 'Expired', ...mapDocument(d), expiryDate: new Date(d.expiryDate).toLocaleDateString() })),
+      ...within30Days.map(d => ({ window: 'Within 30 Days', ...mapDocument(d), expiryDate: new Date(d.expiryDate).toLocaleDateString() })),
+      ...within60Days.map(d => ({ window: 'Within 60 Days', ...mapDocument(d), expiryDate: new Date(d.expiryDate).toLocaleDateString() })),
+      ...within90Days.map(d => ({ window: 'Within 90 Days', ...mapDocument(d), expiryDate: new Date(d.expiryDate).toLocaleDateString() }))
+    ];
+
+    exportService.streamCSV(res, {
+      reportType: 'document-expiration-report',
+      headers: {
+        window: 'Window',
+        documentType: 'Document Type',
+        category: 'Category',
+        name: 'Name',
+        expiryDate: 'Expiry Date',
+        driverName: 'Driver',
+        vehicleUnit: 'Vehicle'
+      },
+      rows
+    });
+    return;
+  }
+
+  // Excel export
+  if (format === 'xlsx') {
+    const rows = [
+      ...expired.map(d => ({ window: 'Expired', ...mapDocument(d), expiryDate: new Date(d.expiryDate).toLocaleDateString() })),
+      ...within30Days.map(d => ({ window: 'Within 30 Days', ...mapDocument(d), expiryDate: new Date(d.expiryDate).toLocaleDateString() })),
+      ...within60Days.map(d => ({ window: 'Within 60 Days', ...mapDocument(d), expiryDate: new Date(d.expiryDate).toLocaleDateString() })),
+      ...within90Days.map(d => ({ window: 'Within 90 Days', ...mapDocument(d), expiryDate: new Date(d.expiryDate).toLocaleDateString() }))
+    ];
+
+    await exportService.streamExcel(res, {
+      reportType: 'document-expiration-report',
+      sheetName: 'Document Expiration',
+      columns: [
+        { header: 'Window', key: 'window', width: 18 },
+        { header: 'Document Type', key: 'documentType', width: 20 },
+        { header: 'Category', key: 'category', width: 15 },
+        { header: 'Name', key: 'name', width: 25 },
+        { header: 'Expiry Date', key: 'expiryDate', width: 15 },
+        { header: 'Driver', key: 'driverName', width: 20 },
+        { header: 'Vehicle', key: 'vehicleUnit', width: 12 }
+      ],
+      rows
+    });
+    return;
+  }
+
+  // PDF export
+  if (format === 'pdf') {
+    const doc = pdf.createDocument();
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="document-expiration-report.pdf"');
+
+    doc.pipe(res);
+
+    // Header
+    pdf.addHeader(doc, company, 'Document Expiration Report');
+
+    // Summary box
+    pdf.addSummaryBox(doc, 'Summary', [
+      { value: expired.length, label: 'Expired' },
+      { value: within30Days.length, label: 'Within 30 Days' },
+      { value: within60Days.length, label: 'Within 60 Days' },
+      { value: within90Days.length, label: 'Within 90 Days' }
+    ]);
+
+    const tableHeaders = ['Document Type', 'Name', 'Expiry Date', 'Driver', 'Vehicle'];
+    const colWidths = [100, 120, 90, 100, 80];
+
+    // Helper to add section with documents
+    const addSection = (title, docs, color = pdf.COLORS.primary) => {
+      if (docs.length === 0) return;
+
+      doc.moveDown(1);
+      doc.fontSize(12).fillColor(color).text(title, { underline: true });
+      doc.moveDown(0.5);
+
+      const rows = docs.map(d => [
+        d.documentType || '-',
+        (d.name || '-').substring(0, 25),
+        pdf.formatDate(d.expiryDate),
+        d.driverId ? `${d.driverId.firstName} ${d.driverId.lastName}` : '-',
+        d.vehicleId?.unitNumber || '-'
+      ]);
+
+      pdf.addTable(doc, tableHeaders, rows, colWidths);
+    };
+
+    // Add sections - expired in red
+    addSection(`Expired (${expired.length})`, expired, '#dc2626');
+    addSection(`Within 30 Days (${within30Days.length})`, within30Days, '#ea580c');
+    addSection(`Within 60 Days (${within60Days.length})`, within60Days, '#ca8a04');
+    addSection(`Within 90 Days (${within90Days.length})`, within90Days, pdf.COLORS.primary);
+
+    pdf.addFooter(doc);
+    doc.end();
+    return;
+  }
+
+  // JSON response
+  return res.json({
+    success: true,
+    report: {
+      type: 'Document Expiration Report',
+      generatedAt: new Date(),
+      company: { name: company.name, dotNumber: company.dotNumber },
+      summary: {
+        expired: expired.length,
+        within30Days: within30Days.length,
+        within60Days: within60Days.length,
+        within90Days: within90Days.length,
+        total: documents.length
+      },
+      documents: {
+        expired: expired.map(mapDocument),
+        within30Days: within30Days.map(mapDocument),
+        within60Days: within60Days.map(mapDocument),
+        within90Days: within90Days.map(mapDocument)
+      }
+    }
+  });
+}));
+
+// @route   GET /api/reports/drug-alcohol-summary
+// @desc    Generate Drug & Alcohol testing compliance summary
+// @access  Private
+router.get('/drug-alcohol-summary', checkPermission('reports', 'view'), asyncHandler(async (req, res) => {
+  const { format = 'json', startDate, endDate } = req.query;
+  const companyId = req.companyFilter.companyId;
+
+  // Default to calendar year for random testing compliance
+  const yearStart = startDate ? new Date(startDate) : startOfYear(new Date());
+  const yearEnd = endDate ? new Date(endDate) : new Date();
+
+  const [activeDrivers, tests, company] = await Promise.all([
+    Driver.countDocuments({ companyId, status: 'active' }),
+    DrugAlcoholTest.find({
+      companyId,
+      testDate: { $gte: yearStart, $lte: yearEnd }
+    }).populate('driverId', 'firstName lastName').lean(),
+    Company.findById(companyId)
+  ]);
+
+  // Calculate random test compliance
+  const randomDrugTests = tests.filter(t =>
+    t.testType === 'random' && t.drugTest?.performed
+  );
+  const randomAlcoholTests = tests.filter(t =>
+    t.testType === 'random' && t.alcoholTest?.performed
+  );
+
+  // FMCSA 2026 requirements: 50% drug, 10% alcohol
+  const requiredDrugTests = Math.ceil(activeDrivers * 0.50);
+  const requiredAlcoholTests = Math.ceil(activeDrivers * 0.10);
+
+  // Guard against division by zero
+  const drugCompliancePercent = requiredDrugTests > 0
+    ? Math.round((randomDrugTests.length / requiredDrugTests) * 100)
+    : 100;
+  const alcoholCompliancePercent = requiredAlcoholTests > 0
+    ? Math.round((randomAlcoholTests.length / requiredAlcoholTests) * 100)
+    : 100;
+
+  // Group tests by type
+  const byType = tests.reduce((acc, t) => {
+    acc[t.testType] = acc[t.testType] || { total: 0, negative: 0, positive: 0, pending: 0, refused: 0, cancelled: 0 };
+    acc[t.testType].total++;
+    if (t.overallResult && acc[t.testType][t.overallResult] !== undefined) {
+      acc[t.testType][t.overallResult]++;
+    }
+    return acc;
+  }, {});
+
+  // CSV export
+  if (format === 'csv') {
+    const rows = [
+      { section: 'Summary', metric: 'Active Drivers', value: String(activeDrivers) },
+      { section: 'Summary', metric: 'Report Period', value: `${yearStart.toLocaleDateString()} - ${yearEnd.toLocaleDateString()}` },
+      { section: 'Random Pool Compliance', metric: 'Required Drug Tests (50%)', value: String(requiredDrugTests) },
+      { section: 'Random Pool Compliance', metric: 'Completed Drug Tests', value: String(randomDrugTests.length) },
+      { section: 'Random Pool Compliance', metric: 'Drug Compliance %', value: `${drugCompliancePercent}%` },
+      { section: 'Random Pool Compliance', metric: 'Required Alcohol Tests (10%)', value: String(requiredAlcoholTests) },
+      { section: 'Random Pool Compliance', metric: 'Completed Alcohol Tests', value: String(randomAlcoholTests.length) },
+      { section: 'Random Pool Compliance', metric: 'Alcohol Compliance %', value: `${alcoholCompliancePercent}%` },
+      ...Object.entries(byType).map(([type, stats]) => ({
+        section: 'Tests by Type',
+        metric: type,
+        value: `${stats.total} (${stats.negative} neg, ${stats.positive} pos)`
+      }))
+    ];
+
+    exportService.streamCSV(res, {
+      reportType: 'drug-alcohol-summary',
+      headers: { section: 'Section', metric: 'Metric', value: 'Value' },
+      rows
+    });
+    return;
+  }
+
+  // Excel export
+  if (format === 'xlsx') {
+    const rows = [
+      { section: 'Summary', metric: 'Active Drivers', value: String(activeDrivers) },
+      { section: 'Summary', metric: 'Report Period', value: `${yearStart.toLocaleDateString()} - ${yearEnd.toLocaleDateString()}` },
+      { section: 'Random Pool Compliance', metric: 'Required Drug Tests (50%)', value: String(requiredDrugTests) },
+      { section: 'Random Pool Compliance', metric: 'Completed Drug Tests', value: String(randomDrugTests.length) },
+      { section: 'Random Pool Compliance', metric: 'Drug Compliance %', value: `${drugCompliancePercent}%` },
+      { section: 'Random Pool Compliance', metric: 'Required Alcohol Tests (10%)', value: String(requiredAlcoholTests) },
+      { section: 'Random Pool Compliance', metric: 'Completed Alcohol Tests', value: String(randomAlcoholTests.length) },
+      { section: 'Random Pool Compliance', metric: 'Alcohol Compliance %', value: `${alcoholCompliancePercent}%` },
+      ...Object.entries(byType).map(([type, stats]) => ({
+        section: 'Tests by Type',
+        metric: type,
+        value: `${stats.total} (${stats.negative} neg, ${stats.positive} pos)`
+      }))
+    ];
+
+    await exportService.streamExcel(res, {
+      reportType: 'drug-alcohol-summary',
+      sheetName: 'Drug & Alcohol Summary',
+      columns: [
+        { header: 'Section', key: 'section', width: 25 },
+        { header: 'Metric', key: 'metric', width: 30 },
+        { header: 'Value', key: 'value', width: 25 }
+      ],
+      rows
+    });
+    return;
+  }
+
+  // PDF export
+  if (format === 'pdf') {
+    const doc = pdf.createDocument();
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="drug-alcohol-summary.pdf"');
+
+    doc.pipe(res);
+
+    // Header
+    pdf.addHeader(doc, company, 'Drug & Alcohol Summary Report');
+
+    // Date range
+    doc.fontSize(10)
+       .fillColor(pdf.COLORS.lightText)
+       .text(`Report Period: ${yearStart.toLocaleDateString()} to ${yearEnd.toLocaleDateString()}`);
+    doc.moveDown(1);
+
+    // Summary box
+    pdf.addSummaryBox(doc, 'Overview', [
+      { value: activeDrivers, label: 'Active Drivers' },
+      { value: tests.length, label: 'Total Tests' }
+    ]);
+
+    // Random Pool Compliance Section
+    doc.moveDown(1);
+    pdf.addSectionTitle(doc, 'Random Pool Compliance (49 CFR 382)');
+
+    // Drug compliance
+    const drugColor = drugCompliancePercent >= 100 ? '#16a34a' : '#dc2626';
+    doc.fontSize(11).fillColor(pdf.COLORS.text)
+       .text(`Drug Testing (50% Requirement):`, { continued: false });
+    doc.fontSize(10).fillColor(pdf.COLORS.lightText)
+       .text(`   Required: ${requiredDrugTests} tests | Completed: ${randomDrugTests.length} tests`);
+    doc.fontSize(12).fillColor(drugColor)
+       .text(`   Compliance: ${drugCompliancePercent}%`);
+    doc.moveDown(0.5);
+
+    // Alcohol compliance
+    const alcoholColor = alcoholCompliancePercent >= 100 ? '#16a34a' : '#dc2626';
+    doc.fontSize(11).fillColor(pdf.COLORS.text)
+       .text(`Alcohol Testing (10% Requirement):`, { continued: false });
+    doc.fontSize(10).fillColor(pdf.COLORS.lightText)
+       .text(`   Required: ${requiredAlcoholTests} tests | Completed: ${randomAlcoholTests.length} tests`);
+    doc.fontSize(12).fillColor(alcoholColor)
+       .text(`   Compliance: ${alcoholCompliancePercent}%`);
+    doc.moveDown(1);
+
+    // Tests by Type
+    pdf.addSectionTitle(doc, 'Tests by Type');
+    const typeHeaders = ['Test Type', 'Total', 'Negative', 'Positive', 'Pending'];
+    const typeRows = Object.entries(byType).map(([type, stats]) => [
+      type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+      stats.total,
+      stats.negative,
+      stats.positive,
+      stats.pending
+    ]);
+    if (typeRows.length > 0) {
+      pdf.addTable(doc, typeHeaders, typeRows, [120, 60, 70, 70, 70]);
+    } else {
+      doc.fontSize(10).fillColor(pdf.COLORS.lightText).text('No tests recorded in this period.');
+    }
+
+    // Recent tests (last 20)
+    doc.moveDown(1);
+    pdf.addSectionTitle(doc, 'Recent Tests');
+    const recentTests = tests.slice(-20).reverse();
+    if (recentTests.length > 0) {
+      const recentHeaders = ['Date', 'Driver', 'Type', 'Result'];
+      const recentRows = recentTests.map(t => [
+        pdf.formatDate(t.testDate),
+        t.driverId ? `${t.driverId.firstName} ${t.driverId.lastName}` : '-',
+        t.testType?.replace(/_/g, ' ') || '-',
+        t.overallResult || '-'
+      ]);
+      pdf.addTable(doc, recentHeaders, recentRows, [80, 150, 100, 80]);
+    } else {
+      doc.fontSize(10).fillColor(pdf.COLORS.lightText).text('No tests recorded.');
+    }
+
+    pdf.addFooter(doc);
+    doc.end();
+    return;
+  }
+
+  // JSON response
+  return res.json({
+    success: true,
+    report: {
+      type: 'Drug & Alcohol Summary',
+      generatedAt: new Date(),
+      company: { name: company.name, dotNumber: company.dotNumber },
+      period: { start: yearStart, end: yearEnd },
+      summary: {
+        activeDrivers,
+        totalTests: tests.length
+      },
+      randomPoolCompliance: {
+        drug: {
+          required: requiredDrugTests,
+          completed: randomDrugTests.length,
+          compliancePercent: drugCompliancePercent,
+          isCompliant: drugCompliancePercent >= 100
+        },
+        alcohol: {
+          required: requiredAlcoholTests,
+          completed: randomAlcoholTests.length,
+          compliancePercent: alcoholCompliancePercent,
+          isCompliant: alcoholCompliancePercent >= 100
+        }
+      },
+      testsByType: byType,
+      recentTests: tests.slice(-20).map(t => ({
+        date: t.testDate,
+        driverName: t.driverId ? `${t.driverId.firstName} ${t.driverId.lastName}` : null,
+        testType: t.testType,
+        overallResult: t.overallResult
       }))
     }
   });
