@@ -10,11 +10,11 @@ See: PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 12 of 12 (Report History)
-Plan: 1 of 3 complete
+Plan: 2 of 3 complete
 Status: In progress
-Last activity: 2026-02-04 - Completed 12-01-PLAN.md (Report History Backend)
+Last activity: 2026-02-04 - Completed 12-02-PLAN.md (Report History Integration)
 
-Progress: [████████████████████] 85% (11/13 plans)
+Progress: [█████████████████████] 92% (12/13 plans)
 
 ## Milestone History
 
@@ -24,9 +24,9 @@ Progress: [████████████████████] 85% (11
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 11 (v2.0)
+- Total plans completed: 12 (v2.0)
 - Average duration: 4.0min
-- Total execution time: 44min
+- Total execution time: 48min
 
 **By Phase:**
 
@@ -36,11 +36,11 @@ Progress: [████████████████████] 85% (11
 | 09-unified-filtering | 2 | 6min | 3min |
 | 10-fmcsa-compliance-reports | 3 | 12min | 4min |
 | 11-report-builder | 3 | 12min | 4min |
-| 12-report-history | 1 | 2min | 2min |
+| 12-report-history | 2 | 6min | 3min |
 
 **Recent Trend:**
-- Last 5 plans: 11-01 (2min), 11-02 (6min), 11-03 (4min), 12-01 (2min)
-- Trend: Stable at ~3.5min
+- Last 5 plans: 11-02 (6min), 11-03 (4min), 12-01 (2min), 12-02 (4min)
+- Trend: Stable at ~4min
 
 *Updated after each plan completion*
 
@@ -93,6 +93,8 @@ v2.0 decisions:
 | TTL via expiresAt field (expireAfterSeconds: 0) | 12-01 | Per-document expiration timing control |
 | Store reports in uploads/reports/{companyId}/ | 12-01 | Company isolation for file storage |
 | HTTP 410 Gone for expired reports | 12-01 | Distinguish expired from missing resources |
+| Buffer-based export for history tracking | 12-02 | Capture file content before streaming to response |
+| Tab-based UI for Reports page | 12-02 | Clean separation between Generate and History views |
 
 ### Pending Todos
 
@@ -105,8 +107,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-04
-Stopped at: Completed 12-01-PLAN.md (Report History Backend)
+Stopped at: Completed 12-02-PLAN.md (Report History Integration)
 Resume file: None
 
 ---
-*v2.0 milestone in progress. Phase 12 plan 01 complete. ReportHistory model, file service, and API endpoints implemented. Ready for 12-02 (Integration with report exports).*
+*v2.0 milestone in progress. Phase 12 plan 02 complete. Report history tracking integrated into all 9 report exports, frontend UI with ReportHistoryList component, and tab-based Reports page. Ready for 12-03 (if applicable).*
