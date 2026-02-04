@@ -63,9 +63,10 @@ const Reports = () => {
 
       const response = await report.api(params);
 
-      if (format === 'pdf') {
-        downloadBlob(response.data, `${report.id}-report-${Date.now()}.pdf`);
-        toast.success('Report downloaded successfully');
+      if (['pdf', 'csv', 'xlsx'].includes(format)) {
+        const extension = format;
+        downloadBlob(response.data, `${report.id}-report-${Date.now()}.${extension}`);
+        toast.success(`${format.toUpperCase()} report downloaded successfully`);
       } else {
         // JSON preview could be shown in a modal
         toast.success('Report data retrieved');
@@ -89,7 +90,7 @@ const Reports = () => {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-zinc-800 dark:text-zinc-100">Reports & Export</h1>
-        <p className="text-zinc-600 dark:text-zinc-300">Generate PDF reports for compliance audits and record keeping</p>
+        <p className="text-zinc-600 dark:text-zinc-300">Generate and export compliance reports in PDF, CSV, or Excel format</p>
       </div>
 
       {/* Date Range Filter (for applicable reports) */}
@@ -146,7 +147,31 @@ const Reports = () => {
                         ) : (
                           <FiDownload className="w-4 h-4 mr-2" />
                         )}
-                        Download PDF
+                        PDF
+                      </button>
+                      <button
+                        onClick={() => handleGenerateReport(report.id, 'csv')}
+                        disabled={isGenerating}
+                        className="btn btn-secondary btn-sm flex items-center"
+                      >
+                        {isGenerating === 'csv' ? (
+                          <LoadingSpinner size="sm" className="mr-2" />
+                        ) : (
+                          <FiDownload className="w-4 h-4 mr-2" />
+                        )}
+                        CSV
+                      </button>
+                      <button
+                        onClick={() => handleGenerateReport(report.id, 'xlsx')}
+                        disabled={isGenerating}
+                        className="btn btn-secondary btn-sm flex items-center"
+                      >
+                        {isGenerating === 'xlsx' ? (
+                          <LoadingSpinner size="sm" className="mr-2" />
+                        ) : (
+                          <FiDownload className="w-4 h-4 mr-2" />
+                        )}
+                        Excel
                       </button>
                       <button
                         onClick={() => handleGenerateReport(report.id, 'json')}
