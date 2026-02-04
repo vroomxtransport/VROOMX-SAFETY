@@ -96,11 +96,11 @@ Plans:
   2. User can view chronological list of previously generated reports with generation details
   3. User can re-download any previously generated report within 90-day retention window
   4. Report history list shows filter parameters used for each generation so user knows report scope
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 12-01: ReportHistory model and tracking
-- [ ] 12-02: History UI and re-download
+- [ ] 12-01-PLAN.md — ReportHistory model with TTL, service for file management, and API routes for list/download
+- [ ] 12-02-PLAN.md — Integrate history tracking into exports, create ReportHistoryList component, add to Reports page
 
 ## Progress
 
