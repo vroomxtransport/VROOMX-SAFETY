@@ -10,11 +10,11 @@ See: PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 10 of 12 (FMCSA Compliance Reports)
-Plan: 01 of ? complete
+Plan: 02 of ? complete
 Status: In progress
-Last activity: 2026-02-04 - Completed 10-01-PLAN.md (DQF 391.51 compliance fields)
+Last activity: 2026-02-04 - Completed 10-02-PLAN.md (Document Expiration & Drug/Alcohol reports)
 
-Progress: [██████████░░░░░░░░░░] 50% (3/6 phases estimated)
+Progress: [██████████░░░░░░░░░░] 55% (4/7 phases estimated)
 
 ## Milestone History
 
@@ -24,9 +24,9 @@ Progress: [██████████░░░░░░░░░░] 50% (3/
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5 (v2.0)
+- Total plans completed: 6 (v2.0)
 - Average duration: 5min
-- Total execution time: 22min
+- Total execution time: 27min
 
 **By Phase:**
 
@@ -34,10 +34,10 @@ Progress: [██████████░░░░░░░░░░] 50% (3/
 |-------|-------|-------|----------|
 | 08-export-foundation | 2 | 12min | 6min |
 | 09-unified-filtering | 2 | 6min | 3min |
-| 10-fmcsa-compliance-reports | 1 | 4min | 4min |
+| 10-fmcsa-compliance-reports | 2 | 9min | 4.5min |
 
 **Recent Trend:**
-- Last 5 plans: 08-02 (4min), 09-01 (4min), 09-02 (2min), 10-01 (4min)
+- Last 5 plans: 09-01 (4min), 09-02 (2min), 10-01 (4min), 10-02 (5min)
 - Trend: Stable at ~4min
 
 *Updated after each plan completion*
@@ -72,6 +72,9 @@ v2.0 decisions:
 | Employment verification status three-state enum | 10-01 | complete/pending/missing for DOT auditors |
 | 391.51 fields as additional properties | 10-01 | Backward compatibility with existing API |
 | Dedicated 391.51 section in PDF exports | 10-01 | Easy location for auditors |
+| Exclusive window ranges for document expiration | 10-02 | Documents appear in exactly one window |
+| Calendar year default for drug/alcohol report | 10-02 | FMCSA random pool compliance period |
+| Zero-driver guard for compliance percentage | 10-02 | Returns 100% when no drivers to avoid NaN |
 
 ### Pending Todos
 
@@ -84,8 +87,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-04
-Stopped at: Completed 10-01-PLAN.md
+Stopped at: Completed 10-02-PLAN.md
 Resume file: None
 
 ---
-*v2.0 milestone in progress. Phase 10 plan 01 complete.*
+*v2.0 milestone in progress. Phase 10 plan 02 complete.*
