@@ -1,13 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
+const { PassThrough } = require('stream');
+const ExcelJS = require('exceljs');
 const { Driver, Vehicle, Violation, DrugAlcoholTest, Document, Accident, Company, MaintenanceRecord } = require('../models');
 const { protect, checkPermission, restrictToCompany } = require('../middleware/auth');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const pdf = require('../utils/pdfGenerator');
 const emailService = require('../services/emailService');
 const exportService = require('../services/exportService');
+const reportHistoryService = require('../services/reportHistoryService');
 const { addDays, startOfYear } = require('date-fns');
+const { format: formatCSV } = require('@fast-csv/format');
 const { REPORT_FIELD_DEFINITIONS, validateFields } = require('../config/reportFieldDefinitions');
 
 // Preview limit for preview endpoints
@@ -38,6 +42,96 @@ const buildExportConfig = (reportType, selectedFields) => {
     }
   });
   return { headers, columns };
+};
+
+// Report name mapping for history display
+const REPORT_NAMES = {
+  'dqf': 'Driver Qualification Files',
+  'vehicle': 'Vehicle Maintenance',
+  'violations': 'Violations Summary',
+  'audit': 'Comprehensive Audit',
+  'document-expiration': 'Document Expiration',
+  'drug-alcohol': 'Drug & Alcohol',
+  'dataq-history': 'DataQ History',
+  'accident-summary': 'Accident Summary',
+  'maintenance-costs': 'Maintenance Costs'
+};
+
+// Helper to track report export in history
+const trackReportExport = async (req, res, options) => {
+  const { fileBuffer, format, reportType, rows, selectedFields, filters } = options;
+  const companyId = req.companyFilter.companyId;
+
+  // Save to history
+  const history = await reportHistoryService.saveReport(fileBuffer, {
+    companyId,
+    userId: req.user._id,
+    userEmail: req.user.email,
+    reportType,
+    reportName: REPORT_NAMES[reportType] || reportType,
+    format,
+    filters: filters || {},
+    selectedFields: selectedFields || [],
+    rowCount: rows.length
+  });
+
+  // Set response headers
+  const fileName = exportService.generateFilename(reportType, format);
+  const mimeTypes = {
+    csv: 'text/csv; charset=utf-8',
+    xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  };
+  res.setHeader('Content-Type', mimeTypes[format]);
+  res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+  res.setHeader('X-Report-History-Id', history._id.toString());
+  res.send(fileBuffer);
+};
+
+// Helper to create CSV buffer (instead of streaming directly to response)
+const createCSVBuffer = async (headers, rows) => {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    const passThrough = new PassThrough();
+
+    passThrough.on('data', chunk => chunks.push(chunk));
+    passThrough.on('end', () => resolve(Buffer.concat(chunks)));
+    passThrough.on('error', reject);
+
+    // Write UTF-8 BOM
+    passThrough.write('\ufeff');
+
+    const csvStream = formatCSV({ headers: true });
+    csvStream.pipe(passThrough);
+
+    // Write header row
+    for (const row of rows) {
+      csvStream.write(row);
+    }
+    csvStream.end();
+  });
+};
+
+// Helper to create Excel buffer (instead of streaming directly to response)
+const createExcelBuffer = async (sheetName, columns, rows) => {
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet(sheetName);
+
+  worksheet.columns = columns;
+
+  // Style header row
+  const headerRow = worksheet.getRow(1);
+  headerRow.font = { bold: true };
+  headerRow.fill = {
+    type: 'pattern',
+    pattern: 'solid',
+    fgColor: { argb: 'FFE8E8E8' }
+  };
+  headerRow.alignment = { horizontal: 'center', vertical: 'middle' };
+
+  // Add data rows
+  rows.forEach(rowData => worksheet.addRow(rowData));
+
+  return workbook.xlsx.writeBuffer();
 };
 
 // Helper to parse and validate fields query parameter
@@ -487,25 +581,38 @@ router.get('/dqf', checkPermission('reports', 'view'), asyncHandler(async (req, 
   const allRows = drivers.map(buildDqfRow);
   const rows = selectedFields ? allRows.map(row => filterRowToFields(row, selectedFields)) : allRows;
 
-  // CSV export
+  // CSV export with history tracking
   if (format === 'csv') {
     const { headers } = buildExportConfig('dqf', selectedFields);
-    exportService.streamCSV(res, {
-      reportType: 'dqf-report',
-      headers,
-      rows
+    const fileBuffer = await createCSVBuffer(headers, rows);
+    await trackReportExport(req, res, {
+      fileBuffer,
+      format: 'csv',
+      reportType: 'dqf',
+      rows,
+      selectedFields,
+      filters: {
+        driverIds: driverIds ? driverIds.split(',') : undefined,
+        complianceStatus
+      }
     });
     return;
   }
 
-  // Excel export
+  // Excel export with history tracking
   if (format === 'xlsx') {
     const { columns } = buildExportConfig('dqf', selectedFields);
-    await exportService.streamExcel(res, {
-      reportType: 'dqf-report',
-      sheetName: 'Driver Qualification Files',
-      columns,
-      rows
+    const fileBuffer = await createExcelBuffer('Driver Qualification Files', columns, rows);
+    await trackReportExport(req, res, {
+      fileBuffer,
+      format: 'xlsx',
+      reportType: 'dqf',
+      rows,
+      selectedFields,
+      filters: {
+        driverIds: driverIds ? driverIds.split(',') : undefined,
+        complianceStatus
+      }
     });
     return;
   }
@@ -734,25 +841,38 @@ router.get('/document-expiration', checkPermission('reports', 'view'), asyncHand
   const allRows = documents.map(doc => buildDocExpirationRow(doc, now));
   const rows = selectedFields ? allRows.map(row => filterRowToFields(row, selectedFields)) : allRows;
 
-  // CSV export
+  // CSV export with history tracking
   if (format === 'csv') {
     const { headers } = buildExportConfig('document-expiration', selectedFields);
-    exportService.streamCSV(res, {
-      reportType: 'document-expiration-report',
-      headers,
-      rows
+    const fileBuffer = await createCSVBuffer(headers, rows);
+    await trackReportExport(req, res, {
+      fileBuffer,
+      format: 'csv',
+      reportType: 'document-expiration',
+      rows,
+      selectedFields,
+      filters: {
+        driverIds: driverIds ? driverIds.split(',') : undefined,
+        vehicleIds: vehicleIds ? vehicleIds.split(',') : undefined
+      }
     });
     return;
   }
 
-  // Excel export
+  // Excel export with history tracking
   if (format === 'xlsx') {
     const { columns } = buildExportConfig('document-expiration', selectedFields);
-    await exportService.streamExcel(res, {
-      reportType: 'document-expiration-report',
-      sheetName: 'Document Expiration',
-      columns,
-      rows
+    const fileBuffer = await createExcelBuffer('Document Expiration', columns, rows);
+    await trackReportExport(req, res, {
+      fileBuffer,
+      format: 'xlsx',
+      reportType: 'document-expiration',
+      rows,
+      selectedFields,
+      filters: {
+        driverIds: driverIds ? driverIds.split(',') : undefined,
+        vehicleIds: vehicleIds ? vehicleIds.split(',') : undefined
+      }
     });
     return;
   }
@@ -901,25 +1021,38 @@ router.get('/drug-alcohol-summary', checkPermission('reports', 'view'), asyncHan
   const allRows = tests.map(buildDrugAlcoholRow);
   const rows = selectedFields ? allRows.map(row => filterRowToFields(row, selectedFields)) : allRows;
 
-  // CSV export
+  // CSV export with history tracking
   if (format === 'csv') {
     const { headers } = buildExportConfig('drug-alcohol', selectedFields);
-    exportService.streamCSV(res, {
-      reportType: 'drug-alcohol-summary',
-      headers,
-      rows
+    const fileBuffer = await createCSVBuffer(headers, rows);
+    await trackReportExport(req, res, {
+      fileBuffer,
+      format: 'csv',
+      reportType: 'drug-alcohol',
+      rows,
+      selectedFields,
+      filters: {
+        startDate: startDate || yearStart.toISOString(),
+        endDate: endDate || yearEnd.toISOString()
+      }
     });
     return;
   }
 
-  // Excel export
+  // Excel export with history tracking
   if (format === 'xlsx') {
     const { columns } = buildExportConfig('drug-alcohol', selectedFields);
-    await exportService.streamExcel(res, {
-      reportType: 'drug-alcohol-summary',
-      sheetName: 'Drug & Alcohol Summary',
-      columns,
-      rows
+    const fileBuffer = await createExcelBuffer('Drug & Alcohol Summary', columns, rows);
+    await trackReportExport(req, res, {
+      fileBuffer,
+      format: 'xlsx',
+      reportType: 'drug-alcohol',
+      rows,
+      selectedFields,
+      filters: {
+        startDate: startDate || yearStart.toISOString(),
+        endDate: endDate || yearEnd.toISOString()
+      }
     });
     return;
   }
@@ -1126,25 +1259,40 @@ router.get('/dataq-history', checkPermission('reports', 'view'), asyncHandler(as
   const allRows = violations.map(buildDataQRow);
   const rows = selectedFields ? allRows.map(row => filterRowToFields(row, selectedFields)) : allRows;
 
-  // CSV export
+  // CSV export with history tracking
   if (format === 'csv') {
     const { headers } = buildExportConfig('dataq-history', selectedFields);
-    exportService.streamCSV(res, {
-      reportType: 'dataq-history-report',
-      headers,
-      rows
+    const fileBuffer = await createCSVBuffer(headers, rows);
+    await trackReportExport(req, res, {
+      fileBuffer,
+      format: 'csv',
+      reportType: 'dataq-history',
+      rows,
+      selectedFields,
+      filters: {
+        startDate,
+        endDate,
+        driverIds: driverIds ? driverIds.split(',') : undefined
+      }
     });
     return;
   }
 
-  // Excel export
+  // Excel export with history tracking
   if (format === 'xlsx') {
     const { columns } = buildExportConfig('dataq-history', selectedFields);
-    await exportService.streamExcel(res, {
-      reportType: 'dataq-history-report',
-      sheetName: 'DataQ Challenge History',
-      columns,
-      rows
+    const fileBuffer = await createExcelBuffer('DataQ Challenge History', columns, rows);
+    await trackReportExport(req, res, {
+      fileBuffer,
+      format: 'xlsx',
+      reportType: 'dataq-history',
+      rows,
+      selectedFields,
+      filters: {
+        startDate,
+        endDate,
+        driverIds: driverIds ? driverIds.split(',') : undefined
+      }
     });
     return;
   }
@@ -1320,25 +1468,42 @@ router.get('/accident-summary', checkPermission('reports', 'view'), asyncHandler
   const allRows = accidents.map(buildAccidentRow);
   const rows = selectedFields ? allRows.map(row => filterRowToFields(row, selectedFields)) : allRows;
 
-  // CSV export
+  // CSV export with history tracking
   if (format === 'csv') {
     const { headers } = buildExportConfig('accident-summary', selectedFields);
-    exportService.streamCSV(res, {
-      reportType: 'accident-summary-report',
-      headers,
-      rows
+    const fileBuffer = await createCSVBuffer(headers, rows);
+    await trackReportExport(req, res, {
+      fileBuffer,
+      format: 'csv',
+      reportType: 'accident-summary',
+      rows,
+      selectedFields,
+      filters: {
+        startDate,
+        endDate,
+        driverIds: driverIds ? driverIds.split(',') : undefined,
+        vehicleIds: vehicleIds ? vehicleIds.split(',') : undefined
+      }
     });
     return;
   }
 
-  // Excel export
+  // Excel export with history tracking
   if (format === 'xlsx') {
     const { columns } = buildExportConfig('accident-summary', selectedFields);
-    await exportService.streamExcel(res, {
-      reportType: 'accident-summary-report',
-      sheetName: 'Accident Summary',
-      columns,
-      rows
+    const fileBuffer = await createExcelBuffer('Accident Summary', columns, rows);
+    await trackReportExport(req, res, {
+      fileBuffer,
+      format: 'xlsx',
+      reportType: 'accident-summary',
+      rows,
+      selectedFields,
+      filters: {
+        startDate,
+        endDate,
+        driverIds: driverIds ? driverIds.split(',') : undefined,
+        vehicleIds: vehicleIds ? vehicleIds.split(',') : undefined
+      }
     });
     return;
   }
@@ -1593,25 +1758,40 @@ router.get('/maintenance-costs', checkPermission('reports', 'view'), asyncHandle
   const allRows = records.map(buildMaintenanceCostRow);
   const rows = selectedFields ? allRows.map(row => filterRowToFields(row, selectedFields)) : allRows;
 
-  // CSV export
+  // CSV export with history tracking
   if (format === 'csv') {
     const { headers } = buildExportConfig('maintenance-costs', selectedFields);
-    exportService.streamCSV(res, {
-      reportType: 'maintenance-cost-report',
-      headers,
-      rows
+    const fileBuffer = await createCSVBuffer(headers, rows);
+    await trackReportExport(req, res, {
+      fileBuffer,
+      format: 'csv',
+      reportType: 'maintenance-costs',
+      rows,
+      selectedFields,
+      filters: {
+        startDate,
+        endDate,
+        vehicleIds: vehicleIds ? vehicleIds.split(',') : undefined
+      }
     });
     return;
   }
 
-  // Excel export
+  // Excel export with history tracking
   if (format === 'xlsx') {
     const { columns } = buildExportConfig('maintenance-costs', selectedFields);
-    await exportService.streamExcel(res, {
-      reportType: 'maintenance-cost-report',
-      sheetName: 'Maintenance Costs',
-      columns,
-      rows
+    const fileBuffer = await createExcelBuffer('Maintenance Costs', columns, rows);
+    await trackReportExport(req, res, {
+      fileBuffer,
+      format: 'xlsx',
+      reportType: 'maintenance-costs',
+      rows,
+      selectedFields,
+      filters: {
+        startDate,
+        endDate,
+        vehicleIds: vehicleIds ? vehicleIds.split(',') : undefined
+      }
     });
     return;
   }
@@ -1791,25 +1971,36 @@ router.get('/vehicle-maintenance', checkPermission('reports', 'view'), asyncHand
   const allRows = vehicles.map(buildVehicleRow);
   const rows = selectedFields ? allRows.map(row => filterRowToFields(row, selectedFields)) : allRows;
 
-  // CSV export
+  // CSV export with history tracking
   if (format === 'csv') {
     const { headers } = buildExportConfig('vehicle', selectedFields);
-    exportService.streamCSV(res, {
-      reportType: 'vehicle-maintenance-report',
-      headers,
-      rows
+    const fileBuffer = await createCSVBuffer(headers, rows);
+    await trackReportExport(req, res, {
+      fileBuffer,
+      format: 'csv',
+      reportType: 'vehicle',
+      rows,
+      selectedFields,
+      filters: {
+        vehicleIds: vehicleIds ? vehicleIds.split(',') : undefined
+      }
     });
     return;
   }
 
-  // Excel export
+  // Excel export with history tracking
   if (format === 'xlsx') {
     const { columns } = buildExportConfig('vehicle', selectedFields);
-    await exportService.streamExcel(res, {
-      reportType: 'vehicle-maintenance-report',
-      sheetName: 'Vehicle Maintenance',
-      columns,
-      rows
+    const fileBuffer = await createExcelBuffer('Vehicle Maintenance', columns, rows);
+    await trackReportExport(req, res, {
+      fileBuffer,
+      format: 'xlsx',
+      reportType: 'vehicle',
+      rows,
+      selectedFields,
+      filters: {
+        vehicleIds: vehicleIds ? vehicleIds.split(',') : undefined
+      }
     });
     return;
   }
@@ -1962,25 +2153,42 @@ router.get('/violations', checkPermission('reports', 'view'), asyncHandler(async
   const allRows = violations.map(buildViolationRow);
   const rows = selectedFields ? allRows.map(row => filterRowToFields(row, selectedFields)) : allRows;
 
-  // CSV export
+  // CSV export with history tracking
   if (format === 'csv') {
     const { headers } = buildExportConfig('violations', selectedFields);
-    exportService.streamCSV(res, {
-      reportType: 'violations-report',
-      headers,
-      rows
+    const fileBuffer = await createCSVBuffer(headers, rows);
+    await trackReportExport(req, res, {
+      fileBuffer,
+      format: 'csv',
+      reportType: 'violations',
+      rows,
+      selectedFields,
+      filters: {
+        startDate,
+        endDate,
+        driverIds: driverIds ? driverIds.split(',') : undefined,
+        vehicleIds: vehicleIds ? vehicleIds.split(',') : undefined
+      }
     });
     return;
   }
 
-  // Excel export
+  // Excel export with history tracking
   if (format === 'xlsx') {
     const { columns } = buildExportConfig('violations', selectedFields);
-    await exportService.streamExcel(res, {
-      reportType: 'violations-report',
-      sheetName: 'Violations Summary',
-      columns,
-      rows
+    const fileBuffer = await createExcelBuffer('Violations Summary', columns, rows);
+    await trackReportExport(req, res, {
+      fileBuffer,
+      format: 'xlsx',
+      reportType: 'violations',
+      rows,
+      selectedFields,
+      filters: {
+        startDate,
+        endDate,
+        driverIds: driverIds ? driverIds.split(',') : undefined,
+        vehicleIds: vehicleIds ? vehicleIds.split(',') : undefined
+      }
     });
     return;
   }
@@ -2162,25 +2370,32 @@ router.get('/audit', checkPermission('reports', 'export'), asyncHandler(async (r
   ];
   const rows = selectedFields ? allRows.map(row => filterRowToFields(row, selectedFields)) : allRows;
 
-  // CSV export
+  // CSV export with history tracking
   if (format === 'csv') {
     const { headers } = buildExportConfig('audit', selectedFields);
-    exportService.streamCSV(res, {
-      reportType: 'audit-report',
-      headers,
-      rows
+    const fileBuffer = await createCSVBuffer(headers, rows);
+    await trackReportExport(req, res, {
+      fileBuffer,
+      format: 'csv',
+      reportType: 'audit',
+      rows,
+      selectedFields,
+      filters: {} // Audit has no filters
     });
     return;
   }
 
-  // Excel export
+  // Excel export with history tracking
   if (format === 'xlsx') {
     const { columns } = buildExportConfig('audit', selectedFields);
-    await exportService.streamExcel(res, {
-      reportType: 'audit-report',
-      sheetName: 'Comprehensive Audit',
-      columns,
-      rows
+    const fileBuffer = await createExcelBuffer('Comprehensive Audit', columns, rows);
+    await trackReportExport(req, res, {
+      fileBuffer,
+      format: 'xlsx',
+      reportType: 'audit',
+      rows,
+      selectedFields,
+      filters: {} // Audit has no filters
     });
     return;
   }
