@@ -709,7 +709,10 @@ router.get('/dqf', checkPermission('reports', 'view'), asyncHandler(async (req, 
       d.complianceStatus?.overall || '-'
     ]);
 
-    pdf.addTable(doc, headers, rows, [120, 80, 100, 100, 100]);
+    pdf.addTable(doc, headers, rows, [120, 80, 100, 100, 100], {
+      zebraStripe: true,
+      statusColumn: 4 // Overall Status column
+    });
 
     // Individual driver details
     drivers.forEach((d, index) => {
@@ -977,7 +980,7 @@ router.get('/document-expiration', checkPermission('reports', 'view'), asyncHand
         d.vehicleId?.unitNumber || '-'
       ]);
 
-      pdf.addTable(doc, tableHeaders, rows, colWidths);
+      pdf.addTable(doc, tableHeaders, rows, colWidths, { zebraStripe: true });
     };
 
     // Add sections - expired in red
@@ -1177,7 +1180,7 @@ router.get('/drug-alcohol-summary', checkPermission('reports', 'view'), asyncHan
       stats.pending
     ]);
     if (typeRows.length > 0) {
-      pdf.addTable(doc, typeHeaders, typeRows, [120, 60, 70, 70, 70]);
+      pdf.addTable(doc, typeHeaders, typeRows, [120, 60, 70, 70, 70], { zebraStripe: true });
     } else {
       doc.fontSize(10).fillColor(pdf.COLORS.lightText).text('No tests recorded in this period.');
     }
@@ -1194,7 +1197,10 @@ router.get('/drug-alcohol-summary', checkPermission('reports', 'view'), asyncHan
         t.testType?.replace(/_/g, ' ') || '-',
         t.overallResult || '-'
       ]);
-      pdf.addTable(doc, recentHeaders, recentRows, [80, 150, 100, 80]);
+      pdf.addTable(doc, recentHeaders, recentRows, [80, 150, 100, 80], {
+        zebraStripe: true,
+        statusColumn: 3 // Result column
+      });
     } else {
       doc.fontSize(10).fillColor(pdf.COLORS.lightText).text('No tests recorded.');
     }
@@ -1388,7 +1394,7 @@ router.get('/dataq-history', checkPermission('reports', 'view'), asyncHandler(as
       ['Pending/Under Review', pending.length],
       ['Withdrawn', withdrawn.length]
     ];
-    pdf.addTable(doc, statusHeaders, statusRows, [200, 100]);
+    pdf.addTable(doc, statusHeaders, statusRows, [200, 100], { zebraStripe: true });
 
     // Challenge details table
     doc.moveDown(1);
@@ -1403,7 +1409,10 @@ router.get('/dataq-history', checkPermission('reports', 'view'), asyncHandler(as
         c.status || '-',
         c.csaPointsSaved
       ]);
-      pdf.addTable(doc, detailHeaders, detailRows, [90, 140, 80, 80, 70]);
+      pdf.addTable(doc, detailHeaders, detailRows, [90, 140, 80, 80, 70], {
+        zebraStripe: true,
+        statusColumn: 3 // Status column
+      });
 
       if (challenges.length > 30) {
         doc.moveDown(0.5);
@@ -1612,7 +1621,7 @@ router.get('/accident-summary', checkPermission('reports', 'view'), asyncHandler
       ['Tow-aways (disabling damage)', towAways.length],
       ['Total DOT Reportable', dotReportable.length]
     ];
-    pdf.addTable(doc, criteriaHeaders, criteriaRows, [250, 100]);
+    pdf.addTable(doc, criteriaHeaders, criteriaRows, [250, 100], { zebraStripe: true });
 
     // Accident details table
     doc.moveDown(1);
@@ -1627,7 +1636,7 @@ router.get('/accident-summary', checkPermission('reports', 'view'), asyncHandler
         a.isDotRecordable ? 'Yes' : 'No',
         formatCurrency(a.totalEstimatedCost || 0)
       ]);
-      pdf.addTable(doc, detailHeaders, detailRows, [70, 100, 120, 60, 90]);
+      pdf.addTable(doc, detailHeaders, detailRows, [70, 100, 120, 60, 90], { zebraStripe: true });
 
       if (accidents.length > 25) {
         doc.moveDown(0.5);
@@ -1896,7 +1905,7 @@ router.get('/maintenance-costs', checkPermission('reports', 'view'), asyncHandle
         formatCurrency(v.partsCost),
         v.recordCount
       ]);
-      pdf.addTable(doc, vehicleHeaders, vehicleRows, [80, 90, 90, 90, 60]);
+      pdf.addTable(doc, vehicleHeaders, vehicleRows, [80, 90, 90, 90, 60], { zebraStripe: true });
     } else {
       doc.fontSize(10).fillColor(pdf.COLORS.lightText).text('No maintenance records found.');
     }
@@ -1911,7 +1920,7 @@ router.get('/maintenance-costs', checkPermission('reports', 'view'), asyncHandle
         formatCurrency(c.totalCost),
         c.recordCount
       ]);
-      pdf.addTable(doc, categoryHeaders, categoryRows, [200, 120, 80]);
+      pdf.addTable(doc, categoryHeaders, categoryRows, [200, 120, 80], { zebraStripe: true });
     } else {
       doc.fontSize(10).fillColor(pdf.COLORS.lightText).text('No categories found.');
     }
@@ -1926,7 +1935,7 @@ router.get('/maintenance-costs', checkPermission('reports', 'view'), asyncHandle
         formatCurrency(v.totalCost),
         v.recordCount
       ]);
-      pdf.addTable(doc, vendorHeaders, vendorRows, [200, 120, 80]);
+      pdf.addTable(doc, vendorHeaders, vendorRows, [200, 120, 80], { zebraStripe: true });
     } else {
       doc.fontSize(10).fillColor(pdf.COLORS.lightText).text('No vendor data available.');
     }
@@ -2173,7 +2182,10 @@ router.get('/vehicle-maintenance', checkPermission('reports', 'view'), asyncHand
       pdf.formatDate(v.annualInspection?.nextDueDate)
     ]);
 
-    pdf.addTable(doc, pdfHeaders, pdfRows, [70, 80, 80, 80, 100]);
+    pdf.addTable(doc, pdfHeaders, pdfRows, [70, 80, 80, 80, 100], {
+      zebraStripe: true,
+      statusColumn: 3 // Status column
+    });
 
     // Maintenance details per vehicle - now showing MaintenanceRecord data
     vehicles.forEach((v) => {
@@ -2193,7 +2205,9 @@ router.get('/vehicle-maintenance', checkPermission('reports', 'view'), asyncHand
           m.totalCost ? `$${m.totalCost.toLocaleString()}` : '-'
         ]);
 
-        pdf.addTable(doc, maintHeaders, maintRows, [80, 80, 120, 80, 70]);
+        pdf.addTable(doc, maintHeaders, maintRows, [80, 80, 120, 80, 70], {
+          zebraStripe: true
+        });
       }
 
       // Show open defects if any
@@ -2413,7 +2427,7 @@ router.get('/violations', checkPermission('reports', 'view'), asyncHandler(async
 
     const basicHeaders = ['BASIC Category', 'Count'];
     const basicRows = Object.entries(byBasic).map(([basic, count]) => [basic, count]);
-    pdf.addTable(doc, basicHeaders, basicRows, [300, 100]);
+    pdf.addTable(doc, basicHeaders, basicRows, [300, 100], { zebraStripe: true });
 
     doc.moveDown(1);
 
@@ -2430,7 +2444,10 @@ router.get('/violations', checkPermission('reports', 'view'), asyncHandler(async
       v.status || '-'
     ]);
 
-    pdf.addTable(doc, headers, rows, [70, 100, 70, 50, 100, 80]);
+    pdf.addTable(doc, headers, rows, [70, 100, 70, 50, 100, 80], {
+      zebraStripe: true,
+      statusColumn: 5 // Status column
+    });
 
     pdf.addFooter(doc);
     doc.end();
@@ -2634,7 +2651,7 @@ router.get('/audit', checkPermission('reports', 'export'), asyncHandler(async (r
     const testHeaders = ['Test Type', 'Count'];
     const testRows = Object.entries(auditData.drugAlcohol.byType).map(([type, count]) => [type, count]);
     if (testRows.length > 0) {
-      pdf.addTable(doc, testHeaders, testRows, [200, 100]);
+      pdf.addTable(doc, testHeaders, testRows, [200, 100], { zebraStripe: true });
     } else {
       doc.fontSize(10).fillColor(pdf.COLORS.lightText).text('No drug/alcohol tests recorded.');
     }
@@ -2660,7 +2677,7 @@ router.get('/audit', checkPermission('reports', 'export'), asyncHandler(async (r
         .map(([basic, score]) => [basic.replace(/([A-Z])/g, ' $1').trim(), `${score}%`]);
 
       if (basicRows.length > 0) {
-        pdf.addTable(doc, basicHeaders, basicRows, [200, 100]);
+        pdf.addTable(doc, basicHeaders, basicRows, [200, 100], { zebraStripe: true });
       }
     }
 

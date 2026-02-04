@@ -14,6 +14,7 @@ const createUploadDirs = () => {
     'uploads/drug-alcohol',
     'uploads/accidents',
     'uploads/maintenance',
+    'uploads/logos',
     'uploads/temp'
   ];
 
@@ -30,7 +31,7 @@ createUploadDirs();
 // Whitelist of allowed upload categories to prevent path traversal
 const ALLOWED_UPLOAD_FOLDERS = [
   'documents', 'drivers', 'vehicles', 'violations',
-  'drug-alcohol', 'accidents', 'maintenance', 'temp'
+  'drug-alcohol', 'accidents', 'maintenance', 'logos', 'temp'
 ];
 
 // Configure storage
@@ -45,6 +46,7 @@ const storage = multer.diskStorage({
     else if (req.baseUrl.includes('drug-alcohol')) folder = 'drug-alcohol';
     else if (req.baseUrl.includes('accidents')) folder = 'accidents';
     else if (req.baseUrl.includes('maintenance')) folder = 'maintenance';
+    else if (req.path.includes('/logo')) folder = 'logos';
     else if (req.body.category && ALLOWED_UPLOAD_FOLDERS.includes(req.body.category)) {
       folder = req.body.category;
     }

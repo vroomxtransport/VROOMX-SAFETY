@@ -2,10 +2,12 @@ const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
+const path = require('path');
 const { Company, User, CompanyInvitation, Driver, Vehicle } = require('../models');
 const { protect, restrictToCompany, requireCompanyAdmin, requireCompanyOwner } = require('../middleware/auth');
 const { checkCompanyLimit } = require('../middleware/subscriptionLimits');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
+const { uploadSingle, deleteFile } = require('../middleware/upload');
 const emailService = require('../services/emailService');
 const auditService = require('../services/auditService');
 
@@ -508,6 +510,104 @@ router.get('/:id/stats', asyncHandler(async (req, res) => {
         limit: limits.maxVehiclesPerCompany === Infinity ? 'unlimited' : limits.maxVehiclesPerCompany
       }
     }
+  });
+}));
+
+// @route   POST /api/companies/:id/logo
+// @desc    Upload company logo
+// @access  Private (Admin/Owner only)
+router.post('/:id/logo', uploadSingle('logo'), asyncHandler(async (req, res) => {
+  const companyId = req.params.id;
+
+  // Check if user has access and is admin/owner
+  const membership = req.user.companies.find(
+    c => (c.companyId._id || c.companyId).toString() === companyId
+  );
+
+  if (!membership || !['owner', 'admin'].includes(membership.role)) {
+    // Delete uploaded file if auth fails
+    if (req.file) {
+      await deleteFile(req.file.path).catch(() => {});
+    }
+    throw new AppError('Only owners and admins can upload company logo', 403);
+  }
+
+  if (!req.file) {
+    throw new AppError('No file uploaded', 400);
+  }
+
+  // Validate file type (only images for logos)
+  const allowedMimeTypes = ['image/jpeg', 'image/png'];
+  if (!allowedMimeTypes.includes(req.file.mimetype)) {
+    await deleteFile(req.file.path).catch(() => {});
+    throw new AppError('Logo must be a JPEG or PNG image', 400);
+  }
+
+  // Get current company to delete old logo if exists
+  const company = await Company.findById(companyId);
+  if (!company) {
+    await deleteFile(req.file.path).catch(() => {});
+    throw new AppError('Company not found', 404);
+  }
+
+  // Delete old logo if exists
+  if (company.logo) {
+    await deleteFile(company.logo).catch(() => {});
+  }
+
+  // Move file to logos folder (storage already handles this via route detection,
+  // but we need to ensure it goes to logos folder)
+  const logoPath = `/uploads/logos/${req.file.filename}`;
+
+  // Update company with new logo path
+  company.logo = logoPath;
+  await company.save();
+
+  auditService.log(req, 'update', 'company', companyId, { summary: 'Company logo uploaded' });
+
+  res.json({
+    success: true,
+    message: 'Logo uploaded successfully',
+    logo: logoPath
+  });
+}));
+
+// @route   DELETE /api/companies/:id/logo
+// @desc    Remove company logo
+// @access  Private (Admin/Owner only)
+router.delete('/:id/logo', asyncHandler(async (req, res) => {
+  const companyId = req.params.id;
+
+  // Check if user has access and is admin/owner
+  const membership = req.user.companies.find(
+    c => (c.companyId._id || c.companyId).toString() === companyId
+  );
+
+  if (!membership || !['owner', 'admin'].includes(membership.role)) {
+    throw new AppError('Only owners and admins can remove company logo', 403);
+  }
+
+  const company = await Company.findById(companyId);
+  if (!company) {
+    throw new AppError('Company not found', 404);
+  }
+
+  if (!company.logo) {
+    throw new AppError('No logo to remove', 400);
+  }
+
+  // Delete the logo file
+  await deleteFile(company.logo).catch(() => {});
+
+  // Remove logo reference from company
+  company.logo = null;
+  await company.save();
+
+  auditService.log(req, 'update', 'company', companyId, { summary: 'Company logo removed' });
+
+  res.json({
+    success: true,
+    message: 'Logo removed successfully'
   });
 }));
 
