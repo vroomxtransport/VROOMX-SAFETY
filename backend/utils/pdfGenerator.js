@@ -98,7 +98,7 @@ const addHeader = (doc, company, reportTitle, options = {}) => {
   const headerBottom = showLogo && company.logo ? startY + logoSize + 10 : doc.y + 10;
   doc.y = Math.max(doc.y, headerBottom);
 
-  doc.moveDown(0.5);
+  doc.moveDown(1);
 
   // Report title
   doc.fontSize(16)
@@ -398,6 +398,9 @@ const addFooter = (doc) => {
   for (let i = 0; i < pages.count; i++) {
     doc.switchToPage(i);
 
+    // Save graphics state
+    doc.save();
+
     // Footer line
     doc.strokeColor(COLORS.border)
        .lineWidth(0.5)
@@ -405,23 +408,26 @@ const addFooter = (doc) => {
        .lineTo(doc.page.width - 50, doc.page.height - 40)
        .stroke();
 
-    // Page number
+    // Page number (center)
     doc.fontSize(8)
        .fillColor(COLORS.lightText)
        .text(
          `Page ${i + 1} of ${pages.count}`,
          50,
          doc.page.height - 30,
-         { align: 'center', width: doc.page.width - 100 }
+         { align: 'center', width: doc.page.width - 100, lineBreak: false }
        );
 
-    // Powered by
+    // Powered by (right) - use same Y position
     doc.text(
       'VroomX Safety - FMCSA Compliance Platform',
       50,
       doc.page.height - 30,
-      { align: 'right', width: doc.page.width - 100 }
+      { align: 'right', width: doc.page.width - 100, lineBreak: false }
     );
+
+    // Restore graphics state
+    doc.restore();
   }
 };
 
