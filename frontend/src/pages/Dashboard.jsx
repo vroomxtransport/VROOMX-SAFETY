@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { dashboardAPI, csaAPI, fmcsaInspectionsAPI, driversAPI, fmcsaAPI } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -97,6 +98,35 @@ const Dashboard = () => {
       setTimeout(() => setFmcsaMessage(null), 8000);
     } finally {
       setRefreshingFMCSA(false);
+    }
+  };
+
+  // Handle manual FMCSA sync from header
+  const handleSyncNow = async () => {
+    setSyncing(true);
+    try {
+      const response = await fmcsaAPI.syncViolations(true);
+
+      // Refresh sync status
+      const statusRes = await fmcsaAPI.getSyncStatus();
+      if (statusRes?.data) {
+        setSyncStatus(statusRes.data);
+      }
+
+      // Show toast with violation count
+      const imported = response.data?.violations?.created || 0;
+      if (imported > 0) {
+        toast.success(`Synced ${imported} new violation${imported !== 1 ? 's' : ''} from FMCSA`);
+      } else {
+        toast.success('FMCSA sync complete - no new violations');
+      }
+
+      // Also refresh dashboard data
+      await fetchDashboard();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to sync FMCSA data');
+    } finally {
+      setSyncing(false);
     }
   };
 
@@ -262,6 +292,21 @@ const Dashboard = () => {
         </div>
         <div className="flex items-center gap-3">
           <span className="text-sm text-zinc-600 dark:text-zinc-300 hidden sm:inline">{currentDate}</span>
+          {/* Sync Status Indicator */}
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700">
+            <FiClock className={`w-4 h-4 ${isDataStale ? 'text-yellow-500' : 'text-zinc-400 dark:text-zinc-500'}`} />
+            <span className={`text-sm ${isDataStale ? 'text-yellow-600 dark:text-yellow-400' : 'text-zinc-600 dark:text-zinc-400'}`}>
+              {formatLastSync(syncStatus?.lastSync)}
+            </span>
+            <button
+              onClick={handleSyncNow}
+              disabled={syncing}
+              className="p-1.5 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Sync Now"
+            >
+              <FiRefreshCw className={`w-4 h-4 text-zinc-600 dark:text-zinc-400 ${syncing ? 'animate-spin' : ''}`} />
+            </button>
+          </div>
           <Link
             to="/app/reports"
             className="btn btn-primary"
