@@ -2,10 +2,14 @@ import { useState, useEffect, useCallback } from 'react';
 import { reportsAPI, driversAPI, vehiclesAPI } from '../utils/api';
 import { downloadBlob } from '../utils/helpers';
 import toast from 'react-hot-toast';
-import { FiFileText, FiDownload, FiUsers, FiTruck, FiAlertTriangle, FiClipboard, FiCalendar, FiActivity, FiDollarSign } from 'react-icons/fi';
+import { FiFileText, FiDownload, FiUsers, FiTruck, FiAlertTriangle, FiClipboard, FiCalendar, FiActivity, FiDollarSign, FiEye, FiEyeOff } from 'react-icons/fi';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ReportFilters from '../components/filters/ReportFilters';
 import { REPORT_FILTER_CONFIG } from '../utils/reportFilterConfig';
+import FieldSelector from '../components/reports/FieldSelector';
+import ReportPreview from '../components/reports/ReportPreview';
+import TemplateManager from '../components/reports/TemplateManager';
+import { REPORT_FIELD_DEFINITIONS, getDefaultFields } from '../utils/reportFieldConfig';
 
 const Reports = () => {
   const [generating, setGenerating] = useState({});
@@ -13,6 +17,18 @@ const Reports = () => {
   const [vehicles, setVehicles] = useState([]);
   const [activeFilters, setActiveFilters] = useState({});
   const [selectedReportId, setSelectedReportId] = useState('dqf');
+  const [selectedFields, setSelectedFields] = useState({});
+  const [showPreview, setShowPreview] = useState(false);
+
+  // Initialize fields when report type changes
+  useEffect(() => {
+    if (!selectedFields[selectedReportId]) {
+      setSelectedFields(prev => ({
+        ...prev,
+        [selectedReportId]: getDefaultFields(selectedReportId)
+      }));
+    }
+  }, [selectedReportId, selectedFields]);
 
   // Fetch drivers and vehicles for filter dropdowns
   useEffect(() => {
@@ -110,6 +126,18 @@ const Reports = () => {
     setActiveFilters(filters);
   }, []);
 
+  // Handle loading a template
+  const handleLoadTemplate = (template) => {
+    setSelectedFields(prev => ({
+      ...prev,
+      [template.reportType]: template.selectedFields
+    }));
+    if (template.filters && Object.keys(template.filters).length > 0) {
+      setActiveFilters(template.filters);
+    }
+    toast.success(`Loaded template: ${template.name}`);
+  };
+
   const handleGenerateReport = async (reportId, format = 'pdf') => {
     const report = reports.find(r => r.id === reportId);
     if (!report) return;
@@ -140,6 +168,13 @@ const Reports = () => {
         } else {
           params.complianceStatus = activeFilters.status;
         }
+      }
+
+      // Add fields param if not all fields selected
+      const allFields = REPORT_FIELD_DEFINITIONS[reportId]?.fields.map(f => f.key) || [];
+      const currentFields = selectedFields[reportId] || allFields;
+      if (currentFields.length > 0 && currentFields.length < allFields.length) {
+        params.fields = currentFields.join(',');
       }
 
       const response = await report.api(params);
@@ -195,6 +230,60 @@ const Reports = () => {
             {report.title}
           </button>
         ))}
+      </div>
+
+      {/* Report Builder Section */}
+      <div className="space-y-4">
+        {/* Template Manager */}
+        <TemplateManager
+          reportType={selectedReportId}
+          currentConfig={{
+            selectedFields: selectedFields[selectedReportId] || [],
+            filters: activeFilters
+          }}
+          onLoadTemplate={handleLoadTemplate}
+        />
+
+        {/* Field Selector */}
+        <FieldSelector
+          reportType={selectedReportId}
+          fieldDefinitions={REPORT_FIELD_DEFINITIONS}
+          selectedFields={selectedFields[selectedReportId] || []}
+          onFieldsChange={(fields) => setSelectedFields(prev => ({
+            ...prev,
+            [selectedReportId]: fields
+          }))}
+        />
+
+        {/* Preview Toggle */}
+        <div className="flex justify-end">
+          <button
+            onClick={() => setShowPreview(!showPreview)}
+            className="btn btn-secondary btn-sm flex items-center"
+          >
+            {showPreview ? (
+              <>
+                <FiEyeOff className="w-4 h-4 mr-2" />
+                Hide Preview
+              </>
+            ) : (
+              <>
+                <FiEye className="w-4 h-4 mr-2" />
+                Show Preview
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* Preview Panel */}
+        {showPreview && (
+          <ReportPreview
+            reportType={selectedReportId}
+            selectedFields={selectedFields[selectedReportId] || []}
+            filters={activeFilters}
+            onClose={() => setShowPreview(false)}
+          />
+        )}
       </div>
 
       {/* Report Filters */}
