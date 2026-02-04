@@ -2,16 +2,18 @@ import { useState, useEffect, useCallback } from 'react';
 import { reportsAPI, driversAPI, vehiclesAPI } from '../utils/api';
 import { downloadBlob } from '../utils/helpers';
 import toast from 'react-hot-toast';
-import { FiFileText, FiDownload, FiUsers, FiTruck, FiAlertTriangle, FiClipboard, FiCalendar, FiActivity, FiDollarSign, FiEye, FiEyeOff } from 'react-icons/fi';
+import { FiFileText, FiDownload, FiUsers, FiTruck, FiAlertTriangle, FiClipboard, FiCalendar, FiActivity, FiDollarSign, FiEye, FiEyeOff, FiClock } from 'react-icons/fi';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ReportFilters from '../components/filters/ReportFilters';
 import { REPORT_FILTER_CONFIG } from '../utils/reportFilterConfig';
 import FieldSelector from '../components/reports/FieldSelector';
 import ReportPreview from '../components/reports/ReportPreview';
 import TemplateManager from '../components/reports/TemplateManager';
+import ReportHistoryList from '../components/reports/ReportHistoryList';
 import { REPORT_FIELD_DEFINITIONS, getDefaultFields } from '../utils/reportFieldConfig';
 
 const Reports = () => {
+  const [activeTab, setActiveTab] = useState('generate'); // 'generate' or 'history'
   const [generating, setGenerating] = useState({});
   const [drivers, setDrivers] = useState([]);
   const [vehicles, setVehicles] = useState([]);
@@ -215,9 +217,45 @@ const Reports = () => {
         <p className="text-zinc-600 dark:text-zinc-300">Generate and export compliance reports in PDF, CSV, or Excel format</p>
       </div>
 
-      {/* Report Type Selector */}
-      <div className="flex flex-wrap gap-2">
-        {reports.map((report) => (
+      {/* Main Tabs */}
+      <div className="border-b border-zinc-200 dark:border-zinc-700">
+        <div className="flex space-x-4">
+          <button
+            onClick={() => setActiveTab('generate')}
+            className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === 'generate'
+                ? 'border-primary-500 text-primary-600 dark:text-primary-400'
+                : 'border-transparent text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300'
+            }`}
+          >
+            <FiFileText className="w-4 h-4 inline-block mr-2" />
+            Generate Reports
+          </button>
+          <button
+            onClick={() => setActiveTab('history')}
+            className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === 'history'
+                ? 'border-primary-500 text-primary-600 dark:text-primary-400'
+                : 'border-transparent text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300'
+            }`}
+          >
+            <FiClock className="w-4 h-4 inline-block mr-2" />
+            Report History
+          </button>
+        </div>
+      </div>
+
+      {/* History Tab Content */}
+      {activeTab === 'history' && (
+        <ReportHistoryList />
+      )}
+
+      {/* Generate Tab Content */}
+      {activeTab === 'generate' && (
+        <>
+          {/* Report Type Selector */}
+          <div className="flex flex-wrap gap-2">
+            {reports.map((report) => (
           <button
             key={report.id}
             onClick={() => setSelectedReportId(report.id)}
@@ -438,6 +476,8 @@ const Reports = () => {
           </div>
         </div>
       </div>
+        </>
+      )}
     </div>
   );
 };
