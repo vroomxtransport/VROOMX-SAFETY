@@ -126,13 +126,11 @@ Plans:
   2. Manual "Sync Now" button triggers immediate refresh
   3. Unlinked violations page lists all items needing manual review
   4. Toast notification appears when new violations are imported
-**Plans**: TBD
+**Plans**: 2 plans (Wave 1 - all parallel)
 
 Plans:
-- [ ] 07-01: Sync status dashboard indicator
-- [ ] 07-02: Manual sync trigger button
-- [ ] 07-03: Unlinked violations review page
-- [ ] 07-04: New violation toast notifications
+- [ ] 07-01-PLAN.md — Dashboard sync status indicator + manual sync button + toast notifications
+- [ ] 07-02-PLAN.md — Unlinked violations review page with driver linking
 
 ## Progress
 
@@ -147,7 +145,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 4. Entity Linking | 3/3 | ✓ Verified | 2026-02-03 |
 | 5. UI Integration | 3/3 | ✓ Verified | 2026-02-03 |
 | 6. DataQ Integration | 2/2 | ✓ Verified | 2026-02-03 |
-| 7. Polish | 0/4 | Not started | - |
+| 7. Polish | 0/2 | Planned | - |
 
 ---
 *Roadmap created: 2026-02-03*
@@ -163,4 +161,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 *Phase 5 completed: 2026-02-03*
 *Phase 6 planned: 2026-02-03*
 *Phase 6 completed: 2026-02-03*
-*Total phases: 7 | Total plans: 19 | Requirements covered: 29*
+*Phase 7 planned: 2026-02-03*
+*Total phases: 7 | Total plans: 17 | Requirements covered: 29*
