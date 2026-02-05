@@ -2,6 +2,36 @@ import { Link } from 'react-router-dom';
 import { FiX, FiClock, FiArrowRight } from 'react-icons/fi';
 import DOMPurify from 'dompurify';
 
+// SECURITY: Configure DOMPurify with strict settings to minimize XSS risk
+const sanitizeConfig = {
+  ALLOWED_TAGS: [
+    'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+    'p', 'br', 'hr',
+    'ul', 'ol', 'li',
+    'strong', 'em', 'b', 'i', 'u', 's',
+    'a', 'blockquote', 'code', 'pre',
+    'table', 'thead', 'tbody', 'tr', 'th', 'td',
+    'img', 'figure', 'figcaption'
+  ],
+  ALLOWED_ATTR: [
+    'href', 'target', 'rel', 'src', 'alt', 'title', 'class'
+  ],
+  ALLOW_DATA_ATTR: false,
+  FORBID_TAGS: ['script', 'style', 'iframe', 'form', 'input', 'object', 'embed'],
+  FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'onfocus', 'onblur'],
+  ADD_ATTR: ['target'], // Allow target attribute for links
+  // Force all links to open in new tab with security attributes
+  ADD_TAGS: [],
+};
+
+// Hook to add rel="noopener noreferrer" to all links
+DOMPurify.addHook('afterSanitizeAttributes', (node) => {
+  if (node.tagName === 'A') {
+    node.setAttribute('target', '_blank');
+    node.setAttribute('rel', 'noopener noreferrer');
+  }
+});
+
 const ArticleModal = ({ article, onClose }) => {
   if (!article) return null;
 
@@ -52,10 +82,10 @@ const ArticleModal = ({ article, onClose }) => {
           <p className="text-lg text-zinc-600">{article.description}</p>
         </div>
 
-        {/* Article Content */}
+        {/* Article Content - SECURITY: Sanitized with strict whitelist */}
         <div
           className="p-8 md:p-12 prose prose-slate max-w-none"
-          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(article.content) }}
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(article.content, sanitizeConfig) }}
         />
 
         {/* Article Footer */}

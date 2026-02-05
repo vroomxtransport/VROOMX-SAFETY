@@ -32,22 +32,87 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Response interceptor
+// Track if we're currently refreshing to prevent infinite loops
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach(prom => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
+
+// Response interceptor with automatic token refresh
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      const url = error.config?.url || '';
-      // Don't redirect for session-check or if already on login page
-      if (!url.includes('/auth/me') && !window.location.pathname.startsWith('/login')) {
-        window.location.href = '/login';
+  async (error) => {
+    const originalRequest = error.config;
+
+    // Handle 401 errors - try to refresh token first
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      const url = originalRequest?.url || '';
+
+      // Don't try to refresh for auth endpoints or refresh endpoint itself
+      if (url.includes('/auth/login') || url.includes('/auth/refresh') || url.includes('/auth/me')) {
+        // Clear token and redirect to login (unless already there)
+        clearAuthToken();
+        if (!window.location.pathname.startsWith('/login')) {
+          window.location.href = '/login';
+        }
+        return Promise.reject(error);
+      }
+
+      // If already refreshing, queue this request
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        }).then(token => {
+          if (token) {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+          }
+          return api(originalRequest);
+        }).catch(err => Promise.reject(err));
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        // Attempt to refresh the token
+        const response = await api.post('/auth/refresh');
+        const { token } = response.data;
+
+        if (token) {
+          setAuthToken(token);
+          originalRequest.headers.Authorization = `Bearer ${token}`;
+        }
+
+        processQueue(null, token);
+        return api(originalRequest);
+      } catch (refreshError) {
+        processQueue(refreshError, null);
+        clearAuthToken();
+        if (!window.location.pathname.startsWith('/login')) {
+          window.location.href = '/login';
+        }
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
       }
     }
+
+    // Handle maintenance mode
     if (error.response?.status === 503 && error.response?.data?.code === 'MAINTENANCE_MODE') {
       window.__maintenanceMode = true;
       window.__maintenanceMessage = error.response.data.message;
       window.dispatchEvent(new CustomEvent('maintenance-mode'));
     }
+
     return Promise.reject(error);
   }
 );
@@ -322,6 +387,7 @@ export const authAPI = {
   register: (data) => api.post('/auth/register', data),
   demoLogin: () => api.post('/auth/demo-login'),
   getMe: () => api.get('/auth/me'),
+  refresh: () => api.post('/auth/refresh'),
   updatePassword: (data) => api.put('/auth/updatepassword', data),
   updateEmailPreferences: (data) => api.put('/auth/email-preferences', data),
   forgotPassword: (email) => api.post('/auth/forgot-password', { email }),

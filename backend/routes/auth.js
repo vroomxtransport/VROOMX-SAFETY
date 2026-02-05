@@ -12,21 +12,42 @@ const fmcsaViolationService = require('../services/fmcsaViolationService');
 const emailService = require('../services/emailService');
 const auditService = require('../services/auditService');
 
-// Generate JWT token
+// Generate JWT access token (short-lived: 2 hours)
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN || '2h'
+    expiresIn: process.env.JWT_EXPIRES_IN || '2h',
+    algorithm: 'HS256'
   });
 };
 
-// Set JWT as httpOnly cookie
+// Generate refresh token (long-lived: 7 days)
+const generateRefreshToken = (id) => {
+  return jwt.sign(
+    { id, type: 'refresh' },
+    process.env.JWT_SECRET,
+    { expiresIn: '7d', algorithm: 'HS256' }
+  );
+};
+
+// Set JWT access token as httpOnly cookie
 function setTokenCookie(res, token, maxAgeMs) {
   res.cookie('token', token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
-    maxAge: maxAgeMs || 60 * 60 * 1000, // Default 1 hour
+    maxAge: maxAgeMs || 2 * 60 * 60 * 1000, // 2 hours (matches JWT expiry)
     path: '/'
+  });
+}
+
+// Set refresh token as httpOnly cookie (separate from access token)
+function setRefreshTokenCookie(res, refreshToken) {
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    path: '/api/auth' // Only sent to auth endpoints
   });
 }
 
@@ -138,7 +159,9 @@ router.post('/register', [
   }
 
   const token = generateToken(user._id);
+  const refreshToken = generateRefreshToken(user._id);
   setTokenCookie(res, token);
+  setRefreshTokenCookie(res, refreshToken);
 
   // Send welcome + verification emails (fire-and-forget)
   emailService.sendWelcome(user).catch(() => {});
@@ -186,15 +209,24 @@ router.post('/register', [
 }));
 
 // @route   POST /api/auth/logout
-// @desc    Logout user (clear httpOnly cookie)
+// @desc    Logout user (clear httpOnly cookies)
 // @access  Public
 router.post('/logout', (req, res) => {
+  // Clear access token
   res.cookie('token', '', {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     maxAge: 0,
     path: '/'
+  });
+  // Clear refresh token
+  res.cookie('refreshToken', '', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 0,
+    path: '/api/auth'
   });
   res.json({ success: true, message: 'Logged out successfully' });
 });
@@ -313,7 +345,9 @@ router.post('/login', [
   });
 
   const token = generateToken(user._id);
+  const refreshToken = generateRefreshToken(user._id);
   setTokenCookie(res, token);
+  setRefreshTokenCookie(res, refreshToken);
 
   // Build companies list for response
   const companiesList = user.companies?.map(m => ({
@@ -362,6 +396,70 @@ router.post('/login', [
       } : null
     }
   });
+}));
+
+// @route   POST /api/auth/refresh
+// @desc    Refresh access token using refresh token
+// @access  Public (with valid refresh token)
+router.post('/refresh', asyncHandler(async (req, res) => {
+  const refreshToken = req.cookies?.refreshToken;
+
+  if (!refreshToken) {
+    return res.status(401).json({
+      success: false,
+      message: 'No refresh token provided'
+    });
+  }
+
+  try {
+    // Verify the refresh token
+    const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET, {
+      algorithms: ['HS256']
+    });
+
+    // Ensure it's a refresh token (not an access token)
+    if (decoded.type !== 'refresh') {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid token type'
+      });
+    }
+
+    // Get user
+    const user = await User.findById(decoded.id);
+    if (!user || !user.isActive || user.isSuspended) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not found or inactive'
+      });
+    }
+
+    // Issue new access token and rotate refresh token
+    const newToken = generateToken(user._id);
+    const newRefreshToken = generateRefreshToken(user._id);
+    setTokenCookie(res, newToken);
+    setRefreshTokenCookie(res, newRefreshToken);
+
+    res.json({
+      success: true,
+      token: newToken,
+      message: 'Token refreshed successfully'
+    });
+  } catch (error) {
+    // Clear invalid refresh token
+    res.cookie('refreshToken', '', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 0,
+      path: '/api/auth'
+    });
+
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid or expired refresh token'
+    });
+  }
 }));
 
 // @route   POST /api/auth/demo-login

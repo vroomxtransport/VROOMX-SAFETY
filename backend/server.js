@@ -8,12 +8,35 @@ const cron = require('node-cron');
 const rateLimit = require('express-rate-limit');
 const { ipKeyGenerator } = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
+
+// Redis rate limiting for multi-server deployments
+let RedisStore;
+let redisClient;
+if (process.env.REDIS_URL) {
+  try {
+    const { RedisStore: Store } = require('rate-limit-redis');
+    const Redis = require('ioredis');
+    RedisStore = Store;
+    redisClient = new Redis(process.env.REDIS_URL, {
+      enableOfflineQueue: false,
+      maxRetriesPerRequest: 1
+    });
+    redisClient.on('error', (err) => {
+      console.warn('Redis connection error, falling back to in-memory rate limiting:', err.message);
+      redisClient = null;
+    });
+    console.log('Redis rate limiting enabled');
+  } catch (err) {
+    console.warn('Redis rate limiting not available, using in-memory:', err.message);
+  }
+}
 const connectDB = require('./config/database');
 const routes = require('./routes');
 const { errorHandler, notFound } = require('./middleware/errorHandler');
 const maintenanceMode = require('./middleware/maintenance');
 const alertService = require('./services/alertService');
 const emailService = require('./services/emailService');
+const logger = require('./utils/logger');
 
 // Validate required environment variables at startup
 const requiredEnvVars = ['JWT_SECRET', 'MONGODB_URI'];
@@ -125,18 +148,26 @@ app.use(cors({
 }));
 
 // Global rate limiting - 100 requests per 30s per IP
-const globalLimiter = rateLimit({
+// Uses Redis for multi-server deployments when REDIS_URL is configured
+const globalLimiterConfig = {
   windowMs: 30 * 1000,
   max: 100,
   standardHeaders: true,
   legacyHeaders: false,
   message: { success: false, message: 'Too many requests. Please try again later.' }
-});
+};
+if (redisClient && RedisStore) {
+  globalLimiterConfig.store = new RedisStore({
+    sendCommand: (...args) => redisClient.call(...args),
+    prefix: 'rl:global:'
+  });
+}
+const globalLimiter = rateLimit(globalLimiterConfig);
 app.use('/api', globalLimiter);
 
 // Stricter rate limit for auth endpoints - keyed on IP + email so
 // blocking one email doesn't block login attempts for other accounts
-const authLimiter = rateLimit({
+const authLimiterConfig = {
   windowMs: 30 * 1000,
   max: 15,
   standardHeaders: true,
@@ -147,7 +178,14 @@ const authLimiter = rateLimit({
     return `${ip}:${email}`;
   },
   message: { success: false, message: 'Too many authentication attempts. Please try again later.' }
-});
+};
+if (redisClient && RedisStore) {
+  authLimiterConfig.store = new RedisStore({
+    sendCommand: (...args) => redisClient.call(...args),
+    prefix: 'rl:auth:'
+  });
+}
+const authLimiter = rateLimit(authLimiterConfig);
 app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/register', authLimiter);
 
@@ -224,37 +262,37 @@ app.listen(PORT, () => {
 
   // Schedule daily alert generation at 6:00 AM
   cron.schedule('0 6 * * *', async () => {
-    console.log('[Cron] Running daily alert generation...');
+    logger.cron('Running daily alert generation...');
     try {
       const result = await alertService.generateAlertsForAllCompanies();
-      console.log('[Cron] Daily alert generation complete:', result);
+      logger.cron('Daily alert generation complete', result);
 
       // Send daily alert digest emails
       try {
         await emailService.sendDailyAlertDigests();
-        console.log('[Cron] Daily alert digest emails sent');
+        logger.cron('Daily alert digest emails sent');
       } catch (emailError) {
-        console.error('[Cron] Error sending alert digest emails:', emailError);
+        logger.error('[Cron] Error sending alert digest emails', emailError);
       }
     } catch (error) {
-      console.error('[Cron] Error in daily alert generation:', error);
+      logger.error('[Cron] Error in daily alert generation', error);
     }
   });
 
   // Schedule alert escalation check every 6 hours
   cron.schedule('0 */6 * * *', async () => {
-    console.log('[Cron] Running alert escalation check...');
+    logger.cron('Running alert escalation check...');
     try {
       const escalated = await alertService.escalateAlerts();
-      console.log(`[Cron] Escalated ${escalated} alerts`);
+      logger.cron(`Escalated ${escalated} alerts`);
     } catch (error) {
-      console.error('[Cron] Error in alert escalation:', error);
+      logger.error('[Cron] Error in alert escalation', error);
     }
   });
 
   // Schedule trial ending notifications at 9:00 AM
   cron.schedule('0 9 * * *', async () => {
-    console.log('[Cron] Checking for trials ending soon...');
+    logger.cron('Checking for trials ending soon...');
     try {
       const User = require('./models/User');
       const threeDaysFromNow = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
@@ -268,29 +306,29 @@ app.listen(PORT, () => {
       for (const user of users) {
         await emailService.sendTrialEnding(user);
       }
-      console.log(`[Cron] Sent ${users.length} trial ending notifications`);
+      logger.cron(`Sent ${users.length} trial ending notifications`);
     } catch (error) {
-      console.error('[Cron] Error checking trials:', error);
+      logger.error('[Cron] Error checking trials', error);
     }
   });
 
   // Schedule report processing every hour
   cron.schedule('0 * * * *', async () => {
-    console.log('[Cron] Processing scheduled reports...');
+    logger.cron('Processing scheduled reports...');
     try {
       const scheduledReportService = require('./services/scheduledReportService');
       const result = await scheduledReportService.processAllDueReports();
       if (result.total > 0) {
-        console.log(`[Cron] Scheduled reports: ${result.success} success, ${result.failed} failed`);
+        logger.cron(`Scheduled reports: ${result.success} success, ${result.failed} failed`);
       }
     } catch (error) {
-      console.error('[Cron] Error processing scheduled reports:', error);
+      logger.error('[Cron] Error processing scheduled reports', error);
     }
   });
 
   // Sync Samsara integrations every hour (for companies with autoSync enabled)
   cron.schedule('30 * * * *', async () => {
-    console.log('[Cron] Running hourly Samsara sync...');
+    logger.cron('Running hourly Samsara sync...');
     try {
       const Integration = require('./models/Integration');
       const samsaraService = require('./services/samsaraService');
@@ -315,15 +353,15 @@ app.listen(PORT, () => {
           await integration.save();
           successCount++;
         } catch (err) {
-          console.error(`[Cron] Samsara sync failed for company ${integration.companyId}:`, err.message);
+          logger.error(`[Cron] Samsara sync failed for company ${integration.companyId}`, { error: err.message });
           integration.error = err.message;
           await integration.save();
         }
       }
 
-      console.log(`[Cron] Samsara sync completed: ${successCount}/${activeIntegrations.length} integrations`);
+      logger.cron(`Samsara sync completed: ${successCount}/${activeIntegrations.length} integrations`);
     } catch (err) {
-      console.error('[Cron] Samsara sync job failed:', err.message);
+      logger.error('[Cron] Samsara sync job failed', { error: err.message });
     }
   });
 
@@ -331,23 +369,23 @@ app.listen(PORT, () => {
   cron.schedule('0 */6 * * *', async () => {
     // Skip if FMCSA credentials not configured
     if (!process.env.SAFERWEB_API_KEY || !process.env.SOCRATA_APP_TOKEN) {
-      console.log('[Cron] FMCSA sync skipped - credentials not configured');
+      logger.cron('FMCSA sync skipped - credentials not configured');
       return;
     }
-    console.log('[Cron] Running FMCSA data sync...');
+    logger.cron('Running FMCSA data sync...');
     try {
       const fmcsaSyncOrchestrator = require('./services/fmcsaSyncOrchestrator');
       const result = await fmcsaSyncOrchestrator.syncAllCompanies();
-      console.log(`[Cron] FMCSA sync complete: ${result.succeeded}/${result.total} companies succeeded`);
+      logger.cron(`FMCSA sync complete: ${result.succeeded}/${result.total} companies succeeded`);
       if (result.errors.length > 0) {
-        console.log(`[Cron] FMCSA sync had ${result.errors.length} company failures`);
+        logger.warn(`[Cron] FMCSA sync had ${result.errors.length} company failures`);
       }
     } catch (error) {
-      console.error('[Cron] FMCSA sync job failed:', error.message);
+      logger.error('[Cron] FMCSA sync job failed', { error: error.message });
     }
   });
 
-  console.log('[Cron] Scheduled: Daily alerts at 6 AM, Alert digest emails, Escalation check every 6 hours, Trial ending check at 9 AM, Scheduled reports every hour, Samsara sync every hour, FMCSA data sync every 6 hours');
+  logger.info('[Cron] Scheduled: Daily alerts at 6 AM, Alert digest emails, Escalation check every 6 hours, Trial ending check at 9 AM, Scheduled reports every hour, Samsara sync every hour, FMCSA data sync every 6 hours');
 });
 
 // Handle uncaught exceptions — log and exit so process manager can restart
