@@ -151,7 +151,11 @@ function App() {
         {/* Landing page - public, redirects to dashboard if logged in */}
         <Route
           path="/"
-          element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Landing />}
+          element={
+            <PublicRoute>
+              <Landing />
+            </PublicRoute>
+          }
         />
 
         {/* Public routes */}
