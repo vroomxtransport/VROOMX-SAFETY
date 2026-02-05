@@ -60,6 +60,10 @@ const Layout = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     return localStorage.getItem('sidebar-collapsed') === 'true';
   });
+  const [expandedSections, setExpandedSections] = useState(() => {
+    const saved = localStorage.getItem('sidebar-expanded-sections');
+    return saved ? JSON.parse(saved) : { MANAGEMENT: true, TRACKING: true, 'COMPANY FILES': true, TOOLS: true };
+  });
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [alertCounts, setAlertCounts] = useState({ critical: 0, warning: 0, info: 0, total: 0 });
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -101,6 +105,19 @@ const Layout = () => {
   useEffect(() => {
     localStorage.setItem('sidebar-collapsed', sidebarCollapsed);
   }, [sidebarCollapsed]);
+
+  // Persist expanded sections state
+  useEffect(() => {
+    localStorage.setItem('sidebar-expanded-sections', JSON.stringify(expandedSections));
+  }, [expandedSections]);
+
+  // Toggle section expansion
+  const toggleSection = (section) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
 
   // Debounced search function
   const performSearch = useCallback(async (query) => {
@@ -304,10 +321,10 @@ const Layout = () => {
           </div>
         )}
 
-        {/* Navigation - Grid Layout */}
-        <nav className={`flex-1 py-3 overflow-y-auto scrollbar-thin ${sidebarCollapsed ? 'px-2' : 'px-2'}`}>
+        {/* Navigation - Dropdown Accordion Layout */}
+        <nav className={`flex-1 py-4 overflow-y-auto scrollbar-thin ${sidebarCollapsed ? 'px-2' : 'px-3'}`}>
           {sidebarCollapsed ? (
-            // Collapsed mode: single column icons
+            // Collapsed mode: single column icons only
             <div className="flex flex-col gap-1">
               {navigation.filter(item => !item.section).map((item) => {
                 const Icon = item.icon;
@@ -317,7 +334,7 @@ const Layout = () => {
                     key={item.name}
                     to={item.path}
                     title={item.name}
-                    className={`relative flex items-center justify-center p-2.5 rounded-lg transition-all duration-200 group hover:-translate-y-0.5 ${
+                    className={`relative flex items-center justify-center p-2.5 rounded-lg transition-all duration-200 group ${
                       isActive
                         ? 'bg-orange-50 dark:bg-orange-500/10 text-orange-500'
                         : 'text-zinc-500 dark:text-zinc-400 hover:text-orange-500 hover:bg-zinc-100 dark:hover:bg-white/5'
@@ -325,11 +342,9 @@ const Layout = () => {
                     onClick={() => setSidebarOpen(false)}
                   >
                     <Icon className="w-5 h-5" />
-                    {/* AI badge - collapsed */}
                     {item.isAI && (
                       <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-blue-500" />
                     )}
-                    {/* Alert badge - collapsed */}
                     {item.hasAlerts && alertCounts.total > 0 && (
                       <span className={`absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full ${
                         alertCounts.critical > 0 ? 'bg-red-500' : alertCounts.warning > 0 ? 'bg-amber-500' : 'bg-blue-500'
@@ -340,80 +355,109 @@ const Layout = () => {
               })}
             </div>
           ) : (
-            // Expanded mode: 2-column grid
-            <div className="grid grid-cols-2 gap-1">
-              {navigation.map((item) => {
-                // Section divider - spans full width
-                if (item.section) {
-                  return (
-                    <div key={item.section} className="col-span-2 flex items-center gap-2 py-2 mt-2 first:mt-0">
-                      <div className="flex-1 h-px bg-zinc-200 dark:bg-white/10" />
-                      <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 whitespace-nowrap">
-                        {item.section}
-                      </span>
-                      <div className="flex-1 h-px bg-zinc-200 dark:bg-white/10" />
-                    </div>
-                  );
+            // Expanded mode: Dropdown accordion sections
+            <div className="space-y-1">
+              {(() => {
+                // Group navigation items by section
+                const groups = [];
+                let currentGroup = { section: null, items: [] };
+
+                navigation.forEach(item => {
+                  if (item.section) {
+                    if (currentGroup.items.length > 0) {
+                      groups.push(currentGroup);
+                    }
+                    currentGroup = { section: item.section, items: [] };
+                  } else {
+                    currentGroup.items.push(item);
+                  }
+                });
+                if (currentGroup.items.length > 0) {
+                  groups.push(currentGroup);
                 }
 
-                const Icon = item.icon;
-                const isActive = location.pathname.startsWith(item.path);
-
-                return (
-                  <NavLink
-                    key={item.name}
-                    to={item.path}
-                    title={item.name}
-                    className={`group relative flex flex-col items-center justify-center rounded-lg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md dark:hover:shadow-white/5
-                      py-[clamp(10px,1.5vh,14px)] px-1
-                      min-h-[clamp(52px,8vh,68px)]
-                      ${isActive
-                        ? 'bg-orange-50 dark:bg-orange-500/10 shadow-sm'
-                        : 'hover:bg-zinc-100 dark:hover:bg-white/5'
-                      }`}
-                    onClick={() => setSidebarOpen(false)}
-                  >
-                    {/* Icon container */}
-                    <span className={`relative flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 mb-1 ${
-                      isActive
-                        ? 'bg-orange-500/15 text-orange-500'
-                        : 'text-zinc-500 dark:text-zinc-400 group-hover:text-orange-500'
-                    }`}>
-                      <Icon className="w-5 h-5" />
-
-                      {/* AI badge - positioned at top-right of icon */}
-                      {item.isAI && (
-                        <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-blue-500 flex items-center justify-center">
-                          <span className="text-[7px] font-bold text-white">AI</span>
+                return groups.map((group, groupIndex) => (
+                  <div key={group.section || 'main'}>
+                    {/* Section Header - Clickable to expand/collapse */}
+                    {group.section && (
+                      <button
+                        onClick={() => toggleSection(group.section)}
+                        className="w-full flex items-center justify-between px-3 py-2 mt-3 first:mt-0 rounded-lg hover:bg-zinc-100 dark:hover:bg-white/5 transition-colors group"
+                      >
+                        <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-700 dark:group-hover:text-zinc-300">
+                          {group.section}
                         </span>
-                      )}
-
-                      {/* Alert count badge - positioned at top-right of icon */}
-                      {item.hasAlerts && alertCounts.total > 0 && (
-                        <span className={`absolute -top-1 -right-1 flex items-center justify-center min-w-4 h-4 px-1 rounded-full text-white text-[9px] font-bold ${
-                          alertCounts.critical > 0 ? 'bg-red-500' : alertCounts.warning > 0 ? 'bg-amber-500' : 'bg-blue-500'
-                        }`}>
-                          {alertCounts.total > 99 ? '99' : alertCounts.total}
-                        </span>
-                      )}
-                    </span>
-
-                    {/* Label - centered, max 2 lines */}
-                    <span className={`text-[11px] font-medium text-center leading-tight line-clamp-2 px-0.5 transition-colors duration-200 ${
-                      isActive
-                        ? 'text-orange-600 dark:text-orange-400'
-                        : 'text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white'
-                    }`}>
-                      {item.name}
-                    </span>
-
-                    {/* Active indicator dot */}
-                    {isActive && (
-                      <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-orange-500" />
+                        <FiChevronDown
+                          className={`w-4 h-4 text-zinc-400 dark:text-zinc-500 transition-transform duration-200 ${
+                            expandedSections[group.section] ? 'rotate-180' : ''
+                          }`}
+                        />
+                      </button>
                     )}
-                  </NavLink>
-                );
-              })}
+
+                    {/* Section Items - Animated expand/collapse */}
+                    <div
+                      className={`overflow-hidden transition-all duration-200 ease-in-out ${
+                        group.section && !expandedSections[group.section]
+                          ? 'max-h-0 opacity-0'
+                          : 'max-h-[1000px] opacity-100'
+                      }`}
+                    >
+                      <div className={`space-y-0.5 ${group.section ? 'mt-1 ml-2 pl-2 border-l-2 border-zinc-200 dark:border-white/10' : ''}`}>
+                        {group.items.map((item) => {
+                          const Icon = item.icon;
+                          const isActive = location.pathname.startsWith(item.path);
+                          return (
+                            <NavLink
+                              key={item.name}
+                              to={item.path}
+                              className={`relative flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 group ${
+                                isActive
+                                  ? 'bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400'
+                                  : 'text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/5'
+                              }`}
+                              onClick={() => setSidebarOpen(false)}
+                            >
+                              {/* Icon */}
+                              <span className={`relative flex items-center justify-center w-8 h-8 rounded-lg transition-colors ${
+                                isActive
+                                  ? 'bg-orange-500/15 text-orange-500'
+                                  : 'bg-zinc-100 dark:bg-white/5 text-zinc-500 dark:text-zinc-400 group-hover:text-orange-500 group-hover:bg-zinc-200 dark:group-hover:bg-white/10'
+                              }`}>
+                                <Icon className="w-[18px] h-[18px]" />
+                              </span>
+
+                              {/* Label */}
+                              <span className="font-medium text-sm flex-1">{item.name}</span>
+
+                              {/* Active indicator */}
+                              {isActive && (
+                                <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+                              )}
+
+                              {/* AI badge */}
+                              {item.isAI && !isActive && (
+                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-500 text-white">
+                                  AI
+                                </span>
+                              )}
+
+                              {/* Alert count badge */}
+                              {item.hasAlerts && alertCounts.total > 0 && !isActive && (
+                                <span className={`flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full text-white text-[10px] font-bold ${
+                                  alertCounts.critical > 0 ? 'bg-red-500' : alertCounts.warning > 0 ? 'bg-amber-500' : 'bg-blue-500'
+                                }`}>
+                                  {alertCounts.total > 99 ? '99+' : alertCounts.total}
+                                </span>
+                              )}
+                            </NavLink>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                ));
+              })()}
             </div>
           )}
         </nav>
