@@ -708,7 +708,7 @@ export const HeroDesign5 = ({ heroTextIndex, heroTexts }) => {
 
   const handleCheckScore = () => {
     if (dotNumber.trim()) {
-      navigate(`/csa-lookup?dot=${dotNumber.trim()}`);
+      navigate(`/csa-checker?dot=${dotNumber.trim()}`);
     }
   };
 

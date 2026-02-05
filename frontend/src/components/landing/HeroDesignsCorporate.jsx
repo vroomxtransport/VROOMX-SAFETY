@@ -704,7 +704,7 @@ export const HeroDesign10 = ({ heroTextIndex, heroTexts }) => {
             <Link to="/pricing" className="text-white/70 hover:text-white text-sm font-medium transition-colors">
               Pricing
             </Link>
-            <Link to="/csa-lookup" className="text-white/70 hover:text-white text-sm font-medium transition-colors">
+            <Link to="/csa-checker" className="text-white/70 hover:text-white text-sm font-medium transition-colors">
               CSA Lookup
             </Link>
             <Link to="/login" className="text-white/70 hover:text-white text-sm font-medium transition-colors">
