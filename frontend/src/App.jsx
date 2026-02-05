@@ -68,6 +68,7 @@ const MinimalistDemo = lazy(() => import('./pages/designs/MinimalistDemo'));
 const DiffV1 = lazy(() => import('./pages/designs/DiffV1'));
 const DiffV2 = lazy(() => import('./pages/designs/DiffV2'));
 const DiffV3 = lazy(() => import('./pages/designs/DiffV3'));
+const FooterPreview = lazy(() => import('./pages/FooterPreview'));
 
 // Protected route wrapper
 const ProtectedRoute = ({ children, allowPendingPayment = false }) => {
@@ -188,6 +189,7 @@ function App() {
             <Route path="/design/diff-v1" element={<Suspense fallback={<LoadingSpinner size="lg" />}><DiffV1 /></Suspense>} />
             <Route path="/design/diff-v2" element={<Suspense fallback={<LoadingSpinner size="lg" />}><DiffV2 /></Suspense>} />
             <Route path="/design/diff-v3" element={<Suspense fallback={<LoadingSpinner size="lg" />}><DiffV3 /></Suspense>} />
+            <Route path="/design/footer-preview" element={<Suspense fallback={<LoadingSpinner size="lg" />}><FooterPreview /></Suspense>} />
           </>
         )}
 

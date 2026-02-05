@@ -6,9 +6,9 @@ import {
   FiFacebook,
   FiArrowUp,
 } from 'react-icons/fi';
-import VroomXLogo from '../VroomXLogo';
+import VroomXLogo from '../../VroomXLogo';
 
-const FooterSection = () => {
+const FooterDesign4 = () => {
   const [email, setEmail] = useState('');
 
   const scrollToTop = () => {
@@ -23,7 +23,7 @@ const FooterSection = () => {
   const productLinks = [
     { label: 'Features', to: '#features', isAnchor: true },
     { label: 'Pricing', to: '/pricing' },
-    { label: 'Free CSA Checker', to: '/csa-checker' },
+    { label: 'CSA Checker', to: '/csa-checker' },
     { label: 'Platform', to: '/platform' },
   ];
 
@@ -47,15 +47,15 @@ const FooterSection = () => {
   ];
 
   const companyLinks = [
-    { label: 'About Us', href: 'mailto:hello@vroomxsafety.com', external: true },
-    { label: 'Contact', href: 'mailto:support@vroomxsafety.com', external: true },
-    { label: 'Privacy Policy', to: '/privacy' },
-    { label: 'Terms of Service', to: '/terms' },
+    { label: 'About', to: '/about' },
+    { label: 'Contact', to: '/contact' },
+    { label: 'Privacy', to: '/privacy' },
+    { label: 'Terms', to: '/terms' },
   ];
 
   const renderLink = (link) => {
     const linkClasses =
-      'group relative text-white/50 text-sm hover:text-cta-400 transition-colors block w-fit';
+      'group relative text-white/50 text-sm hover:text-cta-400 transition-colors inline-block';
 
     const underline = (
       <span className="absolute left-0 -bottom-0.5 h-[1px] w-0 bg-cta-400 transition-all duration-300 group-hover:w-full" />
@@ -100,7 +100,7 @@ const FooterSection = () => {
   };
 
   return (
-    <footer className="relative bg-primary-700 py-20 px-6 md:px-16 overflow-hidden z-10">
+    <footer className="relative bg-primary-700 py-20 px-6 md:px-16 overflow-hidden">
       {/* Decorative floating orbs */}
       <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-cta-500/20 blur-[100px] pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-96 h-96 rounded-full bg-primary-300/15 blur-[120px] pointer-events-none" />
@@ -229,4 +229,4 @@ const FooterSection = () => {
   );
 };
 
-export default FooterSection;
+export default FooterDesign4;
