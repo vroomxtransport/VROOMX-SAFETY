@@ -31,7 +31,7 @@ const pdfService = {
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
         '--disable-gpu',
-        '--disable-web-security',
+        // SECURITY: Removed --disable-web-security flag to maintain Same-Origin Policy
         '--font-render-hinting=none'
       ]
     };

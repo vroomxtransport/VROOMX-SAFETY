@@ -13,7 +13,8 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [forgotLoading, setForgotLoading] = useState(false);
-  const [lockoutSeconds, setLockoutSeconds] = useState(0);
+  // SECURITY: Track lockout state without exposing exact timing to prevent attack optimization
+  const [isLockedOut, setIsLockedOut] = useState(false);
   const lockoutTimer = useRef(null);
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -24,29 +25,17 @@ const Login = () => {
     localStorage.removeItem('vroomx-theme');
   }, []);
 
-  // Countdown timer for rate limit lockout
+  // Clear lockout after a fixed period (don't expose exact timing)
   useEffect(() => {
-    if (lockoutSeconds > 0) {
-      lockoutTimer.current = setInterval(() => {
-        setLockoutSeconds((prev) => {
-          if (prev <= 1) {
-            clearInterval(lockoutTimer.current);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
+    if (isLockedOut) {
+      // Use a randomized delay to prevent timing attacks
+      const delay = 30000 + Math.random() * 30000; // 30-60 seconds
+      lockoutTimer.current = setTimeout(() => {
+        setIsLockedOut(false);
+      }, delay);
     }
-    return () => clearInterval(lockoutTimer.current);
-  }, [lockoutSeconds > 0]);
-
-  const formatCountdown = (totalSeconds) => {
-    const mins = Math.floor(totalSeconds / 60);
-    const secs = totalSeconds % 60;
-    return mins > 0
-      ? `${mins}:${secs.toString().padStart(2, '0')}`
-      : `${secs}s`;
-  };
+    return () => clearTimeout(lockoutTimer.current);
+  }, [isLockedOut]);
 
   const handleForgotPassword = async () => {
     if (!email) {
@@ -73,17 +62,9 @@ const Login = () => {
       navigate('/app/dashboard');
     } catch (error) {
       if (error.response?.status === 429) {
-        const resetHeader = error.response.headers['ratelimit-reset'];
-        let seconds = 15 * 60; // fallback: 15 minutes
-        if (resetHeader) {
-          const resetTime = Number(resetHeader);
-          // express-rate-limit standardHeaders sends seconds remaining
-          seconds = resetTime > Date.now() / 1000
-            ? Math.ceil(resetTime - Date.now() / 1000)
-            : Math.max(resetTime, 1);
-        }
-        setLockoutSeconds(seconds);
-        toast.error(`Too many attempts. Try again in ${formatCountdown(seconds)}`);
+        // SECURITY: Don't expose exact lockout timing to prevent attack optimization
+        setIsLockedOut(true);
+        toast.error('Too many attempts. Please try again later.');
       } else {
         toast.error(error.response?.data?.message || 'Login failed');
       }
@@ -202,11 +183,11 @@ const Login = () => {
                   </div>
                 </div>
 
-                {/* Rate limit warning */}
-                {lockoutSeconds > 0 && (
+                {/* Rate limit warning - SECURITY: No exact timing displayed */}
+                {isLockedOut && (
                   <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
                     <FiClock className="w-4 h-4 flex-shrink-0" />
-                    <span>Too many attempts. Try again in <strong>{formatCountdown(lockoutSeconds)}</strong></span>
+                    <span>Too many attempts. Please try again later.</span>
                   </div>
                 )}
 
@@ -214,18 +195,18 @@ const Login = () => {
                 <button
                   type="submit"
                   className={`w-full py-4 mt-3 rounded-xl font-bold text-white text-base tracking-wide flex items-center justify-center gap-2 shadow-lg transition-all duration-300 ${
-                    lockoutSeconds > 0
+                    isLockedOut
                       ? 'bg-zinc-400 cursor-not-allowed'
                       : 'btn-glow hover:shadow-xl'
                   }`}
-                  disabled={loading || lockoutSeconds > 0}
+                  disabled={loading || isLockedOut}
                 >
                   {loading ? (
                     <LoadingSpinner size="sm" />
-                  ) : lockoutSeconds > 0 ? (
+                  ) : isLockedOut ? (
                     <>
                       <FiClock className="w-5 h-5" />
-                      Locked ({formatCountdown(lockoutSeconds)})
+                      Try again later
                     </>
                   ) : (
                     <>

@@ -79,11 +79,6 @@ export const AuthProvider = ({ children }) => {
       limits: userData.limits
     });
 
-    // Store last active company ID (UX data, not a secret)
-    if (userData.activeCompany?.id) {
-      localStorage.setItem('lastActiveCompanyId', userData.activeCompany.id);
-    }
-
     return userData;
   };
 
@@ -149,8 +144,6 @@ export const AuthProvider = ({ children }) => {
     const response = await companiesAPI.switch(companyId);
     const { company } = response.data;
     // Token cookie is updated by the server
-
-    localStorage.setItem('lastActiveCompanyId', companyId);
 
     // Update active company
     setActiveCompany(company);

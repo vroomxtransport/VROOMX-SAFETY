@@ -106,22 +106,15 @@ const AdminUsers = () => {
     }
 
     try {
-      const response = await adminAPI.impersonateUser(user._id);
-      const { token } = response.data;
+      // SECURITY: Impersonation is handled server-side via httpOnly cookies.
+      // The server sets a new session cookie for the impersonated user.
+      // No tokens are stored client-side to prevent XSS token theft.
+      await adminAPI.impersonateUser(user._id);
 
-      // Store original admin token for returning
-      const currentToken = localStorage.getItem('token');
-      localStorage.setItem('adminToken', currentToken);
+      toast.success(`Now impersonating ${user.email}. Session valid for 1 hour.`);
 
-      // Store impersonation token and details
-      localStorage.setItem('token', token);
-      localStorage.setItem('impersonating', 'true');
-      localStorage.setItem('impersonatedUser', user.email);
-
-      toast.success(`Now impersonating ${user.email}. Token valid for 1 hour.`);
-
-      // Use React Router navigate to preserve state
-      navigate('/app/dashboard');
+      // Full page reload to ensure all state is refreshed with impersonated session
+      window.location.href = '/app/dashboard';
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to impersonate user');
     }

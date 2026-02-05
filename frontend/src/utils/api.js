@@ -3,30 +3,28 @@ import axios from 'axios';
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
   timeout: 15000,
-  withCredentials: true, // Send httpOnly cookies as fallback
+  withCredentials: true, // Send httpOnly cookies for authentication
   headers: {
     'Content-Type': 'application/json'
   }
 });
 
-// Token storage with localStorage persistence for session survival across page refresh
-let authToken = localStorage.getItem('authToken') || null;
+// SECURITY: Token is stored in memory only (not localStorage) to prevent XSS token theft.
+// Session persistence is handled by httpOnly cookies set by the server.
+// Memory token is used as a fallback for environments where cookies may not work.
+let authToken = null;
 
 export const setAuthToken = (token) => {
+  // Store token in memory only - never in localStorage (XSS vulnerability)
   authToken = token;
-  if (token) {
-    localStorage.setItem('authToken', token);
-  } else {
-    localStorage.removeItem('authToken');
-  }
 };
 
 export const clearAuthToken = () => {
   authToken = null;
-  localStorage.removeItem('authToken');
 };
 
-// Request interceptor — attach token to every request
+// Request interceptor — attach token to every request if available
+// Primary auth is via httpOnly cookie; memory token is fallback
 api.interceptors.request.use((config) => {
   if (authToken) {
     config.headers.Authorization = `Bearer ${authToken}`;
