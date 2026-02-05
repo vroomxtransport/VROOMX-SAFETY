@@ -5,18 +5,9 @@ import {
   FiLock, FiDatabase, FiAward, FiHeadphones
 } from 'react-icons/fi';
 import PublicHeader from '../components/PublicHeader';
+// Only import components actually used (reduces bundle size)
 import {
-  HeroSection,
-  HeroDesign1,
-  HeroDesign2,
-  HeroDesign3,
-  HeroDesign4,
   HeroDesign5,
-  HeroDesign6,
-  HeroDesign7,
-  HeroDesign8,
-  HeroDesign9,
-  HeroDesign10,
   PricingSection,
   TestimonialsSection,
   FAQSection,
@@ -60,13 +51,14 @@ const Landing = () => {
 
   return (
     <div className="relative overflow-hidden w-full min-h-screen bg-[#F8FAFC] text-[#1E293B]">
-      {/* Fixed Background Elements */}
+      {/* Fixed Background Elements - reduced blur on mobile for performance */}
       <div className="fixed inset-0 z-0">
         <div className="absolute inset-0 bg-[#F8FAFC]" />
         <div className="absolute inset-0 bg-grid-pattern opacity-[0.04]" />
-        <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-primary-500/10 blur-[120px] rounded-full animate-blob" />
-        <div className="absolute top-1/2 right-0 w-[500px] h-[500px] bg-cta-500/8 blur-[120px] rounded-full animate-blob" style={{ animationDelay: '2s' }} />
-        <div className="absolute bottom-0 left-1/3 w-[500px] h-[500px] bg-primary-300/15 blur-[120px] rounded-full animate-blob" style={{ animationDelay: '4s' }} />
+        {/* Smaller blobs with reduced blur on mobile, no animation on reduced-motion */}
+        <div className="absolute top-0 left-0 w-[300px] h-[300px] md:w-[500px] md:h-[500px] bg-primary-500/10 blur-[60px] md:blur-[120px] rounded-full animate-blob motion-reduce:animate-none" />
+        <div className="absolute top-1/2 right-0 w-[300px] h-[300px] md:w-[500px] md:h-[500px] bg-cta-500/8 blur-[60px] md:blur-[120px] rounded-full animate-blob motion-reduce:animate-none" style={{ animationDelay: '2s' }} />
+        <div className="absolute bottom-0 left-1/3 w-[300px] h-[300px] md:w-[500px] md:h-[500px] bg-primary-300/15 blur-[60px] md:blur-[120px] rounded-full animate-blob motion-reduce:animate-none" style={{ animationDelay: '4s' }} />
       </div>
 
       {/* Navigation */}

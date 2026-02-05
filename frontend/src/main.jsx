@@ -8,7 +8,18 @@ import { AuthProvider } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
 import './index.css'
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+// Remove splash loader once React mounts
+const removeLoader = () => {
+  const loader = document.getElementById('app-loader')
+  if (loader) {
+    loader.style.opacity = '0'
+    loader.style.transition = 'opacity 0.2s ease-out'
+    setTimeout(() => loader.remove(), 200)
+  }
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'))
+root.render(
   <React.StrictMode>
     <BrowserRouter>
       <ThemeProvider>
@@ -31,3 +42,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     </BrowserRouter>
   </React.StrictMode>,
 )
+
+// Remove splash loader after React has mounted
+removeLoader()

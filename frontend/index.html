@@ -62,8 +62,8 @@
   }
   </script>
 
-  <!-- Preload LCP image for faster rendering (local WebP) -->
-  <link rel="preload" as="image" href="/images/hero-truck.webp" type="image/webp" fetchpriority="high">
+  <!-- Preload LCP image (lower priority to not block JS) -->
+  <link rel="preload" as="image" href="/images/hero-truck.webp" type="image/webp" fetchpriority="low">
 
   <script>
     (function() {
@@ -95,8 +95,26 @@
   </noscript>
 </head>
 
-<body class="antialiased bg-black text-zinc-200">
-  <div id="root"></div>
+<body class="antialiased bg-zinc-100 text-zinc-800">
+  <!-- Inline spinner keyframes for immediate display -->
+  <style>
+    @keyframes app-spin { to { transform: rotate(360deg); } }
+    #app-loader { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: #f4f4f5; z-index: 9999; }
+    #app-loader svg { animation: app-spin 1s linear infinite; }
+    .dark #app-loader { background: #18181b; }
+    .dark #app-loader p { color: #a1a1aa; }
+  </style>
+  <div id="root">
+    <!-- Splash loader shown immediately while JS loads -->
+    <div id="app-loader">
+      <div style="text-align:center;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="#3b82f6" stroke-width="3" stroke-dasharray="31.4 31.4" stroke-linecap="round"/>
+        </svg>
+        <p style="margin-top:16px;color:#71717a;font-family:system-ui,sans-serif;font-size:14px;">Loading VroomX...</p>
+      </div>
+    </div>
+  </div>
   <script type="module" src="/src/main.jsx"></script>
 </body>
 
