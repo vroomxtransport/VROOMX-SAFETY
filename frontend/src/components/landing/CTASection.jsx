@@ -6,8 +6,8 @@ const CTASection = () => {
   const [sectionRef, sectionInView] = useInView({ threshold: 0.2 });
 
   return (
-    <section className="py-32 px-6 md:px-16 text-center relative overflow-hidden z-10 bg-primary-500">
-      <div className="absolute inset-0 bg-gradient-to-t from-primary-600/50 to-transparent pointer-events-none" />
+    <section className="py-32 px-6 md:px-16 text-center relative overflow-hidden z-10 bg-primary-700">
+      <div className="absolute inset-0 bg-gradient-to-t from-primary-800/50 to-transparent pointer-events-none" />
       <div
         ref={sectionRef}
         className={`max-w-3xl mx-auto relative z-10 transition-all duration-700 ${sectionInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
