@@ -7,6 +7,16 @@ import {
 import PublicHeader from '../components/PublicHeader';
 import {
   HeroSection,
+  HeroDesign1,
+  HeroDesign2,
+  HeroDesign3,
+  HeroDesign4,
+  HeroDesign5,
+  HeroDesign6,
+  HeroDesign7,
+  HeroDesign8,
+  HeroDesign9,
+  HeroDesign10,
   PricingSection,
   TestimonialsSection,
   FAQSection,
@@ -63,7 +73,7 @@ const Landing = () => {
       <PublicHeader activePage="landing" />
 
       {/* Hero Section */}
-      <HeroSection heroTextIndex={heroTextIndex} heroTexts={heroTexts} />
+      <HeroDesign5 heroTextIndex={heroTextIndex} heroTexts={heroTexts} />
 
       {/* Trust Badges Section */}
       <section className="relative z-10 py-8 border-y border-[#E2E8F0] bg-white/80 backdrop-blur-sm">

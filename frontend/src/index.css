@@ -1531,6 +1531,26 @@ h1, h2, h3, h4, h5, h6 {
   animation: float 3s ease-in-out infinite;
 }
 
+/* Mouse scroll indicator animation */
+@keyframes scrollDown {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  75% {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+}
+
+.animate-scroll-down {
+  animation: scrollDown 1.5s ease-in-out infinite;
+}
+
 /* ==================== ANIMATION PERFORMANCE ==================== */
 /* Optimize animations with will-change and GPU acceleration */
 .animate-blob {
@@ -1568,6 +1588,47 @@ h1, h2, h3, h4, h5, h6 {
 
   * {
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* ==================== SHARP CORPORATE UTILITIES ==================== */
+@layer utilities {
+  /* Tight letter spacing for corporate headlines */
+  .letter-tight {
+    letter-spacing: -0.02em;
+  }
+
+  .letter-tighter {
+    letter-spacing: -0.03em;
+  }
+
+  /* Thin border utility */
+  .border-thin {
+    border-width: 1px;
+  }
+
+  /* Grid lines background pattern */
+  .bg-grid-lines {
+    background-image:
+      linear-gradient(to right, rgba(30, 58, 95, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(30, 58, 95, 0.05) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  /* Geometric lines background pattern */
+  .bg-geometric-lines {
+    background-image:
+      linear-gradient(45deg, rgba(30, 58, 95, 0.03) 1px, transparent 1px),
+      linear-gradient(-45deg, rgba(30, 58, 95, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  /* Corporate grid background - larger squares */
+  .bg-corporate-grid {
+    background-image:
+      linear-gradient(to right, rgba(30, 58, 95, 0.08) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(30, 58, 95, 0.08) 1px, transparent 1px);
+    background-size: 80px 80px;
   }
 }
 
