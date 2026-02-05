@@ -770,7 +770,7 @@ export const HeroDesign5 = ({ heroTextIndex, heroTexts }) => {
   };
 
   return (
-    <section className="relative min-h-screen overflow-hidden">
+    <section className="relative min-h-[85vh] overflow-hidden">
       {/* Video Background */}
       <div className="absolute inset-0">
         <video
@@ -794,8 +794,8 @@ export const HeroDesign5 = ({ heroTextIndex, heroTexts }) => {
         }} />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 pt-32 pb-20 min-h-screen flex items-center">
-        <div className="grid lg:grid-cols-2 gap-16 items-center w-full">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 pt-24 pb-12 min-h-[85vh] flex items-center">
+        <div className="grid lg:grid-cols-2 gap-10 items-center w-full">
 
           {/* Left: Content */}
           <div className="text-white">
@@ -804,7 +804,7 @@ export const HeroDesign5 = ({ heroTextIndex, heroTexts }) => {
               LIVE COMPLIANCE MONITORING
             </div>
 
-            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black font-heading leading-[1.05] mb-6 text-white">
+            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-7xl font-black font-heading leading-[1.05] mb-6 text-white">
               Your Fleet.<br />
               <span className="text-cta-400">Protected.</span><br />
               <span className="text-white">24/7.</span>
