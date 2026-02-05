@@ -176,7 +176,7 @@ router.post('/register', [
   // Can be disabled by setting INCLUDE_TOKEN_IN_BODY=false in environment.
   res.status(201).json({
     success: true,
-    ...(process.env.INCLUDE_TOKEN_IN_BODY !== 'false' && { token }),
+    ...(process.env.INCLUDE_TOKEN_IN_BODY !== 'false' && { token, refreshToken }),
     user: {
       id: user._id,
       email: user.email,
@@ -369,7 +369,7 @@ router.post('/login', [
   // Can be disabled by setting INCLUDE_TOKEN_IN_BODY=false in environment.
   res.json({
     success: true,
-    ...(process.env.INCLUDE_TOKEN_IN_BODY !== 'false' && { token }),
+    ...(process.env.INCLUDE_TOKEN_IN_BODY !== 'false' && { token, refreshToken }),
     user: {
       id: user._id,
       email: user.email,
@@ -409,7 +409,7 @@ router.post('/login', [
 // @desc    Refresh access token using refresh token
 // @access  Public (with valid refresh token)
 router.post('/refresh', asyncHandler(async (req, res) => {
-  const refreshToken = req.cookies?.refreshToken;
+  const refreshToken = req.cookies?.refreshToken || req.body?.refreshToken;
 
   if (!refreshToken) {
     return res.status(401).json({
@@ -461,6 +461,7 @@ router.post('/refresh', asyncHandler(async (req, res) => {
     res.json({
       success: true,
       token: newToken,
+      refreshToken: newRefreshToken,
       message: 'Token refreshed successfully'
     });
   } catch (error) {
@@ -517,7 +518,9 @@ router.post('/demo-login', asyncHandler(async (req, res) => {
   await user.save({ validateBeforeSave: false });
 
   const token = generateToken(user._id, { isDemo: true });
+  const refreshToken = generateRefreshToken(user._id);
   setTokenCookie(res, token);
+  setRefreshTokenCookie(res, refreshToken);
 
   // Build companies list for response
   const companiesList = user.companies?.map(m => ({
@@ -534,7 +537,7 @@ router.post('/demo-login', asyncHandler(async (req, res) => {
   // Can be disabled by setting INCLUDE_TOKEN_IN_BODY=false in environment.
   res.json({
     success: true,
-    ...(process.env.INCLUDE_TOKEN_IN_BODY !== 'false' && { token }),
+    ...(process.env.INCLUDE_TOKEN_IN_BODY !== 'false' && { token, refreshToken }),
     isDemo: true,
     user: {
       id: user._id,
@@ -677,13 +680,16 @@ router.put('/updatepassword', protect, [
   await user.save();
 
   const token = generateToken(user._id);
+  const refreshToken = generateRefreshToken(user._id);
   setTokenCookie(res, token);
+  setRefreshTokenCookie(res, refreshToken);
 
   auditService.log(req, 'password_change', 'user', req.user._id, { summary: 'Password changed' });
 
   res.json({
     success: true,
     token,
+    refreshToken,
     message: 'Password updated successfully'
   });
 }));

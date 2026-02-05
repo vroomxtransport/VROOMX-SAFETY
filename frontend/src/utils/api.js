@@ -19,8 +19,26 @@ export const setAuthToken = (token) => {
   authToken = token;
 };
 
+// Refresh token stored in sessionStorage (survives page reloads within same tab).
+// This provides a cookie-independent refresh flow for cross-origin deployments
+// where httpOnly cookies may not be forwarded by the proxy.
+const REFRESH_TOKEN_KEY = 'vroomx_rt';
+
+export const setRefreshToken = (token) => {
+  try { if (token) sessionStorage.setItem(REFRESH_TOKEN_KEY, token); } catch {}
+};
+
+export const getRefreshToken = () => {
+  try { return sessionStorage.getItem(REFRESH_TOKEN_KEY); } catch { return null; }
+};
+
+export const clearRefreshToken = () => {
+  try { sessionStorage.removeItem(REFRESH_TOKEN_KEY); } catch {}
+};
+
 export const clearAuthToken = () => {
   authToken = null;
+  clearRefreshToken();
 };
 
 // Request interceptor — attach token to every request if available
@@ -81,13 +99,18 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // Attempt to refresh the token
-        const response = await api.post('/auth/refresh');
-        const { token } = response.data;
+        // Attempt to refresh the token (send from sessionStorage as body fallback for cross-origin)
+        const response = await api.post('/auth/refresh', {
+          refreshToken: getRefreshToken()
+        });
+        const { token, refreshToken: newRefreshToken } = response.data;
 
         if (token) {
           setAuthToken(token);
           originalRequest.headers.Authorization = `Bearer ${token}`;
+        }
+        if (newRefreshToken) {
+          setRefreshToken(newRefreshToken);
         }
 
         processQueue(null, token);
@@ -381,7 +404,7 @@ export const authAPI = {
   register: (data) => api.post('/auth/register', data),
   demoLogin: () => api.post('/auth/demo-login'),
   getMe: () => api.get('/auth/me'),
-  refresh: () => api.post('/auth/refresh'),
+  refresh: () => api.post('/auth/refresh', { refreshToken: getRefreshToken() }),
   updatePassword: (data) => api.put('/auth/updatepassword', data),
   updateEmailPreferences: (data) => api.put('/auth/email-preferences', data),
   forgotPassword: (email) => api.post('/auth/forgot-password', { email }),

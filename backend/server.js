@@ -87,7 +87,24 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Connect to database
-connectDB();
+connectDB().then(async () => {
+  // One-time cleanup: clear stale passwordChangedAt set by buggy logout code (Feb 2026).
+  // Uses a flag document to ensure this only runs once, not on every restart.
+  try {
+    const mongoose = require('mongoose');
+    const db = mongoose.connection.db;
+    const flag = await db.collection('migrations').findOne({ _id: 'clear_passwordChangedAt_v1' });
+    if (!flag) {
+      const User = require('./models/User');
+      const res = await User.updateMany(
+        { passwordChangedAt: { $exists: true } },
+        { $unset: { passwordChangedAt: '' } }
+      );
+      await db.collection('migrations').insertOne({ _id: 'clear_passwordChangedAt_v1', ranAt: new Date() });
+      if (res.modifiedCount > 0) console.log(`[Migration] Cleared stale passwordChangedAt from ${res.modifiedCount} users`);
+    }
+  } catch {}
+});
 
 // Security middleware - full Helmet configuration
 app.use(helmet({

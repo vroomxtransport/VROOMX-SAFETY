@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import api, { companiesAPI, setAuthToken, clearAuthToken } from '../utils/api';
+import api, { companiesAPI, setAuthToken, clearAuthToken, setRefreshToken, getRefreshToken } from '../utils/api';
 
 const AuthContext = createContext(null);
 
@@ -42,8 +42,11 @@ export const AuthProvider = ({ children }) => {
       // but refresh token is still valid — the interceptor skips refresh for /auth/me)
       if (error.response?.status === 401) {
         try {
-          const refreshRes = await api.post('/auth/refresh');
+          const refreshRes = await api.post('/auth/refresh', {
+            refreshToken: getRefreshToken()
+          });
           if (refreshRes.data.token) setAuthToken(refreshRes.data.token);
+          if (refreshRes.data.refreshToken) setRefreshToken(refreshRes.data.refreshToken);
           // Retry with new token
           const retryRes = await api.get('/auth/me');
           const userData = retryRes.data.user;
@@ -74,9 +77,10 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password, companyId = null) => {
     const response = await api.post('/auth/login', { email, password, companyId });
-    const { token, user: userData } = response.data;
-    // Store token in memory for Authorization header (works on all browsers/mobile)
+    const { token, refreshToken, user: userData } = response.data;
+    // Store tokens in memory for Authorization header (works on all browsers/mobile)
     if (token) setAuthToken(token);
+    if (refreshToken) setRefreshToken(refreshToken);
 
     setUser(userData);
     setCompanies(userData.companies || []);
@@ -88,9 +92,10 @@ export const AuthProvider = ({ children }) => {
 
   const demoLogin = async () => {
     const response = await api.post('/auth/demo-login');
-    const { token, user: userData } = response.data;
-    // Store token in memory for Authorization header
+    const { token, refreshToken, user: userData } = response.data;
+    // Store tokens in memory for Authorization header
     if (token) setAuthToken(token);
+    if (refreshToken) setRefreshToken(refreshToken);
 
     setUser({ ...userData, isDemo: true });
     setCompanies(userData.companies || []);
@@ -105,9 +110,10 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (data) => {
     const response = await api.post('/auth/register', data);
-    const { token, user: userData } = response.data;
-    // Store token in memory for Authorization header
+    const { token, refreshToken, user: userData } = response.data;
+    // Store tokens in memory for Authorization header
     if (token) setAuthToken(token);
+    if (refreshToken) setRefreshToken(refreshToken);
 
     setUser(userData);
     setCompanies(userData.companies || []);
@@ -123,7 +129,7 @@ export const AuthProvider = ({ children }) => {
     } catch {
       // Ignore errors — still clear local state
     }
-    clearAuthToken();
+    clearAuthToken(); // Also clears refresh token from sessionStorage
     setUser(null);
     setCompanies([]);
     setActiveCompany(null);
