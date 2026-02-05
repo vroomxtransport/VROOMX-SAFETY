@@ -1,6 +1,7 @@
 import React from 'react'
-import ReactDOM from 'react-dom/client'
+import { hydrateRoot, createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
+import { HelmetProvider } from 'react-helmet-async'
 import { Toaster } from 'react-hot-toast'
 import App from './App'
 import ErrorBoundary from './components/ErrorBoundary'
@@ -18,30 +19,40 @@ const removeLoader = () => {
   }
 }
 
-const root = ReactDOM.createRoot(document.getElementById('root'))
-root.render(
+const container = document.getElementById('root')
+
+const AppRoot = (
   <React.StrictMode>
-    <BrowserRouter>
-      <ThemeProvider>
-        <AuthProvider>
-          <ErrorBoundary>
-            <App />
-          </ErrorBoundary>
-          <Toaster
-            position="top-right"
-            toastOptions={{
-              duration: 4000,
-              style: {
-                background: 'var(--toast-bg, #333)',
-                color: 'var(--toast-color, #fff)',
-              },
-            }}
-          />
-        </AuthProvider>
-      </ThemeProvider>
-    </BrowserRouter>
-  </React.StrictMode>,
+    <HelmetProvider>
+      <BrowserRouter>
+        <ThemeProvider>
+          <AuthProvider>
+            <ErrorBoundary>
+              <App />
+            </ErrorBoundary>
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                duration: 4000,
+                style: {
+                  background: 'var(--toast-bg, #333)',
+                  color: 'var(--toast-color, #fff)',
+                },
+              }}
+            />
+          </AuthProvider>
+        </ThemeProvider>
+      </BrowserRouter>
+    </HelmetProvider>
+  </React.StrictMode>
 )
+
+// Use hydration if prerendered content exists (for SEO/react-snap)
+if (container.hasChildNodes()) {
+  hydrateRoot(container, AppRoot)
+} else {
+  createRoot(container).render(AppRoot)
+}
 
 // Remove splash loader after React has mounted
 removeLoader()
