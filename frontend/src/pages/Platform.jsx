@@ -711,6 +711,7 @@ const TimelineSection = () => {
         { icon: FiFolder, text: 'Secure cloud storage' },
       ],
       isAI: false,
+      preview: 'dqf',
     },
     {
       step: 2,
@@ -738,6 +739,7 @@ const TimelineSection = () => {
         { icon: FiTool, text: 'Custom schedules' },
       ],
       isAI: false,
+      preview: 'alerts',
     },
     {
       step: 4,
@@ -765,6 +767,7 @@ const TimelineSection = () => {
         { icon: FiAward, text: '40% avg success rate' },
       ],
       isAI: true,
+      preview: 'dataq',
     },
   ];
 
@@ -940,10 +943,157 @@ const TimelineItem = ({ step, icon: Icon, title, description, features, isAI, pr
         </div>
       )}
 
-      {/* Screenshot placeholder slot */}
-      {!preview && (
-        <div className="mt-6 aspect-video bg-gradient-to-br from-[#F1F5F9] to-[#E2E8F0] rounded-xl border-2 border-dashed border-[#CBD5E1] flex items-center justify-center">
-          <span className="text-sm text-[#94A3B8]">Screenshot coming soon</span>
+      {/* DQF Files Preview */}
+      {preview === 'dqf' && (
+        <div className="mt-6 p-4 rounded-xl bg-[#F8FAFC]">
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { icon: FiFileText, status: 'valid', badge: '✓ Valid', name: 'CDL License', detail: 'Class A \u2022 PA-12345678', expiry: 'Expires Mar 15, 2026', remaining: '245 days remaining', borderColor: 'border-success-200', badgeBg: 'bg-success-100', badgeText: 'text-success-700', iconBg: 'bg-success-50', iconText: 'text-success-600', expiryText: 'text-success-600' },
+              { icon: FiClipboard, status: 'warning', badge: '\u26A0 Expiring', name: 'Medical Card', detail: 'DOT Physical Exam', expiry: 'Expires Feb 23, 2025', remaining: '28 days remaining', borderColor: 'border-warning-200', badgeBg: 'bg-warning-100', badgeText: 'text-warning-700', iconBg: 'bg-warning-50', iconText: 'text-warning-600', expiryText: 'text-warning-600' },
+              { icon: FiSearch, status: 'valid', badge: '✓ Valid', name: 'MVR Report', detail: 'Motor Vehicle Record', expiry: 'Reviewed Oct 2024', remaining: 'Annual review current', borderColor: 'border-success-200', badgeBg: 'bg-success-100', badgeText: 'text-success-700', iconBg: 'bg-success-50', iconText: 'text-success-600', expiryText: 'text-success-600' },
+              { icon: FiAlertTriangle, status: 'expired', badge: '\u2717 Expired', name: 'Road Test Cert.', detail: '49 CFR 391.31', expiry: 'Expired Dec 1, 2024', remaining: '10 days overdue', borderColor: 'border-danger-200', badgeBg: 'bg-danger-100', badgeText: 'text-danger-700', iconBg: 'bg-danger-50', iconText: 'text-danger-600', expiryText: 'text-danger-600' },
+            ].map((doc, idx) => (
+              <div
+                key={idx}
+                className={`bg-white rounded-lg border-2 ${doc.borderColor} p-3 transition-all duration-700 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+                style={{ transitionDelay: `${idx * 150}ms` }}
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <div className={`w-9 h-9 rounded-lg ${doc.iconBg} ${doc.iconText} flex items-center justify-center`}>
+                    <doc.icon className="w-4 h-4" />
+                  </div>
+                  <span className={`px-2 py-0.5 ${doc.badgeBg} ${doc.badgeText} rounded-full text-[8px] font-semibold`}>{doc.badge}</span>
+                </div>
+                <div className="text-xs font-semibold text-zinc-800 mb-0.5">{doc.name}</div>
+                <div className="text-[10px] text-zinc-500">{doc.detail}</div>
+                <div className={`text-[9px] ${doc.expiryText} mt-2 font-medium`}>{doc.expiry}</div>
+                <div className="text-[8px] text-zinc-400">{doc.remaining}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Smart Alerts Preview */}
+      {preview === 'alerts' && (
+        <div className="mt-6 p-4 rounded-xl bg-[#F8FAFC]">
+          <div className="space-y-2.5">
+            {[
+              { severity: 'critical', borderColor: 'border-danger-500', iconBg: 'bg-danger-50', iconText: 'text-danger-600', badgeBg: 'bg-danger-100', badgeText: 'text-danger-700', icon: FiAlertTriangle, title: 'Medical Card Expired', desc: 'Robert Johnson \u2022 EMP-003', timeIcon: FiClock, timeText: 'Expired 5 days ago', timeColor: 'text-danger-600', extra: 'Driver non-compliant', label: 'Critical' },
+              { severity: 'warning', borderColor: 'border-warning-500', iconBg: 'bg-warning-50', iconText: 'text-warning-600', badgeBg: 'bg-warning-100', badgeText: 'text-warning-700', icon: FiCalendar, title: 'CDL Expiring Soon', desc: 'Maria Santos \u2022 EMP-002', timeIcon: FiClock, timeText: '28 days remaining', timeColor: 'text-warning-600', extra: 'Renewal reminder sent', label: 'Warning' },
+              { severity: 'info', borderColor: 'border-info-500', iconBg: 'bg-info-50', iconText: 'text-info-600', badgeBg: 'bg-info-100', badgeText: 'text-info-700', icon: FiActivity, title: 'BASIC Score Updated', desc: 'Crash Indicator increased to 72%', timeIcon: FiClock, timeText: 'Updated 2 hours ago', timeColor: 'text-info-600', extra: null, extraHighlight: '\u2191 +8%', label: 'Info' },
+            ].map((alert, idx) => (
+              <div
+                key={idx}
+                className={`bg-white rounded-lg border-l-4 ${alert.borderColor} p-3 flex items-start gap-3 transition-all duration-700 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}
+                style={{ transitionDelay: `${idx * 150}ms` }}
+              >
+                <div className={`w-9 h-9 rounded-lg ${alert.iconBg} ${alert.iconText} flex items-center justify-center flex-shrink-0`}>
+                  <alert.icon className="w-4 h-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <span className="text-xs font-semibold text-zinc-800">{alert.title}</span>
+                    <span className={`px-2 py-0.5 ${alert.badgeBg} ${alert.badgeText} rounded-full text-[8px] font-bold uppercase tracking-wide flex-shrink-0`}>{alert.label}</span>
+                  </div>
+                  <div className="text-[10px] text-zinc-600 mb-1.5">{alert.desc}</div>
+                  <div className="flex items-center gap-2 text-[9px]">
+                    <div className={`flex items-center gap-1 ${alert.timeColor}`}>
+                      <alert.timeIcon className="w-3 h-3" />
+                      <span className="font-medium">{alert.timeText}</span>
+                    </div>
+                    <span className="text-zinc-400">&bull;</span>
+                    {alert.extra && <span className="text-zinc-500">{alert.extra}</span>}
+                    {alert.extraHighlight && <span className="text-danger-600 font-medium">{alert.extraHighlight}</span>}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* DataQ Challenge Preview */}
+      {preview === 'dataq' && (
+        <div className="mt-6 p-4 rounded-xl bg-indigo-50">
+          {/* Violation Card */}
+          <div
+            className={`bg-white rounded-lg border border-indigo-200 p-3 mb-3 transition-all duration-700 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+          >
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-lg bg-warning-50 text-warning-600 flex items-center justify-center flex-shrink-0">
+                <FiAlertTriangle className="w-4 h-4" />
+              </div>
+              <div className="flex-1">
+                <div className="text-xs font-semibold text-zinc-800 mb-0.5">Vehicle Maintenance Violation</div>
+                <div className="text-[10px] text-zinc-500">Inspection #IR-2024-00834</div>
+                <div className="flex items-center gap-2 mt-1.5 text-[9px]">
+                  <span className="text-zinc-600">Nov 15, 2024</span>
+                  <span className="text-zinc-400">&bull;</span>
+                  <span className="px-1.5 py-0.5 bg-warning-100 text-warning-700 rounded text-[8px] font-medium">4 points</span>
+                </div>
+              </div>
+            </div>
+            <div className="mt-2 p-2 bg-zinc-50 rounded text-[9px] text-zinc-600 leading-relaxed italic">
+              &ldquo;Brake out of adjustment&rdquo; &mdash; Level 2 roadside inspection in Ohio
+            </div>
+          </div>
+
+          {/* AI Detection Badge */}
+          <div
+            className={`flex items-center justify-center gap-2 mb-3 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}
+            style={{ transitionDelay: '150ms' }}
+          >
+            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-indigo-300 to-transparent"></div>
+            <div className="px-3 py-1.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg text-[9px] font-bold uppercase tracking-wide flex items-center gap-1.5 shadow-md">
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9 9l-7 3 7 3 3 7 3-7 7-3-7-3-3-7z"/></svg>
+              Challenge Recommended
+            </div>
+            <div className="flex-1 h-px bg-gradient-to-r from-indigo-300 via-transparent to-transparent"></div>
+          </div>
+
+          {/* DataQ Letter Preview */}
+          <div
+            className={`bg-white rounded-lg border border-indigo-200 p-3 mb-3 transition-all duration-700 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+            style={{ transitionDelay: '300ms' }}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <FiFileText className="w-4 h-4 text-indigo-600" />
+                <span className="text-xs font-semibold text-zinc-800">DataQ Letter Generated</span>
+              </div>
+              <span className="px-2 py-0.5 bg-success-100 text-success-700 rounded-full text-[8px] font-medium">✓ Ready</span>
+            </div>
+            <div className="bg-gradient-to-br from-zinc-50 to-zinc-100 rounded p-2.5 border border-zinc-200">
+              <div className="text-[9px] text-zinc-700 leading-relaxed space-y-1">
+                <p className="font-mono">TO: FMCSA DataQs System</p>
+                <p className="font-mono">RE: Challenge to Inspection #IR-2024-00834</p>
+                <div className="h-px bg-zinc-300 my-1.5"></div>
+                <p className="italic text-zinc-600">We respectfully challenge the &ldquo;brake out of adjustment&rdquo; violation based on documented maintenance records showing brake system adjustment performed 3 days prior to inspection...</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Success Metrics */}
+          <div
+            className={`bg-white rounded-lg border border-indigo-200 p-3 transition-all duration-700 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+            style={{ transitionDelay: '450ms' }}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-semibold text-zinc-800">Historical Success Rate</span>
+              <span className="text-xs font-bold text-success-600">40%</span>
+            </div>
+            <div className="h-2 bg-zinc-100 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-success-500 to-success-400 rounded-full transition-all duration-1000"
+                style={{ width: isVisible ? '40%' : '0%' }}
+              />
+            </div>
+            <div className="flex items-center justify-between mt-2 text-[9px] text-zinc-500">
+              <span>126 challenges submitted</span>
+              <span className="text-success-600 font-medium">50 violations removed</span>
+            </div>
+          </div>
         </div>
       )}
     </div>
