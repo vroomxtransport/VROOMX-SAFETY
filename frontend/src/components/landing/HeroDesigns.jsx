@@ -12,6 +12,14 @@ import {
   FiAlertTriangle,
   FiBarChart2,
   FiClock,
+  FiTruck,
+  FiAlertCircle,
+  FiDroplet,
+  FiShield,
+  FiUser,
+  FiRefreshCw,
+  FiActivity,
+  FiCheckCircle,
 } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
 
@@ -687,11 +695,32 @@ export const HeroDesign4 = ({ heroTextIndex, heroTexts }) => {
  * Design 5: Video Background with Floating Action Panel
  * Full-width video background, condensed action panel floating center-right with form/CTA
  */
+// BASIC category configuration for inline display
+const BASIC_CONFIG = [
+  { key: 'unsafeDriving', name: 'Unsafe Driving', shortName: 'Unsafe Drv', threshold: 65, icon: FiAlertTriangle },
+  { key: 'hosCompliance', name: 'HOS Compliance', shortName: 'HOS', threshold: 65, icon: FiClock },
+  { key: 'vehicleMaintenance', name: 'Vehicle Maint', shortName: 'Vehicle', threshold: 80, icon: FiTruck },
+  { key: 'crashIndicator', name: 'Crash Indicator', shortName: 'Crash', threshold: 65, icon: FiAlertCircle },
+  { key: 'controlledSubstances', name: 'Ctrl Substances', shortName: 'Drug/Alc', threshold: 80, icon: FiDroplet },
+  { key: 'hazmatCompliance', name: 'Hazmat', shortName: 'Hazmat', threshold: 80, icon: FiShield },
+  { key: 'driverFitness', name: 'Driver Fitness', shortName: 'Fitness', threshold: 80, icon: FiUser }
+];
+
+const getScoreStatus = (score, threshold) => {
+  if (score === null || score === undefined) return { color: 'gray', status: 'none' };
+  if (score >= threshold) return { color: 'red', status: 'danger' };
+  if (score >= threshold - 15) return { color: 'amber', status: 'warning' };
+  return { color: 'green', status: 'good' };
+};
+
 export const HeroDesign5 = ({ heroTextIndex, heroTexts }) => {
   const navigate = useNavigate();
   const { demoLogin } = useAuth();
   const [demoLoading, setDemoLoading] = useState(false);
   const [dotNumber, setDotNumber] = useState('');
+  const [csaStep, setCsaStep] = useState('input'); // 'input' | 'loading' | 'preview'
+  const [carrierData, setCarrierData] = useState(null);
+  const [csaError, setCsaError] = useState(null);
 
   const handleTryDemo = async () => {
     setDemoLoading(true);
@@ -706,10 +735,38 @@ export const HeroDesign5 = ({ heroTextIndex, heroTexts }) => {
     }
   };
 
-  const handleCheckScore = () => {
-    if (dotNumber.trim()) {
-      navigate(`/csa-checker?dot=${dotNumber.trim()}`);
+  const handleCheckScore = async () => {
+    if (!dotNumber.trim()) return;
+
+    setCsaError(null);
+    setCsaStep('loading');
+
+    try {
+      const response = await fetch('/api/csa-checker/lookup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ carrierNumber: dotNumber.trim() })
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.error || 'Carrier not found');
+      }
+
+      setCarrierData(data.data);
+      setCsaStep('preview');
+    } catch (err) {
+      setCsaError(err.message);
+      setCsaStep('input');
     }
+  };
+
+  const handleReset = () => {
+    setCsaStep('input');
+    setDotNumber('');
+    setCarrierData(null);
+    setCsaError(null);
   };
 
   return (
@@ -802,96 +859,245 @@ export const HeroDesign5 = ({ heroTextIndex, heroTexts }) => {
               <div className="absolute inset-0 bg-grid-lines opacity-[0.03] pointer-events-none" />
 
               <div className="relative">
-                {/* Header */}
-                <div className="text-center mb-5">
-                  <h2 className="text-2xl font-bold text-primary-500 mb-1">Check Your CSA Score</h2>
-                  <p className="text-zinc-500 text-base">Free instant lookup — no signup required</p>
-                </div>
+                {/* ===== INPUT STATE ===== */}
+                {csaStep === 'input' && (
+                  <>
+                    {/* Header */}
+                    <div className="text-center mb-5">
+                      <h2 className="text-2xl font-bold text-primary-500 mb-1">Check Your CSA Score</h2>
+                      <p className="text-zinc-500 text-base">Free instant lookup — no signup required</p>
+                    </div>
 
-                {/* Live activity indicator */}
-                <div className="flex items-center justify-center gap-2 mb-4 text-xs text-zinc-500">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
-                  </span>
-                  <span>247 checks in the last hour</span>
-                </div>
+                    {/* Live activity indicator */}
+                    <div className="flex items-center justify-center gap-2 mb-4 text-xs text-zinc-500">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+                      </span>
+                      <span>247 checks in the last hour</span>
+                    </div>
 
-                {/* Form */}
-                <div className="space-y-3 mb-5">
-                  <div>
-                    <label className="block text-sm font-semibold text-zinc-700 mb-1.5">DOT Number</label>
-                    <input
-                      type="text"
-                      value={dotNumber}
-                      onChange={(e) => setDotNumber(e.target.value)}
-                      placeholder="Enter your DOT#"
-                      className="w-full px-4 py-3 rounded-xl border-2 border-[#E2E8F0] bg-white/80
-                                 focus:border-cta-500 focus:shadow-[0_0_0_4px_rgba(249,115,22,0.15)]
-                                 transition-all duration-200 placeholder:text-zinc-400"
-                      onKeyDown={(e) => e.key === 'Enter' && handleCheckScore()}
-                    />
+                    {/* Form */}
+                    <div className="space-y-3 mb-5">
+                      <div>
+                        <label className="block text-sm font-semibold text-zinc-700 mb-1.5">DOT Number</label>
+                        <input
+                          type="text"
+                          value={dotNumber}
+                          onChange={(e) => setDotNumber(e.target.value)}
+                          placeholder="Enter your DOT#"
+                          className="w-full px-4 py-3 rounded-xl border-2 border-[#E2E8F0] bg-white/80
+                                     focus:border-cta-500 focus:shadow-[0_0_0_4px_rgba(249,115,22,0.15)]
+                                     transition-all duration-200 placeholder:text-zinc-400"
+                          onKeyDown={(e) => e.key === 'Enter' && handleCheckScore()}
+                        />
+                        {csaError && (
+                          <p className="mt-2 text-red-500 text-sm flex items-center gap-1">
+                            <FiAlertCircle className="w-4 h-4" />
+                            {csaError}
+                          </p>
+                        )}
+                      </div>
+                      <button
+                        onClick={handleCheckScore}
+                        className="w-full py-3.5 rounded-xl font-bold text-white bg-gradient-to-r from-cta-500 to-cta-600
+                                   hover:shadow-lg hover:shadow-cta-500/40 hover:-translate-y-0.5
+                                   active:translate-y-0 transition-all duration-200 flex items-center justify-center gap-2"
+                      >
+                        Check My Score
+                        <FiArrowRight className="w-5 h-5" />
+                      </button>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="relative my-4">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-[#E2E8F0]" />
+                      </div>
+                      <div className="relative flex justify-center">
+                        <span className="px-4 bg-white text-sm text-zinc-400">or</span>
+                      </div>
+                    </div>
+
+                    {/* Alt Actions */}
+                    <div className="flex gap-3">
+                      <Link
+                        to="/pricing"
+                        className="flex-1 py-3 rounded-xl font-semibold text-center text-primary-500 bg-primary-50 hover:bg-primary-100 transition-colors"
+                      >
+                        View Pricing
+                      </Link>
+                      <button
+                        onClick={handleTryDemo}
+                        disabled={demoLoading}
+                        className="flex-1 py-3 rounded-xl font-semibold text-center text-white bg-primary-500 hover:bg-primary-600 transition-colors flex items-center justify-center gap-2"
+                      >
+                        {demoLoading ? (
+                          <FiLoader className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <>
+                            <FiPlay className="w-4 h-4" />
+                            Try Demo
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    {/* Enhanced trust badges */}
+                    <div className="mt-5 pt-5 border-t border-[#E2E8F0] grid grid-cols-3 gap-2">
+                      <div className="flex flex-col items-center gap-1">
+                        <FiLock className="w-4 h-4 text-green-500" />
+                        <span className="text-xs font-medium text-zinc-600">SSL Secure</span>
+                      </div>
+                      <div className="flex flex-col items-center gap-1">
+                        <FiCheck className="w-4 h-4 text-blue-500" />
+                        <span className="text-xs font-medium text-zinc-600">No Card Needed</span>
+                      </div>
+                      <div className="flex flex-col items-center gap-1">
+                        <FiClock className="w-4 h-4 text-cta-500" />
+                        <span className="text-xs font-medium text-zinc-600">5 Min Setup</span>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* ===== LOADING STATE ===== */}
+                {csaStep === 'loading' && (
+                  <div className="py-8 text-center">
+                    <div className="inline-flex items-center gap-2 mb-4">
+                      <FiActivity className="w-5 h-5 text-cta-500 animate-pulse" />
+                      <span className="text-sm text-primary-500 font-mono uppercase tracking-wider">Scanning FMCSA</span>
+                    </div>
+                    <div className="max-w-xs mx-auto mb-4">
+                      <div className="h-2 bg-[#E2E8F0] rounded-full overflow-hidden">
+                        <div className="h-full bg-gradient-to-r from-cta-600 to-cta-400 rounded-full animate-pulse w-3/4" />
+                      </div>
+                    </div>
+                    <p className="text-xs text-zinc-500 font-mono">{dotNumber}</p>
                   </div>
-                  <button
-                    onClick={handleCheckScore}
-                    className="w-full py-3.5 rounded-xl font-bold text-white bg-gradient-to-r from-cta-500 to-cta-600
-                               hover:shadow-lg hover:shadow-cta-500/40 hover:-translate-y-0.5
-                               active:translate-y-0 transition-all duration-200 flex items-center justify-center gap-2"
-                  >
-                    Check My Score
-                    <FiArrowRight className="w-5 h-5" />
-                  </button>
-                </div>
+                )}
 
-                {/* Divider */}
-                <div className="relative my-4">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-[#E2E8F0]" />
-                  </div>
-                  <div className="relative flex justify-center">
-                    <span className="px-4 bg-white text-sm text-zinc-400">or</span>
-                  </div>
-                </div>
+                {/* ===== PREVIEW STATE ===== */}
+                {csaStep === 'preview' && carrierData && (
+                  <div className="space-y-4">
+                    {/* Carrier Header */}
+                    <div className="pb-3 border-b border-[#E2E8F0]">
+                      <div className="flex items-start justify-between gap-2 mb-1">
+                        <h3 className="text-base font-bold text-primary-500 truncate flex-1">
+                          {carrierData.carrier?.legalName || 'Unknown Carrier'}
+                        </h3>
+                        <button
+                          onClick={handleReset}
+                          className="text-xs text-zinc-500 hover:text-zinc-700 flex items-center gap-1"
+                        >
+                          <FiRefreshCw className="w-3 h-3" />
+                          New
+                        </button>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-zinc-600 font-mono">
+                        {carrierData.carrier?.mcNumber && <span>MC-{carrierData.carrier.mcNumber}</span>}
+                        {carrierData.carrier?.mcNumber && carrierData.carrier?.dotNumber && <span className="text-zinc-400">|</span>}
+                        {carrierData.carrier?.dotNumber && <span>DOT-{carrierData.carrier.dotNumber}</span>}
+                        <span className="text-zinc-400">|</span>
+                        <span className={carrierData.carrier?.operatingStatus === 'ACTIVE' ? 'text-emerald-500' : 'text-red-500'}>
+                          {carrierData.carrier?.operatingStatus || 'N/A'}
+                        </span>
+                      </div>
+                    </div>
 
-                {/* Alt Actions */}
-                <div className="flex gap-3">
-                  <Link
-                    to="/pricing"
-                    className="flex-1 py-3 rounded-xl font-semibold text-center text-primary-500 bg-primary-50 hover:bg-primary-100 transition-colors"
-                  >
-                    View Pricing
-                  </Link>
-                  <button
-                    onClick={handleTryDemo}
-                    disabled={demoLoading}
-                    className="flex-1 py-3 rounded-xl font-semibold text-center text-white bg-primary-500 hover:bg-primary-600 transition-colors flex items-center justify-center gap-2"
-                  >
-                    {demoLoading ? (
-                      <FiLoader className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <>
-                        <FiPlay className="w-4 h-4" />
-                        Try Demo
-                      </>
+                    {/* Risk Level Badge */}
+                    {carrierData.riskLevel && (
+                      <div className={`px-3 py-2 rounded-lg text-center ${
+                        carrierData.riskLevel === 'HIGH' ? 'bg-red-500' :
+                        carrierData.riskLevel === 'MODERATE' ? 'bg-amber-500' : 'bg-emerald-500'
+                      }`}>
+                        <span className="text-[10px] text-white/80 uppercase tracking-wider">Risk Level</span>
+                        <p className="text-lg font-bold text-white">{carrierData.riskLevel} RISK</p>
+                      </div>
                     )}
-                  </button>
-                </div>
 
-                {/* Enhanced trust badges */}
-                <div className="mt-5 pt-5 border-t border-[#E2E8F0] grid grid-cols-3 gap-2">
-                  <div className="flex flex-col items-center gap-1">
-                    <FiLock className="w-4 h-4 text-green-500" />
-                    <span className="text-xs font-medium text-zinc-600">SSL Secure</span>
+                    {/* Alert Banner */}
+                    {carrierData.alerts?.count > 0 && (
+                      <div className="px-3 py-2 rounded-lg bg-red-50 border border-red-200 flex items-center gap-2">
+                        <FiAlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" />
+                        <span className="text-xs text-red-600 font-medium">
+                          {carrierData.alerts.count} BASIC{carrierData.alerts.count > 1 ? 's' : ''} flagged
+                        </span>
+                      </div>
+                    )}
+
+                    {/* BASIC Scores */}
+                    <div>
+                      <div className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider mb-2">BASIC Scores</div>
+                      <div className="space-y-1">
+                        {BASIC_CONFIG.map((basic) => {
+                          const score = carrierData.basics?.[basic.key];
+                          const status = getScoreStatus(score, basic.threshold);
+                          const Icon = basic.icon;
+                          const barColors = {
+                            green: 'bg-emerald-500',
+                            amber: 'bg-amber-500',
+                            red: 'bg-red-500',
+                            gray: 'bg-gray-400'
+                          };
+                          const textColors = {
+                            green: 'text-emerald-600',
+                            amber: 'text-amber-600',
+                            red: 'text-red-600',
+                            gray: 'text-zinc-400'
+                          };
+                          return (
+                            <div key={basic.key} className="flex items-center gap-2 py-0.5">
+                              <Icon className={`w-3 h-3 flex-shrink-0 ${textColors[status.color]} opacity-60`} />
+                              <span className="w-16 text-[10px] text-zinc-600 truncate">{basic.shortName}</span>
+                              <div className="flex-1 h-1.5 bg-[#E2E8F0] rounded-full overflow-hidden">
+                                <div
+                                  className={`h-full rounded-full ${barColors[status.color]} transition-all duration-500`}
+                                  style={{ width: `${score ?? 0}%` }}
+                                />
+                              </div>
+                              <span className={`w-8 text-right text-[10px] font-mono font-medium ${textColors[status.color]}`}>
+                                {score !== null && score !== undefined ? `${score}%` : '—'}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-2 pt-2">
+                      <button
+                        onClick={() => navigate(`/csa-checker?dot=${dotNumber.trim()}`)}
+                        className="flex-1 py-2.5 rounded-xl font-bold text-white bg-gradient-to-r from-cta-500 to-cta-600
+                                   hover:shadow-lg hover:shadow-cta-500/40 transition-all text-sm flex items-center justify-center gap-2"
+                      >
+                        Get Full Report
+                        <FiArrowRight className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={handleReset}
+                        className="px-4 py-2.5 rounded-xl font-semibold text-zinc-600 bg-zinc-100 hover:bg-zinc-200 transition-colors text-sm"
+                      >
+                        Check Another
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex flex-col items-center gap-1">
-                    <FiCheck className="w-4 h-4 text-blue-500" />
-                    <span className="text-xs font-medium text-zinc-600">No Card Needed</span>
+                )}
+
+                {/* Trust badges for preview state */}
+                {csaStep !== 'input' && csaStep !== 'loading' && (
+                  <div className="mt-4 pt-4 border-t border-[#E2E8F0] flex items-center justify-center gap-4 text-xs text-zinc-500">
+                    <div className="flex items-center gap-1">
+                      <FiCheckCircle className="w-3 h-3 text-emerald-500" />
+                      <span>Live FMCSA Data</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <FiLock className="w-3 h-3 text-blue-500" />
+                      <span>Secure</span>
+                    </div>
                   </div>
-                  <div className="flex flex-col items-center gap-1">
-                    <FiClock className="w-4 h-4 text-cta-500" />
-                    <span className="text-xs font-medium text-zinc-600">5 Min Setup</span>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
