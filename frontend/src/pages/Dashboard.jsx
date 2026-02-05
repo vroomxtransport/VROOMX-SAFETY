@@ -51,8 +51,8 @@ const Dashboard = () => {
       const [dashboardRes, trendRes, complianceRes, historyRes, benchmarkRes, inspectionsRes, riskDriversRes, syncStatusRes] = await Promise.all([
         dashboardAPI.get(),
         csaAPI.getTrendSummary(30).catch(() => null),
-        complianceScoreAPI.getComplianceScore().catch(() => null),
-        dashboardAPI.getComplianceHistory(30).catch(() => null),
+        complianceScoreAPI.get().catch(() => null),
+        complianceScoreAPI.getHistory(30).catch(() => null),
         csaAPI.getBenchmark().catch(() => null),
         fmcsaInspectionsAPI.getRecent(5).catch(() => null),
         driversAPI.getRiskRanking(5).catch(() => null),

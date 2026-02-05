@@ -217,17 +217,6 @@ router.post('/register', [
 // @desc    Logout user (clear httpOnly cookies)
 // @access  Public
 router.post('/logout', asyncHandler(async (req, res) => {
-  // Invalidate existing tokens by updating passwordChangedAt
-  try {
-    const token = req.cookies?.token || (req.headers.authorization?.startsWith('Bearer') ? req.headers.authorization.split(' ')[1] : null);
-    if (token) {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
-      await User.findByIdAndUpdate(decoded.id, { $set: { passwordChangedAt: new Date() } });
-    }
-  } catch (_) {
-    // Token verification may fail on logout - that's fine, just clear cookies
-  }
-
   // Clear access token
   res.cookie('token', '', {
     httpOnly: true,
