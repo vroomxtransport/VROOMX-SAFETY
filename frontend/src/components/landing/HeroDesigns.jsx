@@ -747,13 +747,13 @@ export const HeroDesign5 = ({ heroTextIndex, heroTexts }) => {
               LIVE COMPLIANCE MONITORING
             </div>
 
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-black font-heading leading-[1.05] mb-6 text-white">
+            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black font-heading leading-[1.05] mb-6 text-white">
               Your Fleet.<br />
               <span className="text-cta-400">Protected.</span><br />
               <span className="text-white">24/7.</span>
             </h1>
 
-            <p className="text-lg text-white/70 max-w-lg mb-8 leading-relaxed">
+            <p className="text-xl text-white/70 max-w-lg mb-8 leading-relaxed">
               Real-time FMCSA compliance monitoring, automated alerts, and audit-ready
               documentation — all in one powerful platform.
             </p>
@@ -768,7 +768,7 @@ export const HeroDesign5 = ({ heroTextIndex, heroTexts }) => {
               ].map((feature, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <FiCheck className="w-5 h-5 text-success-400 flex-shrink-0" />
-                  <span className="text-sm text-white/80">{feature}</span>
+                  <span className="text-base text-white/80">{feature}</span>
                 </div>
               ))}
             </div>
@@ -797,15 +797,15 @@ export const HeroDesign5 = ({ heroTextIndex, heroTexts }) => {
             {/* Glow effect */}
             <div className="absolute -inset-6 bg-cta-500/20 blur-3xl rounded-3xl" />
 
-            <div className="relative bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-2xl border border-white/20 overflow-hidden">
+            <div className="relative bg-white/80 backdrop-blur-xl rounded-2xl p-8 shadow-2xl border border-white/20 overflow-hidden">
               {/* Subtle grid pattern */}
               <div className="absolute inset-0 bg-grid-lines opacity-[0.03] pointer-events-none" />
 
               <div className="relative">
                 {/* Header */}
                 <div className="text-center mb-5">
-                  <h2 className="text-xl font-bold text-primary-500 mb-1">Check Your CSA Score</h2>
-                  <p className="text-zinc-500 text-sm">Free instant lookup — no signup required</p>
+                  <h2 className="text-2xl font-bold text-primary-500 mb-1">Check Your CSA Score</h2>
+                  <p className="text-zinc-500 text-base">Free instant lookup — no signup required</p>
                 </div>
 
                 {/* Live activity indicator */}
