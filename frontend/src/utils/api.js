@@ -36,8 +36,12 @@ export const clearRefreshToken = () => {
   try { sessionStorage.removeItem(REFRESH_TOKEN_KEY); } catch {}
 };
 
-export const clearAuthToken = () => {
+const clearAccessToken = () => {
   authToken = null;
+};
+
+export const clearAuthToken = () => {
+  clearAccessToken();
   clearRefreshToken();
 };
 
@@ -75,10 +79,13 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       const url = originalRequest?.url || '';
 
-      // Don't try to refresh for auth endpoints or refresh endpoint itself
-      if (url.includes('/auth/login') || url.includes('/auth/refresh') || url.includes('/auth/me')) {
-        // Just clear token and reject - let AuthContext handle the UI flow
-        // Don't redirect here: /auth/me 401 is expected for unauthenticated users
+      // Don't try to refresh for auth endpoints or refresh endpoint itself.
+      // Keep refresh token for /auth/me so AuthContext can recover the session.
+      if (url.includes('/auth/me')) {
+        clearAccessToken();
+        return Promise.reject(error);
+      }
+      if (url.includes('/auth/login') || url.includes('/auth/refresh')) {
         clearAuthToken();
         return Promise.reject(error);
       }
