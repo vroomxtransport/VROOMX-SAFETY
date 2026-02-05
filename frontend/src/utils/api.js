@@ -59,11 +59,9 @@ api.interceptors.response.use(
 
       // Don't try to refresh for auth endpoints or refresh endpoint itself
       if (url.includes('/auth/login') || url.includes('/auth/refresh') || url.includes('/auth/me')) {
-        // Clear token and redirect to login (unless already there)
+        // Just clear token and reject - let AuthContext handle the UI flow
+        // Don't redirect here: /auth/me 401 is expected for unauthenticated users
         clearAuthToken();
-        if (!window.location.pathname.startsWith('/login')) {
-          window.location.href = '/login';
-        }
         return Promise.reject(error);
       }
 
