@@ -296,6 +296,32 @@ router.post('/:id/documents', checkPermission('drugAlcohol', 'edit'),
   })
 );
 
+// @route   DELETE /api/drug-alcohol/:id
+// @desc    Soft delete test record (compliance retention)
+// @access  Private
+router.delete('/:id', checkPermission('drugAlcohol', 'delete'), asyncHandler(async (req, res) => {
+  const test = await DrugAlcoholTest.findOne({
+    _id: req.params.id,
+    ...req.companyFilter
+  });
+
+  if (!test) {
+    throw new AppError('Test record not found', 404);
+  }
+
+  test.isDeleted = true;
+  test.deletedAt = new Date();
+  test.deletedBy = req.user._id;
+  await test.save();
+
+  auditService.log(req, 'delete', 'drug_alcohol_test', req.params.id, { testType: test.testType, driverId: test.driverId });
+
+  res.json({
+    success: true,
+    message: 'Test record deleted'
+  });
+}));
+
 // @route   POST /api/drug-alcohol/clearinghouse-query
 // @desc    Record clearinghouse query for driver
 // @access  Private

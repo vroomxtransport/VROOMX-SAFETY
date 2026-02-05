@@ -57,7 +57,7 @@ const DataTable = ({
                       <span className="text-xs font-semibold text-primary-500 dark:text-primary-400 uppercase tracking-wider shrink-0">
                         {col.header}
                       </span>
-                      <span className="text-xs text-primary-700 dark:text-primary-300 text-right">
+                      <span className="text-primary-700 dark:text-primary-300">
                         {col.render ? col.render(row) : row[col.accessor]}
                       </span>
                     </div>
@@ -144,6 +144,7 @@ const DataTable = ({
           </p>
           <div className="flex items-center gap-1">
             <button
+              aria-label="Previous page"
               className="p-2 text-zinc-600 dark:text-zinc-300 hover:text-primary-700 dark:hover:text-primary-200 hover:bg-primary-100 dark:hover:bg-primary-700 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               onClick={() => onPageChange(page - 1)}
               disabled={page <= 1}
@@ -181,6 +182,7 @@ const DataTable = ({
             </div>
 
             <button
+              aria-label="Next page"
               className="p-2 text-zinc-600 dark:text-zinc-300 hover:text-primary-700 dark:hover:text-primary-200 hover:bg-primary-100 dark:hover:bg-primary-700 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               onClick={() => onPageChange(page + 1)}
               disabled={page >= totalPages}

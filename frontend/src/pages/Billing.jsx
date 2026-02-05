@@ -8,6 +8,7 @@ import {
 } from 'react-icons/fi';
 import LoadingSpinner from '../components/LoadingSpinner';
 import VroomXLogo from '../components/VroomXLogo';
+import Modal from '../components/Modal';
 import ConfirmDialog from '../components/ConfirmDialog';
 
 const Billing = () => {
@@ -789,96 +790,94 @@ const Billing = () => {
       </div>
 
       {/* Upgrade Confirmation Modal */}
-      {upgradeModal.open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => !upgradeModal.loading && setUpgradeModal({ open: false, plan: null, preview: null, loading: false })} />
-          <div className="relative bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-2xl max-w-md w-full p-6">
-            <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 mb-1">
-              Upgrade to {upgradeModal.plan?.charAt(0).toUpperCase() + upgradeModal.plan?.slice(1)}
-            </h3>
-            <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-5">
-              Your plan will be upgraded immediately with prorated billing.
+      <Modal
+        isOpen={upgradeModal.open}
+        onClose={() => !upgradeModal.loading && setUpgradeModal({ open: false, plan: null, preview: null, loading: false })}
+        title={`Upgrade to ${upgradeModal.plan?.charAt(0).toUpperCase()}${upgradeModal.plan?.slice(1) || ''}`}
+        icon={FiArrowUp}
+        size="sm"
+      >
+        <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-5">
+          Your plan will be upgraded immediately with prorated billing.
+        </p>
+
+        {upgradeModal.loading && !upgradeModal.preview ? (
+          <div className="flex items-center justify-center py-8">
+            <LoadingSpinner size="lg" />
+            <span className="ml-3 text-zinc-600 dark:text-zinc-300">Calculating proration...</span>
+          </div>
+        ) : upgradeModal.preview ? (
+          <>
+            <div className="space-y-3 mb-6">
+              <div className="flex items-center justify-between p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800">
+                <span className="text-sm text-zinc-600 dark:text-zinc-300">Current Plan</span>
+                <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 capitalize">
+                  {upgradeModal.preview.currentPlan} — ${upgradeModal.preview.currentMonthlyPrice}/mo
+                </span>
+              </div>
+              <div className="flex items-center justify-between p-3 rounded-lg bg-accent-50 dark:bg-accent-900/20 border border-accent-200 dark:border-accent-700">
+                <span className="text-sm text-zinc-600 dark:text-zinc-300">New Plan</span>
+                <span className="text-sm font-semibold text-accent-700 dark:text-accent-400 capitalize">
+                  {upgradeModal.preview.newPlan} — ${upgradeModal.preview.newMonthlyPrice}/mo
+                </span>
+              </div>
+              {upgradeModal.preview.credit > 0 && (
+                <div className="flex items-center justify-between p-2 px-3 rounded-lg bg-success-50 dark:bg-success-900/10">
+                  <span className="text-xs text-success-700 dark:text-success-400">Credit for unused {upgradeModal.preview.currentPlan} time</span>
+                  <span className="text-sm font-medium text-success-700 dark:text-success-400">
+                    -${upgradeModal.preview.credit.toFixed(2)}
+                  </span>
+                </div>
+              )}
+              {upgradeModal.preview.prorationCharge > 0 && (
+                <div className="flex items-center justify-between p-2 px-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/50">
+                  <span className="text-xs text-zinc-600 dark:text-zinc-400">Prorated {upgradeModal.preview.newPlan} for remaining period</span>
+                  <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                    +${upgradeModal.preview.prorationCharge.toFixed(2)}
+                  </span>
+                </div>
+              )}
+              <div className="flex items-center justify-between p-3 rounded-lg bg-primary-50 dark:bg-zinc-800 border border-primary-200 dark:border-zinc-700">
+                <div>
+                  <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">Net Charge Today</span>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">Prorated difference applied now</p>
+                </div>
+                <span className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                  ${upgradeModal.preview.immediateCharge.toFixed(2)}
+                </span>
+              </div>
+            </div>
+
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-5">
+              Starting next billing cycle, you'll be charged ${upgradeModal.preview.newMonthlyPrice}/month.
             </p>
 
-            {upgradeModal.loading && !upgradeModal.preview ? (
-              <div className="flex items-center justify-center py-8">
-                <LoadingSpinner size="lg" />
-                <span className="ml-3 text-zinc-600 dark:text-zinc-300">Calculating proration...</span>
-              </div>
-            ) : upgradeModal.preview ? (
-              <>
-                <div className="space-y-3 mb-6">
-                  <div className="flex items-center justify-between p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800">
-                    <span className="text-sm text-zinc-600 dark:text-zinc-300">Current Plan</span>
-                    <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 capitalize">
-                      {upgradeModal.preview.currentPlan} — ${upgradeModal.preview.currentMonthlyPrice}/mo
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 rounded-lg bg-accent-50 dark:bg-accent-900/20 border border-accent-200 dark:border-accent-700">
-                    <span className="text-sm text-zinc-600 dark:text-zinc-300">New Plan</span>
-                    <span className="text-sm font-semibold text-accent-700 dark:text-accent-400 capitalize">
-                      {upgradeModal.preview.newPlan} — ${upgradeModal.preview.newMonthlyPrice}/mo
-                    </span>
-                  </div>
-                  {upgradeModal.preview.credit > 0 && (
-                    <div className="flex items-center justify-between p-2 px-3 rounded-lg bg-success-50 dark:bg-success-900/10">
-                      <span className="text-xs text-success-700 dark:text-success-400">Credit for unused {upgradeModal.preview.currentPlan} time</span>
-                      <span className="text-sm font-medium text-success-700 dark:text-success-400">
-                        -${upgradeModal.preview.credit.toFixed(2)}
-                      </span>
-                    </div>
-                  )}
-                  {upgradeModal.preview.prorationCharge > 0 && (
-                    <div className="flex items-center justify-between p-2 px-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/50">
-                      <span className="text-xs text-zinc-600 dark:text-zinc-400">Prorated {upgradeModal.preview.newPlan} for remaining period</span>
-                      <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                        +${upgradeModal.preview.prorationCharge.toFixed(2)}
-                      </span>
-                    </div>
-                  )}
-                  <div className="flex items-center justify-between p-3 rounded-lg bg-primary-50 dark:bg-zinc-800 border border-primary-200 dark:border-zinc-700">
-                    <div>
-                      <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">Net Charge Today</span>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400">Prorated difference applied now</p>
-                    </div>
-                    <span className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
-                      ${upgradeModal.preview.immediateCharge.toFixed(2)}
-                    </span>
-                  </div>
-                </div>
-
-                <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-5">
-                  Starting next billing cycle, you'll be charged ${upgradeModal.preview.newMonthlyPrice}/month.
-                </p>
-
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => setUpgradeModal({ open: false, plan: null, preview: null, loading: false })}
-                    disabled={upgradeModal.loading}
-                    className="flex-1 py-2.5 px-4 rounded-xl font-medium border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleConfirmUpgrade}
-                    disabled={upgradeModal.loading}
-                    className="flex-1 py-2.5 px-4 rounded-xl font-semibold bg-gradient-to-r from-accent-500 to-accent-600 text-white hover:from-accent-600 hover:to-accent-700 transition-all flex items-center justify-center gap-2"
-                  >
-                    {upgradeModal.loading ? (
-                      <LoadingSpinner size="sm" />
-                    ) : (
-                      <>
-                        <FiArrowUp className="w-4 h-4" />
-                        Confirm Upgrade
-                      </>
-                    )}
-                  </button>
-                </div>
-              </>
-            ) : null}
-          </div>
-        </div>
-      )}
+            <div className="flex gap-3">
+              <button
+                onClick={() => setUpgradeModal({ open: false, plan: null, preview: null, loading: false })}
+                disabled={upgradeModal.loading}
+                className="flex-1 py-2.5 px-4 rounded-xl font-medium border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmUpgrade}
+                disabled={upgradeModal.loading}
+                className="flex-1 py-2.5 px-4 rounded-xl font-semibold bg-gradient-to-r from-accent-500 to-accent-600 text-white hover:from-accent-600 hover:to-accent-700 transition-all flex items-center justify-center gap-2"
+              >
+                {upgradeModal.loading ? (
+                  <LoadingSpinner size="sm" />
+                ) : (
+                  <>
+                    <FiArrowUp className="w-4 h-4" />
+                    Confirm Upgrade
+                  </>
+                )}
+              </button>
+            </div>
+          </>
+        ) : null}
+      </Modal>
 
       <ConfirmDialog
         isOpen={showCancelConfirm}

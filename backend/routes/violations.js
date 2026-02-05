@@ -17,7 +17,9 @@ router.use(restrictToCompany);
 // @desc    Get all violations with filtering
 // @access  Private
 router.get('/', checkPermission('violations', 'view'), asyncHandler(async (req, res) => {
-  const { status, basic, driverId, vehicleId, startDate, endDate, page = 1, limit = 20, sort = '-violationDate' } = req.query;
+  const { status, basic, driverId, vehicleId, startDate, endDate, page = 1, limit = 20, sort: rawSort = '-violationDate' } = req.query;
+  const allowedSorts = ['violationDate', '-violationDate', 'createdAt', '-createdAt', 'basic', '-basic', 'status', '-status', 'severityWeight', '-severityWeight'];
+  const sort = allowedSorts.includes(rawSort) ? rawSort : '-violationDate';
 
   const queryObj = { ...req.companyFilter };
 
@@ -419,6 +421,20 @@ router.put('/:id', checkPermission('violations', 'edit'), asyncHandler(async (re
   const updateData = {};
   for (const key of allowedUpdateFields) {
     if (req.body[key] !== undefined) updateData[key] = req.body[key];
+  }
+
+  // Verify cross-tenant references belong to the same company
+  if (updateData.driverId) {
+    const driver = await Driver.findOne({ _id: updateData.driverId, companyId: req.companyFilter.companyId });
+    if (!driver) {
+      throw new AppError('Driver not found in your company', 400);
+    }
+  }
+  if (updateData.vehicleId) {
+    const vehicle = await Vehicle.findOne({ _id: updateData.vehicleId, companyId: req.companyFilter.companyId });
+    if (!vehicle) {
+      throw new AppError('Vehicle not found in your company', 400);
+    }
   }
 
   // Add history entry

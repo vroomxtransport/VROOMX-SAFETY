@@ -22,8 +22,6 @@ export const ThemeProvider = ({ children }) => {
   // Apply theme class to document root - useLayoutEffect ensures synchronous DOM update
   useLayoutEffect(() => {
     const root = document.documentElement;
-    console.log('[Theme] Setting theme to:', theme);
-    console.log('[Theme] classList before:', root.classList.toString());
 
     // Force remove first, then add if dark - ensures clean state
     root.classList.remove('dark');
@@ -31,7 +29,6 @@ export const ThemeProvider = ({ children }) => {
       root.classList.add('dark');
     }
 
-    console.log('[Theme] classList after:', root.classList.toString());
     localStorage.setItem('vroomx-theme', theme);
   }, [theme]);
 

@@ -1,12 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { vehiclesAPI } from '../utils/api';
 import { formatDate, daysUntilExpiry } from '../utils/helpers';
 import toast from 'react-hot-toast';
+import debounce from 'lodash.debounce';
 import { FiPlus, FiSearch, FiTruck, FiEye, FiCheckCircle, FiAlertTriangle, FiTool, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import DataTable from '../components/DataTable';
 import StatusBadge from '../components/StatusBadge';
 import Modal from '../components/Modal';
+import ConfirmDialog from '../components/ConfirmDialog';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const Vehicles = () => {
@@ -41,6 +43,9 @@ const Vehicles = () => {
   });
   const [submitting, setSubmitting] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingDeleteVehicle, setPendingDeleteVehicle] = useState(null);
+  const [pagination, setPagination] = useState(null);
   const navigate = useNavigate();
 
   const initialFormData = {
@@ -67,7 +72,7 @@ const Vehicles = () => {
 
   useEffect(() => {
     fetchVehicles();
-  }, [page, typeFilter, statusFilter]);
+  }, [page, typeFilter, statusFilter, search]);
 
   const fetchVehicles = async () => {
     setLoading(true);
@@ -82,12 +87,25 @@ const Vehicles = () => {
       const response = await vehiclesAPI.getAll(params);
       setVehicles(response.data.vehicles);
       setTotalPages(response.data.pages);
+      setPagination(response.data.pagination || null);
     } catch (error) {
       toast.error('Failed to fetch vehicles');
     } finally {
       setLoading(false);
     }
   };
+
+  const debouncedSetSearch = useMemo(
+    () => debounce((value) => {
+      setSearch(value);
+      setPage(1);
+    }, 300),
+    []
+  );
+
+  useEffect(() => {
+    return () => debouncedSetSearch.cancel();
+  }, [debouncedSetSearch]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -146,15 +164,21 @@ const Vehicles = () => {
     setShowAddModal(true);
   };
 
-  const handleDelete = async (vehicle) => {
-    if (!confirm(`Delete vehicle "${vehicle.unitNumber}"? This cannot be undone.`)) return;
+  const handleDeleteClick = (vehicle) => {
+    setPendingDeleteVehicle(vehicle);
+    setConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!pendingDeleteVehicle) return;
     try {
-      await vehiclesAPI.delete(vehicle._id);
+      await vehiclesAPI.delete(pendingDeleteVehicle._id);
       toast.success('Vehicle deleted successfully');
       fetchVehicles();
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to delete vehicle');
     }
+    setPendingDeleteVehicle(null);
   };
 
   const handleCloseModal = () => {
@@ -271,10 +295,11 @@ const Vehicles = () => {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              handleDelete(row);
+              handleDeleteClick(row);
             }}
             className="p-2 text-zinc-600 dark:text-zinc-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
             title="Delete Vehicle"
+            aria-label={`Delete ${row.unitNumber}`}
           >
             <FiTrash2 className="w-4 h-4" />
           </button>
@@ -308,7 +333,7 @@ const Vehicles = () => {
               <FiTruck className="w-5 h-5 text-accent-600 dark:text-accent-400" />
             </div>
             <div>
-              <p className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white font-mono">{vehicles.length || 0}</p>
+              <p className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white font-mono">{pagination?.total || vehicles.length || 0}</p>
               <p className="text-xs text-zinc-600 dark:text-zinc-300">Total Vehicles</p>
             </div>
           </div>
@@ -364,8 +389,8 @@ const Vehicles = () => {
                 type="text"
                 placeholder="Search by unit number, VIN, make..."
                 className="form-input pl-10"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                defaultValue={search}
+                onChange={(e) => debouncedSetSearch(e.target.value)}
               />
             </div>
           </form>
@@ -486,12 +511,12 @@ const Vehicles = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">VIN (16-17 characters) *</label>
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">VIN (17 characters) *</label>
             <input
               type="text"
               className="form-input font-mono"
               required
-              minLength={16}
+              minLength={17}
               maxLength={17}
               placeholder="1XP5DB9X6YD527178"
               value={formData.vin}
@@ -694,6 +719,16 @@ const Vehicles = () => {
           </div>
         </form>
       </Modal>
+
+      <ConfirmDialog
+        isOpen={confirmOpen}
+        onClose={() => { setConfirmOpen(false); setPendingDeleteVehicle(null); }}
+        onConfirm={handleConfirmDelete}
+        title="Delete Vehicle"
+        message={pendingDeleteVehicle ? `Delete vehicle "${pendingDeleteVehicle.unitNumber}"? This cannot be undone.` : ''}
+        confirmText="Delete"
+        variant="danger"
+      />
     </div>
   );
 };

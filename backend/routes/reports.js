@@ -331,6 +331,8 @@ router.get('/violations/preview', checkPermission('reports', 'view'), asyncHandl
 // @route   GET /api/reports/audit/preview
 // @desc    Preview Audit report
 // @access  Private
+// NOTE: Audit report intentionally requires 'reports.export' (not 'reports.view')
+// because audit data contains sensitive cross-module compliance information
 router.get('/audit/preview', checkPermission('reports', 'export'), asyncHandler(async (req, res) => {
   const { fields } = req.query;
   const companyId = req.companyFilter.companyId;
@@ -2571,6 +2573,8 @@ router.get('/violations', checkPermission('reports', 'view'), asyncHandler(async
 // @route   GET /api/reports/audit
 // @desc    Generate full audit report
 // @access  Private
+// NOTE: Audit report intentionally requires 'reports.export' (not 'reports.view')
+// because audit data contains sensitive cross-module compliance information
 router.get('/audit', checkPermission('reports', 'export'), asyncHandler(async (req, res) => {
   const { format = 'json', fields } = req.query;
   const companyId = req.companyFilter.companyId;

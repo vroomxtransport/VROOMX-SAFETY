@@ -243,4 +243,27 @@ router.post('/:id/investigation', checkPermission('accidents', 'edit'), asyncHan
   });
 }));
 
+// @route   DELETE /api/accidents/:id
+// @desc    Delete accident record
+// @access  Private
+router.delete('/:id', checkPermission('accidents', 'delete'), asyncHandler(async (req, res) => {
+  const accident = await Accident.findOne({
+    _id: req.params.id,
+    ...req.companyFilter
+  });
+
+  if (!accident) {
+    throw new AppError('Accident not found', 404);
+  }
+
+  await Accident.findByIdAndDelete(req.params.id);
+
+  auditService.log(req, 'delete', 'accident', req.params.id, { severity: accident.severity, reportNumber: accident.reportNumber });
+
+  res.json({
+    success: true,
+    message: 'Accident record deleted'
+  });
+}));
+
 module.exports = router;

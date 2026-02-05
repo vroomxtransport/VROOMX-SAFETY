@@ -10,11 +10,7 @@ const { checkDriverLimit } = require('../middleware/subscriptionLimits');
 const auditService = require('../services/auditService');
 const driverCSAService = require('../services/driverCSAService');
 
-// Escape regex special characters to prevent NoSQL injection
-const escapeRegex = (str) => {
-  if (typeof str !== 'string') return '';
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-};
+const { escapeRegex } = require('../utils/helpers');
 
 // Apply authentication and company restriction to all routes
 router.use(protect);
@@ -24,7 +20,9 @@ router.use(restrictToCompany);
 // @desc    Get all drivers with filtering and pagination
 // @access  Private
 router.get('/', checkPermission('drivers', 'view'), asyncHandler(async (req, res) => {
-  const { status, complianceStatus, search, page = 1, limit = 20, sort = '-createdAt', archived } = req.query;
+  const { status, complianceStatus, search, page = 1, limit = 20, sort: rawSort = '-createdAt', archived } = req.query;
+  const allowedSorts = ['createdAt', '-createdAt', 'firstName', '-firstName', 'lastName', '-lastName', 'status', '-status', 'hireDate', '-hireDate'];
+  const sort = allowedSorts.includes(rawSort) ? rawSort : '-createdAt';
 
   // Build query
   const queryObj = { ...req.companyFilter };
@@ -334,8 +332,8 @@ router.put('/:id', checkPermission('drivers', 'edit'), asyncHandler(async (req, 
     }
   }
 
-  driver = await Driver.findByIdAndUpdate(
-    req.params.id,
+  driver = await Driver.findOneAndUpdate(
+    { _id: req.params.id, ...req.companyFilter },
     updateData,
     { new: true, runValidators: true }
   );
@@ -453,6 +451,24 @@ router.patch('/:id/restore', checkPermission('drivers', 'edit'), asyncHandler(as
 
   if (!driver) {
     throw new AppError('Driver not found', 404);
+  }
+
+  // Check driver limit before restoring
+  const plan = req.user.subscription?.plan || 'free_trial';
+  const activeCompanyId = req.companyFilter?.companyId;
+  const driverCount = await Driver.countDocuments({
+    companyId: activeCompanyId,
+    status: { $ne: 'terminated' }
+  });
+
+  if ((plan === 'solo' || plan === 'free_trial') && driverCount >= 1) {
+    return res.status(403).json({
+      success: false,
+      message: `Cannot restore driver: ${plan === 'solo' ? 'Solo' : 'Free trial'} plan is limited to 1 driver.`,
+      code: 'DRIVER_LIMIT_REACHED',
+      limit: 1,
+      current: driverCount
+    });
   }
 
   driver.isArchived = false;

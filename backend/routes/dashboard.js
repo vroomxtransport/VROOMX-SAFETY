@@ -32,7 +32,9 @@ router.get('/', asyncHandler(async (req, res) => {
     drugTestStats,
     recentAccidents,
     documentStats,
-    driversWithBirthdays
+    driversWithBirthdays,
+    expiringDriverDocs,
+    vehiclesNeedingInspection
   ] = await Promise.all([
     // Company info with SMS BASICs
     Company.findById(companyId).select('name dotNumber smsBasics'),
@@ -142,7 +144,24 @@ router.get('/', asyncHandler(async (req, res) => {
       companyId,
       status: 'active',
       dateOfBirth: { $exists: true, $ne: null }
-    }).select('firstName lastName dateOfBirth')
+    }).select('firstName lastName dateOfBirth'),
+
+    // Expiring driver docs for alerts (next 30 days)
+    Driver.find({
+      companyId,
+      status: 'active',
+      $or: [
+        { 'cdl.expiryDate': { $lte: thirtyDaysFromNow, $gte: now } },
+        { 'medicalCard.expiryDate': { $lte: thirtyDaysFromNow, $gte: now } }
+      ]
+    }).select('firstName lastName cdl.expiryDate medicalCard.expiryDate').limit(5),
+
+    // Vehicles needing inspection for alerts
+    Vehicle.find({
+      companyId,
+      status: { $in: ['active', 'maintenance'] },
+      'annualInspection.nextDueDate': { $lte: thirtyDaysFromNow }
+    }).select('unitNumber annualInspection.nextDueDate').limit(5)
   ]);
 
   // Process SMS BASICs data with staleness indicator
@@ -177,15 +196,6 @@ router.get('/', asyncHandler(async (req, res) => {
   const alerts = [];
 
   // Driver document alerts
-  const expiringDriverDocs = await Driver.find({
-    companyId,
-    status: 'active',
-    $or: [
-      { 'cdl.expiryDate': { $lte: thirtyDaysFromNow, $gte: now } },
-      { 'medicalCard.expiryDate': { $lte: thirtyDaysFromNow, $gte: now } }
-    ]
-  }).select('firstName lastName cdl.expiryDate medicalCard.expiryDate').limit(5);
-
   expiringDriverDocs.forEach(driver => {
     const cdlDays = driver.cdl?.expiryDate ?
       Math.ceil((new Date(driver.cdl.expiryDate) - now) / (1000 * 60 * 60 * 24)) : null;
@@ -214,12 +224,6 @@ router.get('/', asyncHandler(async (req, res) => {
   });
 
   // Vehicle inspection alerts
-  const vehiclesNeedingInspection = await Vehicle.find({
-    companyId,
-    status: { $in: ['active', 'maintenance'] },
-    'annualInspection.nextDueDate': { $lte: thirtyDaysFromNow }
-  }).select('unitNumber annualInspection.nextDueDate').limit(5);
-
   vehiclesNeedingInspection.forEach(vehicle => {
     const days = Math.ceil((new Date(vehicle.annualInspection.nextDueDate) - now) / (1000 * 60 * 60 * 24));
     alerts.push({

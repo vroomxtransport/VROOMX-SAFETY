@@ -69,10 +69,14 @@ const pdfService = {
 
     try {
       // Set content with base URL for relative resources
-      await page.setContent(html, {
-        waitUntil: 'networkidle0',
-        timeout: 30000
-      });
+      try {
+        await page.setContent(html, {
+          waitUntil: 'networkidle0',
+          timeout: 60000
+        });
+      } catch (contentError) {
+        throw new Error(`PDF content rendering timed out. The report may be too large. ${contentError.message}`);
+      }
 
       // Generate PDF
       const pdfBuffer = await page.pdf({

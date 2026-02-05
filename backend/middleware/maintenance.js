@@ -34,10 +34,16 @@ function isAllowedPath(path) {
 
 async function isSuperAdmin(req) {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer')) return false;
-
-    const token = authHeader.split(' ')[1];
+    // Check for token in httpOnly cookie first, then Authorization header (mirrors protect middleware)
+    let token;
+    if (req.cookies && req.cookies.token) {
+      token = req.cookies.token;
+    } else {
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer')) {
+        token = authHeader.split(' ')[1];
+      }
+    }
     if (!token) return false;
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });

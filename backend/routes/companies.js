@@ -220,20 +220,35 @@ router.delete('/:id', asyncHandler(async (req, res) => {
   // Soft delete - mark as inactive
   await Company.findByIdAndUpdate(req.params.id, { isActive: false });
 
-  // Remove from user's companies
-  req.user.companies = req.user.companies.filter(
-    c => (c.companyId._id || c.companyId).toString() !== req.params.id
+  // Remove companyId from ALL users' companies arrays
+  await User.updateMany(
+    { 'companies.companyId': req.params.id },
+    { $pull: { companies: { companyId: req.params.id } } }
   );
 
-  // If this was the active company, switch to another one
-  if (req.user.activeCompanyId?.toString() === req.params.id) {
-    const activeCompany = req.user.companies.find(c => c.isActive);
-    req.user.activeCompanyId = activeCompany?.companyId || null;
+  // Clear activeCompanyId for users who had this as active
+  await User.updateMany(
+    { activeCompanyId: req.params.id },
+    { $unset: { activeCompanyId: '' } }
+  );
+
+  // Cancel pending invitations
+  await CompanyInvitation.updateMany(
+    { companyId: req.params.id, status: 'pending' },
+    { status: 'cancelled' }
+  );
+
+  // Reload the current user to reflect the changes
+  const updatedUser = await User.findById(req.user._id);
+  if (updatedUser.companies.length > 0) {
+    const activeMembership = updatedUser.companies.find(c => c.isActive);
+    if (!updatedUser.activeCompanyId) {
+      updatedUser.activeCompanyId = activeMembership?.companyId || updatedUser.companies[0].companyId;
+      await updatedUser.save();
+    }
   }
 
-  await req.user.save();
-
-  auditService.log(req, 'delete', 'company', req.params.id, { summary: 'Company deleted' });
+  auditService.log(req, 'delete', 'company', req.params.id, { summary: 'Company deleted with cascade cleanup' });
 
   res.json({
     success: true,
@@ -401,7 +416,7 @@ router.post('/:id/invite', [
       role: invitation.role,
       companyName: company.name,
       expiresAt: invitation.expiresAt,
-      token: invitation.token // Include for testing, in production send via email
+      ...(process.env.NODE_ENV === 'development' && { token: invitation.token })
     }
   });
 }));

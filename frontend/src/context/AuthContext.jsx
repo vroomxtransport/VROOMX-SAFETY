@@ -18,36 +18,25 @@ export const AuthProvider = ({ children }) => {
   const [subscription, setSubscription] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // On mount, check if we have a valid session via httpOnly cookie
-  useEffect(() => {
-    checkAuth();
-  }, []);
+  const buildSubscription = (sub, limits, usage) => ({
+    plan: sub?.plan || null,
+    status: sub?.status || null,
+    trialEndsAt: sub?.trialEndsAt || null,
+    trialDaysRemaining: sub?.trialDaysRemaining || 0,
+    currentPeriodEnd: sub?.currentPeriodEnd || null,
+    cancelAtPeriodEnd: sub?.cancelAtPeriodEnd || false,
+    limits: limits || null,
+    usage: usage || null,
+  });
 
-  const checkAuth = async () => {
-    try {
-      await fetchUser();
-    } catch {
-      setLoading(false);
-    }
-  };
-
-  const fetchUser = async () => {
+  const fetchUser = useCallback(async () => {
     try {
       const response = await api.get('/auth/me');
       const userData = response.data.user;
       setUser(userData);
       setCompanies(userData.companies || []);
       setActiveCompany(userData.activeCompany || userData.company);
-      setSubscription({
-        plan: userData.subscription?.plan || null,
-        status: userData.subscription?.status || null,
-        trialEndsAt: userData.subscription?.trialEndsAt || null,
-        trialDaysRemaining: userData.subscription?.trialDaysRemaining || 0,
-        currentPeriodEnd: userData.subscription?.currentPeriodEnd || null,
-        cancelAtPeriodEnd: userData.subscription?.cancelAtPeriodEnd || false,
-        limits: userData.limits,
-        usage: userData.usage
-      });
+      setSubscription(buildSubscription(userData.subscription, userData.limits, userData.usage));
     } catch (error) {
       // No session — just clear state (don't call logout API)
       clearAuthToken();
@@ -58,7 +47,12 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  // On mount, check if we have a valid session via httpOnly cookie
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
 
   const login = async (email, password, companyId = null) => {
     const response = await api.post('/auth/login', { email, password, companyId });
@@ -69,15 +63,7 @@ export const AuthProvider = ({ children }) => {
     setUser(userData);
     setCompanies(userData.companies || []);
     setActiveCompany(userData.activeCompany || userData.company);
-    setSubscription({
-      plan: userData.subscription?.plan || null,
-      status: userData.subscription?.status || null,
-      trialEndsAt: userData.subscription?.trialEndsAt || null,
-      trialDaysRemaining: userData.subscription?.trialDaysRemaining || 0,
-      currentPeriodEnd: userData.subscription?.currentPeriodEnd || null,
-      cancelAtPeriodEnd: userData.subscription?.cancelAtPeriodEnd || false,
-      limits: userData.limits
-    });
+    setSubscription(buildSubscription(userData.subscription, userData.limits));
 
     return userData;
   };
@@ -91,13 +77,10 @@ export const AuthProvider = ({ children }) => {
     setUser({ ...userData, isDemo: true });
     setCompanies(userData.companies || []);
     setActiveCompany(userData.activeCompany || userData.company);
-    setSubscription({
-      plan: userData.subscription?.plan || 'fleet',
-      status: userData.subscription?.status || 'active',
-      trialEndsAt: userData.subscription?.trialEndsAt || null,
-      trialDaysRemaining: userData.subscription?.trialDaysRemaining || 30,
-      limits: userData.limits
-    });
+    setSubscription(buildSubscription(
+      { ...userData.subscription, plan: userData.subscription?.plan || 'fleet', status: userData.subscription?.status || 'active', trialDaysRemaining: userData.subscription?.trialDaysRemaining || 30 },
+      userData.limits
+    ));
 
     return userData;
   };
@@ -111,13 +94,7 @@ export const AuthProvider = ({ children }) => {
     setUser(userData);
     setCompanies(userData.companies || []);
     setActiveCompany(userData.activeCompany || userData.company);
-    setSubscription({
-      plan: userData.subscription?.plan || null,
-      status: userData.subscription?.status || null,
-      trialEndsAt: userData.subscription?.trialEndsAt || null,
-      trialDaysRemaining: userData.subscription?.trialDaysRemaining || 0,
-      limits: userData.limits
-    });
+    setSubscription(buildSubscription(userData.subscription, userData.limits));
 
     return userData;
   };
@@ -195,7 +172,7 @@ export const AuthProvider = ({ children }) => {
   // Refresh user data
   const refreshUser = useCallback(async () => {
     await fetchUser();
-  }, []);
+  }, [fetchUser]);
 
   const value = {
     user,

@@ -16,19 +16,13 @@ import VerifyEmail from './pages/VerifyEmail';
 import ResetPassword from './pages/ResetPassword';
 import AcceptInvitation from './pages/AcceptInvitation';
 import Drivers from './pages/Drivers';
-import DriverDetail from './pages/DriverDetail';
 import Vehicles from './pages/Vehicles';
-import VehicleDetail from './pages/VehicleDetail';
 import Violations from './pages/Violations';
 import Tickets from './pages/Tickets';
 import DamageClaims from './pages/DamageClaims';
 import DrugAlcohol from './pages/DrugAlcohol';
 import Documents from './pages/Documents';
-import Reports from './pages/Reports';
 import ScheduledReports from './pages/ScheduledReports';
-import InspectionHistory from './pages/InspectionHistory';
-import Settings from './pages/Settings';
-import Billing from './pages/Billing';
 import RegulationAssistant from './pages/RegulationAssistant';
 import AlertsDashboard from './pages/AlertsDashboard';
 import TemplateGenerator from './pages/TemplateGenerator';
@@ -44,31 +38,36 @@ import PageTransition from './components/PageTransition';
 import ChatWidget from './components/AIChat/ChatWidget';
 import NotFound from './pages/NotFound';
 
-// Lazy load chart-heavy pages to reduce initial bundle size
+// Lazy load chart-heavy and large pages to reduce initial bundle size
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Compliance = lazy(() => import('./pages/Compliance'));
 const UnlinkedViolations = lazy(() => import('./pages/UnlinkedViolations'));
+const DriverDetail = lazy(() => import('./pages/DriverDetail'));
+const VehicleDetail = lazy(() => import('./pages/VehicleDetail'));
+const Billing = lazy(() => import('./pages/Billing'));
+const Settings = lazy(() => import('./pages/Settings'));
+const Reports = lazy(() => import('./pages/Reports'));
 
-// Admin pages
-import AdminLayout from './pages/admin/AdminLayout';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import AdminUsers from './pages/admin/AdminUsers';
-import AdminCompanies from './pages/admin/AdminCompanies';
-import AdminAuditLogs from './pages/admin/AdminAuditLogs';
-import AdminEmails from './pages/admin/AdminEmails';
-import AdminAnnouncements from './pages/admin/AdminAnnouncements';
-import AdminFeatureFlags from './pages/admin/AdminFeatureFlags';
-import AdminDataIntegrity from './pages/admin/AdminDataIntegrity';
-import AdminRevenue from './pages/admin/AdminRevenue';
-import AdminAlerts from './pages/admin/AdminAlerts';
-import AdminTickets from './pages/admin/AdminTickets';
+// Admin pages - lazy loaded
+const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
+const AdminCompanies = lazy(() => import('./pages/admin/AdminCompanies'));
+const AdminAuditLogs = lazy(() => import('./pages/admin/AdminAuditLogs'));
+const AdminEmails = lazy(() => import('./pages/admin/AdminEmails'));
+const AdminAnnouncements = lazy(() => import('./pages/admin/AdminAnnouncements'));
+const AdminFeatureFlags = lazy(() => import('./pages/admin/AdminFeatureFlags'));
+const AdminDataIntegrity = lazy(() => import('./pages/admin/AdminDataIntegrity'));
+const AdminRevenue = lazy(() => import('./pages/admin/AdminRevenue'));
+const AdminAlerts = lazy(() => import('./pages/admin/AdminAlerts'));
+const AdminTickets = lazy(() => import('./pages/admin/AdminTickets'));
 
-// Design Demos
-import EnterpriseDemo from './pages/designs/EnterpriseDemo';
-import MinimalistDemo from './pages/designs/MinimalistDemo';
-import DiffV1 from './pages/designs/DiffV1';
-import DiffV2 from './pages/designs/DiffV2';
-import DiffV3 from './pages/designs/DiffV3';
+// Design Demos - lazy loaded, dev only
+const EnterpriseDemo = lazy(() => import('./pages/designs/EnterpriseDemo'));
+const MinimalistDemo = lazy(() => import('./pages/designs/MinimalistDemo'));
+const DiffV1 = lazy(() => import('./pages/designs/DiffV1'));
+const DiffV2 = lazy(() => import('./pages/designs/DiffV2'));
+const DiffV3 = lazy(() => import('./pages/designs/DiffV3'));
 
 // Protected route wrapper
 const ProtectedRoute = ({ children, allowPendingPayment = false }) => {
@@ -181,12 +180,16 @@ function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/accept-invitation" element={<AcceptInvitation />} />
 
-        {/* Design Demos (Public for preview) */}
-        <Route path="/design/enterprise" element={<EnterpriseDemo />} />
-        <Route path="/design/minimalist" element={<MinimalistDemo />} />
-        <Route path="/design/diff-v1" element={<DiffV1 />} />
-        <Route path="/design/diff-v2" element={<DiffV2 />} />
-        <Route path="/design/diff-v3" element={<DiffV3 />} />
+        {/* Design Demos (dev only) */}
+        {import.meta.env.DEV && (
+          <>
+            <Route path="/design/enterprise" element={<Suspense fallback={<LoadingSpinner size="lg" />}><EnterpriseDemo /></Suspense>} />
+            <Route path="/design/minimalist" element={<Suspense fallback={<LoadingSpinner size="lg" />}><MinimalistDemo /></Suspense>} />
+            <Route path="/design/diff-v1" element={<Suspense fallback={<LoadingSpinner size="lg" />}><DiffV1 /></Suspense>} />
+            <Route path="/design/diff-v2" element={<Suspense fallback={<LoadingSpinner size="lg" />}><DiffV2 /></Suspense>} />
+            <Route path="/design/diff-v3" element={<Suspense fallback={<LoadingSpinner size="lg" />}><DiffV3 /></Suspense>} />
+          </>
+        )}
 
         {/* Blog - public, accessible to everyone */}
         <Route path="/blog" element={<Blog />} />
@@ -213,7 +216,7 @@ function App() {
             </ProtectedRoute>
           }
         >
-          <Route index element={<Billing />} />
+          <Route index element={<Suspense fallback={<LoadingSpinner size="lg" />}><Billing /></Suspense>} />
         </Route>
 
         {/* Protected routes - blocks pending_payment users */}
@@ -228,9 +231,9 @@ function App() {
           <Route index element={<Navigate to="/app/dashboard" replace />} />
           <Route path="dashboard" element={<Suspense fallback={<LoadingSpinner size="lg" />}><Dashboard /></Suspense>} />
           <Route path="drivers" element={<Drivers />} />
-          <Route path="drivers/:id" element={<DriverDetail />} />
+          <Route path="drivers/:id" element={<Suspense fallback={<LoadingSpinner size="lg" />}><DriverDetail /></Suspense>} />
           <Route path="vehicles" element={<Vehicles />} />
-          <Route path="vehicles/:id" element={<VehicleDetail />} />
+          <Route path="vehicles/:id" element={<Suspense fallback={<LoadingSpinner size="lg" />}><VehicleDetail /></Suspense>} />
           <Route path="violations" element={<Violations />} />
           <Route path="unlinked-violations" element={<Suspense fallback={<LoadingSpinner size="lg" />}><UnlinkedViolations /></Suspense>} />
           <Route path="tickets" element={<Tickets />} />
@@ -238,10 +241,10 @@ function App() {
           <Route path="drug-alcohol" element={<DrugAlcohol />} />
           <Route path="documents" element={<Documents />} />
           <Route path="compliance" element={<Suspense fallback={<LoadingSpinner size="lg" />}><Compliance /></Suspense>} />
-          <Route path="reports" element={<Reports />} />
+          <Route path="reports" element={<Suspense fallback={<LoadingSpinner size="lg" />}><Reports /></Suspense>} />
           <Route path="scheduled-reports" element={<ScheduledReports />} />
           <Route path="inspection-history" element={<Navigate to="/app/compliance" replace />} />
-          <Route path="settings" element={<Settings />} />
+          <Route path="settings" element={<Suspense fallback={<LoadingSpinner size="lg" />}><Settings /></Suspense>} />
           <Route path="ai-assistant" element={<RegulationAssistant />} />
           <Route path="alerts" element={<AlertsDashboard />} />
           <Route path="csa-estimator" element={<Navigate to="/app/compliance" replace />} />
@@ -276,21 +279,23 @@ function App() {
           path="/admin"
           element={
             <SuperAdminRoute>
-              <AdminLayout />
+              <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><LoadingSpinner size="lg" /></div>}>
+                <AdminLayout />
+              </Suspense>
             </SuperAdminRoute>
           }
         >
-          <Route index element={<AdminDashboard />} />
-          <Route path="revenue" element={<AdminRevenue />} />
-          <Route path="alerts" element={<AdminAlerts />} />
-          <Route path="users" element={<AdminUsers />} />
-          <Route path="companies" element={<AdminCompanies />} />
-          <Route path="tickets" element={<AdminTickets />} />
-          <Route path="emails" element={<AdminEmails />} />
-          <Route path="announcements" element={<AdminAnnouncements />} />
-          <Route path="features" element={<AdminFeatureFlags />} />
-          <Route path="data-integrity" element={<AdminDataIntegrity />} />
-          <Route path="audit-logs" element={<AdminAuditLogs />} />
+          <Route index element={<Suspense fallback={<LoadingSpinner size="lg" />}><AdminDashboard /></Suspense>} />
+          <Route path="revenue" element={<Suspense fallback={<LoadingSpinner size="lg" />}><AdminRevenue /></Suspense>} />
+          <Route path="alerts" element={<Suspense fallback={<LoadingSpinner size="lg" />}><AdminAlerts /></Suspense>} />
+          <Route path="users" element={<Suspense fallback={<LoadingSpinner size="lg" />}><AdminUsers /></Suspense>} />
+          <Route path="companies" element={<Suspense fallback={<LoadingSpinner size="lg" />}><AdminCompanies /></Suspense>} />
+          <Route path="tickets" element={<Suspense fallback={<LoadingSpinner size="lg" />}><AdminTickets /></Suspense>} />
+          <Route path="emails" element={<Suspense fallback={<LoadingSpinner size="lg" />}><AdminEmails /></Suspense>} />
+          <Route path="announcements" element={<Suspense fallback={<LoadingSpinner size="lg" />}><AdminAnnouncements /></Suspense>} />
+          <Route path="features" element={<Suspense fallback={<LoadingSpinner size="lg" />}><AdminFeatureFlags /></Suspense>} />
+          <Route path="data-integrity" element={<Suspense fallback={<LoadingSpinner size="lg" />}><AdminDataIntegrity /></Suspense>} />
+          <Route path="audit-logs" element={<Suspense fallback={<LoadingSpinner size="lg" />}><AdminAuditLogs /></Suspense>} />
         </Route>
 
         {/* 404 */}

@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const ComplianceScore = require('../models/ComplianceScore');
 const Driver = require('../models/Driver');
 const Vehicle = require('../models/Vehicle');
@@ -52,14 +53,19 @@ const complianceScoreService = {
       this._calculateVehicleScore(companyId)
     ]);
 
-    // Calculate weighted overall score
-    const overallScore = Math.round(
-      (documentScore.score * COMPONENT_WEIGHTS.documentStatus +
-       violationScore.score * COMPONENT_WEIGHTS.violations +
-       drugAlcoholScore.score * COMPONENT_WEIGHTS.drugAlcohol +
-       dqfScore.score * COMPONENT_WEIGHTS.dqfCompleteness +
-       vehicleScore.score * COMPONENT_WEIGHTS.vehicleInspection) / 100
-    );
+    // Calculate weighted overall score, excluding not_applicable components
+    const components = [
+      { score: documentScore.score, weight: COMPONENT_WEIGHTS.documentStatus },
+      { score: violationScore.score, weight: COMPONENT_WEIGHTS.violations },
+      { score: drugAlcoholScore.score, weight: COMPONENT_WEIGHTS.drugAlcohol },
+      { score: dqfScore.score, weight: COMPONENT_WEIGHTS.dqfCompleteness },
+      { score: vehicleScore.score, weight: COMPONENT_WEIGHTS.vehicleInspection }
+    ];
+    const applicableComponents = components.filter(c => c.score !== null);
+    const totalWeight = applicableComponents.reduce((sum, c) => sum + c.weight, 0);
+    const overallScore = totalWeight > 0
+      ? Math.round(applicableComponents.reduce((sum, c) => sum + c.score * c.weight, 0) / totalWeight)
+      : null;
 
     // Get previous score for trend
     const previousRecord = await ComplianceScore.getLatest(companyId);
@@ -190,7 +196,7 @@ const complianceScoreService = {
     const stats = await Document.aggregate([
       {
         $match: {
-          companyId: companyId,
+          companyId: new mongoose.Types.ObjectId(companyId),
           isDeleted: { $ne: true }
         }
       },
@@ -218,7 +224,8 @@ const complianceScoreService = {
 
     if (total === 0) {
       return {
-        score: 100,
+        score: null,
+        status: 'not_applicable',
         breakdown: { message: 'No documents tracked' },
         metrics: { totalDocuments: 0, validDocuments: 0, expiredDocuments: 0, dueSoonDocuments: 0, missingDocuments: 0 }
       };
@@ -229,7 +236,7 @@ const complianceScoreService = {
     const dueSoonPct = (statusCounts.due_soon / total) * 100;
 
     const score = Math.max(0, Math.round(
-      100 - (expiredPct * 0.5) - (missingPct * 0.3) - (dueSoonPct * 0.2)
+      100 - (expiredPct * 1.0) - (missingPct * 0.7) - (dueSoonPct * 0.2)
     ));
 
     return {
@@ -312,7 +319,8 @@ const complianceScoreService = {
 
     if (activeDrivers === 0) {
       return {
-        score: 100,
+        score: null,
+        status: 'not_applicable',
         breakdown: { message: 'No active drivers' },
         metrics: { requiredTests: 0, completedTests: 0 }
       };
@@ -326,7 +334,7 @@ const complianceScoreService = {
     const completedTests = await DrugAlcoholTest.aggregate([
       {
         $match: {
-          companyId: companyId,
+          companyId: new mongoose.Types.ObjectId(companyId),
           testType: 'random',
           testDate: { $gte: yearStart },
           isDeleted: { $ne: true }
@@ -385,9 +393,10 @@ const complianceScoreService = {
 
     if (drivers.length === 0) {
       return {
-        score: 100,
+        score: null,
+        status: 'not_applicable',
         breakdown: { message: 'No active drivers' },
-        metrics: { totalDrivers: 0, compliantDrivers: 0, averageDqfCompleteness: 100 }
+        metrics: { totalDrivers: 0, compliantDrivers: 0, averageDqfCompleteness: 0 }
       };
     }
 
@@ -430,7 +439,8 @@ const complianceScoreService = {
 
     if (vehicles.length === 0) {
       return {
-        score: 100,
+        score: null,
+        status: 'not_applicable',
         breakdown: { message: 'No active vehicles' },
         metrics: { totalVehicles: 0, vehiclesWithCurrentInspection: 0 }
       };

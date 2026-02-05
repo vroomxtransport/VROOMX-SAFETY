@@ -1,12 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api, { driversAPI } from '../utils/api';
 import { formatDate, daysUntilExpiry } from '../utils/helpers';
 import toast from 'react-hot-toast';
+import debounce from 'lodash.debounce';
 import { FiPlus, FiSearch, FiFilter, FiUsers, FiEye, FiCreditCard, FiCalendar, FiCheckCircle, FiAlertTriangle, FiEdit2, FiTrash2, FiRotateCcw } from 'react-icons/fi';
 import DataTable from '../components/DataTable';
 import StatusBadge from '../components/StatusBadge';
 import Modal from '../components/Modal';
+import ConfirmDialog from '../components/ConfirmDialog';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const Drivers = () => {
@@ -59,10 +61,12 @@ const Drivers = () => {
   const [archivedDrivers, setArchivedDrivers] = useState([]);
   const [archivedCount, setArchivedCount] = useState(0);
   const [pagination, setPagination] = useState(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingDeleteDriver, setPendingDeleteDriver] = useState(null);
 
   useEffect(() => {
     fetchDrivers();
-  }, [page, statusFilter, complianceFilter]);
+  }, [page, statusFilter, complianceFilter, search]);
 
   const fetchDrivers = async () => {
     setLoading(true);
@@ -117,6 +121,18 @@ const Drivers = () => {
       toast.error(err.response?.data?.message || 'Failed to restore driver');
     }
   };
+
+  const debouncedSetSearch = useMemo(
+    () => debounce((value) => {
+      setSearch(value);
+      setPage(1);
+    }, 300),
+    []
+  );
+
+  useEffect(() => {
+    return () => debouncedSetSearch.cancel();
+  }, [debouncedSetSearch]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -192,15 +208,21 @@ const Drivers = () => {
     setShowAddModal(true);
   };
 
-  const handleDelete = async (driver) => {
-    if (!confirm(`Delete driver "${driver.firstName} ${driver.lastName}"? This cannot be undone.`)) return;
+  const handleDeleteClick = (driver) => {
+    setPendingDeleteDriver(driver);
+    setConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!pendingDeleteDriver) return;
     try {
-      await driversAPI.delete(driver._id);
+      await driversAPI.delete(pendingDeleteDriver._id);
       toast.success('Driver deleted successfully');
       fetchDrivers();
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to delete driver');
     }
+    setPendingDeleteDriver(null);
   };
 
   const handleCloseModal = () => {
@@ -326,6 +348,7 @@ const Drivers = () => {
             }}
             className="p-2 text-zinc-600 dark:text-zinc-300 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-primary-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
             title="View Details"
+            aria-label={`View details for ${row.firstName} ${row.lastName}`}
           >
             <FiEye className="w-4 h-4" />
           </button>
@@ -336,16 +359,18 @@ const Drivers = () => {
             }}
             className="p-2 text-zinc-600 dark:text-zinc-300 hover:text-accent-600 dark:hover:text-accent-400 hover:bg-accent-50 dark:hover:bg-accent-500/10 rounded-lg transition-colors"
             title="Edit Driver"
+            aria-label={`Edit ${row.firstName} ${row.lastName}`}
           >
             <FiEdit2 className="w-4 h-4" />
           </button>
           <button
             onClick={(e) => {
               e.stopPropagation();
-              handleDelete(row);
+              handleDeleteClick(row);
             }}
             className="p-2 text-zinc-600 dark:text-zinc-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
             title="Delete Driver"
+            aria-label={`Delete ${row.firstName} ${row.lastName}`}
           >
             <FiTrash2 className="w-4 h-4" />
           </button>
@@ -392,7 +417,7 @@ const Drivers = () => {
               <FiUsers className="w-5 h-5 text-primary-600 dark:text-zinc-300" />
             </div>
             <div>
-              <p className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white font-mono">{drivers.length || 0}</p>
+              <p className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white font-mono">{pagination?.total || drivers.length || 0}</p>
               <p className="text-xs text-zinc-600 dark:text-zinc-300">Total Drivers</p>
             </div>
           </div>
@@ -448,8 +473,8 @@ const Drivers = () => {
                 type="text"
                 placeholder="Search by name, employee ID, or CDL..."
                 className="form-input pl-10"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                defaultValue={search}
+                onChange={(e) => debouncedSetSearch(e.target.value)}
               />
             </div>
           </form>
@@ -650,7 +675,7 @@ const Drivers = () => {
             <div>
               <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Driver Type</label>
               <select name="driverType" value={formData.driverType} onChange={(e) => setFormData({ ...formData, driverType: e.target.value })}
-                className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:ring-2 focus:ring-cta focus:border-cta">
+                className="form-select">
                 <option value="company_driver">Company Driver</option>
                 <option value="owner_operator">Owner-Operator</option>
               </select>
@@ -673,23 +698,23 @@ const Drivers = () => {
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Street</label>
                   <input type="text" name="address.street" value={formData.address?.street || ''} onChange={handleNestedChange}
-                    className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100" />
+                    className="form-input" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">City</label>
                   <input type="text" name="address.city" value={formData.address?.city || ''} onChange={handleNestedChange}
-                    className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100" />
+                    className="form-input" />
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">State</label>
                     <input type="text" name="address.state" value={formData.address?.state || ''} onChange={handleNestedChange} maxLength={2}
-                      className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 uppercase" />
+                      className="form-input uppercase" />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">ZIP</label>
                     <input type="text" name="address.zipCode" value={formData.address?.zipCode || ''} onChange={handleNestedChange}
-                      className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100" />
+                      className="form-input" />
                   </div>
                 </div>
               </div>
@@ -785,7 +810,7 @@ const Drivers = () => {
                 <input type="text" name="cdlRestrictions" value={formData.cdl?.restrictions?.join(', ') || ''}
                   onChange={(e) => setFormData(prev => ({ ...prev, cdl: { ...prev.cdl, restrictions: e.target.value.split(',').map(s => s.trim()).filter(Boolean) } }))}
                   placeholder="e.g. L, Z (comma-separated)"
-                  className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100" />
+                  className="form-input" />
               </div>
             </div>
           </div>
@@ -827,18 +852,18 @@ const Drivers = () => {
               <div>
                 <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">MVR Expiry Date</label>
                 <input type="date" name="mvrExpiryDate" value={formData.mvrExpiryDate || ''} onChange={(e) => setFormData({ ...formData, mvrExpiryDate: e.target.value })}
-                  className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100" />
+                  className="form-input" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Clearinghouse Exp.</label>
                 <input type="date" name="clearinghouseExpiry" value={formData.clearinghouseExpiry || ''} onChange={(e) => setFormData({ ...formData, clearinghouseExpiry: e.target.value })}
-                  className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100" />
+                  className="form-input" />
               </div>
               {selectedDriver && formData.status === 'terminated' && (
                 <div>
                   <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Termination Date</label>
                   <input type="date" name="terminationDate" value={formData.terminationDate || ''} onChange={(e) => setFormData({ ...formData, terminationDate: e.target.value })}
-                    className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100" />
+                    className="form-input" />
                 </div>
               )}
             </div>
@@ -858,6 +883,16 @@ const Drivers = () => {
           </div>
         </form>
       </Modal>
+
+      <ConfirmDialog
+        isOpen={confirmOpen}
+        onClose={() => { setConfirmOpen(false); setPendingDeleteDriver(null); }}
+        onConfirm={handleConfirmDelete}
+        title="Delete Driver"
+        message={pendingDeleteDriver ? `Delete driver "${pendingDeleteDriver.firstName} ${pendingDeleteDriver.lastName}"? This cannot be undone.` : ''}
+        confirmText="Delete"
+        variant="danger"
+      />
     </div>
   );
 };

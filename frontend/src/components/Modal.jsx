@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FiX } from 'react-icons/fi';
 
 const Modal = ({ isOpen, onClose, title, icon: Icon, children, size = 'md', footer }) => {
   const [isAnimating, setIsAnimating] = useState(false);
+  const modalRef = useRef(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -16,6 +17,39 @@ const Modal = ({ isOpen, onClose, title, icon: Icon, children, size = 'md', foot
     return () => {
       document.body.style.overflow = 'unset';
     };
+  }, [isOpen]);
+
+  // Focus trap
+  useEffect(() => {
+    if (!isOpen || !modalRef.current) return;
+
+    const focusableSelector = 'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const focusableElements = modalRef.current.querySelectorAll(focusableSelector);
+    if (focusableElements.length > 0) {
+      focusableElements[0].focus();
+    }
+
+    const handleTab = (e) => {
+      if (e.key !== 'Tab') return;
+      const elements = modalRef.current?.querySelectorAll(focusableSelector);
+      if (!elements || elements.length === 0) return;
+      const first = elements[0];
+      const last = elements[elements.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleTab);
+    return () => document.removeEventListener('keydown', handleTab);
   }, [isOpen]);
 
   // Handle escape key
@@ -46,6 +80,10 @@ const Modal = ({ isOpen, onClose, title, icon: Icon, children, size = 'md', foot
       onClick={onClose}
     >
       <div
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
         className={`bg-white dark:bg-primary-800 rounded-2xl w-full max-h-[85vh] sm:max-h-[90vh] overflow-hidden flex flex-col transition-all duration-300 shadow-2xl border border-primary-200/50 dark:border-primary-700 ${
           sizeClasses[size]
         } ${isAnimating ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'}`}

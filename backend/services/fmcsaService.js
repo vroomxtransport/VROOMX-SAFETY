@@ -12,6 +12,7 @@ const chromium = require('@sparticuz/chromium');
 
 // Browser instance for reuse
 let browserInstance = null;
+let browserPromise = null;
 
 // Cache FMCSA data for 6 hours (data updates weekly anyway)
 const cache = new NodeCache({ stdTTL: 21600, checkperiod: 600 });
@@ -284,50 +285,54 @@ const fmcsaService = {
    * Uses @sparticuz/chromium-min for cloud environments (Render, Lambda, etc.)
    */
   async getBrowser() {
-    if (!browserInstance || !browserInstance.isConnected()) {
-      // Check if we're in a cloud environment (Render sets RENDER=true)
-      // Also check for common cloud indicators
-      const isCloud = process.env.RENDER === 'true' ||
-                      process.env.AWS_LAMBDA_FUNCTION_NAME ||
-                      process.env.VERCEL ||
-                      process.env.NODE_ENV === 'production';
+    if (browserInstance && browserInstance.isConnected()) {
+      return browserInstance;
+    }
 
-      // Explicitly set local if user provides a path
-      const isLocal = process.env.PUPPETEER_EXECUTABLE_PATH ||
-                      (!isCloud && process.env.NODE_ENV === 'development');
+    // Use promise-based lock to prevent concurrent browser launches
+    if (browserPromise) {
+      return browserPromise;
+    }
 
-      let executablePath;
-      let args;
+    browserPromise = (async () => {
+      try {
+        const isCloud = process.env.RENDER === 'true' ||
+                        process.env.AWS_LAMBDA_FUNCTION_NAME ||
+                        process.env.VERCEL ||
+                        process.env.NODE_ENV === 'production';
 
-      if (isLocal) {
-        // Local development - use system Chrome
-        executablePath = process.env.PUPPETEER_EXECUTABLE_PATH ||
-          '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
-        args = [
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',
-          '--disable-gpu'
-        ];
-      } else {
-        // Cloud environment - use @sparticuz/chromium (includes bundled binary)
-        try {
-          executablePath = await chromium.executablePath();
-        } catch (pathError) {
-          console.error('[FMCSA] Failed to get Chromium path:', pathError.message);
-          throw new Error('Chromium path error: ' + pathError.message);
+        const isLocal = process.env.PUPPETEER_EXECUTABLE_PATH ||
+                        (!isCloud && process.env.NODE_ENV === 'development');
+
+        let executablePath;
+        let args;
+
+        if (isLocal) {
+          executablePath = process.env.PUPPETEER_EXECUTABLE_PATH ||
+            '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+          args = [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-gpu'
+          ];
+        } else {
+          try {
+            executablePath = await chromium.executablePath();
+          } catch (pathError) {
+            console.error('[FMCSA] Failed to get Chromium path:', pathError.message);
+            throw new Error('Chromium path error: ' + pathError.message);
+          }
+
+          args = [
+            ...chromium.args,
+            '--disable-gpu',
+            '--disable-dev-shm-usage',
+            '--single-process',
+            '--no-zygote'
+          ];
         }
 
-        args = [
-          ...chromium.args,
-          '--disable-gpu',
-          '--disable-dev-shm-usage',
-          '--single-process',  // Important for cloud environments with limited resources
-          '--no-zygote'        // Helps with memory on constrained environments
-        ];
-      }
-
-      try {
         browserInstance = await puppeteer.launch({
           args,
           defaultViewport: chromium.defaultViewport || { width: 1920, height: 1080 },
@@ -335,12 +340,17 @@ const fmcsaService = {
           headless: chromium.headless ?? true,
           ignoreHTTPSErrors: process.env.NODE_ENV === 'development'
         });
+
+        return browserInstance;
       } catch (launchError) {
         console.error('[FMCSA] Browser launch failed:', launchError.message);
         throw new Error('Browser launch failed: ' + launchError.message);
+      } finally {
+        browserPromise = null;
       }
-    }
-    return browserInstance;
+    })();
+
+    return browserPromise;
   },
 
   /**

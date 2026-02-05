@@ -38,16 +38,4 @@ const demoGuard = (req, res, next) => {
   });
 };
 
-/**
- * Check if request is from a demo user (for frontend state)
- * Can be used to add demo info to responses
- */
-const addDemoFlag = (req, res, next) => {
-  if (req.user && req.user.isDemo) {
-    // Add isDemo to response locals for use in route handlers
-    res.locals.isDemo = true;
-  }
-  next();
-};
-
-module.exports = { demoGuard, addDemoFlag };
+module.exports = { demoGuard };

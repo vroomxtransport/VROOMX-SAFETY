@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom';
-import debounce from 'lodash/debounce';
+import debounce from 'lodash.debounce';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import CompanySwitcher from './CompanySwitcher';
@@ -154,6 +154,11 @@ const Layout = () => {
     () => debounce((query) => performSearch(query), 300),
     [performSearch]
   );
+
+  // Cleanup debounced search on unmount
+  useEffect(() => {
+    return () => debouncedSearch.cancel();
+  }, [debouncedSearch]);
 
   const handleSearchChange = (e) => {
     const query = e.target.value;
@@ -334,6 +339,7 @@ const Layout = () => {
                     key={item.name}
                     to={item.path}
                     title={item.name}
+                    aria-current={isActive ? 'page' : undefined}
                     className={`relative flex items-center justify-center p-2.5 rounded-lg transition-all duration-200 group ${
                       isActive
                         ? 'bg-orange-50 dark:bg-orange-500/10 text-orange-500'
@@ -411,6 +417,7 @@ const Layout = () => {
                             <NavLink
                               key={item.name}
                               to={item.path}
+                              aria-current={isActive ? 'page' : undefined}
                               className={`relative flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 group ${
                                 isActive
                                   ? 'bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400'
@@ -506,6 +513,7 @@ const Layout = () => {
             {/* Left side */}
             <div className="flex items-center gap-4">
               <button
+                aria-label="Open navigation menu"
                 className="lg:hidden p-2 text-zinc-500 hover:text-zinc-700 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-zinc-200 dark:hover:bg-white/10 rounded-lg transition-colors"
                 onClick={() => setSidebarOpen(true)}
               >

@@ -12,6 +12,8 @@ import {
 import LoadingSpinner from '../components/LoadingSpinner';
 import StatusBadge from '../components/StatusBadge';
 import Modal from '../components/Modal';
+import HealthBadge from '../components/HealthBadge';
+import TabButton from '../components/TabButton';
 
 // Helper to get status color
 const getStatusColor = (status) => {
@@ -48,60 +50,6 @@ const getClaimStatusColor = (status) => {
   };
   return colors[status] || colors.closed;
 };
-
-// Health status badge component
-const HealthBadge = ({ label, days, type = 'days' }) => {
-  let bgColor, textColor, icon;
-
-  if (days === null || days === undefined) {
-    bgColor = 'bg-zinc-100 dark:bg-zinc-800';
-    textColor = 'text-zinc-500 dark:text-zinc-400';
-    icon = <FiClock className="w-4 h-4" />;
-  } else if (days < 0) {
-    bgColor = 'bg-red-100 dark:bg-red-500/20';
-    textColor = 'text-red-600 dark:text-red-400';
-    icon = <FiAlertCircle className="w-4 h-4" />;
-  } else if (days <= 30) {
-    bgColor = 'bg-yellow-100 dark:bg-yellow-500/20';
-    textColor = 'text-yellow-600 dark:text-yellow-400';
-    icon = <FiAlertCircle className="w-4 h-4" />;
-  } else {
-    bgColor = 'bg-green-100 dark:bg-green-500/20';
-    textColor = 'text-green-600 dark:text-green-400';
-    icon = <FiCheck className="w-4 h-4" />;
-  }
-
-  const displayValue = days === null || days === undefined
-    ? 'Not set'
-    : days < 0
-      ? `${Math.abs(days)}d overdue`
-      : `${days}d`;
-
-  return (
-    <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${bgColor}`}>
-      <span className={textColor}>{icon}</span>
-      <div>
-        <p className="text-xs text-zinc-500 dark:text-zinc-400">{label}</p>
-        <p className={`text-sm font-semibold ${textColor}`}>{displayValue}</p>
-      </div>
-    </div>
-  );
-};
-
-// Tab button component
-const TabButton = ({ active, onClick, children, icon: Icon }) => (
-  <button
-    onClick={onClick}
-    className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg transition-all ${
-      active
-        ? 'bg-primary-500 text-white shadow-md'
-        : 'text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800'
-    }`}
-  >
-    {Icon && <Icon className="w-4 h-4" />}
-    {children}
-  </button>
-);
 
 const VehicleDetail = () => {
   const { id } = useParams();

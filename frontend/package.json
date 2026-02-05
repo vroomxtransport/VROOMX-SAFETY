@@ -33,8 +33,7 @@
     "dompurify": "^3.3.1",
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.8.1",
-    "lodash": "^4.17.23",
-    "puppeteer": "^24.37.1",
+    "lodash.debounce": "^4.0.8",
     "react": "^18.2.0",
     "react-datepicker": "^4.25.0",
     "react-dom": "^18.2.0",
@@ -42,10 +41,11 @@
     "react-hot-toast": "^2.4.1",
     "react-icons": "^4.12.0",
     "react-router-dom": "^6.21.0",
-    "react-snap": "^1.23.0",
     "recharts": "^2.10.3"
   },
   "devDependencies": {
+    "puppeteer": "^24.37.1",
+    "react-snap": "^1.23.0",
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
     "@vitejs/plugin-react": "^4.2.1",

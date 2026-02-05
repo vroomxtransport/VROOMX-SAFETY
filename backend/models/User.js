@@ -167,6 +167,7 @@ const userSchema = new mongoose.Schema({
   },
   passwordResetToken: String, // Stored as SHA-256 hash
   passwordResetExpires: Date,
+  passwordChangedAt: Date, // Set on password change/logout to invalidate old tokens
 
   // Email preferences and verification
   emailPreferences: {

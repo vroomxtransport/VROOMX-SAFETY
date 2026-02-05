@@ -234,13 +234,7 @@ const openaiVisionService = {
 
       const content = response.choices[0].message.content;
 
-      // Parse JSON from response
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        throw new Error('Failed to parse classification response');
-      }
-
-      return JSON.parse(jsonMatch[0]);
+      return this._parseJsonFromResponse(content, 'classification');
     } catch (error) {
       console.error('Error classifying document:', error);
       throw error;
@@ -283,13 +277,8 @@ const openaiVisionService = {
 
       const content = response.choices[0].message.content;
 
-      // Parse JSON from response
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        throw new Error('Failed to parse extraction response');
-      }
-
-      const extracted = JSON.parse(jsonMatch[0]);
+      // Parse JSON from response - try code-block first, then raw JSON object
+      const extracted = this._parseJsonFromResponse(content, 'extraction');
 
       return {
         success: true,
@@ -366,13 +355,8 @@ Return a JSON object with this structure:
 
       const content = response.choices[0].message.content;
 
-      // Parse JSON from response
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        throw new Error('Failed to parse analysis response');
-      }
-
-      const result = JSON.parse(jsonMatch[0]);
+      // Parse JSON from response - try code-block first, then raw JSON object
+      const result = this._parseJsonFromResponse(content, 'analysis');
 
       return {
         success: true,
@@ -429,16 +413,12 @@ Return a JSON object with this structure:
       });
 
       const responseContent = response.choices[0].message.content;
-      const jsonMatch = responseContent.match(/\{[\s\S]*\}/);
-
-      if (!jsonMatch) {
-        throw new Error('Failed to parse multi-page extraction response');
-      }
+      const parsedData = this._parseJsonFromResponse(responseContent, 'multi-page extraction');
 
       return {
         success: true,
         documentType,
-        data: JSON.parse(jsonMatch[0]),
+        data: parsedData,
         pageCount: imageInputs.length,
         usage: {
           promptTokens: response.usage.prompt_tokens,
@@ -526,13 +506,8 @@ Return a JSON object with this structure:
         }
       }
 
-      // Parse JSON from response
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        throw new Error('Failed to parse maintenance extraction response');
-      }
-
-      const extracted = JSON.parse(jsonMatch[0]);
+      // Parse JSON from response - try code-block first, then raw JSON object
+      const extracted = this._parseJsonFromResponse(content, 'maintenance extraction');
 
       return {
         success: true,
@@ -546,6 +521,37 @@ Return a JSON object with this structure:
   },
 
   // Private helper methods
+
+  /**
+   * Parse JSON from AI response content.
+   * Tries code-block extraction first, then falls back to greedy object match.
+   * @param {string} content - Raw AI response text
+   * @param {string} context - Description for error messages
+   * @returns {Object} Parsed JSON object
+   */
+  _parseJsonFromResponse(content, context) {
+    // Try code-block extraction first (```json ... ```)
+    const codeBlockMatch = content.match(/```json\s*([\s\S]*?)```/);
+    if (codeBlockMatch) {
+      try {
+        return JSON.parse(codeBlockMatch[1].trim());
+      } catch (e) {
+        // Fall through to object match
+      }
+    }
+
+    // Fallback: extract first JSON object
+    const objectMatch = content.match(/\{[\s\S]*\}/);
+    if (!objectMatch) {
+      throw new Error(`Failed to parse ${context} response`);
+    }
+
+    try {
+      return JSON.parse(objectMatch[0]);
+    } catch (parseErr) {
+      throw new Error(`Failed to parse ${context} JSON: ${parseErr.message}`);
+    }
+  },
 
   /**
    * Convert image input to base64

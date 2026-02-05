@@ -59,12 +59,6 @@ if (process.env.NODE_ENV === 'production') {
     process.exit(1);
   }
 
-  // FMCSA credentials are optional - sync features disabled without them
-  const fmcsaVars = ['SAFERWEB_API_KEY', 'SOCRATA_APP_TOKEN'];
-  const missingFmcsa = fmcsaVars.filter(v => !process.env[v]);
-  if (missingFmcsa.length > 0) {
-    console.warn(`WARNING: Missing FMCSA credentials (${missingFmcsa.join(', ')}). FMCSA auto-sync will be disabled.`);
-  }
 }
 
 // Enforce strong JWT secret in production (minimum 32 characters)
@@ -77,13 +71,11 @@ if (process.env.JWT_SECRET && process.env.JWT_SECRET.length < 32) {
   }
 }
 
-// Warn about missing FMCSA credentials in development
-if (process.env.NODE_ENV !== 'production') {
-  const fmcsaVars = ['SAFERWEB_API_KEY', 'SOCRATA_APP_TOKEN'];
-  const missingFmcsa = fmcsaVars.filter(v => !process.env[v]);
-  if (missingFmcsa.length > 0) {
-    console.warn(`WARNING: Missing FMCSA credentials (${missingFmcsa.join(', ')}). FMCSA sync will not work.`);
-  }
+// FMCSA credentials are optional in all environments - sync features disabled without them
+const fmcsaVars = ['SAFERWEB_API_KEY', 'SOCRATA_APP_TOKEN'];
+const missingFmcsa = fmcsaVars.filter(v => !process.env[v]);
+if (missingFmcsa.length > 0) {
+  console.warn(`WARNING: Missing FMCSA credentials (${missingFmcsa.join(', ')}). FMCSA sync will be disabled.`);
 }
 
 // Initialize express
@@ -134,8 +126,8 @@ const getAllowedOrigins = () => {
 app.use(cors({
   origin: function(origin, callback) {
     const allowedOrigins = getAllowedOrigins();
-    // Allow requests with no origin (server-to-server, curl)
-    if (!origin) return callback(null, true);
+    // Allow requests with no origin (server-to-server, curl) only in non-production
+    if (!origin) return callback(null, process.env.NODE_ENV !== 'production');
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
@@ -188,6 +180,8 @@ if (redisClient && RedisStore) {
 const authLimiter = rateLimit(authLimiterConfig);
 app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/register', authLimiter);
+app.use('/api/auth/forgot-password', authLimiter);
+app.use('/api/auth/reset-password', authLimiter);
 
 // Body parsing — skip JSON parsing for Stripe webhook (needs raw body for signature verification)
 app.use((req, res, next) => {
@@ -251,7 +245,7 @@ app.use(errorHandler);
 
 // Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`
   ╔═══════════════════════════════════════════════════════╗
   ║     VroomX Safety API Server                          ║
@@ -260,10 +254,20 @@ app.listen(PORT, () => {
   ╚═══════════════════════════════════════════════════════╝
   `);
 
+  // Cron job overlap guards
+  let isAlertGenRunning = false;
+  let isEscalationRunning = false;
+  let isTrialCheckRunning = false;
+  let isReportProcessingRunning = false;
+  let isSamsaraSyncRunning = false;
+  let isFmcsaSyncRunning = false;
+
   // Schedule daily alert generation at 6:00 AM
   cron.schedule('0 6 * * *', async () => {
-    logger.cron('Running daily alert generation...');
+    if (isAlertGenRunning) { logger.cron('Daily alert generation already running, skipping'); return; }
+    isAlertGenRunning = true;
     try {
+      logger.cron('Running daily alert generation...');
       const result = await alertService.generateAlertsForAllCompanies();
       logger.cron('Daily alert generation complete', result);
 
@@ -276,24 +280,32 @@ app.listen(PORT, () => {
       }
     } catch (error) {
       logger.error('[Cron] Error in daily alert generation', error);
+    } finally {
+      isAlertGenRunning = false;
     }
   });
 
   // Schedule alert escalation check every 6 hours
   cron.schedule('0 */6 * * *', async () => {
-    logger.cron('Running alert escalation check...');
+    if (isEscalationRunning) { logger.cron('Alert escalation already running, skipping'); return; }
+    isEscalationRunning = true;
     try {
+      logger.cron('Running alert escalation check...');
       const escalated = await alertService.escalateAlerts();
       logger.cron(`Escalated ${escalated} alerts`);
     } catch (error) {
       logger.error('[Cron] Error in alert escalation', error);
+    } finally {
+      isEscalationRunning = false;
     }
   });
 
   // Schedule trial ending notifications at 9:00 AM
   cron.schedule('0 9 * * *', async () => {
-    logger.cron('Checking for trials ending soon...');
+    if (isTrialCheckRunning) { logger.cron('Trial check already running, skipping'); return; }
+    isTrialCheckRunning = true;
     try {
+      logger.cron('Checking for trials ending soon...');
       const User = require('./models/User');
       const threeDaysFromNow = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
       const twoDaysFromNow = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
@@ -309,13 +321,17 @@ app.listen(PORT, () => {
       logger.cron(`Sent ${users.length} trial ending notifications`);
     } catch (error) {
       logger.error('[Cron] Error checking trials', error);
+    } finally {
+      isTrialCheckRunning = false;
     }
   });
 
   // Schedule report processing every hour
   cron.schedule('0 * * * *', async () => {
-    logger.cron('Processing scheduled reports...');
+    if (isReportProcessingRunning) { logger.cron('Report processing already running, skipping'); return; }
+    isReportProcessingRunning = true;
     try {
+      logger.cron('Processing scheduled reports...');
       const scheduledReportService = require('./services/scheduledReportService');
       const result = await scheduledReportService.processAllDueReports();
       if (result.total > 0) {
@@ -323,13 +339,17 @@ app.listen(PORT, () => {
       }
     } catch (error) {
       logger.error('[Cron] Error processing scheduled reports', error);
+    } finally {
+      isReportProcessingRunning = false;
     }
   });
 
   // Sync Samsara integrations every hour (for companies with autoSync enabled)
   cron.schedule('30 * * * *', async () => {
-    logger.cron('Running hourly Samsara sync...');
+    if (isSamsaraSyncRunning) { logger.cron('Samsara sync already running, skipping'); return; }
+    isSamsaraSyncRunning = true;
     try {
+      logger.cron('Running hourly Samsara sync...');
       const Integration = require('./models/Integration');
       const samsaraService = require('./services/samsaraService');
 
@@ -362,18 +382,22 @@ app.listen(PORT, () => {
       logger.cron(`Samsara sync completed: ${successCount}/${activeIntegrations.length} integrations`);
     } catch (err) {
       logger.error('[Cron] Samsara sync job failed', { error: err.message });
+    } finally {
+      isSamsaraSyncRunning = false;
     }
   });
 
   // Sync FMCSA data every 6 hours (CSA scores, violations, inspection stats)
   cron.schedule('0 */6 * * *', async () => {
+    if (isFmcsaSyncRunning) { logger.cron('FMCSA sync already running, skipping'); return; }
     // Skip if FMCSA credentials not configured
     if (!process.env.SAFERWEB_API_KEY || !process.env.SOCRATA_APP_TOKEN) {
       logger.cron('FMCSA sync skipped - credentials not configured');
       return;
     }
-    logger.cron('Running FMCSA data sync...');
+    isFmcsaSyncRunning = true;
     try {
+      logger.cron('Running FMCSA data sync...');
       const fmcsaSyncOrchestrator = require('./services/fmcsaSyncOrchestrator');
       const result = await fmcsaSyncOrchestrator.syncAllCompanies();
       logger.cron(`FMCSA sync complete: ${result.succeeded}/${result.total} companies succeeded`);
@@ -382,11 +406,38 @@ app.listen(PORT, () => {
       }
     } catch (error) {
       logger.error('[Cron] FMCSA sync job failed', { error: error.message });
+    } finally {
+      isFmcsaSyncRunning = false;
     }
   });
 
   logger.info('[Cron] Scheduled: Daily alerts at 6 AM, Alert digest emails, Escalation check every 6 hours, Trial ending check at 9 AM, Scheduled reports every hour, Samsara sync every hour, FMCSA data sync every 6 hours');
 });
+
+// Graceful shutdown handler
+const SHUTDOWN_TIMEOUT_MS = 30000;
+
+function gracefulShutdown(signal) {
+  console.log(`\n${signal} received. Starting graceful shutdown...`);
+  server.close(() => {
+    console.log('HTTP server closed.');
+    mongoose.connection.close(false).then(() => {
+      console.log('MongoDB connection closed.');
+      process.exit(0);
+    }).catch(() => {
+      process.exit(0);
+    });
+  });
+
+  // Force exit after timeout
+  setTimeout(() => {
+    console.error('Graceful shutdown timed out, forcing exit.');
+    process.exit(1);
+  }, SHUTDOWN_TIMEOUT_MS);
+}
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 // Handle uncaught exceptions — log and exit so process manager can restart
 process.on('uncaughtException', (err) => {

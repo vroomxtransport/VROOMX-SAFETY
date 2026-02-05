@@ -9,9 +9,7 @@ const { uploadSingle, getFileUrl, deleteFile } = require('../middleware/upload')
 const openaiVisionService = require('../services/openaiVisionService');
 const auditService = require('../services/auditService');
 
-function escapeRegex(string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
+const { escapeRegex } = require('../utils/helpers');
 
 function normalizeAiError(error) {
   const status = error?.status || error?.response?.status;
@@ -225,12 +223,12 @@ router.get('/vehicle/:vehicleId', checkPermission('maintenance', 'view'), asyncH
   const skip = (parseInt(page) - 1) * parseInt(limit);
 
   const [records, total] = await Promise.all([
-    MaintenanceRecord.find({ vehicleId: req.params.vehicleId })
+    MaintenanceRecord.find({ vehicleId: req.params.vehicleId, companyId: req.companyFilter.companyId })
       .populate('createdBy', 'firstName lastName')
       .sort('-serviceDate')
       .skip(skip)
       .limit(parseInt(limit)),
-    MaintenanceRecord.countDocuments({ vehicleId: req.params.vehicleId })
+    MaintenanceRecord.countDocuments({ vehicleId: req.params.vehicleId, companyId: req.companyFilter.companyId })
   ]);
 
   // Calculate totals for this vehicle
@@ -448,11 +446,15 @@ router.put('/:id', checkPermission('maintenance', 'edit'), asyncHandler(async (r
     return res.status(404).json({ success: false, message: 'Maintenance record not found' });
   }
 
-  req.body.lastUpdatedBy = req.user._id;
+  const allowedUpdateFields = ['recordType', 'serviceDate', 'description', 'odometerReading', 'provider', 'laborCost', 'partsCost', 'totalCost', 'notes', 'nextServiceDate', 'defectsFound', 'documents', 'status'];
+  const updateData = { lastUpdatedBy: req.user._id };
+  for (const key of allowedUpdateFields) {
+    if (req.body[key] !== undefined) updateData[key] = req.body[key];
+  }
 
-  record = await MaintenanceRecord.findByIdAndUpdate(
-    req.params.id,
-    req.body,
+  record = await MaintenanceRecord.findOneAndUpdate(
+    { _id: req.params.id, companyId: req.companyFilter.companyId },
+    updateData,
     { new: true, runValidators: true }
   )
     .populate('vehicleId', 'unitNumber type make model year')
@@ -588,9 +590,11 @@ router.get('/export/vehicle/:vehicleId', checkPermission('maintenance', 'view'),
     return res.status(404).json({ success: false, message: 'Vehicle not found' });
   }
 
-  const records = await MaintenanceRecord.find({ vehicleId: req.params.vehicleId })
+  const totalCount = await MaintenanceRecord.countDocuments({ vehicleId: req.params.vehicleId, companyId: req.companyFilter.companyId });
+  const records = await MaintenanceRecord.find({ vehicleId: req.params.vehicleId, companyId: req.companyFilter.companyId })
     .populate('createdBy', 'firstName lastName')
-    .sort('-serviceDate');
+    .sort('-serviceDate')
+    .limit(5000);
 
   // Generate CSV
   const headers = [
@@ -611,7 +615,11 @@ router.get('/export/vehicle/:vehicleId', checkPermission('maintenance', 'view'),
     `"${(r.notes || '').replace(/"/g, '""')}"`
   ]);
 
-  const csv = [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
+  const csvLines = [headers.join(','), ...rows.map(row => row.join(','))];
+  if (totalCount > 5000) {
+    csvLines.unshift(`# NOTE: Export truncated to 5000 records out of ${totalCount} total`);
+  }
+  const csv = csvLines.join('\n');
 
   res.setHeader('Content-Type', 'text/csv');
   res.setHeader('Content-Disposition', `attachment; filename="maintenance_${vehicle.unitNumber}_${new Date().toISOString().split('T')[0]}.csv"`);

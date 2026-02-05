@@ -521,13 +521,17 @@ const alertService = {
       }
     }
 
+    // Auto-resolve alerts where conditions no longer exist
+    const autoResolved = await this.autoResolveAlerts(companyId);
+
     // Execute all alert creations
     const results = await Promise.all(alertPromises);
 
     return {
       total: results.length,
       created: results.filter(r => r.created).length,
-      updated: results.filter(r => !r.created).length
+      updated: results.filter(r => !r.created).length,
+      autoResolved
     };
   },
 
@@ -588,13 +592,110 @@ const alertService = {
    * Auto-resolve alerts when conditions are met
    */
   async autoResolveAlerts(companyId) {
-    // Auto-resolve document expiring alerts when document is updated
-    // This would be called when documents are renewed
+    let resolvedCount = 0;
 
-    // For now, just clean up any alerts for entities that no longer exist
-    // or have been resolved
+    // Auto-resolve CDL/Medical alerts where the document is now valid
+    const driverAlerts = await Alert.find({
+      companyId,
+      status: 'active',
+      category: 'driver',
+      entityType: 'driver',
+      title: { $in: ['CDL Expired', 'CDL Expiring Soon', 'Medical Card Expired', 'Medical Card Expiring Soon'] }
+    });
 
-    return 0; // Placeholder
+    for (const alert of driverAlerts) {
+      const driver = await Driver.findById(alert.entityId);
+      if (!driver || driver.status !== 'active') {
+        alert.status = 'resolved';
+        alert.resolvedAt = new Date();
+        alert.resolutionNotes = 'Auto-resolved: driver no longer active';
+        await alert.save();
+        resolvedCount++;
+        continue;
+      }
+
+      const isCdlAlert = alert.title.includes('CDL');
+      const expiryDate = isCdlAlert ? driver.cdl?.expiryDate : driver.medicalCard?.expiryDate;
+      if (expiryDate) {
+        const daysRemaining = this._getDaysRemaining(expiryDate);
+        const isExpiredAlert = alert.title.includes('Expired');
+        // Resolve if the document is now valid (>30 days out for "expiring soon", >0 for "expired")
+        if ((isExpiredAlert && daysRemaining > 0) || (!isExpiredAlert && daysRemaining > 30)) {
+          alert.status = 'resolved';
+          alert.resolvedAt = new Date();
+          alert.resolutionNotes = 'Auto-resolved: document renewed';
+          await alert.save();
+          resolvedCount++;
+        }
+      }
+    }
+
+    // Auto-resolve vehicle inspection alerts where inspection is now current
+    const vehicleAlerts = await Alert.find({
+      companyId,
+      status: 'active',
+      category: 'vehicle',
+      entityType: 'vehicle',
+      title: { $in: ['Annual Inspection Overdue', 'Annual Inspection Due Soon'] }
+    });
+
+    for (const alert of vehicleAlerts) {
+      const vehicle = await Vehicle.findById(alert.entityId);
+      if (!vehicle || vehicle.status === 'sold') {
+        alert.status = 'resolved';
+        alert.resolvedAt = new Date();
+        alert.resolutionNotes = 'Auto-resolved: vehicle no longer active';
+        await alert.save();
+        resolvedCount++;
+        continue;
+      }
+
+      if (vehicle.annualInspection?.nextDueDate) {
+        const daysRemaining = this._getDaysRemaining(vehicle.annualInspection.nextDueDate);
+        if (daysRemaining > 30) {
+          alert.status = 'resolved';
+          alert.resolvedAt = new Date();
+          alert.resolutionNotes = 'Auto-resolved: inspection completed';
+          await alert.save();
+          resolvedCount++;
+        }
+      }
+    }
+
+    // Auto-resolve document expiration alerts where document status changed
+    const docAlerts = await Alert.find({
+      companyId,
+      status: 'active',
+      category: 'document',
+      entityType: 'document',
+      title: { $in: ['Document Expired', 'Document Expiring Soon'] }
+    });
+
+    for (const alert of docAlerts) {
+      const doc = await Document.findById(alert.entityId);
+      if (!doc || doc.isDeleted) {
+        alert.status = 'resolved';
+        alert.resolvedAt = new Date();
+        alert.resolutionNotes = 'Auto-resolved: document removed';
+        await alert.save();
+        resolvedCount++;
+        continue;
+      }
+
+      if (doc.expiryDate) {
+        const daysRemaining = this._getDaysRemaining(doc.expiryDate);
+        const isExpiredAlert = alert.title === 'Document Expired';
+        if ((isExpiredAlert && daysRemaining > 0) || (!isExpiredAlert && daysRemaining > 30)) {
+          alert.status = 'resolved';
+          alert.resolvedAt = new Date();
+          alert.resolutionNotes = 'Auto-resolved: document renewed';
+          await alert.save();
+          resolvedCount++;
+        }
+      }
+    }
+
+    return resolvedCount;
   },
 
   /**

@@ -13,8 +13,11 @@ const emailService = require('../services/emailService');
 const auditService = require('../services/auditService');
 
 // Generate JWT access token (short-lived: 2 hours)
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
+const generateToken = (id, options = {}) => {
+  const payload = { id };
+  if (options.isDemo) payload.isDemo = true;
+  if (options.impersonatedBy) payload.impersonatedBy = options.impersonatedBy;
+  return jwt.sign(payload, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN || '2h',
     algorithm: 'HS256'
   });
@@ -169,9 +172,11 @@ router.post('/register', [
 
   auditService.logAuth(req, 'create', { email, userId: user._id, companyId: company._id, summary: 'User registered' });
 
+  // Note: token included in response body for clients that cannot use httpOnly cookies (e.g. mobile apps).
+  // Can be disabled by setting INCLUDE_TOKEN_IN_BODY=false in environment.
   res.status(201).json({
     success: true,
-    token,
+    ...(process.env.INCLUDE_TOKEN_IN_BODY !== 'false' && { token }),
     user: {
       id: user._id,
       email: user.email,
@@ -211,7 +216,18 @@ router.post('/register', [
 // @route   POST /api/auth/logout
 // @desc    Logout user (clear httpOnly cookies)
 // @access  Public
-router.post('/logout', (req, res) => {
+router.post('/logout', asyncHandler(async (req, res) => {
+  // Invalidate existing tokens by updating passwordChangedAt
+  try {
+    const token = req.cookies?.token || (req.headers.authorization?.startsWith('Bearer') ? req.headers.authorization.split(' ')[1] : null);
+    if (token) {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
+      await User.findByIdAndUpdate(decoded.id, { $set: { passwordChangedAt: new Date() } });
+    }
+  } catch (_) {
+    // Token verification may fail on logout - that's fine, just clear cookies
+  }
+
   // Clear access token
   res.cookie('token', '', {
     httpOnly: true,
@@ -229,7 +245,7 @@ router.post('/logout', (req, res) => {
     path: '/api/auth'
   });
   res.json({ success: true, message: 'Logged out successfully' });
-});
+}));
 
 // @route   POST /api/auth/login
 // @desc    Login user
@@ -360,9 +376,11 @@ router.post('/login', [
 
   auditService.logAuth(req, 'login', { email, userId: user._id, companyId: activeCompany?._id });
 
+  // Note: token included in response body for clients that cannot use httpOnly cookies (e.g. mobile apps).
+  // Can be disabled by setting INCLUDE_TOKEN_IN_BODY=false in environment.
   res.json({
     success: true,
-    token,
+    ...(process.env.INCLUDE_TOKEN_IN_BODY !== 'false' && { token }),
     user: {
       id: user._id,
       email: user.email,
@@ -434,6 +452,17 @@ router.post('/refresh', asyncHandler(async (req, res) => {
       });
     }
 
+    // Check if refresh token was issued before password change / logout
+    if (user.passwordChangedAt) {
+      const changedTimestamp = Math.floor(user.passwordChangedAt.getTime() / 1000);
+      if (decoded.iat < changedTimestamp) {
+        return res.status(401).json({
+          success: false,
+          message: 'Session invalidated. Please log in again.'
+        });
+      }
+    }
+
     // Issue new access token and rotate refresh token
     const newToken = generateToken(user._id);
     const newRefreshToken = generateRefreshToken(user._id);
@@ -498,7 +527,7 @@ router.post('/demo-login', asyncHandler(async (req, res) => {
   user.lastLogin = new Date();
   await user.save({ validateBeforeSave: false });
 
-  const token = generateToken(user._id);
+  const token = generateToken(user._id, { isDemo: true });
   setTokenCookie(res, token);
 
   // Build companies list for response
@@ -512,9 +541,11 @@ router.post('/demo-login', asyncHandler(async (req, res) => {
 
   auditService.logAuth(req, 'demo_login', { email: DEMO_EMAIL, userId: user._id });
 
+  // Note: token included in response body for clients that cannot use httpOnly cookies (e.g. mobile apps).
+  // Can be disabled by setting INCLUDE_TOKEN_IN_BODY=false in environment.
   res.json({
     success: true,
-    token,
+    ...(process.env.INCLUDE_TOKEN_IN_BODY !== 'false' && { token }),
     isDemo: true,
     user: {
       id: user._id,
@@ -653,6 +684,7 @@ router.put('/updatepassword', protect, [
   }
 
   user.password = req.body.newPassword;
+  user.passwordChangedAt = Date.now();
   await user.save();
 
   const token = generateToken(user._id);
@@ -680,7 +712,7 @@ router.put('/profile', protect, asyncHandler(async (req, res) => {
 
   const user = await User.findByIdAndUpdate(
     req.user._id,
-    updateFields,
+    { $set: updateFields },
     { new: true, runValidators: true }
   ).select('-password');
 
@@ -867,7 +899,16 @@ router.post('/forgot-password', asyncHandler(async (req, res) => {
 // @route   POST /api/auth/reset-password/:token
 // @desc    Reset password with token
 // @access  Public
-router.post('/reset-password/:token', asyncHandler(async (req, res) => {
+router.post('/reset-password/:token', [
+  body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/)
+    .withMessage('Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character')
+], asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ success: false, errors: errors.array() });
+  }
+
   const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
 
   const user = await User.findOne({
@@ -882,6 +923,7 @@ router.post('/reset-password/:token', asyncHandler(async (req, res) => {
   user.password = req.body.password;
   user.passwordResetToken = undefined;
   user.passwordResetExpires = undefined;
+  user.passwordChangedAt = Date.now();
   await user.save();
 
   // Send confirmation email (fire-and-forget)
@@ -892,11 +934,15 @@ router.post('/reset-password/:token', asyncHandler(async (req, res) => {
   res.json({ success: true, message: 'Password has been reset successfully' });
 }));
 
-// @route   GET /api/auth/verify-email/:token
+// @route   POST /api/auth/verify-email
 // @desc    Verify email address
 // @access  Public
-router.get('/verify-email/:token', asyncHandler(async (req, res) => {
-  const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
+router.post('/verify-email', asyncHandler(async (req, res) => {
+  const { token } = req.body;
+  if (!token) {
+    throw new AppError('Verification token is required', 400);
+  }
+  const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
 
   const user = await User.findOne({
     emailVerificationToken: hashedToken,

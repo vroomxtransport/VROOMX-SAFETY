@@ -5,6 +5,7 @@ import { useSearchParams } from 'react-router-dom';
 import { authAPI, companiesAPI, invitationsAPI, billingAPI } from '../utils/api';
 import toast from 'react-hot-toast';
 import { FiUser, FiLock, FiUsers, FiBriefcase, FiCreditCard, FiMoon, FiBell, FiClipboard, FiDatabase } from 'react-icons/fi';
+import ConfirmDialog from '../components/ConfirmDialog';
 import {
   ProfileTab,
   AppearanceTab,
@@ -26,6 +27,7 @@ const Settings = () => {
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'profile');
   const [loading, setLoading] = useState(false);
+  const [tabLoading, setTabLoading] = useState(false);
   const [users, setUsers] = useState([]);
   const [companyMembers, setCompanyMembers] = useState([]);
   const [pendingInvitations, setPendingInvitations] = useState([]);
@@ -34,6 +36,7 @@ const Settings = () => {
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [showAddCompanyModal, setShowAddCompanyModal] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
+  const [removeMemberConfirm, setRemoveMemberConfirm] = useState({ open: false, userId: null });
 
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
@@ -78,11 +81,14 @@ const Settings = () => {
   }, [activeTab]);
 
   const loadUsers = async () => {
+    setTabLoading(true);
     try {
       const response = await authAPI.getUsers();
       setUsers(response.data.users);
     } catch (error) {
       toast.error('Failed to load users');
+    } finally {
+      setTabLoading(false);
     }
   };
 
@@ -182,15 +188,20 @@ const Settings = () => {
     }
   };
 
-  const handleRemoveMember = async (userId) => {
-    if (!confirm('Are you sure you want to remove this member?')) return;
+  const handleRemoveMemberClick = (userId) => {
+    setRemoveMemberConfirm({ open: true, userId });
+  };
+
+  const handleConfirmRemoveMember = async () => {
+    if (!removeMemberConfirm.userId) return;
     try {
-      await companiesAPI.removeMember(activeCompany.id || activeCompany._id, userId);
+      await companiesAPI.removeMember(activeCompany.id || activeCompany._id, removeMemberConfirm.userId);
       toast.success('Member removed');
       loadCompanyData();
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to remove member');
     }
+    setRemoveMemberConfirm({ open: false, userId: null });
   };
 
   const handleCancelInvitation = async (invitationId) => {
@@ -335,7 +346,7 @@ const Settings = () => {
             setShowInviteModal={setShowInviteModal}
             handleAcceptInvitation={handleAcceptInvitation}
             handleDeclineInvitation={handleDeclineInvitation}
-            handleRemoveMember={handleRemoveMember}
+            handleRemoveMember={handleRemoveMemberClick}
             handleCancelInvitation={handleCancelInvitation}
           />
         )}
@@ -351,7 +362,14 @@ const Settings = () => {
         )}
 
         {activeTab === 'users' && (user?.role === 'admin' || activeCompany?.role === 'owner' || activeCompany?.role === 'admin') && (
-          <UsersTab users={users} setShowAddUserModal={setShowAddUserModal} />
+          tabLoading ? (
+            <div className="flex items-center justify-center py-16">
+              <div className="w-6 h-6 border-2 border-accent-500 border-t-transparent rounded-full animate-spin" />
+              <span className="ml-3 text-sm text-zinc-500 dark:text-zinc-400">Loading...</span>
+            </div>
+          ) : (
+            <UsersTab users={users} setShowAddUserModal={setShowAddUserModal} />
+          )
         )}
 
         {activeTab === 'audit' && (user?.role === 'admin' || activeCompany?.role === 'owner' || activeCompany?.role === 'admin') && (
@@ -390,6 +408,16 @@ const Settings = () => {
         setInviteForm={setInviteForm}
         handleInviteMember={handleInviteMember}
         loading={loading}
+      />
+
+      <ConfirmDialog
+        isOpen={removeMemberConfirm.open}
+        onClose={() => setRemoveMemberConfirm({ open: false, userId: null })}
+        onConfirm={handleConfirmRemoveMember}
+        title="Remove Member"
+        message="Are you sure you want to remove this member?"
+        confirmText="Remove"
+        variant="danger"
       />
     </div>
   );

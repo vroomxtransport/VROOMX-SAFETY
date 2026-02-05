@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { dashboardAPI, csaAPI, fmcsaInspectionsAPI, driversAPI, fmcsaAPI } from '../utils/api';
+import { dashboardAPI, csaAPI, fmcsaInspectionsAPI, driversAPI, fmcsaAPI, complianceScoreAPI } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import {
   FiUsers, FiTruck, FiAlertTriangle, FiClock,
@@ -31,8 +31,19 @@ const Dashboard = () => {
   const [syncStatus, setSyncStatus] = useState(null);
   const [syncing, setSyncing] = useState(false);
 
+  const fmcsaTimerRef = useRef(null);
+
   useEffect(() => {
     fetchDashboard();
+
+    // Re-fetch on company switch
+    const handleCompanySwitch = () => fetchDashboard();
+    window.addEventListener('companySwitch', handleCompanySwitch);
+    return () => {
+      window.removeEventListener('companySwitch', handleCompanySwitch);
+      // Clear any pending setTimeout timers
+      if (fmcsaTimerRef.current) clearTimeout(fmcsaTimerRef.current);
+    };
   }, []);
 
   const fetchDashboard = async () => {
@@ -40,7 +51,7 @@ const Dashboard = () => {
       const [dashboardRes, trendRes, complianceRes, historyRes, benchmarkRes, inspectionsRes, riskDriversRes, syncStatusRes] = await Promise.all([
         dashboardAPI.get(),
         csaAPI.getTrendSummary(30).catch(() => null),
-        dashboardAPI.getComplianceScore().catch(() => null),
+        complianceScoreAPI.getComplianceScore().catch(() => null),
         dashboardAPI.getComplianceHistory(30).catch(() => null),
         csaAPI.getBenchmark().catch(() => null),
         fmcsaInspectionsAPI.getRecent(5).catch(() => null),
@@ -87,7 +98,7 @@ const Dashboard = () => {
         await fetchDashboard();
         setFmcsaMessage({ type: 'success', text: 'FMCSA data updated successfully!' });
         // Auto-hide message after 5 seconds
-        setTimeout(() => setFmcsaMessage(null), 5000);
+        fmcsaTimerRef.current = setTimeout(() => setFmcsaMessage(null), 5000);
       }
     } catch (err) {
       setFmcsaMessage({
@@ -95,7 +106,7 @@ const Dashboard = () => {
         text: err.response?.data?.message || 'Failed to refresh FMCSA data. Please try again.'
       });
       // Auto-hide error after 8 seconds
-      setTimeout(() => setFmcsaMessage(null), 8000);
+      fmcsaTimerRef.current = setTimeout(() => setFmcsaMessage(null), 8000);
     } finally {
       setRefreshingFMCSA(false);
     }
@@ -303,6 +314,7 @@ const Dashboard = () => {
               disabled={syncing}
               className="p-1.5 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               title="Sync Now"
+              aria-label="Sync FMCSA data now"
             >
               <FiRefreshCw className={`w-4 h-4 text-zinc-600 dark:text-zinc-400 ${syncing ? 'animate-spin' : ''}`} />
             </button>
@@ -469,7 +481,11 @@ const Dashboard = () => {
                 <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                   <FiAlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
                 </div>
-                <span className="text-xs text-green-600 dark:text-green-400 font-semibold">-2 this year</span>
+                {trendData?.violationTrend !== undefined && trendData.violationTrend !== 0 && (
+                  <span className={`text-xs font-semibold ${trendData.violationTrend < 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                    {trendData.violationTrend > 0 ? '+' : ''}{trendData.violationTrend} this year
+                  </span>
+                )}
               </div>
               <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-zinc-900 dark:text-white">{data?.recentViolations?.length || 0}</p>
               <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-1">Open Violations</p>
@@ -541,7 +557,7 @@ const Dashboard = () => {
               {basicsData.length > 0 ? basicsData.map((basic, index) => {
                 const trend = getTrendIndicator(basic.key);
                 return (
-                <div key={index} className="group flex items-center gap-3 p-3 rounded-xl bg-zinc-50 dark:bg-white/5 border border-zinc-100 dark:border-white/5 hover:shadow-md hover:-translate-y-0.5 hover:border-zinc-200 dark:hover:border-white/10 transition-all duration-200 cursor-pointer">
+                <div key={index} className="group flex items-center gap-3 p-3 rounded-xl bg-zinc-50 dark:bg-white/5 border border-zinc-100 dark:border-white/5 hover:shadow-md hover:-translate-y-0.5 hover:border-zinc-200 dark:hover:border-white/10 transition-all duration-200">
                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-200 ${
                     basic.status === 'critical' ? 'bg-red-100 dark:bg-red-500/20' :
                     basic.status === 'warning' ? 'bg-yellow-100 dark:bg-yellow-500/20' :
@@ -593,7 +609,7 @@ const Dashboard = () => {
                 // Default placeholders if no data
                 <>
                   {['Unsafe Driving', 'HOS Compliance', 'Vehicle Maint.', 'Controlled Sub.', 'Driver Fitness', 'Crash Indicator'].map((name, index) => (
-                    <div key={index} className="group flex items-center gap-3 p-3 rounded-xl bg-zinc-50 dark:bg-white/5 border border-zinc-100 dark:border-white/5 hover:shadow-md hover:-translate-y-0.5 hover:border-zinc-200 dark:hover:border-white/10 transition-all duration-200 cursor-pointer">
+                    <div key={index} className="group flex items-center gap-3 p-3 rounded-xl bg-zinc-50 dark:bg-white/5 border border-zinc-100 dark:border-white/5 hover:shadow-md hover:-translate-y-0.5 hover:border-zinc-200 dark:hover:border-white/10 transition-all duration-200">
                       <div className="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-500/20 flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
                         <span className="text-lg font-bold text-green-600 dark:text-green-400">0%</span>
                       </div>
@@ -862,13 +878,31 @@ const Dashboard = () => {
                 </div>
               </div>
               {/* Drug & Alcohol */}
-              <div className="group flex items-center gap-3 p-3 rounded-xl bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 hover:shadow-md hover:-translate-y-0.5 hover:border-green-300 dark:hover:border-green-500/40 transition-all duration-200 cursor-pointer">
-                <div className="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-                  <FiCheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
+              <div className={`group flex items-center gap-3 p-3 rounded-xl border hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer ${
+                complianceData?.components?.drugAlcohol?.score > 0
+                  ? 'bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/20 hover:border-green-300 dark:hover:border-green-500/40'
+                  : 'bg-zinc-50 dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600'
+              }`}>
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200 ${
+                  complianceData?.components?.drugAlcohol?.score > 0
+                    ? 'bg-green-100 dark:bg-green-500/20'
+                    : 'bg-zinc-100 dark:bg-zinc-700'
+                }`}>
+                  {complianceData?.components?.drugAlcohol?.score > 0 ? (
+                    <FiCheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
+                  ) : (
+                    <FiAlertCircle className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
+                  )}
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-medium text-zinc-900 dark:text-white">Drug & Alcohol</p>
-                  <p className="text-xs text-green-600 dark:text-green-400">Program compliant</p>
+                  <p className={`text-xs ${
+                    complianceData?.components?.drugAlcohol?.score > 0
+                      ? 'text-green-600 dark:text-green-400'
+                      : 'text-zinc-500 dark:text-zinc-400'
+                  }`}>
+                    {complianceData?.components?.drugAlcohol?.score > 0 ? 'Program compliant' : 'No data - Setup required'}
+                  </p>
                 </div>
               </div>
             </div>
@@ -1023,7 +1057,7 @@ const Dashboard = () => {
         <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl overflow-hidden shadow-sm">
           <div className="bg-[#1E3A5F] px-5 py-4 flex items-center justify-between">
             <h3 className="text-white font-semibold">RECENT INSPECTIONS</h3>
-            <Link to="/app/inspection-history" className="text-white/80 hover:text-white text-sm flex items-center">
+            <Link to="/app/compliance" className="text-white/80 hover:text-white text-sm flex items-center">
               View All <FiArrowRight className="ml-1 w-4 h-4" />
             </Link>
           </div>
@@ -1166,7 +1200,7 @@ const Dashboard = () => {
               <Tooltip
                 contentStyle={{
                   backgroundColor: 'var(--color-surface, #fff)',
-                  border: '1px solid #e5e7eb',
+                  border: '1px solid var(--color-border, #e5e7eb)',
                   borderRadius: '8px',
                   boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                 }}

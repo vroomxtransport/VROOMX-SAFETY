@@ -51,6 +51,9 @@ const errorHandler = (err, req, res, next) => {
     error = new AppError(message, 401);
   }
 
+  // IMPORTANT: Stack traces are only included when NODE_ENV=development.
+  // Ensure NODE_ENV=production is set in all deployed environments to prevent
+  // leaking internal paths, function names, and library versions to clients.
   res.status(error.statusCode || 500).json({
     success: false,
     message: error.message || 'Server Error',

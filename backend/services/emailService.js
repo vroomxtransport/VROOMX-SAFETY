@@ -658,29 +658,57 @@ const emailService = {
     const User = require('../models/User');
 
     try {
-      const companies = await Company.find({ isActive: { $ne: false } }).lean();
-      let totalSent = 0;
+      // Batch: get all active critical/warning alerts grouped by companyId
+      const alertsByCompany = await Alert.aggregate([
+        {
+          $match: {
+            status: 'active',
+            type: { $in: ['critical', 'warning'] }
+          }
+        },
+        {
+          $group: {
+            _id: '$companyId',
+            alerts: { $push: '$$ROOT' }
+          }
+        }
+      ]);
 
-      for (const company of companies) {
-        // Get active critical/warning alerts for this company
-        const alerts = await Alert.find({
-          companyId: company._id,
-          status: 'active',
-          type: { $in: ['critical', 'warning'] },
-        }).lean();
+      if (alertsByCompany.length === 0) return 0;
 
-        if (alerts.length === 0) continue;
+      // Get all relevant companyIds
+      const companyIds = alertsByCompany.map(g => g._id);
 
-        // Find users who are owner, admin, or safety_manager for this company
-        const users = await User.find({
-          'companies.companyId': company._id,
+      // Batch-fetch companies and users for all relevant companies
+      const [companies, users] = await Promise.all([
+        Company.find({ _id: { $in: companyIds }, isActive: { $ne: false } }).lean(),
+        User.find({
+          'companies.companyId': { $in: companyIds },
           'companies.role': { $in: ['owner', 'admin', 'safety_manager'] },
           'companies.isActive': true,
           isActive: { $ne: false },
-        }).lean();
+        }).lean()
+      ]);
 
-        for (const user of users) {
-          if (!this.shouldSend(user, 'compliance')) continue;
+      // Build lookup maps
+      const companyMap = new Map(companies.map(c => [c._id.toString(), c]));
+      const alertMap = new Map(alertsByCompany.map(g => [g._id.toString(), g.alerts]));
+
+      let totalSent = 0;
+
+      for (const user of users) {
+        if (!this.shouldSend(user, 'compliance')) continue;
+
+        // Find companies this user has relevant roles in
+        for (const membership of user.companies) {
+          if (!['owner', 'admin', 'safety_manager'].includes(membership.role)) continue;
+          if (!membership.isActive) continue;
+
+          const companyIdStr = membership.companyId.toString();
+          const company = companyMap.get(companyIdStr);
+          const alerts = alertMap.get(companyIdStr);
+
+          if (!company || !alerts || alerts.length === 0) continue;
 
           await this.sendComplianceAlertDigest(user, company, alerts);
           totalSent++;

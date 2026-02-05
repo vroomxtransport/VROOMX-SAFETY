@@ -166,10 +166,10 @@ const checkVehicleLimit = async (req, res, next) => {
       });
     }
 
-    // Count current vehicles in the company
+    // Count current vehicles in the company (exclude sold/totaled, not just out_of_service)
     const vehicleCount = await Vehicle.countDocuments({
       companyId: activeCompanyId,
-      status: { $ne: 'out_of_service' }
+      status: { $nin: ['sold', 'totaled'] }
     });
 
     // Solo plan has hard limit of 1 vehicle
@@ -298,7 +298,7 @@ const checkAIQueryQuota = async (req, res, next) => {
     next();
   } catch (error) {
     console.error('Error checking AI quota:', error);
-    next(); // Don't block on check failure
+    return res.status(503).json({ success: false, message: 'Service temporarily unavailable' });
   }
 };
 

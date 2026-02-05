@@ -9,11 +9,7 @@ const documentIntelligenceService = require('../services/documentIntelligenceSer
 const openaiVisionService = require('../services/openaiVisionService');
 const auditService = require('../services/auditService');
 
-// Escape regex special characters to prevent NoSQL injection
-const escapeRegex = (str) => {
-  if (typeof str !== 'string') return '';
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-};
+const { escapeRegex } = require('../utils/helpers');
 
 router.use(protect);
 router.use(restrictToCompany);
@@ -22,7 +18,9 @@ router.use(restrictToCompany);
 // @desc    Get all documents with filtering
 // @access  Private
 router.get('/', checkPermission('documents', 'view'), asyncHandler(async (req, res) => {
-  const { category, documentType, status, driverId, vehicleId, search, page = 1, limit = 20, sort = '-createdAt' } = req.query;
+  const { category, documentType, status, driverId, vehicleId, search, page = 1, limit = 20, sort: rawSort = '-createdAt' } = req.query;
+  const allowedSorts = ['createdAt', '-createdAt', 'name', '-name', 'category', '-category', 'status', '-status', 'expiryDate', '-expiryDate'];
+  const sort = allowedSorts.includes(rawSort) ? rawSort : '-createdAt';
 
   const queryObj = { ...req.companyFilter, isDeleted: false };
 
@@ -187,6 +185,10 @@ router.get('/:id/download', checkPermission('documents', 'view'), asyncHandler(a
   }
 
   const absolutePath = path.resolve(document.filePath);
+  const uploadsBase = path.resolve(path.join(process.cwd(), 'uploads'));
+  if (!absolutePath.startsWith(uploadsBase)) {
+    throw new AppError('Invalid file path', 403);
+  }
   if (!fs.existsSync(absolutePath)) {
     throw new AppError('File not found on server', 404);
   }
@@ -523,8 +525,8 @@ router.put('/:id', checkPermission('documents', 'upload'), asyncHandler(async (r
     if (req.body[key] !== undefined) updateData[key] = req.body[key];
   }
 
-  document = await Document.findByIdAndUpdate(
-    req.params.id,
+  document = await Document.findOneAndUpdate(
+    { _id: req.params.id, ...req.companyFilter },
     updateData,
     { new: true, runValidators: true }
   );

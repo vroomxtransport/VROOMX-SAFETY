@@ -25,7 +25,7 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-gray-900 flex items-center justify-center px-4">
+        <div className="min-h-screen bg-white dark:bg-zinc-900 flex items-center justify-center px-4">
           <div className="max-w-md w-full text-center">
             {/* Error Icon */}
             <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-red-500/10 border border-red-500/20">
@@ -44,10 +44,10 @@ class ErrorBoundary extends React.Component {
               </svg>
             </div>
 
-            <h1 className="text-2xl font-bold text-white mb-2">
+            <h1 className="text-2xl font-bold text-zinc-900 dark:text-white mb-2">
               Something went wrong
             </h1>
-            <p className="text-gray-300 mb-8">
+            <p className="text-zinc-600 dark:text-zinc-300 mb-8">
               An unexpected error occurred. You can try again or reload the page.
             </p>
 
@@ -60,7 +60,7 @@ class ErrorBoundary extends React.Component {
               </button>
               <button
                 onClick={this.handleReload}
-                className="px-6 py-2.5 bg-gray-700 hover:bg-gray-600 text-gray-200 font-medium rounded-lg transition-colors"
+                className="px-6 py-2.5 bg-zinc-200 dark:bg-zinc-700 hover:bg-zinc-300 dark:hover:bg-zinc-600 text-zinc-800 dark:text-zinc-200 font-medium rounded-lg transition-colors"
               >
                 Reload Page
               </button>

@@ -124,11 +124,6 @@ export const dashboardAPI = {
   updateBasics: (data) => api.put('/dashboard/basics', data),
   refreshFMCSA: () => api.post('/dashboard/refresh-fmcsa'),
   getFMCSAStatus: () => api.get('/dashboard/fmcsa-status'),
-  // Compliance score endpoints
-  getComplianceScore: () => api.get('/dashboard/compliance-score'),
-  getComplianceHistory: (days = 30) => api.get('/dashboard/compliance-score/history', { params: { days } }),
-  getComplianceBreakdown: () => api.get('/dashboard/compliance-score/breakdown'),
-  calculateComplianceScore: () => api.post('/dashboard/compliance-score/calculate'),
   // Data audit endpoints
   runFullAudit: () => api.get('/dashboard/audit/full'),
   auditFMCSA: () => api.get('/dashboard/audit/fmcsa'),
@@ -199,9 +194,9 @@ export const violationsAPI = {
   // DataQ AI-powered analysis methods
   getDataQOpportunities: (params) => api.get('/violations/dataq-opportunities', { params }),
   getDataQDashboard: () => api.get('/violations/dataq-dashboard'),
-  analyzeOpportunities: (params) => api.post('/ai/analyze-dataq-opportunities', params),
-  analyzeViolation: (id) => api.post(`/ai/analyze-violation/${id}`),
-  generateLetter: (id, data) => api.post(`/ai/generate-dataq-letter/${id}`, data),
+  analyzeOpportunities: (params) => api.post('/ai/analyze-dataq-opportunities', params, { timeout: 60000 }),
+  analyzeViolation: (id) => api.post(`/ai/analyze-violation/${id}`, {}, { timeout: 60000 }),
+  generateLetter: (id, data) => api.post(`/ai/generate-dataq-letter/${id}`, data, { timeout: 60000 }),
   saveDataQLetter: (id, data) => api.put(`/violations/${id}/dataq/letter`, data),
   updateEvidenceChecklist: (id, evidenceChecklist) => api.put(`/violations/${id}/dataq/evidence`, { evidenceChecklist })
 };
@@ -354,6 +349,7 @@ export const scheduledReportsAPI = {
   getAvailableTypes: () => api.get('/scheduled-reports/types/available')
 };
 
+/** CRUD operations for FMCSA inspection records stored in the local database */
 export const fmcsaInspectionsAPI = {
   getAll: (params) => api.get('/inspections/fmcsa', { params }),
   getById: (id) => api.get(`/inspections/fmcsa/${id}`),
@@ -462,7 +458,7 @@ export const complianceScoreAPI = {
   get: () => api.get('/dashboard/compliance-score'),
   getHistory: (days) => api.get('/dashboard/compliance-score/history', { params: { days } }),
   getBreakdown: () => api.get('/dashboard/compliance-score/breakdown'),
-  recalculate: () => api.post('/dashboard/compliance-score/recalculate')
+  recalculate: () => api.post('/dashboard/compliance-score/calculate')
 };
 
 // CSA API - CSA Score Estimation
@@ -487,7 +483,7 @@ export const csaAPI = {
   getBenchmark: () => api.get('/csa/benchmark')
 };
 
-// FMCSA Inspection & Violation History API
+/** FMCSA sync pipeline and public DOT number lookups (not local CRUD) */
 export const fmcsaAPI = {
   // Get inspection history
   getInspections: (params) => api.get('/fmcsa/inspections', { params }),

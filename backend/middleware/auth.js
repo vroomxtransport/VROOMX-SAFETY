@@ -53,6 +53,17 @@ const protect = async (req, res, next) => {
       });
     }
 
+    // Check if token was issued before password was changed (invalidates old tokens)
+    if (user.passwordChangedAt) {
+      const changedTimestamp = Math.floor(user.passwordChangedAt.getTime() / 1000);
+      if (decoded.iat < changedTimestamp) {
+        return res.status(401).json({
+          success: false,
+          message: 'Password recently changed. Please log in again.'
+        });
+      }
+    }
+
     // Check subscription status - block unpaid and past_due
     if (['unpaid', 'past_due'].includes(user.subscription?.status)) {
       return res.status(403).json({
@@ -63,6 +74,10 @@ const protect = async (req, res, next) => {
     }
 
     req.user = user;
+    req.isDemo = decoded.isDemo || false;
+    if (decoded.impersonatedBy) {
+      req.impersonatedBy = decoded.impersonatedBy;
+    }
     next();
   } catch (error) {
     return res.status(401).json({

@@ -35,7 +35,12 @@ const integrationRoutes = require('./integrations');
 const reportTemplateRoutes = require('./reportTemplates');
 const reportHistoryRoutes = require('./reportHistory');
 
-// Apply demo guard globally - blocks write operations for demo users
+// Apply demo guard globally - blocks write operations for demo users.
+// NOTE: demoGuard checks req.user.isDemo, which requires the protect middleware
+// to have already run. Since protect runs at the individual route level (not here),
+// demoGuard will pass through for unauthenticated requests (req.user is undefined).
+// All write routes are protected by auth middleware on their own routers, so demo
+// users are still blocked on authenticated write endpoints.
 router.use(demoGuard);
 
 // Mount routes

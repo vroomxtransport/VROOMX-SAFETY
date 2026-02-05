@@ -10,11 +10,7 @@ const { checkVehicleLimit } = require('../middleware/subscriptionLimits');
 const auditService = require('../services/auditService');
 const vehicleOOSService = require('../services/vehicleOOSService');
 
-// Escape regex special characters to prevent NoSQL injection
-const escapeRegex = (str) => {
-  if (typeof str !== 'string') return '';
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-};
+const { escapeRegex } = require('../utils/helpers');
 
 router.use(protect);
 router.use(restrictToCompany);
@@ -23,7 +19,9 @@ router.use(restrictToCompany);
 // @desc    Get all vehicles with filtering
 // @access  Private
 router.get('/', checkPermission('vehicles', 'view'), asyncHandler(async (req, res) => {
-  const { status, vehicleType, complianceStatus, search, page = 1, limit = 20, sort = '-createdAt' } = req.query;
+  const { status, vehicleType, complianceStatus, search, page = 1, limit = 20, sort: rawSort = '-createdAt' } = req.query;
+  const allowedSorts = ['createdAt', '-createdAt', 'unitNumber', '-unitNumber', 'make', '-make', 'status', '-status', 'year', '-year'];
+  const sort = allowedSorts.includes(rawSort) ? rawSort : '-createdAt';
 
   const queryObj = { ...req.companyFilter };
 
@@ -201,7 +199,7 @@ router.post('/', checkPermission('vehicles', 'edit'), checkVehicleLimit, [
 
     const vehicleCount = await Vehicle.countDocuments({
       companyId,
-      status: { $ne: 'out_of_service' }
+      status: { $nin: ['sold', 'totaled'] }
     }).session(session);
 
     // Enforce hard limits within the transaction
@@ -280,8 +278,8 @@ router.put('/:id', checkPermission('vehicles', 'edit'), asyncHandler(async (req,
     if (req.body[key] !== undefined) updateData[key] = req.body[key];
   }
 
-  vehicle = await Vehicle.findByIdAndUpdate(
-    req.params.id,
+  vehicle = await Vehicle.findOneAndUpdate(
+    { _id: req.params.id, ...req.companyFilter },
     updateData,
     { new: true, runValidators: true }
   );

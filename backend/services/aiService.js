@@ -1,9 +1,9 @@
 const Anthropic = require('@anthropic-ai/sdk');
 
-// Initialize client - will use ANTHROPIC_API_KEY from environment
-const client = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY
-});
+// Initialize client only if API key is available
+const client = process.env.ANTHROPIC_API_KEY
+  ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  : null;
 
 // System prompts for different AI features
 const SYSTEM_PROMPTS = {
@@ -185,7 +185,7 @@ async function query(promptType, userMessage, options = {}) {
     throw new Error(`Unknown prompt type: ${promptType}`);
   }
 
-  if (!process.env.ANTHROPIC_API_KEY) {
+  if (!client) {
     throw new Error('ANTHROPIC_API_KEY not configured');
   }
 
@@ -356,11 +356,17 @@ Provide your analysis in JSON format as specified in your instructions.`;
 
   // Try to parse the JSON response
   try {
-    // Extract JSON from the response (it might be wrapped in markdown code blocks)
     let jsonContent = response.content;
-    const jsonMatch = jsonContent.match(/```(?:json)?\s*([\s\S]*?)```/);
-    if (jsonMatch) {
-      jsonContent = jsonMatch[1];
+    // Try code-block extraction first
+    const codeBlockMatch = jsonContent.match(/```json\s*([\s\S]*?)```/);
+    if (codeBlockMatch) {
+      jsonContent = codeBlockMatch[1];
+    } else {
+      // Fallback: extract first JSON object
+      const objectMatch = jsonContent.match(/\{[\s\S]*\}/);
+      if (objectMatch) {
+        jsonContent = objectMatch[0];
+      }
     }
     const parsed = JSON.parse(jsonContent.trim());
     return {

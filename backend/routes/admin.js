@@ -367,9 +367,23 @@ router.patch('/users/:id', async (req, res) => {
       });
     }
 
-    // Restrict isSuperAdmin changes - only existing super admins can grant it
-    // and require explicit confirmation
+    // Restrict isSuperAdmin changes - require password re-authentication
     if (typeof isSuperAdmin === 'boolean' && isSuperAdmin === true) {
+      const { currentPassword } = req.body;
+      if (!currentPassword) {
+        return res.status(400).json({
+          success: false,
+          message: 'Password re-authentication required to grant super admin privileges. Provide currentPassword.'
+        });
+      }
+      const adminUser = await User.findById(req.user._id).select('+password');
+      const isMatch = await adminUser.matchPassword(currentPassword);
+      if (!isMatch) {
+        return res.status(401).json({
+          success: false,
+          message: 'Incorrect password. Super admin grant denied.'
+        });
+      }
       console.warn(`[ADMIN AUDIT] Super admin grant attempted: ${req.user.email} -> ${user.email} at ${new Date().toISOString()}`);
     }
 
@@ -828,6 +842,11 @@ router.patch('/companies/:companyId/members/:userId', async (req, res) => {
 
     if (!role) {
       return res.status(400).json({ success: false, message: 'role is required' });
+    }
+
+    const validRoles = ['owner', 'admin', 'safety_manager', 'dispatcher', 'driver', 'viewer'];
+    if (!validRoles.includes(role)) {
+      return res.status(400).json({ success: false, message: `Invalid role. Must be one of: ${validRoles.join(', ')}` });
     }
 
     const user = await User.findById(userId);

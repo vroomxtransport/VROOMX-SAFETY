@@ -36,9 +36,16 @@ const Landing = () => {
   const [openFaq, setOpenFaq] = useState(null);
 
   // Force light mode on public landing page (prevents invisible text when dark mode persists)
+  // Only remove dark class from the document - do NOT delete the stored theme preference
   useEffect(() => {
+    const wasDark = document.documentElement.classList.contains('dark');
     document.documentElement.classList.remove('dark');
-    localStorage.removeItem('vroomx-theme');
+    return () => {
+      // Restore dark class on unmount if it was previously set
+      if (wasDark) {
+        document.documentElement.classList.add('dark');
+      }
+    };
   }, []);
 
   // Cycle hero typewriter text
@@ -50,10 +57,10 @@ const Landing = () => {
   }, []);
 
   return (
-    <div className="relative overflow-hidden w-full min-h-screen bg-[#F8FAFC] text-[#1E293B]">
+    <div className="relative overflow-hidden w-full min-h-screen bg-white text-[#1E293B]">
       {/* Fixed Background Elements - reduced blur on mobile for performance */}
       <div className="fixed inset-0 z-0">
-        <div className="absolute inset-0 bg-[#F8FAFC]" />
+        <div className="absolute inset-0 bg-white" />
         <div className="absolute inset-0 bg-grid-pattern opacity-[0.04]" />
         {/* Smaller blobs with reduced blur on mobile, no animation on reduced-motion */}
         <div className="absolute top-0 left-0 w-[300px] h-[300px] md:w-[500px] md:h-[500px] bg-primary-500/10 blur-[60px] md:blur-[120px] rounded-full animate-blob motion-reduce:animate-none" />
@@ -332,7 +339,7 @@ const Landing = () => {
               <Link key={i} to="/blog" className="group block">
                 <div className="bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden h-full flex flex-col hover:-translate-y-2 hover:border-primary-500/30 hover:shadow-lg transition-all duration-300">
                   <div className="h-48 relative overflow-hidden">
-                    <img src={post.image} alt={post.title} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <img src={post.image} alt={post.title} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e) => { e.target.onerror = null; e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300" fill="%23e4e4e7"%3E%3Crect width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" fill="%2371717a" font-size="16"%3EImage unavailable%3C/text%3E%3C/svg%3E'; }} />
                     <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full border border-[#E2E8F0] text-[10px] text-primary-500 font-mono uppercase tracking-wide">
                       {post.category}
                     </div>
