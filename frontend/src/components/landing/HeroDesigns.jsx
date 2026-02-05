@@ -737,7 +737,7 @@ export const HeroDesign5 = ({ heroTextIndex, heroTexts }) => {
         }} />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 pt-32 pb-20 flex items-center">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 pt-32 pb-20 min-h-screen flex items-center">
         <div className="grid lg:grid-cols-2 gap-16 items-center w-full">
 
           {/* Left: Content */}
