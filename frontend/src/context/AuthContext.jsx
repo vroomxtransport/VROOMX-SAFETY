@@ -38,6 +38,24 @@ export const AuthProvider = ({ children }) => {
       setActiveCompany(userData.activeCompany || userData.company);
       setSubscription(buildSubscription(userData.subscription, userData.limits, userData.usage));
     } catch (error) {
+      // If 401, try refreshing the token first (access token may have expired
+      // but refresh token is still valid — the interceptor skips refresh for /auth/me)
+      if (error.response?.status === 401) {
+        try {
+          const refreshRes = await api.post('/auth/refresh');
+          if (refreshRes.data.token) setAuthToken(refreshRes.data.token);
+          // Retry with new token
+          const retryRes = await api.get('/auth/me');
+          const userData = retryRes.data.user;
+          setUser(userData);
+          setCompanies(userData.companies || []);
+          setActiveCompany(userData.activeCompany || userData.company);
+          setSubscription(buildSubscription(userData.subscription, userData.limits, userData.usage));
+          return; // Success — don't clear state
+        } catch {
+          // Refresh also failed — truly not authenticated
+        }
+      }
       // No session — just clear state (don't call logout API)
       clearAuthToken();
       setUser(null);
