@@ -1,7 +1,6 @@
 import { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
-import { FeatureFlagProvider } from './context/FeatureFlagContext';
 import Layout from './components/Layout';
 import Landing from './pages/Landing';
 import Blog from './pages/Blog';
@@ -145,7 +144,7 @@ function App() {
   const { isAuthenticated } = useAuth();
 
   return (
-    <FeatureFlagProvider>
+    <>
       <PageTransition />
       <Routes>
         {/* Landing page - public, redirects to dashboard if logged in */}
@@ -306,7 +305,7 @@ function App() {
 
       {/* Floating AI Chat Widget - only show when authenticated */}
       {isAuthenticated && <ChatWidget />}
-    </FeatureFlagProvider>
+    </>
   );
 }
 

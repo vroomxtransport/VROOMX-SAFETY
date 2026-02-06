@@ -36,6 +36,7 @@ const { errorHandler, notFound } = require('./middleware/errorHandler');
 const maintenanceMode = require('./middleware/maintenance');
 const alertService = require('./services/alertService');
 const emailService = require('./services/emailService');
+const posthogService = require('./services/posthogService');
 const logger = require('./utils/logger');
 
 // Validate required environment variables at startup
@@ -441,8 +442,13 @@ const server = app.listen(PORT, () => {
 // Graceful shutdown handler
 const SHUTDOWN_TIMEOUT_MS = 30000;
 
-function gracefulShutdown(signal) {
+async function gracefulShutdown(signal) {
   console.log(`\n${signal} received. Starting graceful shutdown...`);
+
+  // Flush PostHog events before closing
+  await posthogService.shutdown();
+  console.log('PostHog events flushed.');
+
   server.close(() => {
     console.log('HTTP server closed.');
     mongoose.connection.close(false).then(() => {

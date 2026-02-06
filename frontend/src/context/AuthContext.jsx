@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import posthog from 'posthog-js';
 import api, { companiesAPI, setAuthToken, clearAuthToken, setRefreshToken, getRefreshToken } from '../utils/api';
 
 const AuthContext = createContext(null);
@@ -87,6 +88,14 @@ export const AuthProvider = ({ children }) => {
     setActiveCompany(userData.activeCompany || userData.company);
     setSubscription(buildSubscription(userData.subscription, userData.limits));
 
+    // PostHog: identify user on login
+    posthog.identify(userData._id, {
+      email: userData.email,
+      name: userData.name,
+      company_id: userData.activeCompany?._id || userData.company?._id,
+      plan: userData.subscription?.plan,
+    });
+
     return userData;
   };
 
@@ -105,6 +114,15 @@ export const AuthProvider = ({ children }) => {
       userData.limits
     ));
 
+    // PostHog: identify demo user
+    posthog.identify(userData._id, {
+      email: userData.email,
+      name: userData.name,
+      company_id: userData.activeCompany?._id || userData.company?._id,
+      plan: userData.subscription?.plan || 'fleet',
+      is_demo: true,
+    });
+
     return userData;
   };
 
@@ -119,6 +137,17 @@ export const AuthProvider = ({ children }) => {
     setCompanies(userData.companies || []);
     setActiveCompany(userData.activeCompany || userData.company);
     setSubscription(buildSubscription(userData.subscription, userData.limits));
+
+    // PostHog: identify user and track signup
+    posthog.identify(userData._id, {
+      email: userData.email,
+      name: userData.name,
+      company_id: userData.activeCompany?._id || userData.company?._id,
+      plan: userData.subscription?.plan,
+    });
+    posthog.capture('user_signed_up', {
+      plan: userData.subscription?.plan,
+    });
 
     return userData;
   };
@@ -135,6 +164,9 @@ export const AuthProvider = ({ children }) => {
     setActiveCompany(null);
     setSubscription(null);
 
+    // PostHog: reset user identity on logout
+    posthog.reset();
+
     // Reset theme to light mode for public pages
     localStorage.removeItem('vroomx-theme');
     document.documentElement.classList.remove('dark');
@@ -148,6 +180,9 @@ export const AuthProvider = ({ children }) => {
 
     // Update active company
     setActiveCompany(company);
+
+    // PostHog: track company switch
+    posthog.capture('company_switched', { company_id: company._id });
 
     // Dispatch event for other components to refresh their data
     window.dispatchEvent(new CustomEvent('companySwitch', { detail: company }));

@@ -2,6 +2,7 @@ const Stripe = require('stripe');
 const User = require('../models/User');
 const WebhookEvent = require('../models/WebhookEvent');
 const emailService = require('./emailService');
+const posthogService = require('./posthogService');
 
 // Initialize Stripe with secret key (handle missing key for development)
 const STRIPE_ENABLED = !!process.env.STRIPE_SECRET_KEY;
@@ -291,6 +292,12 @@ const stripeService = {
     };
 
     await user.save({ validateBeforeSave: false });
+
+    // Track subscription creation in PostHog
+    posthogService.capture(userId, 'subscription_created', {
+      plan,
+      status: subscription.status,
+    });
   },
 
   /**
@@ -362,6 +369,9 @@ const stripeService = {
     };
 
     await user.save({ validateBeforeSave: false });
+
+    // Track subscription cancellation in PostHog
+    posthogService.capture(user._id.toString(), 'subscription_cancelled');
   },
 
   /**
@@ -380,6 +390,13 @@ const stripeService = {
 
       if (user) {
         emailService.sendPaymentSuccess(user, { amount_paid: invoice.amount_paid, plan: user.subscription?.plan, created: invoice.created }).catch(() => {});
+
+        // Track payment success in PostHog
+        posthogService.capture(user._id.toString(), 'payment_succeeded', {
+          amount: invoice.amount_paid / 100,
+          currency: invoice.currency,
+          plan: user.subscription?.plan,
+        });
       }
     }
   },
@@ -397,6 +414,13 @@ const stripeService = {
         user.subscription.status = 'past_due';
         await user.save({ validateBeforeSave: false });
         emailService.sendPaymentFailed(user).catch(() => {});
+
+        // Track payment failure in PostHog
+        posthogService.capture(user._id.toString(), 'payment_failed', {
+          amount: invoice.amount_due / 100,
+          currency: invoice.currency,
+          plan: user.subscription?.plan,
+        });
       }
     }
   },
