@@ -377,6 +377,17 @@ const alertService = {
       }
     }
 
+    // 5b. CSA Score Improvement Alerts (time decay)
+    try {
+      const csaAlertService = require('./csaAlertService');
+      await csaAlertService.checkForImprovements(companyId, {
+        trigger: 'time_decay',
+        minImprovement: 5
+      });
+    } catch (csaErr) {
+      console.error('[AlertService] Error checking CSA improvements:', csaErr.message);
+    }
+
     // 6. Document expiration alerts
     const expiringDocs = await Document.find({
       companyId,

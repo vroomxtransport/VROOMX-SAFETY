@@ -5,6 +5,7 @@
  * - BASICs cross intervention thresholds
  * - Scores significantly increase (>10% change)
  * - Critical compliance issues detected
+ * - Scores improve (DataQ challenge accepted or violation aging)
  */
 
 const CSAScoreHistory = require('../models/CSAScoreHistory');
@@ -113,6 +114,107 @@ const csaAlertService = {
    * @param {string} companyId - MongoDB ObjectId of the company
    * @param {object} currentBasics - Current BASIC scores
    */
+  /**
+   * Check for score improvements and create positive alerts.
+   * Called after DataQ challenge accepted or during daily cron.
+   *
+   * @param {string} companyId - Company ID
+   * @param {object} options
+   * @param {string} options.trigger - 'dataq_accepted' | 'time_decay'
+   * @param {string} [options.violationId] - The violation that triggered this (for DataQ)
+   * @param {number} [options.minImprovement] - Minimum percentile drop to trigger alert (default 5)
+   * @returns {Array} Created alerts
+   */
+  async checkForImprovements(companyId, options = {}) {
+    try {
+      const {
+        trigger = 'time_decay',
+        violationId = null,
+        minImprovement = 5
+      } = options;
+
+      // Get the most recent history snapshot as baseline
+      const previousSnapshot = await CSAScoreHistory.getLatest(companyId);
+      if (!previousSnapshot) return [];
+
+      // Calculate current scores fresh (lazy require to avoid circular deps)
+      const csaCalculatorService = require('./csaCalculatorService');
+      const currentScores = await csaCalculatorService.calculateAllBasics(companyId);
+
+      // Map snake_case calculator keys to camelCase history keys
+      const keyMap = {
+        unsafe_driving: 'unsafeDriving',
+        hours_of_service: 'hoursOfService',
+        vehicle_maintenance: 'vehicleMaintenance',
+        controlled_substances: 'controlledSubstances',
+        driver_fitness: 'driverFitness',
+        crash_indicator: 'crashIndicator'
+      };
+
+      const basicDisplayNames = {
+        unsafeDriving: 'Unsafe Driving',
+        hoursOfService: 'Hours of Service',
+        vehicleMaintenance: 'Vehicle Maintenance',
+        controlledSubstances: 'Controlled Substances',
+        driverFitness: 'Driver Fitness',
+        crashIndicator: 'Crash Indicator'
+      };
+
+      const createdAlerts = [];
+
+      for (const [snakeKey, camelKey] of Object.entries(keyMap)) {
+        const previousPercentile = previousSnapshot.basics[camelKey]?.percentile;
+        const currentPercentile = currentScores[snakeKey]?.estimatedPercentile;
+
+        if (previousPercentile == null || currentPercentile == null) continue;
+
+        const improvement = previousPercentile - currentPercentile;
+        if (improvement < minImprovement) continue;
+
+        const today = new Date().toISOString().split('T')[0];
+        const deduplicationKey = `csa-improvement-${camelKey}-${today}`;
+
+        const reasonText = trigger === 'dataq_accepted'
+          ? 'following a successful DataQ challenge'
+          : 'due to violation aging (time-weighted decay)';
+
+        try {
+          const result = await Alert.findOrCreateAlert({
+            companyId,
+            type: 'info',
+            category: 'csa_score',
+            title: `CSA Score Improved: ${basicDisplayNames[camelKey]}`,
+            message: `Your ${basicDisplayNames[camelKey]} score decreased from ${previousPercentile}% to ${currentPercentile}% ${reasonText}.`,
+            entityType: 'company',
+            entityId: companyId,
+            metadata: {
+              basic: camelKey,
+              previousPercentile,
+              currentPercentile,
+              improvement,
+              trigger,
+              violationId: violationId || null
+            },
+            deduplicationKey
+          });
+
+          if (result.created) {
+            createdAlerts.push(result.alert);
+          }
+        } catch (err) {
+          if (err.code !== 11000) {
+            console.error('[CSA Alert] Error creating improvement alert:', err.message);
+          }
+        }
+      }
+
+      return createdAlerts;
+    } catch (error) {
+      console.error('[CSA Alert] Error in checkForImprovements:', error.message);
+      return [];
+    }
+  },
+
   async checkForResolution(companyId, currentBasics) {
     try {
       const thresholds = {

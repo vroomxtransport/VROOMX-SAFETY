@@ -6,7 +6,7 @@ import {
   FiAlertTriangle, FiAlertCircle, FiInfo, FiCheckCircle, FiX,
   FiClock, FiRefreshCw, FiFilter, FiChevronUp, FiChevronDown,
   FiUser, FiTruck, FiFileText, FiDroplet, FiShield, FiActivity,
-  FiExternalLink, FiEye, FiEyeOff, FiTrendingUp
+  FiExternalLink, FiEye, FiEyeOff, FiTrendingUp, FiTrendingDown
 } from 'react-icons/fi';
 import LoadingSpinner from '../components/LoadingSpinner';
 
@@ -82,6 +82,7 @@ const AlertsDashboard = () => {
       case 'drug_alcohol': return FiDroplet;
       case 'violation': return FiAlertTriangle;
       case 'basics': return FiShield;
+      case 'csa_score': return FiTrendingDown;
       default: return FiInfo;
     }
   };
@@ -308,7 +309,7 @@ const AlertsDashboard = () => {
           <FiFilter className="inline w-4 h-4 mr-1" />
           Filter:
         </span>
-        {['all', 'driver', 'vehicle', 'document', 'violation', 'drug_alcohol', 'basics'].map(cat => (
+        {['all', 'driver', 'vehicle', 'document', 'violation', 'drug_alcohol', 'basics', 'csa_score'].map(cat => (
           <button
             key={cat}
             onClick={() => setCategoryFilter(cat)}
@@ -504,19 +505,26 @@ const AlertColumn = ({
             alerts.map((alert) => {
               const CategoryIcon = getCategoryIcon(alert.category);
               const entityLink = getEntityLink(alert);
+              const isImprovement = alert.category === 'csa_score' && alert.metadata?.trigger;
 
               return (
                 <div
                   key={alert._id}
-                  className="group bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-3 hover:shadow-md hover:-translate-y-0.5 hover:border-accent-300 dark:hover:border-accent-500/50 transition-all duration-200 cursor-pointer"
+                  className={`group bg-white dark:bg-zinc-800 rounded-lg border p-3 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer ${
+                    isImprovement
+                      ? 'border-green-300 dark:border-green-700 border-l-4 border-l-green-500 hover:border-green-400 dark:hover:border-green-600'
+                      : 'border-zinc-200 dark:border-zinc-700 hover:border-accent-300 dark:hover:border-accent-500/50'
+                  }`}
                 >
                   <div className="flex items-start gap-3">
                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                      isImprovement ? 'bg-green-100 dark:bg-green-500/20' :
                       type === 'critical' ? 'bg-danger-100 dark:bg-danger-500/20' :
                       type === 'warning' ? 'bg-warning-100 dark:bg-warning-500/20' :
                       'bg-info-100 dark:bg-info-500/20'
                     }`}>
                       <CategoryIcon className={`w-4 h-4 ${
+                        isImprovement ? 'text-green-600 dark:text-green-400' :
                         type === 'critical' ? 'text-danger-600 dark:text-danger-400' :
                         type === 'warning' ? 'text-warning-600 dark:text-warning-400' :
                         'text-info-600 dark:text-info-400'
@@ -528,7 +536,12 @@ const AlertColumn = ({
                         <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200 leading-snug">
                           {alert.title}
                         </p>
-                        {alert.escalationLevel > 0 && (
+                        {isImprovement && (
+                          <span className="px-1.5 py-0.5 text-xs font-bold bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 rounded flex-shrink-0">
+                            IMPROVED
+                          </span>
+                        )}
+                        {!isImprovement && alert.escalationLevel > 0 && (
                           <span className="px-1.5 py-0.5 text-xs font-bold bg-danger-100 dark:bg-danger-500/20 text-danger-700 dark:text-danger-400 rounded">
                             L{alert.escalationLevel}
                           </span>

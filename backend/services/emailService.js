@@ -422,9 +422,11 @@ const emailService = {
 
     const criticalAlerts = alerts.filter((a) => a.type === 'critical');
     const warningAlerts = alerts.filter((a) => a.type === 'warning');
+    const improvementAlerts = alerts.filter((a) => a.type === 'info' && a.metadata?.trigger);
 
-    // Build HTML table rows
+    // Build HTML table rows for critical/warning alerts
     const alertsTable = alerts
+      .filter((a) => a.type === 'critical' || a.type === 'warning')
       .map(
         (a) =>
           `<tr>
@@ -436,9 +438,48 @@ const emailService = {
       )
       .join('\n');
 
+    // Build improvement section (green) if any exist
+    let improvementSection = '';
+    if (improvementAlerts.length > 0) {
+      const improvementRows = improvementAlerts
+        .map(
+          (a) =>
+            `<tr>
+              <td style="padding:8px;border-bottom:1px solid #eee;">✅ IMPROVED</td>
+              <td style="padding:8px;border-bottom:1px solid #eee;">${a.category}</td>
+              <td style="padding:8px;border-bottom:1px solid #eee;">${a.title}</td>
+              <td style="padding:8px;border-bottom:1px solid #eee;">${a.message}</td>
+            </tr>`
+        )
+        .join('\n');
+
+      improvementSection = `
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 16px 0 0 0;">
+          <tr>
+            <td width="100%" style="padding: 16px; background-color: #f0fdf4; border-radius: 6px; text-align: center; border: 1px solid #bbf7d0;">
+              <p style="margin: 0 0 4px 0; font-size: 28px; font-weight: bold; color: #16a34a; font-family: Arial, Helvetica, sans-serif;">${improvementAlerts.length}</p>
+              <p style="margin: 0; font-size: 13px; color: #166534; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; font-family: Arial, Helvetica, sans-serif;">Score Improvements</p>
+            </td>
+          </tr>
+        </table>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 12px 0 0 0; border-collapse: collapse;">
+          <tr style="background-color: #f0fdf4;">
+            <th style="padding:8px;text-align:left;border-bottom:2px solid #bbf7d0;font-size:13px;color:#166534;">Status</th>
+            <th style="padding:8px;text-align:left;border-bottom:2px solid #bbf7d0;font-size:13px;color:#166534;">Category</th>
+            <th style="padding:8px;text-align:left;border-bottom:2px solid #bbf7d0;font-size:13px;color:#166534;">Title</th>
+            <th style="padding:8px;text-align:left;border-bottom:2px solid #bbf7d0;font-size:13px;color:#166534;">Details</th>
+          </tr>
+          ${improvementRows}
+        </table>`;
+    }
+
+    const subject = improvementAlerts.length > 0
+      ? `Compliance Alert Digest: ${criticalAlerts.length} Critical, ${warningAlerts.length} Warning, ${improvementAlerts.length} Improved`
+      : `Compliance Alert Digest: ${criticalAlerts.length} Critical, ${warningAlerts.length} Warning`;
+
     return this.send({
       to: user.email,
-      subject: `Compliance Alert Digest: ${criticalAlerts.length} Critical, ${warningAlerts.length} Warning`,
+      subject,
       templateName: 'compliance-alert-digest',
       variables: {
         firstName: user.firstName,
@@ -446,6 +487,7 @@ const emailService = {
         criticalCount: String(criticalAlerts.length),
         warningCount: String(warningAlerts.length),
         alertsTable,
+        improvementSection,
       },
       category: 'compliance',
       userId: user._id,
@@ -810,7 +852,10 @@ const emailService = {
         {
           $match: {
             status: 'active',
-            type: { $in: ['critical', 'warning'] }
+            $or: [
+              { type: { $in: ['critical', 'warning'] } },
+              { type: 'info', category: 'csa_score', 'metadata.trigger': { $exists: true } }
+            ]
           }
         },
         {

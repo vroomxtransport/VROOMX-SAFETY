@@ -10,6 +10,7 @@ const { getMovingViolations } = require('../config/violationCodes');
 const auditService = require('../services/auditService');
 const driverCSAService = require('../services/driverCSAService');
 const dataQAnalysisService = require('../services/dataQAnalysisService');
+const csaAlertService = require('../services/csaAlertService');
 
 router.use(protect);
 router.use(restrictToCompany);
@@ -572,6 +573,30 @@ router.put('/:id/dataq/status', checkPermission('violations', 'edit'), [
   await violation.save();
 
   auditService.log(req, 'update', 'violation', req.params.id, { dataqStatus: req.body.status });
+
+  // When DataQ challenge is accepted, check for CSA score improvements (fire-and-forget)
+  if (req.body.status === 'accepted') {
+    csaAlertService.checkForImprovements(violation.companyId, {
+      trigger: 'dataq_accepted',
+      violationId: violation._id.toString(),
+      minImprovement: 1
+    }).catch(err => console.error('[DataQ] Error checking CSA improvements:', err.message));
+
+    // Auto-resolve worsening alerts that may now be stale
+    const csaCalculatorService = require('../services/csaCalculatorService');
+    csaCalculatorService.calculateAllBasics(violation.companyId).then(scores => {
+      const keyMap = {
+        unsafe_driving: 'unsafeDriving', hours_of_service: 'hoursOfService',
+        vehicle_maintenance: 'vehicleMaintenance', controlled_substances: 'controlledSubstances',
+        driver_fitness: 'driverFitness', crash_indicator: 'crashIndicator'
+      };
+      const camelScores = {};
+      for (const [snake, camel] of Object.entries(keyMap)) {
+        camelScores[camel] = scores[snake]?.estimatedPercentile ?? null;
+      }
+      return csaAlertService.checkForResolution(violation.companyId, camelScores);
+    }).catch(err => console.error('[DataQ] Error resolving CSA alerts:', err.message));
+  }
 
   res.json({
     success: true,
