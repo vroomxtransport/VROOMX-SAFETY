@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { FiSearch, FiMenu, FiX } from 'react-icons/fi';
 import VroomXLogo from './VroomXLogo';
 
-const PublicHeader = ({ activePage = 'landing', variant = 'light' }) => {
+const PublicHeader = ({ activePage = 'landing', variant = 'light', topOffset = 'top-6' }) => {
   const isLight = variant === 'light';
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -17,7 +17,7 @@ const PublicHeader = ({ activePage = 'landing', variant = 'light' }) => {
   ];
 
   return (
-    <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-7xl">
+    <nav className={`fixed ${topOffset} left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-7xl`}>
       <div className={`${isLight ? 'bg-white/90' : 'bg-black/60'} backdrop-blur-xl border ${isLight ? 'border-[#E2E8F0]' : 'border-white/10'} rounded-2xl px-6 py-4 flex justify-between items-center shadow-lg ${isLight ? 'shadow-primary-500/5' : 'shadow-black/20'}`}>
         {/* Logo */}
         <VroomXLogo size="md" showText={true} animate={true} linkToHome={true} />

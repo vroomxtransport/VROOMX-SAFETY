@@ -64,7 +64,7 @@ const Landing = () => {
       </div>
 
       {/* Navigation */}
-      <PublicHeader activePage="landing" />
+      <PublicHeader activePage="landing" topOffset="top-[60px]" />
 
       {/* Hero Section */}
       <HeroDesign5 heroTextIndex={heroTextIndex} heroTexts={heroTexts} />
