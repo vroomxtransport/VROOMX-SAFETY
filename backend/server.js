@@ -416,8 +416,8 @@ const server = app.listen(PORT, () => {
   cron.schedule('0 */6 * * *', async () => {
     if (isFmcsaSyncRunning) { logger.cron('FMCSA sync already running, skipping'); return; }
     // Skip if FMCSA credentials not configured
-    if (!process.env.SAFERWEB_API_KEY || !process.env.SOCRATA_APP_TOKEN) {
-      logger.cron('FMCSA sync skipped - credentials not configured');
+    if (!process.env.SAFERWEB_API_KEY) {
+      logger.cron('FMCSA sync skipped - SAFERWEB_API_KEY not configured');
       return;
     }
     isFmcsaSyncRunning = true;

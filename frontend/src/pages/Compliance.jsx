@@ -157,7 +157,7 @@ const Compliance = () => {
     try {
       const result = await fmcsaAPI.syncViolations();
       if (result.data.success) {
-        toast.success(`Synced ${result.data.imported} new inspections from FMCSA`);
+        toast.success(result.data.message || 'FMCSA data synced successfully');
         fetchInspections();
       } else {
         toast.error(result.data.message || 'Sync failed');

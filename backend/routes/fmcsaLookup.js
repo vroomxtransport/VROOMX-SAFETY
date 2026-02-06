@@ -10,6 +10,7 @@ const { ipKeyGenerator } = require('express-rate-limit');
 const fmcsaService = require('../services/fmcsaService');
 const fmcsaViolationService = require('../services/fmcsaViolationService');
 const fmcsaSyncOrchestrator = require('../services/fmcsaSyncOrchestrator');
+const fmcsaSyncService = require('../services/fmcsaSyncService');
 const complianceScoreService = require('../services/complianceScoreService');
 const { protect, restrictToCompany } = require('../middleware/auth');
 
@@ -210,9 +211,14 @@ router.post('/sync-violations', protect, restrictToCompany, syncLimiter, async (
   try {
     const companyId = req.companyFilter.companyId;
 
-    // Run full orchestrator sync (all 6 layers including compliance score recalculation)
-    console.log(`[FMCSA Sync] Manual sync triggered for company ${companyId}`);
-    const result = await fmcsaSyncOrchestrator.syncCompany(companyId);
+    // Fast sync: skips Puppeteer, runs API calls in parallel (15-30s vs 120+)
+    console.log(`[FMCSA Sync] Manual fast sync triggered for company ${companyId}`);
+    const result = await fmcsaSyncOrchestrator.syncCompanyFast(companyId);
+
+    // Fire-and-forget: CSA BASIC scores via Puppeteer in background
+    fmcsaSyncService.syncCompanyData(companyId).catch(err => {
+      console.error(`[FMCSA Sync] Background CSA sync failed for ${companyId}:`, err.message);
+    });
 
     // Get the freshly calculated compliance score from the Company model
     const Company = require('../models/Company');
@@ -221,8 +227,8 @@ router.post('/sync-violations', protect, restrictToCompany, syncLimiter, async (
     res.json({
       success: result.success || result.errors.length < 5, // partial success is OK
       message: result.success
-        ? 'Full FMCSA sync completed successfully'
-        : `Sync completed with ${result.errors.length} issue(s)`,
+        ? 'FMCSA data synced successfully. CSA scores updating in background.'
+        : `Sync completed with ${result.errors.length} issue(s). CSA scores updating in background.`,
       errors: result.errors.map(e => ({ source: e.source, error: e.error })),
       complianceScore: company?.complianceScore?.current || null
     });

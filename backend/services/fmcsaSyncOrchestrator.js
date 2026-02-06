@@ -174,6 +174,120 @@ const fmcsaSyncOrchestrator = {
     );
 
     return { success, errors };
+  },
+
+  /**
+   * Fast sync for manual trigger — skips Puppeteer (CSA scraping), runs API calls in parallel
+   * CSA scores are fetched in background via fire-and-forget from the route handler
+   *
+   * Steps: 2+3 in parallel (with 25s timeout each), then 4→5→6 sequentially
+   * Expected timing: 15-30 seconds vs 120+ for full sync
+   *
+   * @param {ObjectId|string} companyId - Company ID
+   * @returns {object} Sync results with success flag and any errors
+   */
+  async syncCompanyFast(companyId) {
+    const errors = [];
+    const timestamps = {};
+
+    // Steps 2+3 in parallel: DataHub violations + SaferWebAPI inspection stats
+    console.log(`[FMCSA Orchestrator] [Fast] Starting parallel sync for company ${companyId}`);
+
+    const withTimeout = (promise, ms, label) =>
+      Promise.race([
+        promise,
+        new Promise((_, reject) => setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms))
+      ]);
+
+    const [violationResult, inspectionResult] = await Promise.allSettled([
+      withTimeout(
+        fmcsaInspectionService.syncViolationsFromDataHub(companyId),
+        25000,
+        'DataHub violations'
+      ),
+      withTimeout(
+        fmcsaViolationService.syncViolationHistory(companyId),
+        25000,
+        'SaferWebAPI inspections'
+      )
+    ]);
+
+    // Process DataHub result
+    if (violationResult.status === 'fulfilled' && violationResult.value?.success) {
+      timestamps.violationsLastSync = new Date();
+      console.log(`[FMCSA Orchestrator] [Fast] Violations synced: ${violationResult.value.matched || 0} matched, ${violationResult.value.total || 0} total`);
+    } else {
+      const err = violationResult.status === 'rejected' ? violationResult.reason?.message : (violationResult.value?.message || 'Sync failed');
+      console.error(`[FMCSA Orchestrator] [Fast] Violations failed:`, err);
+      errors.push({ source: 'violations', error: err, timestamp: new Date() });
+    }
+
+    // Process SaferWebAPI result
+    if (inspectionResult.status === 'fulfilled' && inspectionResult.value?.success) {
+      timestamps.inspectionsLastSync = new Date();
+      console.log(`[FMCSA Orchestrator] [Fast] Inspection stats synced: ${inspectionResult.value.imported || 0} inspections`);
+    } else {
+      const err = inspectionResult.status === 'rejected' ? inspectionResult.reason?.message : (inspectionResult.value?.message || 'Sync failed');
+      console.error(`[FMCSA Orchestrator] [Fast] Inspection stats failed:`, err);
+      errors.push({ source: 'inspections', error: err, timestamp: new Date() });
+    }
+
+    // Steps 4→5→6 sequentially (fast local DB ops)
+
+    // 4. Link violations to entities (drivers/vehicles)
+    try {
+      console.log(`[FMCSA Orchestrator] [Fast] Running entity linking for company ${companyId}`);
+      const linkingResult = await entityLinkingService.linkViolationsForCompany(companyId);
+      timestamps.linkingLastRun = new Date();
+      console.log(`[FMCSA Orchestrator] [Fast] Linking complete: ${linkingResult.linked} linked, ${linkingResult.reviewRequired} need review, ${linkingResult.skipped} skipped`);
+    } catch (err) {
+      console.error(`[FMCSA Orchestrator] [Fast] Entity linking failed:`, err.message);
+      errors.push({ source: 'entity_linking', error: err.message, timestamp: new Date() });
+    }
+
+    // 5. Run DataQ analysis on newly-synced violations
+    try {
+      console.log(`[FMCSA Orchestrator] [Fast] Running DataQ analysis for company ${companyId}`);
+      const dataQResult = await dataQAnalysisService.runBulkAnalysis(companyId);
+      timestamps.dataQAnalysisLastRun = new Date();
+      timestamps.dataQAnalysisCount = dataQResult.analyzed;
+      console.log(`[FMCSA Orchestrator] [Fast] DataQ analysis complete: ${dataQResult.analyzed} violations scored`);
+    } catch (err) {
+      console.error(`[FMCSA Orchestrator] [Fast] DataQ analysis failed:`, err.message);
+      errors.push({ source: 'dataq_analysis', error: err.message, timestamp: new Date() });
+    }
+
+    // 6. Recalculate compliance score with fresh data
+    try {
+      console.log(`[FMCSA Orchestrator] [Fast] Recalculating compliance score for company ${companyId}`);
+      const scoreResult = await complianceScoreService.calculateScore(companyId);
+      timestamps.complianceScoreLastCalc = new Date();
+      console.log(`[FMCSA Orchestrator] [Fast] Compliance score: ${scoreResult.overallScore}`);
+    } catch (err) {
+      console.error(`[FMCSA Orchestrator] [Fast] Compliance score calculation failed:`, err.message);
+      errors.push({ source: 'compliance_score', error: err.message, timestamp: new Date() });
+    }
+
+    // Update Company sync status
+    const success = errors.length === 0;
+    await Company.updateOne(
+      { _id: companyId },
+      {
+        $set: {
+          'fmcsaData.syncStatus.lastRun': new Date(),
+          'fmcsaData.syncStatus.success': success,
+          'fmcsaData.syncStatus.errors': errors,
+          ...(timestamps.violationsLastSync && { 'fmcsaData.syncStatus.violationsLastSync': timestamps.violationsLastSync }),
+          ...(timestamps.inspectionsLastSync && { 'fmcsaData.syncStatus.inspectionsLastSync': timestamps.inspectionsLastSync }),
+          ...(timestamps.linkingLastRun && { 'fmcsaData.syncStatus.linkingLastRun': timestamps.linkingLastRun }),
+          ...(timestamps.dataQAnalysisLastRun && { 'fmcsaData.syncStatus.dataQAnalysisLastRun': timestamps.dataQAnalysisLastRun }),
+          ...(timestamps.dataQAnalysisCount !== undefined && { 'fmcsaData.syncStatus.dataQAnalysisCount': timestamps.dataQAnalysisCount })
+        }
+      }
+    );
+
+    console.log(`[FMCSA Orchestrator] [Fast] Sync complete for company ${companyId} — ${errors.length} errors`);
+    return { success, errors, mode: 'fast' };
   }
 };
 
