@@ -8,8 +8,11 @@ import {
 } from 'react-icons/fi';
 import PublicHeader from '../components/PublicHeader';
 import { FooterSection } from '../components/landing';
+import useForceLightMode from '../hooks/useForceLightMode';
 
 const Platform = () => {
+  useForceLightMode();
+
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -26,7 +29,6 @@ const Platform = () => {
   ];
 
   useEffect(() => {
-    document.documentElement.classList.remove('dark');
     window.scrollTo(0, 0);
   }, []);
 

@@ -24,8 +24,11 @@ import {
   comparisonFeatures,
   features
 } from '../data/landingData';
+import useForceLightMode from '../hooks/useForceLightMode';
 
 const Landing = () => {
+  useForceLightMode();
+
   // Hero typewriter cycling state
   const [heroTextIndex, setHeroTextIndex] = useState(0);
 
@@ -34,19 +37,6 @@ const Landing = () => {
 
   // FAQ state
   const [openFaq, setOpenFaq] = useState(null);
-
-  // Force light mode on public landing page (prevents invisible text when dark mode persists)
-  // Only remove dark class from the document - do NOT delete the stored theme preference
-  useEffect(() => {
-    const wasDark = document.documentElement.classList.contains('dark');
-    document.documentElement.classList.remove('dark');
-    return () => {
-      // Restore dark class on unmount if it was previously set
-      if (wasDark) {
-        document.documentElement.classList.add('dark');
-      }
-    };
-  }, []);
 
   // Cycle hero typewriter text
   useEffect(() => {

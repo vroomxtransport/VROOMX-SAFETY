@@ -10,6 +10,7 @@ import {
 import LoadingSpinner from '../components/LoadingSpinner';
 import VroomXLogo from '../components/VroomXLogo';
 import api from '../utils/api';
+import useForceLightMode from '../hooks/useForceLightMode';
 
 const planOptions = [
   {
@@ -48,6 +49,8 @@ const planOptions = [
 ];
 
 const Register = () => {
+  useForceLightMode();
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -67,12 +70,6 @@ const Register = () => {
   const planFromUrl = searchParams.get('plan');
   const [selectedPlan, setSelectedPlan] = useState(planFromUrl || null);
   const isSoloPlan = selectedPlan === 'solo';
-
-  // Force light mode on register page (prevents invisible text when dark mode persists)
-  useEffect(() => {
-    document.documentElement.classList.remove('dark');
-    localStorage.removeItem('vroomx-theme');
-  }, []);
 
   // FMCSA lookup state
   const [dotLookupStatus, setDotLookupStatus] = useState('idle'); // idle, loading, verified, not_found, error

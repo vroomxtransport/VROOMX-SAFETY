@@ -7,6 +7,7 @@ import {
 import PublicHeader from '../components/PublicHeader';
 import { FooterSection } from '../components/landing';
 import { pricingPlans } from '../data/landingData';
+import useForceLightMode from '../hooks/useForceLightMode';
 
 // FAQ data specific to billing/pricing
 const pricingFAQ = [
@@ -45,19 +46,10 @@ const pricingFAQ = [
 ];
 
 const Pricing = () => {
+  useForceLightMode();
+
   const [isAnnual, setIsAnnual] = useState(false);
   const [openFaq, setOpenFaq] = useState(null);
-
-  // Force light mode on public pricing page (prevents invisible text when OS is in dark mode)
-  useEffect(() => {
-    const wasDark = document.documentElement.classList.contains('dark');
-    document.documentElement.classList.remove('dark');
-    return () => {
-      if (wasDark) {
-        document.documentElement.classList.add('dark');
-      }
-    };
-  }, []);
 
   return (
     <div className="relative overflow-hidden w-full min-h-screen bg-[#F8FAFC] text-[#1E293B]">

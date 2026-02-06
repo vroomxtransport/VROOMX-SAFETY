@@ -2,16 +2,13 @@ import { useState, useEffect } from 'react';
 import PublicHeader from '../components/PublicHeader';
 import { ArticleModal, ArticleCard, FeaturedArticle, BlogFooter } from '../components/blog';
 import { categories, featuredArticle, articles } from '../data/blogPosts';
+import useForceLightMode from '../hooks/useForceLightMode';
 
 const Blog = () => {
+  useForceLightMode();
+
   const [activeCategory, setActiveCategory] = useState('all');
   const [selectedArticle, setSelectedArticle] = useState(null);
-
-  // Force light mode on blog page (prevents invisible text when dark mode persists)
-  useEffect(() => {
-    document.documentElement.classList.remove('dark');
-    localStorage.removeItem('vroomx-theme');
-  }, []);
 
   // Lock body scroll when modal is open
   useEffect(() => {

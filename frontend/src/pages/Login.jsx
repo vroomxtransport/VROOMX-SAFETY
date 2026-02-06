@@ -6,8 +6,11 @@ import toast from 'react-hot-toast';
 import { FiMail, FiLock, FiEye, FiEyeOff, FiShield, FiCheckCircle, FiArrowRight, FiTruck, FiClock } from 'react-icons/fi';
 import LoadingSpinner from '../components/LoadingSpinner';
 import VroomXLogo from '../components/VroomXLogo';
+import useForceLightMode from '../hooks/useForceLightMode';
 
 const Login = () => {
+  useForceLightMode();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -18,12 +21,6 @@ const Login = () => {
   const lockoutTimer = useRef(null);
   const { login } = useAuth();
   const navigate = useNavigate();
-
-  // Force light mode on login page (prevents invisible text when dark mode persists)
-  useEffect(() => {
-    document.documentElement.classList.remove('dark');
-    localStorage.removeItem('vroomx-theme');
-  }, []);
 
   // Clear lockout after a fixed period (don't expose exact timing)
   useEffect(() => {

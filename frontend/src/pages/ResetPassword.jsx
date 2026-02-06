@@ -5,8 +5,10 @@ import { FiLock, FiEye, FiEyeOff, FiCheckCircle, FiAlertCircle, FiArrowRight } f
 import toast from 'react-hot-toast';
 import LoadingSpinner from '../components/LoadingSpinner';
 import VroomXLogo from '../components/VroomXLogo';
+import useForceLightMode from '../hooks/useForceLightMode';
 
 const ResetPassword = () => {
+  useForceLightMode();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
   const navigate = useNavigate();

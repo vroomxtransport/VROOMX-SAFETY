@@ -5,8 +5,10 @@ import { useAuth } from '../context/AuthContext';
 import { FiCheckCircle, FiAlertCircle, FiArrowRight, FiUsers } from 'react-icons/fi';
 import LoadingSpinner from '../components/LoadingSpinner';
 import VroomXLogo from '../components/VroomXLogo';
+import useForceLightMode from '../hooks/useForceLightMode';
 
 const AcceptInvitation = () => {
+  useForceLightMode();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
   const { isAuthenticated } = useAuth();

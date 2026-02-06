@@ -3,8 +3,11 @@ import { Link } from 'react-router-dom';
 import PublicHeader from '../components/PublicHeader';
 import { FooterSection } from '../components/landing';
 import { FiShield, FiLock, FiMail, FiPhone, FiMapPin } from 'react-icons/fi';
+import useForceLightMode from '../hooks/useForceLightMode';
 
 const PrivacyPolicy = () => {
+  useForceLightMode();
+
   // Scroll to top on mount
   useEffect(() => {
     window.scrollTo(0, 0);

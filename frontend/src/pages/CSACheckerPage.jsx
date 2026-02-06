@@ -8,6 +8,7 @@ import {
 import PublicHeader from '../components/PublicHeader';
 import { FooterSection } from '../components/landing';
 import CSAChecker from '../components/CSAChecker';
+import useForceLightMode from '../hooks/useForceLightMode';
 
 // FAQ Data
 const faqData = [
@@ -160,6 +161,7 @@ const AnimatedStat = ({ end, suffix = '', label }) => {
 };
 
 const CSACheckerPage = () => {
+  useForceLightMode();
   const [openFaq, setOpenFaq] = useState(null);
 
   return (

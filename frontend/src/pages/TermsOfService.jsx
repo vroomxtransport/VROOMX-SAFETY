@@ -3,8 +3,11 @@ import { Link } from 'react-router-dom';
 import PublicHeader from '../components/PublicHeader';
 import { FooterSection } from '../components/landing';
 import { FiAlertTriangle, FiInfo, FiAlertCircle, FiMail, FiPhone, FiMapPin } from 'react-icons/fi';
+import useForceLightMode from '../hooks/useForceLightMode';
 
 const TermsOfService = () => {
+  useForceLightMode();
+
   // Scroll to top on page load
   useEffect(() => {
     window.scrollTo(0, 0);

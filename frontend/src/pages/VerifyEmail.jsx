@@ -4,8 +4,10 @@ import { authAPI } from '../utils/api';
 import { FiCheckCircle, FiAlertCircle, FiArrowRight } from 'react-icons/fi';
 import LoadingSpinner from '../components/LoadingSpinner';
 import VroomXLogo from '../components/VroomXLogo';
+import useForceLightMode from '../hooks/useForceLightMode';
 
 const VerifyEmail = () => {
+  useForceLightMode();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
   const [status, setStatus] = useState('loading'); // loading | success | error
