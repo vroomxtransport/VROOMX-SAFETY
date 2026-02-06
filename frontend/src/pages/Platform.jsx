@@ -71,9 +71,6 @@ const Platform = () => {
       <div className="fixed inset-0 z-0">
         <div className="absolute inset-0 bg-[#F8FAFC]"></div>
         <div className="absolute inset-0 bg-grid-pattern opacity-[0.03]"></div>
-        <div className="absolute -top-[300px] -right-[200px] w-[700px] h-[700px] bg-gradient-to-br from-cta-500 to-orange-200 blur-[100px] rounded-full opacity-35 animate-blob" />
-        <div className="absolute -bottom-[200px] -left-[200px] w-[600px] h-[600px] bg-gradient-to-br from-primary-500 to-blue-200 blur-[100px] rounded-full opacity-35 animate-blob animation-delay-300" />
-        <div className="absolute top-1/2 right-[10%] w-[400px] h-[400px] bg-gradient-to-br from-green-500 to-green-200 blur-[100px] rounded-full opacity-35 animate-blob animation-delay-200" />
       </div>
 
       <PublicHeader activePage="platform" />
@@ -812,9 +809,7 @@ const TimelineSection = () => {
             className={`timeline-item relative mt-16 transition-all duration-700 ${visibleItems.has('success') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
             data-step="success"
           >
-            <div className="bg-gradient-to-br from-green-50 to-emerald-100 rounded-3xl p-10 text-center relative overflow-hidden border border-green-200">
-              {/* Decorative blob */}
-              <div className="absolute -top-20 -right-20 w-60 h-60 bg-gradient-to-br from-green-400/20 to-green-500/10 rounded-full blur-3xl" />
+            <div className="bg-green-50 rounded-3xl p-10 text-center relative overflow-hidden border border-green-200">
 
               <div className="relative z-10">
                 <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-lg shadow-green-500/30 animate-float">

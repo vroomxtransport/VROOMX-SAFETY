@@ -65,8 +65,6 @@ const Pricing = () => {
       <div className="fixed inset-0 z-0">
         <div className="absolute inset-0 bg-[#F8FAFC]" />
         <div className="absolute inset-0 bg-grid-pattern opacity-[0.04]" />
-        <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-cta-500/8 blur-[150px] rounded-full" />
-        <div className="absolute bottom-1/4 left-0 w-[500px] h-[500px] bg-primary-500/10 blur-[120px] rounded-full" />
       </div>
 
       {/* Navigation */}
@@ -292,12 +290,7 @@ const Pricing = () => {
       </section>
 
       {/* Final CTA */}
-      <section className="relative z-10 py-24 px-6 md:px-16 bg-gradient-to-br from-primary-500 to-primary-600 overflow-hidden">
-        {/* Decorative elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-cta-500/20 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-80 h-80 bg-white/5 rounded-full blur-3xl" />
-        </div>
+      <section className="relative z-10 py-24 px-6 md:px-16 bg-primary-500 overflow-hidden">
 
         <div className="max-w-3xl mx-auto text-center relative">
           <h2 className="text-3xl md:text-5xl font-heading font-black text-white mb-6">

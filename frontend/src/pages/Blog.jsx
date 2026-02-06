@@ -44,10 +44,6 @@ const Blog = () => {
       <div className="fixed inset-0 z-0">
         <div className="absolute inset-0 bg-[#F8FAFC]"></div>
         <div className="absolute inset-0 bg-grid-pattern opacity-[0.03]"></div>
-        {/* Blobs */}
-        <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-primary-500/10 blur-[100px] rounded-full animate-blob" />
-        <div className="absolute top-1/2 right-0 w-[500px] h-[500px] bg-cta-500/10 blur-[100px] rounded-full animate-blob animation-delay-300" />
-        <div className="absolute bottom-0 left-1/3 w-[500px] h-[500px] bg-primary-300/10 blur-[100px] rounded-full animate-blob animation-delay-200" />
       </div>
 
       {/* Navigation */}

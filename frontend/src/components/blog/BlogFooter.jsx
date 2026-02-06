@@ -7,7 +7,6 @@ const BlogFooter = () => {
     <>
       {/* Final CTA Section */}
       <section className="py-32 px-6 md:px-16 text-center relative overflow-hidden z-10">
-        <div className="absolute inset-0 bg-gradient-to-t from-primary-500/5 to-transparent pointer-events-none" />
         <div className="max-w-3xl mx-auto relative z-10">
           <h2 className="text-4xl md:text-6xl font-black text-primary-500 mb-8 tracking-tight font-heading">
             Ready to Simplify <span className="text-cta-500">Compliance?</span>
