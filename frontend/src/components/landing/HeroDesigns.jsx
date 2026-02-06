@@ -20,6 +20,8 @@ import {
   FiRefreshCw,
   FiActivity,
   FiCheckCircle,
+  FiMail,
+  FiSend,
 } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
 
@@ -721,6 +723,9 @@ export const HeroDesign5 = ({ heroTextIndex, heroTexts }) => {
   const [csaStep, setCsaStep] = useState('input'); // 'input' | 'loading' | 'preview'
   const [carrierData, setCarrierData] = useState(null);
   const [csaError, setCsaError] = useState(null);
+  const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState(null);
+  const [reportStep, setReportStep] = useState('idle'); // 'idle' | 'sending' | 'sent'
 
   const handleTryDemo = async () => {
     setDemoLoading(true);
@@ -767,6 +772,43 @@ export const HeroDesign5 = ({ heroTextIndex, heroTexts }) => {
     setDotNumber('');
     setCarrierData(null);
     setCsaError(null);
+    setEmail('');
+    setEmailError(null);
+    setReportStep('idle');
+  };
+
+  const handleGetReport = async () => {
+    const trimmed = email.trim();
+    if (!trimmed) {
+      setEmailError('Email is required');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      setEmailError('Please enter a valid email');
+      return;
+    }
+
+    setEmailError(null);
+    setReportStep('sending');
+
+    try {
+      const response = await fetch('/api/csa-checker/full-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ carrierNumber: dotNumber.trim(), email: trimmed })
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to generate report');
+      }
+
+      setReportStep('sent');
+    } catch (err) {
+      setEmailError(err.message);
+      setReportStep('idle');
+    }
   };
 
   return (
@@ -1065,22 +1107,88 @@ export const HeroDesign5 = ({ heroTextIndex, heroTexts }) => {
                       </div>
                     </div>
 
-                    {/* Action Buttons */}
-                    <div className="flex gap-2 pt-2">
-                      <button
-                        onClick={() => navigate(`/csa-checker?dot=${dotNumber.trim()}`)}
-                        className="flex-1 py-2.5 rounded-xl font-bold text-white bg-gradient-to-r from-cta-500 to-cta-600
-                                   hover:shadow-lg hover:shadow-cta-500/40 transition-all text-sm flex items-center justify-center gap-2"
-                      >
-                        Get Full Report
-                        <FiArrowRight className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={handleReset}
-                        className="px-4 py-2.5 rounded-xl font-semibold text-zinc-600 bg-zinc-100 hover:bg-zinc-200 transition-colors text-sm"
-                      >
-                        Check Another
-                      </button>
+                    {/* Email Capture & Actions */}
+                    <div className="pt-2 space-y-2">
+                      {reportStep === 'sent' ? (
+                        <>
+                          <div className="px-3 py-3 rounded-lg bg-emerald-50 border border-emerald-200 text-center">
+                            <FiCheckCircle className="w-5 h-5 text-emerald-500 mx-auto mb-1" />
+                            <p className="text-sm font-semibold text-emerald-700">Report sent to {email}!</p>
+                            <p className="text-xs text-emerald-600 mt-0.5">Check your inbox for the full AI analysis with PDF.</p>
+                          </div>
+                          <div className="flex gap-2">
+                            <Link
+                              to="/pricing"
+                              className="flex-1 py-2.5 rounded-xl font-bold text-white bg-gradient-to-r from-cta-500 to-cta-600
+                                         hover:shadow-lg hover:shadow-cta-500/40 transition-all text-sm text-center"
+                            >
+                              Start Free Trial
+                            </Link>
+                            <button
+                              onClick={handleReset}
+                              className="px-4 py-2.5 rounded-xl font-semibold text-zinc-600 bg-zinc-100 hover:bg-zinc-200 transition-colors text-sm"
+                            >
+                              Check Another
+                            </button>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div>
+                            <div className="flex gap-2">
+                              <div className="relative flex-1">
+                                <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+                                <input
+                                  type="email"
+                                  value={email}
+                                  onChange={(e) => { setEmail(e.target.value); setEmailError(null); }}
+                                  placeholder="Enter your email"
+                                  disabled={reportStep === 'sending'}
+                                  className="w-full pl-9 pr-3 py-2.5 rounded-xl border-2 border-[#E2E8F0] bg-white/80
+                                             focus:border-cta-500 focus:shadow-[0_0_0_4px_rgba(249,115,22,0.15)]
+                                             transition-all duration-200 placeholder:text-zinc-400 text-sm
+                                             disabled:opacity-60 disabled:cursor-not-allowed"
+                                  onKeyDown={(e) => e.key === 'Enter' && handleGetReport()}
+                                />
+                              </div>
+                            </div>
+                            {emailError && (
+                              <p className="mt-1 text-red-500 text-xs flex items-center gap-1">
+                                <FiAlertCircle className="w-3 h-3" />
+                                {emailError}
+                              </p>
+                            )}
+                          </div>
+                          <button
+                            onClick={handleGetReport}
+                            disabled={reportStep === 'sending'}
+                            className="w-full py-2.5 rounded-xl font-bold text-white bg-gradient-to-r from-cta-500 to-cta-600
+                                       hover:shadow-lg hover:shadow-cta-500/40 hover:-translate-y-0.5
+                                       active:translate-y-0 transition-all duration-200 text-sm flex items-center justify-center gap-2
+                                       disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none"
+                          >
+                            {reportStep === 'sending' ? (
+                              <>
+                                <FiLoader className="w-4 h-4 animate-spin" />
+                                Generating Report...
+                              </>
+                            ) : (
+                              <>
+                                Send My Free Report
+                                <FiSend className="w-4 h-4" />
+                              </>
+                            )}
+                          </button>
+                          <button
+                            onClick={handleReset}
+                            disabled={reportStep === 'sending'}
+                            className="w-full py-2 rounded-xl font-semibold text-zinc-600 bg-zinc-100 hover:bg-zinc-200 transition-colors text-sm
+                                       disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            Check Another
+                          </button>
+                        </>
+                      )}
                     </div>
                   </div>
                 )}
