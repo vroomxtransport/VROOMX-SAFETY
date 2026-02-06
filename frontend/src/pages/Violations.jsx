@@ -39,6 +39,8 @@ const Violations = () => {
   const [driverFilter, setDriverFilter] = useState('');
   const [opportunities, setOpportunities] = useState([]);
   const [opportunitiesLoading, setOpportunitiesLoading] = useState(false);
+  const [typeFilter, setTypeFilter] = useState('');
+  const [dismissedAttorneyBanner, setDismissedAttorneyBanner] = useState(false);
 
   const tabs = [
     { key: 'list', label: 'Violations List', icon: FiList },
@@ -67,7 +69,7 @@ const Violations = () => {
     fetchViolations();
     fetchStats();
     fetchDriversAndVehicles();
-  }, [page, statusFilter, basicFilter, driverFilter]);
+  }, [page, statusFilter, basicFilter, driverFilter, typeFilter]);
 
   useEffect(() => {
     if (activeTab === 'dataq') {
@@ -119,7 +121,9 @@ const Violations = () => {
           limit: 15,
           ...(statusFilter && { status: statusFilter }),
           ...(basicFilter && { basic: basicFilter }),
-          ...(driverFilter && driverFilter !== 'unassigned' && { driverId: driverFilter })
+          ...(driverFilter && driverFilter !== 'unassigned' && { driverId: driverFilter }),
+          ...(typeFilter === 'moving' && { isMoving: 'true' }),
+          ...(typeFilter === 'non-moving' && { isMoving: 'false' })
         };
         const response = await violationsAPI.getAll(params);
         setViolations(response.data.violations);
@@ -309,6 +313,11 @@ const Violations = () => {
               OOS
             </span>
           )}
+          {row.isMoving && (
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-500/30">
+              MOVING
+            </span>
+          )}
         </div>
       )
     },
@@ -490,7 +499,7 @@ const Violations = () => {
       ) : activeTab === 'list' ? (
         <>
         {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         <div className="group bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-4 hover:shadow-lg hover:-translate-y-1 hover:border-zinc-300 dark:hover:border-zinc-600 transition-all duration-300 cursor-pointer">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -541,7 +550,40 @@ const Violations = () => {
             </div>
           </div>
         </div>
+        <div className="group bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-4 hover:shadow-lg hover:-translate-y-1 hover:border-purple-300 dark:hover:border-purple-500/30 transition-all duration-300 cursor-pointer">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <FiAlertTriangle className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+            </div>
+            <div>
+              <p className="text-xl sm:text-2xl font-bold text-purple-600 dark:text-purple-400 font-mono">
+                {stats?.movingViolationCount || 0}
+              </p>
+              <p className="text-xs text-zinc-600 dark:text-zinc-300">Moving Violations</p>
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* Attorney Recommendation Banner */}
+      {stats?.movingViolationCount > 0 && !dismissedAttorneyBanner && (
+        <div className="bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/30 rounded-xl p-4 flex items-start gap-3">
+          <FiAlertTriangle className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-purple-800 dark:text-purple-300">
+              You have {stats.movingViolationCount} open moving violation{stats.movingViolationCount !== 1 ? 's' : ''}
+            </p>
+            <p className="text-sm text-purple-700 dark:text-purple-400 mt-1">
+              Moving violations can often be reclassified to non-moving or removed entirely
+              with proper legal representation. An experienced trucking attorney may be able
+              to reduce your CSA impact significantly.
+            </p>
+          </div>
+          <button onClick={() => setDismissedAttorneyBanner(true)} className="flex-shrink-0">
+            <FiX className="w-4 h-4 text-purple-400 hover:text-purple-600 dark:hover:text-purple-300 transition-colors" />
+          </button>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-4">
@@ -589,6 +631,18 @@ const Violations = () => {
                 {driver.firstName} {driver.lastName}
               </option>
             ))}
+          </select>
+          <select
+            className="form-select"
+            value={typeFilter}
+            onChange={(e) => {
+              setTypeFilter(e.target.value);
+              setPage(1);
+            }}
+          >
+            <option value="">All Types</option>
+            <option value="moving">Moving Only</option>
+            <option value="non-moving">Non-Moving Only</option>
           </select>
         </div>
       </div>

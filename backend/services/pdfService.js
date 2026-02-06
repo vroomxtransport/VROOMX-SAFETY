@@ -186,7 +186,7 @@ const pdfService = {
       // Helper to convert **bold** markdown to HTML <strong> tags
       const processBold = (str) => str.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
 
-      const sections = text.split(/(?=📊|⚠️|✅|🔍)/);
+      const sections = text.split(/(?=📊|⚠️|✅|🔍|⚖️)/);
       let html = '';
 
       sections.forEach((section) => {
@@ -235,6 +235,17 @@ const pdfService = {
           html += `
             <div style="margin-bottom: 0; padding: 16px; background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); border-radius: 8px; border-left: 5px solid #ea580c; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
               <p style="margin: 0 0 12px 0; font-size: 14px; font-weight: bold; color: #9a3412; letter-spacing: 0.5px;">🔍 DATAQ CHALLENGE OPPORTUNITIES</p>
+              <ul style="margin: 0; padding-left: 24px; list-style-type: disc;">${bullets}</ul>
+            </div>`;
+        } else if (section.startsWith('⚖️') || section.includes('MOVING VIOLATION ALERT')) {
+          const content = processBold(section.replace(/^⚖️\s*MOVING VIOLATION ALERT\s*\n?/, ''));
+          const bullets = content.trim().split('\n').filter(line => line.trim()).map(line => {
+            const cleanLine = line.replace(/^[•\-]\s*/, '').trim();
+            return `<li style="margin: 10px 0; font-size: 14px; color: #581c87; line-height: 1.6;">${cleanLine}</li>`;
+          }).join('');
+          html += `
+            <div style="margin-bottom: 20px; padding: 16px; background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border-radius: 8px; border-left: 5px solid #7c3aed; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+              <p style="margin: 0 0 12px 0; font-size: 14px; font-weight: bold; color: #581c87; letter-spacing: 0.5px;">⚖️ MOVING VIOLATION ALERT</p>
               <ul style="margin: 0; padding-left: 24px; list-style-type: disc;">${bullets}</ul>
             </div>`;
         } else {

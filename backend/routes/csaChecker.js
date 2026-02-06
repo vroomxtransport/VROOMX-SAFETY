@@ -170,12 +170,24 @@ FORMAT YOUR RESPONSE EXACTLY LIKE THIS (use these exact headers):
 - Use "High potential" for flagged BASICs, "Moderate potential" for near-threshold
 If no BASICs are flagged or near threshold, say "No urgent DataQ opportunities detected at this time. Continue monitoring your scores."]
 
+⚖️ MOVING VIOLATION ALERT
+[Classify mentioned violations as MOVING or NON-MOVING:
+- MOVING: speeding (392.2S), reckless driving (392.2R), improper lane change (392.2LC), failure to yield (392.2FYR), following too closely (392.2T), traffic control (392.2FTC), improper passing (392.2P), improper turns (392.2U), texting (392.80), phone use (392.82), railroad crossing (392.10), seat belt (392.16)
+- NON-MOVING: equipment (393.x, 396.x), HOS (395.x), fitness (391.x), substances (382.x)
+
+For each MOVING violation found:
+- Code + description + "⚠️ MOVING VIOLATION"
+- "This moving violation may be eligible for reclassification. An attorney experienced in FMCSA violations can potentially get it reclassified to non-moving or removed entirely, reducing your CSA score impact."
+
+If no moving violations detected, say "No moving violations detected in your profile."]
+
 RULES:
 - Keep language simple - written for truckers, not lawyers
 - Be specific about which BASICs need attention
 - If any BASIC is above threshold, mention DataQ challenge opportunities
+- Always classify violations as Moving or Non-Moving and recommend attorney for moving violations
 - Create urgency but be helpful, not scary
-- Total response under 400 words`, { maxTokens: 1200 });
+- Total response under 500 words`, { maxTokens: 1500 });
 
     aiAnalysis = {
       content: aiResponse.content,
@@ -366,6 +378,17 @@ function generateFallbackAnalysis(carrierData) {
     });
   } else {
     analysis += `No urgent DataQ opportunities detected at this time. Continue monitoring your scores.\n`;
+  }
+  analysis += `\n`;
+
+  // Moving Violation Alert
+  analysis += `⚖️ MOVING VIOLATION ALERT\n`;
+  const unsafeDrivingAlert = alerts.details?.find(a => a.basic === 'unsafeDriving');
+  if (unsafeDrivingAlert) {
+    analysis += `• Your Unsafe Driving BASIC is at ${unsafeDrivingAlert.score}% (threshold: ${unsafeDrivingAlert.threshold}%). This category typically contains moving violations such as speeding, improper lane changes, and reckless driving.\n`;
+    analysis += `• Moving violations may be eligible for reclassification through legal representation. An attorney experienced in FMCSA violations can potentially get moving violations reclassified to non-moving or removed entirely, significantly reducing your CSA score impact.\n`;
+  } else {
+    analysis += `No moving violations detected in your current BASIC scores profile.\n`;
   }
 
   return analysis;

@@ -525,7 +525,7 @@ const emailService = {
       if (!text) return '<p style="margin: 0; font-size: 14px; color: #78350f; line-height: 1.6;">No analysis available.</p>';
 
       // Split into sections based on emoji headers
-      const sections = text.split(/(?=📊|⚠️|✅|🔍)/);
+      const sections = text.split(/(?=📊|⚠️|✅|🔍|⚖️)/);
       let html = '';
 
       sections.forEach((section) => {
@@ -575,6 +575,19 @@ const emailService = {
           html += `
             <div style="margin-bottom: 0; padding: 12px; background: #fff7ed; border-radius: 6px; border-left: 4px solid #ea580c;">
               <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: bold; color: #9a3412; font-family: Arial, sans-serif;">🔍 DATAQ CHALLENGE OPPORTUNITIES</p>
+              <ul style="margin: 0; padding-left: 20px; font-family: Arial, sans-serif;">${bullets}</ul>
+            </div>`;
+        } else if (section.startsWith('⚖️') || section.includes('MOVING VIOLATION ALERT')) {
+          // Moving Violation Alert - purple section
+          const content = section.replace(/^⚖️\s*MOVING VIOLATION ALERT\s*\n?/, '');
+          const bullets = content.trim().split('\n').filter(line => line.trim()).map(line => {
+            const cleanLine = line.replace(/^[•\-]\s*/, '').trim()
+              .replace(/MOVING VIOLATION/g, '<strong style="color: #7c3aed;">MOVING VIOLATION</strong>');
+            return `<li style="margin: 4px 0; font-size: 14px; color: #581c87;">${cleanLine}</li>`;
+          }).join('');
+          html += `
+            <div style="margin-bottom: 16px; padding: 12px; background: #f5f3ff; border-radius: 6px; border-left: 4px solid #7c3aed;">
+              <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: bold; color: #581c87; font-family: Arial, sans-serif;">⚖️ MOVING VIOLATION ALERT</p>
               <ul style="margin: 0; padding-left: 20px; font-family: Arial, sans-serif;">${bullets}</ul>
             </div>`;
         } else {

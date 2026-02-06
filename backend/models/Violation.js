@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const { VIOLATION_SEVERITY_WEIGHTS, TIME_WEIGHT_FACTORS } = require('../config/fmcsaCompliance');
+const { isMovingViolation } = require('../config/violationCodes');
 
 const violationSchema = new mongoose.Schema({
   companyId: {
@@ -225,6 +226,11 @@ const violationSchema = new mongoose.Schema({
 // Virtual for age in days
 violationSchema.virtual('ageInDays').get(function() {
   return Math.floor((new Date() - new Date(this.violationDate)) / (1000 * 60 * 60 * 24));
+});
+
+// Virtual for moving violation classification
+violationSchema.virtual('isMoving').get(function() {
+  return isMovingViolation(this.violationCode);
 });
 
 // Calculate weighted severity before save

@@ -6,6 +6,7 @@ const { protect, checkPermission, restrictToCompany } = require('../middleware/a
 const { uploadMultiple, getFileUrl } = require('../middleware/upload');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const { VIOLATION_SEVERITY_WEIGHTS, calculateSeverityPoints } = require('../config/fmcsaCompliance');
+const { getMovingViolations } = require('../config/violationCodes');
 const auditService = require('../services/auditService');
 const driverCSAService = require('../services/driverCSAService');
 const dataQAnalysisService = require('../services/dataQAnalysisService');
@@ -27,6 +28,14 @@ router.get('/', checkPermission('violations', 'view'), asyncHandler(async (req, 
   if (basic) queryObj.basic = basic;
   if (driverId) queryObj.driverId = driverId;
   if (vehicleId) queryObj.vehicleId = vehicleId;
+  if (req.query.isMoving !== undefined) {
+    const movingCodes = getMovingViolations().map(v => v.code);
+    if (req.query.isMoving === 'true') {
+      queryObj.violationCode = { $in: movingCodes };
+    } else {
+      queryObj.violationCode = { $nin: movingCodes };
+    }
+  }
   if (startDate || endDate) {
     queryObj.violationDate = {};
     if (startDate) queryObj.violationDate.$gte = new Date(startDate);
@@ -92,12 +101,21 @@ router.get('/stats', checkPermission('violations', 'view'), asyncHandler(async (
     'dataQChallenge.status': { $in: ['pending', 'under_review'] }
   });
 
+  // Get open moving violation count
+  const movingCodes = getMovingViolations().map(v => v.code);
+  const movingViolationCount = await Violation.countDocuments({
+    ...req.companyFilter,
+    violationCode: { $in: movingCodes },
+    status: 'open'
+  });
+
   res.json({
     success: true,
     stats: {
       byBasic: stats,
       byStatus: statusBreakdown,
-      openDataQChallenges: openDataQ
+      openDataQChallenges: openDataQ,
+      movingViolationCount
     }
   });
 }));
