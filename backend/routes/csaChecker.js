@@ -64,6 +64,7 @@ router.post('/lookup', csaRateLimiter, [
   }
 
   const riskLevel = fmcsaService.calculateRiskLevel(carrierData.basics);
+  const dataQOpportunities = fmcsaService.estimateDataQOpportunities(carrierData.basics, carrierData.inspections, carrierData.crashes);
 
   res.json({
     success: true,
@@ -83,7 +84,8 @@ router.post('/lookup', csaRateLimiter, [
       inspections: carrierData.inspections,
       crashes: carrierData.crashes,
       dataSource: carrierData.dataSource,
-      disclaimer: carrierData.disclaimer
+      disclaimer: carrierData.disclaimer,
+      dataQOpportunities
     }
   });
 }));
@@ -160,12 +162,20 @@ FORMAT YOUR RESPONSE EXACTLY LIKE THIS (use these exact headers):
 2. [Second action - be specific]
 3. [Third action - be specific]
 
+🔍 DATAQ CHALLENGE OPPORTUNITIES
+[For each BASIC above or near threshold:
+- Category name + score/threshold
+- 2-3 specific violation TYPES with CFR codes (e.g., "395.8 ELD issues" for HOS, "393.45 brake violations" for Vehicle Maintenance)
+- Recommended challenge approach (data_error, procedural_error, incomplete_record)
+- Use "High potential" for flagged BASICs, "Moderate potential" for near-threshold
+If no BASICs are flagged or near threshold, say "No urgent DataQ opportunities detected at this time. Continue monitoring your scores."]
+
 RULES:
 - Keep language simple - written for truckers, not lawyers
 - Be specific about which BASICs need attention
 - If any BASIC is above threshold, mention DataQ challenge opportunities
 - Create urgency but be helpful, not scary
-- Total response under 300 words`, { maxTokens: 800 });
+- Total response under 400 words`, { maxTokens: 1200 });
 
     aiAnalysis = {
       content: aiResponse.content,
@@ -181,8 +191,9 @@ RULES:
     };
   }
 
-  // Calculate risk level
+  // Calculate risk level and DataQ opportunities
   const riskLevel = fmcsaService.calculateRiskLevel(carrierData.basics);
+  const dataQOpportunities = fmcsaService.estimateDataQOpportunities(carrierData.basics, carrierData.inspections, carrierData.crashes);
 
   // Save or update lead
   if (lead) {
@@ -227,7 +238,8 @@ RULES:
       riskLevel,
       inspections: carrierData.inspections,
       crashes: carrierData.crashes,
-      aiAnalysis: aiAnalysis.content
+      aiAnalysis: aiAnalysis.content,
+      dataQOpportunities
     });
 
     emailService.sendCSAReport(
@@ -237,7 +249,8 @@ RULES:
       aiAnalysis.content,
       riskLevel,
       { inspections: carrierData.inspections, crashes: carrierData.crashes },
-      pdfBuffer
+      pdfBuffer,
+      dataQOpportunities
     ).catch(err => console.error('CSA Report email error:', err.message));
   } catch (pdfError) {
     console.error('PDF generation error:', pdfError.message);
@@ -248,7 +261,8 @@ RULES:
       aiAnalysis.content,
       riskLevel,
       { inspections: carrierData.inspections, crashes: carrierData.crashes },
-      null
+      null,
+      dataQOpportunities
     ).catch(err => console.error('CSA Report email error:', err.message));
   }
 
@@ -341,6 +355,18 @@ function generateFallbackAnalysis(carrierData) {
   analysis += `1. Review your recent inspections and identify any violations that may be incorrectly recorded or eligible for DataQ challenge.\n`;
   analysis += `2. Set up automated alerts with VroomX Safety to get notified when your BASIC scores change.\n`;
   analysis += `3. Implement a preventive maintenance program and ensure all drivers complete thorough pre-trip inspections.\n`;
+  analysis += `\n`;
+
+  // DataQ Challenge Opportunities
+  analysis += `🔍 DATAQ CHALLENGE OPPORTUNITIES\n`;
+  if (alerts.count > 0) {
+    alerts.details.forEach(alert => {
+      const basicName = fmcsaService.getBasicInfo().find(b => b.key === alert.basic)?.name || alert.basic;
+      analysis += `• ${basicName}: ${alert.score}% (threshold: ${alert.threshold}%) - High potential for DataQ challenge. Review recent violations for data errors or procedural issues.\n`;
+    });
+  } else {
+    analysis += `No urgent DataQ opportunities detected at this time. Continue monitoring your scores.\n`;
+  }
 
   return analysis;
 }

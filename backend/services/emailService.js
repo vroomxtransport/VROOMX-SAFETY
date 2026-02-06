@@ -448,7 +448,7 @@ const emailService = {
    * @param {object} stats - { inspections: { last24Months }, crashes: { last24Months } }
    * @param {Buffer} [pdfBuffer] - Optional PDF attachment
    */
-  async sendCSAReport(email, carrier, basics, aiAnalysis, riskLevel, stats, pdfBuffer) {
+  async sendCSAReport(email, carrier, basics, aiAnalysis, riskLevel, stats, pdfBuffer, dataQOpportunities) {
     // Risk level colors for email
     const riskColors = {
       HIGH: { bg: '#dc2626', text: '#ffffff' },
@@ -525,7 +525,7 @@ const emailService = {
       if (!text) return '<p style="margin: 0; font-size: 14px; color: #78350f; line-height: 1.6;">No analysis available.</p>';
 
       // Split into sections based on emoji headers
-      const sections = text.split(/(?=📊|⚠️|✅)/);
+      const sections = text.split(/(?=📊|⚠️|✅|🔍)/);
       let html = '';
 
       sections.forEach((section) => {
@@ -565,6 +565,18 @@ const emailService = {
               <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: bold; color: #166534; font-family: Arial, sans-serif;">✅ YOUR 3-STEP ACTION PLAN</p>
               <ol style="margin: 0; padding-left: 20px; font-family: Arial, sans-serif;">${steps}</ol>
             </div>`;
+        } else if (section.startsWith('🔍')) {
+          // DataQ Challenge Opportunities - orange section
+          const content = section.replace(/^🔍\s*DATAQ CHALLENGE OPPORTUNITIES\s*\n?/, '');
+          const bullets = content.trim().split('\n').filter(line => line.trim()).map(line => {
+            const cleanLine = line.replace(/^[•\-]\s*/, '').trim();
+            return `<li style="margin: 4px 0; font-size: 14px; color: #9a3412;">${cleanLine}</li>`;
+          }).join('');
+          html += `
+            <div style="margin-bottom: 0; padding: 12px; background: #fff7ed; border-radius: 6px; border-left: 4px solid #ea580c;">
+              <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: bold; color: #9a3412; font-family: Arial, sans-serif;">🔍 DATAQ CHALLENGE OPPORTUNITIES</p>
+              <ul style="margin: 0; padding-left: 20px; font-family: Arial, sans-serif;">${bullets}</ul>
+            </div>`;
         } else {
           // Fallback for unrecognized sections
           html += `<p style="margin: 0 0 12px 0; font-size: 14px; color: #78350f; line-height: 1.5; font-family: Arial, sans-serif;">${section.replace(/\n/g, '<br>')}</p>`;
@@ -573,6 +585,41 @@ const emailService = {
 
       return html || '<p style="margin: 0; font-size: 14px; color: #78350f; line-height: 1.6;">No analysis available.</p>';
     };
+
+    // Generate DataQ HTML block
+    let dataQHtml = '';
+    if (dataQOpportunities?.hasOpportunities && Array.isArray(dataQOpportunities.categories) && dataQOpportunities.categories.length > 0) {
+      const frontendUrl = process.env.FRONTEND_URL || 'https://vroomxsafety.com';
+      const categoryList = dataQOpportunities.categories.map(c => {
+        const urgency = c.status === 'flagged' ? '🔴 High Priority' : '🟡 Monitor';
+        return `<tr><td style="padding: 6px 8px; font-size: 14px; color: #9a3412; border-bottom: 1px solid #fed7aa; font-family: Arial, sans-serif;">${c.name}</td><td style="padding: 6px 8px; font-size: 14px; color: #9a3412; border-bottom: 1px solid #fed7aa; font-family: Arial, sans-serif;">${c.score}% / ${c.threshold}%</td><td style="padding: 6px 8px; font-size: 12px; border-bottom: 1px solid #fed7aa; font-family: Arial, sans-serif;">${urgency}</td></tr>`;
+      }).join('');
+
+      dataQHtml = `
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 24px 0; background: #fff7ed; border-radius: 8px; border: 1px solid #fed7aa;">
+          <tr>
+            <td style="padding: 20px;">
+              <h4 style="margin: 0 0 8px 0; font-size: 16px; color: #9a3412; font-family: Arial, Helvetica, sans-serif;">🔍 DataQ Challenge Opportunities</h4>
+              <p style="margin: 0 0 12px 0; font-size: 14px; color: #c2410c; font-family: Arial, sans-serif;">We identified <strong>${dataQOpportunities.estimatedCount}</strong> potential violation(s) that may be eligible for a DataQ challenge.</p>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 16px 0;">
+                <tr>
+                  <th style="padding: 6px 8px; font-size: 11px; text-transform: uppercase; color: #9a3412; text-align: left; border-bottom: 2px solid #fed7aa; font-family: Arial, sans-serif;">Category</th>
+                  <th style="padding: 6px 8px; font-size: 11px; text-transform: uppercase; color: #9a3412; text-align: left; border-bottom: 2px solid #fed7aa; font-family: Arial, sans-serif;">Score / Threshold</th>
+                  <th style="padding: 6px 8px; font-size: 11px; text-transform: uppercase; color: #9a3412; text-align: left; border-bottom: 2px solid #fed7aa; font-family: Arial, sans-serif;">Urgency</th>
+                </tr>
+                ${categoryList}
+              </table>
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;">
+                <tr>
+                  <td style="border-radius: 6px; background-color: #ea580c;">
+                    <a href="${frontendUrl}/register" target="_blank" style="display: inline-block; padding: 12px 24px; font-size: 14px; font-weight: bold; color: #ffffff; text-decoration: none; font-family: Arial, Helvetica, sans-serif;">Start DataQ Challenges</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>`;
+    }
 
     const emailPayload = {
       to: email,
@@ -592,6 +639,7 @@ const emailService = {
         crashes24: stats?.crashes?.last24Months || 0,
         aiAnalysis: formatAiAnalysisHtml(aiAnalysis),
         reportDate,
+        dataQHtml,
       },
       category: 'report',
       metadata: { dotNumber: carrier.dotNumber, riskLevel },

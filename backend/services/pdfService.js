@@ -109,7 +109,7 @@ const pdfService = {
    * @returns {Buffer} PDF buffer
    */
   async generateCSAReport(data) {
-    const { carrier, basics, riskLevel, inspections, crashes, aiAnalysis } = data;
+    const { carrier, basics, riskLevel, inspections, crashes, aiAnalysis, dataQOpportunities } = data;
 
     // Load and render template
     const templatePath = path.join(__dirname, '../templates/csa-report-pdf.html');
@@ -186,7 +186,7 @@ const pdfService = {
       // Helper to convert **bold** markdown to HTML <strong> tags
       const processBold = (str) => str.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
 
-      const sections = text.split(/(?=📊|⚠️|✅)/);
+      const sections = text.split(/(?=📊|⚠️|✅|🔍)/);
       let html = '';
 
       sections.forEach((section) => {
@@ -226,6 +226,17 @@ const pdfService = {
               <p style="margin: 0 0 14px 0; font-size: 14px; font-weight: bold; color: #166534; letter-spacing: 0.5px;">✅ YOUR 3-STEP ACTION PLAN</p>
               <ol style="margin: 0; padding: 0;">${steps}</ol>
             </div>`;
+        } else if (section.startsWith('🔍')) {
+          const content = processBold(section.replace(/^🔍\s*DATAQ CHALLENGE OPPORTUNITIES\s*\n?/, ''));
+          const bullets = content.trim().split('\n').filter(line => line.trim()).map(line => {
+            const cleanLine = line.replace(/^[•\-]\s*/, '').trim();
+            return `<li style="margin: 10px 0; font-size: 14px; color: #9a3412; line-height: 1.6;">${cleanLine}</li>`;
+          }).join('');
+          html += `
+            <div style="margin-bottom: 0; padding: 16px; background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); border-radius: 8px; border-left: 5px solid #ea580c; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+              <p style="margin: 0 0 12px 0; font-size: 14px; font-weight: bold; color: #9a3412; letter-spacing: 0.5px;">🔍 DATAQ CHALLENGE OPPORTUNITIES</p>
+              <ul style="margin: 0; padding-left: 24px; list-style-type: disc;">${bullets}</ul>
+            </div>`;
         } else {
           html += `<p style="margin: 0 0 12px 0; font-size: 14px; color: #6b7280; line-height: 1.6;">${processBold(section).replace(/\n/g, '<br>')}</p>`;
         }
@@ -233,6 +244,37 @@ const pdfService = {
 
       return html || '<p style="margin: 0; font-size: 14px; color: #6b7280;">No analysis available.</p>';
     };
+
+    // Generate DataQ HTML block for PDF
+    let dataQHtml = '';
+    if (dataQOpportunities?.hasOpportunities && Array.isArray(dataQOpportunities.categories) && dataQOpportunities.categories.length > 0) {
+      const categoryRows = dataQOpportunities.categories.map(c => {
+        const urgency = c.status === 'flagged' ? 'High Priority' : 'Monitor';
+        const urgencyColor = c.status === 'flagged' ? '#dc2626' : '#f97316';
+        return `<tr>
+          <td style="padding: 8px 12px; border-bottom: 1px solid #fed7aa; font-size: 14px; color: #9a3412;">${c.name}</td>
+          <td style="padding: 8px 12px; border-bottom: 1px solid #fed7aa; font-size: 14px; color: #9a3412;">${c.score}% / ${c.threshold}%</td>
+          <td style="padding: 8px 12px; border-bottom: 1px solid #fed7aa;"><span style="display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; background: ${c.status === 'flagged' ? '#fef2f2' : '#fffbeb'}; color: ${urgencyColor};">${urgency}</span></td>
+        </tr>`;
+      }).join('');
+
+      dataQHtml = `
+        <div class="dataq-box">
+          <div class="dataq-title">🔍 DataQ Challenge Opportunities</div>
+          <p class="dataq-text" style="margin-bottom: 12px;">We identified <strong>${dataQOpportunities.estimatedCount}</strong> potential violation(s) that may be eligible for a DataQ challenge.</p>
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px;">
+            <thead>
+              <tr>
+                <th style="padding: 8px 12px; font-size: 11px; text-transform: uppercase; color: #9a3412; text-align: left; border-bottom: 2px solid #fed7aa;">Category</th>
+                <th style="padding: 8px 12px; font-size: 11px; text-transform: uppercase; color: #9a3412; text-align: left; border-bottom: 2px solid #fed7aa;">Score / Threshold</th>
+                <th style="padding: 8px 12px; font-size: 11px; text-transform: uppercase; color: #9a3412; text-align: left; border-bottom: 2px solid #fed7aa;">Urgency</th>
+              </tr>
+            </thead>
+            <tbody>${categoryRows}</tbody>
+          </table>
+          <p style="font-size: 13px; color: #c2410c; text-align: center;">Visit <strong>vroomxsafety.com/register</strong> to start your DataQ challenges</p>
+        </div>`;
+    }
 
     // Replace template variables
     const riskColor = riskColors[riskLevel] || riskColors.MODERATE;
@@ -249,6 +291,7 @@ const pdfService = {
       .replace(/{{inspections24}}/g, inspections?.last24Months || 0)
       .replace(/{{crashes24}}/g, crashes?.last24Months || 0)
       .replace(/{{aiAnalysis}}/g, formatAiAnalysisHtml(aiAnalysis))
+      .replace(/{{dataQHtml}}/g, dataQHtml)
       .replace(/{{reportDate}}/g, new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }))
       .replace(/{{currentYear}}/g, new Date().getFullYear());
 

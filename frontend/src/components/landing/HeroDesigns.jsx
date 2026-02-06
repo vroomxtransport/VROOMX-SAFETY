@@ -1107,6 +1107,25 @@ export const HeroDesign5 = ({ heroTextIndex, heroTexts }) => {
                       </div>
                     </div>
 
+                    {/* DataQ Challenge Teaser */}
+                    {carrierData.dataQOpportunities?.hasOpportunities && (
+                      <div className="px-3 py-3 rounded-lg bg-amber-50 border border-amber-200">
+                        <div className="flex items-center gap-2 mb-1.5">
+                          <FiLock className="w-4 h-4 text-amber-600" />
+                          <span className="text-xs font-bold text-amber-800 uppercase tracking-wide">DataQ Challenge Opportunities</span>
+                        </div>
+                        <p className="text-sm text-amber-700">
+                          <span className="font-bold text-amber-900">{carrierData.dataQOpportunities.estimatedCount}</span> potential violation{carrierData.dataQOpportunities.estimatedCount !== 1 ? 's' : ''} detected that may be eligible for DataQ challenge
+                          {carrierData.dataQOpportunities.categories?.length > 0 && (
+                            <span className="text-xs text-amber-600"> in {carrierData.dataQOpportunities.categories.map(c => c.name).join(', ')}</span>
+                          )}
+                        </p>
+                        <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
+                          <FiMail className="w-3 h-3" /> Enter your email below to see the full analysis
+                        </p>
+                      </div>
+                    )}
+
                     {/* Email Capture & Actions */}
                     <div className="pt-2 space-y-2">
                       {reportStep === 'sent' ? (

@@ -679,6 +679,44 @@ const fmcsaService = {
   },
 
   /**
+   * Estimate DataQ challenge opportunities based on BASIC scores
+   * Uses heuristic: flagged BASICs likely have ~3 challengeable violations,
+   * near-threshold ~1, plus inspection volume bonus. Capped at 25.
+   */
+  estimateDataQOpportunities(basics, inspections, crashes) {
+    if (!basics) return { estimatedCount: 0, categories: [], hasOpportunities: false };
+
+    const basicInfo = this.getBasicInfo();
+    let estimatedCount = 0;
+    const categories = [];
+
+    for (const [basic, threshold] of Object.entries(BASIC_THRESHOLDS)) {
+      const score = basics[basic];
+      if (score === null || score === undefined) continue;
+
+      const info = basicInfo.find(b => b.key === basic);
+      const name = info ? info.name : basic;
+
+      if (score >= threshold) {
+        estimatedCount += 3;
+        categories.push({ basic, name, score, threshold, status: 'flagged' });
+      } else if (score >= threshold - 15) {
+        estimatedCount += 1;
+        categories.push({ basic, name, score, threshold, status: 'near_threshold' });
+      }
+    }
+
+    // Bonus for high inspection volume
+    if ((inspections?.last24Months || 0) > 10) {
+      estimatedCount += Math.floor(inspections.last24Months / 15);
+    }
+
+    estimatedCount = Math.min(estimatedCount, 25);
+
+    return { estimatedCount, categories, hasOpportunities: estimatedCount > 0 };
+  },
+
+  /**
    * Clear cache (useful for testing or forced refresh)
    */
   clearCache(dotNumber) {
