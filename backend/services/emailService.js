@@ -87,6 +87,23 @@ const emailService = {
    */
   async send({ to, subject, templateName, variables = {}, category, userId, companyId, metadata, attachments }) {
     if (!RESEND_ENABLED) {
+      console.error(`[EmailService] Resend not configured — cannot send "${subject}" to ${to}`);
+      try {
+        await EmailLog.create({
+          to: Array.isArray(to) ? to.join(', ') : to,
+          from: FROM,
+          subject,
+          templateName,
+          category,
+          userId,
+          companyId,
+          metadata,
+          status: 'failed',
+          error: 'RESEND_API_KEY not configured',
+        });
+      } catch (logErr) {
+        console.error('[EmailService] Failed to write EmailLog:', logErr.message);
+      }
       return null;
     }
 

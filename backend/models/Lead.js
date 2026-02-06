@@ -34,6 +34,7 @@ const leadSchema = new mongoose.Schema({
     hazmatCompliance: Number,
     driverFitness: Number,
     alertCount: Number,
+    riskLevel: String,
     fetchedAt: Date
   },
   aiAnalysis: {

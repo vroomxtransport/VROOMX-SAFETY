@@ -92,7 +92,7 @@ const pdfService = {
         preferCSSPageSize: true
       });
 
-      return pdfBuffer;
+      return Buffer.isBuffer(pdfBuffer) ? pdfBuffer : Buffer.from(pdfBuffer);
     } finally {
       await page.close();
       // In cloud, close browser to free memory

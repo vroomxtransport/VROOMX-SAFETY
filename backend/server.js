@@ -71,6 +71,13 @@ if (process.env.JWT_SECRET && process.env.JWT_SECRET.length < 32) {
   }
 }
 
+// Email service health check
+if (!process.env.RESEND_API_KEY) {
+  console.warn('WARNING: RESEND_API_KEY not set. All email sending (CSA reports, alerts, etc.) will be disabled.');
+} else {
+  console.log('Email service: Resend configured');
+}
+
 // FMCSA credentials are optional in all environments - sync features disabled without them
 const fmcsaVars = ['SAFERWEB_API_KEY', 'SOCRATA_APP_TOKEN'];
 const missingFmcsa = fmcsaVars.filter(v => !process.env[v]);

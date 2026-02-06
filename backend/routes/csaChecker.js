@@ -242,9 +242,12 @@ RULES:
     });
   }
 
-  // Generate PDF and send email (fire-and-forget)
+  // Generate PDF and send email — await result for accurate status
+  let emailSent = false;
+  let pdfBuffer = null;
+
   try {
-    const pdfBuffer = await pdfService.generateCSAReport({
+    pdfBuffer = await pdfService.generateCSAReport({
       carrier: carrierData.carrier,
       basics: carrierData.basics,
       riskLevel,
@@ -253,8 +256,13 @@ RULES:
       aiAnalysis: aiAnalysis.content,
       dataQOpportunities
     });
+  } catch (pdfError) {
+    console.error('PDF generation error:', pdfError.message);
+    // Continue without PDF — email will be sent without attachment
+  }
 
-    emailService.sendCSAReport(
+  try {
+    const emailResult = await emailService.sendCSAReport(
       email,
       carrierData.carrier,
       carrierData.basics,
@@ -263,19 +271,10 @@ RULES:
       { inspections: carrierData.inspections, crashes: carrierData.crashes },
       pdfBuffer,
       dataQOpportunities
-    ).catch(err => console.error('CSA Report email error:', err.message));
-  } catch (pdfError) {
-    console.error('PDF generation error:', pdfError.message);
-    emailService.sendCSAReport(
-      email,
-      carrierData.carrier,
-      carrierData.basics,
-      aiAnalysis.content,
-      riskLevel,
-      { inspections: carrierData.inspections, crashes: carrierData.crashes },
-      null,
-      dataQOpportunities
-    ).catch(err => console.error('CSA Report email error:', err.message));
+    );
+    emailSent = emailResult !== null && !emailResult?.error;
+  } catch (emailError) {
+    console.error('CSA Report email error:', emailError.message);
   }
 
   res.json({
@@ -291,7 +290,7 @@ RULES:
       dataSource: carrierData.dataSource,
       disclaimer: carrierData.disclaimer,
       leadCaptured: true,
-      emailSent: true
+      emailSent
     }
   });
 }));

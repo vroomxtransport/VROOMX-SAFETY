@@ -123,6 +123,8 @@ const CSAChecker = () => {
   const [consent, setConsent] = useState(false);
   const [carrierData, setCarrierData] = useState(null);
   const [aiAnalysis, setAiAnalysis] = useState(null);
+  const [emailSent, setEmailSent] = useState(true);
+  const [resending, setResending] = useState(false);
   const [error, setError] = useState(null);
   const [stats, setStats] = useState({ checksThisMonth: 3247 });
   const inputRef = useRef(null);
@@ -195,10 +197,33 @@ const CSAChecker = () => {
 
       setAiAnalysis(data.data.aiAnalysis);
       setCarrierData(data.data);
+      setEmailSent(data.data.emailSent !== false);
       setTimeout(() => setStep('full'), 600);
     } catch (err) {
       setError(err.message);
       setStep('preview');
+    }
+  };
+
+  const handleResendReport = async () => {
+    setResending(true);
+    try {
+      const response = await fetch('/api/csa-checker/full-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          carrierNumber: carrierNumber.trim(),
+          email: email.trim()
+        })
+      });
+      const data = await response.json();
+      if (data.success && data.data.emailSent !== false) {
+        setEmailSent(true);
+      }
+    } catch {
+      // Keep emailSent as false
+    } finally {
+      setResending(false);
     }
   };
 
@@ -209,6 +234,8 @@ const CSAChecker = () => {
     setConsent(false);
     setCarrierData(null);
     setAiAnalysis(null);
+    setEmailSent(true);
+    setResending(false);
     setError(null);
   };
 
@@ -456,24 +483,50 @@ const CSAChecker = () => {
         {/* ===== SUCCESS STATE ===== */}
         {step === 'full' && carrierData && (
           <div className="p-5 text-center">
-            {/* Success Icon */}
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-emerald-100 mb-3">
-              <FiCheckCircle className="w-6 h-6 text-emerald-500" />
+            {/* Success/Warning Icon */}
+            <div className={`inline-flex items-center justify-center w-12 h-12 rounded-full mb-3 ${emailSent ? 'bg-emerald-100' : 'bg-amber-100'}`}>
+              {emailSent ? (
+                <FiCheckCircle className="w-6 h-6 text-emerald-500" />
+              ) : (
+                <FiAlertTriangle className="w-6 h-6 text-amber-500" />
+              )}
             </div>
 
-            <h3 className="text-lg font-bold text-primary-500 mb-1">Report Sent!</h3>
+            <h3 className="text-lg font-bold text-primary-500 mb-1">
+              {emailSent ? 'Report Sent!' : 'Analysis Complete'}
+            </h3>
             <p className="text-xs text-zinc-600 mb-4">{carrierData.carrier.legalName}</p>
 
-            {/* Email notification box */}
-            <div className="mb-4 p-3 rounded-lg bg-emerald-50 border border-emerald-200">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <FiMail className="w-4 h-4 text-emerald-600" />
-                <span className="text-sm font-medium text-emerald-700">Check your inbox</span>
+            {/* Email notification box - success or failure */}
+            {emailSent ? (
+              <div className="mb-4 p-3 rounded-lg bg-emerald-50 border border-emerald-200">
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <FiMail className="w-4 h-4 text-emerald-600" />
+                  <span className="text-sm font-medium text-emerald-700">Check your inbox</span>
+                </div>
+                <p className="text-[11px] text-emerald-600">
+                  Your full CSA analysis with PDF report has been sent to your email.
+                </p>
               </div>
-              <p className="text-[11px] text-emerald-600">
-                Your full CSA analysis with PDF report has been sent to your email.
-              </p>
-            </div>
+            ) : (
+              <div className="mb-4 p-3 rounded-lg bg-amber-50 border border-amber-200">
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <FiAlertTriangle className="w-4 h-4 text-amber-600" />
+                  <span className="text-sm font-medium text-amber-700">Email delivery failed</span>
+                </div>
+                <p className="text-[11px] text-amber-600 mb-2">
+                  Your analysis is ready but we couldn't send the email. Please try again.
+                </p>
+                <button
+                  onClick={handleResendReport}
+                  disabled={resending}
+                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-medium transition-colors disabled:opacity-50"
+                >
+                  <FiRefreshCw className={`w-3 h-3 ${resending ? 'animate-spin' : ''}`} />
+                  {resending ? 'Sending...' : 'Resend Report'}
+                </button>
+              </div>
+            )}
 
             {/* CTA */}
             <div className="p-4 rounded-lg bg-gradient-to-br from-primary-50 to-primary-100 border border-primary-200">
