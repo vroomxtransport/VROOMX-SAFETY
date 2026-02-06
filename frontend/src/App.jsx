@@ -1,4 +1,5 @@
-import { Suspense, lazy } from 'react';
+import { Suspense } from 'react';
+import { lazyWithRetry } from './utils/lazyWithRetry';
 import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import Layout from './components/Layout';
@@ -38,37 +39,37 @@ import ChatWidget from './components/AIChat/ChatWidget';
 import NotFound from './pages/NotFound';
 
 // Lazy load chart-heavy and large pages to reduce initial bundle size
-const Dashboard = lazy(() => import('./pages/Dashboard'));
-const Compliance = lazy(() => import('./pages/Compliance'));
-const UnlinkedViolations = lazy(() => import('./pages/UnlinkedViolations'));
-const DriverDetail = lazy(() => import('./pages/DriverDetail'));
-const VehicleDetail = lazy(() => import('./pages/VehicleDetail'));
-const Billing = lazy(() => import('./pages/Billing'));
-const Settings = lazy(() => import('./pages/Settings'));
-const Reports = lazy(() => import('./pages/Reports'));
+const Dashboard = lazyWithRetry(() => import('./pages/Dashboard'));
+const Compliance = lazyWithRetry(() => import('./pages/Compliance'));
+const UnlinkedViolations = lazyWithRetry(() => import('./pages/UnlinkedViolations'));
+const DriverDetail = lazyWithRetry(() => import('./pages/DriverDetail'));
+const VehicleDetail = lazyWithRetry(() => import('./pages/VehicleDetail'));
+const Billing = lazyWithRetry(() => import('./pages/Billing'));
+const Settings = lazyWithRetry(() => import('./pages/Settings'));
+const Reports = lazyWithRetry(() => import('./pages/Reports'));
 
 // Admin pages - lazy loaded
-const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
-const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
-const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
-const AdminCompanies = lazy(() => import('./pages/admin/AdminCompanies'));
-const AdminAuditLogs = lazy(() => import('./pages/admin/AdminAuditLogs'));
-const AdminEmails = lazy(() => import('./pages/admin/AdminEmails'));
-const AdminAnnouncements = lazy(() => import('./pages/admin/AdminAnnouncements'));
-const AdminFeatureFlags = lazy(() => import('./pages/admin/AdminFeatureFlags'));
-const AdminDataIntegrity = lazy(() => import('./pages/admin/AdminDataIntegrity'));
-const AdminRevenue = lazy(() => import('./pages/admin/AdminRevenue'));
-const AdminAlerts = lazy(() => import('./pages/admin/AdminAlerts'));
-const AdminTickets = lazy(() => import('./pages/admin/AdminTickets'));
-const AdminBugReports = lazy(() => import('./pages/admin/AdminBugReports'));
+const AdminLayout = lazyWithRetry(() => import('./pages/admin/AdminLayout'));
+const AdminDashboard = lazyWithRetry(() => import('./pages/admin/AdminDashboard'));
+const AdminUsers = lazyWithRetry(() => import('./pages/admin/AdminUsers'));
+const AdminCompanies = lazyWithRetry(() => import('./pages/admin/AdminCompanies'));
+const AdminAuditLogs = lazyWithRetry(() => import('./pages/admin/AdminAuditLogs'));
+const AdminEmails = lazyWithRetry(() => import('./pages/admin/AdminEmails'));
+const AdminAnnouncements = lazyWithRetry(() => import('./pages/admin/AdminAnnouncements'));
+const AdminFeatureFlags = lazyWithRetry(() => import('./pages/admin/AdminFeatureFlags'));
+const AdminDataIntegrity = lazyWithRetry(() => import('./pages/admin/AdminDataIntegrity'));
+const AdminRevenue = lazyWithRetry(() => import('./pages/admin/AdminRevenue'));
+const AdminAlerts = lazyWithRetry(() => import('./pages/admin/AdminAlerts'));
+const AdminTickets = lazyWithRetry(() => import('./pages/admin/AdminTickets'));
+const AdminBugReports = lazyWithRetry(() => import('./pages/admin/AdminBugReports'));
 
 // Design Demos - lazy loaded, dev only
-const EnterpriseDemo = lazy(() => import('./pages/designs/EnterpriseDemo'));
-const MinimalistDemo = lazy(() => import('./pages/designs/MinimalistDemo'));
-const DiffV1 = lazy(() => import('./pages/designs/DiffV1'));
-const DiffV2 = lazy(() => import('./pages/designs/DiffV2'));
-const DiffV3 = lazy(() => import('./pages/designs/DiffV3'));
-const FooterPreview = lazy(() => import('./pages/FooterPreview'));
+const EnterpriseDemo = lazyWithRetry(() => import('./pages/designs/EnterpriseDemo'));
+const MinimalistDemo = lazyWithRetry(() => import('./pages/designs/MinimalistDemo'));
+const DiffV1 = lazyWithRetry(() => import('./pages/designs/DiffV1'));
+const DiffV2 = lazyWithRetry(() => import('./pages/designs/DiffV2'));
+const DiffV3 = lazyWithRetry(() => import('./pages/designs/DiffV3'));
+const FooterPreview = lazyWithRetry(() => import('./pages/FooterPreview'));
 
 // Protected route wrapper
 const ProtectedRoute = ({ children, allowPendingPayment = false }) => {

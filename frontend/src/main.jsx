@@ -72,3 +72,4 @@ if (container.hasChildNodes()) {
 
 // Remove splash loader after React has mounted
 removeLoader()
+sessionStorage.removeItem('chunk_reload_attempted')
