@@ -841,10 +841,6 @@ export const HeroDesign5 = ({ heroTextIndex, heroTexts }) => {
 
           {/* Left: Content */}
           <div className="text-white">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-cta-500/20 border border-cta-500/30 text-cta-400 font-mono text-xs mb-8">
-              <span className="w-2 h-2 rounded-full bg-cta-500 animate-pulse" />
-              LIVE COMPLIANCE MONITORING
-            </div>
 
             <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-7xl font-black font-heading leading-[1.05] mb-6 text-white">
               Your Fleet.<br />
