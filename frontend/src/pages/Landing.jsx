@@ -54,6 +54,15 @@ const Landing = () => {
         <div className="absolute inset-0 bg-grid-pattern opacity-[0.04]" />
       </div>
 
+      {/* Promo Banner */}
+      <div className="relative z-[60] bg-gradient-to-r from-cta-600 via-cta-500 to-cta-600 text-white text-center py-2.5 px-4">
+        <p className="text-sm font-semibold tracking-wide flex items-center justify-center gap-2 flex-wrap">
+          <span>🚀</span>
+          <span>Launch Offer — Get 20% off your subscription with code</span>
+          <span className="bg-white/20 backdrop-blur-sm px-2.5 py-0.5 rounded-md font-mono font-black tracking-widest border border-white/30">EARLYBIRD20</span>
+        </p>
+      </div>
+
       {/* Navigation */}
       <PublicHeader activePage="landing" />
 

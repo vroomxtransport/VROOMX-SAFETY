@@ -419,6 +419,16 @@ const Register = () => {
           ))}
         </div>
 
+        {/* Promo Code Hint */}
+        <div className="w-full max-w-2xl mx-auto mb-4 animate-fade-in-up" style={{ animationDelay: '0.18s' }}>
+          <div className="bg-cta-500/10 border border-cta-500/20 rounded-xl px-5 py-3 flex items-center justify-center gap-2 flex-wrap text-sm">
+            <span className="text-cta-600 font-semibold">🚀 Launch Offer:</span>
+            <span className="text-zinc-700">Use code</span>
+            <span className="bg-cta-500/15 px-2 py-0.5 rounded font-mono font-black text-cta-600 tracking-wider border border-cta-500/25">EARLYBIRD20</span>
+            <span className="text-zinc-700">at checkout for 20% off!</span>
+          </div>
+        </div>
+
         {/* Glassmorphic Form Card */}
         <div
           className="w-full max-w-2xl mx-auto animate-fade-in-up"
