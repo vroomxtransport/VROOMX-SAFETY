@@ -680,15 +680,6 @@ const Layout = () => {
                 )}
               </div>
 
-              {/* Theme toggle button */}
-              <button
-                onClick={toggleTheme}
-                className="p-2.5 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-white dark:hover:bg-white/10 rounded-lg transition-colors"
-                title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-              >
-                {isDark ? <FiSun className="w-5 h-5" /> : <FiMoon className="w-5 h-5" />}
-              </button>
-
               {/* Notifications dropdown */}
               <div className="relative notifications-dropdown">
                 <button

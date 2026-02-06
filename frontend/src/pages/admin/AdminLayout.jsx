@@ -70,13 +70,6 @@ const AdminLayout = () => {
 
           <div className="flex items-center gap-4">
             <button
-              onClick={toggleTheme}
-              className="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
-            >
-              {isDark ? <FiSun className="w-5 h-5" /> : <FiMoon className="w-5 h-5" />}
-            </button>
-
-            <button
               onClick={() => navigate('/app/dashboard')}
               className="flex items-center gap-2 px-3 py-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
             >
