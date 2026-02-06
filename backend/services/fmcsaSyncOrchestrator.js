@@ -17,6 +17,7 @@ const fmcsaInspectionService = require('./fmcsaInspectionService');
 const fmcsaViolationService = require('./fmcsaViolationService');
 const entityLinkingService = require('./entityLinkingService');
 const dataQAnalysisService = require('./dataQAnalysisService');
+const complianceScoreService = require('./complianceScoreService');
 
 const fmcsaSyncOrchestrator = {
   /**
@@ -140,6 +141,17 @@ const fmcsaSyncOrchestrator = {
     } catch (err) {
       console.error(`[FMCSA Orchestrator] DataQ analysis failed:`, err.message);
       errors.push({ source: 'dataq_analysis', error: err.message, timestamp: new Date() });
+    }
+
+    // 6. Recalculate compliance score with fresh data
+    try {
+      console.log(`[FMCSA Orchestrator] Recalculating compliance score for company ${companyId}`);
+      const scoreResult = await complianceScoreService.calculateScore(companyId);
+      timestamps.complianceScoreLastCalc = new Date();
+      console.log(`[FMCSA Orchestrator] Compliance score: ${scoreResult.overallScore}`);
+    } catch (err) {
+      console.error(`[FMCSA Orchestrator] Compliance score calculation failed:`, err.message);
+      errors.push({ source: 'compliance_score', error: err.message, timestamp: new Date() });
     }
 
     // Update Company sync status

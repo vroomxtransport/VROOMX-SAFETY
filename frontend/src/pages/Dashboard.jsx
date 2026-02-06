@@ -112,11 +112,12 @@ const Dashboard = () => {
     }
   };
 
-  // Handle manual FMCSA sync from header
+  // Handle manual FMCSA sync from header (full orchestrator sync)
   const handleSyncNow = async () => {
     setSyncing(true);
     try {
       const response = await fmcsaAPI.syncViolations(true);
+      const result = response.data;
 
       // Refresh sync status
       const statusRes = await fmcsaAPI.getSyncStatus();
@@ -124,15 +125,16 @@ const Dashboard = () => {
         setSyncStatus(statusRes.data);
       }
 
-      // Show toast with violation count
-      const imported = response.data?.violations?.created || 0;
-      if (imported > 0) {
-        toast.success(`Synced ${imported} new violation${imported !== 1 ? 's' : ''} from FMCSA`);
+      // Show appropriate toast based on sync result
+      if (result.success) {
+        const scoreMsg = result.complianceScore !== null ? ` Score: ${result.complianceScore}` : '';
+        toast.success(`Full FMCSA sync completed.${scoreMsg}`);
       } else {
-        toast.success('FMCSA sync complete - no new violations');
+        const errorCount = result.errors?.length || 0;
+        toast.success(`Sync completed with ${errorCount} issue(s) - partial data updated`);
       }
 
-      // Also refresh dashboard data
+      // Refresh dashboard to show updated score and violation data
       await fetchDashboard();
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to sync FMCSA data');

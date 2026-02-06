@@ -10,6 +10,8 @@ const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const { uploadSingle, deleteFile } = require('../middleware/upload');
 const emailService = require('../services/emailService');
 const auditService = require('../services/auditService');
+const fmcsaSyncService = require('../services/fmcsaSyncService');
+const fmcsaSyncOrchestrator = require('../services/fmcsaSyncOrchestrator');
 
 // Apply auth middleware to all routes
 router.use(protect);
@@ -114,6 +116,25 @@ router.post('/', [
   await req.user.save();
 
   auditService.log(req, 'create', 'company', company._id, { name, dotNumber, summary: 'Company created' });
+
+  // Trigger FMCSA sync if company has a DOT number (same pattern as registration)
+  if (company.dotNumber) {
+    // Initial CSA data sync with 10-second timeout
+    try {
+      await Promise.race([
+        fmcsaSyncService.syncCompanyData(company._id),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 10000))
+      ]);
+      console.log('[Company Create] FMCSA initial sync completed for DOT:', company.dotNumber);
+    } catch (err) {
+      console.error('[Company Create] FMCSA initial sync failed:', err.message);
+    }
+
+    // Fire-and-forget full orchestrator sync (violations, inspections, entity linking, DataQ, score)
+    fmcsaSyncOrchestrator.syncCompany(company._id).catch(err => {
+      console.error('[Company Create] Background orchestrator sync failed:', err.message);
+    });
+  }
 
   res.status(201).json({
     success: true,

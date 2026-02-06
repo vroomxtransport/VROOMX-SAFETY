@@ -9,6 +9,8 @@ const rateLimit = require('express-rate-limit');
 const { ipKeyGenerator } = require('express-rate-limit');
 const fmcsaService = require('../services/fmcsaService');
 const fmcsaViolationService = require('../services/fmcsaViolationService');
+const fmcsaSyncOrchestrator = require('../services/fmcsaSyncOrchestrator');
+const complianceScoreService = require('../services/complianceScoreService');
 const { protect, restrictToCompany } = require('../middleware/auth');
 
 // Rate limit: 10 lookups per minute per IP (prevent abuse)
@@ -206,37 +208,29 @@ router.get('/sync-status', protect, restrictToCompany, async (req, res) => {
  */
 router.post('/sync-violations', protect, restrictToCompany, syncLimiter, async (req, res) => {
   try {
-    // Check if FMCSA credentials are configured
-    if (!process.env.SAFERWEB_API_KEY || !process.env.SOCRATA_APP_TOKEN) {
-      return res.status(503).json({
-        success: false,
-        message: 'FMCSA sync not available - API credentials not configured'
-      });
-    }
+    const companyId = req.companyFilter.companyId;
 
-    const { forceRefresh = false } = req.body;
+    // Run full orchestrator sync (all 6 layers including compliance score recalculation)
+    console.log(`[FMCSA Sync] Manual sync triggered for company ${companyId}`);
+    const result = await fmcsaSyncOrchestrator.syncCompany(companyId);
 
-    // Start sync (can take 30-60 seconds for large carriers)
-    const result = await fmcsaViolationService.syncViolationHistory(req.companyFilter.companyId, forceRefresh);
+    // Get the freshly calculated compliance score from the Company model
+    const Company = require('../models/Company');
+    const company = await Company.findById(companyId).select('complianceScore').lean();
 
     res.json({
-      success: result.success,
-      message: result.message,
-      imported: result.imported,
-      updated: result.updated,
-      total: result.total
+      success: result.success || result.errors.length < 5, // partial success is OK
+      message: result.success
+        ? 'Full FMCSA sync completed successfully'
+        : `Sync completed with ${result.errors.length} issue(s)`,
+      errors: result.errors.map(e => ({ source: e.source, error: e.error })),
+      complianceScore: company?.complianceScore?.current || null
     });
   } catch (error) {
     console.error('[FMCSA Sync] Error:', error.message);
-
-    // Check if it might be a token issue
-    const tokenConfigured = !!process.env.SOCRATA_APP_TOKEN;
-
     res.status(500).json({
       success: false,
-      message: tokenConfigured
-        ? 'Sync failed: ' + error.message
-        : 'Sync failed (SOCRATA_APP_TOKEN not configured): ' + error.message
+      message: 'Sync failed: ' + error.message
     });
   }
 });
