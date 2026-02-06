@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { dashboardAPI, csaAPI, fmcsaInspectionsAPI, driversAPI, fmcsaAPI, complianceScoreAPI } from '../utils/api';
@@ -20,8 +20,6 @@ const Dashboard = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [refreshingFMCSA, setRefreshingFMCSA] = useState(false);
-  const [fmcsaMessage, setFmcsaMessage] = useState(null);
   const [trendData, setTrendData] = useState(null);
   const [complianceData, setComplianceData] = useState(null);
   const [complianceHistory, setComplianceHistory] = useState([]);
@@ -31,8 +29,6 @@ const Dashboard = () => {
   const [syncStatus, setSyncStatus] = useState(null);
   const [syncing, setSyncing] = useState(false);
 
-  const fmcsaTimerRef = useRef(null);
-
   useEffect(() => {
     fetchDashboard();
 
@@ -41,8 +37,6 @@ const Dashboard = () => {
     window.addEventListener('companySwitch', handleCompanySwitch);
     return () => {
       window.removeEventListener('companySwitch', handleCompanySwitch);
-      // Clear any pending setTimeout timers
-      if (fmcsaTimerRef.current) clearTimeout(fmcsaTimerRef.current);
     };
   }, []);
 
@@ -87,32 +81,7 @@ const Dashboard = () => {
     }
   };
 
-  // Handle FMCSA data refresh
-  const handleRefreshFMCSA = async () => {
-    setRefreshingFMCSA(true);
-    setFmcsaMessage(null);
-    try {
-      const response = await dashboardAPI.refreshFMCSA();
-      if (response.data.success) {
-        // Reload dashboard to show updated data
-        await fetchDashboard();
-        setFmcsaMessage({ type: 'success', text: 'FMCSA data updated successfully!' });
-        // Auto-hide message after 5 seconds
-        fmcsaTimerRef.current = setTimeout(() => setFmcsaMessage(null), 5000);
-      }
-    } catch (err) {
-      setFmcsaMessage({
-        type: 'error',
-        text: err.response?.data?.message || 'Failed to refresh FMCSA data. Please try again.'
-      });
-      // Auto-hide error after 8 seconds
-      fmcsaTimerRef.current = setTimeout(() => setFmcsaMessage(null), 8000);
-    } finally {
-      setRefreshingFMCSA(false);
-    }
-  };
-
-  // Handle manual FMCSA sync from header (full orchestrator sync)
+  // Handle manual FMCSA sync (full orchestrator sync)
   const handleSyncNow = async () => {
     setSyncing(true);
     try {
@@ -305,22 +274,36 @@ const Dashboard = () => {
         </div>
         <div className="flex items-center gap-3">
           <span className="text-sm text-zinc-600 dark:text-zinc-300 hidden sm:inline">{currentDate}</span>
-          {/* Sync Status Indicator */}
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700">
-            <FiClock className={`w-4 h-4 ${isDataStale ? 'text-yellow-500' : 'text-zinc-400 dark:text-zinc-500'}`} />
-            <span className={`text-sm ${isDataStale ? 'text-yellow-600 dark:text-yellow-400' : 'text-zinc-600 dark:text-zinc-400'}`}>
-              {formatLastSync(syncStatus?.lastSync)}
+          {/* Sync Status Button */}
+          <button
+            onClick={handleSyncNow}
+            disabled={syncing}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+              !syncStatus?.lastSync
+                ? 'bg-accent-50 dark:bg-accent-500/10 border-accent-200 dark:border-accent-500/30 hover:bg-accent-100 dark:hover:bg-accent-500/20'
+                : isDataStale
+                  ? 'bg-yellow-50 dark:bg-yellow-500/10 border-yellow-200 dark:border-yellow-500/30 hover:bg-yellow-100 dark:hover:bg-yellow-500/20'
+                  : 'bg-zinc-100 dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-700'
+            }`}
+            title="Sync FMCSA data"
+          >
+            <FiRefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''} ${
+              !syncStatus?.lastSync
+                ? 'text-accent-600 dark:text-accent-400'
+                : isDataStale
+                  ? 'text-yellow-600 dark:text-yellow-400'
+                  : 'text-zinc-600 dark:text-zinc-400'
+            }`} />
+            <span className={`text-sm font-medium ${
+              !syncStatus?.lastSync
+                ? 'text-accent-600 dark:text-accent-400'
+                : isDataStale
+                  ? 'text-yellow-600 dark:text-yellow-400'
+                  : 'text-zinc-600 dark:text-zinc-400'
+            }`}>
+              {syncing ? 'Syncing...' : !syncStatus?.lastSync ? 'Sync FMCSA' : formatLastSync(syncStatus?.lastSync)}
             </span>
-            <button
-              onClick={handleSyncNow}
-              disabled={syncing}
-              className="p-1.5 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              title="Sync Now"
-              aria-label="Sync FMCSA data now"
-            >
-              <FiRefreshCw className={`w-4 h-4 text-zinc-600 dark:text-zinc-400 ${syncing ? 'animate-spin' : ''}`} />
-            </button>
-          </div>
+          </button>
           <Link
             to="/app/reports"
             className="btn btn-primary"
@@ -528,33 +511,23 @@ const Dashboard = () => {
               </div>
               <div className="flex items-center gap-2 sm:gap-3">
                 <button
-                  onClick={handleRefreshFMCSA}
-                  disabled={refreshingFMCSA}
+                  onClick={handleSyncNow}
+                  disabled={syncing}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                    refreshingFMCSA
+                    syncing
                       ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400 cursor-not-allowed'
                       : 'bg-accent-50 dark:bg-accent-500/10 text-accent-600 dark:text-accent-400 hover:bg-accent-100 dark:hover:bg-accent-500/20'
                   }`}
-                  title="Refresh FMCSA data from SAFER"
+                  title="Sync FMCSA data (inspections, violations, scores)"
                 >
-                  <FiRefreshCw className={`w-4 h-4 ${refreshingFMCSA ? 'animate-spin' : ''}`} />
-                  {refreshingFMCSA ? 'Refreshing...' : 'Refresh'}
+                  <FiRefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
+                  {syncing ? 'Syncing...' : 'Sync FMCSA'}
                 </button>
                 <Link to="/app/compliance" className="text-sm text-accent-500 hover:text-accent-600 dark:hover:text-accent-400 font-medium">
                   Full Report
                 </Link>
               </div>
             </div>
-            {/* FMCSA Refresh Message */}
-            {fmcsaMessage && (
-              <div className={`mx-5 mt-4 px-4 py-3 rounded-xl text-sm ${
-                fmcsaMessage.type === 'success'
-                  ? 'bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-500/20'
-                  : 'bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-500/20'
-              }`}>
-                {fmcsaMessage.text}
-              </div>
-            )}
             <div className="p-3 sm:p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {basicsData.length > 0 ? basicsData.map((basic, index) => {
                 const trend = getTrendIndicator(basic.key);
@@ -608,20 +581,29 @@ const Dashboard = () => {
                   </div>
                 </div>
               )}) : (
-                // Default placeholders if no data
-                <>
-                  {['Unsafe Driving', 'HOS Compliance', 'Vehicle Maint.', 'Controlled Sub.', 'Driver Fitness', 'Crash Indicator'].map((name, index) => (
-                    <div key={index} className="group flex items-center gap-3 p-3 rounded-xl bg-zinc-50 dark:bg-white/5 border border-zinc-100 dark:border-white/5 hover:shadow-md hover:-translate-y-0.5 hover:border-zinc-200 dark:hover:border-white/10 transition-all duration-200">
-                      <div className="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-500/20 flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
-                        <span className="text-lg font-bold text-green-600 dark:text-green-400">0%</span>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-zinc-900 dark:text-white">{name}</p>
-                        <p className="text-xs text-green-600 dark:text-green-400">Below threshold</p>
-                      </div>
-                    </div>
-                  ))}
-                </>
+                // Empty state: Prompt user to sync FMCSA data
+                <div className="col-span-full flex flex-col items-center justify-center py-8 px-4">
+                  <div className="w-16 h-16 rounded-2xl bg-accent-100 dark:bg-accent-500/10 flex items-center justify-center mb-4">
+                    <FiShield className="w-8 h-8 text-accent-600 dark:text-accent-500" />
+                  </div>
+                  <h4 className="text-lg font-semibold text-zinc-900 dark:text-white mb-1">
+                    No FMCSA Data Yet
+                  </h4>
+                  <p className="text-sm text-zinc-600 dark:text-zinc-300 text-center max-w-sm mb-5">
+                    Sync your company's data from FMCSA to see SMS BASICs scores, inspection history, and violation tracking.
+                  </p>
+                  <button
+                    onClick={handleSyncNow}
+                    disabled={syncing}
+                    className="flex items-center gap-2 px-6 py-3 rounded-xl bg-accent-500 hover:bg-accent-600 text-white font-semibold shadow-lg shadow-accent-500/25 hover:shadow-accent-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <FiRefreshCw className={`w-5 h-5 ${syncing ? 'animate-spin' : ''}`} />
+                    {syncing ? 'Syncing FMCSA Data...' : 'Sync FMCSA Data Now'}
+                  </button>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-3">
+                    This may take 15-30 seconds
+                  </p>
+                </div>
               )}
             </div>
           </div>
