@@ -186,7 +186,7 @@ const VIOLATION_CODES = {
  * @returns {Object} Violation details with BASIC, severity, etc.
  */
 function lookupViolationCode(code) {
-  if (!code) return { unknown: true, code };
+  if (!code) return { unknown: true, code, isMoving: false };
 
   // Normalize the code
   const normalized = normalizeCode(code);
@@ -222,7 +222,8 @@ function lookupViolationCode(code) {
       basic,
       severityBase: 5, // Default severity
       cfrPart,
-      unknown: true
+      unknown: true,
+      isMoving: false
     };
   }
 

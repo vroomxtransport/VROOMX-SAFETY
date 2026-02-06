@@ -228,9 +228,35 @@ violationSchema.virtual('ageInDays').get(function() {
   return Math.floor((new Date() - new Date(this.violationDate)) / (1000 * 60 * 60 * 24));
 });
 
+// Moving violation keywords for fallback detection when violationCode is missing
+const MOVING_KEYWORDS = [
+  'speeding', 'speed', 'mph over',
+  'reckless', 'careless',
+  'lane change', 'improper lane',
+  'failure to yield', 'yield right',
+  'following too close', 'tailgating',
+  'traffic control', 'traffic signal', 'red light', 'stop sign',
+  'improper passing',
+  'improper turn',
+  'texting', 'hand-held', 'mobile phone', 'cell phone',
+  'railroad crossing',
+  'seat belt'
+];
+
 // Virtual for moving violation classification
 violationSchema.virtual('isMoving').get(function() {
-  return isMovingViolation(this.violationCode);
+  // Primary: code-based lookup
+  if (this.violationCode && isMovingViolation(this.violationCode)) {
+    return true;
+  }
+
+  // Fallback: unsafe_driving BASIC + description keyword matching
+  if (this.basic === 'unsafe_driving') {
+    const searchText = `${this.violationType || ''} ${this.description || ''}`.toLowerCase();
+    return MOVING_KEYWORDS.some(kw => searchText.includes(kw));
+  }
+
+  return false;
 });
 
 // Calculate weighted severity before save

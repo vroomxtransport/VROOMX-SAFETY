@@ -399,7 +399,7 @@ router.post('/', checkPermission('violations', 'edit'), [
     return res.status(400).json({ success: false, errors: errors.array() });
   }
 
-  const allowedFields = ['driverId', 'vehicleId', 'inspectionNumber', 'violationDate', 'basic', 'violationType', 'description', 'severityWeight', 'outOfService', 'status', 'notes', 'weightedSeverity', 'inspectionState', 'timeWeight'];
+  const allowedFields = ['driverId', 'vehicleId', 'inspectionNumber', 'violationDate', 'basic', 'violationType', 'violationCode', 'description', 'severityWeight', 'outOfService', 'status', 'notes', 'weightedSeverity', 'inspectionState', 'timeWeight'];
   const violationData = {
     companyId: req.companyFilter.companyId,
     history: [{
@@ -435,7 +435,7 @@ router.put('/:id', checkPermission('violations', 'edit'), asyncHandler(async (re
     throw new AppError('Violation not found', 404);
   }
 
-  const allowedUpdateFields = ['driverId', 'vehicleId', 'inspectionNumber', 'violationDate', 'basic', 'violationType', 'description', 'severityWeight', 'outOfService', 'status', 'notes', 'weightedSeverity', 'inspectionState', 'timeWeight'];
+  const allowedUpdateFields = ['driverId', 'vehicleId', 'inspectionNumber', 'violationDate', 'basic', 'violationType', 'violationCode', 'description', 'severityWeight', 'outOfService', 'status', 'notes', 'weightedSeverity', 'inspectionState', 'timeWeight'];
   const updateData = {};
   for (const key of allowedUpdateFields) {
     if (req.body[key] !== undefined) updateData[key] = req.body[key];
