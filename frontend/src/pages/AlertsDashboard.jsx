@@ -31,11 +31,11 @@ const AlertsDashboard = () => {
       setLoading(true);
       const [alertsRes, scoreRes] = await Promise.all([
         alertsAPI.getGrouped(),
-        complianceScoreAPI.get()
+        complianceScoreAPI.get().catch(() => null)
       ]);
 
       setAlerts(alertsRes.data.grouped || { critical: [], warning: [], info: [] });
-      setComplianceScore(scoreRes.data);
+      setComplianceScore(scoreRes?.data || null);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to load alerts');
     } finally {
@@ -185,47 +185,71 @@ const AlertsDashboard = () => {
             </div>
           </div>
 
-          {/* Score Circle */}
-          <div className="flex justify-center mb-4">
-            <div className="relative w-32 h-32">
-              <svg className="w-32 h-32 transform -rotate-90">
-                <circle
-                  cx="64"
-                  cy="64"
-                  r="56"
-                  className="stroke-zinc-200 dark:stroke-zinc-700"
-                  strokeWidth="12"
-                  fill="none"
-                />
-                <circle
-                  cx="64"
-                  cy="64"
-                  r="56"
-                  stroke={getScoreRingColor(score)}
-                  strokeWidth="12"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeDasharray={`${(score / 100) * 352} 352`}
-                  className="transition-all duration-1000"
-                />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className={`text-xl sm:text-2xl lg:text-3xl font-bold ${getScoreColor(score)}`}>{score}</span>
-                <span className="text-xs text-zinc-600 dark:text-zinc-400">/ 100</span>
+          {complianceScore ? (
+            <>
+              {/* Score Circle */}
+              <div className="flex justify-center mb-4">
+                <div className="relative w-32 h-32">
+                  <svg className="w-32 h-32 transform -rotate-90">
+                    <circle
+                      cx="64"
+                      cy="64"
+                      r="56"
+                      className="stroke-zinc-200 dark:stroke-zinc-700"
+                      strokeWidth="12"
+                      fill="none"
+                    />
+                    <circle
+                      cx="64"
+                      cy="64"
+                      r="56"
+                      stroke={getScoreRingColor(score)}
+                      strokeWidth="12"
+                      fill="none"
+                      strokeLinecap="round"
+                      strokeDasharray={`${(score / 100) * 352} 352`}
+                      className="transition-all duration-1000"
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className={`text-xl sm:text-2xl lg:text-3xl font-bold ${getScoreColor(score)}`}>{score}</span>
+                    <span className="text-xs text-zinc-600 dark:text-zinc-400">/ 100</span>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
 
-          <div className="text-center">
-            <p className={`text-sm font-medium ${getScoreColor(score)}`}>
-              {score >= 80 ? 'Excellent' : score >= 60 ? 'Good' : 'Needs Attention'}
-            </p>
-            {complianceScore?.score?.lastCalculated && (
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-                Updated {formatDate(complianceScore.score.lastCalculated)}
-              </p>
-            )}
-          </div>
+              <div className="text-center">
+                <p className={`text-sm font-medium ${getScoreColor(score)}`}>
+                  {score >= 80 ? 'Excellent' : score >= 60 ? 'Good' : 'Needs Attention'}
+                </p>
+                {complianceScore?.score?.lastCalculated && (
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                    Updated {formatDate(complianceScore.score.lastCalculated)}
+                  </p>
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-6">
+              <div className="relative w-32 h-32">
+                <svg className="w-32 h-32 transform -rotate-90">
+                  <circle
+                    cx="64"
+                    cy="64"
+                    r="56"
+                    className="stroke-zinc-200 dark:stroke-zinc-700"
+                    strokeWidth="12"
+                    fill="none"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-xl font-bold text-zinc-400 dark:text-zinc-500">--</span>
+                  <span className="text-xs text-zinc-400 dark:text-zinc-500">/ 100</span>
+                </div>
+              </div>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-4">Score unavailable</p>
+            </div>
+          )}
         </div>
 
         {/* Alert Count Cards */}

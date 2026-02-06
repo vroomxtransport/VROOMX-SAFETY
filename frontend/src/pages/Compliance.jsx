@@ -39,7 +39,6 @@ const Compliance = () => {
     { key: 'overview', label: 'SMS BASICs', icon: FiBarChart2 },
     { key: 'inspections', label: 'Inspection Records', icon: FiClipboard },
     { key: 'summary', label: 'FMCSA Summary', icon: FiFileText },
-    { key: 'violations', label: 'By Category', icon: FiAlertTriangle },
     { key: 'trends', label: 'Trends', icon: FiTrendingUp },
     { key: 'estimator', label: 'Estimator', icon: FiTarget, badge: 'BETA' }
   ];
@@ -100,7 +99,7 @@ const Compliance = () => {
 
   // Fetch FMCSA inspections when tab changes
   useEffect(() => {
-    if (activeTab === 'inspections' || activeTab === 'violations') {
+    if (activeTab === 'inspections') {
       fetchInspections();
     }
   }, [activeTab]);
@@ -108,7 +107,7 @@ const Compliance = () => {
   // Auto-refresh FMCSA data if stale (> 6 hours old) or missing
   useEffect(() => {
     if (
-      (activeTab === 'inspections' || activeTab === 'violations') &&
+      activeTab === 'inspections' &&
       !syncing &&
       !autoSyncTriggered.current &&
       syncStatus !== null
@@ -463,84 +462,6 @@ const Compliance = () => {
               </div>
             </>
           )}
-        </div>
-      ) : activeTab === 'violations' ? (
-        /* Violations Summary Tab */
-        <div className="space-y-4">
-          {/* Summary Header */}
-          <div className="card">
-            <div className="card-body">
-              <h3 className="font-semibold text-zinc-900 dark:text-white mb-4">Inspection Summary by Category</h3>
-
-              {inspectionsLoading ? (
-                <div className="flex items-center justify-center h-32">
-                  <LoadingSpinner />
-                </div>
-              ) : !inspectionSummary?.totals?.totalInspections ? (
-                <div className="text-center py-8">
-                  <FiAlertTriangle className="w-12 h-12 text-zinc-300 dark:text-zinc-600 mx-auto mb-4" />
-                  <p className="text-zinc-500 dark:text-zinc-400">No inspection data. Sync with FMCSA first.</p>
-                </div>
-              ) : (
-                <>
-                  {/* Totals */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                    <div className="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800 text-center">
-                      <p className="text-2xl font-bold text-zinc-900 dark:text-white">{inspectionSummary.totals.totalInspections}</p>
-                      <p className="text-sm text-zinc-500 dark:text-zinc-400">Total Inspections</p>
-                    </div>
-                    <div className="p-4 rounded-lg bg-red-50 dark:bg-red-500/10 text-center">
-                      <p className="text-2xl font-bold text-red-600 dark:text-red-400">{inspectionSummary.totals.vehicleOOSCount}</p>
-                      <p className="text-sm text-zinc-500 dark:text-zinc-400">Vehicle OOS</p>
-                    </div>
-                    <div className="p-4 rounded-lg bg-red-50 dark:bg-red-500/10 text-center">
-                      <p className="text-2xl font-bold text-red-600 dark:text-red-400">{inspectionSummary.totals.driverOOSCount}</p>
-                      <p className="text-sm text-zinc-500 dark:text-zinc-400">Driver OOS</p>
-                    </div>
-                    <div className="p-4 rounded-lg bg-orange-50 dark:bg-orange-500/10 text-center">
-                      <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{inspectionSummary.totals.crashes?.total || 0}</p>
-                      <p className="text-sm text-zinc-500 dark:text-zinc-400">Crashes</p>
-                    </div>
-                  </div>
-
-                  {/* By Category */}
-                  <h4 className="font-semibold text-zinc-700 dark:text-zinc-300 mb-3">Inspections by Category</h4>
-                  <div className="space-y-2">
-                    {inspectionSummary.byBasic?.map((item) => (
-                      <div key={item._id} className="flex items-center gap-4 p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800">
-                        <span className={`px-3 py-1 text-sm rounded ${getBasicColor(item._id)}`}>
-                          {item.label || getBasicLabel(item._id)}
-                        </span>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <div className="flex-1 h-2 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden">
-                              <div
-                                className="h-full bg-accent-500 rounded-full"
-                                style={{ width: `${Math.min((item.inspections / (inspectionSummary.totals.totalInspections || 1)) * 100, 100)}%` }}
-                              />
-                            </div>
-                            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300 w-12 text-right">
-                              {item.inspections}
-                            </span>
-                          </div>
-                        </div>
-                        {item.oosCount > 0 && (
-                          <span className="px-2 py-0.5 text-xs rounded bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-400">
-                            {item.oosCount} OOS ({item.oosPercent?.toFixed(1) || 0}%)
-                          </span>
-                        )}
-                        {item.nationalAvg > 0 && (
-                          <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                            Nat'l avg: {item.nationalAvg?.toFixed(1)}%
-                          </span>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
         </div>
       ) : activeTab === 'overview' ? (
         <>

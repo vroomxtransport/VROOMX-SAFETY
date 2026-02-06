@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const { Driver, Vehicle, Violation, DrugAlcoholTest, Document, Accident, Company } = require('../models');
 const Alert = require('../models/Alert');
 const { protect, restrictToCompany, checkPermission } = require('../middleware/auth');
@@ -686,7 +687,23 @@ router.post('/alerts/dismiss-bulk', checkPermission('dashboard', 'edit'), asyncH
 // @desc    Get current compliance score with breakdown
 // @access  Private
 router.get('/compliance-score', asyncHandler(async (req, res) => {
-  const companyId = req.companyFilter.companyId;
+  const companyId = req.companyFilter?.companyId;
+
+  if (!companyId || !mongoose.Types.ObjectId.isValid(companyId)) {
+    return res.json({
+      success: true,
+      score: {
+        overallScore: 0,
+        components: {},
+        previousScore: null,
+        change: 0,
+        trend: 'stable',
+        metrics: {},
+        calculatedAt: new Date()
+      }
+    });
+  }
+
   const score = await complianceScoreService.getScore(companyId);
 
   res.json({

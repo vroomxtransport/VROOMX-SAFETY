@@ -887,6 +887,100 @@ const alertService = {
     return { created: results.filter(r => r.created).length, updated: results.filter(r => !r.created).length };
   },
 
+  /**
+   * Generate alerts for newly synced FMCSA inspections
+   * @param {string} companyId - Company ID
+   * @param {Array} newInspections - Array of inspection objects from sync
+   * @returns {object} { created, total }
+   */
+  async generateNewInspectionAlerts(companyId, newInspections) {
+    if (!newInspections || newInspections.length === 0) {
+      return { created: 0, total: 0 };
+    }
+
+    const alertPromises = [];
+
+    for (const inspection of newInspections) {
+      const reportNum = inspection.reportNumber || 'Unknown';
+      const inspDate = inspection.inspectionDate
+        ? new Date(inspection.inspectionDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        : 'Unknown date';
+      const state = inspection.state || 'Unknown';
+      const hasOOS = inspection.vehicleOOS || inspection.driverOOS || inspection.hazmatOOS;
+      const violationCount = inspection.totalViolations || inspection.violations?.length || 0;
+
+      if (hasOOS) {
+        // Critical alert for OOS violations
+        const oosTypes = [];
+        if (inspection.vehicleOOS) oosTypes.push('Vehicle');
+        if (inspection.driverOOS) oosTypes.push('Driver');
+        if (inspection.hazmatOOS) oosTypes.push('Hazmat');
+
+        alertPromises.push(this.createAlert({
+          companyId,
+          type: 'critical',
+          category: 'violation',
+          title: 'Out-of-Service Inspection',
+          message: `${oosTypes.join(' & ')} OOS on ${inspDate} in ${state} (Report #${reportNum}) — ${violationCount} violation(s)`,
+          entityType: 'inspection',
+          entityId: companyId,
+          metadata: {
+            reportNumber: reportNum,
+            inspectionDate: inspection.inspectionDate,
+            state,
+            vehicleOOS: inspection.vehicleOOS,
+            driverOOS: inspection.driverOOS,
+            hazmatOOS: inspection.hazmatOOS,
+            violationCount
+          },
+          deduplicationKey: `inspection-oos-${reportNum}`
+        }));
+      } else if (violationCount > 0) {
+        // Warning alert for inspections with violations
+        alertPromises.push(this.createAlert({
+          companyId,
+          type: 'warning',
+          category: 'violation',
+          title: 'New Inspection with Violations',
+          message: `${violationCount} violation(s) found on ${inspDate} in ${state} (Report #${reportNum})`,
+          entityType: 'inspection',
+          entityId: companyId,
+          metadata: {
+            reportNumber: reportNum,
+            inspectionDate: inspection.inspectionDate,
+            state,
+            violationCount
+          },
+          deduplicationKey: `inspection-violations-${reportNum}`
+        }));
+      } else {
+        // Info alert for clean inspections
+        alertPromises.push(this.createAlert({
+          companyId,
+          type: 'info',
+          category: 'violation',
+          title: 'Clean Inspection',
+          message: `Clean inspection on ${inspDate} in ${state} (Report #${reportNum})`,
+          entityType: 'inspection',
+          entityId: companyId,
+          metadata: {
+            reportNumber: reportNum,
+            inspectionDate: inspection.inspectionDate,
+            state
+          },
+          deduplicationKey: `inspection-clean-${reportNum}`
+        }));
+      }
+    }
+
+    const results = await Promise.all(alertPromises);
+
+    return {
+      created: results.filter(r => r.created).length,
+      total: results.length
+    };
+  },
+
   // Helper methods
   _getDaysRemaining(date) {
     const now = new Date();

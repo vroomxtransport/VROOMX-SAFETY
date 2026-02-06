@@ -431,63 +431,6 @@ const Reports = () => {
         })}
       </div>
 
-      {/* FMCSA Reference */}
-      <div className="card">
-        <div className="card-header">
-          <h3 className="font-semibold">Regulatory References</h3>
-        </div>
-        <div className="card-body">
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 text-sm">
-            <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
-              <p className="font-medium text-zinc-700 dark:text-zinc-200">49 CFR 391</p>
-              <p className="text-zinc-600 dark:text-zinc-300">Driver Qualifications</p>
-            </div>
-            <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
-              <p className="font-medium text-zinc-700 dark:text-zinc-200">49 CFR 396</p>
-              <p className="text-zinc-600 dark:text-zinc-300">Vehicle Inspection & Maintenance</p>
-            </div>
-            <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
-              <p className="font-medium text-zinc-700 dark:text-zinc-200">49 CFR 382</p>
-              <p className="text-zinc-600 dark:text-zinc-300">Drug & Alcohol Testing</p>
-            </div>
-            <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
-              <p className="font-medium text-zinc-700 dark:text-zinc-200">SMS Methodology</p>
-              <p className="text-zinc-600 dark:text-zinc-300">BASICs Scoring System</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Audit Checklist */}
-      <div className="card">
-        <div className="card-header">
-          <h3 className="font-semibold">Mock Audit Checklist</h3>
-          <p className="text-sm text-zinc-600 dark:text-zinc-300">Entry-level audit items per FMCSA guidelines</p>
-        </div>
-        <div className="card-body">
-          <div className="space-y-3">
-            {[
-              'Driver qualification files complete for all active drivers',
-              'Current CDL and medical cards on file',
-              'Annual MVR reviews completed',
-              'Clearinghouse queries current (within 12 months)',
-              'Employment verification for past 10 years',
-              'Road test certificates or equivalents',
-              'Annual vehicle inspections current',
-              'Maintenance records for all vehicles',
-              'Drug & alcohol testing records',
-              'Random testing pool compliance (50% drug, 10% alcohol)',
-              'Hours of service records (if applicable)',
-              'Insurance certificates current'
-            ].map((item, index) => (
-              <div key={index} className="flex items-center space-x-3 p-2 hover:bg-zinc-50 dark:hover:bg-zinc-800 hover:pl-4 border-l-2 border-transparent hover:border-accent-500 rounded transition-all duration-200 cursor-pointer">
-                <input type="checkbox" className="w-4 h-4 text-primary-600" />
-                <span className="text-sm text-zinc-700 dark:text-zinc-200">{item}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
         </>
       )}
 

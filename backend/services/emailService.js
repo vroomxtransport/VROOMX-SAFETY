@@ -721,6 +721,75 @@ const emailService = {
   },
 
   /**
+   * Send notification about newly synced FMCSA inspections.
+   * @param {object} options
+   * @param {string|string[]} options.to - Recipient email(s)
+   * @param {string} options.firstName - Recipient first name
+   * @param {string} options.companyName - Company name
+   * @param {string} options.companyId - Company ID for logging
+   * @param {Array} options.inspections - Array of inspection objects
+   */
+  async sendNewInspectionNotification({ to, firstName, companyName, companyId, inspections }) {
+    if (!inspections || inspections.length === 0) return null;
+
+    let oosCount = 0;
+    let violationCount = 0;
+    let cleanCount = 0;
+
+    const rows = inspections.map(insp => {
+      const hasOOS = insp.vehicleOOS || insp.driverOOS || insp.hazmatOOS;
+      const violations = insp.totalViolations || insp.violations?.length || 0;
+      const date = insp.inspectionDate
+        ? new Date(insp.inspectionDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        : 'N/A';
+      const state = insp.state || 'N/A';
+
+      if (hasOOS) oosCount++;
+      else if (violations > 0) violationCount++;
+      else cleanCount++;
+
+      const statusColor = hasOOS ? '#dc2626' : violations > 0 ? '#f97316' : '#16a34a';
+      const statusBg = hasOOS ? '#fef2f2' : violations > 0 ? '#fffbeb' : '#f0fdf4';
+      const statusLabel = hasOOS ? 'OOS' : violations > 0 ? `${violations} violation(s)` : 'Clean';
+
+      return `<tr>
+        <td style="padding:8px;border-bottom:1px solid #eee;font-size:14px;font-family:Arial,sans-serif;">${date}</td>
+        <td style="padding:8px;border-bottom:1px solid #eee;font-size:14px;font-family:Arial,sans-serif;">${state}</td>
+        <td style="padding:8px;border-bottom:1px solid #eee;font-size:14px;font-family:Arial,sans-serif;">Level ${insp.inspectionLevel || '?'}</td>
+        <td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">
+          <span style="display:inline-block;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:bold;background:${statusBg};color:${statusColor};font-family:Arial,sans-serif;">${statusLabel}</span>
+        </td>
+      </tr>`;
+    }).join('\n');
+
+    const inspectionsTable = `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 16px 0;">
+      <tr>
+        <th style="padding:8px;text-align:left;font-size:11px;text-transform:uppercase;color:#6b7280;border-bottom:2px solid #e5e7eb;font-family:Arial,sans-serif;">Date</th>
+        <th style="padding:8px;text-align:left;font-size:11px;text-transform:uppercase;color:#6b7280;border-bottom:2px solid #e5e7eb;font-family:Arial,sans-serif;">State</th>
+        <th style="padding:8px;text-align:left;font-size:11px;text-transform:uppercase;color:#6b7280;border-bottom:2px solid #e5e7eb;font-family:Arial,sans-serif;">Level</th>
+        <th style="padding:8px;text-align:center;font-size:11px;text-transform:uppercase;color:#6b7280;border-bottom:2px solid #e5e7eb;font-family:Arial,sans-serif;">Status</th>
+      </tr>
+      ${rows}
+    </table>`;
+
+    return this.send({
+      to,
+      subject: `FMCSA Inspection Update: ${inspections.length} New Inspection(s) — ${companyName}`,
+      templateName: 'new-inspection-notification',
+      variables: {
+        firstName,
+        companyName,
+        oosCount: String(oosCount),
+        violationCount: String(violationCount),
+        cleanCount: String(cleanCount),
+        inspectionsTable,
+      },
+      category: 'compliance',
+      companyId,
+    });
+  },
+
+  /**
    * Batch job: send daily compliance alert digests to all eligible users
    * across all companies.
    *

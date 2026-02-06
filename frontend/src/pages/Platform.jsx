@@ -26,6 +26,7 @@ const Platform = () => {
   ];
 
   useEffect(() => {
+    document.documentElement.classList.remove('dark');
     window.scrollTo(0, 0);
   }, []);
 

@@ -9,6 +9,9 @@ const documentIntelligenceService = require('../services/documentIntelligenceSer
 const aiService = require('../services/aiService');
 const { lookupViolationCode, getViolationsByBasic, getOOSViolations, VIOLATION_CODES } = require('../config/violationCodes');
 const fmcsaInspectionService = require('../services/fmcsaInspectionService');
+const alertService = require('../services/alertService');
+const emailService = require('../services/emailService');
+const User = require('../models/User');
 const fs = require('fs').promises;
 
 router.use(protect);
@@ -85,6 +88,46 @@ router.post('/fmcsa/sync-violations', checkPermission('violations', 'edit'), asy
   const companyId = req.companyFilter.companyId;
   const result = await fmcsaInspectionService.syncViolationsFromDataHub(companyId);
 
+  // Fire-and-forget: generate alerts and send notifications for new inspections
+  if (result.success && result.created > 0) {
+    const FMCSAInspection = require('../models/FMCSAInspection');
+    // Fetch the recently created inspections
+    FMCSAInspection.find({ companyId, source: 'datahub_sms' })
+      .sort({ importedAt: -1 })
+      .limit(result.created)
+      .lean()
+      .then(async (newInspections) => {
+        try {
+          await alertService.generateNewInspectionAlerts(companyId, newInspections);
+        } catch (err) {
+          console.error('[Inspections] Alert generation failed:', err.message);
+        }
+        try {
+          const company = await Company.findById(companyId).select('name').lean();
+          const users = await User.find({
+            'companies.companyId': companyId,
+            'companies.role': { $in: ['owner', 'admin', 'safety_manager'] },
+            'companies.isActive': true,
+            isActive: { $ne: false }
+          }).lean();
+          for (const user of users) {
+            if (emailService.shouldSend(user, 'compliance')) {
+              await emailService.sendNewInspectionNotification({
+                to: user.email,
+                firstName: user.firstName,
+                companyName: company?.name || 'Your Company',
+                companyId,
+                inspections: newInspections
+              });
+            }
+          }
+        } catch (err) {
+          console.error('[Inspections] Email notification failed:', err.message);
+        }
+      })
+      .catch(err => console.error('[Inspections] Post-sync notification failed:', err.message));
+  }
+
   res.json({
     success: result.success,
     message: result.message,
@@ -101,6 +144,46 @@ router.post('/fmcsa/sync-violations', checkPermission('violations', 'edit'), asy
 router.post('/fmcsa/sync-all', checkPermission('violations', 'edit'), asyncHandler(async (req, res) => {
   const companyId = req.companyFilter.companyId;
   const result = await fmcsaInspectionService.syncAllFromDataHub(companyId);
+
+  // Fire-and-forget: generate alerts and send notifications for new inspections
+  const newCount = result.inspections?.imported || 0;
+  if (result.success && newCount > 0) {
+    const FMCSAInspection = require('../models/FMCSAInspection');
+    FMCSAInspection.find({ companyId })
+      .sort({ importedAt: -1 })
+      .limit(newCount)
+      .lean()
+      .then(async (newInspections) => {
+        try {
+          await alertService.generateNewInspectionAlerts(companyId, newInspections);
+        } catch (err) {
+          console.error('[Inspections] Alert generation failed:', err.message);
+        }
+        try {
+          const company = await Company.findById(companyId).select('name').lean();
+          const users = await User.find({
+            'companies.companyId': companyId,
+            'companies.role': { $in: ['owner', 'admin', 'safety_manager'] },
+            'companies.isActive': true,
+            isActive: { $ne: false }
+          }).lean();
+          for (const user of users) {
+            if (emailService.shouldSend(user, 'compliance')) {
+              await emailService.sendNewInspectionNotification({
+                to: user.email,
+                firstName: user.firstName,
+                companyName: company?.name || 'Your Company',
+                companyId,
+                inspections: newInspections
+              });
+            }
+          }
+        } catch (err) {
+          console.error('[Inspections] Email notification failed:', err.message);
+        }
+      })
+      .catch(err => console.error('[Inspections] Post-sync notification failed:', err.message));
+  }
 
   res.json({
     success: result.success,

@@ -117,7 +117,7 @@ const PricingSection = ({ isAnnual, setIsAnnual, pricingPlans }) => {
 
               {/* CTA Button */}
               <Link
-                to={`/register${plan.hasTrial === false ? '?plan=solo' : ''}`}
+                to={`/register?plan=${plan.name.toLowerCase()}`}
                 className={`w-full py-4 rounded-xl font-bold text-center block transition-all ${
                   plan.popular
                     ? 'bg-gradient-to-r from-[#FF6B4A] to-[#FF8A6B] hover:shadow-lg hover:shadow-[#FF6B4A]/30 hover:scale-[1.02] text-white'

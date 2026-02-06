@@ -99,10 +99,17 @@ router.post('/register', [
       status: 'pending_payment',
       trialEndsAt: null
     };
-  } else {
-    // Fleet/Pro plans: 3-day free trial
+  } else if (selectedPlan === 'pro') {
+    // Pro plan: 3-day free trial
     subscription = {
-      plan: 'free_trial',
+      plan: 'pro',
+      status: 'trialing',
+      trialEndsAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) // 3 days from now
+    };
+  } else {
+    // Fleet plan (default): 3-day free trial
+    subscription = {
+      plan: 'fleet',
       status: 'trialing',
       trialEndsAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) // 3 days from now
     };

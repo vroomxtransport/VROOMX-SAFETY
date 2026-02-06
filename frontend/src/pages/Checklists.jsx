@@ -13,8 +13,24 @@ import Modal from '../components/Modal';
 import LoadingSpinner from '../components/LoadingSpinner';
 import TabNav from '../components/TabNav';
 
+const FMCSA_AUDIT_ITEMS = [
+  'Driver qualification files complete for all active drivers',
+  'Current CDL and medical cards on file',
+  'Annual MVR reviews completed',
+  'Clearinghouse queries current (within 12 months)',
+  'Employment verification for past 10 years',
+  'Road test certificates or equivalents',
+  'Annual vehicle inspections current',
+  'Maintenance records for all vehicles',
+  'Drug & alcohol testing records',
+  'Random testing pool compliance (50% drug, 10% alcohol)',
+  'Hours of service records (if applicable)',
+  'Insurance certificates current'
+];
+
 const Checklists = () => {
   const [activeTab, setActiveTab] = useState('assignments');
+  const [auditChecked, setAuditChecked] = useState(() => new Array(FMCSA_AUDIT_ITEMS.length).fill(false));
   const [templates, setTemplates] = useState([]);
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -489,6 +505,69 @@ const Checklists = () => {
               Assign Checklist
             </button>
           )}
+        </div>
+      </div>
+
+      {/* FMCSA Audit Readiness */}
+      <div className="card border-l-4 border-l-primary-500">
+        <div className="card-header">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary-100 dark:bg-primary-500/10 rounded-lg">
+                <FiClipboard className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-zinc-900 dark:text-white">FMCSA Audit Readiness</h3>
+                <p className="text-sm text-zinc-500 dark:text-zinc-400">Entry-level audit items per FMCSA guidelines</p>
+              </div>
+            </div>
+            <span className={`px-3 py-1 text-sm font-semibold rounded-full ${
+              auditChecked.filter(Boolean).length === FMCSA_AUDIT_ITEMS.length
+                ? 'bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400'
+                : 'bg-yellow-100 dark:bg-yellow-500/20 text-yellow-700 dark:text-yellow-400'
+            }`}>
+              {auditChecked.filter(Boolean).length}/{FMCSA_AUDIT_ITEMS.length} complete
+            </span>
+          </div>
+        </div>
+        <div className="card-body">
+          {/* Progress Bar */}
+          <div className="mb-4">
+            <div className="w-full bg-zinc-200 dark:bg-zinc-700 rounded-full h-2.5">
+              <div
+                className={`h-2.5 rounded-full transition-all duration-300 ${
+                  auditChecked.filter(Boolean).length === FMCSA_AUDIT_ITEMS.length ? 'bg-green-500' : 'bg-primary-500'
+                }`}
+                style={{ width: `${(auditChecked.filter(Boolean).length / FMCSA_AUDIT_ITEMS.length) * 100}%` }}
+              />
+            </div>
+          </div>
+          <div className="space-y-2">
+            {FMCSA_AUDIT_ITEMS.map((item, index) => (
+              <div
+                key={index}
+                onClick={() => setAuditChecked(prev => {
+                  const next = [...prev];
+                  next[index] = !next[index];
+                  return next;
+                })}
+                className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 border ${
+                  auditChecked[index]
+                    ? 'bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/30'
+                    : 'bg-zinc-50 dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-700'
+                }`}
+              >
+                <div className={`flex-shrink-0 ${auditChecked[index] ? 'text-green-600 dark:text-green-400' : 'text-zinc-400 dark:text-zinc-500'}`}>
+                  {auditChecked[index] ? <FiCheckCircle className="w-5 h-5" /> : <FiSquare className="w-5 h-5" />}
+                </div>
+                <span className={`text-sm ${
+                  auditChecked[index]
+                    ? 'text-green-700 dark:text-green-400 line-through'
+                    : 'text-zinc-700 dark:text-zinc-200'
+                }`}>{item}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 

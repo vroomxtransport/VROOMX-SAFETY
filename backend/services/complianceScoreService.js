@@ -143,7 +143,27 @@ const complianceScoreService = {
 
     // If no score today, calculate fresh
     if (!score) {
-      score = await this.calculateScore(companyId);
+      try {
+        score = await this.calculateScore(companyId);
+      } catch (err) {
+        console.error('Compliance score calculation failed:', err.message);
+        // Return a default score object so the dashboard still renders
+        score = {
+          overallScore: 0,
+          components: {
+            documentStatus: { score: 0, weight: COMPONENT_WEIGHTS.documentStatus, breakdown: {} },
+            violations: { score: 0, weight: COMPONENT_WEIGHTS.violations, breakdown: {} },
+            drugAlcohol: { score: 0, weight: COMPONENT_WEIGHTS.drugAlcohol, breakdown: {} },
+            dqfCompleteness: { score: 0, weight: COMPONENT_WEIGHTS.dqfCompleteness, breakdown: {} },
+            vehicleInspection: { score: 0, weight: COMPONENT_WEIGHTS.vehicleInspection, breakdown: {} }
+          },
+          previousScore: null,
+          change: 0,
+          trend: 'stable',
+          metrics: {},
+          calculatedAt: new Date()
+        };
+      }
     }
 
     return score;

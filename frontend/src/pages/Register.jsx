@@ -5,11 +5,47 @@ import toast from 'react-hot-toast';
 import {
   FiMail, FiLock, FiUser, FiHash, FiEye, FiEyeOff,
   FiShield, FiCheckCircle, FiArrowRight, FiBriefcase, FiClock, FiAward,
-  FiAlertCircle, FiLoader
+  FiAlertCircle, FiLoader, FiCheck, FiTruck, FiArrowLeft
 } from 'react-icons/fi';
 import LoadingSpinner from '../components/LoadingSpinner';
 import VroomXLogo from '../components/VroomXLogo';
 import api from '../utils/api';
+
+const planOptions = [
+  {
+    id: 'solo',
+    name: 'Solo',
+    subtitle: 'For Owner-Operators',
+    price: 19,
+    drivers: '1 driver included',
+    hasTrial: false,
+    ctaText: 'Pay to Start',
+    features: ['Full DQF Management', 'AI Regulation Assistant', 'CSA Score Tracking', 'Document Expiry Alerts'],
+  },
+  {
+    id: 'fleet',
+    name: 'Fleet',
+    subtitle: 'For Small Fleets (2-10 drivers)',
+    price: 39,
+    drivers: '3 drivers included',
+    extraDriver: '+$6/driver after 3',
+    hasTrial: true,
+    ctaText: 'Start Free Trial',
+    popular: true,
+    features: ['Everything in Solo', '3 drivers included', 'DataQ AI Analysis', 'Multi-user Access'],
+  },
+  {
+    id: 'pro',
+    name: 'Pro',
+    subtitle: 'For Growing Fleets (10-50 drivers)',
+    price: 89,
+    drivers: '10 drivers included',
+    extraDriver: '+$5/driver after 10',
+    hasTrial: true,
+    ctaText: 'Start Free Trial',
+    features: ['Everything in Fleet', '10 drivers included', 'Advanced CSA Analytics', 'Priority Email Support'],
+  }
+];
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -28,7 +64,8 @@ const Register = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const selectedPlan = searchParams.get('plan');
+  const planFromUrl = searchParams.get('plan');
+  const [selectedPlan, setSelectedPlan] = useState(planFromUrl || null);
   const isSoloPlan = selectedPlan === 'solo';
 
   // Force light mode on register page (prevents invisible text when dark mode persists)
@@ -197,6 +234,126 @@ const Register = () => {
     }
   };
 
+  // Plan selection screen (when no plan is chosen yet)
+  if (!selectedPlan) {
+    return (
+      <div className="min-h-screen bg-[#F8FAFC] relative overflow-hidden">
+        {/* Background Effects */}
+        <div className="fixed inset-0 z-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#F8FAFC] via-white to-[#F1F5F9]" />
+          <div className="absolute inset-0 bg-grid-pattern opacity-[0.03]" />
+          <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-primary-500/10 blur-[120px] rounded-full animate-blob" />
+          <div className="absolute top-1/4 right-0 w-[500px] h-[500px] bg-cta-500/8 blur-[120px] rounded-full animate-blob" style={{ animationDelay: '2s' }} />
+          <div className="absolute bottom-0 left-1/3 w-[550px] h-[550px] bg-primary-300/12 blur-[120px] rounded-full animate-blob" style={{ animationDelay: '4s' }} />
+          <div className="absolute inset-0 bg-gradient-radial from-transparent via-transparent to-white/50" />
+        </div>
+
+        <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 py-12">
+          {/* Logo */}
+          <div className="mb-6 animate-fade-in-up">
+            <VroomXLogo size="lg" showText={true} animate={true} linkToHome={true} />
+          </div>
+
+          {/* Header */}
+          <div className="text-center mb-10 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+            <h1 className="text-3xl md:text-4xl font-bold text-primary-500 mb-3 font-heading tracking-tight">
+              Choose Your Plan
+            </h1>
+            <p className="text-zinc-600 text-lg max-w-lg mx-auto">
+              Select the plan that fits your fleet. Upgrade or downgrade anytime.
+            </p>
+          </div>
+
+          {/* Plan Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl w-full animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+            {planOptions.map((plan) => (
+              <div
+                key={plan.id}
+                className={`relative p-8 rounded-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer ${
+                  plan.popular
+                    ? 'bg-white border-2 border-cta-500 shadow-xl shadow-cta-500/15 scale-[1.02] md:scale-105 z-10'
+                    : 'bg-white/90 backdrop-blur-xl border border-gray-200 hover:border-cta-500/40 hover:shadow-xl'
+                }`}
+                onClick={() => setSelectedPlan(plan.id)}
+              >
+                {/* Popular Badge */}
+                {plan.popular && (
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                    <div className="bg-gradient-to-r from-cta-500 to-cta-600 px-5 py-1.5 rounded-full text-xs font-black text-white uppercase tracking-wider shadow-lg shadow-cta-500/40 flex items-center gap-1.5">
+                      <FiTruck className="w-3.5 h-3.5" />
+                      Most Popular
+                    </div>
+                  </div>
+                )}
+
+                {/* Plan Header */}
+                <div className="mb-4">
+                  <h3 className="text-xl font-black text-primary-500">{plan.name}</h3>
+                  <p className="text-sm text-gray-500 mt-1">{plan.subtitle}</p>
+                </div>
+
+                {/* Price */}
+                <div className="mb-4">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-xl font-bold text-cta-500">$</span>
+                    <span className="text-5xl font-black text-primary-500 leading-none tracking-tight">{plan.price}</span>
+                    <span className="text-gray-500 ml-1">/mo</span>
+                  </div>
+                </div>
+
+                {/* Drivers */}
+                <div className="bg-gray-50 rounded-xl p-3 mb-5">
+                  <p className="font-bold text-gray-800 text-sm">{plan.drivers}</p>
+                  {plan.extraDriver && (
+                    <p className="text-xs text-gray-500 mt-0.5">{plan.extraDriver}</p>
+                  )}
+                </div>
+
+                {/* Features */}
+                <ul className="space-y-2.5 mb-6">
+                  {plan.features.map((feature, j) => (
+                    <li key={j} className="flex items-start gap-2.5 text-sm text-gray-600">
+                      <span className="w-5 h-5 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <FiCheck className="w-3 h-3 text-emerald-600" strokeWidth={3} />
+                      </span>
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+
+                {/* CTA Button */}
+                <button
+                  onClick={(e) => { e.stopPropagation(); setSelectedPlan(plan.id); }}
+                  className={`w-full py-3.5 rounded-xl font-bold text-center transition-all duration-300 ${
+                    plan.popular
+                      ? 'bg-gradient-to-r from-cta-500 to-cta-600 hover:from-cta-600 hover:to-cta-700 text-white shadow-lg shadow-cta-500/30 hover:shadow-xl'
+                      : 'bg-primary-500 hover:bg-primary-600 text-white hover:shadow-lg'
+                  }`}
+                >
+                  {plan.ctaText}
+                </button>
+
+                {plan.hasTrial && (
+                  <p className="text-xs text-center text-gray-500 mt-2.5">
+                    3-day free trial &middot; No credit card required
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Sign in link */}
+          <p className="mt-10 text-sm text-zinc-600 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+            Already have an account?{' '}
+            <Link to="/login" className="text-primary-500 hover:text-primary-600 font-semibold transition-colors">
+              Sign in
+            </Link>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] relative overflow-hidden">
       {/* Background Effects */}
@@ -223,12 +380,23 @@ const Register = () => {
           <VroomXLogo size="lg" showText={true} animate={true} linkToHome={true} />
         </div>
 
+        {/* Back to plan selection (only if user came without URL param) */}
+        {!planFromUrl && (
+          <button
+            onClick={() => setSelectedPlan(null)}
+            className="flex items-center gap-2 text-sm text-zinc-500 hover:text-primary-500 transition-colors mb-4 animate-fade-in-up"
+          >
+            <FiArrowLeft className="w-4 h-4" />
+            Change plan
+          </button>
+        )}
+
         {/* Hero Text */}
         <div className="text-center mb-6 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
           <h1 className="text-3xl md:text-4xl font-bold text-primary-500 mb-3 font-heading tracking-tight">
             {isSoloPlan ? 'Create Your Account' : 'Start Your 3-Day Free Trial'}
           </h1>
-          <p className="text-zinc-600 dark:text-zinc-300 text-lg max-w-lg mx-auto">
+          <p className="text-zinc-600 text-lg max-w-lg mx-auto">
             Join 500+ carriers managing their FMCSA compliance with VroomX Safety
           </p>
         </div>
@@ -246,7 +414,7 @@ const Register = () => {
           ]).map((item, i) => (
             <div
               key={i}
-              className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full border border-[#E2E8F0] text-sm text-zinc-600 dark:text-zinc-300"
+              className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full border border-[#E2E8F0] text-sm text-zinc-600"
             >
               <item.icon className="w-4 h-4 text-cta-500" />
               <span className="font-medium">{item.text}</span>
