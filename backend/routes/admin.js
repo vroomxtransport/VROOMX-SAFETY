@@ -2057,4 +2057,107 @@ router.patch('/tickets/:id', async (req, res) => {
   }
 });
 
+// =====================================================
+// BUG REPORTS (ADMIN VIEW)
+// =====================================================
+
+// @route   GET /api/admin/bug-reports
+// @desc    Get all bug reports with pagination and filters
+// @access  Super Admin
+router.get('/bug-reports', async (req, res) => {
+  try {
+    const BugReport = require('../models/BugReport');
+    const { page = 1, limit = 20, status, priority, search } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    const query = {};
+    if (status) query.status = status;
+    if (priority) query.priority = priority;
+    if (search) {
+      const searchRegex = new RegExp(escapeRegex(search), 'i');
+      query.$or = [
+        { subject: searchRegex },
+        { description: searchRegex }
+      ];
+    }
+
+    const [bugReports, total] = await Promise.all([
+      BugReport.find(query)
+        .populate('userId', 'email firstName lastName')
+        .populate('companyId', 'name dotNumber')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(parseInt(limit))
+        .lean(),
+      BugReport.countDocuments(query)
+    ]);
+
+    // Get status counts
+    const stats = await BugReport.aggregate([
+      { $group: { _id: '$status', count: { $sum: 1 } } }
+    ]);
+
+    const statusCounts = { open: 0, in_progress: 0, resolved: 0, closed: 0 };
+    stats.forEach(s => {
+      if (statusCounts.hasOwnProperty(s._id)) {
+        statusCounts[s._id] = s.count;
+      }
+    });
+
+    res.json({
+      success: true,
+      bugReports: bugReports.map(r => ({
+        ...r,
+        reporter: r.userId ? {
+          _id: r.userId._id,
+          email: r.userId.email,
+          name: `${r.userId.firstName || ''} ${r.userId.lastName || ''}`.trim()
+        } : null,
+        company: r.companyId ? { _id: r.companyId._id, name: r.companyId.name, dotNumber: r.companyId.dotNumber } : null
+      })),
+      stats: statusCounts,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / parseInt(limit))
+      }
+    });
+  } catch (error) {
+    console.error('Admin bug reports error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch bug reports' });
+  }
+});
+
+// @route   PATCH /api/admin/bug-reports/:id
+// @desc    Update bug report status, priority, or admin notes
+// @access  Super Admin
+router.patch('/bug-reports/:id', async (req, res) => {
+  try {
+    const BugReport = require('../models/BugReport');
+    const { status, priority, adminNotes } = req.body;
+
+    const bugReport = await BugReport.findById(req.params.id);
+    if (!bugReport) {
+      return res.status(404).json({ success: false, message: 'Bug report not found' });
+    }
+
+    if (status) bugReport.status = status;
+    if (priority) bugReport.priority = priority;
+    if (adminNotes !== undefined) bugReport.adminNotes = adminNotes;
+
+    await bugReport.save();
+
+    auditService.log(req, 'update', 'bug_report', bugReport._id, {
+      status, priority,
+      summary: `Admin updated bug report: ${bugReport.subject}`
+    });
+
+    res.json({ success: true, bugReport });
+  } catch (error) {
+    console.error('Admin bug report update error:', error);
+    res.status(500).json({ success: false, message: 'Failed to update bug report' });
+  }
+});
+
 module.exports = router;

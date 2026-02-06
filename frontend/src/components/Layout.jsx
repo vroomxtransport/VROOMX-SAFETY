@@ -7,14 +7,14 @@ import CompanySwitcher from './CompanySwitcher';
 import AnnouncementBanner from './AnnouncementBanner';
 import DemoBanner from './DemoBanner';
 import VroomXLogo from './VroomXLogo';
-import api, { driversAPI, vehiclesAPI, documentsAPI, violationsAPI, accidentsAPI } from '../utils/api';
+import api, { driversAPI, vehiclesAPI, documentsAPI, violationsAPI, accidentsAPI, bugReportsAPI } from '../utils/api';
 import {
   FiHome, FiUsers, FiTruck, FiAlertTriangle, FiDroplet,
   FiFolder, FiBarChart2, FiFileText, FiSettings, FiMenu,
   FiX, FiBell, FiLogOut, FiChevronDown, FiShield, FiTag, FiMessageCircle, FiDollarSign,
   FiStar, FiActivity, FiCopy, FiSun, FiMoon,
   FiChevronsLeft, FiChevronsRight, FiCheckSquare, FiClipboard, FiTool, FiAlertOctagon,
-  FiBookOpen, FiLink, FiTarget, FiArrowLeft
+  FiBookOpen, FiLink, FiTarget, FiArrowLeft, FiSend
 } from 'react-icons/fi';
 
 const navigation = [
@@ -72,6 +72,12 @@ const Layout = () => {
   const [searchResults, setSearchResults] = useState(null);
   const [searchLoading, setSearchLoading] = useState(false);
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+  const [devBannerDismissed, setDevBannerDismissed] = useState(() => {
+    return localStorage.getItem('dev-banner-dismissed') === 'true';
+  });
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [reportForm, setReportForm] = useState({ subject: '', category: 'bug', description: '' });
+  const [reportSubmitting, setReportSubmitting] = useState(false);
   const searchRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
@@ -209,6 +215,33 @@ const Layout = () => {
       (searchResults.documents?.length || 0) +
       (searchResults.violations?.length || 0) +
       (searchResults.accidents?.length || 0);
+  };
+
+  // Dismiss dev banner
+  const dismissDevBanner = () => {
+    setDevBannerDismissed(true);
+    localStorage.setItem('dev-banner-dismissed', 'true');
+  };
+
+  // Submit bug report
+  const handleReportSubmit = async (e) => {
+    e.preventDefault();
+    if (!reportForm.subject.trim() || !reportForm.description.trim()) return;
+    setReportSubmitting(true);
+    try {
+      await bugReportsAPI.submit({
+        subject: reportForm.subject,
+        description: reportForm.description,
+        category: reportForm.category,
+        page: location.pathname
+      });
+      setReportModalOpen(false);
+      setReportForm({ subject: '', category: 'bug', description: '' });
+    } catch (error) {
+      console.error('Failed to submit bug report:', error);
+    } finally {
+      setReportSubmitting(false);
+    }
   };
 
   // Get subscription badge info
@@ -831,6 +864,37 @@ const Layout = () => {
           </div>
         </header>
 
+        {/* Development Banner */}
+        {!devBannerDismissed && (
+          <div className="bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-700/30">
+            <div className="px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3 min-w-0">
+                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-400/20 flex items-center justify-center">
+                  <FiAlertTriangle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                </span>
+                <p className="text-sm text-amber-800 dark:text-amber-200">
+                  This app is currently in development testing. You may encounter bugs or issues.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <button
+                  onClick={() => setReportModalOpen(true)}
+                  className="px-3 py-1.5 text-xs font-medium text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-800/30 hover:bg-amber-200 dark:hover:bg-amber-800/50 rounded-lg transition-colors"
+                >
+                  Report an Issue
+                </button>
+                <button
+                  onClick={dismissDevBanner}
+                  className="p-1 text-amber-500 hover:text-amber-700 dark:hover:text-amber-300 rounded transition-colors"
+                  aria-label="Dismiss banner"
+                >
+                  <FiX className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Announcement Banner */}
         <AnnouncementBanner />
 
@@ -842,6 +906,87 @@ const Layout = () => {
           <Outlet />
         </main>
       </div>
+
+      {/* Bug Report Modal */}
+      {reportModalOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setReportModalOpen(false)} />
+          <div className="relative w-full max-w-lg bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-zinc-200 dark:border-zinc-700">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-200 dark:border-zinc-700">
+              <h2 className="text-lg font-semibold text-zinc-900 dark:text-white">Report an Issue</h2>
+              <button
+                onClick={() => setReportModalOpen(false)}
+                className="p-1.5 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              >
+                <FiX className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={handleReportSubmit} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Subject</label>
+                <input
+                  type="text"
+                  value={reportForm.subject}
+                  onChange={(e) => setReportForm(prev => ({ ...prev, subject: e.target.value }))}
+                  placeholder="Brief summary of the issue"
+                  className="w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                  required
+                  maxLength={200}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Category</label>
+                <select
+                  value={reportForm.category}
+                  onChange={(e) => setReportForm(prev => ({ ...prev, category: e.target.value }))}
+                  className="w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                >
+                  <option value="bug">Bug</option>
+                  <option value="feature_request">Feature Request</option>
+                  <option value="ui_issue">UI Issue</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Description</label>
+                <textarea
+                  value={reportForm.description}
+                  onChange={(e) => setReportForm(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Describe the issue in detail. What happened? What did you expect to happen?"
+                  rows={4}
+                  className="w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 resize-none"
+                  required
+                  maxLength={5000}
+                />
+              </div>
+              <div className="text-xs text-zinc-500 dark:text-zinc-400">
+                Page: {location.pathname}
+              </div>
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setReportModalOpen(false)}
+                  className="px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={reportSubmitting || !reportForm.subject.trim() || !reportForm.description.trim()}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
+                >
+                  {reportSubmitting ? (
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <FiSend className="w-4 h-4" />
+                  )}
+                  {reportSubmitting ? 'Submitting...' : 'Submit Report'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

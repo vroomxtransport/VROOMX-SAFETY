@@ -714,6 +714,16 @@ export const adminAPI = {
   // Support Tickets (Admin)
   getTickets: (params) => api.get('/admin/tickets', { params }),
   updateTicket: (id, data) => api.patch(`/admin/tickets/${id}`, data),
+
+  // Bug Reports (Admin)
+  getBugReports: (params) => api.get('/admin/bug-reports', { params }),
+  updateBugReport: (id, data) => api.patch(`/admin/bug-reports/${id}`, data),
+};
+
+// Bug Reports API - User-facing bug report submission
+export const bugReportsAPI = {
+  submit: (data) => api.post('/bug-reports', data),
+  getOwn: () => api.get('/bug-reports'),
 };
 
 // Audit API - Company-scoped audit logs (owner/admin)

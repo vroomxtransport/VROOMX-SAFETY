@@ -60,6 +60,7 @@ const AdminDataIntegrity = lazy(() => import('./pages/admin/AdminDataIntegrity')
 const AdminRevenue = lazy(() => import('./pages/admin/AdminRevenue'));
 const AdminAlerts = lazy(() => import('./pages/admin/AdminAlerts'));
 const AdminTickets = lazy(() => import('./pages/admin/AdminTickets'));
+const AdminBugReports = lazy(() => import('./pages/admin/AdminBugReports'));
 
 // Design Demos - lazy loaded, dev only
 const EnterpriseDemo = lazy(() => import('./pages/designs/EnterpriseDemo'));
@@ -292,6 +293,7 @@ function App() {
           <Route path="users" element={<Suspense fallback={<LoadingSpinner size="lg" />}><AdminUsers /></Suspense>} />
           <Route path="companies" element={<Suspense fallback={<LoadingSpinner size="lg" />}><AdminCompanies /></Suspense>} />
           <Route path="tickets" element={<Suspense fallback={<LoadingSpinner size="lg" />}><AdminTickets /></Suspense>} />
+          <Route path="bug-reports" element={<Suspense fallback={<LoadingSpinner size="lg" />}><AdminBugReports /></Suspense>} />
           <Route path="emails" element={<Suspense fallback={<LoadingSpinner size="lg" />}><AdminEmails /></Suspense>} />
           <Route path="announcements" element={<Suspense fallback={<LoadingSpinner size="lg" />}><AdminAnnouncements /></Suspense>} />
           <Route path="features" element={<Suspense fallback={<LoadingSpinner size="lg" />}><AdminFeatureFlags /></Suspense>} />

@@ -34,6 +34,7 @@ const scheduledReportRoutes = require('./scheduledReports');
 const integrationRoutes = require('./integrations');
 const reportTemplateRoutes = require('./reportTemplates');
 const reportHistoryRoutes = require('./reportHistory');
+const bugReportRoutes = require('./bugReports');
 
 // Apply demo guard globally - blocks write operations for demo users.
 // NOTE: demoGuard checks req.user.isDemo, which requires the protect middleware
@@ -76,5 +77,6 @@ router.use('/scheduled-reports', scheduledReportRoutes);
 router.use('/integrations', integrationRoutes);
 router.use('/report-templates', reportTemplateRoutes);
 router.use('/report-history', reportHistoryRoutes);
+router.use('/bug-reports', bugReportRoutes);
 
 module.exports = router;
