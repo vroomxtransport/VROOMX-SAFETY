@@ -58,14 +58,10 @@ const Landing = () => {
 
   return (
     <div className="relative overflow-hidden w-full min-h-screen bg-white text-[#1E293B]">
-      {/* Fixed Background Elements - reduced blur on mobile for performance */}
+      {/* Fixed Background Elements */}
       <div className="fixed inset-0 z-0">
         <div className="absolute inset-0 bg-white" />
         <div className="absolute inset-0 bg-grid-pattern opacity-[0.04]" />
-        {/* Smaller blobs with reduced blur on mobile, no animation on reduced-motion */}
-        <div className="absolute top-0 left-0 w-[300px] h-[300px] md:w-[500px] md:h-[500px] bg-primary-500/10 blur-[60px] md:blur-[120px] rounded-full animate-blob motion-reduce:animate-none" />
-        <div className="absolute top-1/2 right-0 w-[300px] h-[300px] md:w-[500px] md:h-[500px] bg-cta-500/8 blur-[60px] md:blur-[120px] rounded-full animate-blob motion-reduce:animate-none" style={{ animationDelay: '2s' }} />
-        <div className="absolute bottom-0 left-1/3 w-[300px] h-[300px] md:w-[500px] md:h-[500px] bg-primary-300/15 blur-[60px] md:blur-[120px] rounded-full animate-blob motion-reduce:animate-none" style={{ animationDelay: '4s' }} />
       </div>
 
       {/* Navigation */}
@@ -75,7 +71,7 @@ const Landing = () => {
       <HeroDesign5 heroTextIndex={heroTextIndex} heroTexts={heroTexts} />
 
       {/* Trust Badges Section */}
-      <section className="relative z-10 py-8 border-y border-[#E2E8F0] bg-white/80 backdrop-blur-sm">
+      <section className="relative z-10 py-8 border-y border-[#E2E8F0] bg-white">
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 md:gap-16">
             {[
@@ -102,7 +98,7 @@ const Landing = () => {
       <FeaturesSection features={features} />
 
       {/* Differentiation Section */}
-      <section className="py-20 px-6 md:px-16 relative z-10 bg-gradient-to-b from-white to-[#F8FAFC]">
+      <section className="py-20 px-6 md:px-16 relative z-10 bg-white">
         <div className="max-w-5xl mx-auto text-center">
           <div className="inline-block px-3 py-1 rounded-full border border-cta-500/30 bg-cta-500/10 text-cta-600 font-mono text-xs mb-6">
             // WHAT MAKES US DIFFERENT
@@ -156,7 +152,7 @@ const Landing = () => {
       </section>
 
       {/* Problem Section */}
-      <section className="py-32 px-6 md:px-16 relative z-10">
+      <section className="py-32 px-6 md:px-16 relative z-10 bg-[#F8FAFC]">
         <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-20 items-center">
           <div>
             <div className="inline-block px-3 py-1 rounded-full border border-primary-500/30 bg-primary-500/10 text-primary-500 font-mono text-xs mb-6">
@@ -199,7 +195,7 @@ const Landing = () => {
 
           {/* Spreadsheet Chaos Mockup */}
           <div className="relative group">
-            <div className="absolute inset-0 bg-gradient-to-tr from-primary-500/10 to-cta-500/10 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-500" />
+            <div className="absolute inset-0 bg-primary-500/5 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-500" />
             <div className="bg-white rounded-2xl overflow-hidden relative border border-[#E2E8F0] shadow-2xl">
               {/* Excel Title Bar */}
               <div className="bg-[#217346] px-3 py-2 flex items-center justify-between">
@@ -319,7 +315,7 @@ const Landing = () => {
       <FAQSection faqData={faqData} openFaq={openFaq} setOpenFaq={setOpenFaq} />
 
       {/* Latest News Section */}
-      <section className="py-24 px-6 md:px-16 relative z-10">
+      <section className="py-24 px-6 md:px-16 relative z-10 bg-[#F8FAFC]">
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-end mb-12">
             <div>

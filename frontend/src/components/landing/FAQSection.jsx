@@ -6,7 +6,7 @@ const FAQSection = ({ faqData, openFaq, setOpenFaq }) => {
   const [listRef, listInView] = useInView({ threshold: 0.1 });
 
   return (
-    <section className="py-24 px-6 md:px-16 relative z-10 bg-[#F8FAFC]">
+    <section className="py-24 px-6 md:px-16 relative z-10 bg-white">
       <div className="max-w-3xl mx-auto">
         <div
           ref={headerRef}

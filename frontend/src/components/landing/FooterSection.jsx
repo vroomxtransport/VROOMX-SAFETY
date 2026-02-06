@@ -100,11 +100,7 @@ const FooterSection = () => {
   };
 
   return (
-    <footer className="relative bg-primary-700 py-20 px-6 md:px-16 overflow-hidden z-10">
-      {/* Decorative floating orbs */}
-      <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-cta-500/20 blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 rounded-full bg-primary-300/15 blur-[120px] pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-cta-400/10 blur-[80px] pointer-events-none" />
+    <footer className="relative bg-primary-800 py-20 px-6 md:px-16 overflow-hidden z-10">
 
       {/* Glass Card */}
       <div className="max-w-7xl mx-auto relative z-10 bg-white/[0.07] backdrop-blur-xl rounded-3xl border border-white/[0.12] p-12 md:p-16">

@@ -35,12 +35,6 @@ const TestimonialsSection = () => {
 
   return (
     <section className="py-24 px-6 md:px-16 relative z-10 bg-[#F8FAFC]">
-      {/* Floating decorative shapes */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-cta-500/10 blur-[120px]" />
-        <div className="absolute bottom-[20%] -right-20 w-72 h-72 rounded-full bg-primary-500/8 blur-[120px]" />
-      </div>
-
       <div className="max-w-6xl mx-auto relative z-10">
         {/* Header */}
         <div

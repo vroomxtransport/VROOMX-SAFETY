@@ -213,13 +213,6 @@ const FeaturesSection = () => {
 
   return (
     <section id="features" className="relative py-24 px-6 overflow-hidden bg-[#F8FAFC]">
-      {/* Floating decorative shapes */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-primary-500/10 blur-[120px] animate-[float1_20s_ease-in-out_infinite]" />
-        <div className="absolute bottom-[10%] -left-20 w-72 h-72 rounded-full bg-cta-500/8 blur-[120px] animate-[float2_25s_ease-in-out_infinite]" />
-        <div className="absolute top-[40%] right-[5%] w-60 h-60 rounded-full bg-primary-300/15 blur-[120px] animate-[float3_18s_ease-in-out_infinite]" />
-      </div>
-
       <div className="relative z-10 max-w-6xl mx-auto">
         {/* Header */}
         <div
