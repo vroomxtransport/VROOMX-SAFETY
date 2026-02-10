@@ -29,6 +29,17 @@ import useForceLightMode from '../hooks/useForceLightMode';
 const Landing = () => {
   useForceLightMode();
 
+  // Preload hero image only on the landing page to avoid browser warnings on other pages
+  useEffect(() => {
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'image';
+    link.href = '/images/hero-truck.webp';
+    link.type = 'image/webp';
+    document.head.appendChild(link);
+    return () => { document.head.removeChild(link); };
+  }, []);
+
   // Hero typewriter cycling state
   const [heroTextIndex, setHeroTextIndex] = useState(0);
 

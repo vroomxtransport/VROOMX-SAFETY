@@ -52,14 +52,30 @@ const DataQDashboard = () => {
       setLoading(true);
       setError(null);
 
-      const [dashboardRes, opportunitiesRes] = await Promise.all([
+      const [dashboardResult, opportunitiesResult] = await Promise.allSettled([
         violationsAPI.getDataQDashboard(),
         violationsAPI.getDataQOpportunities({ minScore, limit: 10, basic: selectedBasic || undefined })
       ]);
 
-      const dashboardStats = dashboardRes.data.stats;
-      setStats(dashboardStats);
-      setOpportunities(opportunitiesRes.data.violations || []);
+      if (dashboardResult.status === 'fulfilled') {
+        const dashboardStats = dashboardResult.value.data.stats;
+        setStats(dashboardStats);
+      } else {
+        setError(dashboardResult.reason?.response?.data?.error || 'Failed to load dashboard stats');
+      }
+
+      if (opportunitiesResult.status === 'fulfilled') {
+        setOpportunities(opportunitiesResult.value.data.violations || []);
+      } else {
+        setOpportunities([]);
+        if (!error) {
+          toast.error('Failed to load challenge opportunities');
+        }
+      }
+
+      const dashboardStats = dashboardResult.status === 'fulfilled'
+        ? dashboardResult.value.data.stats
+        : null;
 
       // If no violations exist, try a one-time auto-sync from FMCSA DataHub
       if (!autoSyncAttempted.current && (dashboardStats?.totalViolations || 0) === 0) {
@@ -84,13 +100,18 @@ const DataQDashboard = () => {
         }
 
         // Re-fetch after sync attempt
-        const [dashboardRes2, opportunitiesRes2] = await Promise.all([
+        const [dashboardRes2, opportunitiesRes2] = await Promise.allSettled([
           violationsAPI.getDataQDashboard(),
           violationsAPI.getDataQOpportunities({ minScore, limit: 10, basic: selectedBasic || undefined })
         ]);
 
-        setStats(dashboardRes2.data.stats);
-        setOpportunities(opportunitiesRes2.data.violations || []);
+        if (dashboardRes2.status === 'fulfilled') {
+          setStats(dashboardRes2.value.data.stats);
+          setError(null);
+        }
+        if (opportunitiesRes2.status === 'fulfilled') {
+          setOpportunities(opportunitiesRes2.value.data.violations || []);
+        }
       }
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to load DataQ dashboard');

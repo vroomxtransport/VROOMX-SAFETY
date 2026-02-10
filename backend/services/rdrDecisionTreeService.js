@@ -7,7 +7,7 @@
  */
 
 const { RDR_TYPES } = require('../config/rdrTypes');
-const { ERROR_PRONE_VIOLATION_CODES } = require('./dataQAnalysisService');
+const { ERROR_PRONE_VIOLATION_CODES } = require('../config/violationCodes');
 
 /**
  * Determine if a violation is crash-related

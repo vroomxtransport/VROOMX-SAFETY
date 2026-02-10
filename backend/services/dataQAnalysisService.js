@@ -7,26 +7,7 @@
 
 const { Violation } = require('../models');
 const rdrDecisionTreeService = require('./rdrDecisionTreeService');
-
-// Error codes commonly associated with data entry mistakes or procedural issues
-const ERROR_PRONE_VIOLATION_CODES = {
-  // Driver fitness issues often misrecorded
-  '391.41': { boost: 15, reason: 'Medical certificate issues often involve clerical errors' },
-  '391.45': { boost: 12, reason: 'Medical examiner certification status can be verified' },
-
-  // HOS violations with ELD discrepancies
-  '395.8': { boost: 18, reason: 'ELD data can provide contradicting evidence' },
-  '395.3': { boost: 15, reason: 'Hours violations often involve complex calculations' },
-
-  // Vehicle maintenance issues that may have been corrected
-  '393.9': { boost: 10, reason: 'Inoperative equipment may have been fixed on scene' },
-  '393.45': { boost: 12, reason: 'Brake adjustment can be verified with documentation' },
-  '393.47': { boost: 10, reason: 'Brake tubing issues may be misidentified' },
-
-  // Equipment issues that may be incorrectly assigned
-  '392.2': { boost: 8, reason: 'State/local law violations may not apply to CMV' },
-  '392.16': { boost: 10, reason: 'Seat belt violations may have extenuating circumstances' }
-};
+const { ERROR_PRONE_VIOLATION_CODES } = require('../config/violationCodes');
 
 // Challenge type recommendations based on violation characteristics
 const CHALLENGE_TYPE_MAPPING = {
@@ -331,7 +312,8 @@ async function identifyChallengeableViolations(companyId, options = {}) {
         inspectionNumber: violation.inspectionNumber,
         location: violation.location,
         driver: violation.driverId,
-        vehicle: violation.vehicleId
+        vehicle: violation.vehicleId,
+        scanResults: violation.scanResults
       },
       analysis
     };
