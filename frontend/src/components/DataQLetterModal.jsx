@@ -51,6 +51,7 @@ const DataQLetterModal = ({ isOpen, onClose, violation, analysis, onSuccess }) =
   );
   const [loading, setLoading] = useState(false);
   const [deepAnalysis, setDeepAnalysis] = useState(null);
+  const [overrideLowScore, setOverrideLowScore] = useState(false);
 
   const handleNext = async () => {
     // Validate current step before proceeding
@@ -210,6 +211,26 @@ const DataQLetterModal = ({ isOpen, onClose, violation, analysis, onSuccess }) =
                 </p>
               </div>
             </div>
+
+            {/* Low Score Warning Gate */}
+            {analysis?.score < 20 && (
+              <div className="p-4 rounded-lg bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20">
+                <div className="flex gap-3">
+                  <FiAlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-red-800 dark:text-red-300">Not Recommended</p>
+                    <p className="text-sm text-red-700 dark:text-red-400 mt-1">
+                      This violation scores {analysis.score}/100, indicating very low challenge success probability.
+                    </p>
+                    {analysis.recommendation?.reason && (
+                      <p className="text-sm text-red-600 dark:text-red-400 mt-1">
+                        {analysis.recommendation.reason}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Analysis Factors */}
             {analysis?.factors && analysis.factors.length > 0 && (
@@ -493,20 +514,30 @@ const DataQLetterModal = ({ isOpen, onClose, violation, analysis, onSuccess }) =
         </button>
 
         {currentStep < STEPS.length - 1 ? (
-          <button
-            onClick={handleNext}
-            className="btn btn-primary"
-            disabled={loading}
-          >
-            {loading ? (
-              <LoadingSpinner size="sm" />
-            ) : (
-              <>
-                {currentStep === 1 ? 'Generate Letter' : 'Next'}
-                <FiChevronRight className="w-4 h-4" />
-              </>
+          <div className="flex flex-col items-end gap-1">
+            <button
+              onClick={handleNext}
+              className="btn btn-primary"
+              disabled={loading || (currentStep === 0 && analysis?.score < 20 && !overrideLowScore)}
+            >
+              {loading ? (
+                <LoadingSpinner size="sm" />
+              ) : (
+                <>
+                  {currentStep === 1 ? 'Generate Letter' : 'Next'}
+                  <FiChevronRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
+            {currentStep === 0 && analysis?.score < 20 && !overrideLowScore && (
+              <button
+                onClick={() => setOverrideLowScore(true)}
+                className="text-xs text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 underline"
+              >
+                Proceed anyway (not recommended)
+              </button>
             )}
-          </button>
+          </div>
         ) : (
           <button
             onClick={handleSaveAndClose}

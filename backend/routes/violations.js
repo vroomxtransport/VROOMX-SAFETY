@@ -11,6 +11,7 @@ const auditService = require('../services/auditService');
 const driverCSAService = require('../services/driverCSAService');
 const dataQAnalysisService = require('../services/dataQAnalysisService');
 const csaAlertService = require('../services/csaAlertService');
+const violationScannerService = require('../services/violationScannerService');
 
 router.use(protect);
 router.use(restrictToCompany);
@@ -363,6 +364,45 @@ router.post('/bulk-link', checkPermission('violations', 'edit'), [
   });
 }));
 
+// @route   GET /api/violations/state-profiles
+// @desc    Get all state profiles for DataQ intelligence
+// @access  Private
+router.get('/state-profiles', checkPermission('violations', 'view'), asyncHandler(async (req, res) => {
+  const stateProfileService = require('../services/stateProfileService');
+  const profiles = await stateProfileService.getAllProfiles();
+  res.json({ success: true, profiles });
+}));
+
+// ==================== Health Check Routes ====================
+// NOTE: These routes MUST be before /:id to prevent Express from matching them as IDs
+
+// @route   GET /api/violations/health-check
+// @desc    Get Health Check dashboard stats
+// @access  Private
+router.get('/health-check', checkPermission('violations', 'view'), asyncHandler(async (req, res) => {
+  const stats = await violationScannerService.getHealthCheckStats(req.companyFilter.companyId);
+  res.json({ success: true, stats });
+}));
+
+// @route   GET /api/violations/health-check/violations
+// @desc    Get paginated flagged violations for Health Check
+// @access  Private
+router.get('/health-check/violations', checkPermission('violations', 'view'), asyncHandler(async (req, res) => {
+  const { category, basic, page = 1, limit = 20, sortBy = 'priorityScore' } = req.query;
+  const result = await violationScannerService.getHealthCheckViolations(req.companyFilter.companyId, {
+    category, basic, page: parseInt(page), limit: parseInt(limit), sortBy
+  });
+  res.json({ success: true, ...result });
+}));
+
+// @route   POST /api/violations/health-check/scan
+// @desc    Trigger manual Health Check scan
+// @access  Private
+router.post('/health-check/scan', checkPermission('violations', 'edit'), asyncHandler(async (req, res) => {
+  const result = await violationScannerService.scanCompanyViolations(req.companyFilter.companyId, { force: true });
+  res.json({ success: true, ...result });
+}));
+
 // @route   GET /api/violations/:id
 // @desc    Get single violation
 // @access  Private
@@ -574,6 +614,17 @@ router.put('/:id/dataq/status', checkPermission('violations', 'edit'), [
 
   auditService.log(req, 'update', 'violation', req.params.id, { dataqStatus: req.body.status });
 
+  // State learning: fire-and-forget update to state profile
+  if (['accepted', 'denied'].includes(req.body.status)) {
+    const stateProfileService = require('../services/stateProfileService');
+    const stateCode = violation.location?.state;
+    const challengeType = violation.dataQChallenge?.challengeType;
+    if (stateCode && challengeType) {
+      stateProfileService.learnFromOutcome(stateCode, challengeType, req.body.status === 'accepted')
+        .catch(err => console.error('[DataQ] State profile update error:', err.message));
+    }
+  }
+
   // When DataQ challenge is accepted, check for CSA score improvements (fire-and-forget)
   if (req.body.status === 'accepted') {
     csaAlertService.checkForImprovements(violation.companyId, {
@@ -601,6 +652,74 @@ router.put('/:id/dataq/status', checkPermission('violations', 'edit'), [
   res.json({
     success: true,
     violation
+  });
+}));
+
+// @route   PUT /api/violations/:id/court-outcome
+// @desc    Record court outcome for Health Check scanner
+// @access  Private
+router.put('/:id/court-outcome', checkPermission('violations', 'edit'), [
+  body('courtOutcome').isIn(['dismissed', 'reduced', 'guilty', 'pending', 'not_applicable']).withMessage('Invalid court outcome'),
+  body('courtDate').optional().isISO8601().withMessage('Invalid court date'),
+  body('courtNotes').optional().trim()
+], asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ success: false, errors: errors.array() });
+  }
+
+  const violation = await Violation.findOne({
+    _id: req.params.id,
+    ...req.companyFilter
+  });
+
+  if (!violation) {
+    throw new AppError('Violation not found', 404);
+  }
+
+  // Initialize scanResults if needed
+  if (!violation.scanResults) {
+    violation.scanResults = { checks: {} };
+  }
+  if (!violation.scanResults.checks) {
+    violation.scanResults.checks = {};
+  }
+  if (!violation.scanResults.checks.courtDismissal) {
+    violation.scanResults.checks.courtDismissal = {};
+  }
+
+  violation.scanResults.checks.courtDismissal.details = {
+    courtOutcome: req.body.courtOutcome,
+    courtDate: req.body.courtDate || null,
+    courtNotes: req.body.courtNotes || null,
+    userReported: true
+  };
+
+  violation.history.push({
+    action: 'court_outcome_recorded',
+    userId: req.user._id,
+    notes: `Court outcome: ${req.body.courtOutcome}`
+  });
+
+  await violation.save();
+
+  // Re-scan violation with new court data
+  await violationScannerService.scanSingleViolation(violation._id);
+
+  // Re-fetch to get updated scan results
+  const updated = await Violation.findById(violation._id)
+    .populate('driverId', 'firstName lastName employeeId')
+    .populate('vehicleId', 'unitNumber vin');
+
+  auditService.log(req, 'update', 'violation', req.params.id, {
+    summary: 'Court outcome recorded',
+    courtOutcome: req.body.courtOutcome
+  });
+
+  res.json({
+    success: true,
+    message: 'Court outcome recorded',
+    violation: updated
   });
 }));
 

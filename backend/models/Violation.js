@@ -148,6 +148,97 @@ const violationSchema = new mongoose.Schema({
     }]
   },
 
+  // Health Check Scanner Results
+  scanResults: {
+    lastScannedAt: Date,
+    scanVersion: { type: Number, default: 1 },
+    category: {
+      type: String,
+      enum: ['easy_win', 'worth_challenging', 'unlikely', 'expiring_soon']
+    },
+    priorityScore: { type: Number, min: 0, max: 100 },
+    flagCount: { type: Number, default: 0 },
+    checks: {
+      wrongCarrier: {
+        flagged: { type: Boolean, default: false },
+        confidence: { type: String, enum: ['high', 'medium', 'low'] },
+        reason: String,
+        details: mongoose.Schema.Types.Mixed
+      },
+      duplicate: {
+        flagged: { type: Boolean, default: false },
+        confidence: { type: String, enum: ['high', 'medium', 'low'] },
+        reason: String,
+        details: mongoose.Schema.Types.Mixed
+      },
+      courtDismissal: {
+        flagged: { type: Boolean, default: false },
+        confidence: { type: String, enum: ['high', 'medium', 'low'] },
+        reason: String,
+        details: {
+          courtOutcome: { type: String, enum: ['dismissed', 'reduced', 'guilty', 'pending', 'not_applicable'] },
+          courtDate: Date,
+          courtNotes: String,
+          userReported: { type: Boolean, default: false }
+        }
+      },
+      nonReportableCrash: {
+        flagged: { type: Boolean, default: false },
+        confidence: { type: String, enum: ['high', 'medium', 'low'] },
+        reason: String,
+        details: mongoose.Schema.Types.Mixed
+      },
+      cpdpEligible: {
+        flagged: { type: Boolean, default: false },
+        confidence: { type: String, enum: ['high', 'medium', 'low'] },
+        reason: String,
+        details: mongoose.Schema.Types.Mixed
+      },
+      timeDecay: {
+        flagged: { type: Boolean, default: false },
+        reason: String,
+        details: {
+          ageInMonths: Number,
+          currentTimeWeight: Number,
+          monthsUntilWeightDrop: Number,
+          monthsUntilExpiry: Number,
+          urgency: { type: String, enum: ['urgent', 'expiring_soon', 'standard', 'low_priority'] }
+        }
+      }
+    },
+    removalImpact: {
+      basic: String,
+      pointsRemoved: Number,
+      currentPercentile: Number,
+      projectedPercentile: Number,
+      percentileChange: Number,
+      crossesThreshold: Boolean,
+      thresholdCrossed: String
+    },
+    triageBreakdown: {
+      violationTypeScore: Number,
+      evidenceScore: Number,
+      timeScore: Number,
+      stateScore: Number,
+      csaImpactScore: Number,
+      errorProneBonus: Number,
+      flagBonus: Number,
+      penaltyDeductions: Number
+    },
+    roiEstimate: {
+      pointsRemoved: Number,
+      percentileChange: Number,
+      estimatedAnnualSavings: Number,
+      crossesThreshold: Boolean,
+      thresholdCrossed: String
+    },
+    recommendation: {
+      action: { type: String, enum: ['strong', 'worth_trying', 'weak', 'not_recommended'] },
+      label: String,
+      reason: String
+    }
+  },
+
   // Financial Impact
   fineAmount: Number,
   finePaid: { type: Boolean, default: false },
@@ -287,5 +378,10 @@ violationSchema.index(
 
 // Index for fast lookup during sync by external ID
 violationSchema.index({ 'syncMetadata.externalId': 1 }, { sparse: true });
+
+// Health Check scanner indexes
+violationSchema.index({ companyId: 1, 'scanResults.category': 1 });
+violationSchema.index({ companyId: 1, 'scanResults.flagCount': -1 });
+violationSchema.index({ companyId: 1, 'scanResults.priorityScore': -1 });
 
 module.exports = mongoose.model('Violation', violationSchema);

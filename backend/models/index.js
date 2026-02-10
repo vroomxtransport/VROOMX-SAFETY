@@ -27,6 +27,7 @@ const Ticket = require('./Ticket');
 const Integration = require('./Integration');
 const SamsaraRecord = require('./SamsaraRecord');
 const WebhookEvent = require('./WebhookEvent');
+const StateProfile = require('./StateProfile');
 
 module.exports = {
   User,
@@ -57,5 +58,6 @@ module.exports = {
   Ticket,
   Integration,
   SamsaraRecord,
-  WebhookEvent
+  WebhookEvent,
+  StateProfile
 };

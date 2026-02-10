@@ -82,6 +82,20 @@ const EVIDENCE_RECOMMENDATIONS = {
  * @returns {Object} Score details with factors
  */
 function calculateChallengeScore(violation) {
+  // Delegate to triage score when scan v2 data is available
+  if (violation.scanResults?.scanVersion >= 2 && violation.scanResults?.priorityScore != null) {
+    return {
+      score: violation.scanResults.priorityScore,
+      factors: Object.entries(violation.scanResults.triageBreakdown || {})
+        .filter(([_, v]) => v > 0).map(([k, v]) => `${k}: +${v}`),
+      deductions: Object.entries(violation.scanResults.triageBreakdown || {})
+        .filter(([_, v]) => v < 0).map(([k, v]) => `${k}: ${v}`),
+      category: getChallengeCategory(violation.scanResults.priorityScore),
+      ageInMonths: violation.scanResults.checks?.timeDecay?.details?.ageInMonths,
+      estimatedCSAImpact: violation.scanResults.roiEstimate || calculateEstimatedCSAImpact(violation)
+    };
+  }
+
   let score = 50; // Base score
   const factors = [];
   const deductions = [];
@@ -317,9 +331,14 @@ async function identifyChallengeableViolations(companyId, options = {}) {
   });
 
   // Filter by minimum score and sort by score descending
+  // Prefer scanResults.priorityScore for pre-scanned violations
   const filteredViolations = analyzedViolations
     .filter(v => v.analysis.score >= minScore)
-    .sort((a, b) => b.analysis.score - a.analysis.score)
+    .sort((a, b) => {
+      const aScore = a.violation.scanResults?.priorityScore ?? a.analysis.score;
+      const bScore = b.violation.scanResults?.priorityScore ?? b.analysis.score;
+      return bScore - aScore;
+    })
     .slice(0, limit);
 
   // Calculate summary
