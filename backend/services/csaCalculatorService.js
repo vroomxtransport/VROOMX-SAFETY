@@ -464,7 +464,86 @@ const csaCalculatorService = {
       bestBasic: basicsList[basicsList.length - 1],
       basics: basicsList
     };
+  },
+
+  /**
+   * Project the impact of REMOVING a specific violation on BASIC scores.
+   * Used by the Health Check scanner to quantify removal value.
+   */
+  async projectRemovalImpact(companyId, violationId) {
+    const twoYearsAgo = new Date();
+    twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+
+    const violations = await Violation.find({
+      companyId,
+      violationDate: { $gte: twoYearsAgo },
+      isDeleted: { $ne: true }
+    }).lean();
+
+    const target = violations.find(v => v._id.toString() === violationId.toString());
+    if (!target) return null;
+
+    const basicType = target.basic;
+    const info = BASIC_INFO[basicType];
+    if (!info) return null;
+
+    // Current scores with all violations
+    const currentScore = this._calculateBasicScore(violations, basicType);
+
+    // Scores without the target violation
+    const withoutTarget = violations.filter(v => v._id.toString() !== violationId.toString());
+    const projectedScore = this._calculateBasicScore(withoutTarget, basicType);
+
+    const crossesThreshold = currentScore.estimatedPercentile >= info.threshold &&
+      projectedScore.estimatedPercentile < info.threshold;
+    const crossesCritical = currentScore.estimatedPercentile >= info.criticalThreshold &&
+      projectedScore.estimatedPercentile < info.criticalThreshold;
+
+    return {
+      basic: basicType,
+      pointsRemoved: currentScore.rawPoints - projectedScore.rawPoints,
+      currentPercentile: currentScore.estimatedPercentile,
+      projectedPercentile: projectedScore.estimatedPercentile,
+      percentileChange: currentScore.estimatedPercentile - projectedScore.estimatedPercentile,
+      crossesThreshold: crossesThreshold || crossesCritical,
+      thresholdCrossed: crossesCritical ? 'critical' : crossesThreshold ? 'alert' : null
+    };
+  },
+
+  /**
+   * Estimate removal impact in-memory using pre-fetched violation list.
+   * Used during batch scans to avoid N+1 queries.
+   */
+  estimateRemovalFromViolations(targetViolation, allViolations) {
+    const basicType = targetViolation.basic;
+    const info = BASIC_INFO[basicType];
+    if (!info) return null;
+
+    const currentScore = this._calculateBasicScore(allViolations, basicType);
+    const withoutTarget = allViolations.filter(v =>
+      (v._id || v.id)?.toString() !== (targetViolation._id || targetViolation.id)?.toString()
+    );
+    const projectedScore = this._calculateBasicScore(withoutTarget, basicType);
+
+    const crossesThreshold = currentScore.estimatedPercentile >= info.threshold &&
+      projectedScore.estimatedPercentile < info.threshold;
+    const crossesCritical = currentScore.estimatedPercentile >= info.criticalThreshold &&
+      projectedScore.estimatedPercentile < info.criticalThreshold;
+
+    return {
+      basic: basicType,
+      pointsRemoved: currentScore.rawPoints - projectedScore.rawPoints,
+      currentPercentile: currentScore.estimatedPercentile,
+      projectedPercentile: projectedScore.estimatedPercentile,
+      percentileChange: currentScore.estimatedPercentile - projectedScore.estimatedPercentile,
+      crossesThreshold: crossesThreshold || crossesCritical,
+      thresholdCrossed: crossesCritical ? 'critical' : crossesThreshold ? 'alert' : null
+    };
   }
 };
 
 module.exports = csaCalculatorService;
+module.exports.estimatePercentile = estimatePercentile;
+module.exports.BASIC_INFO = BASIC_INFO;
+module.exports.BASIC_KEYS = BASIC_KEYS;
+module.exports.TIME_WEIGHTS = TIME_WEIGHTS;

@@ -6,6 +6,7 @@
  */
 
 const { Violation } = require('../models');
+const rdrDecisionTreeService = require('./rdrDecisionTreeService');
 
 // Error codes commonly associated with data entry mistakes or procedural issues
 const ERROR_PRONE_VIOLATION_CODES = {
@@ -221,6 +222,9 @@ function analyzeViolationChallengeability(violation) {
   const evidenceChecklist = EVIDENCE_RECOMMENDATIONS[recommendedChallengeType] ||
     EVIDENCE_RECOMMENDATIONS.data_error;
 
+  // RDR type recommendation from scanner results
+  const rdrRecommendation = rdrDecisionTreeService.recommend(violation);
+
   return {
     violationId: violation._id,
     score: scoreDetails.score,
@@ -231,6 +235,9 @@ function analyzeViolationChallengeability(violation) {
     estimatedCSAImpact: scoreDetails.estimatedCSAImpact,
     recommendedChallengeType,
     challengeTypeDescription: CHALLENGE_TYPE_MAPPING[recommendedChallengeType]?.description,
+    recommendedRdrType: rdrRecommendation.primary,
+    alternativeRdrTypes: rdrRecommendation.alternatives,
+    rdrWarnings: rdrRecommendation.warnings,
     evidenceChecklist: evidenceChecklist.map(item => ({
       ...item,
       obtained: false
@@ -543,8 +550,14 @@ async function saveGeneratedLetter(violationId, letterData) {
   violation.dataQChallenge.generatedLetter = {
     content: letterData.content,
     generatedAt: new Date(),
-    challengeType: letterData.challengeType
+    challengeType: letterData.challengeType,
+    rdrType: letterData.rdrType || null
   };
+
+  // Also store rdrType at the challenge level when provided
+  if (letterData.rdrType) {
+    violation.dataQChallenge.rdrType = letterData.rdrType;
+  }
 
   await violation.save();
   return violation;

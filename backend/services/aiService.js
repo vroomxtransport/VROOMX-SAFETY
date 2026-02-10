@@ -391,7 +391,9 @@ Provide your analysis in JSON format as specified in your instructions.`;
  * @returns {Promise<Object>} Generated letter content
  */
 async function generateDataQLetter(letterData) {
-  const { violation, challengeType, reason, companyInfo, evidenceList } = letterData;
+  const { violation, challengeType, rdrType, reason, companyInfo, evidenceList } = letterData;
+
+  const { RDR_TYPES } = require('../config/rdrTypes');
 
   const challengeTypeDescriptions = {
     data_error: 'Data Error - The factual information in the inspection report is incorrect',
@@ -399,6 +401,22 @@ async function generateDataQLetter(letterData) {
     procedural_error: 'Procedural Error - The inspection was not conducted according to guidelines',
     not_responsible: 'Not Responsible - The carrier/driver should not be held responsible'
   };
+
+  // Build RDR-specific context when available
+  let rdrContext = '';
+  if (rdrType && RDR_TYPES[rdrType]) {
+    const rdr = RDR_TYPES[rdrType];
+    const reviewerLabels = {
+      state: 'State Review',
+      fmcsa_division: 'FMCSA Division Office',
+      fmcsa_hq: 'FMCSA Headquarters',
+      volpe: 'Volpe Center'
+    };
+    rdrContext = `
+- RDR Type: ${rdr.name}
+- Reviewed by: ${reviewerLabels[rdr.reviewer] || rdr.reviewer}
+- RDR Description: ${rdr.description}`;
+  }
 
   const message = `Generate a professional DataQ challenge letter with the following information:
 
@@ -414,7 +432,7 @@ VIOLATION BEING CHALLENGED:
 - Out of Service: ${violation.outOfService ? 'Yes' : 'No'}
 
 CHALLENGE DETAILS:
-- Challenge Type: ${challengeTypeDescriptions[challengeType] || challengeType}
+- Challenge Type: ${challengeTypeDescriptions[challengeType] || challengeType}${rdrContext}
 - Grounds for Challenge: ${reason}
 
 CARRIER INFORMATION:

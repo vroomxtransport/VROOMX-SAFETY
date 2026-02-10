@@ -143,6 +143,18 @@ const fmcsaSyncOrchestrator = {
       errors.push({ source: 'dataq_analysis', error: err.message, timestamp: new Date() });
     }
 
+    // 5b. Run Health Check scanner on violations
+    try {
+      console.log(`[FMCSA Orchestrator] Running violation scanner for company ${companyId}`);
+      const violationScannerService = require('./violationScannerService');
+      const scanResult = await violationScannerService.scanCompanyViolations(companyId);
+      timestamps.scannerLastRun = new Date();
+      console.log(`[FMCSA Orchestrator] Scanner complete: ${scanResult.scanned} violations scanned, ${scanResult.flagged} flagged`);
+    } catch (err) {
+      console.error(`[FMCSA Orchestrator] Violation scanner failed:`, err.message);
+      errors.push({ source: 'violation_scanner', error: err.message, timestamp: new Date() });
+    }
+
     // 6. Recalculate compliance score with fresh data
     try {
       console.log(`[FMCSA Orchestrator] Recalculating compliance score for company ${companyId}`);
@@ -168,7 +180,8 @@ const fmcsaSyncOrchestrator = {
           ...(timestamps.inspectionsLastSync && { 'fmcsaData.syncStatus.inspectionsLastSync': timestamps.inspectionsLastSync }),
           ...(timestamps.linkingLastRun && { 'fmcsaData.syncStatus.linkingLastRun': timestamps.linkingLastRun }),
           ...(timestamps.dataQAnalysisLastRun && { 'fmcsaData.syncStatus.dataQAnalysisLastRun': timestamps.dataQAnalysisLastRun }),
-          ...(timestamps.dataQAnalysisCount !== undefined && { 'fmcsaData.syncStatus.dataQAnalysisCount': timestamps.dataQAnalysisCount })
+          ...(timestamps.dataQAnalysisCount !== undefined && { 'fmcsaData.syncStatus.dataQAnalysisCount': timestamps.dataQAnalysisCount }),
+          ...(timestamps.scannerLastRun && { 'fmcsaData.syncStatus.scannerLastRun': timestamps.scannerLastRun })
         }
       }
     );
@@ -257,6 +270,18 @@ const fmcsaSyncOrchestrator = {
       errors.push({ source: 'dataq_analysis', error: err.message, timestamp: new Date() });
     }
 
+    // 5b. Run Health Check scanner on violations
+    try {
+      console.log(`[FMCSA Orchestrator] [Fast] Running violation scanner for company ${companyId}`);
+      const violationScannerService = require('./violationScannerService');
+      const scanResult = await violationScannerService.scanCompanyViolations(companyId);
+      timestamps.scannerLastRun = new Date();
+      console.log(`[FMCSA Orchestrator] [Fast] Scanner complete: ${scanResult.scanned} violations scanned, ${scanResult.flagged} flagged`);
+    } catch (err) {
+      console.error(`[FMCSA Orchestrator] [Fast] Violation scanner failed:`, err.message);
+      errors.push({ source: 'violation_scanner', error: err.message, timestamp: new Date() });
+    }
+
     // 6. Recalculate compliance score with fresh data
     try {
       console.log(`[FMCSA Orchestrator] [Fast] Recalculating compliance score for company ${companyId}`);
@@ -281,7 +306,8 @@ const fmcsaSyncOrchestrator = {
           ...(timestamps.inspectionsLastSync && { 'fmcsaData.syncStatus.inspectionsLastSync': timestamps.inspectionsLastSync }),
           ...(timestamps.linkingLastRun && { 'fmcsaData.syncStatus.linkingLastRun': timestamps.linkingLastRun }),
           ...(timestamps.dataQAnalysisLastRun && { 'fmcsaData.syncStatus.dataQAnalysisLastRun': timestamps.dataQAnalysisLastRun }),
-          ...(timestamps.dataQAnalysisCount !== undefined && { 'fmcsaData.syncStatus.dataQAnalysisCount': timestamps.dataQAnalysisCount })
+          ...(timestamps.dataQAnalysisCount !== undefined && { 'fmcsaData.syncStatus.dataQAnalysisCount': timestamps.dataQAnalysisCount }),
+          ...(timestamps.scannerLastRun && { 'fmcsaData.syncStatus.scannerLastRun': timestamps.scannerLastRun })
         }
       }
     );

@@ -103,6 +103,7 @@ const violationSchema = new mongoose.Schema({
       type: String,
       enum: ['data_error', 'policy_violation', 'procedural_error', 'not_responsible']
     },
+    rdrType: String,
     reason: String,
     supportingDocuments: [{
       name: String,
@@ -136,7 +137,8 @@ const violationSchema = new mongoose.Schema({
       challengeType: {
         type: String,
         enum: ['data_error', 'policy_violation', 'procedural_error', 'not_responsible']
-      }
+      },
+      rdrType: String
     },
     // Evidence checklist for the challenge
     evidenceChecklist: [{
@@ -145,7 +147,48 @@ const violationSchema = new mongoose.Schema({
       obtained: { type: Boolean, default: false },
       documentUrl: String,
       notes: String
-    }]
+    }],
+    // CPDP-specific fields (Phase 5)
+    cpdp: {
+      crashTypeId: Number,
+      crashTypeName: String,
+      parUploaded: { type: Boolean, default: false },
+      parDocumentUrl: String
+    },
+    // Multi-round tracking (Phase 10)
+    rounds: [{
+      roundNumber: Number,
+      type: { type: String, enum: ['initial', 'reconsideration', 'fmcsa_escalation'] },
+      submissionDate: Date,
+      status: String,
+      responseDate: Date,
+      outcome: { type: String, enum: ['approved', 'denied', 'not_eligible'] },
+      responseNotes: String,
+      letterContent: String
+    }],
+    pendingResponseDeadline: Date,
+    notificationHistory: [{
+      sentAt: Date,
+      channel: { type: String, enum: ['push', 'sms', 'email'] },
+      type: String
+    }],
+    denialWorkflow: {
+      selectedOption: { type: String, enum: ['A', 'B', 'C', 'D', 'E'] },
+      actionTaken: { type: Boolean, default: false },
+      actionDate: Date
+    },
+    // Evidence strength score (Phase 4)
+    evidenceStrength: {
+      score: { type: Number, min: 0, max: 10 },
+      label: String,
+      lastCalculated: Date
+    },
+    // Letter quality check (Phase 9)
+    letterQualityCheck: {
+      passed: Boolean,
+      issues: [String],
+      checkedAt: Date
+    }
   },
 
   // Health Check Scanner Results

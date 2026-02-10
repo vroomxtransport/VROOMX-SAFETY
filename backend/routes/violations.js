@@ -12,6 +12,7 @@ const driverCSAService = require('../services/driverCSAService');
 const dataQAnalysisService = require('../services/dataQAnalysisService');
 const csaAlertService = require('../services/csaAlertService');
 const violationScannerService = require('../services/violationScannerService');
+const { toLegacyChallengeType } = require('../config/rdrTypes');
 
 router.use(protect);
 router.use(restrictToCompany);
@@ -192,7 +193,8 @@ router.get('/dataq-dashboard', checkPermission('violations', 'view'), asyncHandl
 // NOTE: This specific route pattern works because Express matches more specific routes first
 router.put('/:id/dataq/letter', checkPermission('violations', 'edit'), [
   body('content').trim().notEmpty().withMessage('Letter content is required'),
-  body('challengeType').isIn(['data_error', 'policy_violation', 'procedural_error', 'not_responsible'])
+  body('challengeType').isIn(['data_error', 'policy_violation', 'procedural_error', 'not_responsible']),
+  body('rdrType').optional().trim()
 ], asyncHandler(async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -211,19 +213,21 @@ router.put('/:id/dataq/letter', checkPermission('violations', 'edit'), [
   // Save the letter
   const updatedViolation = await dataQAnalysisService.saveGeneratedLetter(req.params.id, {
     content: req.body.content,
-    challengeType: req.body.challengeType
+    challengeType: req.body.challengeType,
+    rdrType: req.body.rdrType
   });
 
   violation.history.push({
     action: 'dataq_letter_saved',
     userId: req.user._id,
-    notes: `DataQ letter saved (${req.body.challengeType})`
+    notes: `DataQ letter saved (${req.body.rdrType || req.body.challengeType})`
   });
   await violation.save();
 
   auditService.log(req, 'update', 'violation', req.params.id, {
     summary: 'DataQ letter saved',
-    challengeType: req.body.challengeType
+    challengeType: req.body.challengeType,
+    rdrType: req.body.rdrType
   });
 
   res.json({
@@ -260,7 +264,7 @@ router.put('/:id/dataq/evidence', checkPermission('violations', 'edit'), asyncHa
   }
 
   violation.dataQChallenge.evidenceChecklist = evidenceChecklist.map(item => ({
-    item: item.item,
+    item: item.item || item.title,
     required: item.required || false,
     obtained: item.obtained || false,
     documentUrl: item.documentUrl,
@@ -369,7 +373,17 @@ router.post('/bulk-link', checkPermission('violations', 'edit'), [
 // @access  Private
 router.get('/state-profiles', checkPermission('violations', 'view'), asyncHandler(async (req, res) => {
   const stateProfileService = require('../services/stateProfileService');
-  const profiles = await stateProfileService.getAllProfiles();
+  const rawProfiles = await stateProfileService.getAllProfiles();
+  // Normalize for frontend: convert decimal rates to percentages and flatten field names
+  const profiles = rawProfiles.map(p => ({
+    stateCode: p.stateCode,
+    name: p.stateName || p.stateCode,
+    approvalRate: Math.round((p.approvalRates?.overall ?? 0.40) * 100),
+    avgResponseDays: p.averageProcessingDays || 0,
+    totalChallenges: p.challengeCount || 0,
+    acceptedChallenges: p.acceptedCount || 0,
+    difficulty: p.difficulty
+  }));
   res.json({ success: true, profiles });
 }));
 
@@ -401,6 +415,116 @@ router.get('/health-check/violations', checkPermission('violations', 'view'), as
 router.post('/health-check/scan', checkPermission('violations', 'edit'), asyncHandler(async (req, res) => {
   const result = await violationScannerService.scanCompanyViolations(req.companyFilter.companyId, { force: true });
   res.json({ success: true, ...result });
+}));
+
+// ==================== Phase 4: Evidence Collection Routes ====================
+
+// @route   GET /api/violations/dataq/evidence-workflow/:id
+// @desc    Get evidence workflow steps for a violation
+// @access  Private
+router.get('/dataq/evidence-workflow/:id', checkPermission('violations', 'view'), asyncHandler(async (req, res) => {
+  const evidenceCollectionService = require('../services/evidenceCollectionService');
+  const { rdrType } = req.query;
+
+  const violation = await Violation.findOne({
+    _id: req.params.id,
+    ...req.companyFilter
+  });
+  if (!violation) {
+    throw new AppError('Violation not found', 404);
+  }
+
+  const workflow = evidenceCollectionService.getEvidenceWorkflow(rdrType, violation);
+  res.json({ success: true, ...workflow });
+}));
+
+// @route   GET /api/violations/dataq/evidence-auto/:id
+// @desc    Get auto-available evidence from VroomX modules
+// @access  Private
+router.get('/dataq/evidence-auto/:id', checkPermission('violations', 'view'), asyncHandler(async (req, res) => {
+  const evidenceCollectionService = require('../services/evidenceCollectionService');
+  const evidence = await evidenceCollectionService.getAutoAvailableEvidence(req.params.id, req.companyFilter.companyId);
+  res.json({ success: true, evidence });
+}));
+
+// @route   POST /api/violations/dataq/evidence-strength/:id
+// @desc    Calculate evidence strength from checklist
+// @access  Private
+router.post('/dataq/evidence-strength/:id', checkPermission('violations', 'view'), asyncHandler(async (req, res) => {
+  const evidenceCollectionService = require('../services/evidenceCollectionService');
+  const { checklist } = req.body;
+  // Normalize: frontend sends { title, obtained, required } but service expects { item, obtained, required }
+  const normalized = (checklist || []).map(c => ({
+    item: c.item || c.title,
+    obtained: c.obtained || false,
+    required: c.required || false
+  }));
+  const strength = evidenceCollectionService.calculateEvidenceStrength(normalized);
+  res.json({ success: true, strength });
+}));
+
+// ==================== Phase 8: Score Impact Routes ====================
+
+// @route   GET /api/violations/dataq/impact-ranking
+// @desc    Get violations ranked by removal impact
+// @access  Private
+router.get('/dataq/impact-ranking', checkPermission('violations', 'view'), asyncHandler(async (req, res) => {
+  const scoreImpactService = require('../services/scoreImpactService');
+  const { limit = 20, basic, minImpact = 0 } = req.query;
+  const ranking = await scoreImpactService.getImpactRanking(req.companyFilter.companyId, {
+    limit: parseInt(limit),
+    basic: basic || undefined,
+    minImpact: parseFloat(minImpact)
+  });
+  res.json({ success: true, violations: ranking });
+}));
+
+// @route   GET /api/violations/dataq/impact/:id
+// @desc    Get detailed score impact for a single violation
+// @access  Private
+router.get('/dataq/impact/:id', checkPermission('violations', 'view'), asyncHandler(async (req, res) => {
+  const scoreImpactService = require('../services/scoreImpactService');
+  const impact = await scoreImpactService.getViolationImpact(req.params.id, req.companyFilter.companyId);
+  if (!impact) {
+    throw new AppError('Impact data not available', 404);
+  }
+  res.json({ success: true, impact });
+}));
+
+// @route   GET /api/violations/dataq/time-decay/:id
+// @desc    Get time decay projection for a violation
+// @access  Private
+router.get('/dataq/time-decay/:id', checkPermission('violations', 'view'), asyncHandler(async (req, res) => {
+  const scoreImpactService = require('../services/scoreImpactService');
+  const violation = await Violation.findOne({
+    _id: req.params.id,
+    ...req.companyFilter
+  }).lean();
+  if (!violation) {
+    throw new AppError('Violation not found', 404);
+  }
+  const projection = scoreImpactService.getTimeDecayProjection(violation);
+  res.json({ success: true, projection });
+}));
+
+// ==================== Phase 10: Persistence & Follow-Up Routes ====================
+
+// @route   GET /api/violations/dataq/active
+// @desc    Get all active DataQ challenges
+// @access  Private
+router.get('/dataq/active', checkPermission('violations', 'view'), asyncHandler(async (req, res) => {
+  const persistenceEngineService = require('../services/persistenceEngineService');
+  const challenges = await persistenceEngineService.getActiveChallenges(req.companyFilter.companyId);
+  res.json({ success: true, challenges });
+}));
+
+// @route   GET /api/violations/dataq/batch-dashboard
+// @desc    Get batch dashboard stats for challenge portfolio
+// @access  Private
+router.get('/dataq/batch-dashboard', checkPermission('violations', 'view'), asyncHandler(async (req, res) => {
+  const persistenceEngineService = require('../services/persistenceEngineService');
+  const dashboard = await persistenceEngineService.getBatchDashboard(req.companyFilter.companyId);
+  res.json({ success: true, dashboard });
 }));
 
 // @route   GET /api/violations/:id
@@ -533,7 +657,7 @@ router.post('/:id/dataq', checkPermission('violations', 'edit'),
       throw new AppError('Violation not found', 404);
     }
 
-    const { challengeType, reason } = req.body;
+    const { challengeType, rdrType, reason } = req.body;
 
     // Prepare supporting documents
     const supportingDocuments = req.files?.map(file => ({
@@ -542,10 +666,16 @@ router.post('/:id/dataq', checkPermission('violations', 'edit'),
       documentUrl: getFileUrl(file.path)
     })) || [];
 
+    // When rdrType is provided, auto-derive challengeType for backward compat
+    const effectiveChallengeType = rdrType
+      ? toLegacyChallengeType(rdrType)
+      : challengeType;
+
     violation.dataQChallenge = {
       submitted: true,
       submissionDate: new Date(),
-      challengeType,
+      challengeType: effectiveChallengeType,
+      rdrType: rdrType || null,
       reason,
       supportingDocuments,
       status: 'pending'
@@ -653,6 +783,68 @@ router.put('/:id/dataq/status', checkPermission('violations', 'edit'), [
     success: true,
     violation
   });
+}));
+
+// @route   GET /api/violations/:id/dataq/countdown
+// @desc    Get countdown status for pending response deadline
+// @access  Private
+router.get('/:id/dataq/countdown', checkPermission('violations', 'view'), asyncHandler(async (req, res) => {
+  const persistenceEngineService = require('../services/persistenceEngineService');
+  const violation = await Violation.findOne({
+    _id: req.params.id,
+    ...req.companyFilter
+  }).lean();
+  if (!violation) {
+    throw new AppError('Violation not found', 404);
+  }
+  const countdown = persistenceEngineService.getCountdownStatus(violation);
+  res.json({ success: true, ...countdown });
+}));
+
+// @route   GET /api/violations/:id/dataq/denial-options
+// @desc    Get denial response options for a denied challenge
+// @access  Private
+router.get('/:id/dataq/denial-options', checkPermission('violations', 'view'), asyncHandler(async (req, res) => {
+  const persistenceEngineService = require('../services/persistenceEngineService');
+  const violation = await Violation.findOne({
+    _id: req.params.id,
+    ...req.companyFilter
+  }).lean();
+  if (!violation) {
+    throw new AppError('Violation not found', 404);
+  }
+  const options = persistenceEngineService.getDenialOptions(violation);
+  res.json({ success: true, options });
+}));
+
+// @route   POST /api/violations/:id/dataq/denial-action
+// @desc    Record denial response action
+// @access  Private
+router.post('/:id/dataq/denial-action', checkPermission('violations', 'edit'), asyncHandler(async (req, res) => {
+  const persistenceEngineService = require('../services/persistenceEngineService');
+  let { option } = req.body;
+  // Normalize: frontend may send a string id or a full option object
+  if (typeof option === 'string') {
+    option = { id: option, label: option };
+  }
+  if (!option || !option.id) {
+    throw new AppError('Option is required', 400);
+  }
+  const violation = await persistenceEngineService.recordDenialAction(req.params.id, option, req.user._id);
+  res.json({ success: true, violation });
+}));
+
+// @route   POST /api/violations/:id/dataq/new-round
+// @desc    Initiate new challenge round
+// @access  Private
+router.post('/:id/dataq/new-round', checkPermission('violations', 'edit'), asyncHandler(async (req, res) => {
+  const persistenceEngineService = require('../services/persistenceEngineService');
+  const { roundType } = req.body;
+  if (!roundType || !['reconsideration', 'fmcsa_escalation'].includes(roundType)) {
+    throw new AppError('Valid roundType is required (reconsideration or fmcsa_escalation)', 400);
+  }
+  const violation = await persistenceEngineService.initiateNewRound(req.params.id, roundType, req.user._id);
+  res.json({ success: true, violation });
 }));
 
 // @route   PUT /api/violations/:id/court-outcome

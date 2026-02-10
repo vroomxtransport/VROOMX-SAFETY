@@ -228,7 +228,29 @@ export const violationsAPI = {
   analyzeViolation: (id) => api.post(`/ai/analyze-violation/${id}`, {}, { timeout: 60000 }),
   generateLetter: (id, data) => api.post(`/ai/generate-dataq-letter/${id}`, data, { timeout: 60000 }),
   saveDataQLetter: (id, data) => api.put(`/violations/${id}/dataq/letter`, data),
-  updateEvidenceChecklist: (id, evidenceChecklist) => api.put(`/violations/${id}/dataq/evidence`, { evidenceChecklist })
+  updateEvidenceChecklist: (id, evidenceChecklist) => api.put(`/violations/${id}/dataq/evidence`, { evidenceChecklist }),
+  // Health Check scanner methods
+  getHealthCheck: () => api.get('/violations/health-check'),
+  getHealthCheckViolations: (params) => api.get('/violations/health-check/violations', { params }),
+  triggerScan: () => api.post('/violations/health-check/scan'),
+  updateCourtOutcome: (id, data) => api.put(`/violations/${id}/court-outcome`, data),
+  // Phase 4 - Evidence Collection
+  getEvidenceWorkflow: (id, rdrType) => api.get(`/violations/dataq/evidence-workflow/${id}`, { params: { rdrType } }),
+  getEvidenceAutoAvailable: (id) => api.get(`/violations/dataq/evidence-auto/${id}`),
+  calculateEvidenceStrength: (id, checklist) => api.post(`/violations/dataq/evidence-strength/${id}`, { checklist }),
+  // Phase 8 - Score Impact
+  getViolationImpact: (id) => api.get(`/violations/dataq/impact/${id}`),
+  getImpactRanking: (params) => api.get('/violations/dataq/impact-ranking', { params }),
+  getTimeDecay: (id) => api.get(`/violations/dataq/time-decay/${id}`),
+  // Phase 10 - Persistence Engine
+  getActiveChallenges: () => api.get('/violations/dataq/active'),
+  getBatchDashboard: () => api.get('/violations/dataq/batch-dashboard'),
+  getCountdownStatus: (id) => api.get(`/violations/${id}/dataq/countdown`),
+  getDenialOptions: (id) => api.get(`/violations/${id}/dataq/denial-options`),
+  recordDenialAction: (id, data) => api.post(`/violations/${id}/dataq/denial-action`, data),
+  initiateNewRound: (id, data) => api.post(`/violations/${id}/dataq/new-round`, data),
+  // State profiles for DataQ intelligence
+  getStateProfiles: () => api.get('/violations/state-profiles'),
 };
 
 export const drugAlcoholAPI = {
@@ -772,4 +794,28 @@ export const reportHistoryAPI = {
     responseType: 'blob',
     timeout: 300000 // 5 minutes for large files
   })
+};
+
+// DataQ Analytics API - Challenge outcome analytics (Phase 12)
+export const dataqAnalyticsAPI = {
+  getCarrierAnalytics: () => api.get('/dataq-analytics/carrier'),
+  getTrends: (months = 12) => api.get('/dataq-analytics/trends', { params: { months } }),
+  getMonthlyReport: (month, year) => api.get('/dataq-analytics/monthly-report', { params: { month, year } }),
+  getTriageAccuracy: () => api.get('/dataq-analytics/triage-accuracy'),
+};
+
+// Clean Inspections API - Clean inspection tracking (Phase 11)
+export const cleanInspectionsAPI = {
+  getRatio: (params) => api.get('/clean-inspections/ratio', { params }),
+  getMissing: () => api.get('/clean-inspections/missing'),
+  getStrategy: () => api.get('/clean-inspections/strategy'),
+  getTarget: (basic, targetPercentile) => api.get(`/clean-inspections/target/${basic}`, { params: { targetPercentile } }),
+  reportKnown: (data) => api.post('/clean-inspections/known', data),
+};
+
+// Violation Codes API - FMCSA violation code reference (Phase 6)
+export const violationCodesAPI = {
+  getByCode: (code) => api.get(`/violation-codes/${code}`),
+  search: (q) => api.get('/violation-codes/search', { params: { q } }),
+  seed: () => api.post('/violation-codes/seed'),
 };

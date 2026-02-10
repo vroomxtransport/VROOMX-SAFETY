@@ -429,7 +429,7 @@ router.post('/analyze-violation/:id', protect, checkAIQueryQuota, restrictToComp
 router.post('/generate-dataq-letter/:id', protect, checkAIQueryQuota, restrictToCompany, checkPermission('violations', 'edit'), async (req, res) => {
   try {
     const { id } = req.params;
-    const { challengeType, reason, evidenceList } = req.body;
+    const { challengeType, rdrType, reason, evidenceList } = req.body;
 
     if (!challengeType || !reason) {
       return res.status(400).json({
@@ -468,6 +468,7 @@ router.post('/generate-dataq-letter/:id', protect, checkAIQueryQuota, restrictTo
     const letterResult = await aiService.generateDataQLetter({
       violation: violation.toObject(),
       challengeType,
+      rdrType,
       reason,
       companyInfo: company ? {
         name: company.name,
@@ -485,7 +486,8 @@ router.post('/generate-dataq-letter/:id', protect, checkAIQueryQuota, restrictTo
     // Save the generated letter to the violation
     await dataQAnalysisService.saveGeneratedLetter(id, {
       content: letterResult.letter,
-      challengeType
+      challengeType,
+      rdrType
     });
 
     res.json({

@@ -28,6 +28,10 @@ const Integration = require('./Integration');
 const SamsaraRecord = require('./SamsaraRecord');
 const WebhookEvent = require('./WebhookEvent');
 const StateProfile = require('./StateProfile');
+const ViolationCode = require('./ViolationCode');
+const KnownInspection = require('./KnownInspection');
+const DataQAnalytics = require('./DataQAnalytics');
+const DataQMonthlyReport = require('./DataQMonthlyReport');
 
 module.exports = {
   User,
@@ -59,5 +63,9 @@ module.exports = {
   Integration,
   SamsaraRecord,
   WebhookEvent,
-  StateProfile
+  StateProfile,
+  ViolationCode,
+  KnownInspection,
+  DataQAnalytics,
+  DataQMonthlyReport
 };

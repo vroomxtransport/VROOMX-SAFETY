@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { Link } from 'react-router-dom';
 import { violationsAPI, inspectionsAPI } from '../utils/api';
 import { formatDate, basicCategories } from '../utils/helpers';
@@ -6,13 +6,19 @@ import toast from 'react-hot-toast';
 import {
   FiFileText, FiCheckCircle, FiXCircle, FiClock, FiTrendingUp,
   FiAlertTriangle, FiTarget, FiRefreshCw, FiFilter, FiZap,
-  FiArrowRight, FiAward, FiBarChart2, FiExternalLink
+  FiArrowRight, FiAward, FiBarChart2, FiExternalLink, FiShield
 } from 'react-icons/fi';
 import LoadingSpinner from '../components/LoadingSpinner';
 import DataQOpportunities from '../components/DataQOpportunities';
 import DataQLetterModal from '../components/DataQLetterModal';
+import HealthCheckTab from '../components/HealthCheckTab';
+
+const ActiveChallengesPanel = lazy(() => import('../components/ActiveChallengesPanel'));
+const CleanInspectionPanel = lazy(() => import('../components/CleanInspectionPanel'));
+const DataQAnalyticsPanel = lazy(() => import('../components/DataQAnalyticsPanel'));
 
 const DataQDashboard = () => {
+  const [activeTab, setActiveTab] = useState('health-check');
   const [stats, setStats] = useState(null);
   const [opportunities, setOpportunities] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,6 +30,18 @@ const DataQDashboard = () => {
   const [selectedBasic, setSelectedBasic] = useState('');
   const [autoSyncing, setAutoSyncing] = useState(false);
   const autoSyncAttempted = useRef(false);
+  const [missingCount, setMissingCount] = useState(0);
+
+  useEffect(() => {
+    const fetchMissingCount = async () => {
+      try {
+        const { cleanInspectionsAPI } = await import('../utils/api');
+        const res = await cleanInspectionsAPI.getMissing();
+        setMissingCount(res.data?.count || 0);
+      } catch {}
+    };
+    fetchMissingCount();
+  }, []);
 
   useEffect(() => {
     fetchData();
@@ -161,6 +179,41 @@ const DataQDashboard = () => {
         </div>
       </div>
 
+      {/* Tab Navigation */}
+      <div className="flex gap-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg p-1 overflow-x-auto">
+        {[
+          { id: 'health-check', label: 'Health Check', icon: FiShield },
+          { id: 'challenge-manager', label: 'Challenge Manager', icon: FiFileText },
+          { id: 'active-challenges', label: 'Active Challenges', icon: FiClock, badge: openChallenges > 0 ? openChallenges : null },
+          { id: 'clean-inspections', label: 'Clean Inspections', icon: FiTarget, badge: missingCount > 0 ? missingCount : null },
+          { id: 'analytics', label: 'Analytics', icon: FiBarChart2 },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all whitespace-nowrap ${
+              activeTab === tab.id
+                ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm'
+                : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+            }`}
+          >
+            <tab.icon className="w-4 h-4" />
+            {tab.label}
+            {tab.badge != null && (
+              <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold rounded-full bg-accent-600 text-white">
+                {tab.badge}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === 'health-check' && (
+        <HealthCheckTab onOpenLetterModal={handleAnalyze} />
+      )}
+
+      {activeTab === 'challenge-manager' && (
+      <>
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {/* Success Rate */}
@@ -346,6 +399,26 @@ const DataQDashboard = () => {
           </div>
         </div>
       </div>
+      </>
+      )}
+
+      {activeTab === 'active-challenges' && (
+        <Suspense fallback={<div className="flex justify-center py-16"><LoadingSpinner size="lg" /></div>}>
+          <ActiveChallengesPanel />
+        </Suspense>
+      )}
+
+      {activeTab === 'clean-inspections' && (
+        <Suspense fallback={<div className="flex justify-center py-16"><LoadingSpinner size="lg" /></div>}>
+          <CleanInspectionPanel />
+        </Suspense>
+      )}
+
+      {activeTab === 'analytics' && (
+        <Suspense fallback={<div className="flex justify-center py-16"><LoadingSpinner size="lg" /></div>}>
+          <DataQAnalyticsPanel />
+        </Suspense>
+      )}
 
       {/* DataQ Letter Modal */}
       {showLetterModal && selectedViolation && (

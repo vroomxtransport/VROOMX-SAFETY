@@ -4,6 +4,9 @@ import {
   FiUser, FiTarget, FiTrendingDown, FiFileText, FiEdit3, FiXCircle,
   FiDollarSign
 } from 'react-icons/fi';
+import ScoreImpactCard from './ScoreImpactCard';
+import RegulationPanel from './RegulationPanel';
+import StateIntelligencePanel from './StateIntelligencePanel';
 
 const categoryColors = {
   easy_win: { bar: 'bg-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-500/10', text: 'text-emerald-700 dark:text-emerald-400', badge: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400' },
@@ -340,6 +343,19 @@ const HealthCheckViolationCard = ({ violation, onChallenge, onRecordCourtOutcome
               <div className={`text-sm p-2 rounded ${recommendationColors[recommendation.action] || 'bg-zinc-50 dark:bg-zinc-800'}`}>
                 {recommendation.reason}
               </div>
+            )}
+
+            {/* Regulation Reference Panel */}
+            {violation.violationCode && (
+              <RegulationPanel violationCode={violation.violationCode} />
+            )}
+
+            {/* State Intelligence Panel */}
+            {violation.inspectionState && (
+              <StateIntelligencePanel
+                stateCode={violation.inspectionState}
+                challengeType={violation.dataQChallenge?.challengeType}
+              />
             )}
 
             {/* Action Buttons */}

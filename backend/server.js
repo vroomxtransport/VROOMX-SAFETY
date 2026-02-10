@@ -286,6 +286,7 @@ const server = app.listen(PORT, () => {
   let isReportProcessingRunning = false;
   let isSamsaraSyncRunning = false;
   let isFmcsaSyncRunning = false;
+  let isHealthCheckScanRunning = false;
 
   // Schedule daily alert generation at 6:00 AM
   cron.schedule('0 6 * * *', async () => {
@@ -436,7 +437,41 @@ const server = app.listen(PORT, () => {
     }
   });
 
-  logger.info('[Cron] Scheduled: Daily alerts at 6 AM, Alert digest emails, Escalation check every 6 hours, Trial ending check at 9 AM, Scheduled reports every hour, Samsara sync every hour, FMCSA data sync every 6 hours');
+  // Health Check violation scanner at 7 AM daily
+  cron.schedule('0 7 * * *', async () => {
+    if (isHealthCheckScanRunning) { logger.cron('Health Check scan already running, skipping'); return; }
+    isHealthCheckScanRunning = true;
+    try {
+      logger.cron('Running daily Health Check violation scan...');
+      const violationScannerService = require('./services/violationScannerService');
+      const Company = require('./models/Company');
+
+      const companies = await Company.find({
+        dotNumber: { $exists: true, $ne: null, $ne: '' }
+      }).select('_id name');
+
+      let totalScanned = 0;
+      let totalFlagged = 0;
+
+      for (const company of companies) {
+        try {
+          const result = await violationScannerService.scanCompanyViolations(company._id);
+          totalScanned += result.scanned;
+          totalFlagged += result.flagged;
+        } catch (err) {
+          logger.error(`[Cron] Health Check scan failed for ${company.name}`, { error: err.message });
+        }
+      }
+
+      logger.cron(`Health Check scan complete: ${totalScanned} violations scanned, ${totalFlagged} flagged across ${companies.length} companies`);
+    } catch (error) {
+      logger.error('[Cron] Health Check scan job failed', { error: error.message });
+    } finally {
+      isHealthCheckScanRunning = false;
+    }
+  });
+
+  logger.info('[Cron] Scheduled: Daily alerts at 6 AM, Alert digest emails, Escalation check every 6 hours, Trial ending check at 9 AM, Scheduled reports every hour, Samsara sync every hour, FMCSA data sync every 6 hours, Health Check scan at 7 AM');
 });
 
 // Graceful shutdown handler
