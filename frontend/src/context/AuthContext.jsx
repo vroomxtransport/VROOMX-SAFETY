@@ -3,6 +3,7 @@ import posthog from 'posthog-js';
 import api, { companiesAPI, setAuthToken, clearAuthToken, setRefreshToken, getRefreshToken } from '../utils/api';
 
 const AuthContext = createContext(null);
+const normalizeCompanies = (value) => (Array.isArray(value) ? value : []);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -35,7 +36,7 @@ export const AuthProvider = ({ children }) => {
       const response = await api.get('/auth/me');
       const userData = response.data.user;
       setUser(userData);
-      setCompanies(userData.companies || []);
+      setCompanies(normalizeCompanies(userData.companies));
       setActiveCompany(userData.activeCompany || userData.company);
       setSubscription(buildSubscription(userData.subscription, userData.limits, userData.usage));
     } catch (error) {
@@ -52,7 +53,7 @@ export const AuthProvider = ({ children }) => {
           const retryRes = await api.get('/auth/me');
           const userData = retryRes.data.user;
           setUser(userData);
-          setCompanies(userData.companies || []);
+          setCompanies(normalizeCompanies(userData.companies));
           setActiveCompany(userData.activeCompany || userData.company);
           setSubscription(buildSubscription(userData.subscription, userData.limits, userData.usage));
           return; // Success — don't clear state
@@ -84,7 +85,7 @@ export const AuthProvider = ({ children }) => {
     if (refreshToken) setRefreshToken(refreshToken);
 
     setUser(userData);
-    setCompanies(userData.companies || []);
+    setCompanies(normalizeCompanies(userData.companies));
     setActiveCompany(userData.activeCompany || userData.company);
     setSubscription(buildSubscription(userData.subscription, userData.limits));
 
@@ -107,7 +108,7 @@ export const AuthProvider = ({ children }) => {
     if (refreshToken) setRefreshToken(refreshToken);
 
     setUser({ ...userData, isDemo: true });
-    setCompanies(userData.companies || []);
+    setCompanies(normalizeCompanies(userData.companies));
     setActiveCompany(userData.activeCompany || userData.company);
     setSubscription(buildSubscription(
       { ...userData.subscription, plan: userData.subscription?.plan || 'fleet', status: userData.subscription?.status || 'active', trialDaysRemaining: userData.subscription?.trialDaysRemaining || 30 },
@@ -134,7 +135,7 @@ export const AuthProvider = ({ children }) => {
     if (refreshToken) setRefreshToken(refreshToken);
 
     setUser(userData);
-    setCompanies(userData.companies || []);
+    setCompanies(normalizeCompanies(userData.companies));
     setActiveCompany(userData.activeCompany || userData.company);
     setSubscription(buildSubscription(userData.subscription, userData.limits));
 
@@ -203,7 +204,7 @@ export const AuthProvider = ({ children }) => {
   // Check if user can create a new company based on subscription
   const canCreateCompany = useCallback(() => {
     if (!subscription?.limits) return false;
-    const ownedCompanies = companies.filter(c => c.role === 'owner').length;
+    const ownedCompanies = normalizeCompanies(companies).filter(c => c.role === 'owner').length;
     const maxCompanies = subscription.limits.maxCompanies;
     return maxCompanies === Infinity || ownedCompanies < maxCompanies;
   }, [companies, subscription]);

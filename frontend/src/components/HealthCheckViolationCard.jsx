@@ -53,20 +53,53 @@ const breakdownLabels = {
 const flagIcons = {
   wrongCarrier: FiXCircle,
   duplicateViolation: FiAlertTriangle,
+  duplicate: FiAlertTriangle,
   highSeverityWeight: FiTarget,
   courtDismissable: FiCheckCircle,
+  courtDismissal: FiCheckCircle,
   expiringFromCSA: FiClock,
   proceduralError: FiFileText,
-  staleViolation: FiClock
+  staleViolation: FiClock,
+  timeDecay: FiClock,
+  nonReportableCrash: FiAlertTriangle,
+  cpdpEligible: FiCheckCircle
+};
+
+const normalizeCheckEntries = (rawChecks) => {
+  if (Array.isArray(rawChecks)) {
+    return rawChecks.filter((check) => check && typeof check === 'object');
+  }
+
+  if (rawChecks && typeof rawChecks === 'object') {
+    return Object.entries(rawChecks)
+      .filter(([, value]) => value && typeof value === 'object')
+      .map(([check, value]) => ({ check, ...value }));
+  }
+
+  return [];
+};
+
+const normalizeFlagEntries = (rawFlags) => {
+  if (Array.isArray(rawFlags)) {
+    return rawFlags.filter((flag) => flag && typeof flag === 'object');
+  }
+
+  if (rawFlags && typeof rawFlags === 'object') {
+    return Object.entries(rawFlags)
+      .filter(([, value]) => value && typeof value === 'object')
+      .map(([check, value]) => ({ check, ...value }));
+  }
+
+  return [];
 };
 
 const HealthCheckViolationCard = ({ violation, onChallenge, onRecordCourtOutcome, expanded, onToggleExpand }) => {
   const scan = violation.scanResults || {};
   const cat = scan.category || 'unlikely';
   const colors = categoryColors[cat] || categoryColors.unlikely;
-  const flags = scan.flags || [];
-  const checks = scan.checks || [];
-  const csaImpact = scan.csaImpact || {};
+  const flags = normalizeFlagEntries(scan.flags);
+  const checks = normalizeCheckEntries(scan.checks);
+  const csaImpact = scan.csaImpact || scan.removalImpact || {};
   const recommendation = scan.recommendation;
   const roiEstimate = scan.roiEstimate;
   const triageBreakdown = scan.triageBreakdown;

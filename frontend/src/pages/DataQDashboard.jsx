@@ -65,7 +65,8 @@ const DataQDashboard = () => {
       }
 
       if (opportunitiesResult.status === 'fulfilled') {
-        setOpportunities(opportunitiesResult.value.data.violations || []);
+        const nextOpportunities = opportunitiesResult.value.data?.violations;
+        setOpportunities(Array.isArray(nextOpportunities) ? nextOpportunities : []);
       } else {
         setOpportunities([]);
         if (!error) {
@@ -110,7 +111,8 @@ const DataQDashboard = () => {
           setError(null);
         }
         if (opportunitiesRes2.status === 'fulfilled') {
-          setOpportunities(opportunitiesRes2.value.data.violations || []);
+          const nextOpportunities = opportunitiesRes2.value.data?.violations;
+          setOpportunities(Array.isArray(nextOpportunities) ? nextOpportunities : []);
         }
       }
     } catch (err) {

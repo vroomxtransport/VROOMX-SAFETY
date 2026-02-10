@@ -52,8 +52,8 @@ const HealthCheckTab = ({ onOpenLetterModal }) => {
       if (basicFilter) params.basic = basicFilter;
       const res = await violationsAPI.getHealthCheckViolations(params);
       const data = res.data.data || res.data;
-      setViolations(data.violations || []);
-      setTotalPages(data.totalPages || 1);
+      setViolations(Array.isArray(data.violations) ? data.violations : []);
+      setTotalPages(data.totalPages || data.pagination?.pages || 1);
     } catch (err) {
       if (err.response?.status !== 404) {
         toast.error('Failed to load violations');

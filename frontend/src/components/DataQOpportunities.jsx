@@ -8,6 +8,7 @@ import LoadingSpinner from './LoadingSpinner';
 
 const DataQOpportunities = ({ opportunities, onAnalyze, loading }) => {
   const [expandedId, setExpandedId] = useState(null);
+  const safeOpportunities = Array.isArray(opportunities) ? opportunities : [];
 
   const getScoreBadge = (score, category) => {
     if (score >= 75) {
@@ -49,7 +50,7 @@ const DataQOpportunities = ({ opportunities, onAnalyze, loading }) => {
     );
   }
 
-  if (!opportunities || opportunities.length === 0) {
+  if (safeOpportunities.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <div className="w-16 h-16 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mb-4">
@@ -65,7 +66,7 @@ const DataQOpportunities = ({ opportunities, onAnalyze, loading }) => {
 
   return (
     <div className="divide-y divide-zinc-200 dark:divide-zinc-800">
-      {opportunities.map((item) => {
+      {safeOpportunities.map((item) => {
         const { violation, analysis } = item;
         const isExpanded = expandedId === violation._id;
 
