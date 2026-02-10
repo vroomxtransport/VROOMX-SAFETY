@@ -34,7 +34,8 @@ const AnnouncementBanner = () => {
   const fetchAnnouncements = useCallback(async () => {
     try {
       const response = await announcementsAPI.getActive();
-      setAnnouncements(response.data.announcements || response.data || []);
+      const raw = response.data?.announcements;
+      setAnnouncements(Array.isArray(raw) ? raw : []);
     } catch {
       // Silently fail - announcements are non-critical
     }
@@ -57,7 +58,7 @@ const AnnouncementBanner = () => {
     setDismissed((prev) => [...prev, id]);
   };
 
-  const visibleAnnouncements = announcements.filter(
+  const visibleAnnouncements = (Array.isArray(announcements) ? announcements : []).filter(
     (a) => !dismissed.includes(a._id)
   );
 
