@@ -50,7 +50,11 @@ const DataQAnalyticsPanel = () => {
         dataqAnalyticsAPI.getTrends()
       ]);
       setAnalytics(analyticsRes.data.data || analyticsRes.data);
-      setTrends(trendsRes.data.data || trendsRes.data.trends || []);
+      const rawTrends = trendsRes.data.data || trendsRes.data.trends || [];
+      setTrends(rawTrends.map(t => ({
+        ...t,
+        label: `${t.year}-${String(t.month).padStart(2, '0')}`
+      })));
 
       // Fetch triage accuracy separately (may not be available)
       setTriageLoading(true);
@@ -200,7 +204,7 @@ const DataQAnalyticsPanel = () => {
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={trends}>
                 <XAxis
-                  dataKey="month"
+                  dataKey="label"
                   tickFormatter={formatXAxis}
                   tick={{ fontSize: 12, fill: '#71717a' }}
                   axisLine={{ stroke: '#e4e4e7' }}
