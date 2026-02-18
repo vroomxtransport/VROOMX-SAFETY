@@ -545,6 +545,8 @@ export const fmcsaAPI = {
   getSyncStatus: () => api.get('/fmcsa/sync-status'),
   // Trigger manual sync
   syncViolations: (forceRefresh = false) => api.post('/fmcsa/sync-violations', { forceRefresh }),
+  // Inspection summary (BASIC scores, OOS rates, crashes)
+  getInspectionSummary: () => api.get('/fmcsa/inspection-summary'),
   // Public lookup (for registration)
   lookup: (dotNumber) => api.get(`/fmcsa/lookup/${dotNumber}`),
   verify: (dotNumber) => api.get(`/fmcsa/verify/${dotNumber}`)

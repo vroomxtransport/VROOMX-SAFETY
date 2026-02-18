@@ -432,6 +432,9 @@ const InspectionsTabContent = () => {
                                     <div className="flex-1 min-w-0">
                                       <div className="flex items-center space-x-2 flex-wrap">
                                         <span className="font-mono text-sm font-medium text-zinc-800 dark:text-zinc-100">{v.code}</span>
+                                        {v.code && /^\d{3}/.test(v.code) && (
+                                          <span className="text-[10px] text-zinc-400">49 CFR {v.code.match(/^(\d{3})/)?.[1]}</span>
+                                        )}
                                         {v.oos && (
                                           <span className="px-1.5 py-0.5 text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 rounded">
                                             OOS
@@ -441,7 +444,11 @@ const InspectionsTabContent = () => {
                                           {getBasicLabel(v.basic)}
                                         </span>
                                         {v.severityWeight && (
-                                          <span className="text-xs text-zinc-500">
+                                          <span className={`px-1.5 py-0.5 text-xs font-medium rounded ${
+                                            v.severityWeight >= 8 ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+                                            v.severityWeight >= 5 ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' :
+                                            'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                                          }`}>
                                             Severity: {v.severityWeight}
                                           </span>
                                         )}

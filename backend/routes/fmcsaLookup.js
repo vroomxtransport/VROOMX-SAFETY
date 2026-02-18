@@ -203,6 +203,43 @@ router.get('/sync-status', protect, restrictToCompany, async (req, res) => {
 });
 
 /**
+ * @route   GET /api/fmcsa/inspection-summary
+ * @desc    Get combined BASIC scores, OOS rates, crash data for inspection page
+ * @access  Private
+ */
+router.get('/inspection-summary', protect, restrictToCompany, async (req, res) => {
+  try {
+    const Company = require('../models/Company');
+    const company = await Company.findById(req.companyFilter.companyId)
+      .select('smsBasics fmcsaData.inspections fmcsaData.crashes fmcsaData.syncStatus complianceScore')
+      .lean();
+
+    if (!company) {
+      return res.status(404).json({ success: false, message: 'Company not found' });
+    }
+
+    res.json({
+      success: true,
+      smsBasics: company.smsBasics || {},
+      inspections: company.fmcsaData?.inspections || {},
+      crashes: company.fmcsaData?.crashes || {},
+      complianceScore: company.complianceScore?.current || null,
+      lastSync: company.fmcsaData?.syncStatus?.lastRun || null,
+      syncStatus: {
+        csaScoresSynced: !!company.fmcsaData?.syncStatus?.csaScoresLastSync,
+        violationsSynced: !!company.fmcsaData?.syncStatus?.violationsLastSync,
+        inspectionsSynced: !!company.fmcsaData?.syncStatus?.inspectionsLastSync,
+        complianceScoreCalculated: !!company.complianceScore?.lastCalculated,
+        isRunning: false
+      }
+    });
+  } catch (error) {
+    console.error('[FMCSA Inspection Summary] Error:', error.message);
+    res.status(500).json({ success: false, message: 'Failed to get inspection summary' });
+  }
+});
+
+/**
  * @route   POST /api/fmcsa/sync-violations
  * @desc    Trigger manual sync of violations from FMCSA
  * @access  Private (rate limited)
