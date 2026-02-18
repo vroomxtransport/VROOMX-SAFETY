@@ -1,115 +1,118 @@
-import { FiStar } from 'react-icons/fi';
-import useInView from '../../hooks/useInView';
+import { motion } from "motion/react";
+import TestimonialsColumn from "../ui/TestimonialsColumn";
+
+const testimonials = [
+  {
+    text: "We were one violation away from FMCSA intervention. After 90 days with VroomX, we dropped 23 CSA points and passed a surprise DOT inspection with flying colors.",
+    name: "Mike Rodriguez",
+    role: "Fleet Owner - 12 Trucks",
+    image:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
+  },
+  {
+    text: "I used to spend 15+ hours a week on compliance paperwork. VroomX automated everything from DQ files to violation tracking. Now I spend that time actually growing my business.",
+    name: "Sarah Johnson",
+    role: "Safety Manager - 45 Trucks",
+    image:
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face",
+  },
+  {
+    text: "The AI compliance assistant is incredible. I asked about a complex HOS regulation and got a clear, accurate answer in seconds. It's like having a compliance expert on call 24/7.",
+    name: "David Thompson",
+    role: "Owner-Operator",
+    image:
+      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
+  },
+  {
+    text: "DataQ challenge filing used to take us days of research. VroomX's AI analyzes violations and generates challenge recommendations automatically. We've successfully overturned 12 violations.",
+    name: "Angela Martinez",
+    role: "Compliance Officer - 80 Trucks",
+    image:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
+  },
+  {
+    text: "Real-time FMCSA sync means I never get blindsided by a new violation. The moment something hits our record, I get an alert and can respond immediately.",
+    name: "James Walker",
+    role: "Operations Director - 35 Trucks",
+    image:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
+  },
+  {
+    text: "As a dispatcher, I need to know driver compliance status at a glance. The dashboard gives me everything - medical card expirations, CDL renewals, drug test schedules - all in one place.",
+    name: "Lisa Chen",
+    role: "Dispatcher - 60 Trucks",
+    image:
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face",
+  },
+  {
+    text: "We went from a 'Conditional' FMCSA rating to 'Satisfactory' in under 6 months. VroomX identified every gap in our safety program and helped us close them systematically.",
+    name: "Robert Davis",
+    role: "Fleet Owner - 28 Trucks",
+    image:
+      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&h=150&fit=crop&crop=face",
+  },
+  {
+    text: "The vehicle maintenance tracking alone saved us from two potential OOS violations. Automated reminders for inspections and service intervals keep our fleet road-ready.",
+    name: "Patricia Nguyen",
+    role: "Safety Manager - 22 Trucks",
+    image:
+      "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&h=150&fit=crop&crop=face",
+  },
+  {
+    text: "I'm an owner-operator running solo. VroomX gives me the same compliance tools the big fleets have. My compliance score went from 62 to 94 in three months.",
+    name: "Marcus Johnson",
+    role: "Owner-Operator",
+    image:
+      "https://images.unsplash.com/photo-1463453091185-61582044d556?w=150&h=150&fit=crop&crop=face",
+  },
+];
+
+const firstColumn = testimonials.slice(0, 3);
+const secondColumn = testimonials.slice(3, 6);
+const thirdColumn = testimonials.slice(6, 9);
 
 const TestimonialsSection = () => {
-  const [headerRef, headerInView] = useInView({ threshold: 0.3 });
-  const [statsRef, statsInView] = useInView({ threshold: 0.3 });
-  const [cardsRef, cardsInView] = useInView({ threshold: 0.1 });
-
-  const stats = [
-    { value: '500+', label: 'Active Fleets' },
-    { value: '7,000+', label: 'Drivers Managed' },
-    { value: '4.9/5', label: 'Customer Rating' }
-  ];
-
-  const testimonials = [
-    {
-      quote: "We were one violation away from FMCSA intervention. After 90 days with VroomX, we dropped 23 points and passed a surprise DOT inspection with flying colors.",
-      name: 'Mike Rodriguez',
-      role: 'Fleet Owner • 12 trucks',
-      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face'
-    },
-    {
-      quote: "I used to spend 15+ hours a week on compliance paperwork. VroomX automated everything. Now I spend that time actually growing my business.",
-      name: 'Sarah Johnson',
-      role: 'Safety Manager • 45 trucks',
-      image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face'
-    },
-    {
-      quote: "The AI assistant is incredible. I asked about a complex HOS regulation and got a clear, accurate answer in seconds. It's like having a compliance expert on call 24/7.",
-      name: 'David Thompson',
-      role: 'Owner-Operator',
-      image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
-    }
-  ];
-
   return (
     <section className="py-24 px-6 md:px-16 relative z-10 bg-[#F8FAFC]">
-      <div className="max-w-6xl mx-auto relative z-10">
+      <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div
-          ref={headerRef}
-          className={`text-center mb-12 transition-all duration-700 ${headerInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-        >
-          <h2 className="text-3xl md:text-5xl font-heading font-extrabold text-gray-800 dark:text-white mb-4">
-            Trusted by <span className="text-cta-500">500+</span> Carriers
-          </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-300">
-            See why fleet managers choose VroomX Safety
-          </p>
+        <div className="text-center mb-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            viewport={{ once: true }}
+          >
+            <div className="inline-flex items-center gap-2 bg-white border border-gray-200 rounded-full px-4 py-1.5 mb-6 shadow-sm">
+              <span className="text-sm font-medium text-gray-600">
+                Testimonials
+              </span>
+            </div>
+            <h2 className="text-3xl md:text-5xl font-heading font-extrabold text-gray-800 mb-4">
+              Trusted by <span className="text-cta-500">500+</span> Carriers
+              Nationwide
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              See why fleet owners and safety managers choose VroomX to protect
+              their authority and stay ahead of FMCSA compliance.
+            </p>
+          </motion.div>
         </div>
 
-        {/* Stats Row */}
-        <div
-          ref={statsRef}
-          className={`flex flex-wrap justify-center gap-8 md:gap-16 mb-16 transition-all duration-700 delay-150 ${statsInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-        >
-          {stats.map((stat, i) => (
-            <div key={i} className="text-center">
-              <div className="text-3xl md:text-4xl font-heading font-extrabold text-cta-500">
-                {stat.value}
-              </div>
-              <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                {stat.label}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Testimonial Cards Grid */}
-        <div
-          ref={cardsRef}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6"
-        >
-          {testimonials.map((t, i) => (
-            <div
-              key={i}
-              className={`bg-white border border-gray-200 rounded-3xl p-8 shadow-lg hover:shadow-xl hover:-translate-y-2 transition-all duration-500 ${cardsInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-              style={{ transitionDelay: cardsInView ? `${i * 150}ms` : '0ms' }}
-            >
-              {/* Quote Icon */}
-              <div className="w-12 h-12 bg-gradient-to-br from-[#FF6B4A] to-[#FF8A6B] rounded-xl flex items-center justify-center mb-5 shadow-lg shadow-[#FF6B4A]/25">
-                <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
-                </svg>
-              </div>
-
-              {/* Stars */}
-              <div className="flex gap-1 mb-4">
-                {[...Array(5)].map((_, j) => (
-                  <FiStar key={j} className="w-5 h-5 text-amber-400 fill-amber-400" />
-                ))}
-              </div>
-
-              {/* Quote Text */}
-              <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-6">
-                "{t.quote}"
-              </p>
-
-              {/* Author */}
-              <div className="flex items-center gap-4">
-                <img
-                  src={t.image}
-                  alt={t.name}
-                  className="w-12 h-12 rounded-full object-cover"
-                />
-                <div>
-                  <div className="font-bold text-gray-800 dark:text-white">{t.name}</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">{t.role}</div>
-                </div>
-              </div>
-            </div>
-          ))}
+        {/* Scrolling Columns */}
+        <div className="flex justify-center gap-6 [mask-image:linear-gradient(to_bottom,transparent,black_25%,black_75%,transparent)] max-h-[750px] overflow-hidden">
+          <TestimonialsColumn
+            testimonials={firstColumn}
+            duration={15}
+            className="hidden lg:block"
+          />
+          <TestimonialsColumn
+            testimonials={secondColumn}
+            duration={19}
+            reverse
+            className="hidden md:block"
+          />
+          <TestimonialsColumn testimonials={thirdColumn} duration={17} />
         </div>
       </div>
     </section>

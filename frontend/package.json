@@ -34,6 +34,7 @@
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.8.1",
     "lodash.debounce": "^4.0.8",
+    "motion": "^12.34.2",
     "posthog-js": "^1.342.0",
     "react": "^18.2.0",
     "react-datepicker": "^4.25.0",
