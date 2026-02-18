@@ -176,7 +176,7 @@ const Platform = () => {
           <h2 className="text-3xl md:text-4xl font-bold text-primary-500 mb-4 font-heading">Ready to Streamline Your Compliance?</h2>
           <p className="text-lg text-[#64748B] mb-8 max-w-2xl mx-auto">Join thousands of fleet managers who trust VroomX Safety to keep their operations compliant and their drivers safe.</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/register" className="btn-glow px-8 py-4 rounded-xl font-bold text-white text-lg tracking-wide shadow-lg">Start Free Trial</Link>
+            <Link to="/register" className="btn-glow px-8 py-4 rounded-xl font-bold text-white text-lg tracking-wide shadow-lg">Start Organizing My Files</Link>
             <a href="/#pricing" className="px-8 py-4 rounded-xl font-bold text-primary-500 text-lg border-2 border-primary-500/20 hover:border-primary-500 hover:bg-primary-500/5 transition-all">View Pricing</a>
           </div>
         </div>

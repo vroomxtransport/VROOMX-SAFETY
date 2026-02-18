@@ -93,7 +93,7 @@ const HeroSection = ({ heroTextIndex, heroTexts }) => {
               to="/pricing"
               className="btn-glow px-8 py-4 rounded-xl font-bold text-white text-base tracking-wide flex items-center justify-center gap-3"
             >
-              Get Started
+              Check My DOT Number Free
               <FiArrowRight className="w-5 h-5" />
             </Link>
             <button
@@ -108,7 +108,7 @@ const HeroSection = ({ heroTextIndex, heroTexts }) => {
                 </>
               ) : (
                 <>
-                  Try Live Demo
+                  See It With My Data
                   <FiPlay className="w-5 h-5 group-hover:translate-x-1 transition-transform text-white" />
                 </>
               )}

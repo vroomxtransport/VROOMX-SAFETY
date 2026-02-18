@@ -162,7 +162,7 @@ const Pricing = () => {
                   to="/register"
                   className="w-full py-4 rounded-xl font-bold text-center block bg-gradient-to-r from-cta-500 to-cta-600 hover:from-cta-600 hover:to-cta-700 text-white shadow-lg shadow-cta-500/30 hover:shadow-xl hover:scale-[1.02] transition-all text-lg"
                 >
-                  Start Your 7-Day Free Trial
+                  Protect My Fleet — $0 Today
                 </Link>
 
                 {/* Trust */}
@@ -289,7 +289,7 @@ const Pricing = () => {
             to="/register"
             className="inline-flex items-center gap-3 bg-cta-500 hover:bg-cta-600 px-10 py-5 rounded-full font-bold text-white text-lg shadow-xl shadow-cta-500/30 transition-all hover:scale-105 hover:shadow-2xl"
           >
-            Start Your 7-Day Free Trial
+            Get Audit-Ready in 5 Minutes
             <FiArrowRight className="w-5 h-5" />
           </Link>
 

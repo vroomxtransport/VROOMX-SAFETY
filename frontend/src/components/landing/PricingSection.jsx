@@ -110,7 +110,7 @@ const PricingSection = () => {
                 to="/register"
                 className="w-full py-4 rounded-xl font-bold text-center block bg-gradient-to-r from-cta-500 to-cta-600 hover:from-cta-600 hover:to-cta-700 text-white shadow-lg shadow-cta-500/30 hover:shadow-xl hover:scale-[1.02] transition-all text-lg"
               >
-                Start Your 7-Day Free Trial
+                Protect My Fleet — $0 Today
               </Link>
 
               {/* Trust line */}
