@@ -253,7 +253,7 @@ export const HeroDesign7 = ({ heroTextIndex, heroTexts }) => {
         {/* System Badge */}
         <div className="mb-12">
           <code className="inline-block px-4 py-2 bg-white/5 border border-white/10 rounded-sm text-[#EA580C] font-mono text-sm">
-            // FMCSA COMPLIANCE SYSTEM v2.0
+            FMCSA COMPLIANCE SYSTEM v2.0
           </code>
         </div>
 

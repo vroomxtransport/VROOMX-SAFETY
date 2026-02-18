@@ -568,7 +568,7 @@ export const HeroDesign4 = ({ heroTextIndex, heroTexts }) => {
           {/* Left: Giant Typography */}
           <div className="lg:col-span-7">
             <div className="inline-block px-4 py-2 rounded-full bg-cta-500/10 border border-cta-500/20 text-cta-600 font-mono text-xs uppercase tracking-widest mb-8">
-              // Compliance Automation
+              Compliance Automation
             </div>
 
             <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-[120px] font-black font-heading leading-[0.85] tracking-tight mb-8">
