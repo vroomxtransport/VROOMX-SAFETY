@@ -82,6 +82,81 @@ const csaAlertService = {
         }
       }
 
+      // Also check for significant score changes (>=5% move in either direction)
+      try {
+        const recentHistory = await CSAScoreHistory.find({ companyId })
+          .sort({ recordedAt: -1 })
+          .limit(2)
+          .lean();
+
+        if (recentHistory.length === 2) {
+          const current = recentHistory[0];
+          const previous = recentHistory[1];
+
+          const basicDisplayNames = {
+            unsafeDriving: 'Unsafe Driving',
+            hoursOfService: 'Hours of Service',
+            vehicleMaintenance: 'Vehicle Maintenance',
+            controlledSubstances: 'Controlled Substances',
+            driverFitness: 'Driver Fitness',
+            crashIndicator: 'Crash Indicator'
+          };
+
+          for (const [basic, displayName] of Object.entries(basicDisplayNames)) {
+            const curVal = current.basics?.[basic]?.percentile ?? current.basics?.[basic];
+            const prevVal = previous.basics?.[basic]?.percentile ?? previous.basics?.[basic];
+            if (curVal == null || prevVal == null) continue;
+
+            const change = curVal - prevVal;
+            if (Math.abs(change) < 5) continue;
+
+            const today = new Date().toISOString().split('T')[0];
+
+            if (change > 0) {
+              // Score worsened
+              const deduplicationKey = `csa-worsened-${basic}-${today}`;
+              try {
+                const result = await Alert.findOrCreateAlert({
+                  companyId,
+                  type: change >= 10 ? 'critical' : 'warning',
+                  category: 'csa_score',
+                  title: `${displayName} Score Increased`,
+                  message: `Your ${displayName} score increased from ${prevVal}% to ${curVal}% (+${change}). ${change >= 10 ? 'Immediate attention recommended.' : 'Monitor closely.'}`,
+                  entityType: 'company',
+                  entityId: companyId,
+                  metadata: { basic, previousPercentile: prevVal, currentPercentile: curVal, change },
+                  deduplicationKey
+                });
+                if (result?.created) createdAlerts.push(result.alert);
+              } catch (err) {
+                if (err.code !== 11000) console.error('[CSA Alert] Worsening alert error:', err.message);
+              }
+            } else {
+              // Score improved
+              const deduplicationKey = `csa-improved-${basic}-${today}`;
+              try {
+                const result = await Alert.findOrCreateAlert({
+                  companyId,
+                  type: 'info',
+                  category: 'csa_score',
+                  title: `${displayName} Score Improved`,
+                  message: `Your ${displayName} score decreased from ${prevVal}% to ${curVal}% (${change}). Good progress!`,
+                  entityType: 'company',
+                  entityId: companyId,
+                  metadata: { basic, previousPercentile: prevVal, currentPercentile: curVal, change },
+                  deduplicationKey
+                });
+                if (result?.created) createdAlerts.push(result.alert);
+              } catch (err) {
+                if (err.code !== 11000) console.error('[CSA Alert] Improvement alert error:', err.message);
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.error('[CSA Alert] Score change detection error:', err.message);
+      }
+
       return createdAlerts;
     } catch (error) {
       console.error('[CSA Alert] Error in checkAndCreateAlerts:', error.message);

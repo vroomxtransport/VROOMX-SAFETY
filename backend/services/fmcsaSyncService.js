@@ -48,30 +48,38 @@ const fmcsaSyncService = {
       }
 
       // Build the update object
-      // IMPORTANT: Use dot notation for fmcsaData fields to preserve inspection data
-      // from fmcsaViolationService (lastViolationSync, inspections, saferWebData)
+      // IMPORTANT: Use dot notation for ALL fields to preserve data from other sync steps
+      // Only update BASICs that returned non-null values (preserve existing on partial scrape failures)
       const updateData = {
-        // Update SMS BASICs
-        smsBasics: {
-          unsafeDriving: fmcsaData.basics?.unsafeDriving ?? null,
-          hoursOfService: fmcsaData.basics?.hosCompliance ?? null,
-          vehicleMaintenance: fmcsaData.basics?.vehicleMaintenance ?? null,
-          controlledSubstances: fmcsaData.basics?.controlledSubstances ?? null,
-          driverFitness: fmcsaData.basics?.driverFitness ?? null,
-          crashIndicator: fmcsaData.basics?.crashIndicator ?? null,
-          lastUpdated: new Date()
-        },
-
-        // Store additional FMCSA data (using dot notation to NOT overwrite inspections from SaferWebAPI)
-        'fmcsaData.crashes': fmcsaData.crashes || {},
-        'fmcsaData.operatingStatus': fmcsaData.carrier?.operatingStatus || null,
-        'fmcsaData.safetyRating': fmcsaData.carrier?.safetyRating || null,
-        'fmcsaData.outOfServiceRate': fmcsaData.carrier?.outOfServiceRate || {},
-        'fmcsaData.lastFetched': new Date(),
-        'fmcsaData.dataSource': 'FMCSA_SAFER'
-        // NOTE: Do NOT set fmcsaData.inspections, fmcsaData.lastViolationSync, or fmcsaData.saferWebData
-        // Those are managed by fmcsaViolationService (SaferWebAPI)
+        'smsBasics.lastUpdated': new Date()
       };
+
+      // Map scraper keys to Company model keys
+      const basicMapping = {
+        unsafeDriving: fmcsaData.basics?.unsafeDriving,
+        hoursOfService: fmcsaData.basics?.hosCompliance,
+        vehicleMaintenance: fmcsaData.basics?.vehicleMaintenance,
+        controlledSubstances: fmcsaData.basics?.controlledSubstances,
+        driverFitness: fmcsaData.basics?.driverFitness,
+        crashIndicator: fmcsaData.basics?.crashIndicator
+      };
+
+      // Only set non-null BASICs (don't overwrite good data with null from failed scrapes)
+      for (const [key, value] of Object.entries(basicMapping)) {
+        if (value !== null && value !== undefined) {
+          updateData[`smsBasics.${key}`] = value;
+        }
+      }
+
+      // Store additional FMCSA data (using dot notation to NOT overwrite inspections from SaferWebAPI)
+      updateData['fmcsaData.crashes'] = fmcsaData.crashes || {};
+      updateData['fmcsaData.operatingStatus'] = fmcsaData.carrier?.operatingStatus || null;
+      updateData['fmcsaData.safetyRating'] = fmcsaData.carrier?.safetyRating || null;
+      updateData['fmcsaData.outOfServiceRate'] = fmcsaData.carrier?.outOfServiceRate || {};
+      updateData['fmcsaData.lastFetched'] = new Date();
+      updateData['fmcsaData.dataSource'] = 'FMCSA_SAFER';
+      // NOTE: Do NOT set fmcsaData.inspections, fmcsaData.lastViolationSync, or fmcsaData.saferWebData
+      // Those are managed by fmcsaViolationService (SaferWebAPI)
 
       // Optionally update carrier info if available
       if (fmcsaData.carrier) {

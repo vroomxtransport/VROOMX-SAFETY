@@ -746,10 +746,16 @@ const fmcsaInspectionService = {
         const data = violationsByInspection[inspId];
         if (!data.date) continue;
 
-        // Check if any violations have OOS flags
-        const hasVehicleOOS = data.violations.some(v => v.oos && v.unit === 'vehicle');
-        const hasDriverOOS = data.violations.some(v => v.oos && v.unit === 'driver');
-        const hasHazmatOOS = data.violations.some(v => v.oos && v.unit === 'hazmat');
+        // Determine OOS status from violations (authoritative source)
+        let hasVehicleOOS = data.violations.some(v => v.oos && v.unit === 'vehicle');
+        let hasDriverOOS = data.violations.some(v => v.oos && v.unit === 'driver');
+        let hasHazmatOOS = data.violations.some(v => v.oos && v.unit === 'hazmat');
+
+        // Fallback: if any violation is OOS but unit matching didn't catch it, default to vehicle
+        if (!hasVehicleOOS && !hasDriverOOS && !hasHazmatOOS) {
+          const hasAnyOOS = data.violations.some(v => v.oos);
+          if (hasAnyOOS) hasVehicleOOS = true;
+        }
 
         // Try to find existing inspection by reportNumber first
         let inspection = await FMCSAInspection.findOne({
@@ -761,9 +767,10 @@ const fmcsaInspectionService = {
           // Update existing inspection with violation details
           inspection.violations = data.violations;
           inspection.totalViolations = data.violations.length;
-          inspection.vehicleOOS = hasVehicleOOS || inspection.vehicleOOS;
-          inspection.driverOOS = hasDriverOOS || inspection.driverOOS;
-          inspection.hazmatOOS = hasHazmatOOS || inspection.hazmatOOS;
+          // Recalculate OOS from violations (authoritative, don't OR with stale values)
+          inspection.vehicleOOS = hasVehicleOOS;
+          inspection.driverOOS = hasDriverOOS;
+          inspection.hazmatOOS = hasHazmatOOS;
           inspection.violationsSource = 'datahub_sms';
           inspection.violationsSyncedAt = new Date();
 
