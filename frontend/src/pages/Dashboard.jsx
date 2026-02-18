@@ -28,6 +28,7 @@ const Dashboard = () => {
   const [topRiskDrivers, setTopRiskDrivers] = useState([]);
   const [syncStatus, setSyncStatus] = useState(null);
   const [syncing, setSyncing] = useState(false);
+  const [importProgress, setImportProgress] = useState(null);
 
   useEffect(() => {
     fetchDashboard();
@@ -39,6 +40,30 @@ const Dashboard = () => {
       window.removeEventListener('companySwitch', handleCompanySwitch);
     };
   }, []);
+
+  // Poll sync status for new companies (never synced)
+  useEffect(() => {
+    if (!syncStatus?.lastSync && syncStatus !== null) {
+      const pollInterval = setInterval(async () => {
+        try {
+          const res = await fmcsaAPI.getInspectionSummary();
+          if (res.data?.syncStatus) {
+            setImportProgress(res.data.syncStatus);
+            if (res.data.syncStatus.csaScoresSynced || res.data.syncStatus.violationsSynced || res.data.syncStatus.inspectionsSynced) {
+              fetchDashboard();
+            }
+            if (res.data.syncStatus.complianceScoreCalculated) {
+              clearInterval(pollInterval);
+              fetchDashboard();
+            }
+          }
+        } catch (e) {
+          // Ignore polling errors
+        }
+      }, 5000);
+      return () => clearInterval(pollInterval);
+    }
+  }, [syncStatus]);
 
   const fetchDashboard = async () => {
     try {
@@ -266,35 +291,6 @@ const Dashboard = () => {
 
   // FMCSA import progress for new companies
   const isNewCompany = !syncStatus?.lastSync && !syncing;
-  const [importProgress, setImportProgress] = useState(null);
-
-  // Poll sync status for new companies
-  useEffect(() => {
-    if (!syncStatus?.lastSync && syncStatus !== null) {
-      // Company has never synced — check if sync is running
-      const pollInterval = setInterval(async () => {
-        try {
-          const res = await fmcsaAPI.getInspectionSummary();
-          if (res.data?.syncStatus) {
-            setImportProgress(res.data.syncStatus);
-            if (res.data.syncStatus.csaScoresSynced || res.data.syncStatus.violationsSynced || res.data.syncStatus.inspectionsSynced) {
-              // Some data has arrived — refresh dashboard
-              fetchDashboard();
-            }
-            if (res.data.syncStatus.complianceScoreCalculated) {
-              // All done
-              clearInterval(pollInterval);
-              fetchDashboard();
-            }
-          }
-        } catch (e) {
-          // Ignore polling errors
-        }
-      }, 5000);
-
-      return () => clearInterval(pollInterval);
-    }
-  }, [syncStatus]);
 
   return (
     <div className="space-y-3 sm:space-y-4 lg:space-y-6">
