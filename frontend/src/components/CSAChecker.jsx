@@ -544,7 +544,7 @@ const CSAChecker = () => {
                 <FiArrowRight className="w-4 h-4" />
               </Link>
               <p className="text-[9px] text-zinc-400 mt-2">
-                3-day free trial · No card required
+                7-day free trial · No card required
               </p>
             </div>
 

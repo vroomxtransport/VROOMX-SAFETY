@@ -777,7 +777,7 @@ const Billing = () => {
           <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-accent-300 dark:hover:border-accent-500/50 transition-all duration-200">
             <h4 className="font-medium text-zinc-900 dark:text-zinc-100 mb-2">Do you offer refunds?</h4>
             <p className="text-sm text-zinc-700 dark:text-zinc-300">
-              We offer a 3-day free trial. If you're not satisfied within 30 days of subscribing, contact us for a full refund.
+              We offer a 7-day free trial. If you're not satisfied within 30 days of subscribing, contact us for a full refund.
             </p>
           </div>
           <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-accent-300 dark:hover:border-accent-500/50 transition-all duration-200">

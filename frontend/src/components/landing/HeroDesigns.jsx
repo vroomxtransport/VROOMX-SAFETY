@@ -521,7 +521,7 @@ export const HeroDesign3 = ({ heroTextIndex, heroTexts }) => {
           </div>
 
           <p className="text-zinc-500 mt-6 text-sm">
-            14-day free trial • No credit card required • Setup in 5 minutes
+            7-day free trial • No credit card required • Setup in 5 minutes
           </p>
         </div>
       </div>

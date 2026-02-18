@@ -448,7 +448,7 @@ const CSACheckerPage = () => {
               <div className="relative">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm mb-8">
                   <FiAward className="w-4 h-4 text-cta-300" />
-                  <span className="text-sm font-semibold text-white/90">3-Day Free Trial • No Card Required</span>
+                  <span className="text-sm font-semibold text-white/90">7-Day Free Trial • No Card Required</span>
                 </div>
 
                 <h2 className="text-3xl md:text-4xl font-heading font-bold text-white mb-6">

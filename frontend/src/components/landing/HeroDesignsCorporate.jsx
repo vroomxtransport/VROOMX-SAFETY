@@ -656,7 +656,7 @@ export const HeroDesign9 = ({ heroTextIndex, heroTexts }) => {
               {/* No CC Note */}
               <div className="mt-8 pt-4 border-t border-zinc-200">
                 <div className="text-xs text-zinc-400">
-                  14-day free trial. No credit card required.
+                  7-day free trial. No credit card required.
                 </div>
               </div>
             </div>

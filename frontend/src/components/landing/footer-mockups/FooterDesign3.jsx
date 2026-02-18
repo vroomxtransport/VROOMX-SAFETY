@@ -22,7 +22,7 @@ const FooterDesign3 = () => {
 
   const trustItems = [
     'No credit card required',
-    '14-day free trial',
+    '7-day free trial',
     'Cancel anytime',
   ];
 

@@ -20,8 +20,6 @@ import {
   testimonials,
   blogPosts,
   faqData,
-  pricingPlans,
-  comparisonFeatures,
   features
 } from '../data/landingData';
 import useForceLightMode from '../hooks/useForceLightMode';
@@ -42,9 +40,6 @@ const Landing = () => {
 
   // Hero typewriter cycling state
   const [heroTextIndex, setHeroTextIndex] = useState(0);
-
-  // Pricing toggle state
-  const [isAnnual, setIsAnnual] = useState(false);
 
   // FAQ state
   const [openFaq, setOpenFaq] = useState(null);
@@ -68,9 +63,9 @@ const Landing = () => {
       {/* Promo Banner */}
       <div className="relative z-[60] bg-gradient-to-r from-cta-600 via-cta-500 to-cta-600 text-white text-center py-2.5 px-4">
         <p className="text-sm font-semibold tracking-wide flex items-center justify-center gap-2 flex-wrap">
-          <span>🚀</span>
-          <span>Launch Offer — Get 20% off your subscription with code</span>
-          <span className="bg-white/20 backdrop-blur-sm px-2.5 py-0.5 rounded-md font-mono font-black tracking-widest border border-white/30">EARLYBIRD20</span>
+          <span>🔥</span>
+          <span>Launch Special — First 50 companies get full access forever for $249</span>
+          <span className="bg-white/20 backdrop-blur-sm px-2.5 py-0.5 rounded-md font-mono font-black tracking-widest border border-white/30">7-DAY FREE TRIAL</span>
         </p>
       </div>
 
@@ -311,12 +306,7 @@ const Landing = () => {
       </section>
 
       {/* Pricing Section */}
-      <PricingSection
-        isAnnual={isAnnual}
-        setIsAnnual={setIsAnnual}
-        pricingPlans={pricingPlans}
-        comparisonFeatures={comparisonFeatures}
-      />
+      <PricingSection />
 
       {/* Testimonials Section */}
       <TestimonialsSection testimonials={testimonials} />

@@ -136,19 +136,19 @@ export const faqData = [
   },
   {
     question: "How does the free trial work?",
-    answer: "Start your 3-day free trial with no credit card required. You get full access to all features in your chosen plan. If you love it, simply add your payment method to continue. If not, your account automatically pauses—no charges, no hassle."
+    answer: "Start your 7-day free trial with no credit card required. You get full access to every feature in VroomX. If you love it, make a one-time $249 payment to keep lifetime access. If not, your account automatically pauses — no charges, no hassle."
   },
   {
     question: "Is my data secure?",
     answer: "Absolutely. We use bank-level 256-bit SSL encryption for all data transfers. Your information is stored on SOC2-compliant servers with daily backups. We never sell or share your data with third parties."
   },
   {
-    question: "Can I switch plans later?",
-    answer: "Yes! You can upgrade or downgrade your plan at any time. When upgrading, you'll get immediate access to new features. When downgrading, the change takes effect at your next billing cycle."
+    question: "Is this really a one-time payment?",
+    answer: "Yes. $249 once and you're in — forever. No monthly fees, no annual renewals, no hidden charges. You get every feature, every update, and unlimited drivers. We believe compliance software shouldn't be another recurring bill."
   },
   {
     question: "What happens if I add more drivers?",
-    answer: "Our pricing scales with your fleet. Solo plan includes 1 driver, Fleet includes 3 drivers (+$6/driver after), and Pro includes 10 drivers (+$5/driver after). You can add or remove drivers anytime from your dashboard."
+    answer: "Add as many as you need — unlimited drivers are included with your one-time $249 payment. No per-driver fees, no tier limits. Whether you have 1 truck or 50, the price is the same."
   },
   {
     question: "How accurate is the CSA score checker?",
@@ -156,64 +156,25 @@ export const faqData = [
   }
 ];
 
-export const pricingPlans = [
-  {
-    name: 'Solo',
-    subtitle: 'For Owner-Operators',
-    monthlyPrice: 19,
-    annualPrice: 15,
-    drivers: '1 driver included',
-    features: [
-      'Full DQF Management',
-      'AI Regulation Assistant',
-      'CSA Score Tracking',
-      'Document Expiry Alerts',
-      '100 AI queries/month'
-    ],
-    popular: false,
-    color: 'primary',
-    hasTrial: false
-  },
-  {
-    name: 'Fleet',
-    subtitle: 'For Small Fleets (2-10 drivers)',
-    monthlyPrice: 39,
-    annualPrice: 31,
-    drivers: '3 drivers included',
-    extraDriver: '+$6/driver after 3',
-    features: [
-      'Everything in Solo',
-      '3 drivers included',
-      'Up to 3 Companies',
-      'DataQ AI Analysis',
-      'DataQ Draft Generator',
-      'Multi-user Access',
-      'Email Support'
-    ],
-    popular: true,
-    color: 'cta',
-    hasTrial: true
-  },
-  {
-    name: 'Pro',
-    subtitle: 'For Growing Fleets (10-50 drivers)',
-    monthlyPrice: 89,
-    annualPrice: 71,
-    drivers: '10 drivers included',
-    extraDriver: '+$5/driver after 10',
-    features: [
-      'Everything in Fleet',
-      '10 drivers included',
-      'Up to 10 Companies',
-      'Advanced CSA Analytics',
-      'Custom Reports',
-      'Priority Email Support'
-    ],
-    popular: false,
-    color: 'primary',
-    hasTrial: true
-  }
-];
+export const pricingPlan = {
+  name: 'VroomX Complete',
+  price: 249,
+  trialDays: 7,
+  anchorPrice: 468,
+  features: [
+    'Unlimited Drivers',
+    'Full DQF Management',
+    'AI Regulation Assistant',
+    'CSA Score Tracking',
+    'Document Expiry Alerts',
+    'DataQ AI Analysis',
+    'DataQ Draft Generator',
+    'Multi-user Access',
+    'Advanced CSA Analytics',
+    'Custom Reports',
+    'Priority Email Support'
+  ]
+};
 
 export const comparisonFeatures = [
   { feature: 'CSA Score Tracking', vroomx: true, spreadsheets: false, other: 'limited' },
@@ -223,7 +184,7 @@ export const comparisonFeatures = [
   { feature: 'Mobile Access', vroomx: true, spreadsheets: 'limited', other: true },
   { feature: 'FMCSA Data Integration', vroomx: true, spreadsheets: false, other: 'limited' },
   { feature: 'Setup Time', vroomx: '10 min', spreadsheets: 'Hours', other: '1-2 days' },
-  { feature: 'Starting Price', vroomx: '$19/mo', spreadsheets: 'Free*', other: '$50+/mo' },
+  { feature: 'Starting Price', vroomx: '$249 one-time', spreadsheets: 'Free*', other: '$50+/mo' },
 ];
 
 export const features = [
