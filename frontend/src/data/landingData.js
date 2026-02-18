@@ -1,6 +1,6 @@
 // Landing Page Data - Extracted from Landing.jsx for maintainability
 
-export const heroTexts = ['PAPERWORK.', 'AUDIT READY.', 'DOT READY.'];
+export const heroTexts = ['TRACK EXPIRATIONS.', 'FEAR AUDITS.', 'FILE PAPERWORK.', 'FIGHT THE FMCSA.'];
 
 export const chatQA = [
   {

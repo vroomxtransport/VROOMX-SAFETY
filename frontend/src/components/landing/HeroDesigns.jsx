@@ -975,15 +975,20 @@ export const HeroDesign5 = ({ heroTextIndex, heroTexts }) => {
           {/* Left: Content */}
           <div className="text-white">
 
-            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-7xl font-black font-heading leading-[1.05] mb-6 text-white">
-              Your Fleet.<br />
-              <span className="text-cta-400">Protected.</span><br />
-              <span className="text-white">24/7.</span>
+            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-7xl font-black font-heading leading-[1.05] mb-4 text-white">
+              The DOT Auditor Just Called.<br />
+              <span className="text-cta-400">Are You Ready?</span>
             </h1>
 
+            <p className="text-lg text-white/50 mb-2 font-medium">
+              You didn't start a trucking company to{' '}
+              <span key={heroTextIndex} className="typewriter-text text-white/80 font-bold">
+                {heroTexts[heroTextIndex]}
+              </span>
+            </p>
+
             <p className="text-xl text-white/70 max-w-lg mb-8 leading-relaxed">
-              Real-time FMCSA compliance monitoring, automated alerts, and audit-ready
-              documentation — all in one powerful platform.
+              Every driver document tracked. Every expiration caught. Every audit answered — before they even ask. Set it up in 5 minutes.
             </p>
 
             {/* Feature bullets */}
