@@ -218,11 +218,23 @@ router.get('/inspection-summary', protect, restrictToCompany, async (req, res) =
       return res.status(404).json({ success: false, message: 'Company not found' });
     }
 
+    // Transform smsBasics from raw numbers to {key: {percentile: N}} shape
+    // to match what Dashboard/frontend expects
+    const rawBasics = company.smsBasics || {};
+    const smsBasics = {};
+    const basicKeys = ['unsafeDriving', 'hoursOfService', 'vehicleMaintenance', 'controlledSubstances', 'driverFitness', 'crashIndicator'];
+    for (const key of basicKeys) {
+      smsBasics[key] = { percentile: rawBasics[key] ?? null };
+    }
+    if (rawBasics.lastUpdated) {
+      smsBasics.lastUpdated = rawBasics.lastUpdated;
+    }
+
     res.json({
       success: true,
-      smsBasics: company.smsBasics || {},
+      smsBasics,
       inspections: company.fmcsaData?.inspections || {},
-      crashes: company.fmcsaData?.crashes || {},
+      crashes: company.fmcsaData?.inspections?.crashes || {},
       complianceScore: company.complianceScore?.current || null,
       lastSync: company.fmcsaData?.syncStatus?.lastRun || null,
       syncStatus: {

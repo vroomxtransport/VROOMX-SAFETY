@@ -16,8 +16,7 @@ const BASIC_CONFIG = [
   { key: 'vehicleMaintenance', name: 'Vehicle Maintenance', threshold: 80, icon: FiTruck, color: 'blue' },
   { key: 'controlledSubstances', name: 'Controlled Substances', threshold: 80, icon: FiDroplet, color: 'purple' },
   { key: 'driverFitness', name: 'Driver Fitness', threshold: 80, icon: FiUser, color: 'indigo' },
-  { key: 'crashIndicator', name: 'Crash Indicator', threshold: 65, icon: FiAlertCircle, color: 'orange' },
-  { key: 'hazmatCompliance', name: 'Hazmat', threshold: 80, icon: FiShield, color: 'teal' }
+  { key: 'crashIndicator', name: 'Crash Indicator', threshold: 65, icon: FiAlertCircle, color: 'orange' }
 ];
 
 const getScoreColor = (score, threshold) => {
