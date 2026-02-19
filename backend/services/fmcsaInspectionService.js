@@ -573,7 +573,7 @@ const fmcsaInspectionService = {
       basic: basic || 'vehicle_maintenance', // Default to vehicle_maintenance if unknown
       severityWeight: parseInt(record.severity_weight, 10) || 5,
       timeWeight: parseFloat(record.time_weight) || 1.0,
-      oos: record.oos_indicator === 'Y' || record.oos === 'Y' || record.oos === true,
+      oos: record.oos_indicator === 'Y' || record.oos_indicator === 'true' || record.oos_indicator === true || record.oos === 'Y' || record.oos === true,
       unit: unit,
       section: record.section_desc || null,
       group: record.group_desc || null
@@ -883,15 +883,16 @@ const fmcsaInspectionService = {
         inspectionLevel: parseInt(rec.insp_level_id, 10) || null,
         location: rec.location_desc || null,
         violTotal: parseInt(rec.viol_total, 10) || 0,
+        vehicleOOS: parseInt(rec.vehicle_oos_total, 10) > 0,
+        driverOOS: parseInt(rec.driver_oos_total, 10) > 0,
+        hazmatOOS: parseInt(rec.hazmat_oos_total, 10) > 0,
         reportNumber: rec.report_number
       });
     }
 
-    // Find inspections missing state or level
-    const inspections = await FMCSAInspection.find({
-      companyId,
-      $or: [{ state: null }, { inspectionLevel: null }]
-    }).select('reportNumber inspectionDate state inspectionLevel totalViolations');
+    // Find inspections missing state, level, or with potentially stale OOS data
+    const inspections = await FMCSAInspection.find({ companyId })
+      .select('reportNumber inspectionDate state inspectionLevel totalViolations vehicleOOS driverOOS hazmatOOS');
 
     let enriched = 0;
     for (const insp of inspections) {
@@ -916,6 +917,10 @@ const fmcsaInspectionService = {
       if (!insp.state && meta.state) updates.state = meta.state;
       if (!insp.inspectionLevel && meta.inspectionLevel) updates.inspectionLevel = meta.inspectionLevel;
       if (meta.location) updates.location = meta.location;
+      // OOS flags from inspection file are authoritative (based on actual OOS counts)
+      if (meta.vehicleOOS && !insp.vehicleOOS) updates.vehicleOOS = true;
+      if (meta.driverOOS && !insp.driverOOS) updates.driverOOS = true;
+      if (meta.hazmatOOS && !insp.hazmatOOS) updates.hazmatOOS = true;
 
       if (Object.keys(updates).length > 0) {
         await FMCSAInspection.updateOne({ _id: insp._id }, { $set: updates });
