@@ -67,7 +67,12 @@ router.post('/register', [
 ], asyncHandler(async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({ success: false, errors: errors.array() });
+    const fieldErrors = errors.array().map(e => `${e.path}: ${e.msg}`).join(', ');
+    return res.status(400).json({
+      success: false,
+      message: `Please check your input: ${fieldErrors}`,
+      errors: errors.array()
+    });
   }
 
   const { email, password, firstName, lastName, companyName, dotNumber, mcNumber, phone, address, selectedPlan } = req.body;

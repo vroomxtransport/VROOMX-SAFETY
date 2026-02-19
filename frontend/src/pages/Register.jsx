@@ -151,7 +151,10 @@ const Register = () => {
       toast.success('Account created successfully!');
       navigate('/app/dashboard');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Registration failed');
+      const msg = error.response?.data?.message
+        || error.response?.data?.errors?.map(e => e.msg).join(', ')
+        || 'Registration failed';
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
