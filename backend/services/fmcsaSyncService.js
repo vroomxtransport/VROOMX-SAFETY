@@ -79,13 +79,31 @@ const fmcsaSyncService = {
 
       // Store additional FMCSA data (using dot notation to NOT overwrite inspections from SaferWebAPI)
       updateData['fmcsaData.crashes'] = fmcsaData.crashes || {};
+      if (fmcsaData.crashDetail) {
+        updateData['fmcsaData.inspections.crashes'] = fmcsaData.crashDetail;
+      }
       updateData['fmcsaData.operatingStatus'] = fmcsaData.carrier?.operatingStatus || null;
       updateData['fmcsaData.safetyRating'] = fmcsaData.carrier?.safetyRating || null;
       updateData['fmcsaData.outOfServiceRate'] = fmcsaData.carrier?.outOfServiceRate || {};
       updateData['fmcsaData.lastFetched'] = new Date();
       updateData['fmcsaData.dataSource'] = 'FMCSA_SAFER';
-      // NOTE: Do NOT set fmcsaData.inspections, fmcsaData.lastViolationSync, or fmcsaData.saferWebData
-      // Those are managed by fmcsaViolationService (SaferWebAPI)
+
+      // Save OOS rates from Puppeteer overview page (reliable fallback if SaferWebAPI fails)
+      if (fmcsaData.vehicleOOSPercent != null) {
+        updateData['fmcsaData.inspections.vehicleOOSPercent'] = fmcsaData.vehicleOOSPercent;
+      }
+      if (fmcsaData.vehicleNationalAvg != null) {
+        updateData['fmcsaData.inspections.vehicleNationalAvg'] = fmcsaData.vehicleNationalAvg;
+      }
+      if (fmcsaData.driverOOSPercent != null) {
+        updateData['fmcsaData.inspections.driverOOSPercent'] = fmcsaData.driverOOSPercent;
+      }
+      if (fmcsaData.driverNationalAvg != null) {
+        updateData['fmcsaData.inspections.driverNationalAvg'] = fmcsaData.driverNationalAvg;
+      }
+      if (fmcsaData.inspections?.total) {
+        updateData['fmcsaData.inspections.totalInspections'] = fmcsaData.inspections.total;
+      }
 
       // Optionally update carrier info if available
       if (fmcsaData.carrier) {

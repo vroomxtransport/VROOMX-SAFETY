@@ -402,43 +402,53 @@ const fmcsaService = {
       const overviewUrl = SAFER_URLS.smsProfile(dotNumber);
       await page.goto(overviewUrl, { waitUntil: 'domcontentloaded', timeout: 20000 });
 
-      // Extract inspection counts, crash counts, AND raw BASIC measures from overview
+      // Extract inspection counts, crash counts, and OOS rates from overview page
       const overviewData = await page.evaluate(() => {
         const text = document.body.textContent;
 
-        // Look for "Total Inspections: 13" pattern
+        // Inspection and crash counts
         const inspMatch = text.match(/Total\s*Inspections[:\s]*(\d+)/i);
         const crashMatch = text.match(/Total\s*Crashes[*:\s]*(\d+)/i);
 
-        // Extract raw BASIC measure values from overview page
-        // These appear even when percentiles are not yet calculated
-        const measures = {};
-        const measurePatterns = [
-          { key: 'unsafeDriving', patterns: [/Unsafe\s*Driving[\s\S]{0,50}?(\d+\.?\d*)/i] },
-          { key: 'hosCompliance', patterns: [/Hours[\s-]*of[\s-]*Service[\s\S]{0,50}?(\d+\.?\d*)/i, /HOS[\s\S]{0,30}?(\d+\.?\d*)/i] },
-          { key: 'vehicleMaintenance', patterns: [/Vehicle\s*Maint[\w]*[\s\S]{0,50}?(\d+\.?\d*)/i] },
-          { key: 'controlledSubstances', patterns: [/Controlled\s*Subst[\w]*[\s\S]{0,50}?(\d+\.?\d*)/i, /Drugs?\s*[\&\/]?\s*Alcohol[\s\S]{0,50}?(\d+\.?\d*)/i] },
-          { key: 'driverFitness', patterns: [/Driver\s*Fitness[\s\S]{0,50}?(\d+\.?\d*)/i] },
-          { key: 'crashIndicator', patterns: [/Crash\s*Indicator[\s\S]{0,50}?(\d+\.?\d*)/i] }
-        ];
+        // OOS rates from the overview table
+        // Format: "Vehicle   33.3   23.2" and "Driver   20.0   6.4"
+        // Match: "Vehicle" followed by OOS% and National Avg%
+        let vehicleOOSPercent = null, vehicleNationalAvg = null;
+        let driverOOSPercent = null, driverNationalAvg = null;
 
-        for (const { key, patterns } of measurePatterns) {
-          for (const pattern of patterns) {
-            const match = text.match(pattern);
-            if (match) {
-              const val = parseFloat(match[1]);
-              if (!isNaN(val)) {
-                measures[key] = val;
-                break;
-              }
-            }
-          }
+        // Try multiple patterns for OOS rates
+        const vehMatch = text.match(/Vehicle[\s\S]{0,30}?(\d+\.?\d+)\s*%?\s+(\d+\.?\d+)/i)
+          || text.match(/Vehicle\s+OOS[:\s]*(\d+\.?\d+)%/i);
+        if (vehMatch) {
+          vehicleOOSPercent = parseFloat(vehMatch[1]);
+          vehicleNationalAvg = vehMatch[2] ? parseFloat(vehMatch[2]) : null;
         }
+
+        const drvMatch = text.match(/Driver[\s\S]{0,30}?(\d+\.?\d+)\s*%?\s+(\d+\.?\d+)/i)
+          || text.match(/Driver\s+OOS[:\s]*(\d+\.?\d+)%/i);
+        if (drvMatch) {
+          driverOOSPercent = parseFloat(drvMatch[1]);
+          driverNationalAvg = drvMatch[2] ? parseFloat(drvMatch[2]) : null;
+        }
+
+        // Fatal/injury/tow crash breakdown
+        const fatalMatch = text.match(/Fatal\s*(?:Crashes)?[:\s]*(\d+)/i);
+        const injuryMatch = text.match(/Injury\s*(?:Crashes)?[:\s]*(\d+)/i);
+        const towMatch = text.match(/Tow\s*(?:away)?\s*(?:Crashes)?[:\s]*(\d+)/i);
 
         return {
           inspections: inspMatch ? parseInt(inspMatch[1], 10) : 0,
           crashes: crashMatch ? parseInt(crashMatch[1], 10) : 0,
-          measures
+          crashDetail: {
+            fatal: fatalMatch ? parseInt(fatalMatch[1], 10) : 0,
+            injury: injuryMatch ? parseInt(injuryMatch[1], 10) : 0,
+            tow: towMatch ? parseInt(towMatch[1], 10) : 0,
+            total: crashMatch ? parseInt(crashMatch[1], 10) : 0
+          },
+          vehicleOOSPercent,
+          vehicleNationalAvg,
+          driverOOSPercent,
+          driverNationalAvg
         };
       });
 
@@ -446,11 +456,6 @@ const fmcsaService = {
       inspections.total = overviewData.inspections;
       crashes.last24Months = overviewData.crashes;
       crashes.total = overviewData.crashes;
-
-      // Store raw measures from overview page
-      for (const [key, value] of Object.entries(overviewData.measures || {})) {
-        basics[`${key}Measure`] = value;
-      }
 
       // Now fetch each BASIC page to get percentiles
       for (const basic of basicPages) {
@@ -506,7 +511,17 @@ const fmcsaService = {
         }
       }
 
-      return { basics, inspections, crashes };
+      return {
+        basics,
+        inspections,
+        crashes,
+        // OOS rates and crash details from overview page (reliable fallback for SaferWebAPI)
+        vehicleOOSPercent: overviewData.vehicleOOSPercent,
+        vehicleNationalAvg: overviewData.vehicleNationalAvg,
+        driverOOSPercent: overviewData.driverOOSPercent,
+        driverNationalAvg: overviewData.driverNationalAvg,
+        crashDetail: overviewData.crashDetail
+      };
 
     } catch (error) {
       console.error('[FMCSA] Error fetching SMS scores with Puppeteer:', error.message);
