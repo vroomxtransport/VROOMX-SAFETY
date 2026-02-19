@@ -819,6 +819,16 @@ const fmcsaInspectionService = {
         console.error('[FMCSA Violations] DataQ import failed:', error.message);
       }
 
+      // Enrich inspections with metadata (state, level, location) from Vehicle Inspection File
+      try {
+        const enriched = await this.enrichInspectionMetadata(companyId, dotNumber);
+        if (enriched > 0) {
+          console.log(`[FMCSA Violations] Enriched ${enriched} inspections with metadata`);
+        }
+      } catch (error) {
+        console.error('[FMCSA Violations] Inspection metadata enrichment failed:', error.message);
+      }
+
       return {
         success: true,
         message: `Synced ${createdCount + matchedCount} inspections (${createdCount} new, ${matchedCount} updated) with ${violations.length} violations`,
@@ -837,6 +847,83 @@ const fmcsaInspectionService = {
         matched: 0
       };
     }
+  },
+
+  /**
+   * Enrich FMCSAInspection records with metadata from Vehicle Inspection File (fx4q-ay7w)
+   * The violation dataset (8mt8-2mdr) lacks state, inspection level, and location.
+   * This fetches from the inspection dataset and matches by date.
+   */
+  async enrichInspectionMetadata(companyId, dotNumber) {
+    const headers = { 'Accept': 'application/json' };
+    const socrataToken = process.env.SOCRATA_APP_TOKEN;
+    if (socrataToken) {
+      headers['X-App-Token'] = socrataToken;
+    }
+
+    const url = `https://datahub.transportation.gov/resource/fx4q-ay7w.json?$where=dot_number='${dotNumber}'&$limit=500&$order=insp_date DESC`;
+    const response = await fetch(url, { headers });
+
+    if (!response.ok) {
+      throw new Error(`Vehicle Inspection File API error: ${response.status}`);
+    }
+
+    const records = await response.json();
+    if (!records.length) return 0;
+
+    // Build lookup by date string (YYYYMMDD) — for unique dates this gives an exact match;
+    // for multiple inspections on the same day, group them for best-effort matching
+    const metadataByDate = {};
+    for (const rec of records) {
+      if (!rec.insp_date) continue;
+      const dateKey = rec.insp_date.replace(/\D/g, '').substring(0, 8); // "20260128"
+      if (!metadataByDate[dateKey]) metadataByDate[dateKey] = [];
+      metadataByDate[dateKey].push({
+        state: rec.report_state || null,
+        inspectionLevel: parseInt(rec.insp_level_id, 10) || null,
+        location: rec.location_desc || null,
+        violTotal: parseInt(rec.viol_total, 10) || 0,
+        reportNumber: rec.report_number
+      });
+    }
+
+    // Find inspections missing state or level
+    const inspections = await FMCSAInspection.find({
+      companyId,
+      $or: [{ state: null }, { inspectionLevel: null }]
+    }).select('reportNumber inspectionDate state inspectionLevel totalViolations');
+
+    let enriched = 0;
+    for (const insp of inspections) {
+      if (!insp.inspectionDate) continue;
+      const d = new Date(insp.inspectionDate);
+      const dateKey = d.getUTCFullYear().toString() +
+        String(d.getUTCMonth() + 1).padStart(2, '0') +
+        String(d.getUTCDate()).padStart(2, '0');
+
+      const candidates = metadataByDate[dateKey];
+      if (!candidates || candidates.length === 0) continue;
+
+      // Pick best match: if one candidate, use it; if multiple, match by violation count
+      let meta;
+      if (candidates.length === 1) {
+        meta = candidates[0];
+      } else {
+        meta = candidates.find(c => c.violTotal === (insp.totalViolations || 0)) || candidates[0];
+      }
+
+      const updates = {};
+      if (!insp.state && meta.state) updates.state = meta.state;
+      if (!insp.inspectionLevel && meta.inspectionLevel) updates.inspectionLevel = meta.inspectionLevel;
+      if (meta.location) updates.location = meta.location;
+
+      if (Object.keys(updates).length > 0) {
+        await FMCSAInspection.updateOne({ _id: insp._id }, { $set: updates });
+        enriched++;
+      }
+    }
+
+    return enriched;
   },
 
   /**
