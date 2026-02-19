@@ -140,8 +140,10 @@ const Register = () => {
 
     try {
       // Include FMCSA verification status and selected plan in registration
+      // Clean DOT number to digits only (backend validator requires .isNumeric())
       const registrationData = {
         ...formData,
+        dotNumber: formData.dotNumber.replace(/[^0-9]/g, ''),
         fmcsaVerified: dotLookupStatus === 'verified',
         fmcsaData: fmcsaData,
         selectedPlan: selectedPlan

@@ -103,7 +103,7 @@ const userSchema = new mongoose.Schema({
   subscription: {
     plan: {
       type: String,
-      enum: ['free_trial', 'solo', 'fleet', 'pro', 'starter', 'professional'],
+      enum: ['free_trial', 'solo', 'fleet', 'pro', 'starter', 'professional', 'complete'],
       default: 'free_trial'
     },
     stripeSubscriptionId: String,
