@@ -95,6 +95,20 @@ const cleanInspectionService = {
   },
 
   /**
+   * Get list of actual clean (zero-violation) FMCSA inspections
+   */
+  async getCleanInspectionList(companyId, limit = 20) {
+    return FMCSAInspection.find({
+      companyId,
+      totalViolations: 0
+    })
+      .sort({ inspectionDate: -1 })
+      .limit(limit)
+      .select('reportNumber inspectionDate state inspectionLevel location vehicleOOS driverOOS totalViolations inspectionDetails')
+      .lean();
+  },
+
+  /**
    * Compare KnownInspection entries (inMcmis=false) against FMCSAInspection collection.
    * Returns known inspections not found in MCMIS.
    */

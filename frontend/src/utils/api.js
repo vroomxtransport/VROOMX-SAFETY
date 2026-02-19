@@ -815,6 +815,7 @@ export const dataqAnalyticsAPI = {
 // Clean Inspections API - Clean inspection tracking (Phase 11)
 export const cleanInspectionsAPI = {
   getRatio: (params) => api.get('/clean-inspections/ratio', { params }),
+  getList: (limit) => api.get('/clean-inspections/list', { params: { limit } }),
   getMissing: () => api.get('/clean-inspections/missing'),
   getStrategy: () => api.get('/clean-inspections/strategy'),
   getTarget: (basic, targetPercentile) => api.get(`/clean-inspections/target/${basic}`, { params: { targetPercentile } }),

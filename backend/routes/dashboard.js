@@ -247,22 +247,26 @@ router.get('/', asyncHandler(async (req, res) => {
     });
   }
 
-  // BASIC threshold alerts
-  Object.entries(basicsWithStatus).forEach(([key, data]) => {
-    if (data.status === 'critical') {
-      alerts.push({
-        type: 'critical',
-        category: 'basics',
-        message: `${data.name} BASIC at ${data.percentile}% - Over Critical Threshold`
-      });
-    } else if (data.status === 'warning') {
-      alerts.push({
-        type: 'warning',
-        category: 'basics',
-        message: `${data.name} BASIC at ${data.percentile}% - Over Intervention Threshold`
-      });
-    }
-  });
+  // BASIC threshold alerts — only from real SMS data (non-null percentiles), never estimates
+  if (!isEstimate) {
+    Object.entries(basicsWithStatus).forEach(([key, data]) => {
+      if (key === '_meta') return;
+      if (data.percentile == null) return; // Skip — no real FMCSA data for this BASIC
+      if (data.status === 'critical') {
+        alerts.push({
+          type: 'critical',
+          category: 'basics',
+          message: `${data.name} BASIC at ${data.percentile}% - Over Critical Threshold`
+        });
+      } else if (data.status === 'warning') {
+        alerts.push({
+          type: 'warning',
+          category: 'basics',
+          message: `${data.name} BASIC at ${data.percentile}% - Over Intervention Threshold`
+        });
+      }
+    });
+  }
 
   // Filter drivers with birthdays in the next 7 days
   const upcomingBirthdays = driversWithBirthdays

@@ -24,6 +24,21 @@ router.get('/ratio', checkPermission('violations', 'view'), asyncHandler(async (
   });
 }));
 
+// @route   GET /api/clean-inspections/list
+// @desc    Get list of actual clean (zero-violation) inspections
+// @access  Private (violations.view)
+router.get('/list', checkPermission('violations', 'view'), asyncHandler(async (req, res) => {
+  const companyId = req.companyFilter.companyId;
+  const limit = parseInt(req.query.limit) || 20;
+
+  const inspections = await cleanInspectionService.getCleanInspectionList(companyId, limit);
+
+  res.json({
+    success: true,
+    inspections
+  });
+}));
+
 // @route   GET /api/clean-inspections/missing
 // @desc    Get known inspections missing from MCMIS
 // @access  Private (violations.view)

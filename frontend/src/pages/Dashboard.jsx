@@ -210,7 +210,7 @@ const Dashboard = () => {
         name: value.name?.replace(' Compliance', '').replace(' Indicator', '') || key,
         percentile: value.percentile || 0,
         rawMeasure: value.rawMeasure,
-        status: value.status || 'compliant',
+        status: value.status || 'no_data',
         key
       }));
   };

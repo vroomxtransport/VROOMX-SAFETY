@@ -20,6 +20,7 @@ const INSPECTION_LEVELS = [
 
 const CleanInspectionPanel = () => {
   const [ratio, setRatio] = useState(null);
+  const [cleanList, setCleanList] = useState([]);
   const [missing, setMissing] = useState([]);
   const [strategy, setStrategy] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -50,12 +51,14 @@ const CleanInspectionPanel = () => {
     try {
       setLoading(true);
       setError(null);
-      const [ratioRes, missingRes, strategyRes] = await Promise.all([
+      const [ratioRes, listRes, missingRes, strategyRes] = await Promise.all([
         cleanInspectionsAPI.getRatio(),
+        cleanInspectionsAPI.getList(20),
         cleanInspectionsAPI.getMissing(),
         cleanInspectionsAPI.getStrategy()
       ]);
       setRatio(ratioRes.data.data || ratioRes.data);
+      setCleanList(listRes.data.inspections || []);
       setMissing(missingRes.data.data || missingRes.data.inspections || []);
       setStrategy(strategyRes.data.data || strategyRes.data.recommendations || []);
     } catch (err) {
@@ -180,7 +183,60 @@ const CleanInspectionPanel = () => {
         )}
       </div>
 
-      {/* Section 2: Missing Inspections */}
+      {/* Section 2: Clean Inspection Records */}
+      <div className="p-5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900">
+        <div className="flex items-center gap-2 mb-4">
+          <FiCheckCircle className="w-5 h-5 text-emerald-500" />
+          <h3 className="font-semibold text-zinc-900 dark:text-white">Your Clean Inspections</h3>
+          <span className="text-xs text-zinc-500 dark:text-zinc-400 ml-auto">{cleanList.length} records</span>
+        </div>
+
+        {cleanList.length > 0 ? (
+          <div className="border border-zinc-200 dark:border-zinc-700 rounded-lg overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-zinc-50 dark:bg-zinc-800">
+                <tr>
+                  <th className="px-4 py-2.5 text-left text-xs font-medium text-zinc-500 uppercase">Date</th>
+                  <th className="px-4 py-2.5 text-left text-xs font-medium text-zinc-500 uppercase">State</th>
+                  <th className="px-4 py-2.5 text-left text-xs font-medium text-zinc-500 uppercase">Location</th>
+                  <th className="px-4 py-2.5 text-left text-xs font-medium text-zinc-500 uppercase">Level</th>
+                  <th className="px-4 py-2.5 text-left text-xs font-medium text-zinc-500 uppercase">Report #</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-200 dark:divide-zinc-700">
+                {cleanList.map((insp) => (
+                  <tr key={insp._id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-1.5">
+                        <FiCalendar className="w-3.5 h-3.5 text-zinc-400" />
+                        {new Date(insp.inspectionDate).toLocaleDateString()}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 font-medium text-zinc-800 dark:text-zinc-100">{insp.state || '-'}</td>
+                    <td className="px-4 py-3 text-zinc-600 dark:text-zinc-300">{insp.location || '-'}</td>
+                    <td className="px-4 py-3">
+                      {insp.inspectionLevel ? (
+                        <span className="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 rounded">
+                          Level {insp.inspectionLevel}
+                        </span>
+                      ) : '-'}
+                    </td>
+                    <td className="px-4 py-3 font-mono text-xs text-zinc-500">{insp.reportNumber}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center py-6 text-zinc-500 dark:text-zinc-400">
+            <FiCheckCircle className="w-8 h-8 mx-auto mb-2 text-zinc-300 dark:text-zinc-600" />
+            <p className="text-sm">No clean inspections found in FMCSA records yet.</p>
+            <p className="text-xs mt-1">Clean inspections (zero violations) will appear here after your next FMCSA sync.</p>
+          </div>
+        )}
+      </div>
+
+      {/* Section 3: Missing Inspections */}
       <div className="p-5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">

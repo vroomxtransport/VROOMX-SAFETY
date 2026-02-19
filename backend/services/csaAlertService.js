@@ -22,139 +22,67 @@ const csaAlertService = {
    */
   async checkAndCreateAlerts(companyId) {
     try {
-      const company = await Company.findById(companyId).select('name ownerId');
+      // Use REAL SMS data from company.smsBasics — never use estimated scores for alerts
+      const company = await Company.findById(companyId).select('name ownerId smsBasics');
       if (!company) {
         console.error('[CSA Alert] Company not found:', companyId);
         return [];
       }
 
-      const scoreAlerts = await CSAScoreHistory.checkForAlerts(companyId);
+      const smsBasics = company.smsBasics || {};
       const createdAlerts = [];
 
-      for (const alert of scoreAlerts) {
-        try {
-          // Create deduplication key to prevent duplicates
-          const deduplicationKey = `csa-${alert.basic}-${alert.type}-${Math.floor(alert.percentile / 10) * 10}`;
+      const thresholds = {
+        unsafeDriving: { threshold: 65, critical: 80, name: 'Unsafe Driving' },
+        hoursOfService: { threshold: 65, critical: 80, name: 'Hours of Service' },
+        vehicleMaintenance: { threshold: 80, critical: 90, name: 'Vehicle Maintenance' },
+        controlledSubstances: { threshold: 80, critical: 90, name: 'Controlled Substances' },
+        driverFitness: { threshold: 80, critical: 90, name: 'Driver Fitness' },
+        crashIndicator: { threshold: 65, critical: 80, name: 'Crash Indicator' }
+      };
 
-          // Check if similar alert exists recently (last 24 hours)
-          const existingAlert = await Alert.findOne({
-            companyId,
-            category: 'csa_score',
-            deduplicationKey,
-            createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
-          });
+      // Create threshold alerts from REAL SMS percentiles only
+      for (const [basic, config] of Object.entries(thresholds)) {
+        const percentile = smsBasics[basic];
+        if (percentile == null) continue; // Skip — no real FMCSA data
 
-          if (!existingAlert) {
-            const basicDisplayNames = {
-              unsafeDriving: 'Unsafe Driving',
-              hoursOfService: 'Hours of Service',
-              vehicleMaintenance: 'Vehicle Maintenance',
-              controlledSubstances: 'Controlled Substances',
-              driverFitness: 'Driver Fitness',
-              crashIndicator: 'Crash Indicator'
-            };
-
-            const newAlert = await Alert.create({
+        if (percentile >= config.critical) {
+          const deduplicationKey = `csa-${basic}-critical-${Math.floor(percentile / 10) * 10}`;
+          try {
+            const result = await Alert.findOrCreateAlert({
               companyId,
-              type: alert.type === 'critical' ? 'critical' : 'warning',
+              type: 'critical',
               category: 'csa_score',
-              title: `${basicDisplayNames[alert.basic]} ${alert.type === 'critical' ? 'Critical' : 'Alert'}`,
-              message: alert.message,
+              title: `${config.name} Critical`,
+              message: `Your ${config.name} BASIC is at ${percentile}%, above the ${config.critical}% critical threshold. Prioritize addressing violations in this category.`,
               entityType: 'company',
               entityId: companyId,
-              metadata: {
-                basic: alert.basic,
-                percentile: alert.percentile,
-                threshold: alert.threshold,
-                change: alert.change || null
-              },
-              deduplicationKey,
-              status: 'active'
+              metadata: { basic, percentile, threshold: config.critical, dataSource: 'fmcsa_sms' },
+              deduplicationKey
             });
-
-            createdAlerts.push(newAlert);
+            if (result?.created) createdAlerts.push(result.alert);
+          } catch (err) {
+            if (err.code !== 11000) console.error('[CSA Alert] Error:', err.message);
           }
-        } catch (err) {
-          // Skip duplicate key errors (alert already exists)
-          if (err.code !== 11000) {
-            console.error('[CSA Alert] Error creating alert:', err.message);
-          }
-        }
-      }
-
-      // Also check for significant score changes (>=5% move in either direction)
-      try {
-        const recentHistory = await CSAScoreHistory.find({ companyId })
-          .sort({ recordedAt: -1 })
-          .limit(2)
-          .lean();
-
-        if (recentHistory.length === 2) {
-          const current = recentHistory[0];
-          const previous = recentHistory[1];
-
-          const basicDisplayNames = {
-            unsafeDriving: 'Unsafe Driving',
-            hoursOfService: 'Hours of Service',
-            vehicleMaintenance: 'Vehicle Maintenance',
-            controlledSubstances: 'Controlled Substances',
-            driverFitness: 'Driver Fitness',
-            crashIndicator: 'Crash Indicator'
-          };
-
-          for (const [basic, displayName] of Object.entries(basicDisplayNames)) {
-            const curVal = current.basics?.[basic]?.percentile ?? current.basics?.[basic];
-            const prevVal = previous.basics?.[basic]?.percentile ?? previous.basics?.[basic];
-            if (curVal == null || prevVal == null) continue;
-
-            const change = curVal - prevVal;
-            if (Math.abs(change) < 5) continue;
-
-            const today = new Date().toISOString().split('T')[0];
-
-            if (change > 0) {
-              // Score worsened
-              const deduplicationKey = `csa-worsened-${basic}-${today}`;
-              try {
-                const result = await Alert.findOrCreateAlert({
-                  companyId,
-                  type: change >= 10 ? 'critical' : 'warning',
-                  category: 'csa_score',
-                  title: `${displayName} Score Increased`,
-                  message: `Your ${displayName} score increased from ${prevVal}% to ${curVal}% (+${change}). ${change >= 10 ? 'Immediate attention recommended.' : 'Monitor closely.'}`,
-                  entityType: 'company',
-                  entityId: companyId,
-                  metadata: { basic, previousPercentile: prevVal, currentPercentile: curVal, change },
-                  deduplicationKey
-                });
-                if (result?.created) createdAlerts.push(result.alert);
-              } catch (err) {
-                if (err.code !== 11000) console.error('[CSA Alert] Worsening alert error:', err.message);
-              }
-            } else {
-              // Score improved
-              const deduplicationKey = `csa-improved-${basic}-${today}`;
-              try {
-                const result = await Alert.findOrCreateAlert({
-                  companyId,
-                  type: 'info',
-                  category: 'csa_score',
-                  title: `${displayName} Score Improved`,
-                  message: `Your ${displayName} score decreased from ${prevVal}% to ${curVal}% (${change}). Good progress!`,
-                  entityType: 'company',
-                  entityId: companyId,
-                  metadata: { basic, previousPercentile: prevVal, currentPercentile: curVal, change },
-                  deduplicationKey
-                });
-                if (result?.created) createdAlerts.push(result.alert);
-              } catch (err) {
-                if (err.code !== 11000) console.error('[CSA Alert] Improvement alert error:', err.message);
-              }
-            }
+        } else if (percentile >= config.threshold) {
+          const deduplicationKey = `csa-${basic}-warning-${Math.floor(percentile / 10) * 10}`;
+          try {
+            const result = await Alert.findOrCreateAlert({
+              companyId,
+              type: 'warning',
+              category: 'csa_score',
+              title: `${config.name} Alert`,
+              message: `Your ${config.name} BASIC is at ${percentile}%, above the ${config.threshold}% intervention threshold. Consider addressing violations to reduce your score.`,
+              entityType: 'company',
+              entityId: companyId,
+              metadata: { basic, percentile, threshold: config.threshold, dataSource: 'fmcsa_sms' },
+              deduplicationKey
+            });
+            if (result?.created) createdAlerts.push(result.alert);
+          } catch (err) {
+            if (err.code !== 11000) console.error('[CSA Alert] Error:', err.message);
           }
         }
-      } catch (err) {
-        console.error('[CSA Alert] Score change detection error:', err.message);
       }
 
       return createdAlerts;
@@ -208,23 +136,12 @@ const csaAlertService = {
         minImprovement = 5
       } = options;
 
-      // Get the most recent history snapshot as baseline
+      // Compare current REAL SMS data against most recent history snapshot
+      const company = await Company.findById(companyId).select('smsBasics');
+      if (!company?.smsBasics) return [];
+
       const previousSnapshot = await CSAScoreHistory.getLatest(companyId);
       if (!previousSnapshot) return [];
-
-      // Calculate current scores fresh (lazy require to avoid circular deps)
-      const csaCalculatorService = require('./csaCalculatorService');
-      const currentScores = await csaCalculatorService.calculateAllBasics(companyId);
-
-      // Map snake_case calculator keys to camelCase history keys
-      const keyMap = {
-        unsafe_driving: 'unsafeDriving',
-        hours_of_service: 'hoursOfService',
-        vehicle_maintenance: 'vehicleMaintenance',
-        controlled_substances: 'controlledSubstances',
-        driver_fitness: 'driverFitness',
-        crash_indicator: 'crashIndicator'
-      };
 
       const basicDisplayNames = {
         unsafeDriving: 'Unsafe Driving',
@@ -237,11 +154,11 @@ const csaAlertService = {
 
       const createdAlerts = [];
 
-      for (const [snakeKey, camelKey] of Object.entries(keyMap)) {
-        const previousPercentile = previousSnapshot.basics[camelKey]?.percentile;
-        const currentPercentile = currentScores[snakeKey]?.estimatedPercentile;
+      for (const [camelKey, displayName] of Object.entries(basicDisplayNames)) {
+        const currentPercentile = company.smsBasics[camelKey];
+        const previousPercentile = previousSnapshot.basics?.[camelKey]?.percentile ?? previousSnapshot.basics?.[camelKey];
 
-        if (previousPercentile == null || currentPercentile == null) continue;
+        if (currentPercentile == null || previousPercentile == null) continue;
 
         const improvement = previousPercentile - currentPercentile;
         if (improvement < minImprovement) continue;
@@ -258,8 +175,8 @@ const csaAlertService = {
             companyId,
             type: 'info',
             category: 'csa_score',
-            title: `CSA Score Improved: ${basicDisplayNames[camelKey]}`,
-            message: `Your ${basicDisplayNames[camelKey]} score decreased from ${previousPercentile}% to ${currentPercentile}% ${reasonText}.`,
+            title: `CSA Score Improved: ${displayName}`,
+            message: `Your ${displayName} score decreased from ${previousPercentile}% to ${currentPercentile}% ${reasonText}.`,
             entityType: 'company',
             entityId: companyId,
             metadata: {
@@ -268,7 +185,8 @@ const csaAlertService = {
               currentPercentile,
               improvement,
               trigger,
-              violationId: violationId || null
+              violationId: violationId || null,
+              dataSource: 'fmcsa_sms'
             },
             deduplicationKey
           });
