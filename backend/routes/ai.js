@@ -516,9 +516,9 @@ const complianceReportService = require('../services/complianceReportService');
 // @route   POST /api/ai/compliance-report
 // @desc    Generate AI compliance analysis report
 // @access  Private
-router.post('/compliance-report', protect, checkAIQueryQuota, async (req, res) => {
+router.post('/compliance-report', protect, restrictToCompany, checkAIQueryQuota, async (req, res) => {
   try {
-    const companyId = req.companyFilter?.companyId || req.user.activeCompanyId;
+    const companyId = req.companyFilter?.companyId;
 
     if (!companyId) {
       return res.status(400).json({ success: false, error: 'No active company' });
@@ -548,9 +548,9 @@ router.post('/compliance-report', protect, checkAIQueryQuota, async (req, res) =
 // @route   GET /api/ai/compliance-report/latest
 // @desc    Get most recent compliance report
 // @access  Private
-router.get('/compliance-report/latest', protect, async (req, res) => {
+router.get('/compliance-report/latest', protect, restrictToCompany, async (req, res) => {
   try {
-    const companyId = req.companyFilter?.companyId || req.user.activeCompanyId;
+    const companyId = req.companyFilter?.companyId;
     const report = await complianceReportService.getLatest(companyId);
 
     res.json({
@@ -565,9 +565,9 @@ router.get('/compliance-report/latest', protect, async (req, res) => {
 // @route   GET /api/ai/compliance-report/history
 // @desc    Get compliance report history
 // @access  Private
-router.get('/compliance-report/history', protect, async (req, res) => {
+router.get('/compliance-report/history', protect, restrictToCompany, async (req, res) => {
   try {
-    const companyId = req.companyFilter?.companyId || req.user.activeCompanyId;
+    const companyId = req.companyFilter?.companyId;
     const reports = await complianceReportService.getHistory(companyId);
 
     res.json({

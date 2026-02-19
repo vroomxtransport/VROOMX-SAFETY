@@ -8,6 +8,7 @@ const AI_QUERY_QUOTAS = {
   solo: 100,
   fleet: 500,
   pro: -1,  // unlimited
+  complete: -1,  // unlimited
   starter: 100,  // legacy plan, treat as solo
   professional: -1  // legacy plan, treat as pro
 };
