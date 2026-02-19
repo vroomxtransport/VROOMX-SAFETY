@@ -3,9 +3,10 @@ import { fmcsaInspectionsAPI } from '../../utils/api';
 import toast from 'react-hot-toast';
 import {
   FiSearch, FiFilter, FiRefreshCw, FiDownload, FiChevronDown, FiChevronUp,
-  FiAlertTriangle, FiCheckCircle, FiXCircle, FiMapPin, FiCalendar
+  FiAlertTriangle, FiCheckCircle, FiXCircle, FiMapPin, FiCalendar, FiEye
 } from 'react-icons/fi';
 import LoadingSpinner from '../LoadingSpinner';
+import { InspectionDetailModal } from '../../pages/InspectionHistory';
 
 const InspectionsTabContent = () => {
   const [inspections, setInspections] = useState([]);
@@ -13,6 +14,7 @@ const InspectionsTabContent = () => {
   const [syncing, setSyncing] = useState(false);
   const [stats, setStats] = useState(null);
   const [expandedRows, setExpandedRows] = useState({});
+  const [selectedInspection, setSelectedInspection] = useState(null);
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 20,
@@ -404,14 +406,29 @@ const InspectionsTabContent = () => {
                           </div>
                         </td>
                         <td className="px-4 py-3">
-                          {insp.violations?.length > 0 && (
+                          <div className="flex items-center gap-2">
                             <button
-                              onClick={() => toggleRowExpand(insp._id)}
-                              className="text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+                              onClick={async () => {
+                                try {
+                                  const res = await fmcsaInspectionsAPI.getById(insp._id);
+                                  setSelectedInspection(res.data?.inspection || insp);
+                                } catch {
+                                  setSelectedInspection(insp);
+                                }
+                              }}
+                              className="text-xs text-primary-600 hover:text-primary-700 dark:text-primary-400 font-medium flex items-center gap-1"
                             >
-                              {expandedRows[insp._id] ? <FiChevronUp /> : <FiChevronDown />}
+                              <FiEye className="w-3.5 h-3.5" /> Details
                             </button>
-                          )}
+                            {insp.violations?.length > 0 && (
+                              <button
+                                onClick={() => toggleRowExpand(insp._id)}
+                                className="text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+                              >
+                                {expandedRows[insp._id] ? <FiChevronUp /> : <FiChevronDown />}
+                              </button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                       {expandedRows[insp._id] && insp.violations?.length > 0 && (
@@ -498,6 +515,13 @@ const InspectionsTabContent = () => {
           </div>
         )}
       </div>
+      {/* Inspection Detail Modal */}
+      {selectedInspection && (
+        <InspectionDetailModal
+          inspection={selectedInspection}
+          onClose={() => setSelectedInspection(null)}
+        />
+      )}
     </div>
   );
 };
