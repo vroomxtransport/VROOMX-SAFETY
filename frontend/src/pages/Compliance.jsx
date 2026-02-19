@@ -208,6 +208,7 @@ const Compliance = () => {
     .map(([key, value]) => ({
       name: value?.name,
       percentile: value?.percentile || 0,
+      rawMeasure: value?.rawMeasure,
       threshold: value?.threshold,
       status: value?.status,
       key
@@ -499,10 +500,11 @@ const Compliance = () => {
                   <XAxis type="number" domain={[0, 100]} tickFormatter={(v) => `${v}%`} />
                   <YAxis type="category" dataKey="name" width={120} tick={{ fontSize: 12 }} />
                   <Tooltip
-                    formatter={(value, name, props) => [
-                      `${value}% (Threshold: ${props.payload.threshold}%)`,
-                      'Percentile'
-                    ]}
+                    formatter={(value, name, props) => {
+                      if (value > 0) return [`${value}% (Threshold: ${props.payload.threshold}%)`, 'Percentile'];
+                      if (props.payload.rawMeasure != null) return [`Measure: ${props.payload.rawMeasure}`, 'Below ranking threshold'];
+                      return ['No data', ''];
+                    }}
                     contentStyle={{ borderRadius: '8px' }}
                   />
                   <Bar dataKey="percentile" radius={[0, 4, 4, 0]}>
@@ -534,10 +536,10 @@ const Compliance = () => {
                       basic.status === 'compliant' ? 'text-green-600 dark:text-green-400' :
                       'text-zinc-500 dark:text-zinc-400'
                     }`}>
-                      {basic.percentile || '--'}%
+                      {basic.percentile ? `${basic.percentile}%` : basic.rawMeasure != null ? basic.rawMeasure : '--'}
                     </span>
                     <span className="text-xs text-zinc-600 dark:text-zinc-300">
-                      Threshold: {basic.threshold}%
+                      {basic.percentile ? `Threshold: ${basic.threshold}%` : basic.rawMeasure != null ? 'Measure' : `Threshold: ${basic.threshold}%`}
                     </span>
                   </div>
                   {basic.status === 'critical' && (
@@ -545,6 +547,9 @@ const Compliance = () => {
                   )}
                   {basic.status === 'warning' && (
                     <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1 font-medium">Over Intervention Threshold</p>
+                  )}
+                  {basic.status === 'no_data' && basic.rawMeasure != null && (
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Below ranking threshold</p>
                   )}
                 </div>
               ))}

@@ -176,10 +176,12 @@ router.get('/', asyncHandler(async (req, res) => {
 
   Object.keys(SMS_BASICS_THRESHOLDS).forEach(key => {
     const percentile = basicsData[key];
+    const rawMeasure = basicsData[`${key}Measure`];
     const threshold = SMS_BASICS_THRESHOLDS[key];
     basicsWithStatus[key] = {
       name: threshold.name,
       percentile: percentile || null,
+      rawMeasure: rawMeasure != null ? rawMeasure : null,
       threshold: threshold.threshold,
       criticalThreshold: threshold.criticalThreshold,
       status: percentile ? getComplianceStatus(percentile, key) : 'no_data'

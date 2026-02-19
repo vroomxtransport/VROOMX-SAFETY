@@ -202,12 +202,15 @@ const Dashboard = () => {
   // Prepare BASICs data for grid
   const getBasicsData = () => {
     if (!data?.smsBasics) return [];
-    return Object.entries(data.smsBasics).map(([key, value]) => ({
-      name: value.name?.replace(' Compliance', '').replace(' Indicator', '') || key,
-      percentile: value.percentile || 0,
-      status: value.status || 'compliant',
-      key
-    }));
+    return Object.entries(data.smsBasics)
+      .filter(([key]) => key !== '_meta')
+      .map(([key, value]) => ({
+        name: value.name?.replace(' Compliance', '').replace(' Indicator', '') || key,
+        percentile: value.percentile || 0,
+        rawMeasure: value.rawMeasure,
+        status: value.status || 'compliant',
+        key
+      }));
   };
 
   // Get trend indicator for a BASIC category
@@ -624,9 +627,10 @@ const Dashboard = () => {
                     <span className={`text-lg font-bold ${
                       basic.status === 'critical' ? 'text-red-600 dark:text-red-400' :
                       basic.status === 'warning' ? 'text-yellow-600 dark:text-yellow-400' :
+                      basic.status === 'no_data' ? 'text-zinc-500 dark:text-zinc-400' :
                       'text-green-600 dark:text-green-400'
                     }`}>
-                      {basic.percentile}%
+                      {basic.percentile ? `${basic.percentile}%` : basic.rawMeasure != null ? basic.rawMeasure : '--'}
                     </span>
                   </div>
                   <div className="flex-1">
@@ -655,10 +659,13 @@ const Dashboard = () => {
                     <p className={`text-xs ${
                       basic.status === 'critical' ? 'text-red-600 dark:text-red-400' :
                       basic.status === 'warning' ? 'text-yellow-600 dark:text-yellow-400' :
+                      basic.status === 'no_data' ? 'text-zinc-500 dark:text-zinc-400' :
                       'text-green-600 dark:text-green-400'
                     }`}>
                       {basic.status === 'critical' ? 'Above threshold' :
                        basic.status === 'warning' ? 'Warning zone' :
+                       basic.status === 'no_data' && basic.rawMeasure != null ? 'Measure (no percentile)' :
+                       basic.status === 'no_data' ? 'No data' :
                        'Below threshold'}
                     </p>
                   </div>
