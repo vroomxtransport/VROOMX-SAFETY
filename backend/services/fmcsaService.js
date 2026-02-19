@@ -607,7 +607,13 @@ const fmcsaService = {
         crashes: smsData?.crashes || { total: 0, last24Months: 0 },
         fetchedAt: new Date().toISOString(),
         dataSource: 'FMCSA_SAFER',
-        disclaimer: null // No disclaimer for real data
+        disclaimer: null, // No disclaimer for real data
+        // OOS rates and national averages from SMS overview page
+        vehicleOOSPercent: smsData?.vehicleOOSPercent,
+        vehicleNationalAvg: smsData?.vehicleNationalAvg,
+        driverOOSPercent: smsData?.driverOOSPercent,
+        driverNationalAvg: smsData?.driverNationalAvg,
+        crashDetail: smsData?.crashDetail
       };
 
       // Cache the result
