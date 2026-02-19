@@ -14,6 +14,7 @@ import {
   Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { InspectionDetailModal } from './InspectionHistory';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -28,6 +29,7 @@ const Dashboard = () => {
   const [topRiskDrivers, setTopRiskDrivers] = useState([]);
   const [syncStatus, setSyncStatus] = useState(null);
   const [syncing, setSyncing] = useState(false);
+  const [selectedInspection, setSelectedInspection] = useState(null);
   const [importProgress, setImportProgress] = useState(null);
 
   useEffect(() => {
@@ -1137,7 +1139,13 @@ const Dashboard = () => {
           </div>
           <div className="divide-y divide-zinc-200 dark:divide-zinc-700">
             {recentInspections.map((insp) => (
-              <div key={insp._id} className="px-5 py-3 flex items-center justify-between hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
+              <div key={insp._id} className="px-5 py-3 flex items-center justify-between hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors cursor-pointer"
+                onClick={async () => {
+                  try {
+                    const res = await fmcsaInspectionsAPI.getById(insp._id);
+                    if (res.data?.inspection) setSelectedInspection(res.data.inspection);
+                  } catch (e) { /* ignore */ }
+                }}>
                 <div className="flex items-center space-x-3">
                   <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
                     insp.vehicleOOS || insp.driverOOS
@@ -1307,6 +1315,14 @@ const Dashboard = () => {
       >
         <FiMessageCircle className="w-6 h-6 text-white" />
       </Link>
+
+      {/* Inspection Detail Modal */}
+      {selectedInspection && (
+        <InspectionDetailModal
+          inspection={selectedInspection}
+          onClose={() => setSelectedInspection(null)}
+        />
+      )}
     </div>
   );
 };

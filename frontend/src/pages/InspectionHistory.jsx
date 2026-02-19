@@ -852,4 +852,5 @@ const InspectionHistory = () => {
   );
 };
 
+export { InspectionDetailModal };
 export default InspectionHistory;
