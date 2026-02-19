@@ -46,13 +46,27 @@ const Dashboard = () => {
     if (!syncStatus?.lastSync && syncStatus !== null) {
       const pollInterval = setInterval(async () => {
         try {
-          const res = await fmcsaAPI.getInspectionSummary();
-          if (res.data?.syncStatus) {
-            setImportProgress(res.data.syncStatus);
-            if (res.data.syncStatus.csaScoresSynced || res.data.syncStatus.violationsSynced || res.data.syncStatus.inspectionsSynced) {
+          // Check both endpoints: getSyncStatus detects registration-time syncs,
+          // getInspectionSummary detects orchestrator sync progress
+          const [statusRes, inspRes] = await Promise.all([
+            fmcsaAPI.getSyncStatus().catch(() => null),
+            fmcsaAPI.getInspectionSummary().catch(() => null)
+          ]);
+
+          // Registration sync completed — lastViolationSync is now set,
+          // or inspection data exists (fallback for partial syncs)
+          if (statusRes?.data?.lastSync || statusRes?.data?.inspectionCount > 0) {
+            clearInterval(pollInterval);
+            fetchDashboard();
+            return;
+          }
+
+          if (inspRes?.data?.syncStatus) {
+            setImportProgress(inspRes.data.syncStatus);
+            if (inspRes.data.syncStatus.csaScoresSynced || inspRes.data.syncStatus.violationsSynced || inspRes.data.syncStatus.inspectionsSynced) {
               fetchDashboard();
             }
-            if (res.data.syncStatus.complianceScoreCalculated) {
+            if (inspRes.data.syncStatus.complianceScoreCalculated) {
               clearInterval(pollInterval);
               fetchDashboard();
             }
