@@ -66,7 +66,7 @@ async function cascadeDeleteCompany(companyId) {
 }
 
 // Allowed values for subscription validation
-const VALID_PLANS = ['free_trial', 'solo', 'fleet', 'starter', 'professional'];
+const VALID_PLANS = ['free_trial', 'solo', 'fleet', 'starter', 'professional', 'complete', 'pro'];
 const VALID_STATUSES = ['trialing', 'active', 'past_due', 'canceled', 'unpaid', 'pending_payment'];
 const PLAN_PRICES = { free_trial: 0, solo: 29, starter: 49, fleet: 79, professional: 149 };
 
