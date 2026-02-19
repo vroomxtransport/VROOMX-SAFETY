@@ -41,6 +41,7 @@ import NotFound from './pages/NotFound';
 // Lazy load chart-heavy and large pages to reduce initial bundle size
 const Dashboard = lazyWithRetry(() => import('./pages/Dashboard'));
 const Compliance = lazyWithRetry(() => import('./pages/Compliance'));
+const ComplianceReport = lazyWithRetry(() => import('./pages/ComplianceReport'));
 const UnlinkedViolations = lazyWithRetry(() => import('./pages/UnlinkedViolations'));
 const DriverDetail = lazyWithRetry(() => import('./pages/DriverDetail'));
 const VehicleDetail = lazyWithRetry(() => import('./pages/VehicleDetail'));
@@ -244,6 +245,7 @@ function App() {
           <Route path="drug-alcohol" element={<DrugAlcohol />} />
           <Route path="documents" element={<Documents />} />
           <Route path="compliance" element={<Suspense fallback={<LoadingSpinner size="lg" />}><Compliance /></Suspense>} />
+          <Route path="compliance-report" element={<Suspense fallback={<LoadingSpinner size="lg" />}><ComplianceReport /></Suspense>} />
           <Route path="reports" element={<Suspense fallback={<LoadingSpinner size="lg" />}><Reports /></Suspense>} />
           <Route path="scheduled-reports" element={<ScheduledReports />} />
           <Route path="inspection-history" element={<Navigate to="/app/compliance" replace />} />

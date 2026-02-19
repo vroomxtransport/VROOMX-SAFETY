@@ -509,4 +509,74 @@ router.post('/generate-dataq-letter/:id', protect, checkAIQueryQuota, restrictTo
   }
 });
 
+// ─── Compliance Report Routes ────────────────────────────────────────────────
+
+const complianceReportService = require('../services/complianceReportService');
+
+// @route   POST /api/ai/compliance-report
+// @desc    Generate AI compliance analysis report
+// @access  Private
+router.post('/compliance-report', protect, checkAIQueryQuota, async (req, res) => {
+  try {
+    const companyId = req.companyFilter?.companyId || req.user.activeCompanyId;
+
+    if (!companyId) {
+      return res.status(400).json({ success: false, error: 'No active company' });
+    }
+
+    console.log(`[AI Compliance Report] Generating for company ${companyId}`);
+    const report = await complianceReportService.generateReport(companyId, req.user._id);
+
+    // Track usage
+    if (report.aiTokensUsed) {
+      aiUsageService.trackQuery(req.user._id, report.aiTokensUsed, 0);
+    }
+
+    res.json({
+      success: true,
+      report
+    });
+  } catch (error) {
+    console.error('[AI Compliance Report] Error:', error.message);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to generate compliance report'
+    });
+  }
+});
+
+// @route   GET /api/ai/compliance-report/latest
+// @desc    Get most recent compliance report
+// @access  Private
+router.get('/compliance-report/latest', protect, async (req, res) => {
+  try {
+    const companyId = req.companyFilter?.companyId || req.user.activeCompanyId;
+    const report = await complianceReportService.getLatest(companyId);
+
+    res.json({
+      success: true,
+      report: report || null
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// @route   GET /api/ai/compliance-report/history
+// @desc    Get compliance report history
+// @access  Private
+router.get('/compliance-report/history', protect, async (req, res) => {
+  try {
+    const companyId = req.companyFilter?.companyId || req.user.activeCompanyId;
+    const reports = await complianceReportService.getHistory(companyId);
+
+    res.json({
+      success: true,
+      reports
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 module.exports = router;

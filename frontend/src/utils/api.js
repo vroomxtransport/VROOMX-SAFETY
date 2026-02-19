@@ -506,6 +506,12 @@ export const alertsAPI = {
 };
 
 // Compliance Score API
+export const complianceReportAPI = {
+  generate: () => api.post('/ai/compliance-report'),
+  getLatest: () => api.get('/ai/compliance-report/latest'),
+  getHistory: () => api.get('/ai/compliance-report/history')
+};
+
 export const complianceScoreAPI = {
   get: () => api.get('/dashboard/compliance-score'),
   getHistory: (days) => api.get('/dashboard/compliance-score/history', { params: { days } }),

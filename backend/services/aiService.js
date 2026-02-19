@@ -168,7 +168,61 @@ Do NOT include:
 - Emotional language or complaints about unfair treatment
 - Threats or accusations of misconduct
 - Irrelevant information about the carrier's history
-- Speculation without supporting evidence`
+- Speculation without supporting evidence`,
+
+  complianceReportAnalyzer: `You are a senior FMCSA compliance analyst generating a comprehensive compliance health report for a motor carrier. You will receive the carrier's complete compliance data and must produce a structured JSON analysis.
+
+Analyze ALL of the following areas:
+1. **CSA/BASICs**: Percentiles vs intervention thresholds (Unsafe Driving 65%, HOS 65%, Vehicle Maintenance 80%, Controlled Substances 80%, Driver Fitness 80%, Crash Indicator 65%). Flag any at or approaching threshold. Compare OOS rates to national averages.
+2. **Driver Qualification**: CDL expiration, medical card status, DQF completeness (employment app, road test, MVR, clearinghouse query, previous employer verification). Flag expired or missing items.
+3. **Vehicle Maintenance**: Annual inspection status (current, overdue, due soon). Fleet readiness.
+4. **Drug & Alcohol**: Random testing completion rates (50% drug, 10% alcohol required). Pre-employment and other test compliance.
+5. **Documentation**: Document validity rates. Expired, missing, or soon-to-expire documents.
+
+Return ONLY valid JSON (no markdown, no code fences) with this exact structure:
+{
+  "overallRisk": "critical|at_risk|needs_attention|good|excellent",
+  "overallScore": 0-100,
+  "executiveSummary": "2-3 paragraph analysis of the carrier's compliance posture, key risks, and overall trajectory",
+  "categoryScores": {
+    "csa_basics": { "score": 0-100, "status": "critical|warning|good", "summary": "1-2 sentences" },
+    "driver_qualification": { "score": 0-100, "status": "...", "summary": "..." },
+    "vehicle_maintenance": { "score": 0-100, "status": "...", "summary": "..." },
+    "drug_alcohol": { "score": 0-100, "status": "...", "summary": "..." },
+    "documentation": { "score": 0-100, "status": "...", "summary": "..." }
+  },
+  "findings": [
+    {
+      "category": "csa_basics|driver_qualification|vehicle_maintenance|drug_alcohol|documentation",
+      "title": "Short finding title",
+      "severity": "critical|warning|info",
+      "description": "Detailed explanation with specific numbers",
+      "regulation": "49 CFR §XXX.XX",
+      "currentValue": "e.g., 87th percentile",
+      "threshold": "e.g., 65th percentile"
+    }
+  ],
+  "actionItems": [
+    {
+      "priority": 1,
+      "title": "Action title",
+      "description": "Specific steps to take",
+      "category": "csa_basics|driver_qualification|vehicle_maintenance|drug_alcohol|documentation",
+      "effort": "low|medium|high",
+      "impact": "low|medium|high",
+      "deadline": "Immediate|30 days|60 days|90 days"
+    }
+  ]
+}
+
+Guidelines:
+- Be data-driven — cite actual numbers from the provided data
+- Order findings by severity (critical first)
+- Order action items by priority (highest impact + lowest effort first)
+- Include 5-15 findings and 5-10 action items depending on compliance state
+- Reference specific 49 CFR sections for each finding
+- If data is missing for a category, note it as a finding itself
+- Be actionable — tell the carrier exactly what to do, not just what's wrong`
 };
 
 /**
@@ -457,6 +511,36 @@ Generate a complete, ready-to-submit DataQ challenge letter following proper for
   };
 }
 
+/**
+ * Generate a comprehensive compliance report using Claude
+ * @param {Object} companyData - Aggregated compliance data snapshot
+ * @returns {Object} Structured report with findings and action items
+ */
+async function generateComplianceReport(companyData) {
+  const userMessage = `Analyze this carrier's complete FMCSA compliance data and generate a comprehensive report:\n\n${JSON.stringify(companyData, null, 2)}`;
+
+  const response = await query('complianceReportAnalyzer', userMessage, {
+    maxTokens: 4096
+  });
+
+  // Parse the JSON response from Claude
+  let report;
+  try {
+    // Strip any markdown code fences if present
+    let content = response.content;
+    content = content.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+    report = JSON.parse(content);
+  } catch (e) {
+    console.error('[AI] Failed to parse compliance report JSON:', e.message);
+    throw new Error('AI returned invalid report format');
+  }
+
+  return {
+    report,
+    usage: response.usage
+  };
+}
+
 module.exports = {
   query,
   parseRegulationResponse,
@@ -465,5 +549,6 @@ module.exports = {
   generateDataQChallenge,
   analyzeDataQChallenge,
   generateDataQLetter,
+  generateComplianceReport,
   SYSTEM_PROMPTS
 };
