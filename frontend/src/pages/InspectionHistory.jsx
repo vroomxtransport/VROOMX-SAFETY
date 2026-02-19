@@ -821,7 +821,14 @@ const InspectionHistory = () => {
             <InspectionCard
               key={insp._id}
               inspection={insp}
-              onViewDetails={setSelectedInspection}
+              onViewDetails={async (ins) => {
+                try {
+                  const res = await fmcsaInspectionsAPI.getById(ins._id);
+                  setSelectedInspection(res.data?.inspection || ins);
+                } catch {
+                  setSelectedInspection(ins);
+                }
+              }}
             />
           ))}
         </div>
