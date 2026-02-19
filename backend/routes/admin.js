@@ -27,7 +27,7 @@ async function cascadeDeleteCompany(companyId) {
   const db = mongoose.connection.db;
   const objectId = new mongoose.Types.ObjectId(companyId);
 
-  // Delete all related data in parallel
+  // Delete all related data in parallel — comprehensive cleanup
   const results = await Promise.all([
     db.collection('drivers').deleteMany({ companyId: objectId }),
     db.collection('vehicles').deleteMany({ companyId: objectId }),
@@ -45,6 +45,14 @@ async function cascadeDeleteCompany(companyId) {
     db.collection('compliancescores').deleteMany({ companyId: objectId }),
     db.collection('damageclaims').deleteMany({ companyId: objectId }),
     db.collection('companyinvitations').deleteMany({ companyId: objectId }),
+    // Collections that were missing from cascade delete:
+    db.collection('fmcsainspections').deleteMany({ companyId: objectId }),
+    db.collection('reporthistories').deleteMany({ companyId: objectId }),
+    db.collection('reporttemplates').deleteMany({ companyId: objectId }),
+    db.collection('scheduledreports').deleteMany({ companyId: objectId }),
+    db.collection('auditlogs').deleteMany({ companyId: objectId }),
+    db.collection('emaillogs').deleteMany({ companyId: objectId }),
+    db.collection('policies').deleteMany({ companyId: objectId }),
   ]);
 
   // Remove company from all users' companies array
@@ -445,7 +453,7 @@ router.delete('/users/:id', async (req, res) => {
       });
     }
 
-    // Find companies where user is the owner
+    // Find companies where user is the owner (from user.companies array)
     const ownedCompanies = user.companies?.filter(c => c.role === 'owner') || [];
 
     // Cascade delete all owned companies
@@ -454,6 +462,13 @@ router.delete('/users/:id', async (req, res) => {
       if (companyId) {
         await cascadeDeleteCompany(companyId.toString());
       }
+    }
+
+    // Also find any orphaned companies where this user is ownerId
+    // (covers case where user.companies was already cleared)
+    const orphanedCompanies = await Company.find({ ownerId: user._id });
+    for (const company of orphanedCompanies) {
+      await cascadeDeleteCompany(company._id.toString());
     }
 
     // Delete the user
