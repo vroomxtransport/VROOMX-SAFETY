@@ -555,6 +555,17 @@ const Compliance = () => {
               ))}
             </div>
           </div>
+          {/* Info note when some BASICs lack percentiles */}
+          {basicsData.some(b => !b.percentile && b.rawMeasure != null) && (
+            <div className="px-4 sm:px-5 pb-4 sm:pb-5">
+              <div className="flex gap-3 p-3 rounded-lg bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20">
+                <FiAlertCircle className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                <p className="text-xs text-blue-700 dark:text-blue-300">
+                  Some BASIC categories show a raw measure instead of a percentile. FMCSA only calculates percentile rankings when a carrier has enough inspections and safety events in that category. As your inspection history grows, percentiles will appear automatically.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
