@@ -854,6 +854,15 @@ const fmcsaInspectionService = {
    * The violation dataset (8mt8-2mdr) lacks state, inspection level, and location.
    * This fetches from the inspection dataset and matches by date.
    */
+  // Map FMCSA unit type IDs to readable labels
+  UNIT_TYPE_MAP: {
+    '1': 'Truck Tractor', '2': 'Straight Truck', '3': 'Bus',
+    '4': 'Motor Coach', '5': 'Van', '6': 'Pickup',
+    '7': 'Cargo Tank', '8': 'Intermodal Chassis', '9': 'Trailer',
+    '10': 'Semi-Trailer', '11': 'Full Trailer', '12': 'Pole Trailer',
+    '13': 'Converter Dolly', '14': 'Other'
+  },
+
   async enrichInspectionMetadata(companyId, dotNumber) {
     const headers = { 'Accept': 'application/json' };
     const socrataToken = process.env.SOCRATA_APP_TOKEN;
@@ -871,14 +880,14 @@ const fmcsaInspectionService = {
     const records = await response.json();
     if (!records.length) return 0;
 
-    // Build lookup by date string (YYYYMMDD) — for unique dates this gives an exact match;
-    // for multiple inspections on the same day, group them for best-effort matching
+    // Build lookup by date string (YYYYMMDD)
     const metadataByDate = {};
     for (const rec of records) {
       if (!rec.insp_date) continue;
-      const dateKey = rec.insp_date.replace(/\D/g, '').substring(0, 8); // "20260128"
+      const dateKey = rec.insp_date.replace(/\D/g, '').substring(0, 8);
       if (!metadataByDate[dateKey]) metadataByDate[dateKey] = [];
       metadataByDate[dateKey].push({
+        inspectionId: rec.inspection_id,
         state: rec.report_state || null,
         inspectionLevel: parseInt(rec.insp_level_id, 10) || null,
         location: rec.location_desc || null,
@@ -886,15 +895,25 @@ const fmcsaInspectionService = {
         vehicleOOS: parseInt(rec.vehicle_oos_total, 10) > 0,
         driverOOS: parseInt(rec.driver_oos_total, 10) > 0,
         hazmatOOS: parseInt(rec.hazmat_oos_total, 10) > 0,
-        reportNumber: rec.report_number
+        reportNumber: rec.report_number,
+        // Detailed fields for inspection detail view
+        carrierName: rec.insp_carrier_name || null,
+        shipperName: rec.shipper_name || null,
+        startTime: rec.insp_start_time || null,
+        endTime: rec.insp_end_time || null,
+        countyState: rec.county_code_state || null,
+        accidentRelated: rec.post_acc_ind === 'Y',
+        grossWeight: parseInt(rec.gross_comb_veh_wt, 10) || null
       });
     }
 
-    // Find inspections missing state, level, or with potentially stale OOS data
+    // Fetch all inspections for this company
     const inspections = await FMCSAInspection.find({ companyId })
-      .select('reportNumber inspectionDate state inspectionLevel totalViolations vehicleOOS driverOOS hazmatOOS');
+      .select('reportNumber inspectionDate state inspectionLevel totalViolations vehicleOOS driverOOS hazmatOOS inspectionDetails');
 
     let enriched = 0;
+    const inspectionIdMap = {}; // Maps FMCSA inspection_id → our DB _id
+
     for (const insp of inspections) {
       if (!insp.inspectionDate) continue;
       const d = new Date(insp.inspectionDate);
@@ -905,7 +924,6 @@ const fmcsaInspectionService = {
       const candidates = metadataByDate[dateKey];
       if (!candidates || candidates.length === 0) continue;
 
-      // Pick best match: if one candidate, use it; if multiple, match by violation count
       let meta;
       if (candidates.length === 1) {
         meta = candidates[0];
@@ -917,14 +935,71 @@ const fmcsaInspectionService = {
       if (!insp.state && meta.state) updates.state = meta.state;
       if (!insp.inspectionLevel && meta.inspectionLevel) updates.inspectionLevel = meta.inspectionLevel;
       if (meta.location) updates.location = meta.location;
-      // OOS flags from inspection file are authoritative (based on actual OOS counts)
       if (meta.vehicleOOS && !insp.vehicleOOS) updates.vehicleOOS = true;
       if (meta.driverOOS && !insp.driverOOS) updates.driverOOS = true;
       if (meta.hazmatOOS && !insp.hazmatOOS) updates.hazmatOOS = true;
 
+      // Store detailed inspection metadata
+      if (meta.inspectionId) {
+        updates.inspectionDetails = {
+          inspectionId: meta.inspectionId,
+          carrierName: meta.carrierName,
+          shipperName: meta.shipperName,
+          startTime: meta.startTime,
+          endTime: meta.endTime,
+          countyState: meta.countyState,
+          accidentRelated: meta.accidentRelated,
+          grossWeight: meta.grossWeight
+        };
+        inspectionIdMap[meta.inspectionId] = insp._id;
+      }
+
       if (Object.keys(updates).length > 0) {
         await FMCSAInspection.updateOne({ _id: insp._id }, { $set: updates });
         enriched++;
+      }
+    }
+
+    // Fetch equipment data from Inspections Per Unit dataset
+    const inspectionIds = Object.keys(inspectionIdMap);
+    if (inspectionIds.length > 0) {
+      try {
+        const idList = inspectionIds.map(id => `'${id}'`).join(',');
+        const equipUrl = `https://datahub.transportation.gov/resource/wt8s-2hbx.json?$where=inspection_id in(${idList})&$limit=2000`;
+        const equipResponse = await fetch(equipUrl, { headers });
+
+        if (equipResponse.ok) {
+          const equipRecords = await equipResponse.json();
+
+          // Group equipment by inspection_id
+          const equipByInspection = {};
+          for (const eq of equipRecords) {
+            const iid = eq.inspection_id;
+            if (!iid) continue;
+            if (!equipByInspection[iid]) equipByInspection[iid] = [];
+            equipByInspection[iid].push({
+              unitType: this.UNIT_TYPE_MAP[eq.insp_unit_type_id] || `Type ${eq.insp_unit_type_id}`,
+              unitNumber: parseInt(eq.insp_unit_number, 10) || null,
+              vin: eq.insp_unit_vehicle_id_number || null,
+              licensePlate: eq.insp_unit_license || null,
+              licenseState: eq.insp_unit_license_state || null,
+              make: eq.insp_unit_make || null,
+              companyNumber: eq.insp_unit_company || null
+            });
+          }
+
+          // Update each inspection with its equipment
+          for (const [iid, equipment] of Object.entries(equipByInspection)) {
+            const dbId = inspectionIdMap[iid];
+            if (dbId) {
+              await FMCSAInspection.updateOne({ _id: dbId }, { $set: { equipment } });
+            }
+          }
+
+          console.log(`[FMCSA Violations] Equipment enriched for ${Object.keys(equipByInspection).length} inspections`);
+        }
+      } catch (err) {
+        console.error('[FMCSA Violations] Equipment fetch failed:', err.message);
       }
     }
 

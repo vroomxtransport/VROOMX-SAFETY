@@ -106,6 +106,29 @@ const fmcsaInspectionSchema = new mongoose.Schema({
     driverState: String
   },
 
+  // Detailed inspection metadata from FMCSA Vehicle Inspection File
+  inspectionDetails: {
+    inspectionId: String,          // FMCSA inspection_id (for equipment join)
+    carrierName: String,
+    shipperName: String,
+    startTime: String,             // "0615" format
+    endTime: String,               // "0647" format
+    countyState: String,
+    accidentRelated: { type: Boolean, default: false },
+    grossWeight: Number
+  },
+
+  // Equipment inspected (from Inspections Per Unit dataset)
+  equipment: [{
+    unitType: String,              // "Truck Tractor", "Trailer", etc.
+    unitNumber: Number,
+    vin: String,
+    licensePlate: String,
+    licenseState: String,
+    make: String,
+    companyNumber: String
+  }],
+
   // Import Metadata
   importedAt: {
     type: Date,

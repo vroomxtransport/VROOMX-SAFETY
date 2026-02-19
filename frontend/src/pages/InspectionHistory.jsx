@@ -279,6 +279,21 @@ const InspectionDetailModal = ({ inspection, onClose }) => {
     year: 'numeric', month: 'numeric', day: 'numeric'
   });
 
+  const formatTime = (timeStr) => {
+    if (!timeStr || timeStr.length < 4) return null;
+    const h = parseInt(timeStr.substring(0, 2), 10);
+    const m = timeStr.substring(2, 4);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+    return `${h12}:${m} ${ampm}`;
+  };
+
+  const details = inspection.inspectionDetails || {};
+  const equipment = inspection.equipment || [];
+  const localTime = details.startTime && details.endTime
+    ? `${formatTime(details.startTime)} - ${formatTime(details.endTime)}`
+    : details.startTime ? formatTime(details.startTime) : null;
+
   const violations = inspection.violations || [];
   const oosCount = violations.filter(v => v.oos).length;
   const driverViolations = violations.filter(v => v.type === 'driver' || v.basic === 'driver_fitness' || v.basic === 'hours_of_service' || v.basic === 'controlled_substances');
@@ -337,13 +352,21 @@ const InspectionDetailModal = ({ inspection, onClose }) => {
                 <span className="text-zinc-500 block text-xs mb-0.5">Date</span>
                 <span className="font-medium text-zinc-800 dark:text-zinc-100">{formatDate(inspection.inspectionDate)}</span>
               </div>
+              {localTime && (
+                <div>
+                  <span className="text-zinc-500 block text-xs mb-0.5">Local Time</span>
+                  <span className="font-medium text-zinc-800 dark:text-zinc-100">{localTime}</span>
+                </div>
+              )}
               <div>
                 <span className="text-zinc-500 block text-xs mb-0.5">Report Number</span>
                 <span className="font-mono font-medium text-zinc-800 dark:text-zinc-100">{inspection.reportNumber}</span>
               </div>
               <div>
                 <span className="text-zinc-500 block text-xs mb-0.5">Inspection Level</span>
-                <span className="font-medium text-zinc-800 dark:text-zinc-100">Level {inspection.inspectionLevel} - {getLevelLabel(inspection.inspectionLevel)}</span>
+                <span className="font-medium text-zinc-800 dark:text-zinc-100">
+                  {inspection.inspectionLevel ? `Level ${inspection.inspectionLevel} - ${getLevelLabel(inspection.inspectionLevel)}` : '-'}
+                </span>
               </div>
               <div>
                 <span className="text-zinc-500 block text-xs mb-0.5">State</span>
@@ -353,9 +376,25 @@ const InspectionDetailModal = ({ inspection, onClose }) => {
                 <span className="text-zinc-500 block text-xs mb-0.5">Location</span>
                 <span className="font-medium text-zinc-800 dark:text-zinc-100">{inspection.location || '-'}</span>
               </div>
+              {details.countyState && (
+                <div>
+                  <span className="text-zinc-500 block text-xs mb-0.5">County/State</span>
+                  <span className="font-medium text-zinc-800 dark:text-zinc-100">{details.countyState}</span>
+                </div>
+              )}
+              <div>
+                <span className="text-zinc-500 block text-xs mb-0.5">Carrier Name</span>
+                <span className="font-medium text-zinc-800 dark:text-zinc-100">{details.carrierName || '-'}</span>
+              </div>
+              {details.shipperName && (
+                <div>
+                  <span className="text-zinc-500 block text-xs mb-0.5">Shipper Name</span>
+                  <span className="font-medium text-zinc-800 dark:text-zinc-100">{details.shipperName}</span>
+                </div>
+              )}
               <div>
                 <span className="text-zinc-500 block text-xs mb-0.5">Accident Related</span>
-                <span className="font-medium text-zinc-800 dark:text-zinc-100">{inspection.accidentRelated ? 'Yes' : 'No'}</span>
+                <span className="font-medium text-zinc-800 dark:text-zinc-100">{details.accidentRelated ? 'Yes' : 'No'}</span>
               </div>
             </div>
           </div>
@@ -429,28 +468,39 @@ const InspectionDetailModal = ({ inspection, onClose }) => {
             </div>
           )}
 
-          {/* Equipment Inspected — Placeholder */}
+          {/* Equipment Inspected */}
           <div>
             <h3 className="font-semibold text-zinc-800 dark:text-zinc-100 mb-3 flex items-center gap-2">
               <FiTruck className="w-4 h-4" /> Equipment Inspected
             </h3>
-            <div className="border border-dashed border-zinc-300 dark:border-zinc-600 rounded-xl p-6 text-center">
-              <FiTruck className="w-8 h-8 text-zinc-300 dark:text-zinc-600 mx-auto mb-2" />
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">Equipment details (VIN, License, Make) available after FMCSA API setup</p>
-              <p className="text-xs text-zinc-400 mt-1">Unit Type, VIN, License Plate, Make/Model</p>
-            </div>
-          </div>
-
-          {/* Insurance at Time of Inspection — Placeholder */}
-          <div>
-            <h3 className="font-semibold text-zinc-800 dark:text-zinc-100 mb-3 flex items-center gap-2">
-              <FiShield className="w-4 h-4" /> Insurance at Time of Inspection
-            </h3>
-            <div className="border border-dashed border-zinc-300 dark:border-zinc-600 rounded-xl p-6 text-center">
-              <FiShield className="w-8 h-8 text-zinc-300 dark:text-zinc-600 mx-auto mb-2" />
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">Insurance data available after FMCSA API setup</p>
-              <p className="text-xs text-zinc-400 mt-1">Insurance Company, Policy Number, Effective Date, Coverage</p>
-            </div>
+            {equipment.length > 0 ? (
+              <div className="border border-zinc-200 dark:border-zinc-700 rounded-xl overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-zinc-50 dark:bg-zinc-800">
+                    <tr>
+                      <th className="px-4 py-2.5 text-left text-xs font-medium text-zinc-500 uppercase">Unit Type</th>
+                      <th className="px-4 py-2.5 text-left text-xs font-medium text-zinc-500 uppercase">VIN</th>
+                      <th className="px-4 py-2.5 text-left text-xs font-medium text-zinc-500 uppercase">License</th>
+                      <th className="px-4 py-2.5 text-left text-xs font-medium text-zinc-500 uppercase">Make</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-200 dark:divide-zinc-700">
+                    {equipment.map((eq, idx) => (
+                      <tr key={idx} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50">
+                        <td className="px-4 py-3 font-medium text-zinc-800 dark:text-zinc-100">{eq.unitType}</td>
+                        <td className="px-4 py-3 font-mono text-xs text-zinc-700 dark:text-zinc-300">{eq.vin || '-'}</td>
+                        <td className="px-4 py-3 text-zinc-700 dark:text-zinc-300">{eq.licensePlate}{eq.licenseState ? ` (${eq.licenseState})` : ''}</td>
+                        <td className="px-4 py-3 text-zinc-700 dark:text-zinc-300">{eq.make || '-'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="border border-dashed border-zinc-300 dark:border-zinc-600 rounded-xl p-4 text-center">
+                <p className="text-sm text-zinc-500 dark:text-zinc-400">Equipment data will be available after next FMCSA sync</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
