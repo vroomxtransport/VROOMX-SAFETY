@@ -381,12 +381,18 @@ const fmcsaService = {
 
       const basics = {
         unsafeDriving: null,
+        unsafeDrivingMeasure: null,
         hosCompliance: null,
+        hosComplianceMeasure: null,
         vehicleMaintenance: null,
+        vehicleMaintenanceMeasure: null,
         crashIndicator: null,
+        crashIndicatorMeasure: null,
         controlledSubstances: null,
+        controlledSubstancesMeasure: null,
         hazmatCompliance: null,
-        driverFitness: null
+        driverFitness: null,
+        driverFitnessMeasure: null
       };
 
       let inspections = { total: 0, last24Months: 0 };
@@ -396,7 +402,7 @@ const fmcsaService = {
       const overviewUrl = SAFER_URLS.smsProfile(dotNumber);
       await page.goto(overviewUrl, { waitUntil: 'domcontentloaded', timeout: 20000 });
 
-      // Extract inspection and crash counts from overview
+      // Extract inspection counts, crash counts, AND raw BASIC measures from overview
       const overviewData = await page.evaluate(() => {
         const text = document.body.textContent;
 
@@ -404,9 +410,35 @@ const fmcsaService = {
         const inspMatch = text.match(/Total\s*Inspections[:\s]*(\d+)/i);
         const crashMatch = text.match(/Total\s*Crashes[*:\s]*(\d+)/i);
 
+        // Extract raw BASIC measure values from overview page
+        // These appear even when percentiles are not yet calculated
+        const measures = {};
+        const measurePatterns = [
+          { key: 'unsafeDriving', patterns: [/Unsafe\s*Driving[\s\S]{0,50}?(\d+\.?\d*)/i] },
+          { key: 'hosCompliance', patterns: [/Hours[\s-]*of[\s-]*Service[\s\S]{0,50}?(\d+\.?\d*)/i, /HOS[\s\S]{0,30}?(\d+\.?\d*)/i] },
+          { key: 'vehicleMaintenance', patterns: [/Vehicle\s*Maint[\w]*[\s\S]{0,50}?(\d+\.?\d*)/i] },
+          { key: 'controlledSubstances', patterns: [/Controlled\s*Subst[\w]*[\s\S]{0,50}?(\d+\.?\d*)/i, /Drugs?\s*[\&\/]?\s*Alcohol[\s\S]{0,50}?(\d+\.?\d*)/i] },
+          { key: 'driverFitness', patterns: [/Driver\s*Fitness[\s\S]{0,50}?(\d+\.?\d*)/i] },
+          { key: 'crashIndicator', patterns: [/Crash\s*Indicator[\s\S]{0,50}?(\d+\.?\d*)/i] }
+        ];
+
+        for (const { key, patterns } of measurePatterns) {
+          for (const pattern of patterns) {
+            const match = text.match(pattern);
+            if (match) {
+              const val = parseFloat(match[1]);
+              if (!isNaN(val)) {
+                measures[key] = val;
+                break;
+              }
+            }
+          }
+        }
+
         return {
           inspections: inspMatch ? parseInt(inspMatch[1], 10) : 0,
-          crashes: crashMatch ? parseInt(crashMatch[1], 10) : 0
+          crashes: crashMatch ? parseInt(crashMatch[1], 10) : 0,
+          measures
         };
       });
 
@@ -415,6 +447,11 @@ const fmcsaService = {
       crashes.last24Months = overviewData.crashes;
       crashes.total = overviewData.crashes;
 
+      // Store raw measures from overview page
+      for (const [key, value] of Object.entries(overviewData.measures || {})) {
+        basics[`${key}Measure`] = value;
+      }
+
       // Now fetch each BASIC page to get percentiles
       for (const basic of basicPages) {
         try {
@@ -422,38 +459,46 @@ const fmcsaService = {
 
           await page.goto(basicUrl, { waitUntil: 'domcontentloaded', timeout: 15000 });
 
-          // Look for data-percentile attribute on the page
-          const percentile = await page.evaluate(() => {
-            // The percentile is stored in a data attribute like: data-percentile="83"
+          // Look for data-percentile attribute AND raw measure value on the page
+          const result = await page.evaluate(() => {
+            const text = document.body.textContent;
+            let percentile = null;
+            let rawMeasure = null;
+
+            // Try to get percentile from data attribute
             const resultDiv = document.querySelector('[data-percentile]');
             if (resultDiv) {
               const val = resultDiv.getAttribute('data-percentile');
               const num = parseInt(val, 10);
               if (!isNaN(num) && num >= 0 && num <= 100) {
-                return num;
+                percentile = num;
               }
             }
 
             // Also check for "Percentile:" text
-            const text = document.body.textContent;
-            const match = text.match(/Percentile[:\s]*(\d{1,3})/i);
-            if (match) {
-              const num = parseInt(match[1], 10);
-              if (num >= 0 && num <= 100) return num;
+            if (percentile === null) {
+              const match = text.match(/Percentile[:\s]*(\d{1,3})/i);
+              if (match) {
+                const num = parseInt(match[1], 10);
+                if (num >= 0 && num <= 100) percentile = num;
+              }
             }
 
-            // Check if page says "Insufficient Data" or similar
-            if (text.includes('Insufficient Data') ||
-                text.includes('not have enough relevant') ||
-                text.includes('No data available')) {
-              return null;
+            // Always try to get raw measure value (available even without percentiles)
+            const measureMatch = text.match(/(?:BASIC\s*)?Measure[:\s]*(\d+\.?\d*)/i)
+              || text.match(/Weighted\s*Score[:\s]*(\d+\.?\d*)/i);
+            if (measureMatch) {
+              rawMeasure = parseFloat(measureMatch[1]);
             }
 
-            return null;
+            return { percentile, rawMeasure };
           });
 
-          if (percentile !== null) {
-            basics[basic.key] = percentile;
+          if (result.percentile !== null) {
+            basics[basic.key] = result.percentile;
+          }
+          if (result.rawMeasure !== null) {
+            basics[`${basic.key}Measure`] = result.rawMeasure;
           }
 
         } catch (err) {

@@ -66,9 +66,12 @@ const getLevelLabel = (level) => {
 // ─── BASIC Score Bar Component ───────────────────────────────────────────────
 const BasicScoreBar = ({ config, score }) => {
   const percentile = score?.percentile;
+  const rawMeasure = score?.rawMeasure;
+  const hasPercentile = percentile !== null && percentile !== undefined;
+  const hasRawMeasure = rawMeasure !== null && rawMeasure !== undefined;
   const color = getScoreColor(percentile, config.threshold);
   const Icon = config.icon;
-  const aboveThreshold = percentile !== null && percentile !== undefined && percentile >= config.threshold;
+  const aboveThreshold = hasPercentile && percentile >= config.threshold;
 
   const colorMap = {
     emerald: { bar: 'bg-emerald-500', text: 'text-emerald-600', bg: 'bg-emerald-50' },
@@ -76,7 +79,7 @@ const BasicScoreBar = ({ config, score }) => {
     red: { bar: 'bg-red-500', text: 'text-red-600', bg: 'bg-red-50' },
     zinc: { bar: 'bg-zinc-300', text: 'text-zinc-400', bg: 'bg-zinc-50' }
   };
-  const c = colorMap[color];
+  const c = hasPercentile ? colorMap[color] : (hasRawMeasure ? colorMap.amber : colorMap.zinc);
 
   return (
     <div className="flex items-center gap-3">
@@ -87,9 +90,16 @@ const BasicScoreBar = ({ config, score }) => {
         <div className="flex items-center justify-between mb-1">
           <span className="text-sm font-medium text-zinc-700 dark:text-zinc-200 truncate">{config.name}</span>
           <div className="flex items-center gap-2">
-            <span className={`text-sm font-bold ${c.text}`}>
-              {percentile !== null && percentile !== undefined ? `${percentile}%` : 'N/A'}
-            </span>
+            {hasPercentile ? (
+              <span className={`text-sm font-bold ${c.text}`}>{percentile}%</span>
+            ) : hasRawMeasure ? (
+              <span className="text-sm font-bold text-amber-600 dark:text-amber-400" title="Raw FMCSA measure (percentile not yet available)">
+                {rawMeasure.toFixed(2)}
+                <span className="text-[10px] font-normal text-zinc-400 ml-1">measure</span>
+              </span>
+            ) : (
+              <span className="text-sm font-bold text-zinc-400">N/A</span>
+            )}
             {aboveThreshold && (
               <span className="px-1.5 py-0.5 text-[10px] font-bold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 rounded">
                 ALERT
@@ -97,18 +107,26 @@ const BasicScoreBar = ({ config, score }) => {
             )}
           </div>
         </div>
-        <div className="relative h-2 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden">
-          <div
-            className={`absolute inset-y-0 left-0 ${c.bar} rounded-full transition-all duration-700`}
-            style={{ width: `${Math.min(percentile || 0, 100)}%` }}
-          />
-          {/* Threshold marker */}
-          <div
-            className="absolute top-0 bottom-0 w-0.5 bg-zinc-900/40 dark:bg-white/40"
-            style={{ left: `${config.threshold}%` }}
-            title={`Intervention threshold: ${config.threshold}%`}
-          />
-        </div>
+        {hasPercentile ? (
+          <div className="relative h-2 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden">
+            <div
+              className={`absolute inset-y-0 left-0 ${c.bar} rounded-full transition-all duration-700`}
+              style={{ width: `${Math.min(percentile, 100)}%` }}
+            />
+            {/* Threshold marker */}
+            <div
+              className="absolute top-0 bottom-0 w-0.5 bg-zinc-900/40 dark:bg-white/40"
+              style={{ left: `${config.threshold}%` }}
+              title={`Intervention threshold: ${config.threshold}%`}
+            />
+          </div>
+        ) : hasRawMeasure ? (
+          <div className="h-2 bg-amber-100 dark:bg-amber-900/30 rounded-full overflow-hidden">
+            <div className="h-full bg-amber-400/50 rounded-full" style={{ width: '100%' }} />
+          </div>
+        ) : (
+          <div className="h-2 bg-zinc-200 dark:bg-zinc-700 rounded-full" />
+        )}
       </div>
     </div>
   );

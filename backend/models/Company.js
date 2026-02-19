@@ -41,14 +41,20 @@ const companySchema = new mongoose.Schema({
     powerUnits: { type: Number, default: 0 },
     drivers: { type: Number, default: 0 }
   },
-  // SMS BASICs Percentiles (can be manually entered or synced from FMCSA)
+  // SMS BASICs — Percentiles (0-100) and Raw Measure values from FMCSA
   smsBasics: {
     unsafeDriving: { type: Number, min: 0, max: 100, default: null },
+    unsafeDrivingMeasure: { type: Number, default: null },
     hoursOfService: { type: Number, min: 0, max: 100, default: null },
+    hoursOfServiceMeasure: { type: Number, default: null },
     vehicleMaintenance: { type: Number, min: 0, max: 100, default: null },
+    vehicleMaintenanceMeasure: { type: Number, default: null },
     controlledSubstances: { type: Number, min: 0, max: 100, default: null },
+    controlledSubstancesMeasure: { type: Number, default: null },
     driverFitness: { type: Number, min: 0, max: 100, default: null },
+    driverFitnessMeasure: { type: Number, default: null },
     crashIndicator: { type: Number, min: 0, max: 100, default: null },
+    crashIndicatorMeasure: { type: Number, default: null },
     lastUpdated: { type: Date }
   },
   // Important compliance documents

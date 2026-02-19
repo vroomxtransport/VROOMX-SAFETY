@@ -54,17 +54,23 @@ const fmcsaSyncService = {
         'smsBasics.lastUpdated': new Date()
       };
 
-      // Map scraper keys to Company model keys
+      // Map scraper keys to Company model keys (percentiles + raw measures)
       const basicMapping = {
         unsafeDriving: fmcsaData.basics?.unsafeDriving,
+        unsafeDrivingMeasure: fmcsaData.basics?.unsafeDrivingMeasure,
         hoursOfService: fmcsaData.basics?.hosCompliance,
+        hoursOfServiceMeasure: fmcsaData.basics?.hosComplianceMeasure,
         vehicleMaintenance: fmcsaData.basics?.vehicleMaintenance,
+        vehicleMaintenanceMeasure: fmcsaData.basics?.vehicleMaintenanceMeasure,
         controlledSubstances: fmcsaData.basics?.controlledSubstances,
+        controlledSubstancesMeasure: fmcsaData.basics?.controlledSubstancesMeasure,
         driverFitness: fmcsaData.basics?.driverFitness,
-        crashIndicator: fmcsaData.basics?.crashIndicator
+        driverFitnessMeasure: fmcsaData.basics?.driverFitnessMeasure,
+        crashIndicator: fmcsaData.basics?.crashIndicator,
+        crashIndicatorMeasure: fmcsaData.basics?.crashIndicatorMeasure
       };
 
-      // Only set non-null BASICs (don't overwrite good data with null from failed scrapes)
+      // Only set non-null values (don't overwrite good data with null from failed scrapes)
       for (const [key, value] of Object.entries(basicMapping)) {
         if (value !== null && value !== undefined) {
           updateData[`smsBasics.${key}`] = value;
