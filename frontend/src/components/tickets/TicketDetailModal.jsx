@@ -2,7 +2,7 @@ import { FiFileText, FiCalendar, FiEdit2, FiTrash2, FiDollarSign } from 'react-i
 import Modal from '../Modal';
 import StatusBadge from '../StatusBadge';
 import { formatDate, formatCurrency } from '../../utils/helpers';
-import { ticketTypes, courtDecisionOptions, getStatusBadgeType } from '../../data/ticketOptions';
+import { ticketTypes, courtDecisionOptions, dataQOptions, getStatusBadgeType } from '../../data/ticketOptions';
 
 const TicketDetailModal = ({
   isOpen,
@@ -34,6 +34,9 @@ const TicketDetailModal = ({
                 <h3 className="font-semibold text-primary-900">
                   {ticket.driverId?.firstName} {ticket.driverId?.lastName}
                 </h3>
+                {ticket.ticketNumber && (
+                  <p className="text-xs font-mono text-primary-400">#{ticket.ticketNumber}</p>
+                )}
                 <p className="text-sm text-primary-500">{ticket.driverId?.employeeId}</p>
               </div>
             </div>
@@ -83,6 +86,12 @@ const TicketDetailModal = ({
             <p className="text-xs text-primary-500 mb-1">Court Decision</p>
             <p className="text-sm font-medium text-primary-900 capitalize">
               {courtDecisionOptions.find(o => o.value === ticket.courtDecision)?.label || 'Not Yet'}
+            </p>
+          </div>
+          <div className="p-3 rounded-lg bg-white border border-primary-200">
+            <p className="text-xs text-primary-500 mb-1">DataQ Decision</p>
+            <p className="text-sm font-medium text-primary-900 capitalize">
+              {dataQOptions.find(o => o.value === ticket.dataQDecision)?.label || 'Not Filed'}
             </p>
           </div>
         </div>

@@ -914,9 +914,16 @@ const Maintenance = () => {
                   {selectedRecord.vehicleId?.make} {selectedRecord.vehicleId?.model} ({selectedRecord.vehicleId?.year})
                 </div>
               </div>
-              <span className="px-3 py-1 text-sm bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 rounded-full capitalize">
-                {getTypeLabel(selectedRecord.recordType)}
-              </span>
+              <div className="text-right">
+                <span className="px-3 py-1 text-sm bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 rounded-full capitalize">
+                  {getTypeLabel(selectedRecord.recordType)}
+                </span>
+                {selectedRecord.invoiceNumber && (
+                  <div className="text-sm font-mono text-zinc-500 dark:text-zinc-400 mt-1">
+                    Invoice #{selectedRecord.invoiceNumber}
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -955,6 +962,26 @@ const Maintenance = () => {
               <p className="text-zinc-900 dark:text-white">{selectedRecord.description}</p>
             </div>
 
+            {selectedRecord.partsUsed?.length > 0 && (
+              <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-4">
+                <h4 className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-3">Parts Used</h4>
+                <div className="space-y-2">
+                  {selectedRecord.partsUsed.map((part, idx) => (
+                    <div key={idx} className="flex items-center justify-between text-sm">
+                      <div>
+                        <span className="text-zinc-900 dark:text-white">{part.partName}</span>
+                        {part.partNumber && <span className="ml-2 text-xs text-zinc-400 font-mono">#{part.partNumber}</span>}
+                      </div>
+                      <div className="flex items-center gap-3 text-zinc-500 dark:text-zinc-400">
+                        <span>Qty: {part.quantity || 1}</span>
+                        {part.cost > 0 && <span>${part.cost.toFixed(2)}</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {selectedRecord.provider?.name && (
               <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-4">
                 <h4 className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">Service Provider</h4>
@@ -964,6 +991,9 @@ const Maintenance = () => {
                 )}
                 {selectedRecord.provider.phone && (
                   <div className="text-sm text-zinc-500 dark:text-zinc-400">{selectedRecord.provider.phone}</div>
+                )}
+                {selectedRecord.provider.mechanic && (
+                  <div className="text-sm text-zinc-500 dark:text-zinc-400">Mechanic: {selectedRecord.provider.mechanic}</div>
                 )}
               </div>
             )}
@@ -1011,6 +1041,9 @@ const Maintenance = () => {
                     <span className="text-sm text-gray-400">- Claim #{selectedRecord.warranty.claimNumber}</span>
                   )}
                 </div>
+                {selectedRecord.warranty.notes && (
+                  <p className="text-sm text-green-300 mt-2">{selectedRecord.warranty.notes}</p>
+                )}
               </div>
             )}
 

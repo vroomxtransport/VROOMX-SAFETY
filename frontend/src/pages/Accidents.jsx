@@ -809,6 +809,7 @@ const Accidents = () => {
                 </div>
                 <div className="text-zinc-500 dark:text-zinc-400 mt-1 flex items-center gap-2">
                   <FiMapPin className="w-4 h-4" />
+                  {selectedAccident.location?.address && `${selectedAccident.location.address}, `}
                   {selectedAccident.location?.city && `${selectedAccident.location.city}, `}
                   {selectedAccident.location?.state}
                 </div>
@@ -892,6 +893,16 @@ const Accidents = () => {
                   {selectedAccident.policeReport.citationIssued && (
                     <span className="ml-3 text-yellow-600 dark:text-yellow-400">Citation Issued</span>
                   )}
+                </div>
+              </div>
+            )}
+
+            {/* Hazmat */}
+            {selectedAccident.cargoDamage?.hazmatSpill && (
+              <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4">
+                <div className="flex items-center gap-2 text-orange-400 font-medium">
+                  <FiAlertTriangle className="w-4 h-4" />
+                  Hazmat Release/Spill
                 </div>
               </div>
             )}

@@ -56,6 +56,12 @@ const ClaimDetailModal = ({
               <p className="text-sm text-zinc-600 dark:text-zinc-300">Not assigned</p>
             )}
           </div>
+          {claim.tripId && (
+            <div className="p-3 rounded-lg bg-primary-50 dark:bg-primary-900/30 border border-primary-200 dark:border-primary-700">
+              <p className="text-xs text-zinc-600 dark:text-zinc-300 mb-1">Trip / Reference</p>
+              <p className="text-sm font-medium font-mono text-zinc-900 dark:text-zinc-100">{claim.tripId}</p>
+            </div>
+          )}
         </div>
 
         {/* Description */}
