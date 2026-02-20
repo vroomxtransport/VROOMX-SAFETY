@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { dashboardAPI, fmcsaAPI } from '../utils/api';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, Legend } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, Legend, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from 'recharts';
 import toast from 'react-hot-toast';
-import { FiEdit2, FiCheck, FiAlertTriangle, FiAlertCircle, FiBarChart2, FiTarget, FiTrendingUp, FiRefreshCw, FiFileText, FiClipboard, FiCheckCircle } from 'react-icons/fi';
+import { FiEdit2, FiCheck, FiAlertTriangle, FiAlertCircle, FiBarChart2, FiTarget, FiTrendingUp, FiRefreshCw, FiFileText, FiClipboard, FiCheckCircle, FiInfo } from 'react-icons/fi';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Modal from '../components/Modal';
 import TabNav from '../components/TabNav';
@@ -471,108 +471,119 @@ const Compliance = () => {
         </div>
       ) : activeTab === 'overview' ? (
         <>
-      {/* BASICs Overview */}
-      <div className="card">
-        <div className="card-header">
-          <div className="flex items-center gap-3 flex-wrap">
-            <h2 className="text-lg font-semibold text-zinc-900 dark:text-white">SMS BASICs Overview</h2>
-            {/* Data Source Badge */}
-            {dashboard?.smsBasics?._meta?.isEstimate === false ? (
-              <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-500/30">
-                FMCSA Data
-              </span>
-            ) : (
-              <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-yellow-100 dark:bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-500/30">
-                Estimated
-              </span>
-            )}
+      {/* BASICs Overview - Two Card Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+        {/* Left Card: BASIC Scores (SMS Percentile) */}
+        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-5">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-lg font-semibold text-zinc-900 dark:text-white">BASIC Scores (SMS Percentile)</h2>
+            <span className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">
+              <FiInfo className="w-3 h-3" />
+              Lower is better
+            </span>
           </div>
-          <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-1">
-            {dashboard?.smsBasics?._meta?.lastUpdated ? (
-              <>Data synced {Math.floor(dashboard.smsBasics._meta.daysSinceUpdate)} days ago from FMCSA SAFER</>
-            ) : (
-              <>Estimated scores based on recorded violations. For official data, sync with FMCSA or enter manually.</>
-            )}
+          <div className="space-y-5">
+            {basicsData.map((basic) => {
+              const pct = basic.percentile || 0;
+              const isAbove = pct >= basic.threshold;
+              const isNearThreshold = pct >= basic.threshold * 0.7 && !isAbove;
+              const barColor = isAbove ? 'bg-orange-400' : isNearThreshold ? 'bg-orange-400' : 'bg-green-500';
+
+              return (
+                <div key={basic.key}>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-sm font-medium text-zinc-800 dark:text-zinc-200">{basic.name}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-zinc-800 dark:text-zinc-100">{pct}%</span>
+                      <span className="text-xs text-zinc-400">/ {basic.threshold}% threshold</span>
+                      {isAbove ? (
+                        <FiAlertTriangle className="w-4 h-4 text-amber-500" />
+                      ) : (
+                        <FiCheckCircle className="w-4 h-4 text-green-500" />
+                      )}
+                    </div>
+                  </div>
+                  <div className="relative h-2.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-visible">
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 ${barColor}`}
+                      style={{ width: `${Math.min(pct, 100)}%` }}
+                    />
+                    {/* Threshold marker */}
+                    <div
+                      className="absolute top-[-3px] w-0.5 h-[14px] bg-red-500"
+                      style={{ left: `${basic.threshold}%`, borderLeft: '1px dashed #ef4444', background: 'transparent' }}
+                    >
+                      <div className="w-[2px] h-full border-l-2 border-dashed border-red-500" />
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          {/* Data source note */}
+          <p className="text-[10px] text-zinc-400 mt-5">
+            {dashboard?.smsBasics?._meta?.lastUpdated
+              ? `Synced ${Math.floor(dashboard.smsBasics._meta.daysSinceUpdate)} days ago from FMCSA SAFER`
+              : 'Estimated scores — sync with FMCSA for official data'}
           </p>
         </div>
-        <div className="card-body">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-            {/* Bar Chart */}
-            <div>
-              <ResponsiveContainer width="100%" height={250} className="sm:!h-[300px]">
-                <BarChart data={basicsData} layout="vertical" margin={{ left: 20 }}>
-                  <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
-                  <XAxis type="number" domain={[0, 100]} tickFormatter={(v) => `${v}%`} />
-                  <YAxis type="category" dataKey="name" width={120} tick={{ fontSize: 12 }} />
-                  <Tooltip
-                    formatter={(value, name, props) => {
-                      if (value > 0) return [`${value}% (Threshold: ${props.payload.threshold}%)`, 'Percentile'];
-                      if (props.payload.rawMeasure != null) return [`Measure: ${props.payload.rawMeasure}`, 'Below ranking threshold'];
-                      return ['No data', ''];
-                    }}
-                    contentStyle={{ borderRadius: '8px' }}
-                  />
-                  <Bar dataKey="percentile" radius={[0, 4, 4, 0]}>
-                    {basicsData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={getBarColor(entry.status)} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
 
-            {/* BASIC Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {basicsData.map((basic) => (
-                <div
-                  key={basic.key}
-                  className={`p-4 rounded-lg border-2 cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ${
-                    basic.status === 'critical' ? 'border-red-300 dark:border-red-500/50 bg-red-50 dark:bg-red-500/10 hover:border-red-400 dark:hover:border-red-500/70' :
-                    basic.status === 'warning' ? 'border-yellow-300 dark:border-yellow-500/50 bg-yellow-50 dark:bg-yellow-500/10 hover:border-yellow-400 dark:hover:border-yellow-500/70' :
-                    basic.status === 'compliant' ? 'border-green-300 dark:border-green-500/50 bg-green-50 dark:bg-green-500/10 hover:border-green-400 dark:hover:border-green-500/70' :
-                    'border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-600'
-                  }`}
-                >
-                  <p className="text-sm font-medium text-zinc-700 dark:text-zinc-200 truncate">{basic.name}</p>
-                  <div className="flex items-end justify-between mt-2">
-                    <span className={`text-xl sm:text-2xl font-bold ${
-                      basic.status === 'critical' ? 'text-red-600 dark:text-red-400' :
-                      basic.status === 'warning' ? 'text-yellow-600 dark:text-yellow-400' :
-                      basic.status === 'compliant' ? 'text-green-600 dark:text-green-400' :
-                      'text-zinc-500 dark:text-zinc-400'
-                    }`}>
-                      {basic.percentile ? `${basic.percentile}%` : basic.rawMeasure != null ? basic.rawMeasure : '--'}
-                    </span>
-                    <span className="text-xs text-zinc-600 dark:text-zinc-300">
-                      {basic.percentile ? `Threshold: ${basic.threshold}%` : basic.rawMeasure != null ? 'Measure' : `Threshold: ${basic.threshold}%`}
-                    </span>
-                  </div>
-                  {basic.status === 'critical' && (
-                    <p className="text-xs text-red-600 dark:text-red-400 mt-1 font-medium">Over Critical Threshold</p>
-                  )}
-                  {basic.status === 'warning' && (
-                    <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1 font-medium">Over Intervention Threshold</p>
-                  )}
-                  {basic.status === 'no_data' && basic.rawMeasure != null && (
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Below ranking threshold</p>
-                  )}
-                </div>
-              ))}
+        {/* Right Card: BASIC Score Overview (Radar Chart) */}
+        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-5">
+          <h2 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">BASIC Score Overview</h2>
+          <ResponsiveContainer width="100%" height={340}>
+            <RadarChart data={basicsData} cx="50%" cy="50%" outerRadius="70%">
+              <PolarGrid stroke="#e4e4e7" />
+              <PolarAngleAxis
+                dataKey="name"
+                tick={{ fontSize: 11, fill: '#71717a' }}
+              />
+              <PolarRadiusAxis
+                angle={90}
+                domain={[0, 100]}
+                tick={{ fontSize: 10, fill: '#a1a1aa' }}
+                tickCount={5}
+              />
+              <Radar
+                name="Intervention Threshold"
+                dataKey="threshold"
+                stroke="#ef4444"
+                strokeWidth={2}
+                strokeDasharray="6 4"
+                fill="transparent"
+              />
+              <Radar
+                name="Your Score"
+                dataKey="percentile"
+                stroke="#3b82f6"
+                strokeWidth={2}
+                fill="#3b82f6"
+                fillOpacity={0.15}
+              />
+            </RadarChart>
+          </ResponsiveContainer>
+          <div className="flex items-center justify-center gap-6 mt-2">
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-0.5 bg-blue-500 rounded" />
+              <span className="text-xs text-zinc-600 dark:text-zinc-400">Your Score</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-0.5 border-t-2 border-dashed border-red-500" />
+              <span className="text-xs text-zinc-600 dark:text-zinc-400">Intervention Threshold</span>
             </div>
           </div>
-          {/* Info note when some BASICs lack percentiles */}
-          {basicsData.some(b => !b.percentile && b.rawMeasure != null) && (
-            <div className="px-4 sm:px-5 pb-4 sm:pb-5">
-              <div className="flex gap-3 p-3 rounded-lg bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20">
-                <FiAlertCircle className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
-                <p className="text-xs text-blue-700 dark:text-blue-300">
-                  Some BASIC categories show a raw measure instead of a percentile. FMCSA only calculates percentile rankings when a carrier has enough inspections and safety events in that category. As your inspection history grows, percentiles will appear automatically.
-                </p>
-              </div>
-            </div>
-          )}
         </div>
       </div>
+
+      {/* Info note when some BASICs lack percentiles */}
+      {basicsData.some(b => !b.percentile && b.rawMeasure != null) && (
+        <div className="flex gap-3 p-3 rounded-lg bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20">
+          <FiAlertCircle className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+          <p className="text-xs text-blue-700 dark:text-blue-300">
+            Some BASIC categories show a raw measure instead of a percentile. FMCSA only calculates percentile rankings when a carrier has enough inspections and safety events in that category. As your inspection history grows, percentiles will appear automatically.
+          </p>
+        </div>
+      )}
 
       {/* Driver & Vehicle Compliance */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">

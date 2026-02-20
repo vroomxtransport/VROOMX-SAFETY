@@ -53,6 +53,14 @@ const SMS_BASICS_THRESHOLDS = {
     criticalThreshold: 80,
     timeWeight: 2,
     regulations: []
+  },
+  hazmatCompliance: {
+    name: 'Hazmat Compliance',
+    description: 'Unsafe handling of hazardous materials',
+    threshold: 80,
+    criticalThreshold: 90,
+    timeWeight: 3,
+    regulations: ['49 CFR 397']
   }
 };
 
