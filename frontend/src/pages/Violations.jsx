@@ -288,6 +288,25 @@ const Violations = ({ embedded = false }) => {
       )
     },
     {
+      header: 'Falls Off',
+      render: (row) => {
+        const fallsOff = new Date(row.violationDate);
+        fallsOff.setMonth(fallsOff.getMonth() + 24);
+        const now = new Date();
+        const daysLeft = Math.ceil((fallsOff - now) / (1000 * 60 * 60 * 24));
+        const isExpired = daysLeft <= 0;
+        const isSoon = daysLeft > 0 && daysLeft <= 180;
+        return (
+          <div className={`text-sm font-mono ${isExpired ? 'text-zinc-400 line-through' : isSoon ? 'text-amber-600 dark:text-amber-400' : 'text-zinc-600 dark:text-zinc-300'}`}>
+            {formatDate(fallsOff)}
+            <span className="ml-1 text-xs font-sans">
+              {isExpired ? '(expired)' : `(${daysLeft}d)`}
+            </span>
+          </div>
+        );
+      }
+    },
+    {
       header: 'Violation',
       render: (row) => (
         <div>

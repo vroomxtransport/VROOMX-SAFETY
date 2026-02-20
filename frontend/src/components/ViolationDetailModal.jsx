@@ -135,6 +135,12 @@ const ViolationDetailModal = ({ violation, onClose }) => {
               <InfoField label="Violation Type" value={violation.violationType} />
               <InfoField label="BASIC Category" value={basicLabel} />
               <InfoField label="Age" value={violation.ageInDays ? `${violation.ageInDays} days` : null} />
+              <InfoField label="Falls Off Record" value={(() => {
+                const fallsOff = new Date(violation.violationDate);
+                fallsOff.setMonth(fallsOff.getMonth() + 24);
+                const daysLeft = Math.ceil((fallsOff - new Date()) / (1000 * 60 * 60 * 24));
+                return `${formatDate(fallsOff)} (${daysLeft <= 0 ? 'expired' : `${daysLeft} days left`})`;
+              })()} />
               <InfoField label="Source" value={violation.syncMetadata?.source?.replace(/_/g, ' ')} />
             </div>
             {violation.description && (
