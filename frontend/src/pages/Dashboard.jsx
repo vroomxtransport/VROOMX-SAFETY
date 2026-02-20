@@ -24,7 +24,6 @@ const Dashboard = () => {
   const [trendData, setTrendData] = useState(null);
   const [complianceData, setComplianceData] = useState(null);
   const [complianceHistory, setComplianceHistory] = useState([]);
-  const [benchmarkData, setBenchmarkData] = useState(null);
   const [recentInspections, setRecentInspections] = useState([]);
   const [topRiskDrivers, setTopRiskDrivers] = useState([]);
   const [syncStatus, setSyncStatus] = useState(null);
@@ -83,12 +82,11 @@ const Dashboard = () => {
 
   const fetchDashboard = async () => {
     try {
-      const [dashboardRes, trendRes, complianceRes, historyRes, benchmarkRes, inspectionsRes, riskDriversRes, syncStatusRes] = await Promise.all([
+      const [dashboardRes, trendRes, complianceRes, historyRes, inspectionsRes, riskDriversRes, syncStatusRes] = await Promise.all([
         dashboardAPI.get(),
         csaAPI.getTrendSummary(30).catch(() => null),
         complianceScoreAPI.get().catch(() => null),
         complianceScoreAPI.getHistory(30).catch(() => null),
-        csaAPI.getBenchmark().catch(() => null),
         fmcsaInspectionsAPI.getRecent(5).catch(() => null),
         driversAPI.getRiskRanking(5).catch(() => null),
         fmcsaAPI.getSyncStatus().catch(() => null)
@@ -102,9 +100,6 @@ const Dashboard = () => {
       }
       if (historyRes?.data?.history) {
         setComplianceHistory(historyRes.data.history);
-      }
-      if (benchmarkRes?.data?.benchmark) {
-        setBenchmarkData(benchmarkRes.data.benchmark);
       }
       if (inspectionsRes?.data?.inspections) {
         setRecentInspections(inspectionsRes.data.inspections);
@@ -565,138 +560,40 @@ const Dashboard = () => {
             </Link>
           </div>
 
-          {/* SMS BASICs Overview */}
+          {/* Compliance Trend */}
           <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl overflow-hidden shadow-sm">
-            <div className="p-4 sm:p-5 border-b border-zinc-100 dark:border-white/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="bg-[#1E3A5F] px-5 py-4 flex items-center justify-between">
+              <h3 className="text-white font-semibold">
+                COMPLIANCE TREND <span className="font-normal opacity-80">(Last 30 Days)</span>
+              </h3>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-accent-100 dark:bg-accent-500/10 flex items-center justify-center flex-shrink-0">
-                  <FiShield className="w-5 h-5 text-accent-600 dark:text-accent-500" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-semibold text-zinc-900 dark:text-white">SMS BASICs</h3>
-                    {/* Overall Trend Badge */}
-                    {trendData?.overallTrend && (
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
-                        trendData.overallTrend === 'improving'
-                          ? 'bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400'
-                          : trendData.overallTrend === 'worsening'
-                          ? 'bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-400'
-                          : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300'
-                      }`}>
-                        {trendData.overallTrend === 'improving' ? (
-                          <><FiTrendingDown className="w-3 h-3" /> Improving</>
-                        ) : trendData.overallTrend === 'worsening' ? (
-                          <><FiTrendingUp className="w-3 h-3" /> Worsening</>
-                        ) : (
-                          <><FiMinus className="w-3 h-3" /> Stable</>
-                        )}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-xs text-zinc-600 dark:text-zinc-300">Safety Measurement System • 30-day trend</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 sm:gap-3">
                 <button
                   onClick={handleSyncNow}
                   disabled={syncing}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                    syncing
-                      ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400 cursor-not-allowed'
-                      : 'bg-accent-50 dark:bg-accent-500/10 text-accent-600 dark:text-accent-400 hover:bg-accent-100 dark:hover:bg-accent-500/20'
-                  }`}
-                  title="Sync FMCSA data (inspections, violations, scores)"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 transition-all disabled:opacity-50"
                 >
                   <FiRefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
                   {syncing ? 'Syncing...' : 'Sync FMCSA'}
                 </button>
-                <Link to="/app/compliance" className="text-sm text-accent-500 hover:text-accent-600 dark:hover:text-accent-400 font-medium">
+                <Link to="/app/compliance" className="text-sm text-white/70 hover:text-white font-medium">
                   Full Report
                 </Link>
               </div>
             </div>
-            <div className="p-3 sm:p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-              {basicsData.length > 0 ? basicsData.map((basic, index) => {
-                const trend = getTrendIndicator(basic.key);
-                return (
-                <div key={index} className="group flex items-center gap-3 p-3 rounded-xl bg-zinc-50 dark:bg-white/5 border border-zinc-100 dark:border-white/5 hover:shadow-md hover:-translate-y-0.5 hover:border-zinc-200 dark:hover:border-white/10 transition-all duration-200">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-200 ${
-                    basic.status === 'critical' ? 'bg-red-100 dark:bg-red-500/20' :
-                    basic.status === 'warning' ? 'bg-yellow-100 dark:bg-yellow-500/20' :
-                    'bg-green-100 dark:bg-green-500/20'
-                  }`}>
-                    <span className={`text-lg font-bold ${
-                      basic.status === 'critical' ? 'text-red-600 dark:text-red-400' :
-                      basic.status === 'warning' ? 'text-yellow-600 dark:text-yellow-400' :
-                      basic.status === 'no_data' ? 'text-zinc-500 dark:text-zinc-400' :
-                      'text-green-600 dark:text-green-400'
-                    }`}>
-                      {basic.percentile ? `${basic.percentile}%` : basic.rawMeasure != null ? basic.rawMeasure : '--'}
-                    </span>
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium text-zinc-900 dark:text-white">{basic.name}</p>
-                      {/* Trend Indicator */}
-                      {trend && (
-                        <div className={`flex items-center gap-0.5 text-xs font-medium ${
-                          trend.direction === 'improving' ? 'text-green-600 dark:text-green-400' :
-                          trend.direction === 'worsening' ? 'text-red-600 dark:text-red-400' :
-                          'text-zinc-500 dark:text-zinc-400'
-                        }`}>
-                          {trend.direction === 'improving' ? (
-                            <FiTrendingDown className="w-3 h-3" />
-                          ) : trend.direction === 'worsening' ? (
-                            <FiTrendingUp className="w-3 h-3" />
-                          ) : (
-                            <FiMinus className="w-3 h-3" />
-                          )}
-                          {trend.change !== 0 && (
-                            <span>{Math.abs(trend.change)}%</span>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                    <p className={`text-xs ${
-                      basic.status === 'critical' ? 'text-red-600 dark:text-red-400' :
-                      basic.status === 'warning' ? 'text-yellow-600 dark:text-yellow-400' :
-                      basic.status === 'no_data' ? 'text-zinc-500 dark:text-zinc-400' :
-                      'text-green-600 dark:text-green-400'
-                    }`}>
-                      {basic.status === 'critical' ? 'Above threshold' :
-                       basic.status === 'warning' ? 'Warning zone' :
-                       basic.status === 'no_data' && basic.rawMeasure != null ? 'Measure (no percentile)' :
-                       basic.status === 'no_data' ? 'No data' :
-                       'Below threshold'}
-                    </p>
-                  </div>
-                </div>
-              )}) : (
-                // Empty state: Prompt user to sync FMCSA data
-                <div className="col-span-full flex flex-col items-center justify-center py-8 px-4">
-                  <div className="w-16 h-16 rounded-2xl bg-accent-100 dark:bg-accent-500/10 flex items-center justify-center mb-4">
-                    <FiShield className="w-8 h-8 text-accent-600 dark:text-accent-500" />
-                  </div>
-                  <h4 className="text-lg font-semibold text-zinc-900 dark:text-white mb-1">
-                    No FMCSA Data Yet
-                  </h4>
-                  <p className="text-sm text-zinc-600 dark:text-zinc-300 text-center max-w-sm mb-5">
-                    Sync your company's data from FMCSA to see SMS BASICs scores, inspection history, and violation tracking.
-                  </p>
-                  <button
-                    onClick={handleSyncNow}
-                    disabled={syncing}
-                    className="flex items-center gap-2 px-6 py-3 rounded-xl bg-accent-500 hover:bg-accent-600 text-white font-semibold shadow-lg shadow-accent-500/25 hover:shadow-accent-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <FiRefreshCw className={`w-5 h-5 ${syncing ? 'animate-spin' : ''}`} />
-                    {syncing ? 'Syncing FMCSA Data...' : 'Sync FMCSA Data Now'}
-                  </button>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-3">
-                    This may take 15-30 seconds
-                  </p>
-                </div>
-              )}
+            <div className="p-3 sm:p-5 h-48 sm:h-56 lg:h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={complianceTrendData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:opacity-20" />
+                  <XAxis dataKey="date" tick={{ fill: '#6b7280', fontSize: 12 }} tickLine={{ stroke: '#e5e7eb' }} axisLine={{ stroke: '#e5e7eb' }} />
+                  <YAxis domain={['dataMin - 2', 'dataMax + 2']} tick={{ fill: '#6b7280', fontSize: 12 }} tickLine={{ stroke: '#e5e7eb' }} axisLine={{ stroke: '#e5e7eb' }} tickFormatter={(value) => `${value}%`} />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: 'var(--color-surface, #fff)', border: '1px solid var(--color-border, #e5e7eb)', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+                    formatter={(value) => [`${value}%`, 'Overall Score']}
+                  />
+                  <Legend verticalAlign="top" align="right" wrapperStyle={{ paddingBottom: '10px' }} />
+                  <Line type="monotone" dataKey="score" name="Overall Score" stroke="#4A90D9" strokeWidth={2} dot={{ fill: '#4A90D9', r: 4, strokeWidth: 0 }} activeDot={{ r: 6, stroke: '#4A90D9', strokeWidth: 2, fill: '#fff' }} />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
           </div>
         </div>
@@ -986,148 +883,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Industry Benchmark Card */}
-      {benchmarkData && (
-        <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl overflow-hidden shadow-sm">
-          <div className="p-5 border-b border-zinc-100 dark:border-white/5 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-500/10 flex items-center justify-center">
-                <FiBarChart2 className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-zinc-900 dark:text-white">Industry Benchmark</h3>
-                <p className="text-xs text-zinc-600 dark:text-zinc-300">Your OOS rates vs. national average</p>
-              </div>
-            </div>
-            <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${
-              benchmarkData.summary?.overallStatus === 'above_average'
-                ? 'bg-green-100 dark:bg-green-500/20 text-green-600 dark:text-green-400'
-                : benchmarkData.summary?.overallStatus === 'below_average'
-                ? 'bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400'
-                : 'bg-yellow-100 dark:bg-yellow-500/20 text-yellow-600 dark:text-yellow-400'
-            }`}>
-              {benchmarkData.summary?.overallStatus === 'above_average' ? 'Above Average' :
-               benchmarkData.summary?.overallStatus === 'below_average' ? 'Below Average' : 'Mixed'}
-            </span>
-          </div>
-          <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Vehicle OOS Rate */}
-            <div className="p-4 rounded-xl bg-zinc-50 dark:bg-white/5 border border-zinc-100 dark:border-white/5">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <FiTruck className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
-                  <span className="text-sm font-medium text-zinc-900 dark:text-white">Vehicle OOS Rate</span>
-                </div>
-                {benchmarkData.vehicle?.status === 'better' ? (
-                  <FiCheckCircle className="w-5 h-5 text-green-500" />
-                ) : benchmarkData.vehicle?.status === 'average' ? (
-                  <FiMinus className="w-5 h-5 text-yellow-500" />
-                ) : (
-                  <FiAlertTriangle className="w-5 h-5 text-red-500" />
-                )}
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-zinc-600 dark:text-zinc-400">You</span>
-                  <span className={`text-lg font-bold ${
-                    benchmarkData.vehicle?.status === 'better' ? 'text-green-600 dark:text-green-400' :
-                    benchmarkData.vehicle?.status === 'average' ? 'text-yellow-600 dark:text-yellow-400' :
-                    'text-red-600 dark:text-red-400'
-                  }`}>
-                    {benchmarkData.vehicle?.yourRate?.toFixed(1) || 0}%
-                  </span>
-                </div>
-                <div className="relative h-2 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden">
-                  <div
-                    className={`absolute top-0 left-0 h-full rounded-full ${
-                      benchmarkData.vehicle?.status === 'better' ? 'bg-green-500' :
-                      benchmarkData.vehicle?.status === 'average' ? 'bg-yellow-500' : 'bg-red-500'
-                    }`}
-                    style={{ width: `${Math.min(benchmarkData.vehicle?.yourRate || 0, 100)}%` }}
-                  />
-                  <div
-                    className="absolute top-0 h-full w-0.5 bg-zinc-800 dark:bg-white"
-                    style={{ left: `${Math.min(benchmarkData.vehicle?.nationalAverage || 20.72, 100)}%` }}
-                    title={`National Avg: ${benchmarkData.vehicle?.nationalAverage}%`}
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-zinc-600 dark:text-zinc-400">National Avg</span>
-                  <span className="text-sm text-zinc-600 dark:text-zinc-400">
-                    {benchmarkData.vehicle?.nationalAverage?.toFixed(1) || 20.72}%
-                  </span>
-                </div>
-              </div>
-              <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
-                {benchmarkData.vehicle?.inspections || 0} inspections, {benchmarkData.vehicle?.oosCount || 0} OOS
-              </p>
-            </div>
-
-            {/* Driver OOS Rate */}
-            <div className="p-4 rounded-xl bg-zinc-50 dark:bg-white/5 border border-zinc-100 dark:border-white/5">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <FiUsers className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
-                  <span className="text-sm font-medium text-zinc-900 dark:text-white">Driver OOS Rate</span>
-                </div>
-                {benchmarkData.driver?.status === 'better' ? (
-                  <FiCheckCircle className="w-5 h-5 text-green-500" />
-                ) : benchmarkData.driver?.status === 'average' ? (
-                  <FiMinus className="w-5 h-5 text-yellow-500" />
-                ) : (
-                  <FiAlertTriangle className="w-5 h-5 text-red-500" />
-                )}
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-zinc-600 dark:text-zinc-400">You</span>
-                  <span className={`text-lg font-bold ${
-                    benchmarkData.driver?.status === 'better' ? 'text-green-600 dark:text-green-400' :
-                    benchmarkData.driver?.status === 'average' ? 'text-yellow-600 dark:text-yellow-400' :
-                    'text-red-600 dark:text-red-400'
-                  }`}>
-                    {benchmarkData.driver?.yourRate?.toFixed(1) || 0}%
-                  </span>
-                </div>
-                <div className="relative h-2 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden">
-                  <div
-                    className={`absolute top-0 left-0 h-full rounded-full ${
-                      benchmarkData.driver?.status === 'better' ? 'bg-green-500' :
-                      benchmarkData.driver?.status === 'average' ? 'bg-yellow-500' : 'bg-red-500'
-                    }`}
-                    style={{ width: `${Math.min((benchmarkData.driver?.yourRate || 0) * 5, 100)}%` }}
-                  />
-                  <div
-                    className="absolute top-0 h-full w-0.5 bg-zinc-800 dark:bg-white"
-                    style={{ left: `${Math.min((benchmarkData.driver?.nationalAverage || 5.51) * 5, 100)}%` }}
-                    title={`National Avg: ${benchmarkData.driver?.nationalAverage}%`}
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-zinc-600 dark:text-zinc-400">National Avg</span>
-                  <span className="text-sm text-zinc-600 dark:text-zinc-400">
-                    {benchmarkData.driver?.nationalAverage?.toFixed(1) || 5.51}%
-                  </span>
-                </div>
-              </div>
-              <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
-                {benchmarkData.driver?.inspections || 0} inspections, {benchmarkData.driver?.oosCount || 0} OOS
-              </p>
-            </div>
-          </div>
-          {benchmarkData.summary?.lastUpdated && (
-            <div className="px-5 pb-4">
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 text-center">
-                Data synced: {new Date(benchmarkData.summary.lastUpdated).toLocaleDateString()} •{' '}
-                <Link to="/app/compliance" className="text-accent-500 hover:text-accent-600 dark:hover:text-accent-400">
-                  View Details
-                </Link>
-              </p>
-            </div>
-          )}
-        </div>
-      )}
-
       {/* Recent Inspections Card */}
       {recentInspections.length > 0 && (
         <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl overflow-hidden shadow-sm">
@@ -1251,62 +1006,6 @@ const Dashboard = () => {
           </div>
         </div>
       )}
-
-      {/* Compliance Trend Chart */}
-      <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl overflow-hidden shadow-sm">
-        {/* Navy header bar */}
-        <div className="bg-[#1E3A5F] px-5 py-4">
-          <h3 className="text-white font-semibold">
-            COMPLIANCE TREND <span className="font-normal opacity-80">(Last 30 Days)</span>
-          </h3>
-        </div>
-
-        {/* Chart area */}
-        <div className="p-3 sm:p-5 h-48 sm:h-56 lg:h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={complianceTrendData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:opacity-20" />
-              <XAxis
-                dataKey="date"
-                tick={{ fill: '#6b7280', fontSize: 12 }}
-                tickLine={{ stroke: '#e5e7eb' }}
-                axisLine={{ stroke: '#e5e7eb' }}
-              />
-              <YAxis
-                domain={['dataMin - 2', 'dataMax + 2']}
-                tick={{ fill: '#6b7280', fontSize: 12 }}
-                tickLine={{ stroke: '#e5e7eb' }}
-                axisLine={{ stroke: '#e5e7eb' }}
-                tickFormatter={(value) => `${value}%`}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: 'var(--color-surface, #fff)',
-                  border: '1px solid var(--color-border, #e5e7eb)',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                }}
-                formatter={(value) => [`${value}%`, 'Overall Score']}
-                labelFormatter={(label) => label}
-              />
-              <Legend
-                verticalAlign="top"
-                align="right"
-                wrapperStyle={{ paddingBottom: '10px' }}
-              />
-              <Line
-                type="monotone"
-                dataKey="score"
-                name="Overall Score"
-                stroke="#4A90D9"
-                strokeWidth={2}
-                dot={{ fill: '#4A90D9', r: 4, strokeWidth: 0 }}
-                activeDot={{ r: 6, stroke: '#4A90D9', strokeWidth: 2, fill: '#fff' }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
 
       {/* Floating AI Chat Button */}
       <Link

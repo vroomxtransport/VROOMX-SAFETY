@@ -372,12 +372,30 @@ router.post('/:id/documents',
     // Update specific document based on type
     switch (documentType) {
       case 'cdl':
-        driver.cdl.documentUrl = fileUrl;
+      case 'cdlFront':
+        if (documentType === 'cdlFront') {
+          if (!driver.documents.cdlFront) driver.documents.cdlFront = {};
+          driver.documents.cdlFront.documentUrl = fileUrl;
+          driver.documents.cdlFront.uploadDate = new Date();
+        } else {
+          driver.cdl.documentUrl = fileUrl;
+        }
         if (expiryDate) driver.cdl.expiryDate = expiryDate;
+        break;
+      case 'cdlBack':
+        if (!driver.documents.cdlBack) driver.documents.cdlBack = {};
+        driver.documents.cdlBack.documentUrl = fileUrl;
+        driver.documents.cdlBack.uploadDate = new Date();
         break;
       case 'medicalCard':
         driver.medicalCard.documentUrl = fileUrl;
         if (expiryDate) driver.medicalCard.expiryDate = expiryDate;
+        break;
+      case 'medicalExaminerRegistry':
+        if (!driver.documents.medicalExaminerRegistry) driver.documents.medicalExaminerRegistry = {};
+        driver.documents.medicalExaminerRegistry.documentUrl = fileUrl;
+        driver.documents.medicalExaminerRegistry.verified = true;
+        driver.documents.medicalExaminerRegistry.verificationDate = new Date();
         break;
       case 'roadTest':
         driver.documents.roadTest.documentUrl = fileUrl;
@@ -387,6 +405,34 @@ router.post('/:id/documents',
         driver.documents.employmentApplication.documentUrl = fileUrl;
         driver.documents.employmentApplication.dateReceived = new Date();
         driver.documents.employmentApplication.complete = true;
+        break;
+      case 'previousEmploymentVerification':
+        if (!driver.documents.previousEmploymentVerification) driver.documents.previousEmploymentVerification = {};
+        driver.documents.previousEmploymentVerification.documentUrl = fileUrl;
+        driver.documents.previousEmploymentVerification.verified = true;
+        driver.documents.previousEmploymentVerification.verificationDate = new Date();
+        break;
+      case 'goodFaithAttempt1':
+      case 'goodFaithAttempt2':
+      case 'goodFaithAttempt3':
+        if (!driver.documents[documentType]) driver.documents[documentType] = {};
+        driver.documents[documentType].documentUrl = fileUrl;
+        driver.documents[documentType].uploadDate = new Date();
+        break;
+      case 'safetyPerformanceHistory':
+        if (!driver.documents.safetyPerformanceHistory) driver.documents.safetyPerformanceHistory = {};
+        driver.documents.safetyPerformanceHistory.documentUrl = fileUrl;
+        driver.documents.safetyPerformanceHistory.uploadDate = new Date();
+        break;
+      case 'clearinghouse':
+        driver.clearinghouse.lastQueryDate = new Date();
+        driver.clearinghouse.status = 'clear';
+        break;
+      case 'clearinghouseVerification':
+        if (!driver.documents.clearinghouseVerification) driver.documents.clearinghouseVerification = {};
+        driver.documents.clearinghouseVerification.documentUrl = fileUrl;
+        driver.documents.clearinghouseVerification.verified = true;
+        driver.documents.clearinghouseVerification.verificationDate = new Date();
         break;
       default:
         // Add to other documents

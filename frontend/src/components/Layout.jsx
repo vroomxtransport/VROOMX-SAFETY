@@ -20,7 +20,7 @@ import {
 const navigation = [
   // Main section (no header)
   { name: 'Dashboard', path: '/app/dashboard', icon: FiHome },
-  { name: 'VroomX AI', path: '/app/ai-assistant', icon: FiMessageCircle, isAI: true },
+  { name: 'Regulation Assistant', path: '/app/ai-assistant', icon: FiMessageCircle, isAI: true },
   { name: 'AI Compliance Report', path: '/app/compliance-report', icon: FiShield, isAI: true },
   { name: 'Alerts', path: '/app/alerts', icon: FiActivity, hasAlerts: true },
   { name: 'Tasks', path: '/app/tasks', icon: FiCheckSquare },
