@@ -8,7 +8,7 @@ import {
 } from 'react-icons/fi';
 import Modal from './Modal';
 import LoadingSpinner from './LoadingSpinner';
-import ScoreImpactCard from './ScoreImpactCard';
+
 
 const DataQLetterModal = ({ isOpen, onClose, violation, analysis }) => {
   const [loading, setLoading] = useState(false);
@@ -111,11 +111,6 @@ const DataQLetterModal = ({ isOpen, onClose, violation, analysis }) => {
               ))}
             </ul>
           </div>
-        )}
-
-        {/* Score Impact */}
-        {violation?._id && (
-          <ScoreImpactCard violationId={violation._id} />
         )}
 
         {/* Divider */}
