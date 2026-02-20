@@ -701,7 +701,11 @@ const Layout = () => {
                                 </div>
                                 <div>
                                   <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">{accident.reportNumber || 'Accident Report'}</p>
-                                  <p className="text-xs text-zinc-500">{accident.location}</p>
+                                  <p className="text-xs text-zinc-500">
+                                    {typeof accident.location === 'string'
+                                      ? accident.location
+                                      : [accident.location?.address, accident.location?.city, accident.location?.state].filter(Boolean).join(', ') || 'No location'}
+                                  </p>
                                 </div>
                               </button>
                             ))}
