@@ -261,7 +261,7 @@ const CSATrends = () => {
                 {basicNames[key]}
               </p>
               <p className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
-                {data.end ?? '-'}%
+                {data.end != null ? `${data.end}%` : '—'}
               </p>
               {data.change !== null && (
                 <p className={`text-xs font-medium ${
@@ -477,7 +477,10 @@ const CSATrends = () => {
                     date: p.date,
                     unsafeDriving: p.scores?.unsafe_driving?.estimatedPercentile || 0,
                     hoursOfService: p.scores?.hours_of_service?.estimatedPercentile || 0,
-                    vehicleMaintenance: p.scores?.vehicle_maintenance?.estimatedPercentile || 0
+                    vehicleMaintenance: p.scores?.vehicle_maintenance?.estimatedPercentile || 0,
+                    controlledSubstances: p.scores?.controlled_substances?.estimatedPercentile || 0,
+                    driverFitness: p.scores?.driver_fitness?.estimatedPercentile || 0,
+                    crashIndicator: p.scores?.crash_indicator?.estimatedPercentile || 0
                   })) || []}
                   margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
                 >
@@ -507,6 +510,9 @@ const CSATrends = () => {
                   <Line type="monotone" dataKey="unsafeDriving" stroke="#ef4444" name="Unsafe Driving" strokeWidth={2} dot={false} />
                   <Line type="monotone" dataKey="hoursOfService" stroke="#f59e0b" name="Hours of Service" strokeWidth={2} dot={false} />
                   <Line type="monotone" dataKey="vehicleMaintenance" stroke="#3b82f6" name="Vehicle Maintenance" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="controlledSubstances" stroke="#8b5cf6" name="Controlled Substances" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="driverFitness" stroke="#10b981" name="Driver Fitness" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="crashIndicator" stroke="#ec4899" name="Crash Indicator" strokeWidth={2} dot={false} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -518,7 +524,7 @@ const CSATrends = () => {
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
                   {Object.entries(timeDecay.insights.improvements).map(([key, data]) => (
                     <div key={key} className="text-center p-2 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate capitalize">{key.replace(/_/g, ' ')}</p>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">{key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</p>
                       <p className={`text-sm font-bold ${data.change < 0 ? 'text-emerald-600 dark:text-emerald-400' : data.change > 0 ? 'text-red-600 dark:text-red-400' : 'text-zinc-600 dark:text-zinc-400'}`}>
                         {data.change < 0 ? '' : data.change > 0 ? '+' : ''}{data.change?.toFixed(0) || 0}%
                       </p>
@@ -528,6 +534,17 @@ const CSATrends = () => {
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {/* Projection Empty State */}
+      {!timeDecay?.projections && !loading && (
+        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 p-6 text-center">
+          <FiClock className="w-10 h-10 text-zinc-400 mx-auto mb-3" />
+          <p className="font-medium text-zinc-700 dark:text-zinc-300">No Score Projections Available</p>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+            Projections will appear once violation data is synced from FMCSA.
+          </p>
         </div>
       )}
 

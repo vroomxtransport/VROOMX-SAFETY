@@ -204,6 +204,7 @@ const fmcsaSyncService = {
         companyId,
         dotNumber,
         recordedAt: new Date(),
+        source: 'fmcsa',
         basics: {
           unsafeDriving: {
             percentile: smsBasics.unsafeDriving ?? null,
