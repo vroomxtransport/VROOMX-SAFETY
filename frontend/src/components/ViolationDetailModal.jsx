@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { FiX, FiAlertTriangle, FiUser, FiTruck, FiTarget, FiZap, FiTrendingDown, FiFileText, FiMapPin, FiShield, FiDollarSign, FiClock, FiCheckCircle, FiClipboard, FiExternalLink } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import { formatDate, basicCategories } from '../utils/helpers';
 import StatusBadge from './StatusBadge';
+import CourtOutcomeModal from './CourtOutcomeModal';
 
 const INSPECTION_TYPE_LABELS = {
   roadside: 'Roadside',
@@ -30,6 +32,8 @@ const InfoField = ({ label, value, mono }) => {
 };
 
 const ViolationDetailModal = ({ violation, onClose }) => {
+  const [showCourtOutcome, setShowCourtOutcome] = useState(false);
+
   if (!violation) return null;
 
   const basicLabel = basicCategories[violation.basic]?.label || violation.basic?.replace(/_/g, ' ') || 'Unknown';
@@ -469,8 +473,30 @@ const ViolationDetailModal = ({ violation, onClose }) => {
               </div>
             </div>
           )}
+          {/* Actions */}
+          <div className="flex gap-3 pt-2 border-t border-zinc-200 dark:border-zinc-700">
+            <button
+              onClick={() => setShowCourtOutcome(true)}
+              className="btn btn-secondary text-sm"
+            >
+              <FiClipboard className="w-4 h-4" />
+              Record Court Outcome
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Court Outcome Modal */}
+      {showCourtOutcome && (
+        <CourtOutcomeModal
+          violation={violation}
+          onClose={() => setShowCourtOutcome(false)}
+          onSuccess={() => {
+            setShowCourtOutcome(false);
+            onClose();
+          }}
+        />
+      )}
     </div>
   );
 };

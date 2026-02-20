@@ -6,20 +6,27 @@ import toast from 'react-hot-toast';
 import {
   FiFileText, FiCheckCircle, FiXCircle, FiClock, FiTrendingUp,
   FiAlertTriangle, FiTarget, FiRefreshCw, FiFilter, FiZap,
-  FiArrowRight, FiAward, FiBarChart2, FiExternalLink, FiShield
+  FiArrowRight, FiAward, FiBarChart2, FiExternalLink, FiShield,
+  FiDollarSign
 } from 'react-icons/fi';
 import LoadingSpinner from '../components/LoadingSpinner';
 import DataQOpportunities from '../components/DataQOpportunities';
 import DataQLetterModal from '../components/DataQLetterModal';
 import ViolationDetailModal from '../components/ViolationDetailModal';
-import HealthCheckTab from '../components/HealthCheckTab';
 
 const ActiveChallengesPanel = lazy(() => import('../components/ActiveChallengesPanel'));
-
 const DataQAnalyticsPanel = lazy(() => import('../components/DataQAnalyticsPanel'));
 
+const CATEGORY_FILTERS = [
+  { key: '', label: 'All' },
+  { key: 'easy_win', label: 'Easy Wins', color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-green-200 dark:border-green-800' },
+  { key: 'worth_challenging', label: 'Worth Challenging', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-amber-200 dark:border-amber-800' },
+  { key: 'expiring_soon', label: 'Expiring Soon', color: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 border-orange-200 dark:border-orange-800' },
+  { key: 'unlikely', label: 'Unlikely', color: 'bg-zinc-100 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700' }
+];
+
 const DataQDashboard = () => {
-  const [activeTab, setActiveTab] = useState('health-check');
+  const [activeTab, setActiveTab] = useState('challenge-manager');
   const [stats, setStats] = useState(null);
   const [opportunities, setOpportunities] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -29,27 +36,37 @@ const DataQDashboard = () => {
   const [showLetterModal, setShowLetterModal] = useState(false);
   const [minScore, setMinScore] = useState(40);
   const [selectedBasic, setSelectedBasic] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [autoSyncing, setAutoSyncing] = useState(false);
   const autoSyncAttempted = useRef(false);
   const [detailViolation, setDetailViolation] = useState(null);
 
+  // Health Check state
+  const [healthStats, setHealthStats] = useState(null);
+  const [scanning, setScanning] = useState(false);
+
   useEffect(() => {
     fetchData();
-  }, [minScore, selectedBasic]);
+  }, [minScore, selectedBasic, selectedCategory]);
 
   const fetchData = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const [dashboardResult, opportunitiesResult] = await Promise.allSettled([
+      const [dashboardResult, opportunitiesResult, healthResult] = await Promise.allSettled([
         violationsAPI.getDataQDashboard(),
-        violationsAPI.getDataQOpportunities({ minScore, limit: 10, basic: selectedBasic || undefined })
+        violationsAPI.getDataQOpportunities({
+          minScore,
+          limit: 20,
+          basic: selectedBasic || undefined,
+          category: selectedCategory || undefined
+        }),
+        violationsAPI.getHealthCheck()
       ]);
 
       if (dashboardResult.status === 'fulfilled') {
-        const dashboardStats = dashboardResult.value.data.stats;
-        setStats(dashboardStats);
+        setStats(dashboardResult.value.data.stats);
       } else {
         setError(dashboardResult.reason?.response?.data?.error || 'Failed to load dashboard stats');
       }
@@ -59,9 +76,10 @@ const DataQDashboard = () => {
         setOpportunities(Array.isArray(nextOpportunities) ? nextOpportunities : []);
       } else {
         setOpportunities([]);
-        if (!error) {
-          toast.error('Failed to load challenge opportunities');
-        }
+      }
+
+      if (healthResult.status === 'fulfilled') {
+        setHealthStats(healthResult.value.data.data || healthResult.value.data);
       }
 
       const dashboardStats = dashboardResult.status === 'fulfilled'
@@ -81,8 +99,6 @@ const DataQDashboard = () => {
                 ? `Synced ${imported} violations from FMCSA`
                 : (syncRes.data.message || 'FMCSA sync completed')
             );
-          } else {
-            toast.error(syncRes.data.message || 'FMCSA sync failed');
           }
         } catch (syncError) {
           toast.error(syncError.response?.data?.message || 'Failed to sync violations from FMCSA');
@@ -90,10 +106,11 @@ const DataQDashboard = () => {
           setAutoSyncing(false);
         }
 
-        // Re-fetch after sync attempt
-        const [dashboardRes2, opportunitiesRes2] = await Promise.allSettled([
+        // Re-fetch after sync
+        const [dashboardRes2, opportunitiesRes2, healthRes2] = await Promise.allSettled([
           violationsAPI.getDataQDashboard(),
-          violationsAPI.getDataQOpportunities({ minScore, limit: 10, basic: selectedBasic || undefined })
+          violationsAPI.getDataQOpportunities({ minScore, limit: 20, basic: selectedBasic || undefined, category: selectedCategory || undefined }),
+          violationsAPI.getHealthCheck()
         ]);
 
         if (dashboardRes2.status === 'fulfilled') {
@@ -101,13 +118,14 @@ const DataQDashboard = () => {
           setError(null);
         }
         if (opportunitiesRes2.status === 'fulfilled') {
-          const nextOpportunities = opportunitiesRes2.value.data?.violations;
-          setOpportunities(Array.isArray(nextOpportunities) ? nextOpportunities : []);
+          setOpportunities(Array.isArray(opportunitiesRes2.value.data?.violations) ? opportunitiesRes2.value.data.violations : []);
+        }
+        if (healthRes2.status === 'fulfilled') {
+          setHealthStats(healthRes2.value.data.data || healthRes2.value.data);
         }
       }
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to load DataQ dashboard');
-      toast.error('Failed to load DataQ data');
     } finally {
       setLoading(false);
     }
@@ -120,6 +138,20 @@ const DataQDashboard = () => {
       toast.success('Dashboard refreshed');
     } finally {
       setRefreshing(false);
+    }
+  };
+
+  const handleScan = async () => {
+    setScanning(true);
+    try {
+      const res = await violationsAPI.triggerScan();
+      const count = res.data?.scannedCount || res.data?.count || 0;
+      toast.success(`Scanned ${count} violations`);
+      await fetchData();
+    } catch (err) {
+      toast.error('Scan failed');
+    } finally {
+      setScanning(false);
     }
   };
 
@@ -177,6 +209,14 @@ const DataQDashboard = () => {
           </p>
         </div>
         <div className="flex gap-2">
+          <button
+            onClick={handleScan}
+            className="btn btn-secondary"
+            disabled={scanning}
+          >
+            {scanning ? <LoadingSpinner size="sm" /> : <FiShield className="w-4 h-4" />}
+            {scanning ? 'Scanning...' : 'Run Scan'}
+          </button>
           <Link to="/app/compliance" className="btn btn-secondary">
             <FiExternalLink className="w-4 h-4" />
             View All Violations
@@ -192,10 +232,16 @@ const DataQDashboard = () => {
         </div>
       </div>
 
+      {/* Last scan info */}
+      {healthStats?.lastScanDate && (
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          Last scan: {formatDate(healthStats.lastScanDate)}
+        </p>
+      )}
+
       {/* Tab Navigation */}
       <div className="flex gap-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg p-1 overflow-x-auto">
         {[
-          { id: 'health-check', label: 'Health Check', icon: FiShield },
           { id: 'challenge-manager', label: 'Challenge Manager', icon: FiFileText },
           { id: 'active-challenges', label: 'Active Challenges', icon: FiClock, badge: openChallenges > 0 ? openChallenges : null },
           { id: 'analytics', label: 'Analytics', icon: FiBarChart2 },
@@ -220,15 +266,10 @@ const DataQDashboard = () => {
         ))}
       </div>
 
-      {activeTab === 'health-check' && (
-        <HealthCheckTab onOpenLetterModal={handleAnalyze} />
-      )}
-
       {activeTab === 'challenge-manager' && (
       <>
-      {/* Stats Cards */}
+      {/* Challenge Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {/* Success Rate */}
         <div className="group bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-4 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-success-100 dark:bg-success-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -242,8 +283,6 @@ const DataQDashboard = () => {
             </div>
           </div>
         </div>
-
-        {/* Open Challenges */}
         <div className="group bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-4 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-info-100 dark:bg-info-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -257,8 +296,6 @@ const DataQDashboard = () => {
             </div>
           </div>
         </div>
-
-        {/* Accepted */}
         <div className="group bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-4 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-success-100 dark:bg-success-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -272,8 +309,6 @@ const DataQDashboard = () => {
             </div>
           </div>
         </div>
-
-        {/* CSA Savings */}
         <div className="group bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-4 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-accent-100 dark:bg-accent-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -288,6 +323,64 @@ const DataQDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Health Check Stats */}
+      {healthStats && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="group bg-white dark:bg-zinc-900 rounded-xl border border-green-200/60 dark:border-green-800/40 p-4 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <FiCheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
+              </div>
+              <div>
+                <p className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400 font-mono">
+                  {healthStats.easy_win || 0}
+                </p>
+                <p className="text-xs text-zinc-600 dark:text-zinc-300">Easy Wins</p>
+              </div>
+            </div>
+          </div>
+          <div className="group bg-white dark:bg-zinc-900 rounded-xl border border-amber-200/60 dark:border-amber-800/40 p-4 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <FiAlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+              </div>
+              <div>
+                <p className="text-xl sm:text-2xl font-bold text-amber-600 dark:text-amber-400 font-mono">
+                  {healthStats.worth_challenging || 0}
+                </p>
+                <p className="text-xs text-zinc-600 dark:text-zinc-300">Worth Challenging</p>
+              </div>
+            </div>
+          </div>
+          <div className="group bg-white dark:bg-zinc-900 rounded-xl border border-orange-200/60 dark:border-orange-800/40 p-4 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-orange-100 dark:bg-orange-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <FiClock className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+              </div>
+              <div>
+                <p className="text-xl sm:text-2xl font-bold text-orange-600 dark:text-orange-400 font-mono">
+                  {healthStats.expiring_soon || 0}
+                </p>
+                <p className="text-xs text-zinc-600 dark:text-zinc-300">Expiring Soon</p>
+              </div>
+            </div>
+          </div>
+          <div className="group bg-white dark:bg-zinc-900 rounded-xl border border-green-200/60 dark:border-green-800/40 p-4 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <FiDollarSign className="w-5 h-5 text-green-600 dark:text-green-400" />
+              </div>
+              <div>
+                <p className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400 font-mono">
+                  ${healthStats.totalEstimatedSavings?.toLocaleString() || 0}
+                </p>
+                <p className="text-xs text-zinc-600 dark:text-zinc-300">Est. Annual Savings</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Challenge Status Breakdown */}
       <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-5">
@@ -361,19 +454,37 @@ const DataQDashboard = () => {
                   ))}
                 </select>
               </div>
-              <div className="flex items-center gap-2">
-                <select
-                  value={minScore}
-                  onChange={(e) => setMinScore(parseInt(e.target.value))}
-                  className="form-select text-sm py-1.5"
-                >
-                  <option value={75}>High Potential (75+)</option>
-                  <option value={50}>Medium+ (50+)</option>
-                  <option value={40}>All Opportunities (40+)</option>
-                  <option value={0}>Show All Scores</option>
-                </select>
-              </div>
+              <select
+                value={minScore}
+                onChange={(e) => setMinScore(parseInt(e.target.value))}
+                className="form-select text-sm py-1.5"
+              >
+                <option value={75}>High Potential (75+)</option>
+                <option value={50}>Medium+ (50+)</option>
+                <option value={40}>All Opportunities (40+)</option>
+                <option value={0}>Show All Scores</option>
+              </select>
             </div>
+          </div>
+
+          {/* Category filter pills */}
+          <div className="flex flex-wrap gap-2 mt-4">
+            {CATEGORY_FILTERS.map((cat) => (
+              <button
+                key={cat.key}
+                onClick={() => setSelectedCategory(cat.key)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                  selectedCategory === cat.key
+                    ? (cat.color || 'bg-accent-100 text-accent-700 dark:bg-accent-500/20 dark:text-accent-400 border-accent-300 dark:border-accent-600')
+                    : 'bg-zinc-50 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-700'
+                }`}
+              >
+                {cat.label}
+                {cat.key && healthStats?.[cat.key] > 0 && (
+                  <span className="ml-1.5 font-bold">{healthStats[cat.key]}</span>
+                )}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -424,7 +535,6 @@ const DataQDashboard = () => {
           <ActiveChallengesPanel />
         </Suspense>
       )}
-
 
       {activeTab === 'analytics' && (
         <Suspense fallback={<div className="flex justify-center py-16"><LoadingSpinner size="lg" /></div>}>

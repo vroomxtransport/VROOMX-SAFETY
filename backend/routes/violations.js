@@ -158,14 +158,15 @@ router.get('/unassigned', checkPermission('violations', 'view'), asyncHandler(as
 // @desc    Get list of violations ranked by DataQ challenge potential
 // @access  Private
 router.get('/dataq-opportunities', checkPermission('violations', 'view'), asyncHandler(async (req, res) => {
-  const { minScore = 40, limit = 20, basic } = req.query;
+  const { minScore = 40, limit = 20, basic, category } = req.query;
 
   const result = await dataQAnalysisService.identifyChallengeableViolations(
     req.companyFilter.companyId,
     {
       minScore: parseInt(minScore),
       limit: parseInt(limit),
-      basic
+      basic,
+      category
     }
   );
 

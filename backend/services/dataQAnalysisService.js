@@ -262,6 +262,7 @@ async function identifyChallengeableViolations(companyId, options = {}) {
     minScore = 40,
     limit = 20,
     basic,
+    category,
     includeAlreadyChallenged = false
   } = options;
 
@@ -282,6 +283,11 @@ async function identifyChallengeableViolations(companyId, options = {}) {
   // Filter by BASIC if specified
   if (basic) {
     query.basic = basic;
+  }
+
+  // Filter by health check scan category if specified
+  if (category) {
+    query['scanResults.category'] = category;
   }
 
   // Only look at violations from last 24 months (relevant for CSA)
