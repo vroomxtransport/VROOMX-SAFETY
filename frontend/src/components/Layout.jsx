@@ -884,6 +884,15 @@ const Layout = () => {
                   Report an Issue
                 </button>
                 <button
+                  onClick={() => {
+                    setReportForm(prev => ({ ...prev, category: 'feature_request' }));
+                    setReportModalOpen(true);
+                  }}
+                  className="px-3 py-1.5 text-xs font-medium text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-800/30 hover:bg-blue-200 dark:hover:bg-blue-800/50 rounded-lg transition-colors"
+                >
+                  Suggest a Feature
+                </button>
+                <button
                   onClick={dismissDevBanner}
                   className="p-1 text-amber-500 hover:text-amber-700 dark:hover:text-amber-300 rounded transition-colors"
                   aria-label="Dismiss banner"
@@ -913,7 +922,9 @@ const Layout = () => {
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setReportModalOpen(false)} />
           <div className="relative w-full max-w-lg bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-zinc-200 dark:border-zinc-700">
             <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-200 dark:border-zinc-700">
-              <h2 className="text-lg font-semibold text-zinc-900 dark:text-white">Report an Issue</h2>
+              <h2 className="text-lg font-semibold text-zinc-900 dark:text-white">
+                {reportForm.category === 'feature_request' ? 'Suggest a Feature' : 'Report an Issue'}
+              </h2>
               <button
                 onClick={() => setReportModalOpen(false)}
                 className="p-1.5 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
@@ -952,7 +963,9 @@ const Layout = () => {
                 <textarea
                   value={reportForm.description}
                   onChange={(e) => setReportForm(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Describe the issue in detail. What happened? What did you expect to happen?"
+                  placeholder={reportForm.category === 'feature_request'
+                    ? 'Describe the feature or idea. What problem would it solve?'
+                    : 'Describe the issue in detail. What happened? What did you expect to happen?'}
                   rows={4}
                   className="w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 resize-none"
                   required
