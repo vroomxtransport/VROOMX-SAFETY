@@ -16,6 +16,7 @@ import TabNav from '../components/TabNav';
 import InspectionUploadContent from '../components/InspectionUploadContent';
 import DataQOpportunities from '../components/DataQOpportunities';
 import DataQLetterModal from '../components/DataQLetterModal';
+import ViolationDetailModal from '../components/ViolationDetailModal';
 
 const Violations = ({ embedded = false }) => {
   const [activeTab, setActiveTab] = useState('list');
@@ -41,6 +42,7 @@ const Violations = ({ embedded = false }) => {
   const [opportunitiesLoading, setOpportunitiesLoading] = useState(false);
   const [typeFilter, setTypeFilter] = useState('');
   const [dismissedAttorneyBanner, setDismissedAttorneyBanner] = useState(false);
+  const [detailViolation, setDetailViolation] = useState(null);
 
   const tabs = [
     { key: 'list', label: 'Violations List', icon: FiList },
@@ -495,6 +497,11 @@ const Violations = ({ embedded = false }) => {
           <DataQOpportunities
             opportunities={opportunities}
             onAnalyze={handleAnalyzeOpportunity}
+            onViewDetail={(v) => {
+              violationsAPI.getById(v._id)
+                .then(res => setDetailViolation(res.data.violation || v))
+                .catch(() => setDetailViolation(v));
+            }}
             loading={opportunitiesLoading}
           />
         </div>
@@ -659,6 +666,11 @@ const Violations = ({ embedded = false }) => {
         onPageChange={setPage}
         emptyMessage="No violations found"
         emptyIcon={FiAlertTriangle}
+        onRowClick={(row) => {
+          violationsAPI.getById(row._id)
+            .then(res => setDetailViolation(res.data.violation || row))
+            .catch(() => setDetailViolation(row));
+        }}
       />
       </>
       ) : (
@@ -959,6 +971,14 @@ const Violations = ({ embedded = false }) => {
           </div>
         </form>
       </Modal>
+
+      {/* Violation Detail Modal */}
+      {detailViolation && (
+        <ViolationDetailModal
+          violation={detailViolation}
+          onClose={() => setDetailViolation(null)}
+        />
+      )}
 
       {/* DataQ Letter Modal */}
       {showLetterModal && selectedOpportunity && (

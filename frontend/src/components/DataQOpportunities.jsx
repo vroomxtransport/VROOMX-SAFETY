@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { formatDate, basicCategories } from '../utils/helpers';
 import {
   FiTarget, FiZap, FiAlertTriangle, FiTruck, FiUser,
-  FiChevronRight, FiFileText, FiClock, FiTrendingDown
+  FiChevronRight, FiFileText, FiClock, FiTrendingDown, FiEye
 } from 'react-icons/fi';
 import LoadingSpinner from './LoadingSpinner';
 
-const DataQOpportunities = ({ opportunities, onAnalyze, loading }) => {
+const DataQOpportunities = ({ opportunities, onAnalyze, onViewDetail, loading }) => {
   const [expandedId, setExpandedId] = useState(null);
   const safeOpportunities = Array.isArray(opportunities) ? opportunities : [];
 
@@ -215,6 +215,15 @@ const DataQOpportunities = ({ opportunities, onAnalyze, loading }) => {
 
                   {/* Action Buttons */}
                   <div className="flex gap-3">
+                    {onViewDetail && (
+                      <button
+                        onClick={() => onViewDetail(violation)}
+                        className="btn btn-secondary"
+                      >
+                        <FiEye className="w-4 h-4" />
+                        View Details
+                      </button>
+                    )}
                     <button
                       onClick={() => onAnalyze(item)}
                       className="btn btn-primary"

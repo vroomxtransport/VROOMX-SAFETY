@@ -11,6 +11,7 @@ import {
 import LoadingSpinner from '../components/LoadingSpinner';
 import DataQOpportunities from '../components/DataQOpportunities';
 import DataQLetterModal from '../components/DataQLetterModal';
+import ViolationDetailModal from '../components/ViolationDetailModal';
 import HealthCheckTab from '../components/HealthCheckTab';
 
 const ActiveChallengesPanel = lazy(() => import('../components/ActiveChallengesPanel'));
@@ -30,6 +31,7 @@ const DataQDashboard = () => {
   const [selectedBasic, setSelectedBasic] = useState('');
   const [autoSyncing, setAutoSyncing] = useState(false);
   const autoSyncAttempted = useRef(false);
+  const [detailViolation, setDetailViolation] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -378,6 +380,11 @@ const DataQDashboard = () => {
         <DataQOpportunities
           opportunities={opportunities}
           onAnalyze={handleAnalyze}
+          onViewDetail={(v) => {
+            violationsAPI.getById(v._id)
+              .then(res => setDetailViolation(res.data.violation || v))
+              .catch(() => setDetailViolation(v));
+          }}
           loading={loading}
         />
       </div>
@@ -423,6 +430,14 @@ const DataQDashboard = () => {
         <Suspense fallback={<div className="flex justify-center py-16"><LoadingSpinner size="lg" /></div>}>
           <DataQAnalyticsPanel />
         </Suspense>
+      )}
+
+      {/* Violation Detail Modal */}
+      {detailViolation && (
+        <ViolationDetailModal
+          violation={detailViolation}
+          onClose={() => setDetailViolation(null)}
+        />
       )}
 
       {/* DataQ Letter Modal */}
