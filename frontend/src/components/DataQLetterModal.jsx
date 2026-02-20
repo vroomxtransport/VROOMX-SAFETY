@@ -96,23 +96,6 @@ const DataQLetterModal = ({ isOpen, onClose, violation, analysis }) => {
           </div>
         </div>
 
-        {/* Supporting Factors */}
-        {analysis?.factors?.length > 0 && (
-          <div>
-            <h4 className="font-medium text-zinc-700 dark:text-zinc-300 mb-2 flex items-center gap-2">
-              <FiCheck className="w-4 h-4 text-green-500" /> Supporting Factors
-            </h4>
-            <ul className="space-y-1.5">
-              {analysis.factors.map((factor, idx) => (
-                <li key={idx} className="flex items-start gap-2 text-sm">
-                  <FiCheck className="w-3.5 h-3.5 text-green-500 mt-0.5 flex-shrink-0" />
-                  <span className="text-zinc-600 dark:text-zinc-400">{factor}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
         {/* Divider */}
         <div className="flex items-center gap-3">
           <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-700" />
