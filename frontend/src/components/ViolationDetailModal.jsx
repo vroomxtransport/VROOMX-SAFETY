@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { FiX, FiAlertTriangle, FiUser, FiTruck, FiTarget, FiZap, FiTrendingDown, FiFileText, FiMapPin, FiShield, FiDollarSign, FiClock, FiCheckCircle, FiClipboard, FiExternalLink } from 'react-icons/fi';
+import { useState, useEffect } from 'react';
+import { FiX, FiAlertTriangle, FiUser, FiTruck, FiTarget, FiZap, FiTrendingDown, FiFileText, FiMapPin, FiShield, FiDollarSign, FiClock, FiCheckCircle, FiClipboard, FiExternalLink, FiCopy } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
+import { violationsAPI } from '../utils/api';
 import { formatDate, basicCategories } from '../utils/helpers';
 import StatusBadge from './StatusBadge';
 import CourtOutcomeModal from './CourtOutcomeModal';
@@ -33,6 +34,18 @@ const InfoField = ({ label, value, mono }) => {
 
 const ViolationDetailModal = ({ violation, onClose }) => {
   const [showCourtOutcome, setShowCourtOutcome] = useState(false);
+  const [duplicateViolations, setDuplicateViolations] = useState([]);
+
+  const dupInspections = violation?.scanResults?.checks?.duplicate?.details?.duplicateInspections;
+  const hasDuplicates = violation?.scanResults?.checks?.duplicate?.flagged && dupInspections?.length > 0;
+
+  useEffect(() => {
+    if (hasDuplicates) {
+      violationsAPI.getAll({ inspectionNumber: dupInspections.join(','), limit: 50 })
+        .then(res => setDuplicateViolations(res.data.violations || []))
+        .catch(() => setDuplicateViolations([]));
+    }
+  }, [violation?._id]);
 
   if (!violation) return null;
 
@@ -55,10 +68,14 @@ const ViolationDetailModal = ({ violation, onClose }) => {
         <div className="sticky top-0 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700 px-6 py-4 flex items-center justify-between z-10">
           <div>
             <h2 className="text-xl font-bold text-zinc-800 dark:text-zinc-100">Violation Details</h2>
-            <p className="text-sm text-zinc-500">
-              {violation.violationCode ? `Code: ${violation.violationCode}` : ''}
-              {violation.inspectionNumber ? ` | Inspection: ${violation.inspectionNumber}` : ''}
-            </p>
+            <div className="flex items-center gap-3 mt-0.5">
+              {violation.violationCode && (
+                <span className="text-sm text-zinc-500">Code: <span className="font-mono font-medium text-zinc-700 dark:text-zinc-300">{violation.violationCode}</span></span>
+              )}
+              {violation.inspectionNumber && (
+                <span className="text-sm text-zinc-500">FMCSA Report #: <span className="font-mono font-medium text-zinc-700 dark:text-zinc-300">{violation.inspectionNumber}</span></span>
+              )}
+            </div>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg">
             <FiX className="w-5 h-5" />
@@ -134,7 +151,7 @@ const ViolationDetailModal = ({ violation, onClose }) => {
               <FiClipboard className="w-4 h-4" /> Inspection Context
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-              <InfoField label="Inspection Number" value={violation.inspectionNumber} mono />
+              <InfoField label="FMCSA Report #" value={violation.inspectionNumber} mono />
               <InfoField label="Inspection Type" value={INSPECTION_TYPE_LABELS[violation.inspectionType] || violation.inspectionType} />
               <InfoField label="Inspection Level" value={INSPECTION_LEVEL_LABELS[violation.inspectionLevel] || (violation.inspectionLevel ? `Level ${violation.inspectionLevel}` : null)} />
               <InfoField label="Inspector" value={violation.inspectorName} />
@@ -283,6 +300,79 @@ const ViolationDetailModal = ({ violation, onClose }) => {
                   </div>
                 )}
               </div>
+            </div>
+          )}
+
+          {/* Duplicate Violations Comparison */}
+          {hasDuplicates && (
+            <div>
+              <h3 className="font-semibold text-zinc-800 dark:text-zinc-100 mb-3 flex items-center gap-2">
+                <FiCopy className="w-4 h-4" /> Potential Duplicate Violations
+              </h3>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-3">
+                {scan.checks.duplicate.reason} — Compare with the violations below:
+              </p>
+
+              {/* Current violation summary */}
+              <div className="mb-3 p-3 bg-accent-50 dark:bg-accent-500/10 border border-accent-200 dark:border-accent-700 rounded-xl">
+                <p className="text-[10px] uppercase font-bold text-accent-600 dark:text-accent-400 mb-1">Current Violation</p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                  <div>
+                    <span className="text-zinc-500 text-xs">Date</span>
+                    <p className="font-medium text-zinc-800 dark:text-zinc-100">{formatDate(violation.violationDate)}</p>
+                  </div>
+                  <div>
+                    <span className="text-zinc-500 text-xs">Code</span>
+                    <p className="font-mono font-medium text-zinc-800 dark:text-zinc-100">{violation.violationCode || '-'}</p>
+                  </div>
+                  <div>
+                    <span className="text-zinc-500 text-xs">FMCSA Report #</span>
+                    <p className="font-mono font-medium text-zinc-800 dark:text-zinc-100">{violation.inspectionNumber}</p>
+                  </div>
+                  <div>
+                    <span className="text-zinc-500 text-xs">Severity</span>
+                    <p className="font-medium text-zinc-800 dark:text-zinc-100">{violation.severityWeight} {violation.outOfService ? '(OOS)' : ''}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Duplicate violations */}
+              {duplicateViolations.length > 0 ? (
+                <div className="space-y-2">
+                  {duplicateViolations.map((dup) => (
+                    <div key={dup._id} className="p-3 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-xl">
+                      <p className="text-[10px] uppercase font-bold text-red-600 dark:text-red-400 mb-1">Potential Duplicate</p>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                        <div>
+                          <span className="text-zinc-500 text-xs">Date</span>
+                          <p className="font-medium text-zinc-800 dark:text-zinc-100">{formatDate(dup.violationDate)}</p>
+                        </div>
+                        <div>
+                          <span className="text-zinc-500 text-xs">Code</span>
+                          <p className="font-mono font-medium text-zinc-800 dark:text-zinc-100">{dup.violationCode || '-'}</p>
+                        </div>
+                        <div>
+                          <span className="text-zinc-500 text-xs">FMCSA Report #</span>
+                          <p className="font-mono font-medium text-zinc-800 dark:text-zinc-100">{dup.inspectionNumber}</p>
+                        </div>
+                        <div>
+                          <span className="text-zinc-500 text-xs">Severity</span>
+                          <p className="font-medium text-zinc-800 dark:text-zinc-100">{dup.severityWeight} {dup.outOfService ? '(OOS)' : ''}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 mt-2 pt-2 border-t border-red-200 dark:border-red-800">
+                        <span className="text-xs text-zinc-500">Type: {dup.violationType}</span>
+                        <span className="text-xs capitalize text-zinc-500">BASIC: {basicCategories[dup.basic]?.label || dup.basic}</span>
+                        <StatusBadge status={dup.status} size="sm" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg text-sm text-zinc-500 text-center">
+                  Loading duplicate violations...
+                </div>
+              )}
             </div>
           )}
 

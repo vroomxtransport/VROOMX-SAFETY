@@ -314,7 +314,7 @@ const InspectionDetailModal = ({ inspection, onClose }) => {
         <div className="sticky top-0 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700 px-6 py-4 flex items-center justify-between z-10">
           <div>
             <h2 className="text-xl font-bold text-zinc-800 dark:text-zinc-100">Inspection Details</h2>
-            <p className="text-sm text-zinc-500">Inspection ID: {inspection.reportNumber}</p>
+            <p className="text-sm text-zinc-500">FMCSA Report #: <span className="font-mono">{inspection.reportNumber}</span></p>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg">
             <FiX className="w-5 h-5" />

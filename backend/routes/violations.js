@@ -31,6 +31,10 @@ router.get('/', checkPermission('violations', 'view'), asyncHandler(async (req, 
   if (basic) queryObj.basic = basic;
   if (driverId) queryObj.driverId = driverId;
   if (vehicleId) queryObj.vehicleId = vehicleId;
+  if (req.query.inspectionNumber) {
+    const numbers = req.query.inspectionNumber.split(',');
+    queryObj.inspectionNumber = numbers.length > 1 ? { $in: numbers } : numbers[0];
+  }
   if (req.query.isMoving !== undefined) {
     const movingCodes = getMovingViolations().map(v => v.code);
     if (req.query.isMoving === 'true') {
