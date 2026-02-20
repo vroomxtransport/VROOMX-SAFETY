@@ -211,6 +211,33 @@ const driverSchema = new mongoose.Schema({
       behindTheWheelHours: Number,
       documentUrl: String
     },
+    // CDL Front & Back Copies
+    cdlFront: { documentUrl: String, uploadDate: Date },
+    cdlBack: { documentUrl: String, uploadDate: Date },
+    // Medical Examiner National Registry Verification (49 CFR 391.23(m))
+    medicalExaminerRegistry: {
+      verified: { type: Boolean, default: false },
+      verificationDate: Date,
+      documentUrl: String
+    },
+    // Previous Employment Safety Verification (49 CFR 391.23)
+    previousEmploymentVerification: {
+      verified: { type: Boolean, default: false },
+      verificationDate: Date,
+      documentUrl: String
+    },
+    // Good Faith Attempts for previous employer contact (49 CFR 391.23(j))
+    goodFaithAttempt1: { documentUrl: String, uploadDate: Date },
+    goodFaithAttempt2: { documentUrl: String, uploadDate: Date },
+    goodFaithAttempt3: { documentUrl: String, uploadDate: Date },
+    // Safety Performance History (49 CFR 391.23(e))
+    safetyPerformanceHistory: { documentUrl: String, uploadDate: Date },
+    // Clearinghouse Query Verification
+    clearinghouseVerification: {
+      verified: { type: Boolean, default: false },
+      verificationDate: Date,
+      documentUrl: String
+    },
     // Other supporting documents
     other: [{
       name: String,

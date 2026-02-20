@@ -201,11 +201,19 @@ const DriverDetail = () => {
   const medicalDays = daysUntilExpiry(driver.medicalCard?.expiryDate);
 
   const documentChecklist = [
-    { key: 'cdl', label: 'CDL Copy', status: driver.cdl?.documentUrl ? 'complete' : 'missing', url: driver.cdl?.documentUrl },
+    { key: 'cdlFront', label: 'CDL Front Copy', status: driver.documents?.cdlFront?.documentUrl ? 'complete' : 'missing', url: driver.documents?.cdlFront?.documentUrl },
+    { key: 'cdlBack', label: 'CDL Back Copy', status: driver.documents?.cdlBack?.documentUrl ? 'complete' : 'missing', url: driver.documents?.cdlBack?.documentUrl },
     { key: 'medicalCard', label: 'Medical Card', status: driver.medicalCard?.documentUrl ? 'complete' : 'missing', url: driver.medicalCard?.documentUrl },
+    { key: 'medicalExaminerRegistry', label: 'Medical Examiner Registry Verification', status: driver.documents?.medicalExaminerRegistry?.verified ? 'complete' : 'missing', url: driver.documents?.medicalExaminerRegistry?.documentUrl },
     { key: 'roadTest', label: 'Road Test Certificate', status: driver.documents?.roadTest?.result ? 'complete' : 'missing', url: driver.documents?.roadTest?.documentUrl },
     { key: 'employmentApplication', label: 'Employment Application', status: driver.documents?.employmentApplication?.complete ? 'complete' : 'missing', url: driver.documents?.employmentApplication?.documentUrl },
-    { key: 'clearinghouse', label: 'Clearinghouse Query', status: driver.clearinghouse?.status === 'clear' ? 'complete' : driver.clearinghouse?.lastQueryDate ? 'warning' : 'missing' }
+    { key: 'previousEmploymentVerification', label: 'Previous Employment Safety Verification', status: driver.documents?.previousEmploymentVerification?.verified ? 'complete' : 'missing', url: driver.documents?.previousEmploymentVerification?.documentUrl },
+    { key: 'goodFaithAttempt1', label: 'Good Faith Attempt 1', status: driver.documents?.goodFaithAttempt1?.documentUrl ? 'complete' : 'missing', url: driver.documents?.goodFaithAttempt1?.documentUrl },
+    { key: 'goodFaithAttempt2', label: 'Good Faith Attempt 2', status: driver.documents?.goodFaithAttempt2?.documentUrl ? 'complete' : 'missing', url: driver.documents?.goodFaithAttempt2?.documentUrl },
+    { key: 'goodFaithAttempt3', label: 'Good Faith Attempt 3', status: driver.documents?.goodFaithAttempt3?.documentUrl ? 'complete' : 'missing', url: driver.documents?.goodFaithAttempt3?.documentUrl },
+    { key: 'safetyPerformanceHistory', label: 'Safety Performance History (SPH)', status: driver.documents?.safetyPerformanceHistory?.documentUrl ? 'complete' : 'missing', url: driver.documents?.safetyPerformanceHistory?.documentUrl },
+    { key: 'clearinghouse', label: 'Clearinghouse Query', status: driver.clearinghouse?.status === 'clear' ? 'complete' : driver.clearinghouse?.lastQueryDate ? 'warning' : 'missing' },
+    { key: 'clearinghouseVerification', label: 'Clearinghouse Query Verification', status: driver.documents?.clearinghouseVerification?.verified ? 'complete' : 'missing', url: driver.documents?.clearinghouseVerification?.documentUrl }
   ];
 
   const completedDocs = documentChecklist.filter(d => d.status === 'complete').length;
