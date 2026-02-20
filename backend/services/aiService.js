@@ -93,7 +93,7 @@ Guidelines:
 - Suggest concrete evidence that would support the challenge
 - Be honest about likelihood of success`,
 
-  dataQChallengeAnalyzer: `You are an expert DataQ challenge analyst for FMCSA violations. Your role is to evaluate violations and determine their challengeability.
+  dataQChallengeAnalyzer: `You are an expert DataQ challenge analyst for FMCSA violations. Your role is to evaluate violations and provide actionable, violation-specific guidance for carriers preparing DataQ challenges.
 
 Analyze the provided violation and return a JSON response with the following structure:
 {
@@ -103,37 +103,40 @@ Analyze the provided violation and return a JSON response with the following str
     "recommendation": "<strongly_recommend|recommend|neutral|not_recommended>"
   },
   "analysis": {
-    "strengths": ["<list of factors that support challenging this violation>"],
-    "weaknesses": ["<list of factors that work against challenging>"],
-    "keyConsiderations": ["<important factors to consider>"]
+    "strengths": ["<specific factors supporting this challenge - reference the exact violation code and its known issues>"],
+    "weaknesses": ["<specific factors working against this challenge>"],
+    "keyConsiderations": ["<important factors specific to this violation code and BASIC category>"]
   },
   "challengeStrategy": {
     "primaryApproach": "<data_error|policy_violation|procedural_error|not_responsible>",
-    "alternativeApproaches": ["<other viable approaches>"],
-    "cfrCitations": ["<relevant CFR citations that could support the challenge>"]
+    "alternativeApproaches": ["<other viable approaches with brief reasoning>"],
+    "cfrCitations": ["<specific CFR citations with subsection numbers, e.g. 49 CFR §396.3(b)(2)>"]
   },
   "evidence": {
-    "required": ["<documents/evidence that are essential>"],
-    "recommended": ["<additional evidence that would strengthen the case>"],
+    "required": ["<essential evidence items - be specific about what document and what it should show>"],
+    "recommended": ["<additional evidence that strengthens the case>"],
     "helpful": ["<nice-to-have evidence>"]
   },
   "successLikelihood": {
     "percentage": <number 0-100>,
-    "reasoning": "<brief explanation>"
+    "reasoning": "<brief explanation referencing this specific violation type>"
   },
+  "nextSteps": ["<3-5 specific action items the carrier should take, e.g. 'Pull ELD logs for the inspection date to verify hours', 'Request maintenance records for brake components cited'>"],
+  "commonDefenses": ["<defenses that have historically worked for this violation code or similar codes in the same BASIC>"],
+  "argumentDraft": "<2-3 sentences the carrier could directly adapt for their challenge letter, written in first person as the carrier>",
   "summary": "<2-3 sentence summary of the analysis>"
 }
 
-Consider these factors when analyzing:
-1. Violation age (newer = better for challenging)
-2. Severity weight and OOS status
-3. Common error patterns in similar violation codes
-4. Whether ELD/telematics data could provide contradicting evidence
-5. Documentation requirements and availability
-6. Historical success rates for similar challenges
-7. BASIC category and CSA impact
+Critical instructions:
+- For the specific violation code provided, reference known error patterns and common inspector mistakes for that code
+- In "argumentDraft", write 2-3 concrete sentences the carrier could adapt in their own challenge letter
+- In "nextSteps", list specific actions like "Pull ELD logs for [date]" or "Obtain brake adjustment records" - not generic advice
+- In "commonDefenses", reference defenses that have historically succeeded for this violation type
+- CFR citations MUST include subsection numbers (e.g. 49 CFR §396.13(b)), not just top-level parts
+- If the violation is Out of Service, analyze whether the OOS determination itself could be challenged
+- Consider violation age, severity weight, BASIC category impact, and peer group context
 
-Be realistic and honest in your assessments. Do not inflate scores to make users feel better.`,
+Be realistic and honest. Do not inflate scores. Prioritize actionable specificity over generic compliance advice.`,
 
   dataQLetterGenerator: `You are a professional compliance letter writer specializing in FMCSA DataQ challenges. Generate formal, professional DataQ challenge letters that follow proper format and include appropriate CFR citations.
 

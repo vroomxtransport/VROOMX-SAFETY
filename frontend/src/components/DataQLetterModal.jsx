@@ -5,7 +5,7 @@ import { RDR_TYPES, RDR_CATEGORIES, getRdrTypesByCategory, toLegacyChallengeType
 import toast from 'react-hot-toast';
 import {
   FiFileText, FiZap, FiChevronLeft, FiChevronRight, FiCheck,
-  FiAlertTriangle, FiDownload, FiCopy, FiCheckCircle, FiX,
+  FiAlertTriangle, FiCheckCircle, FiX,
   FiList, FiSend, FiChevronDown, FiChevronUp, FiInfo, FiShield
 } from 'react-icons/fi';
 import Modal from './Modal';
@@ -16,7 +16,6 @@ import ScoreImpactCard from './ScoreImpactCard';
 const STEPS = [
   { id: 'analysis', label: 'AI Analysis', icon: FiZap },
   { id: 'type', label: 'RDR Type', icon: FiList },
-  { id: 'preview', label: 'Letter Preview', icon: FiFileText },
   { id: 'evidence', label: 'Evidence Checklist', icon: FiCheckCircle },
   { id: 'submit', label: 'Submit', icon: FiSend }
 ];
@@ -29,7 +28,6 @@ const DataQLetterModal = ({ isOpen, onClose, violation, analysis, onSuccess }) =
   );
   const [rdrWarnings, setRdrWarnings] = useState(analysis?.rdrWarnings || []);
   const [reason, setReason] = useState('');
-  const [generatedLetter, setGeneratedLetter] = useState(null);
   const [evidenceChecklist, setEvidenceChecklist] = useState(
     analysis?.evidenceChecklist || []
   );
@@ -89,9 +87,7 @@ const DataQLetterModal = ({ isOpen, onClose, violation, analysis, onSuccess }) =
       return;
     }
 
-    if (currentStep === 1) {
-      await generateLetter();
-    } else if (currentStep < STEPS.length - 1) {
+    if (currentStep < STEPS.length - 1) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -123,47 +119,6 @@ const DataQLetterModal = ({ isOpen, onClose, violation, analysis, onSuccess }) =
     }
   };
 
-  const generateLetter = async () => {
-    setLoading(true);
-    try {
-      const evidenceList = evidenceChecklist
-        .filter(e => e.obtained)
-        .map(e => e.item);
-
-      const response = await violationsAPI.generateLetter(violation._id, {
-        challengeType,
-        rdrType,
-        reason,
-        evidenceList
-      });
-
-      setGeneratedLetter(response.data.data.letter);
-      setCurrentStep(2);
-    } catch (error) {
-      toast.error(error.response?.data?.error || 'Failed to generate letter');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCopyLetter = () => {
-    navigator.clipboard.writeText(generatedLetter);
-    toast.success('Letter copied to clipboard');
-  };
-
-  const handleDownloadLetter = () => {
-    const blob = new Blob([generatedLetter], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `DataQ_Challenge_${violation.inspectionNumber}_${new Date().toISOString().split('T')[0]}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    toast.success('Letter downloaded');
-  };
-
   const handleEvidenceToggle = (index) => {
     const updated = [...evidenceChecklist];
     updated[index].obtained = !updated[index].obtained;
@@ -174,9 +129,9 @@ const DataQLetterModal = ({ isOpen, onClose, violation, analysis, onSuccess }) =
     setLoading(true);
     try {
       await violationsAPI.saveDataQLetter(violation._id, {
-        content: generatedLetter,
         challengeType,
-        rdrType
+        rdrType,
+        reason
       });
       await violationsAPI.updateEvidenceChecklist(violation._id, evidenceChecklist);
       onSuccess();
@@ -496,37 +451,13 @@ const DataQLetterModal = ({ isOpen, onClose, violation, analysis, onSuccess }) =
                 placeholder="Describe why you believe this violation should be challenged. Be specific about the error or circumstance..."
               />
               <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-                This will be included in the generated letter. Be factual and specific.
+                Be factual and specific about the error or circumstance.
               </p>
             </div>
           </div>
         );
 
-      case 2: // Letter Preview
-        return (
-          <div className="space-y-4">
-            <div className="flex justify-end gap-2">
-              <button onClick={handleCopyLetter} className="btn btn-secondary text-sm">
-                <FiCopy className="w-4 h-4" />
-                Copy
-              </button>
-              <button onClick={handleDownloadLetter} className="btn btn-secondary text-sm">
-                <FiDownload className="w-4 h-4" />
-                Download
-              </button>
-            </div>
-            <div className="p-4 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 max-h-96 overflow-y-auto">
-              <pre className="whitespace-pre-wrap text-sm text-zinc-700 dark:text-zinc-300 font-mono">
-                {generatedLetter}
-              </pre>
-            </div>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              Review the letter above. You can edit it after downloading or copy it to make changes.
-            </p>
-          </div>
-        );
-
-      case 3: // Evidence Checklist
+      case 2: // Evidence Checklist
         return (
           <div className="space-y-4">
             <EvidenceCollectionPanel
@@ -540,7 +471,7 @@ const DataQLetterModal = ({ isOpen, onClose, violation, analysis, onSuccess }) =
           </div>
         );
 
-      case 4: // Submit
+      case 3: // Submit
         return (
           <div className="space-y-4 text-center">
             <div className="w-16 h-16 rounded-full bg-success-100 dark:bg-success-500/20 flex items-center justify-center mx-auto">
@@ -550,7 +481,7 @@ const DataQLetterModal = ({ isOpen, onClose, violation, analysis, onSuccess }) =
               Ready to Save
             </h3>
             <p className="text-zinc-600 dark:text-zinc-400">
-              Your DataQ challenge letter has been generated. Save it to your violation record for tracking.
+              Your DataQ challenge has been prepared. Save it to your violation record for tracking.
             </p>
             {rdrType && RDR_TYPES[rdrType] && (
               <div className="p-3 rounded-lg bg-accent-50 dark:bg-accent-500/10 border border-accent-200 dark:border-accent-500/20 text-left">
@@ -568,7 +499,7 @@ const DataQLetterModal = ({ isOpen, onClose, violation, analysis, onSuccess }) =
                 <div>
                   <p className="font-medium text-warning-800 dark:text-warning-300 text-sm">Next Steps:</p>
                   <ol className="text-sm text-warning-700 dark:text-warning-400 list-decimal list-inside mt-1 space-y-1">
-                    <li>Download or copy the generated letter</li>
+                    <li>Draft your challenge letter using the analysis and evidence above</li>
                     <li>Gather the required supporting evidence</li>
                     <li>Submit through the official FMCSA DataQs system</li>
                     <li>Update the challenge status here when you receive a response</li>
@@ -588,7 +519,7 @@ const DataQLetterModal = ({ isOpen, onClose, violation, analysis, onSuccess }) =
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Generate DataQ Challenge Letter"
+      title="DataQ Challenge Builder"
       icon={FiFileText}
       size="lg"
     >
@@ -673,7 +604,7 @@ const DataQLetterModal = ({ isOpen, onClose, violation, analysis, onSuccess }) =
                 <LoadingSpinner size="sm" />
               ) : (
                 <>
-                  {currentStep === 1 ? 'Generate Letter' : 'Next'}
+                  Next
                   <FiChevronRight className="w-4 h-4" />
                 </>
               )}
