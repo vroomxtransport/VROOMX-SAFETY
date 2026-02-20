@@ -229,7 +229,7 @@ const DataQOpportunities = ({ opportunities, onAnalyze, onViewDetail, loading })
                       className="btn btn-primary"
                     >
                       <FiZap className="w-4 h-4" />
-                      Generate Challenge Letter
+                      Start Challenge
                     </button>
                   </div>
                 </div>

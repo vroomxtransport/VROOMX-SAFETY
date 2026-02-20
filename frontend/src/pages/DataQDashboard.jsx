@@ -205,7 +205,7 @@ const DataQDashboard = () => {
             </span>
           </div>
           <p className="text-zinc-600 dark:text-zinc-300 text-sm mt-1">
-            Identify challengeable violations and generate professional DataQ letters
+            Identify challengeable violations and build DataQ challenges with AI analysis
           </p>
         </div>
         <div className="flex gap-2">
@@ -514,8 +514,8 @@ const DataQDashboard = () => {
           <div className="flex gap-3">
             <div className="flex-shrink-0 w-8 h-8 rounded-full bg-accent-600 dark:bg-accent-500 text-white flex items-center justify-center text-sm font-semibold">2</div>
             <div>
-              <p className="font-medium text-zinc-900 dark:text-white">Generate Letter</p>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">Click to generate a professional DataQ challenge letter with CFR citations</p>
+              <p className="font-medium text-zinc-900 dark:text-white">Build Challenge</p>
+              <p className="text-sm text-zinc-600 dark:text-zinc-400">Select RDR type, gather evidence, and get AI-powered analysis with CFR citations</p>
             </div>
           </div>
           <div className="flex gap-3">
