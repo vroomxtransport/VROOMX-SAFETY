@@ -79,7 +79,11 @@ const ClaimDetailModal = ({
           </div>
           <p className="text-sm text-zinc-800 dark:text-zinc-200">{claim.description}</p>
           {claim.location && (
-            <p className="text-xs text-zinc-600 dark:text-zinc-300 mt-2">Location: {claim.location}</p>
+            <p className="text-xs text-zinc-600 dark:text-zinc-300 mt-2">
+              Location: {typeof claim.location === 'string'
+                ? claim.location
+                : [claim.location.address, claim.location.city, claim.location.state].filter(Boolean).join(', ')}
+            </p>
           )}
         </div>
 
