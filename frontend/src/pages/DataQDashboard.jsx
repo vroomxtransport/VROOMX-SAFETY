@@ -160,11 +160,9 @@ const DataQDashboard = () => {
     setShowLetterModal(true);
   };
 
-  const handleLetterGenerated = () => {
-    fetchData();
+  const handleAnalysisClose = () => {
     setShowLetterModal(false);
     setSelectedViolation(null);
-    toast.success('DataQ letter generated successfully');
   };
 
   if (loading && !stats) {
@@ -502,27 +500,27 @@ const DataQDashboard = () => {
 
       {/* How It Works */}
       <div className="bg-gradient-to-br from-accent-50 to-info-50 dark:from-accent-500/10 dark:to-info-500/10 rounded-xl border border-accent-200/60 dark:border-accent-500/20 p-5">
-        <h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">How AI DataQ Challenge Works</h3>
+        <h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">How Violation Analysis Works</h3>
         <div className="grid md:grid-cols-3 gap-4">
           <div className="flex gap-3">
             <div className="flex-shrink-0 w-8 h-8 rounded-full bg-accent-600 dark:bg-accent-500 text-white flex items-center justify-center text-sm font-semibold">1</div>
             <div>
-              <p className="font-medium text-zinc-900 dark:text-white">AI Analyzes</p>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">Our AI scans your violations and scores each one based on challenge potential</p>
+              <p className="font-medium text-zinc-900 dark:text-white">Smart Scan</p>
+              <p className="text-sm text-zinc-600 dark:text-zinc-400">AI scans your violations and scores each one based on challenge potential</p>
             </div>
           </div>
           <div className="flex gap-3">
             <div className="flex-shrink-0 w-8 h-8 rounded-full bg-accent-600 dark:bg-accent-500 text-white flex items-center justify-center text-sm font-semibold">2</div>
             <div>
-              <p className="font-medium text-zinc-900 dark:text-white">Build Challenge</p>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">Select RDR type, gather evidence, and get AI-powered analysis with CFR citations</p>
+              <p className="font-medium text-zinc-900 dark:text-white">Deep Analysis</p>
+              <p className="text-sm text-zinc-600 dark:text-zinc-400">Get safety manager-level insights, tips, defenses, and CFR citations for each violation</p>
             </div>
           </div>
           <div className="flex gap-3">
             <div className="flex-shrink-0 w-8 h-8 rounded-full bg-accent-600 dark:bg-accent-500 text-white flex items-center justify-center text-sm font-semibold">3</div>
             <div>
-              <p className="font-medium text-zinc-900 dark:text-white">Submit & Track</p>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">Submit your challenge and track its status through resolution</p>
+              <p className="font-medium text-zinc-900 dark:text-white">Take Action</p>
+              <p className="text-sm text-zinc-600 dark:text-zinc-400">Use the analysis to file your challenge through the FMCSA DataQs system</p>
             </div>
           </div>
         </div>
@@ -560,7 +558,6 @@ const DataQDashboard = () => {
           }}
           violation={selectedViolation.violation}
           analysis={selectedViolation.analysis}
-          onSuccess={handleLetterGenerated}
         />
       )}
     </div>

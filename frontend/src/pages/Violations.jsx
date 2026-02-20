@@ -96,12 +96,9 @@ const Violations = ({ embedded = false }) => {
     setShowLetterModal(true);
   };
 
-  const handleLetterGenerated = () => {
-    fetchOpportunities();
-    fetchViolations();
+  const handleAnalysisClose = () => {
     setShowLetterModal(false);
     setSelectedOpportunity(null);
-    toast.success('DataQ letter generated successfully');
   };
 
   const fetchViolations = async () => {
@@ -1009,7 +1006,6 @@ const Violations = ({ embedded = false }) => {
           }}
           violation={selectedOpportunity.violation}
           analysis={selectedOpportunity.analysis}
-          onSuccess={handleLetterGenerated}
         />
       )}
     </div>
