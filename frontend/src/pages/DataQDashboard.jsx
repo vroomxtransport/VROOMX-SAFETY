@@ -14,7 +14,7 @@ import DataQLetterModal from '../components/DataQLetterModal';
 import HealthCheckTab from '../components/HealthCheckTab';
 
 const ActiveChallengesPanel = lazy(() => import('../components/ActiveChallengesPanel'));
-const CleanInspectionPanel = lazy(() => import('../components/CleanInspectionPanel'));
+
 const DataQAnalyticsPanel = lazy(() => import('../components/DataQAnalyticsPanel'));
 
 const DataQDashboard = () => {
@@ -30,18 +30,6 @@ const DataQDashboard = () => {
   const [selectedBasic, setSelectedBasic] = useState('');
   const [autoSyncing, setAutoSyncing] = useState(false);
   const autoSyncAttempted = useRef(false);
-  const [missingCount, setMissingCount] = useState(0);
-
-  useEffect(() => {
-    const fetchMissingCount = async () => {
-      try {
-        const { cleanInspectionsAPI } = await import('../utils/api');
-        const res = await cleanInspectionsAPI.getMissing();
-        setMissingCount(res.data?.count || 0);
-      } catch {}
-    };
-    fetchMissingCount();
-  }, []);
 
   useEffect(() => {
     fetchData();
@@ -208,7 +196,6 @@ const DataQDashboard = () => {
           { id: 'health-check', label: 'Health Check', icon: FiShield },
           { id: 'challenge-manager', label: 'Challenge Manager', icon: FiFileText },
           { id: 'active-challenges', label: 'Active Challenges', icon: FiClock, badge: openChallenges > 0 ? openChallenges : null },
-          { id: 'clean-inspections', label: 'Clean Inspections', icon: FiTarget, badge: missingCount > 0 ? missingCount : null },
           { id: 'analytics', label: 'Analytics', icon: FiBarChart2 },
         ].map((tab) => (
           <button
@@ -431,11 +418,6 @@ const DataQDashboard = () => {
         </Suspense>
       )}
 
-      {activeTab === 'clean-inspections' && (
-        <Suspense fallback={<div className="flex justify-center py-16"><LoadingSpinner size="lg" /></div>}>
-          <CleanInspectionPanel />
-        </Suspense>
-      )}
 
       {activeTab === 'analytics' && (
         <Suspense fallback={<div className="flex justify-center py-16"><LoadingSpinner size="lg" /></div>}>

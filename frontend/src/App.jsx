@@ -17,7 +17,7 @@ import ResetPassword from './pages/ResetPassword';
 import AcceptInvitation from './pages/AcceptInvitation';
 import Drivers from './pages/Drivers';
 import Vehicles from './pages/Vehicles';
-import Violations from './pages/Violations';
+
 import Tickets from './pages/Tickets';
 import DamageClaims from './pages/DamageClaims';
 import DrugAlcohol from './pages/DrugAlcohol';
@@ -33,6 +33,7 @@ import Accidents from './pages/Accidents';
 import Policies from './pages/Policies';
 import Integrations from './pages/Integrations';
 import DataQDashboard from './pages/DataQDashboard';
+
 import LoadingSpinner from './components/LoadingSpinner';
 import PageTransition from './components/PageTransition';
 import ChatWidget from './components/AIChat/ChatWidget';
@@ -238,7 +239,7 @@ function App() {
           <Route path="drivers/:id" element={<Suspense fallback={<LoadingSpinner size="lg" />}><DriverDetail /></Suspense>} />
           <Route path="vehicles" element={<Vehicles />} />
           <Route path="vehicles/:id" element={<Suspense fallback={<LoadingSpinner size="lg" />}><VehicleDetail /></Suspense>} />
-          <Route path="violations" element={<Violations />} />
+          <Route path="violations" element={<Navigate to="/app/compliance" replace />} />
           <Route path="unlinked-violations" element={<Suspense fallback={<LoadingSpinner size="lg" />}><UnlinkedViolations /></Suspense>} />
           <Route path="tickets" element={<Tickets />} />
           <Route path="damage-claims" element={<DamageClaims />} />
@@ -262,6 +263,7 @@ function App() {
           <Route path="policies" element={<Policies />} />
           <Route path="integrations" element={<Integrations />} />
           <Route path="dataq-dashboard" element={<DataQDashboard />} />
+          <Route path="clean-inspections" element={<Navigate to="/app/compliance" replace />} />
         </Route>
 
         {/* Legacy routes - redirect to /app prefix */}

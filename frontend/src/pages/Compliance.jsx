@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { dashboardAPI, fmcsaAPI } from '../utils/api';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, Legend } from 'recharts';
 import toast from 'react-hot-toast';
-import { FiEdit2, FiCheck, FiAlertTriangle, FiAlertCircle, FiBarChart2, FiTarget, FiTrendingUp, FiRefreshCw, FiFileText, FiClipboard } from 'react-icons/fi';
+import { FiEdit2, FiCheck, FiAlertTriangle, FiAlertCircle, FiBarChart2, FiTarget, FiTrendingUp, FiRefreshCw, FiFileText, FiClipboard, FiCheckCircle } from 'react-icons/fi';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Modal from '../components/Modal';
 import TabNav from '../components/TabNav';
@@ -10,6 +10,9 @@ import CSAEstimatorContent from '../components/CSAEstimatorContent';
 import CSATrends from '../components/CSATrends';
 import InspectionsTabContent from '../components/fmcsa/InspectionsTabContent';
 import { formatDate } from '../utils/helpers';
+
+const Violations = lazy(() => import('./Violations'));
+const CleanInspectionPanel = lazy(() => import('../components/CleanInspectionPanel'));
 
 const Compliance = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -38,6 +41,8 @@ const Compliance = () => {
   const tabs = [
     { key: 'overview', label: 'SMS BASICs', icon: FiBarChart2 },
     { key: 'inspections', label: 'Inspection Records', icon: FiClipboard },
+    { key: 'violations', label: 'Violations', icon: FiAlertTriangle },
+    { key: 'clean-inspections', label: 'Clean Inspections', icon: FiCheckCircle },
     { key: 'summary', label: 'FMCSA Summary', icon: FiFileText },
     { key: 'trends', label: 'Trends', icon: FiTrendingUp },
     { key: 'estimator', label: 'Estimator', icon: FiTarget, badge: 'BETA' }
@@ -729,6 +734,14 @@ const Compliance = () => {
       </div>
 
         </>
+      ) : activeTab === 'violations' ? (
+        <Suspense fallback={<div className="flex justify-center py-16"><LoadingSpinner size="lg" /></div>}>
+          <Violations embedded />
+        </Suspense>
+      ) : activeTab === 'clean-inspections' ? (
+        <Suspense fallback={<div className="flex justify-center py-16"><LoadingSpinner size="lg" /></div>}>
+          <CleanInspectionPanel />
+        </Suspense>
       ) : (
         <CSAEstimatorContent />
       )}

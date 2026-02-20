@@ -17,7 +17,7 @@ import InspectionUploadContent from '../components/InspectionUploadContent';
 import DataQOpportunities from '../components/DataQOpportunities';
 import DataQLetterModal from '../components/DataQLetterModal';
 
-const Violations = () => {
+const Violations = ({ embedded = false }) => {
   const [activeTab, setActiveTab] = useState('list');
   const [violations, setViolations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -442,30 +442,32 @@ const Violations = () => {
   return (
     <div className="space-y-4 lg:space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Violation Tracker</h1>
-          <p className="text-zinc-600 dark:text-zinc-300 text-sm mt-1">Track and manage violations with DataQ support</p>
-        </div>
-        {activeTab === 'list' && (
-          <div className="flex items-center gap-3">
-            <Link
-              to="/app/unlinked-violations"
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-yellow-50 dark:bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 hover:bg-yellow-100 dark:hover:bg-yellow-500/20 transition-colors border border-yellow-200 dark:border-yellow-500/30"
-            >
-              <FiUserPlus className="w-4 h-4" />
-              Review Unlinked
-            </Link>
-            <button
-              onClick={() => setShowAddModal(true)}
-              className="btn btn-primary"
-            >
-              <FiPlus className="w-4 h-4" />
-              Add Violation
-            </button>
+      {!embedded && (
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Violation Tracker</h1>
+            <p className="text-zinc-600 dark:text-zinc-300 text-sm mt-1">Track and manage violations with DataQ support</p>
           </div>
-        )}
-      </div>
+          {activeTab === 'list' && (
+            <div className="flex items-center gap-3">
+              <Link
+                to="/app/unlinked-violations"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-yellow-50 dark:bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 hover:bg-yellow-100 dark:hover:bg-yellow-500/20 transition-colors border border-yellow-200 dark:border-yellow-500/30"
+              >
+                <FiUserPlus className="w-4 h-4" />
+                Review Unlinked
+              </Link>
+              <button
+                onClick={() => setShowAddModal(true)}
+                className="btn btn-primary"
+              >
+                <FiPlus className="w-4 h-4" />
+                Add Violation
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Tab Navigation */}
       <TabNav tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
