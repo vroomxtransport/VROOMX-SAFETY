@@ -75,7 +75,7 @@ export const HeroDesign1 = ({ heroTextIndex, heroTexts }) => {
             {/* Trust Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 mb-8">
               <div className="w-2 h-2 rounded-full bg-success-400 animate-pulse" />
-              <span className="text-sm font-medium">Trusted by 500+ carriers nationwide</span>
+              <span className="text-sm font-medium">Trusted by carriers nationwide</span>
             </div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black font-heading leading-[1.1] mb-6">

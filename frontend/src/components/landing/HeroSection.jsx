@@ -48,7 +48,7 @@ const HeroSection = ({ heroTextIndex, heroTexts }) => {
               <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face" className="w-8 h-8 rounded-full border-2 border-white" alt="VroomX customer" loading="lazy" decoding="async" />
             </div>
             <span className="text-sm text-zinc-600">
-              <strong className="text-primary-500">500+</strong> carriers trust VroomX
+              Carriers <strong className="text-primary-500">trust</strong> VroomX nationwide
             </span>
           </div>
 

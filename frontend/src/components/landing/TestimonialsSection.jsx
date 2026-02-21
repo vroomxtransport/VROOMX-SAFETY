@@ -89,8 +89,7 @@ const TestimonialsSection = () => {
               </span>
             </div>
             <h2 className="text-3xl md:text-5xl font-heading font-extrabold text-gray-800 mb-4">
-              Trusted by <span className="text-cta-500">500+</span> Carriers
-              Nationwide
+              Trusted by Carriers Nationwide
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               See why fleet owners and safety managers choose VroomX to protect

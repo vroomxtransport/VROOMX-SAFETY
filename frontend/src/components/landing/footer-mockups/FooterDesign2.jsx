@@ -80,7 +80,7 @@ const FooterDesign2 = () => {
             &copy; 2026 VroomX Safety. All rights reserved.
           </p>
           <p className="text-gray-300 text-xs mt-1">
-            Trusted by 500+ carriers across America
+            Trusted by carriers across America
           </p>
         </div>
       </div>

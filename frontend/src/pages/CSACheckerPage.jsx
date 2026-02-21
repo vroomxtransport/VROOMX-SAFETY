@@ -476,7 +476,7 @@ const CSACheckerPage = () => {
                 </div>
 
                 <p className="text-sm text-primary-200 mt-8">
-                  Join 500+ carriers who trust VroomX for their safety compliance
+                  Join carriers who trust VroomX for their safety compliance
                 </p>
               </div>
             </div>

@@ -284,7 +284,7 @@ const Pricing = () => {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-2xl md:text-3xl font-heading font-bold text-white mb-2">
-              Trusted by <span className="text-cta-400">500+</span> Fleets Nationwide
+              Trusted by Carriers Nationwide
             </h2>
             <p className="text-white/70">Enterprise-grade security and reliability</p>
           </div>
