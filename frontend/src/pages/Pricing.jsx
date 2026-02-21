@@ -27,7 +27,7 @@ const pricingFAQ = [
   },
   {
     question: "Do you offer annual billing?",
-    answer: "Yes! Switch to annual billing and save the equivalent of 2 months on every plan. That's $290/year for Owner-Operator, $790/year for Small Fleet, and $1,490/year for Fleet Pro."
+    answer: "Yes! Switch to annual billing and save 25% on every plan. That's $261/year for Owner-Operator, $711/year for Small Fleet, and $1,341/year for Fleet Pro."
   },
   {
     question: "Do you offer refunds?",
@@ -43,7 +43,7 @@ const plans = [
   {
     name: 'Owner-Operator',
     monthlyPrice: 29,
-    annualPrice: 290,
+    annualPrice: 261,
     description: 'Everything a single-truck operator needs to stay compliant.',
     cta: 'Start Free Trial',
     popular: false,
@@ -62,7 +62,7 @@ const plans = [
   {
     name: 'Small Fleet',
     monthlyPrice: 79,
-    annualPrice: 790,
+    annualPrice: 711,
     description: 'Built for growing fleets that need powerful compliance tools.',
     cta: 'Start Free Trial',
     popular: true,
@@ -82,7 +82,7 @@ const plans = [
   {
     name: 'Fleet Pro',
     monthlyPrice: 149,
-    annualPrice: 1490,
+    annualPrice: 1341,
     description: 'Advanced analytics and tools for established fleet operations.',
     cta: 'Start Free Trial',
     popular: false,
@@ -157,7 +157,7 @@ const Pricing = () => {
             </span>
             {isAnnual && (
               <span className="text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full">
-                Save 2 months
+                Save 25%
               </span>
             )}
           </div>

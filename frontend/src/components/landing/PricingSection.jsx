@@ -49,7 +49,7 @@ const PricingSection = () => {
           </span>
           {isAnnual && (
             <span className="text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
-              Save ~17%
+              Save 25%
             </span>
           )}
         </div>

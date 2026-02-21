@@ -160,7 +160,7 @@ export const pricingPlans = [
   {
     name: 'Owner-Operator',
     price: 29,
-    annualPrice: 290,
+    annualPrice: 261,
     drivers: '1 driver',
     popular: false,
     features: [
@@ -177,7 +177,7 @@ export const pricingPlans = [
   {
     name: 'Small Fleet',
     price: 79,
-    annualPrice: 790,
+    annualPrice: 711,
     drivers: '5 drivers included',
     popular: true,
     features: [
@@ -196,7 +196,7 @@ export const pricingPlans = [
   {
     name: 'Fleet Pro',
     price: 149,
-    annualPrice: 1490,
+    annualPrice: 1341,
     drivers: '15 drivers included',
     popular: false,
     features: [

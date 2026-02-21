@@ -191,7 +191,7 @@ const TermsOfService = () => {
               </tbody>
             </table>
           </div>
-          <p className="text-gray-600 mt-4">Annual billing is available with 2 months free ($290/yr, $790/yr, $1,490/yr).</p>
+          <p className="text-gray-600 mt-4">Annual billing is available at 25% off ($261/yr, $711/yr, $1,341/yr).</p>
 
           <h3 className="text-lg font-semibold mt-6 mb-3 font-outfit text-primary-500">4.2 Payment Terms</h3>
           <ul className="list-disc list-inside text-gray-600 space-y-2 ml-4">
