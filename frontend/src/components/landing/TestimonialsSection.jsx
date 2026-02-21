@@ -128,7 +128,7 @@ const TestimonialsSection = () => {
                 Compliance Cost Calculator
               </span>
             </div>
-            <h2 className="text-3xl md:text-5xl font-heading font-extrabold text-gray-800 mb-4">
+            <h2 className="text-3xl md:text-5xl font-barlow-condensed font-extrabold text-gray-800 mb-4">
               The Real Cost of{" "}
               <span className="text-cta-500">Non-Compliance</span>
             </h2>
@@ -156,7 +156,7 @@ const TestimonialsSection = () => {
                   <FiUsers className="w-5 h-5 text-primary-500" />
                 </div>
                 <div>
-                  <h3 className="font-heading font-bold text-gray-800">
+                  <h3 className="font-barlow-condensed font-bold text-gray-800">
                     Your Fleet Size
                   </h3>
                   <p className="text-sm text-gray-500">
@@ -175,7 +175,7 @@ const TestimonialsSection = () => {
                   aria-label="Number of drivers"
                 />
                 <div className="min-w-[4rem] text-center">
-                  <span className="text-2xl font-heading font-extrabold text-primary-500">
+                  <span className="text-2xl font-barlow-condensed font-extrabold text-primary-500">
                     {driverCount}
                   </span>
                   <span className="text-xs text-gray-400 block">
@@ -208,7 +208,7 @@ const TestimonialsSection = () => {
                     <p className="text-xs text-gray-400">{item.source}</p>
                   </div>
                   <div className="text-right flex-shrink-0">
-                    <span className="text-lg font-heading font-extrabold text-gray-800">
+                    <span className="text-lg font-barlow-condensed font-extrabold text-gray-800">
                       ${item.fine.toLocaleString()}
                     </span>
                     {item.suffix && (
@@ -238,7 +238,7 @@ const TestimonialsSection = () => {
             <div className="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm mb-6">
               <div className="flex items-center gap-2 mb-6">
                 <FiAlertTriangle className="w-5 h-5 text-red-500" />
-                <h3 className="font-heading font-bold text-gray-800">
+                <h3 className="font-barlow-condensed font-bold text-gray-800">
                   Your Annual Compliance Risk
                 </h3>
               </div>
@@ -248,7 +248,7 @@ const TestimonialsSection = () => {
                   Estimated exposure with {driverCount}{" "}
                   {driverCount === 1 ? "driver" : "drivers"}
                 </p>
-                <p className="text-5xl md:text-6xl font-heading font-extrabold text-red-600">
+                <p className="text-5xl md:text-6xl font-barlow-condensed font-extrabold text-red-600">
                   <AnimatedCounter
                     value={annualRisk}
                     prefix="$"
@@ -264,12 +264,12 @@ const TestimonialsSection = () => {
               <div className="bg-emerald-50 rounded-xl border border-emerald-100 p-5">
                 <div className="flex items-center gap-2 mb-3">
                   <FiShield className="w-5 h-5 text-emerald-600" />
-                  <h4 className="font-heading font-bold text-emerald-800">
+                  <h4 className="font-barlow-condensed font-bold text-emerald-800">
                     VroomX Protection
                   </h4>
                 </div>
                 <div className="flex items-baseline gap-2 mb-2">
-                  <span className="text-3xl font-heading font-extrabold text-emerald-700">
+                  <span className="text-3xl font-barlow-condensed font-extrabold text-emerald-700">
                     ${vroomxMonthlyCost}/mo
                   </span>
                   <span className="text-sm text-emerald-500">

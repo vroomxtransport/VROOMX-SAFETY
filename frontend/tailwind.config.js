@@ -162,6 +162,12 @@ export default {
         heading: ['Outfit', 'system-ui', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
         display: ['Outfit', 'system-ui', 'sans-serif'],
+        playfair: ['"Playfair Display"', 'serif'],
+        'source-serif': ['"Source Serif 4"', 'serif'],
+        'barlow-condensed': ['"Barlow Condensed"', 'sans-serif'],
+        overpass: ['Overpass', 'sans-serif'],
+        'overpass-mono': ['"Overpass Mono"', 'monospace'],
+        'space-grotesk': ['"Space Grotesk"', 'sans-serif'],
       },
       fontSize: {
         '2xs': ['0.65rem', { lineHeight: '0.85rem' }],

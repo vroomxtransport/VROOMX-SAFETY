@@ -975,7 +975,7 @@ export const HeroDesign5 = ({ heroTextIndex, heroTexts }) => {
           {/* Left: Content */}
           <div className="text-white">
 
-            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-7xl font-black font-heading leading-[1.05] mb-4 text-white">
+            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-7xl font-black font-barlow-condensed leading-[1.05] mb-4 text-white">
               The DOT Auditor Just Called.<br />
               <span className="text-cta-400">Are You Ready?</span>
             </h1>

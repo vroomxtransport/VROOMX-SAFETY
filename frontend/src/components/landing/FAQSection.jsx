@@ -13,7 +13,7 @@ const FAQSection = ({ faqData, openFaq, setOpenFaq }) => {
           className={`text-center mb-12 transition-all duration-700 ${headerInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         >
           <span className="font-mono text-xs text-cta-500 uppercase tracking-widest">FAQ</span>
-          <h2 className="text-3xl md:text-4xl font-heading font-bold text-primary-500 mt-4">
+          <h2 className="text-3xl md:text-4xl font-barlow-condensed font-bold text-primary-500 mt-4">
             Frequently Asked Questions
           </h2>
         </div>

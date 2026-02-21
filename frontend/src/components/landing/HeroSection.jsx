@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiArrowRight, FiPlay, FiLoader } from 'react-icons/fi';
+import { FiArrowRight, FiPlay, FiLoader, FiShield } from 'react-icons/fi';
 import CSAChecker from '../CSAChecker';
 import { useAuth } from '../../context/AuthContext';
 
@@ -40,15 +40,11 @@ const HeroSection = ({ heroTextIndex, heroTexts }) => {
       <div className="max-w-7xl w-full grid lg:grid-cols-2 gap-16 items-center relative z-10">
         {/* Hero Text */}
         <div className="text-center lg:text-left order-2 lg:order-1">
-          {/* Social Proof Badge */}
-          <div className="inline-flex items-center gap-3 mb-6 px-4 py-2 rounded-full bg-white/90 border border-[#E2E8F0] shadow-sm animate-fade-in-up">
-            <div className="flex -space-x-2">
-              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop&crop=face" className="w-8 h-8 rounded-full border-2 border-white" alt="VroomX customer" loading="lazy" decoding="async" />
-              <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=32&h=32&fit=crop&crop=face" className="w-8 h-8 rounded-full border-2 border-white" alt="VroomX customer" loading="lazy" decoding="async" />
-              <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face" className="w-8 h-8 rounded-full border-2 border-white" alt="VroomX customer" loading="lazy" decoding="async" />
-            </div>
+          {/* Trust Signal Badge */}
+          <div className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full bg-white/90 border border-[#E2E8F0] shadow-sm animate-fade-in-up">
+            <FiShield className="w-4 h-4 text-emerald-500 flex-shrink-0" />
             <span className="text-sm text-zinc-600">
-              Carriers <strong className="text-primary-500">trust</strong> VroomX nationwide
+              Built on <strong className="text-primary-500">official FMCSA data</strong> — the same source DOT auditors use
             </span>
           </div>
 
@@ -67,33 +63,33 @@ const HeroSection = ({ heroTextIndex, heroTexts }) => {
           </h1>
 
           <p className="text-white drop-shadow-md text-lg md:text-xl max-w-2xl mb-8 leading-relaxed font-medium animate-fade-in-up mx-auto lg:mx-0" style={{ animationDelay: '0.1s' }}>
-            You're a trucker, not a filing clerk. VroomX handles DQF files, expirations, and audit prep — so you can focus on the road.
+            An expired medical card costs $16,340. A missed drug test shuts you down. Enter your DOT number — see what FMCSA already knows.
           </p>
 
           {/* Stats inline */}
           <div className="flex flex-wrap gap-6 mb-10 justify-center lg:justify-start animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
             <div className="text-center">
-              <div className="text-2xl font-black text-cta-500">3,247+</div>
-              <div className="text-xs text-white/80">CSA Checks</div>
+              <div className="text-2xl font-black text-cta-500">7 BASICs</div>
+              <div className="text-xs text-white/80">Tracked</div>
             </div>
             <div className="w-px bg-white/30" />
             <div className="text-center">
-              <div className="text-2xl font-black text-white">99.2%</div>
-              <div className="text-xs text-white/80">Uptime</div>
+              <div className="text-2xl font-black text-white">Real-time</div>
+              <div className="text-xs text-white/80">FMCSA Data</div>
             </div>
             <div className="w-px bg-white/30" />
             <div className="text-center">
-              <div className="text-2xl font-black text-success-400">4.9★</div>
-              <div className="text-xs text-white/80">Rating</div>
+              <div className="text-2xl font-black text-success-400">5 min</div>
+              <div className="text-xs text-white/80">Setup</div>
             </div>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-5 justify-center lg:justify-start animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
             <Link
-              to="/pricing"
+              to="/register"
               className="btn-glow px-8 py-4 rounded-xl font-bold text-white text-base tracking-wide flex items-center justify-center gap-3"
             >
-              Check My DOT Number Free
+              Protect My Fleet — Free Trial
               <FiArrowRight className="w-5 h-5" />
             </Link>
             <button

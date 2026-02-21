@@ -11,7 +11,7 @@ const CTASection = () => {
         ref={sectionRef}
         className={`max-w-3xl mx-auto relative z-10 transition-all duration-700 ${sectionInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
       >
-        <h2 className="text-4xl md:text-6xl font-black text-white mb-8 tracking-tight font-heading">
+        <h2 className="text-4xl md:text-6xl font-black text-white mb-8 tracking-tight font-barlow-condensed">
           Stop Overpaying for <span className="text-transparent bg-clip-text bg-gradient-to-r from-cta-400 to-cta-500">Features You Don't Use.</span>
         </h2>
         <p className="text-xl text-white/80 mb-4 max-w-xl mx-auto">

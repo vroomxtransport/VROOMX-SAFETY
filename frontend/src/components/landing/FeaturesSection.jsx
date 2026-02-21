@@ -219,7 +219,7 @@ const FeaturesSection = () => {
           ref={headerRef}
           className={`text-center mb-8 transition-all duration-700 ${headerInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         >
-          <h2 className="font-serif text-4xl md:text-5xl font-semibold text-gray-800 mb-4 tracking-tight">
+          <h2 className="font-barlow-condensed text-4xl md:text-5xl font-semibold text-gray-800 mb-4 tracking-tight">
             Everything You Need for <em className="italic text-[#FF6B4A]">Compliance</em>.
             <br />Nothing You Don't.
           </h2>
@@ -291,7 +291,7 @@ const FeaturesSection = () => {
                 <activeFeature.category.icon className="w-3.5 h-3.5" />
                 {activeFeature.category.text}
               </div>
-              <h3 className="font-serif text-3xl font-semibold text-gray-800 mb-4 tracking-tight animate-[contentReveal_0.5s_ease_0.25s_forwards] opacity-0">
+              <h3 className="font-barlow-condensed text-3xl font-semibold text-gray-800 mb-4 tracking-tight animate-[contentReveal_0.5s_ease_0.25s_forwards] opacity-0">
                 {activeFeature.heading}
               </h3>
               <p className="text-base text-gray-600 mb-8 leading-relaxed animate-[contentReveal_0.5s_ease_0.35s_forwards] opacity-0">

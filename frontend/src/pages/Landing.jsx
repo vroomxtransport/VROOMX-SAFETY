@@ -19,7 +19,6 @@ import {
   heroTexts,
   blogPosts,
   faqData,
-  features
 } from '../data/landingData';
 import useForceLightMode from '../hooks/useForceLightMode';
 
@@ -102,7 +101,7 @@ const Landing = () => {
       </section>
 
       {/* Features Section */}
-      <FeaturesSection features={features} />
+      <FeaturesSection />
 
       {/* Differentiation Section */}
       <section className="py-20 px-6 md:px-16 relative z-10 bg-white">
@@ -110,7 +109,7 @@ const Landing = () => {
           <div className="inline-block px-3 py-1 rounded-full border border-cta-500/30 bg-cta-500/10 text-cta-600 font-mono text-xs mb-6">
             WHAT MAKES US DIFFERENT
           </div>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold tracking-tight mb-6 text-primary-500">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-barlow-condensed font-bold tracking-tight mb-6 text-primary-500">
             We're Not Trying to Replace Your ELD.
           </h2>
           <p className="text-lg text-zinc-600 leading-relaxed mb-12 max-w-3xl mx-auto">
@@ -165,7 +164,7 @@ const Landing = () => {
             <div className="inline-block px-3 py-1 rounded-full border border-primary-500/30 bg-primary-500/10 text-primary-500 font-mono text-xs mb-6">
               THE PROBLEM
             </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold tracking-tight mb-6 lg:mb-8 leading-tight text-primary-500">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-barlow-condensed font-bold tracking-tight mb-6 lg:mb-8 leading-tight text-primary-500">
               The DOT Doesn't Care<br />
               <span className="text-zinc-600">That You're Busy.</span>
             </h2>
@@ -322,7 +321,7 @@ const Landing = () => {
           <div className="flex justify-between items-end mb-12">
             <div>
               <span className="font-mono text-xs text-cta-500 uppercase tracking-widest">Stay Informed</span>
-              <h2 className="text-2xl sm:text-3xl md:text-5xl font-heading font-bold text-primary-500 mt-4">
+              <h2 className="text-2xl sm:text-3xl md:text-5xl font-barlow-condensed font-bold text-primary-500 mt-4">
                 Latest <span className="text-zinc-600">Updates</span>
               </h2>
             </div>

@@ -23,3 +23,12 @@ export {
   HeroDesign9,
   HeroDesign10,
 } from './HeroDesignsCorporate';
+
+// Features Design Variants
+export {
+  FeaturesV1,
+  FeaturesV2,
+  FeaturesV3,
+  FeaturesV4,
+  FeaturesV5,
+} from './FeaturesDesigns';

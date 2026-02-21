@@ -17,7 +17,7 @@ const PricingSection = () => {
           ref={headerRef}
           className={`text-center max-w-3xl mx-auto mb-12 transition-all duration-700 ${headerInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         >
-          <h2 className="text-3xl md:text-5xl font-heading font-extrabold text-gray-800 mb-4">
+          <h2 className="text-3xl md:text-5xl font-barlow-condensed font-extrabold text-gray-800 mb-4">
             Simple, <span className="text-cta-500">Transparent Pricing</span>
           </h2>
           <p className="text-lg text-gray-600 mb-4">
