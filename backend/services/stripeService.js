@@ -13,23 +13,62 @@ if (!STRIPE_ENABLED) {
   console.warn('WARNING: Stripe is not configured. Set STRIPE_SECRET_KEY to enable billing features.');
 }
 
-// Price IDs from environment
+// Price IDs from environment (monthly)
 const PRICE_IDS = {
-  solo: process.env.STRIPE_SOLO_PRICE_ID,
-  fleet: process.env.STRIPE_FLEET_PRICE_ID,
-  pro: process.env.STRIPE_PRO_PRICE_ID
+  owner_operator: process.env.STRIPE_OWNER_OPERATOR_MONTHLY_PRICE_ID,
+  small_fleet: process.env.STRIPE_SMALL_FLEET_MONTHLY_PRICE_ID,
+  fleet_pro: process.env.STRIPE_FLEET_PRO_MONTHLY_PRICE_ID,
+  // Legacy env var fallbacks
+  solo: process.env.STRIPE_OWNER_OPERATOR_MONTHLY_PRICE_ID || process.env.STRIPE_SOLO_PRICE_ID,
+  fleet: process.env.STRIPE_SMALL_FLEET_MONTHLY_PRICE_ID || process.env.STRIPE_FLEET_PRICE_ID,
+  pro: process.env.STRIPE_FLEET_PRO_MONTHLY_PRICE_ID || process.env.STRIPE_PRO_PRICE_ID
+};
+
+// Annual Price IDs
+const ANNUAL_PRICE_IDS = {
+  owner_operator: process.env.STRIPE_OWNER_OPERATOR_ANNUAL_PRICE_ID,
+  small_fleet: process.env.STRIPE_SMALL_FLEET_ANNUAL_PRICE_ID,
+  fleet_pro: process.env.STRIPE_FLEET_PRO_ANNUAL_PRICE_ID
 };
 
 // Extra driver metered price IDs
 const EXTRA_DRIVER_PRICE_IDS = {
-  fleet: process.env.STRIPE_FLEET_EXTRA_DRIVER_PRICE_ID,
-  pro: process.env.STRIPE_PRO_EXTRA_DRIVER_PRICE_ID
+  small_fleet: process.env.STRIPE_SMALL_FLEET_EXTRA_DRIVER_PRICE_ID,
+  fleet_pro: process.env.STRIPE_FLEET_PRO_EXTRA_DRIVER_PRICE_ID,
+  // Legacy fallbacks
+  fleet: process.env.STRIPE_SMALL_FLEET_EXTRA_DRIVER_PRICE_ID || process.env.STRIPE_FLEET_EXTRA_DRIVER_PRICE_ID,
+  pro: process.env.STRIPE_FLEET_PRO_EXTRA_DRIVER_PRICE_ID || process.env.STRIPE_PRO_EXTRA_DRIVER_PRICE_ID
 };
 
 // Plan metadata mapping
 const PLAN_METADATA = {
+  owner_operator: {
+    plan: 'owner_operator',
+    maxCompanies: 1,
+    maxDriversPerCompany: 1,
+    maxVehiclesPerCompany: 1,
+    includedDrivers: 1,
+    extraDriverPrice: null
+  },
+  small_fleet: {
+    plan: 'small_fleet',
+    maxCompanies: 3,
+    maxDriversPerCompany: -1, // unlimited but charged per driver
+    maxVehiclesPerCompany: -1,
+    includedDrivers: 5,
+    extraDriverPrice: 8
+  },
+  fleet_pro: {
+    plan: 'fleet_pro',
+    maxCompanies: 10,
+    maxDriversPerCompany: -1,
+    maxVehiclesPerCompany: -1,
+    includedDrivers: 15,
+    extraDriverPrice: 6
+  },
+  // Legacy mappings
   solo: {
-    plan: 'solo',
+    plan: 'owner_operator',
     maxCompanies: 1,
     maxDriversPerCompany: 1,
     maxVehiclesPerCompany: 1,
@@ -37,20 +76,20 @@ const PLAN_METADATA = {
     extraDriverPrice: null
   },
   fleet: {
-    plan: 'fleet',
+    plan: 'small_fleet',
     maxCompanies: 3,
-    maxDriversPerCompany: -1, // unlimited but charged per driver
+    maxDriversPerCompany: -1,
     maxVehiclesPerCompany: -1,
-    includedDrivers: 3,
-    extraDriverPrice: 6
+    includedDrivers: 5,
+    extraDriverPrice: 8
   },
   pro: {
-    plan: 'pro',
+    plan: 'fleet_pro',
     maxCompanies: 10,
     maxDriversPerCompany: -1,
     maxVehiclesPerCompany: -1,
-    includedDrivers: 10,
-    extraDriverPrice: 5
+    includedDrivers: 15,
+    extraDriverPrice: 6
   }
 };
 
@@ -111,9 +150,11 @@ const stripeService = {
   /**
    * Create a Checkout Session for subscription
    */
-  async createCheckoutSession(user, planType) {
+  async createCheckoutSession(user, planType, billingInterval = 'monthly') {
     try {
-      const priceId = PRICE_IDS[planType];
+      const priceId = billingInterval === 'annual'
+        ? (ANNUAL_PRICE_IDS[planType] || PRICE_IDS[planType])
+        : PRICE_IDS[planType];
       if (!priceId) {
         throw new Error(`Invalid plan type or missing price ID: ${planType}. Available: ${Object.keys(PRICE_IDS).filter(k => PRICE_IDS[k]).join(', ')}`);
       }
@@ -484,9 +525,14 @@ const stripeService = {
    * Get plan name from Stripe price ID
    */
   getPlanFromPriceId(priceId) {
-    if (priceId === PRICE_IDS.solo) return 'solo';
-    if (priceId === PRICE_IDS.fleet) return 'fleet';
-    if (priceId === PRICE_IDS.pro) return 'pro';
+    // Check new plan price IDs first
+    if (priceId === PRICE_IDS.owner_operator || priceId === ANNUAL_PRICE_IDS.owner_operator) return 'owner_operator';
+    if (priceId === PRICE_IDS.small_fleet || priceId === ANNUAL_PRICE_IDS.small_fleet) return 'small_fleet';
+    if (priceId === PRICE_IDS.fleet_pro || priceId === ANNUAL_PRICE_IDS.fleet_pro) return 'fleet_pro';
+    // Legacy fallbacks
+    if (priceId === process.env.STRIPE_SOLO_PRICE_ID) return 'owner_operator';
+    if (priceId === process.env.STRIPE_FLEET_PRICE_ID) return 'small_fleet';
+    if (priceId === process.env.STRIPE_PRO_PRICE_ID) return 'fleet_pro';
     return 'free_trial';
   },
 
@@ -502,8 +548,8 @@ const stripeService = {
     const plan = user.subscription?.plan;
     const subscriptionId = user.subscription?.stripeSubscriptionId;
 
-    if (!subscriptionId || !['fleet', 'pro'].includes(plan)) {
-      return null; // Solo plan doesn't have metered billing
+    if (!subscriptionId || !['small_fleet', 'fleet_pro', 'fleet', 'pro'].includes(plan)) {
+      return null; // Owner-Operator plan doesn't have metered billing
     }
 
     const planConfig = PLAN_METADATA[plan];
@@ -570,7 +616,7 @@ const stripeService = {
    * Get plan metadata
    */
   getPlanMetadata(plan) {
-    return PLAN_METADATA[plan] || PLAN_METADATA.solo;
+    return PLAN_METADATA[plan] || PLAN_METADATA.owner_operator;
   },
 
   /**
@@ -716,7 +762,7 @@ const stripeService = {
 
     // Extract proration line items (credit for old plan + charge for new plan)
     const currentPlan = user.subscription.plan;
-    const PLAN_PRICES = { solo: 19, fleet: 39, pro: 89 };
+    const PLAN_PRICES = { owner_operator: 29, small_fleet: 79, fleet_pro: 149, solo: 29, fleet: 79, pro: 149 };
 
     let credit = 0;          // Unused time on old plan (negative line = credit)
     let prorationCharge = 0; // Remaining time on new plan (positive line)
@@ -775,7 +821,7 @@ const stripeService = {
       throw new Error('Stripe is not configured');
     }
 
-    const PLAN_ORDER = { solo: 1, fleet: 2, pro: 3 };
+    const PLAN_ORDER = { owner_operator: 1, small_fleet: 2, fleet_pro: 3, solo: 1, fleet: 2, pro: 3 };
     const currentPlan = user.subscription?.plan;
 
     if (!PLAN_ORDER[currentPlan] || !PLAN_ORDER[newPlan]) {

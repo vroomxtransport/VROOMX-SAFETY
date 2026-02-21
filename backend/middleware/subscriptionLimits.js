@@ -5,19 +5,27 @@ const AIQueryUsage = require('../models/AIQueryUsage');
 // AI Query quotas by plan (per month)
 const AI_QUERY_QUOTAS = {
   free_trial: 20,
-  solo: 100,
+  owner_operator: 150,
+  small_fleet: 500,
+  fleet_pro: -1,  // unlimited
+  // Legacy plan mappings
+  solo: 150,
   fleet: 500,
-  pro: -1,  // unlimited
-  complete: -1,  // unlimited
-  starter: 100,  // legacy plan, treat as solo
-  professional: -1  // legacy plan, treat as pro
+  pro: -1,
+  complete: -1,
+  starter: 150,
+  professional: -1
 };
 
 // Plan configurations for per-driver billing
 const PLAN_CONFIG = {
+  owner_operator: { includedDrivers: 1, extraDriverPrice: null },
+  small_fleet: { includedDrivers: 5, extraDriverPrice: 8 },
+  fleet_pro: { includedDrivers: 15, extraDriverPrice: 6 },
+  // Legacy plan mappings
   solo: { includedDrivers: 1, extraDriverPrice: null },
-  fleet: { includedDrivers: 3, extraDriverPrice: 6 },
-  pro: { includedDrivers: 10, extraDriverPrice: 5 }
+  fleet: { includedDrivers: 5, extraDriverPrice: 8 },
+  pro: { includedDrivers: 15, extraDriverPrice: 6 }
 };
 
 // Check if user can create another company based on subscription limits
@@ -78,15 +86,15 @@ const checkDriverLimit = async (req, res, next) => {
 
     const planConfig = PLAN_CONFIG[plan];
 
-    // Solo plan has hard limit of 1 driver
-    if (plan === 'solo' && driverCount >= 1) {
+    // Owner-Operator (and legacy Solo) plan has hard limit of 1 driver
+    if ((plan === 'owner_operator' || plan === 'solo') && driverCount >= 1) {
       return res.status(403).json({
         success: false,
-        message: 'Solo plan is limited to 1 driver. Upgrade to Fleet for more drivers.',
+        message: 'Owner-Operator plan is limited to 1 driver. Upgrade to Small Fleet for more drivers.',
         code: 'DRIVER_LIMIT_REACHED',
         limit: 1,
         current: driverCount,
-        upgradeTo: 'fleet'
+        upgradeTo: 'small_fleet'
       });
     }
 
@@ -101,7 +109,7 @@ const checkDriverLimit = async (req, res, next) => {
       });
     }
 
-    // Fleet and Pro plans allow unlimited drivers
+    // Small Fleet, Fleet Pro (and legacy Fleet, Pro) plans allow unlimited drivers
     // Store driver count for post-create billing update
     req.currentDriverCount = driverCount;
     req.planConfig = planConfig;
@@ -122,8 +130,8 @@ const reportDriverUsage = async (req, res, next) => {
     const user = req.user;
     const plan = user.subscription?.plan;
 
-    // Only report for Fleet and Pro plans with metered billing
-    if (!['fleet', 'pro'].includes(plan)) {
+    // Only report for plans with metered billing
+    if (!['small_fleet', 'fleet_pro', 'fleet', 'pro'].includes(plan)) {
       return next();
     }
 
@@ -173,15 +181,15 @@ const checkVehicleLimit = async (req, res, next) => {
       status: { $nin: ['sold', 'totaled'] }
     });
 
-    // Solo plan has hard limit of 1 vehicle
-    if (plan === 'solo' && vehicleCount >= 1) {
+    // Owner-Operator (and legacy Solo) plan has hard limit of 1 vehicle
+    if ((plan === 'owner_operator' || plan === 'solo') && vehicleCount >= 1) {
       return res.status(403).json({
         success: false,
-        message: 'Solo plan is limited to 1 vehicle. Upgrade to Fleet for more vehicles.',
+        message: 'Owner-Operator plan is limited to 1 vehicle. Upgrade to Small Fleet for more vehicles.',
         code: 'VEHICLE_LIMIT_REACHED',
         limit: 1,
         current: vehicleCount,
-        upgradeTo: 'fleet'
+        upgradeTo: 'small_fleet'
       });
     }
 
@@ -211,7 +219,7 @@ const checkVehicleLimit = async (req, res, next) => {
 const getUsageStats = async (user) => {
   const limits = user.limits;
   const plan = user.subscription?.plan || 'free_trial';
-  const planConfig = PLAN_CONFIG[plan] || PLAN_CONFIG.solo;
+  const planConfig = PLAN_CONFIG[plan] || PLAN_CONFIG.owner_operator;
 
   // Get company counts
   const ownedCompanyCount = user.getOwnedCompanyCount();
@@ -252,11 +260,11 @@ const getUsageStats = async (user) => {
       extra: extraDrivers,
       extraPrice: planConfig.extraDriverPrice,
       extraCost: extraDriverCost,
-      limit: (plan === 'solo' || plan === 'free_trial') ? 1 : 'unlimited'
+      limit: (plan === 'owner_operator' || plan === 'solo' || plan === 'free_trial') ? 1 : 'unlimited'
     },
     vehicles: {
       current: vehicleCount,
-      limit: (plan === 'solo' || plan === 'free_trial') ? 1 : 'unlimited'
+      limit: (plan === 'owner_operator' || plan === 'solo' || plan === 'free_trial') ? 1 : 'unlimited'
     }
   };
 };

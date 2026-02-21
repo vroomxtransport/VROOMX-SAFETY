@@ -18,7 +18,7 @@ const CTASection = () => {
           VroomX does document compliance. That's it.
         </p>
         <p className="text-lg text-white/60 mb-10 max-w-xl mx-auto">
-          No telematics you don't need. No monthly bills. Just audit-ready paperwork for a one-time $249 investment.
+          No telematics you don't need. Just audit-ready paperwork. Plans start at $29/month with a 7-day free trial.
         </p>
         <Link
           to="/register"
@@ -38,7 +38,7 @@ const CTASection = () => {
           </span>
           <span className="flex items-center gap-2">
             <FiCheck className="w-4 h-4 text-cta-400" />
-            One-time $249 payment
+            Plans from $29/mo
           </span>
         </div>
       </div>

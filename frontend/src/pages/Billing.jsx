@@ -86,7 +86,7 @@ const Billing = () => {
     }
   };
 
-  const PLAN_ORDER = { solo: 1, fleet: 2, pro: 3 };
+  const PLAN_ORDER = { owner_operator: 1, small_fleet: 2, fleet_pro: 3, solo: 1, fleet: 2, pro: 3 };
 
   const canUpgradeTo = (targetPlan) => {
     if (subscription?.status !== 'active' || subscription?.cancelAtPeriodEnd) return false;
@@ -96,7 +96,14 @@ const Billing = () => {
   };
 
   const isCurrentPlan = (plan) => {
-    return subscription?.plan === plan && subscription?.status !== 'trialing';
+    if (subscription?.status === 'trialing') return false;
+    const planAliases = {
+      owner_operator: ['owner_operator', 'solo'],
+      small_fleet: ['small_fleet', 'fleet'],
+      fleet_pro: ['fleet_pro', 'pro'],
+    };
+    const aliases = planAliases[plan] || [plan];
+    return aliases.includes(subscription?.plan);
   };
 
   const handleUpgradeClick = async (plan) => {
@@ -133,10 +140,13 @@ const Billing = () => {
 
   const getPlanIcon = (plan) => {
     switch (plan) {
+      case 'fleet_pro':
       case 'pro':
         return FiZap;
+      case 'small_fleet':
       case 'fleet':
         return FiTruck;
+      case 'owner_operator':
       case 'solo':
         return FiUser;
       default:
@@ -179,35 +189,31 @@ const Billing = () => {
               </div>
               <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">Complete Your Subscription</h1>
               <p className="text-zinc-600 dark:text-zinc-300">
-                Activate your Solo plan to start managing your compliance
+                Activate your Owner-Operator plan to start managing your compliance
               </p>
             </div>
 
-            {/* Solo Plan Details */}
+            {/* Owner-Operator Plan Details */}
             <div className="bg-primary-50 dark:bg-zinc-800 rounded-xl p-6 mb-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center">
                   <FiUser className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">Solo Plan</h3>
-                  <p className="text-sm text-zinc-600 dark:text-zinc-300">Perfect for Owner-Operators</p>
+                  <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">Owner-Operator Plan</h3>
+                  <p className="text-sm text-zinc-600 dark:text-zinc-300">1 driver &bull; 1 vehicle</p>
                 </div>
               </div>
 
               <div className="flex items-baseline gap-1 mb-4">
-                <span className="text-4xl font-bold text-zinc-900 dark:text-zinc-100">$19</span>
+                <span className="text-4xl font-bold text-zinc-900 dark:text-zinc-100">$29</span>
                 <span className="text-zinc-600 dark:text-zinc-300">/month</span>
               </div>
 
               <ul className="space-y-2">
                 <li className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
                   <FiCheck className="w-4 h-4 text-success-500" />
-                  1 Driver (You)
-                </li>
-                <li className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
-                  <FiCheck className="w-4 h-4 text-success-500" />
-                  1 Vehicle
+                  1 Driver
                 </li>
                 <li className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
                   <FiCheck className="w-4 h-4 text-success-500" />
@@ -215,22 +221,26 @@ const Billing = () => {
                 </li>
                 <li className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
                   <FiCheck className="w-4 h-4 text-success-500" />
+                  AI Compliance Assistant
+                </li>
+                <li className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
+                  <FiCheck className="w-4 h-4 text-success-500" />
                   CSA Score Tracking
                 </li>
                 <li className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
                   <FiCheck className="w-4 h-4 text-success-500" />
-                  Violation Tracking
+                  Document Expiry Alerts
                 </li>
                 <li className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
                   <FiCheck className="w-4 h-4 text-success-500" />
-                  Document Management
+                  150 AI queries/month
                 </li>
               </ul>
             </div>
 
             {/* Payment Button */}
             <button
-              onClick={() => handleSubscribe('solo')}
+              onClick={() => handleSubscribe('owner_operator')}
               disabled={loading}
               className="w-full py-4 px-6 rounded-xl font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary-500/25"
             >
@@ -239,7 +249,7 @@ const Billing = () => {
               ) : (
                 <>
                   <FiCreditCard className="w-5 h-5" />
-                  Subscribe Now - $19/month
+                  Subscribe Now - $29/month
                   <FiArrowRight className="w-5 h-5" />
                 </>
               )}
@@ -436,16 +446,16 @@ const Billing = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-        {/* Solo Plan */}
+        {/* Owner-Operator Plan */}
         <div
           className={`relative bg-white dark:bg-zinc-900 rounded-2xl border-2 overflow-hidden transition-all duration-300 cursor-pointer hover:shadow-xl hover:-translate-y-1 ${
-            subscription?.plan === 'solo' && subscription?.status !== 'trialing'
+            isCurrentPlan('owner_operator')
               ? 'border-primary-300 dark:border-primary-600 ring-2 ring-primary-100 dark:ring-primary-900'
               : 'border-zinc-200 dark:border-zinc-700 hover:border-primary-300 dark:hover:border-primary-600'
           }`}
           style={{ boxShadow: '0 4px 20px -5px rgba(0, 0, 0, 0.08)' }}
         >
-          {subscription?.plan === 'solo' && subscription?.status !== 'trialing' && (
+          {isCurrentPlan('owner_operator') && (
             <div className="absolute top-4 right-4">
               <span className="px-2.5 py-1 bg-primary-100 dark:bg-primary-900/30 text-zinc-700 dark:text-zinc-200 text-xs font-semibold rounded-full">
                 Current Plan
@@ -459,17 +469,17 @@ const Billing = () => {
                 <FiUser className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">Solo</h3>
-                <p className="text-sm text-zinc-600 dark:text-zinc-300">For Owner-Operators</p>
+                <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">Owner-Operator</h3>
+                <p className="text-sm text-zinc-600 dark:text-zinc-300">1 driver &bull; 1 vehicle</p>
               </div>
             </div>
 
             <div className="mb-6">
               <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-bold text-zinc-900 dark:text-zinc-100">$19</span>
+                <span className="text-4xl font-bold text-zinc-900 dark:text-zinc-100">$29</span>
                 <span className="text-zinc-600 dark:text-zinc-300">/month</span>
               </div>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">1 driver • 1 vehicle</p>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">1 driver &bull; 1 vehicle</p>
             </div>
 
             <ul className="space-y-3 mb-6">
@@ -477,7 +487,7 @@ const Billing = () => {
                 <div className="w-5 h-5 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-success-600 dark:text-success-400" />
                 </div>
-                <span><strong>1</strong> driver (You)</span>
+                <span><strong>1</strong> driver</span>
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
                 <div className="w-5 h-5 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
@@ -489,7 +499,7 @@ const Billing = () => {
                 <div className="w-5 h-5 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-success-600 dark:text-success-400" />
                 </div>
-                AI Regulation Assistant
+                AI Compliance Assistant
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
                 <div className="w-5 h-5 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
@@ -503,24 +513,30 @@ const Billing = () => {
                 </div>
                 Document Expiry Alerts
               </li>
+              <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
+                <div className="w-5 h-5 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
+                  <FiCheck className="w-3 h-3 text-success-600 dark:text-success-400" />
+                </div>
+                <span><strong>150</strong> AI queries/month</span>
+              </li>
             </ul>
 
             <button
-              onClick={() => !isCurrentPlan('solo') && !PLAN_ORDER[subscription?.plan] && handleSubscribe('solo')}
-              disabled={loading || isCurrentPlan('solo') || (PLAN_ORDER[subscription?.plan] > PLAN_ORDER.solo)}
+              onClick={() => !isCurrentPlan('owner_operator') && !PLAN_ORDER[subscription?.plan] && handleSubscribe('owner_operator')}
+              disabled={loading || isCurrentPlan('owner_operator') || (PLAN_ORDER[subscription?.plan] > PLAN_ORDER.owner_operator)}
               className={`w-full py-3 px-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${
-                isCurrentPlan('solo')
+                isCurrentPlan('owner_operator')
                   ? 'bg-primary-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 cursor-not-allowed'
-                  : PLAN_ORDER[subscription?.plan] > PLAN_ORDER.solo
+                  : PLAN_ORDER[subscription?.plan] > PLAN_ORDER.owner_operator
                   ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 cursor-not-allowed'
                   : 'bg-zinc-800 dark:bg-zinc-700 text-white hover:bg-zinc-900 dark:hover:bg-zinc-600'
               }`}
             >
               {loading ? (
                 <LoadingSpinner size="sm" />
-              ) : isCurrentPlan('solo') ? (
+              ) : isCurrentPlan('owner_operator') ? (
                 'Current Plan'
-              ) : PLAN_ORDER[subscription?.plan] > PLAN_ORDER.solo ? (
+              ) : PLAN_ORDER[subscription?.plan] > PLAN_ORDER.owner_operator ? (
                 'Included in your plan'
               ) : (
                 <>
@@ -532,16 +548,16 @@ const Billing = () => {
           </div>
         </div>
 
-        {/* Fleet Plan */}
+        {/* Small Fleet Plan */}
         <div
           className={`relative bg-white dark:bg-zinc-900 rounded-2xl border-2 overflow-hidden transition-all duration-300 cursor-pointer hover:shadow-xl hover:-translate-y-1 ${
-            subscription?.plan === 'fleet' && subscription?.status !== 'trialing'
+            isCurrentPlan('small_fleet')
               ? 'border-primary-300 dark:border-primary-600 ring-2 ring-primary-100 dark:ring-primary-900'
               : 'border-zinc-200 dark:border-zinc-700 hover:border-primary-300 dark:hover:border-primary-600'
           }`}
           style={{ boxShadow: '0 4px 20px -5px rgba(0, 0, 0, 0.08)' }}
         >
-          {subscription?.plan === 'fleet' && subscription?.status !== 'trialing' && (
+          {isCurrentPlan('small_fleet') && (
             <div className="absolute top-4 right-4">
               <span className="px-2.5 py-1 bg-primary-100 dark:bg-primary-900/30 text-zinc-700 dark:text-zinc-200 text-xs font-semibold rounded-full">
                 Current Plan
@@ -555,17 +571,17 @@ const Billing = () => {
                 <FiTruck className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">Fleet</h3>
-                <p className="text-sm text-zinc-600 dark:text-zinc-300">For Small Fleets (2-10 drivers)</p>
+                <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">Small Fleet</h3>
+                <p className="text-sm text-zinc-600 dark:text-zinc-300">5 drivers included &bull; +$8/driver after</p>
               </div>
             </div>
 
             <div className="mb-6">
               <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-bold text-zinc-900 dark:text-zinc-100">$39</span>
+                <span className="text-4xl font-bold text-zinc-900 dark:text-zinc-100">$79</span>
                 <span className="text-zinc-600 dark:text-zinc-300">/month</span>
               </div>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">3 drivers included • +$6/driver after</p>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">5 drivers included &bull; +$8/driver after</p>
             </div>
 
             <ul className="space-y-3 mb-6">
@@ -573,25 +589,25 @@ const Billing = () => {
                 <div className="w-5 h-5 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-success-600 dark:text-success-400" />
                 </div>
-                <span><strong>3</strong> drivers included</span>
+                <span><strong>5</strong> drivers included</span>
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
                 <div className="w-5 h-5 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-success-600 dark:text-success-400" />
                 </div>
-                <span>Everything in Solo</span>
+                <span>Everything in Owner-Operator</span>
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
                 <div className="w-5 h-5 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-success-600 dark:text-success-400" />
                 </div>
-                DataQ AI Analysis
+                AI Violation Analyzer
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
                 <div className="w-5 h-5 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-success-600 dark:text-success-400" />
                 </div>
-                DataQ Draft Generator
+                DataQ Challenge Letters
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
                 <div className="w-5 h-5 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
@@ -603,39 +619,39 @@ const Billing = () => {
                 <div className="w-5 h-5 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-success-600 dark:text-success-400" />
                 </div>
-                Email Support
+                <span><strong>Up to 3</strong> Companies</span>
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
                 <div className="w-5 h-5 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-success-600 dark:text-success-400" />
                 </div>
-                <span><strong>Up to 3</strong> Companies</span>
+                <span><strong>500</strong> AI queries/month</span>
               </li>
             </ul>
 
             <button
-              onClick={() => canUpgradeTo('fleet') ? handleUpgradeClick('fleet') : handleSubscribe('fleet')}
-              disabled={loading || isCurrentPlan('fleet') || (PLAN_ORDER[subscription?.plan] > PLAN_ORDER.fleet)}
+              onClick={() => canUpgradeTo('small_fleet') ? handleUpgradeClick('small_fleet') : handleSubscribe('small_fleet')}
+              disabled={loading || isCurrentPlan('small_fleet') || (PLAN_ORDER[subscription?.plan] > PLAN_ORDER.small_fleet)}
               className={`w-full py-3 px-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${
-                isCurrentPlan('fleet')
+                isCurrentPlan('small_fleet')
                   ? 'bg-primary-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 cursor-not-allowed'
-                  : PLAN_ORDER[subscription?.plan] > PLAN_ORDER.fleet
+                  : PLAN_ORDER[subscription?.plan] > PLAN_ORDER.small_fleet
                   ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 cursor-not-allowed'
-                  : canUpgradeTo('fleet')
+                  : canUpgradeTo('small_fleet')
                   ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white hover:from-primary-700 hover:to-primary-800'
                   : 'bg-primary-900 dark:bg-primary-600 text-white hover:bg-primary-800 dark:hover:bg-primary-700'
               }`}
             >
               {loading ? (
                 <LoadingSpinner size="sm" />
-              ) : isCurrentPlan('fleet') ? (
+              ) : isCurrentPlan('small_fleet') ? (
                 'Current Plan'
-              ) : PLAN_ORDER[subscription?.plan] > PLAN_ORDER.fleet ? (
+              ) : PLAN_ORDER[subscription?.plan] > PLAN_ORDER.small_fleet ? (
                 'Included in your plan'
-              ) : canUpgradeTo('fleet') ? (
+              ) : canUpgradeTo('small_fleet') ? (
                 <>
                   <FiArrowUp className="w-4 h-4" />
-                  Upgrade to Fleet
+                  Upgrade to Small Fleet
                 </>
               ) : (
                 <>
@@ -647,10 +663,10 @@ const Billing = () => {
           </div>
         </div>
 
-        {/* Pro Plan */}
+        {/* Fleet Pro Plan */}
         <div
           className={`relative bg-white dark:bg-zinc-900 rounded-2xl border-2 overflow-hidden transition-all duration-300 cursor-pointer hover:shadow-xl hover:-translate-y-1 ${
-            subscription?.plan === 'pro' && subscription?.status !== 'trialing'
+            isCurrentPlan('fleet_pro')
               ? 'border-accent-300 dark:border-accent-600 ring-2 ring-accent-100 dark:ring-accent-900'
               : 'border-accent-200 dark:border-accent-700 hover:border-accent-300 dark:hover:border-accent-600'
           }`}
@@ -661,7 +677,7 @@ const Billing = () => {
             MOST POPULAR
           </div>
 
-          {subscription?.plan === 'pro' && subscription?.status !== 'trialing' && (
+          {isCurrentPlan('fleet_pro') && (
             <div className="absolute top-10 right-4">
               <span className="px-2.5 py-1 bg-accent-100 dark:bg-accent-900/30 text-zinc-800 dark:text-zinc-200 text-xs font-semibold rounded-full">
                 Current Plan
@@ -675,17 +691,17 @@ const Billing = () => {
                 <FiZap className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">Pro</h3>
-                <p className="text-sm text-zinc-600 dark:text-zinc-300">For Growing Fleets (10-50 drivers)</p>
+                <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">Fleet Pro</h3>
+                <p className="text-sm text-zinc-600 dark:text-zinc-300">15 drivers included &bull; +$6/driver after</p>
               </div>
             </div>
 
             <div className="mb-6">
               <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-bold text-zinc-900 dark:text-zinc-100">$89</span>
+                <span className="text-4xl font-bold text-zinc-900 dark:text-zinc-100">$149</span>
                 <span className="text-zinc-600 dark:text-zinc-300">/month</span>
               </div>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">10 drivers included • +$5/driver after</p>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">15 drivers included &bull; +$6/driver after</p>
             </div>
 
             <ul className="space-y-3 mb-6">
@@ -693,13 +709,13 @@ const Billing = () => {
                 <div className="w-5 h-5 rounded-full bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-accent-600 dark:text-accent-400" />
                 </div>
-                <span><strong>10</strong> drivers included</span>
+                <span><strong>15</strong> drivers included</span>
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
                 <div className="w-5 h-5 rounded-full bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-accent-600 dark:text-accent-400" />
                 </div>
-                <span>Everything in Fleet</span>
+                <span>Everything in Small Fleet</span>
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
                 <div className="w-5 h-5 rounded-full bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center flex-shrink-0">
@@ -723,29 +739,41 @@ const Billing = () => {
                 <div className="w-5 h-5 rounded-full bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-accent-600 dark:text-accent-400" />
                 </div>
-                Priority Email Support
+                Audit Readiness Tools
+              </li>
+              <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
+                <div className="w-5 h-5 rounded-full bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center flex-shrink-0">
+                  <FiCheck className="w-3 h-3 text-accent-600 dark:text-accent-400" />
+                </div>
+                <span><strong>Unlimited</strong> AI queries</span>
+              </li>
+              <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
+                <div className="w-5 h-5 rounded-full bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center flex-shrink-0">
+                  <FiCheck className="w-3 h-3 text-accent-600 dark:text-accent-400" />
+                </div>
+                Priority Support
               </li>
             </ul>
 
             <button
-              onClick={() => canUpgradeTo('pro') ? handleUpgradeClick('pro') : handleSubscribe('pro')}
-              disabled={loading || isCurrentPlan('pro')}
+              onClick={() => canUpgradeTo('fleet_pro') ? handleUpgradeClick('fleet_pro') : handleSubscribe('fleet_pro')}
+              disabled={loading || isCurrentPlan('fleet_pro')}
               className={`w-full py-3 px-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${
-                isCurrentPlan('pro')
+                isCurrentPlan('fleet_pro')
                   ? 'bg-accent-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 cursor-not-allowed'
-                  : canUpgradeTo('pro')
+                  : canUpgradeTo('fleet_pro')
                   ? 'bg-gradient-to-r from-accent-500 to-accent-600 text-white hover:from-accent-600 hover:to-accent-700 shadow-lg shadow-accent-500/25'
                   : 'bg-gradient-to-r from-accent-500 to-accent-600 text-white hover:from-accent-600 hover:to-accent-700'
               }`}
             >
               {loading ? (
                 <LoadingSpinner size="sm" />
-              ) : isCurrentPlan('pro') ? (
+              ) : isCurrentPlan('fleet_pro') ? (
                 'Current Plan'
-              ) : canUpgradeTo('pro') ? (
+              ) : canUpgradeTo('fleet_pro') ? (
                 <>
                   <FiArrowUp className="w-4 h-4" />
-                  Upgrade to Pro
+                  Upgrade to Fleet Pro
                 </>
               ) : (
                 <>
@@ -793,7 +821,7 @@ const Billing = () => {
       <Modal
         isOpen={upgradeModal.open}
         onClose={() => !upgradeModal.loading && setUpgradeModal({ open: false, plan: null, preview: null, loading: false })}
-        title={`Upgrade to ${upgradeModal.plan?.charAt(0).toUpperCase()}${upgradeModal.plan?.slice(1) || ''}`}
+        title={`Upgrade to ${upgradeModal.plan?.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') || ''}`}
         icon={FiArrowUp}
         size="sm"
       >

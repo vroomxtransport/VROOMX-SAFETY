@@ -56,7 +56,7 @@ export const chatQA = [
 
 export const testimonials = [
   {
-    quote: 'I was paying $45/truck/month for a telematics platform and only using the compliance features. Switched to VroomX for <span class="text-primary-500 font-bold">$39/month total</span> for my 5-truck fleet. Same compliance tools, $180/month savings.',
+    quote: 'I was paying $45/truck/month for a telematics platform and only using the compliance features. Switched to VroomX for <span class="text-primary-500 font-bold">$79/month total for my 5-truck Small Fleet plan</span>. Same compliance tools, huge savings.',
     name: 'James Mitchell',
     role: 'Fleet Owner',
     fleet: '5 Trucks',
@@ -136,19 +136,19 @@ export const faqData = [
   },
   {
     question: "How does the free trial work?",
-    answer: "Start your 7-day free trial with no credit card required. You get full access to every feature in VroomX. If you love it, make a one-time $249 payment to keep lifetime access. If not, your account automatically pauses — no charges, no hassle."
+    answer: "Start your 7-day free trial with no credit card required. You get full access to every feature in VroomX. Pick the plan that fits your fleet — Owner-Operator at $29/mo, Small Fleet at $79/mo, or Fleet Pro at $149/mo. If you love it, your subscription starts automatically. If not, your account pauses — no charges, no hassle."
   },
   {
     question: "Is my data secure?",
     answer: "Absolutely. We use bank-level 256-bit SSL encryption for all data transfers. Your information is stored on SOC2-compliant servers with daily backups. We never sell or share your data with third parties."
   },
   {
-    question: "Is this really a one-time payment?",
-    answer: "Yes. $249 once and you're in — forever. No monthly fees, no annual renewals, no hidden charges. You get every feature, every update, and unlimited drivers. We believe compliance software shouldn't be another recurring bill."
+    question: "What plans do you offer?",
+    answer: "We have three plans to fit any fleet size. Owner-Operator ($29/mo) covers 1 driver — perfect for independent operators. Small Fleet ($79/mo) includes 5 drivers for growing operations. Fleet Pro ($149/mo) includes 15 drivers for larger fleets. All plans include every feature. Save even more with annual billing."
   },
   {
     question: "What happens if I add more drivers?",
-    answer: "Add as many as you need — unlimited drivers are included with your one-time $249 payment. No per-driver fees, no tier limits. Whether you have 1 truck or 50, the price is the same."
+    answer: "Each plan includes a set number of drivers — 1 for Owner-Operator, 5 for Small Fleet, and 15 for Fleet Pro. If you need more drivers, you can upgrade to the next tier at any time. All plans include every compliance feature."
   },
   {
     question: "How accurate is the CSA score checker?",
@@ -156,13 +156,73 @@ export const faqData = [
   }
 ];
 
+export const pricingPlans = [
+  {
+    name: 'Owner-Operator',
+    price: 29,
+    annualPrice: 290,
+    drivers: '1 driver',
+    popular: false,
+    features: [
+      'Full DQF Management',
+      'AI Regulation Assistant',
+      'CSA Score Tracking',
+      'Document Expiry Alerts',
+      'DataQ AI Analysis',
+      'DataQ Draft Generator',
+      'Custom Reports',
+      'Email Support'
+    ]
+  },
+  {
+    name: 'Small Fleet',
+    price: 79,
+    annualPrice: 790,
+    drivers: '5 drivers included',
+    popular: true,
+    features: [
+      'Full DQF Management',
+      'AI Regulation Assistant',
+      'CSA Score Tracking',
+      'Document Expiry Alerts',
+      'DataQ AI Analysis',
+      'DataQ Draft Generator',
+      'Multi-user Access',
+      'Advanced CSA Analytics',
+      'Custom Reports',
+      'Priority Email Support'
+    ]
+  },
+  {
+    name: 'Fleet Pro',
+    price: 149,
+    annualPrice: 1490,
+    drivers: '15 drivers included',
+    popular: false,
+    features: [
+      'Full DQF Management',
+      'AI Regulation Assistant',
+      'CSA Score Tracking',
+      'Document Expiry Alerts',
+      'DataQ AI Analysis',
+      'DataQ Draft Generator',
+      'Multi-user Access',
+      'Advanced CSA Analytics',
+      'Custom Reports',
+      'Priority Email Support',
+      'Dedicated Account Manager'
+    ]
+  }
+];
+
+// Legacy export for backward compatibility (used by Pricing.jsx)
 export const pricingPlan = {
   name: 'VroomX Complete',
-  price: 249,
+  price: 29,
   trialDays: 7,
   anchorPrice: 468,
   features: [
-    'Unlimited Drivers',
+    '1 Driver (Owner-Operator)',
     'Full DQF Management',
     'AI Regulation Assistant',
     'CSA Score Tracking',
@@ -184,7 +244,7 @@ export const comparisonFeatures = [
   { feature: 'Mobile Access', vroomx: true, spreadsheets: 'limited', other: true },
   { feature: 'FMCSA Data Integration', vroomx: true, spreadsheets: false, other: 'limited' },
   { feature: 'Setup Time', vroomx: '10 min', spreadsheets: 'Hours', other: '1-2 days' },
-  { feature: 'Starting Price', vroomx: '$249 one-time', spreadsheets: 'Free*', other: '$50+/mo' },
+  { feature: 'Starting Price', vroomx: 'From $29/mo', spreadsheets: 'Free*', other: '$50+/mo' },
 ];
 
 export const features = [

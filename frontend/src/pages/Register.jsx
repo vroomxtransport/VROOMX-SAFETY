@@ -230,7 +230,7 @@ const Register = () => {
             Start Your 7-Day Free Trial
           </h1>
           <p className="text-zinc-600 text-lg max-w-lg mx-auto">
-            Join 500+ carriers managing their FMCSA compliance with VroomX Safety
+            Join carriers managing their FMCSA compliance with VroomX Safety
           </p>
         </div>
 
@@ -254,8 +254,8 @@ const Register = () => {
         {/* One-time pricing hint */}
         <div className="w-full max-w-2xl mx-auto mb-4 animate-fade-in-up" style={{ animationDelay: '0.18s' }}>
           <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-5 py-3 flex items-center justify-center gap-2 flex-wrap text-sm">
-            <span className="text-emerald-700 font-semibold">💰</span>
-            <span className="text-zinc-700">Launch special: $249 one-time payment after your free trial — full access forever, no monthly fees.</span>
+            <span className="text-emerald-700 font-semibold">🚀</span>
+            <span className="text-zinc-700">7-day free trial — no credit card required. Plans start at $29/month.</span>
           </div>
         </div>
 

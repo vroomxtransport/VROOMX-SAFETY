@@ -185,14 +185,13 @@ const TermsOfService = () => {
                 </tr>
               </thead>
               <tbody className="text-gray-600">
-                <tr className="bg-white"><td className="border border-[#E2E8F0] p-3">Solo</td><td className="border border-[#E2E8F0] p-3">$19/month</td><td className="border border-[#E2E8F0] p-3">1 driver</td><td className="border border-[#E2E8F0] p-3">N/A</td></tr>
-                <tr className="bg-gray-50"><td className="border border-[#E2E8F0] p-3">Fleet</td><td className="border border-[#E2E8F0] p-3">$39/month</td><td className="border border-[#E2E8F0] p-3">3 drivers</td><td className="border border-[#E2E8F0] p-3">$6/driver/month</td></tr>
-                <tr className="bg-white"><td className="border border-[#E2E8F0] p-3">Pro</td><td className="border border-[#E2E8F0] p-3">$79/month</td><td className="border border-[#E2E8F0] p-3">10 drivers</td><td className="border border-[#E2E8F0] p-3">$5/driver/month</td></tr>
-                <tr className="bg-gray-50"><td className="border border-[#E2E8F0] p-3">Enterprise</td><td className="border border-[#E2E8F0] p-3">Custom</td><td className="border border-[#E2E8F0] p-3">Unlimited</td><td className="border border-[#E2E8F0] p-3">Contact sales</td></tr>
+                <tr className="bg-white"><td className="border border-[#E2E8F0] p-3">Owner-Operator</td><td className="border border-[#E2E8F0] p-3">$29/month</td><td className="border border-[#E2E8F0] p-3">1 driver</td><td className="border border-[#E2E8F0] p-3">N/A</td></tr>
+                <tr className="bg-gray-50"><td className="border border-[#E2E8F0] p-3">Small Fleet</td><td className="border border-[#E2E8F0] p-3">$79/month</td><td className="border border-[#E2E8F0] p-3">5 drivers</td><td className="border border-[#E2E8F0] p-3">$8/driver/month</td></tr>
+                <tr className="bg-white"><td className="border border-[#E2E8F0] p-3">Fleet Pro</td><td className="border border-[#E2E8F0] p-3">$149/month</td><td className="border border-[#E2E8F0] p-3">15 drivers</td><td className="border border-[#E2E8F0] p-3">$6/driver/month</td></tr>
               </tbody>
             </table>
           </div>
-          <p className="text-gray-600 mt-4">Annual billing is available at a 20% discount.</p>
+          <p className="text-gray-600 mt-4">Annual billing is available with 2 months free ($290/yr, $790/yr, $1,490/yr).</p>
 
           <h3 className="text-lg font-semibold mt-6 mb-3 font-outfit text-primary-500">4.2 Payment Terms</h3>
           <ul className="list-disc list-inside text-gray-600 space-y-2 ml-4">

@@ -103,7 +103,7 @@ const userSchema = new mongoose.Schema({
   subscription: {
     plan: {
       type: String,
-      enum: ['free_trial', 'solo', 'fleet', 'pro', 'starter', 'professional', 'complete'],
+      enum: ['free_trial', 'owner_operator', 'small_fleet', 'fleet_pro', 'solo', 'fleet', 'pro', 'starter', 'professional', 'complete'],
       default: 'free_trial'
     },
     stripeSubscriptionId: String,
@@ -208,6 +208,10 @@ userSchema.virtual('fullName').get(function() {
 userSchema.virtual('limits').get(function() {
   const plans = {
     free_trial: { maxCompanies: 1, maxDriversPerCompany: 1, maxVehiclesPerCompany: 1 },
+    owner_operator: { maxCompanies: 1, maxDriversPerCompany: 1, maxVehiclesPerCompany: 1 },
+    small_fleet: { maxCompanies: 3, maxDriversPerCompany: Infinity, maxVehiclesPerCompany: Infinity },
+    fleet_pro: { maxCompanies: 10, maxDriversPerCompany: Infinity, maxVehiclesPerCompany: Infinity },
+    // Legacy plan mappings
     solo: { maxCompanies: 1, maxDriversPerCompany: 1, maxVehiclesPerCompany: 1 },
     fleet: { maxCompanies: 3, maxDriversPerCompany: Infinity, maxVehiclesPerCompany: Infinity },
     pro: { maxCompanies: 10, maxDriversPerCompany: Infinity, maxVehiclesPerCompany: Infinity }

@@ -9,20 +9,25 @@ const aiUsageService = require('../services/aiUsageService');
 
 // Price configuration for display
 const PRICING = {
-  solo: {
-    name: 'Solo',
+  owner_operator: {
+    name: 'Owner-Operator',
     description: 'For Owner-Operators',
-    price: 19,
-    priceId: process.env.STRIPE_SOLO_PRICE_ID,
+    monthlyPrice: 29,
+    annualPrice: 290,
+    priceId: process.env.STRIPE_OWNER_OPERATOR_MONTHLY_PRICE_ID,
+    annualPriceId: process.env.STRIPE_OWNER_OPERATOR_ANNUAL_PRICE_ID,
     includedDrivers: 1,
-    extraDriverPrice: null, // No extra drivers allowed
+    extraDriverPrice: null,
     features: [
-      '1 driver included',
-      'Full DQF Management',
-      'AI Regulation Assistant',
-      'CSA Score Tracking',
-      'Document Expiry Alerts',
-      '100 AI queries/month'
+      '1 driver, 1 vehicle, 1 company',
+      'Full DQF Management (14+ documents)',
+      'CSA Score Monitoring (all 7 BASICs)',
+      'Document Expiration Alerts',
+      'AI Compliance Assistant',
+      'FMCSA Data Sync',
+      'Violation Tracking',
+      '150 AI queries/month',
+      'Email Support'
     ],
     limits: {
       maxCompanies: 1,
@@ -30,46 +35,55 @@ const PRICING = {
       maxVehiclesPerCompany: 1
     }
   },
-  fleet: {
-    name: 'Fleet',
-    description: 'For Small Fleets (2-10 drivers)',
-    price: 39,
-    priceId: process.env.STRIPE_FLEET_PRICE_ID,
-    extraDriverPriceId: process.env.STRIPE_FLEET_EXTRA_DRIVER_PRICE_ID,
-    includedDrivers: 3,
-    extraDriverPrice: 6,
+  small_fleet: {
+    name: 'Small Fleet',
+    description: 'For Small Fleets (2-20 drivers)',
+    monthlyPrice: 79,
+    annualPrice: 790,
+    priceId: process.env.STRIPE_SMALL_FLEET_MONTHLY_PRICE_ID,
+    annualPriceId: process.env.STRIPE_SMALL_FLEET_ANNUAL_PRICE_ID,
+    extraDriverPriceId: process.env.STRIPE_SMALL_FLEET_EXTRA_DRIVER_PRICE_ID,
+    includedDrivers: 5,
+    extraDriverPrice: 8,
     features: [
-      '3 drivers included',
-      '+$6/driver after 3',
-      'Everything in Solo',
-      'DataQ AI Analysis',
-      'DataQ Draft Generator',
+      '5 drivers included, unlimited vehicles',
+      '+$8/driver after 5',
+      'Everything in Owner-Operator',
+      'AI Violation Analyzer',
+      'DataQ Challenge Letters',
+      'Drug & Alcohol Program Management',
       'Multi-user Access',
-      'Email Support',
-      '500 AI queries/month'
+      'Up to 3 companies',
+      '500 AI queries/month',
+      'Priority Email Support'
     ],
     limits: {
       maxCompanies: 3,
-      maxDriversPerCompany: 'unlimited', // Unlimited but charges per driver
+      maxDriversPerCompany: 'unlimited',
       maxVehiclesPerCompany: 'unlimited'
     }
   },
-  pro: {
-    name: 'Pro',
-    description: 'For Growing Fleets (10-50 drivers)',
-    price: 89,
-    priceId: process.env.STRIPE_PRO_PRICE_ID,
-    extraDriverPriceId: process.env.STRIPE_PRO_EXTRA_DRIVER_PRICE_ID,
-    includedDrivers: 10,
-    extraDriverPrice: 5,
+  fleet_pro: {
+    name: 'Fleet Pro',
+    description: 'For Growing Fleets (15-50+ drivers)',
+    monthlyPrice: 149,
+    annualPrice: 1490,
+    priceId: process.env.STRIPE_FLEET_PRO_MONTHLY_PRICE_ID,
+    annualPriceId: process.env.STRIPE_FLEET_PRO_ANNUAL_PRICE_ID,
+    extraDriverPriceId: process.env.STRIPE_FLEET_PRO_EXTRA_DRIVER_PRICE_ID,
+    includedDrivers: 15,
+    extraDriverPrice: 6,
     features: [
-      '10 drivers included',
-      '+$5/driver after 10',
-      'Everything in Fleet',
+      '15 drivers included, unlimited vehicles',
+      '+$6/driver after 15',
+      'Everything in Small Fleet',
       'Advanced CSA Analytics',
-      'Custom Reports',
-      'Priority Email Support',
-      'Unlimited AI queries'
+      'Custom Report Builder',
+      'Compliance Score Trend Analysis',
+      'Audit Readiness Tools',
+      'Up to 10 companies',
+      'Unlimited AI queries',
+      'Priority Support'
     ],
     limits: {
       maxCompanies: 10,
@@ -144,9 +158,10 @@ router.get('/subscription', protect, asyncHandler(async (req, res) => {
 // @desc    Create Stripe Checkout session for subscription
 // @access  Private
 router.post('/create-checkout-session', protect, asyncHandler(async (req, res) => {
-  const { plan } = req.body;
+  const { plan, billingInterval } = req.body;
+  const validPlans = ['owner_operator', 'small_fleet', 'fleet_pro', 'solo', 'fleet', 'pro'];
 
-  if (!['solo', 'fleet', 'pro'].includes(plan)) {
+  if (!validPlans.includes(plan)) {
     throw new AppError('Invalid plan selected', 400);
   }
 
@@ -155,7 +170,7 @@ router.post('/create-checkout-session', protect, asyncHandler(async (req, res) =
     throw new AppError('You already have an active subscription. Use the billing portal to change plans.', 400);
   }
 
-  const session = await stripeService.createCheckoutSession(req.user, plan);
+  const session = await stripeService.createCheckoutSession(req.user, plan, billingInterval || 'monthly');
 
   auditService.log(req, 'create', 'subscription', null, { plan, summary: 'Checkout session created' });
 
@@ -230,9 +245,10 @@ router.post('/reactivate', protect, asyncHandler(async (req, res) => {
 // @access  Private
 router.post('/preview-upgrade', protect, asyncHandler(async (req, res) => {
   const { plan } = req.body;
-  const PLAN_ORDER = { solo: 1, fleet: 2, pro: 3 };
+  const PLAN_ORDER = { owner_operator: 1, small_fleet: 2, fleet_pro: 3, solo: 1, fleet: 2, pro: 3 };
+  const validPlans = ['owner_operator', 'small_fleet', 'fleet_pro', 'solo', 'fleet', 'pro'];
 
-  if (!['solo', 'fleet', 'pro'].includes(plan)) {
+  if (!validPlans.includes(plan)) {
     throw new AppError('Invalid plan selected', 400);
   }
 
@@ -258,9 +274,10 @@ router.post('/preview-upgrade', protect, asyncHandler(async (req, res) => {
 // @access  Private
 router.post('/upgrade', protect, asyncHandler(async (req, res) => {
   const { plan } = req.body;
-  const PLAN_ORDER = { solo: 1, fleet: 2, pro: 3 };
+  const PLAN_ORDER = { owner_operator: 1, small_fleet: 2, fleet_pro: 3, solo: 1, fleet: 2, pro: 3 };
+  const validPlans = ['owner_operator', 'small_fleet', 'fleet_pro', 'solo', 'fleet', 'pro'];
 
-  if (!['solo', 'fleet', 'pro'].includes(plan)) {
+  if (!validPlans.includes(plan)) {
     throw new AppError('Invalid plan selected', 400);
   }
 
