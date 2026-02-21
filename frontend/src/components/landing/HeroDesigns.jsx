@@ -75,7 +75,7 @@ export const HeroDesign1 = ({ heroTextIndex, heroTexts }) => {
             {/* Trust Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 mb-8">
               <div className="w-2 h-2 rounded-full bg-success-400 animate-pulse" />
-              <span className="text-sm font-medium">Trusted by carriers nationwide</span>
+              <span className="text-sm font-medium">FMCSA compliance made simple</span>
             </div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black font-heading leading-[1.1] mb-6">
@@ -94,9 +94,9 @@ export const HeroDesign1 = ({ heroTextIndex, heroTexts }) => {
             {/* Stats Row */}
             <div className="flex gap-8 mb-10">
               {[
-                { value: '3,247+', label: 'CSA Checks' },
-                { value: '99.2%', label: 'Uptime' },
-                { value: '$2.4M', label: 'Fines Prevented' },
+                { value: '7', label: 'BASICs Tracked' },
+                { value: '24/7', label: 'AI Assistant' },
+                { value: '5-Min', label: 'Setup' },
               ].map((stat, i) => (
                 <div key={i} className="text-center">
                   <div className="text-2xl font-black text-cta-400">{stat.value}</div>
@@ -223,11 +223,11 @@ export const HeroDesign2 = ({ heroTextIndex, heroTexts }) => {
   const navigate = useNavigate();
   const { demoLogin } = useAuth();
   const [demoLoading, setDemoLoading] = useState(false);
-  const [counts, setCounts] = useState({ checks: 0, uptime: 0, carriers: 0 });
+  const [counts, setCounts] = useState({ basics: 0, setup: 0, coverage: 0 });
 
   // Animated counter effect
   useEffect(() => {
-    const targets = { checks: 3247, uptime: 99.2, carriers: 500 };
+    const targets = { basics: 7, setup: 5, coverage: 24 };
     const duration = 2000;
     const steps = 60;
     const interval = duration / steps;
@@ -237,9 +237,9 @@ export const HeroDesign2 = ({ heroTextIndex, heroTexts }) => {
       step++;
       const progress = step / steps;
       setCounts({
-        checks: Math.floor(targets.checks * progress),
-        uptime: Math.round(targets.uptime * progress * 10) / 10,
-        carriers: Math.floor(targets.carriers * progress),
+        basics: Math.floor(targets.basics * progress),
+        setup: Math.floor(targets.setup * progress),
+        coverage: Math.floor(targets.coverage * progress),
       });
       if (step >= steps) clearInterval(timer);
     }, interval);
@@ -312,9 +312,9 @@ export const HeroDesign2 = ({ heroTextIndex, heroTexts }) => {
         {/* Animated Stats */}
         <div className="flex flex-wrap justify-center gap-12 mb-12 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
           {[
-            { value: counts.checks.toLocaleString() + '+', label: 'CSA Checks Performed' },
-            { value: counts.uptime + '%', label: 'Platform Uptime' },
-            { value: counts.carriers + '+', label: 'Happy Carriers' },
+            { value: counts.basics + ' BASICs', label: 'Tracked in Real-Time' },
+            { value: counts.setup + '-Min', label: 'Setup Time' },
+            { value: counts.coverage + '/7', label: 'AI Assistant' },
           ].map((stat, i) => (
             <div key={i} className="text-center">
               <div className="text-4xl md:text-5xl font-black text-white font-mono tabular-nums">
@@ -659,9 +659,9 @@ export const HeroDesign4 = ({ heroTextIndex, heroTexts }) => {
               </div>
               <div className="grid grid-cols-3 gap-4">
                 {[
-                  { value: '500+', label: 'Carriers' },
-                  { value: '3,247', label: 'Checks' },
-                  { value: '99.2%', label: 'Uptime' },
+                  { value: '7', label: 'BASICs' },
+                  { value: '24/7', label: 'AI Help' },
+                  { value: '5 min', label: 'Setup' },
                 ].map((stat, i) => (
                   <div key={i} className="text-center">
                     <div className="text-2xl font-black">{stat.value}</div>
@@ -683,7 +683,7 @@ export const HeroDesign4 = ({ heroTextIndex, heroTexts }) => {
               </div>
               <div className="flex items-center gap-2 text-zinc-500">
                 <FiAward className="w-4 h-4" />
-                <span className="text-xs font-medium">SOC2</span>
+                <span className="text-xs font-medium">256-bit SSL</span>
               </div>
             </div>
           </div>
@@ -1006,21 +1006,26 @@ export const HeroDesign5 = ({ heroTextIndex, heroTexts }) => {
               ))}
             </div>
 
-            {/* Social proof */}
+            {/* Trust signals */}
             <div className="flex items-center gap-6">
-              <div className="flex -space-x-3">
-                {[1, 2, 3, 4].map((i) => (
-                  <img
-                    key={i}
-                    src={`https://i.pravatar.cc/40?img=${i + 10}`}
-                    alt={`User ${i}`}
-                    className="w-10 h-10 rounded-full border-2 border-primary-800"
-                  />
-                ))}
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-success-500/20 flex items-center justify-center">
+                  <FiShield className="w-5 h-5 text-success-400" />
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-white">FMCSA Data Direct</div>
+                  <div className="text-xs text-white/50">Official SMS source</div>
+                </div>
               </div>
-              <div>
-                <div className="text-white font-bold">500+ carriers</div>
-                <div className="text-white/50 text-sm">trust VroomX daily</div>
+              <div className="w-px h-8 bg-white/20" />
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-cta-500/20 flex items-center justify-center">
+                  <FiLock className="w-5 h-5 text-cta-400" />
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-white">Bank-Level Encryption</div>
+                  <div className="text-xs text-white/50">256-bit SSL secured</div>
+                </div>
               </div>
             </div>
           </div>

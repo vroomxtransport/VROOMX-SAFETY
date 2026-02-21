@@ -54,52 +54,41 @@ export const chatQA = [
   }
 ];
 
-export const testimonials = [
+export const valueProps = [
   {
-    quote: 'I was paying $45/truck/month for a telematics platform and only using the compliance features. Switched to VroomX for <span class="text-primary-500 font-bold">$79/month total for my 5-truck Small Fleet plan</span>. Same compliance tools, huge savings.',
-    name: 'James Mitchell',
-    role: 'Fleet Owner',
-    fleet: '5 Trucks',
-    featured: true,
-    image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&h=150&fit=crop&crop=face'
+    stat: '$16,340',
+    label: 'Average fine for one expired medical card',
+    source: 'FMCSA Penalty Schedule'
   },
   {
-    quote: 'We went from missing expirations every month to <span class="text-primary-500 font-bold">zero compliance violations</span> in the past year. The SMS BASICs tracking alone has saved us from an intervention.',
-    name: 'Sarah Jenkins',
-    role: 'Safety Director',
-    fleet: '45 Trucks',
-    featured: false,
-    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face'
+    stat: '24 months',
+    label: 'How long violations stay on your CSA score',
+    source: 'FMCSA SMS Methodology'
   },
   {
-    quote: 'The DQF management is a lifesaver. I used to spend hours auditing files manually. Now I just check the dashboard once a week.',
-    name: 'Mike Ross',
-    role: 'Owner Operator',
-    fleet: '3 Trucks',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face'
+    stat: '5 minutes',
+    label: 'Time to set up VroomX and sync your FMCSA data',
+    source: 'VroomX Average'
   },
   {
-    quote: "Finally, software that feels modern. It's fast, looks great, and actually makes sense. My drivers even use the portal without complaining.",
-    name: 'David Chen',
-    role: 'Fleet Mgr',
-    fleet: '120 Trucks',
-    image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
+    stat: '7 BASICs',
+    label: 'All SMS categories monitored in real-time',
+    source: 'Complete FMCSA Coverage'
   },
   {
-    quote: 'Audit readiness reports are worth the subscription alone. We passed our New Entrant Audit with zero issues thanks to the checklists.',
-    name: 'Elena Rodriguez',
-    role: 'Compliance Officer',
-    fleet: '',
-    image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face'
+    stat: '40%',
+    label: 'Average DataQ challenge success rate',
+    source: 'Industry Average'
   },
   {
-    quote: 'I was skeptical about the AI alerts, but they actually predicted a maintenance issue before it became a violation. Impressive tech.',
-    name: 'Marcus Johnson',
-    role: 'Ops Director',
-    fleet: '85 Trucks',
-    image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face'
+    stat: '$29/mo',
+    label: 'Starting price for full compliance protection',
+    source: 'Owner-Operator Plan'
   }
 ];
+
+// Backward compatibility alias
+export { valueProps as testimonials };
 
 export const blogPosts = [
   {
@@ -140,7 +129,7 @@ export const faqData = [
   },
   {
     question: "Is my data secure?",
-    answer: "Absolutely. We use bank-level 256-bit SSL encryption for all data transfers. Your information is stored on SOC2-compliant servers with daily backups. We never sell or share your data with third parties."
+    answer: "Absolutely. We use bank-level 256-bit SSL encryption for all data transfers. Your information is stored on secure servers with daily backups. We never sell or share your data with third parties."
   },
   {
     question: "What plans do you offer?",
@@ -296,7 +285,7 @@ export const statsBar = [
 export const trustBadges = [
   { icon: 'FiLock', title: 'SSL Secure', subtitle: '256-bit encryption', color: 'success' },
   { icon: 'FiDatabase', title: 'FMCSA Data', subtitle: 'Official SMS source', color: 'primary' },
-  { icon: 'FiAward', title: 'SOC2 Compliant', subtitle: 'Enterprise security', color: 'cta' },
+  { icon: 'FiAward', title: 'Bank-Level Security', subtitle: '256-bit AES encryption', color: 'cta' },
   { icon: 'FiHeadphones', title: 'US Support', subtitle: 'Real humans, fast', color: 'purple' }
 ];
 

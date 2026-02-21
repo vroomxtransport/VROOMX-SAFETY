@@ -45,7 +45,7 @@ const plans = [
     monthlyPrice: 29,
     annualPrice: 261,
     description: 'Everything a single-truck operator needs to stay compliant.',
-    cta: 'Start Free Trial',
+    cta: 'Protect My Fleet',
     popular: false,
     features: [
       '1 driver, 1 vehicle, 1 company',
@@ -64,7 +64,7 @@ const plans = [
     monthlyPrice: 79,
     annualPrice: 711,
     description: 'Built for growing fleets that need powerful compliance tools.',
-    cta: 'Start Free Trial',
+    cta: 'Protect My Fleet',
     popular: true,
     features: [
       '5 drivers included, unlimited vehicles',
@@ -84,7 +84,7 @@ const plans = [
     monthlyPrice: 149,
     annualPrice: 1341,
     description: 'Advanced analytics and tools for established fleet operations.',
-    cta: 'Start Free Trial',
+    cta: 'Protect My Fleet',
     popular: false,
     features: [
       '15 drivers included, unlimited vehicles',
@@ -284,16 +284,16 @@ const Pricing = () => {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-2xl md:text-3xl font-heading font-bold text-white mb-2">
-              Trusted by Carriers Nationwide
+              Built for Compliance
             </h2>
-            <p className="text-white/70">Enterprise-grade security and reliability</p>
+            <p className="text-white/70">Your data protected with bank-level encryption</p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
               { Icon: FiShield, title: 'FMCSA Compliant', desc: 'Built for 49 CFR', color: 'emerald' },
               { Icon: FiLock, title: 'SSL Secured', desc: '256-bit encryption', color: 'blue' },
-              { Icon: FiClock, title: '99.9% Uptime', desc: 'Enterprise SLA', color: 'amber' },
+              { Icon: FiClock, title: 'Always Available', desc: 'Reliable cloud hosting', color: 'amber' },
               { Icon: FiHeadphones, title: 'US Support', desc: 'Real humans, fast', color: 'purple' }
             ].map((badge, i) => (
               <div key={i} className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-center hover:bg-white/15 transition-all">
@@ -368,14 +368,14 @@ const Pricing = () => {
             Ready to Simplify <span className="text-cta-400">Compliance?</span>
           </h2>
           <p className="text-xl text-white/80 mb-10 max-w-xl mx-auto">
-            Join hundreds of owner-operators and small fleets who trust VroomX to keep them FMCSA compliant.
+            Stop worrying about compliance. Start running your business.
           </p>
 
           <Link
             to="/register"
             className="inline-flex items-center gap-3 bg-cta-500 hover:bg-cta-600 px-10 py-5 rounded-full font-bold text-white text-lg shadow-xl shadow-cta-500/30 transition-all hover:scale-105 hover:shadow-2xl"
           >
-            Start Your Free Trial
+            Get Audit-Ready Now
             <FiArrowRight className="w-5 h-5" />
           </Link>
 

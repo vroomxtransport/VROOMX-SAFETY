@@ -273,8 +273,8 @@ const CSACheckerPage = () => {
                 ))}
               </div>
               <div className="text-sm">
-                <span className="font-bold text-primary-600">3,247+</span>
-                <span className="text-[#64748B]"> carriers checked this month</span>
+                <span className="font-bold text-primary-600">Free</span>
+                <span className="text-[#64748B]"> instant CSA score check</span>
               </div>
             </div>
           </div>

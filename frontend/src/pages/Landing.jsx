@@ -17,7 +17,6 @@ import {
 } from '../components/landing';
 import {
   heroTexts,
-  testimonials,
   blogPosts,
   faqData,
   features
@@ -85,7 +84,7 @@ const Landing = () => {
             {[
               { Icon: FiLock, title: 'SSL Secure', subtitle: '256-bit encryption', bgClass: 'bg-green-50', textClass: 'text-green-500' },
               { Icon: FiDatabase, title: 'FMCSA Data', subtitle: 'Official SMS source', bgClass: 'bg-blue-50', textClass: 'text-blue-500' },
-              { Icon: FiAward, title: 'SOC2 Compliant', subtitle: 'Enterprise security', bgClass: 'bg-orange-50', textClass: 'text-orange-500' },
+              { Icon: FiAward, title: 'Bank-Level Security', subtitle: '256-bit AES encryption', bgClass: 'bg-orange-50', textClass: 'text-orange-500' },
               { Icon: FiHeadphones, title: 'US Support', subtitle: 'Real humans, fast', bgClass: 'bg-purple-50', textClass: 'text-purple-500' }
             ].map((badge, i) => (
               <div key={i} className="flex items-center gap-3 text-zinc-600">
@@ -312,7 +311,7 @@ const Landing = () => {
       <PricingSection />
 
       {/* Testimonials Section */}
-      <TestimonialsSection testimonials={testimonials} />
+      <TestimonialsSection />
 
       {/* FAQ Section */}
       <FAQSection faqData={faqData} openFaq={openFaq} setOpenFaq={setOpenFaq} />

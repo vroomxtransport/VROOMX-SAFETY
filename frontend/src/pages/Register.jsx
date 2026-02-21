@@ -558,7 +558,7 @@ const Register = () => {
             <div className="w-8 h-8 rounded-full bg-primary-50 flex items-center justify-center">
               <FiCheckCircle className="w-4 h-4 text-primary-500" />
             </div>
-            <span className="text-sm font-medium">99.9% Uptime</span>
+            <span className="text-sm font-medium">Always Available</span>
           </div>
         </div>
       </div>

@@ -173,8 +173,8 @@ const Platform = () => {
       {/* CTA Section */}
       <section className="relative z-10 py-20 px-6">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-primary-500 mb-4 font-heading">Ready to Streamline Your Compliance?</h2>
-          <p className="text-lg text-[#64748B] mb-8 max-w-2xl mx-auto">Join thousands of fleet managers who trust VroomX Safety to keep their operations compliant and their drivers safe.</p>
+          <h2 className="text-3xl md:text-4xl font-bold text-primary-500 mb-4 font-heading">Ready to Get Compliant?</h2>
+          <p className="text-lg text-[#64748B] mb-8 max-w-2xl mx-auto">Get your compliance files organized in 5 minutes. Every document tracked, every expiration caught.</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/register" className="btn-glow px-8 py-4 rounded-xl font-bold text-white text-lg tracking-wide shadow-lg">Start Organizing My Files</Link>
             <a href="/#pricing" className="px-8 py-4 rounded-xl font-bold text-primary-500 text-lg border-2 border-primary-500/20 hover:border-primary-500 hover:bg-primary-500/5 transition-all">View Pricing</a>
@@ -826,7 +826,7 @@ const TimelineSection = () => {
                   to="/register"
                   className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-cta-500 to-cta-600 text-white rounded-xl font-bold text-lg shadow-lg shadow-cta-500/30 hover:shadow-xl hover:shadow-cta-500/40 hover:-translate-y-1 transition-all"
                 >
-                  Start Your Free Trial
+                  Get Audit-Ready Now
                   <FiArrowRight className="w-5 h-5" />
                 </Link>
               </div>

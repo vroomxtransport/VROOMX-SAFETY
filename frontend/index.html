@@ -10,7 +10,7 @@
 
   <!-- Primary SEO Meta Tags -->
   <title>VroomX Safety - FMCSA Compliance Management & CSA Score Tracking for Trucking</title>
-  <meta name="description" content="All-in-one FMCSA compliance platform. Track CSA scores, manage DQF files, generate DataQ challenges, and get AI-powered regulation assistance. Trusted by carriers nationwide." />
+  <meta name="description" content="Stop risking $16,000 fines. Track CSA scores, manage DQF files, catch expiring documents, and generate DataQ challenges with AI. Built for owner-operators and small fleets. 7-day free trial." />
   <meta name="robots" content="index, follow" />
   <meta name="author" content="VroomX Safety" />
   <meta name="keywords" content="FMCSA compliance, CSA score, trucking compliance software, DQF files, DOT compliance, DataQ challenge, fleet management, trucking safety" />
@@ -31,22 +31,25 @@
   <meta name="twitter:description" content="All-in-one compliance platform for trucking companies. Track CSA scores, manage driver files, and stay DOT-ready." />
   <meta name="twitter:image" content="https://vroomxsafety.com/images/og-image.png" />
 
-  <!-- JSON-LD Structured Data -->
+  <!-- JSON-LD Structured Data: SoftwareApplication -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     "name": "VroomX Safety",
     "applicationCategory": "BusinessApplication",
+    "applicationSubCategory": "Fleet Compliance Management",
     "operatingSystem": "Web",
-    "description": "FMCSA Compliance Management Platform for Trucking Companies. Track CSA scores, manage DQF files, generate DataQ challenges, and ensure DOT compliance.",
+    "description": "FMCSA compliance management platform for trucking companies. Track CSA scores across all 7 BASICs, manage Driver Qualification Files, generate AI-powered DataQ challenge letters, monitor document expirations, and stay DOT audit-ready.",
     "url": "https://vroomxsafety.com",
+    "screenshot": "https://vroomxsafety.com/images/og-image.png",
+    "featureList": "CSA Score Monitoring, DQF File Management, DataQ Challenge AI, Document Expiration Alerts, AI Compliance Assistant, Violation Tracking, Drug & Alcohol Program Management, Audit-Ready Reports",
     "offers": {
       "@type": "AggregateOffer",
-      "lowPrice": "0",
+      "lowPrice": "29",
       "highPrice": "149",
       "priceCurrency": "USD",
-      "description": "7-day free trial, plans from $29/month"
+      "offerCount": "3"
     },
     "publisher": {
       "@type": "Organization",
@@ -55,6 +58,91 @@
         "@type": "ImageObject",
         "url": "https://vroomxsafety.com/logo-icon.svg"
       }
+    }
+  }
+  </script>
+
+  <!-- JSON-LD Structured Data: Organization -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "VroomX Safety",
+    "url": "https://vroomxsafety.com",
+    "logo": "https://vroomxsafety.com/logo-icon.svg",
+    "description": "AI-powered FMCSA compliance management for owner-operators and small fleets.",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "contactType": "customer support",
+      "email": "support@vroomxsafety.com"
+    }
+  }
+  </script>
+
+  <!-- JSON-LD Structured Data: FAQPage -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How is VroomX different from telematics platforms?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Telematics platforms do fleet tracking, ELDs, dashcams, and dozens of other things with compliance features bolted on. VroomX ONLY does document compliance: DQF files, expiration tracking, CSA monitoring, and audit prep. If you already have an ELD you like, you don't need to replace it. We work alongside it."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do I need to switch from my current ELD?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. VroomX is not an ELD and not trying to replace your telematics. Think of us as your compliance filing cabinet in the cloud. Your ELD tracks hours. We track documents. They work great together."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How does the free trial work?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Start your 7-day free trial with no credit card required. You get full access to every feature in VroomX. Pick the plan that fits your fleet. If you love it, your subscription starts automatically. If not, your account pauses with no charges."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is my data secure?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. VroomX uses bank-level 256-bit SSL encryption for all data transfers. Your information is stored on secure servers with daily backups. We never sell or share your data with third parties."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How accurate is the CSA score checker?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Our CSA checker pulls data directly from the FMCSA SMS database, the same source enforcement officers use. We update scores regularly and provide 24-month historical tracking for all 7 BASICs."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <!-- JSON-LD Structured Data: WebSite with SearchAction -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "VroomX Safety",
+    "url": "https://vroomxsafety.com",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://vroomxsafety.com/csa-checker?dot={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
     }
   }
   </script>

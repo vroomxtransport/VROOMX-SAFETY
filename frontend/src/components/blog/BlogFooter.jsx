@@ -12,13 +12,13 @@ const BlogFooter = () => {
             Ready to Simplify <span className="text-cta-500">Compliance?</span>
           </h2>
           <p className="text-xl text-zinc-600 mb-10 max-w-xl mx-auto">
-            Join hundreds of owner-operators and small fleets who trust VroomX to keep them FMCSA compliant.
+            Stop worrying about compliance. Start running your business.
           </p>
           <Link
             to="/register"
             className="btn-glow px-12 py-5 rounded-full font-bold text-white text-lg inline-flex items-center gap-2 mb-6"
           >
-            Start Your Free 7-Day Trial
+            Get Audit-Ready Now
             <FiArrowRight className="w-5 h-5" />
           </Link>
           <div className="flex flex-wrap justify-center gap-6 text-sm text-zinc-600">

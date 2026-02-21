@@ -64,8 +64,8 @@ const PublicHeader = ({ activePage = 'landing', variant = 'light', topOffset = '
         </div>
 
         {/* Desktop CTA Button */}
-        <Link to="/pricing" className="hidden md:block btn-glow px-6 py-2.5 rounded-lg font-bold text-white text-sm tracking-wide shadow-lg">
-          Get Started
+        <Link to="/register" className="hidden md:block btn-glow px-6 py-2.5 rounded-lg font-bold text-white text-sm tracking-wide shadow-lg">
+          Protect My Fleet
         </Link>
 
         {/* Mobile Menu Button */}
@@ -118,11 +118,11 @@ const PublicHeader = ({ activePage = 'landing', variant = 'light', topOffset = '
 
             {/* Mobile CTA Button */}
             <Link
-              to="/pricing"
+              to="/register"
               onClick={() => setMobileMenuOpen(false)}
               className="block mt-3 btn-glow px-6 py-3 rounded-xl font-bold text-white text-base tracking-wide shadow-lg text-center"
             >
-              Get Started
+              Protect My Fleet
             </Link>
           </div>
         </div>
