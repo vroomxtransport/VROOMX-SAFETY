@@ -1,7 +1,9 @@
-import { FiAlertTriangle, FiEdit2, FiTrash2, FiPaperclip } from 'react-icons/fi';
+import { FiAlertTriangle, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import Modal from '../Modal';
 import StatusBadge from '../StatusBadge';
+import DocumentUploadSection from '../DocumentUploadSection';
 import { formatDate, formatCurrency } from '../../utils/helpers';
+import { damageClaimsAPI } from '../../utils/api';
 import { statusOptions, getStatusBadgeType, getDamageTypeLabel, getFaultLabel } from '../../data/claimOptions';
 
 const ClaimDetailModal = ({
@@ -9,7 +11,8 @@ const ClaimDetailModal = ({
   onClose,
   claim,
   onEdit,
-  onDelete
+  onDelete,
+  onRefresh
 }) => {
   if (!claim) return null;
 
@@ -120,19 +123,12 @@ const ClaimDetailModal = ({
         )}
 
         {/* Documents */}
-        {claim.documents?.length > 0 && (
-          <div>
-            <p className="text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-2">Attached Files</p>
-            <div className="space-y-2">
-              {claim.documents.map((doc, idx) => (
-                <div key={idx} className="flex items-center gap-2 p-2 rounded bg-primary-50 dark:bg-primary-900/30 border border-primary-200 dark:border-primary-700">
-                  <FiPaperclip className="w-4 h-4 text-zinc-600 dark:text-zinc-300" />
-                  <span className="text-sm text-zinc-700 dark:text-zinc-200">{doc.originalName || doc.filename}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        <DocumentUploadSection
+          documents={claim.documents || []}
+          onUpload={(formData) => damageClaimsAPI.uploadDocuments(claim._id, formData)}
+          onRefresh={onRefresh}
+          fieldName="documents"
+        />
 
         {/* Actions */}
         <div className="flex justify-between pt-4 border-t border-primary-100 dark:border-primary-700">

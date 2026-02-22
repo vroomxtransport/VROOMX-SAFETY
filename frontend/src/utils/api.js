@@ -277,7 +277,13 @@ export const clearinghouseAPI = {
   recordQuery: (data) => api.post('/clearinghouse/queries', data),
   updateQuery: (id, data) => api.put(`/clearinghouse/queries/${id}`, data),
   getViolationsPending: () => api.get('/clearinghouse/violations-pending'),
-  getRtdPipeline: () => api.get('/clearinghouse/rtd-pipeline')
+  getRtdPipeline: () => api.get('/clearinghouse/rtd-pipeline'),
+  uploadConsent: (formData) => api.post('/clearinghouse/consent-upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+  uploadQueryDocument: (queryId, formData) => api.post(`/clearinghouse/queries/${queryId}/upload`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
 };
 
 export const documentsAPI = {

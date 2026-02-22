@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { drugAlcoholAPI, driversAPI } from '../utils/api';
 import { formatDate } from '../utils/helpers';
 import toast from 'react-hot-toast';
-import { FiPlus, FiDroplet, FiCheck, FiX, FiAlertCircle, FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { FiPlus, FiDroplet, FiCheck, FiX, FiAlertCircle, FiEdit2, FiTrash2, FiEye } from 'react-icons/fi';
 import DataTable from '../components/DataTable';
 import StatusBadge from '../components/StatusBadge';
 import Modal from '../components/Modal';
 import LoadingSpinner from '../components/LoadingSpinner';
+import DocumentUploadSection from '../components/DocumentUploadSection';
 
 const DrugAlcohol = () => {
   const [tests, setTests] = useState([]);
@@ -32,6 +33,8 @@ const DrugAlcohol = () => {
 
   const [formData, setFormData] = useState(initialFormData);
   const [selectedTest, setSelectedTest] = useState(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [detailTest, setDetailTest] = useState(null);
 
   useEffect(() => {
     fetchTests();
@@ -121,6 +124,16 @@ const DrugAlcohol = () => {
     }
   };
 
+  const openDetailModal = async (test) => {
+    try {
+      const res = await drugAlcoholAPI.getById(test._id);
+      setDetailTest(res.data.test);
+      setShowDetailModal(true);
+    } catch {
+      toast.error('Failed to load test details');
+    }
+  };
+
   const handleCloseModal = () => {
     setShowAddModal(false);
     setSelectedTest(null);
@@ -183,6 +196,16 @@ const DrugAlcohol = () => {
       header: '',
       render: (row) => (
         <div className="flex items-center space-x-1">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              openDetailModal(row);
+            }}
+            className="p-2 text-zinc-600 dark:text-zinc-300 hover:text-accent-600 dark:hover:text-accent-400 hover:bg-accent-50 dark:hover:bg-accent-500/10 rounded-lg transition-colors"
+            title="View Details"
+          >
+            <FiEye className="w-4 h-4" />
+          </button>
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -494,6 +517,128 @@ const DrugAlcohol = () => {
             </button>
           </div>
         </form>
+      </Modal>
+
+      {/* Test Detail Modal */}
+      <Modal
+        isOpen={showDetailModal}
+        onClose={() => { setShowDetailModal(false); setDetailTest(null); }}
+        title="Test Record Details"
+        size="lg"
+      >
+        {detailTest && (
+          <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
+            {/* Header Info */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3">
+                <p className="text-xs text-zinc-500 mb-1">Driver</p>
+                <p className="text-sm font-medium text-zinc-900 dark:text-white">
+                  {detailTest.driverId?.firstName} {detailTest.driverId?.lastName}
+                </p>
+              </div>
+              <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3">
+                <p className="text-xs text-zinc-500 mb-1">Test Date</p>
+                <p className="text-sm font-medium text-zinc-900 dark:text-white">
+                  {formatDate(detailTest.testDate)}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3">
+                <p className="text-xs text-zinc-500 mb-1">Test Type</p>
+                <p className="text-sm font-medium text-zinc-900 dark:text-white capitalize">
+                  {testTypeLabels[detailTest.testType] || detailTest.testType}
+                </p>
+              </div>
+              <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3">
+                <p className="text-xs text-zinc-500 mb-1">Overall Result</p>
+                <StatusBadge status={detailTest.overallResult} />
+              </div>
+              <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3">
+                <p className="text-xs text-zinc-500 mb-1">Status</p>
+                <p className="text-sm font-medium text-zinc-900 dark:text-white capitalize">
+                  {detailTest.status}
+                </p>
+              </div>
+            </div>
+
+            {/* Drug & Alcohol Results */}
+            <div className="grid grid-cols-2 gap-4">
+              {detailTest.drugTest?.performed && (
+                <div className="border border-zinc-200 dark:border-zinc-700 rounded-lg p-3">
+                  <p className="text-xs text-zinc-500 mb-1">Drug Test</p>
+                  <StatusBadge status={detailTest.drugTest.result} />
+                  {detailTest.drugTest.specimenId && (
+                    <p className="text-xs text-zinc-400 mt-1">Specimen: {detailTest.drugTest.specimenId}</p>
+                  )}
+                </div>
+              )}
+              {detailTest.alcoholTest?.performed && (
+                <div className="border border-zinc-200 dark:border-zinc-700 rounded-lg p-3">
+                  <p className="text-xs text-zinc-500 mb-1">Alcohol Test</p>
+                  <StatusBadge status={detailTest.alcoholTest.result || 'pending'} />
+                </div>
+              )}
+            </div>
+
+            {/* Clearinghouse Status */}
+            {(detailTest.overallResult === 'positive' || detailTest.overallResult === 'refused') && (
+              <div className={`border rounded-lg p-3 ${
+                detailTest.clearinghouse?.reported
+                  ? 'border-green-200 dark:border-green-700 bg-green-50 dark:bg-green-500/10'
+                  : 'border-amber-200 dark:border-amber-700 bg-amber-50 dark:bg-amber-500/10'
+              }`}>
+                <p className="text-xs text-zinc-500 mb-1">Clearinghouse Reporting</p>
+                {detailTest.clearinghouse?.reported ? (
+                  <div>
+                    <span className="badge badge-success">Reported</span>
+                    {detailTest.clearinghouse.confirmationNumber && (
+                      <p className="text-xs text-zinc-500 mt-1">Confirmation: {detailTest.clearinghouse.confirmationNumber}</p>
+                    )}
+                  </div>
+                ) : (
+                  <span className="badge badge-warning">Pending Report</span>
+                )}
+              </div>
+            )}
+
+            {/* Documents Section */}
+            <DocumentUploadSection
+              documents={detailTest.documents || []}
+              onUpload={(formData) => drugAlcoholAPI.uploadDocument(detailTest._id, formData)}
+              onRefresh={async () => {
+                const res = await drugAlcoholAPI.getById(detailTest._id);
+                setDetailTest(res.data.test);
+              }}
+              fieldName="document"
+              documentTypes={['ccf', 'mro_report', 'bat_report', 'sap_report', 'consent', 'other']}
+              title="Test Documents"
+              emptyMessage="No documents attached to this test."
+            />
+
+            {/* Actions */}
+            <div className="flex justify-between pt-4 border-t border-zinc-200 dark:border-zinc-700">
+              <button
+                onClick={() => {
+                  setShowDetailModal(false);
+                  setDetailTest(null);
+                  openEditModal(detailTest);
+                }}
+                className="flex items-center gap-2 px-4 py-2 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
+              >
+                <FiEdit2 className="w-4 h-4" />
+                Edit
+              </button>
+              <button
+                onClick={() => { setShowDetailModal(false); setDetailTest(null); }}
+                className="px-4 py-2 bg-zinc-100 dark:bg-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-600 text-zinc-900 dark:text-white rounded-lg transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
       </Modal>
     </div>
   );

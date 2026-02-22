@@ -428,6 +428,10 @@ const DamageClaims = () => {
           setShowDetailModal(false);
           setShowDeleteModal(true);
         }}
+        onRefresh={async () => {
+          const res = await damageClaimsAPI.getById(selectedClaim._id);
+          setSelectedClaim(res.data.claim);
+        }}
       />
 
       {/* Delete Confirmation Modal */}

@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
-const { Driver, DrugAlcoholTest, ClearinghouseQuery } = require('../models');
+const { Driver, DrugAlcoholTest, ClearinghouseQuery, Document } = require('../models');
 const { protect, checkPermission, restrictToCompany } = require('../middleware/auth');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
+const { uploadSingle, getFileUrl } = require('../middleware/upload');
 const auditService = require('../services/auditService');
 
 router.use(protect);
@@ -377,6 +378,93 @@ router.get('/rtd-pipeline', checkPermission('drugAlcohol', 'view'), asyncHandler
     totalActive,
     totalCleared: pipeline.cleared.length
   });
+}));
+
+// @route   POST /api/clearinghouse/consent-upload
+// @desc    Upload consent document and record consent for a driver
+// @access  Private
+router.post('/consent-upload', checkPermission('drugAlcohol', 'edit'), uploadSingle('document'), asyncHandler(async (req, res) => {
+  const { driverId, consentDate, consentMethod } = req.body;
+  if (!driverId) throw new AppError('Driver ID is required', 400);
+
+  const driver = await Driver.findOne({ _id: driverId, ...req.companyFilter });
+  if (!driver) throw new AppError('Driver not found', 404);
+
+  const fileUrl = req.file ? getFileUrl(req.file.path) : null;
+
+  // Update driver's clearinghouse consent
+  if (!driver.clearinghouse) driver.clearinghouse = {};
+  driver.clearinghouse.consentDate = consentDate || new Date();
+  if (fileUrl) driver.clearinghouse.documentUrl = fileUrl;
+  await driver.save();
+
+  // Create Document record for audit trail
+  if (req.file) {
+    await Document.create({
+      companyId: req.companyFilter.companyId,
+      category: 'drug_alcohol',
+      documentType: 'Clearinghouse Consent',
+      name: `Clearinghouse Consent - ${driver.firstName} ${driver.lastName}`,
+      fileName: req.file.originalname,
+      fileType: req.file.originalname.split('.').pop(),
+      fileSize: req.file.size,
+      filePath: req.file.path,
+      fileUrl: fileUrl,
+      driverId: driver._id,
+      status: 'valid',
+      uploadedBy: req.user._id
+    });
+  }
+
+  auditService.log(req, 'update', 'driver', driver._id, {
+    action: 'clearinghouse_consent_uploaded',
+    consentDate: driver.clearinghouse.consentDate,
+    consentMethod: consentMethod || 'paper'
+  });
+
+  res.json({
+    success: true,
+    message: 'Consent recorded successfully',
+    driver: {
+      _id: driver._id,
+      firstName: driver.firstName,
+      lastName: driver.lastName,
+      clearinghouse: driver.clearinghouse,
+      complianceStatus: driver.complianceStatus
+    }
+  });
+}));
+
+// @route   POST /api/clearinghouse/queries/:id/upload
+// @desc    Upload document for a clearinghouse query (consent or result doc)
+// @access  Private
+router.post('/queries/:id/upload', checkPermission('drugAlcohol', 'edit'), uploadSingle('document'), asyncHandler(async (req, res) => {
+  const query = await ClearinghouseQuery.findOne({ _id: req.params.id, ...req.companyFilter });
+  if (!query) throw new AppError('Query record not found', 404);
+  if (!req.file) throw new AppError('No file uploaded', 400);
+
+  const fileUrl = getFileUrl(req.file.path);
+  const { documentType } = req.body; // 'consent' or 'result'
+
+  if (documentType === 'consent') {
+    if (!query.consent) query.consent = {};
+    query.consent.documentUrl = fileUrl;
+  } else {
+    query.resultDocumentUrl = fileUrl;
+  }
+
+  await query.save();
+
+  auditService.log(req, 'update', 'clearinghouse_query', query._id, {
+    action: 'document_uploaded',
+    documentType: documentType || 'result'
+  });
+
+  const populated = await ClearinghouseQuery.findById(query._id)
+    .populate('driverId', 'firstName lastName employeeId')
+    .lean();
+
+  res.json({ success: true, query: populated });
 }));
 
 module.exports = router;

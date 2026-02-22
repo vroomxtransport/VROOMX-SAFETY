@@ -11,6 +11,7 @@ import DataTable from '../components/DataTable';
 import StatusBadge from '../components/StatusBadge';
 import Modal from '../components/Modal';
 import LoadingSpinner from '../components/LoadingSpinner';
+import DocumentUploadSection from '../components/DocumentUploadSection';
 
 const Accidents = () => {
   const [accidents, setAccidents] = useState([]);
@@ -952,6 +953,18 @@ const Accidents = () => {
                 )}
               </div>
             )}
+
+            {/* Documents */}
+            <DocumentUploadSection
+              documents={selectedAccident.documents || []}
+              onUpload={(formData) => accidentsAPI.uploadDocuments(selectedAccident._id, formData)}
+              onRefresh={async () => {
+                const res = await accidentsAPI.getById(selectedAccident._id);
+                setSelectedAccident(res.data.accident);
+              }}
+              fieldName="documents"
+              documentTypes={['accident_report', 'police_report', 'photos', 'diagram', 'witness_statement', 'insurance', 'other']}
+            />
 
             <div className="flex justify-between pt-4 border-t border-zinc-200 dark:border-zinc-700">
               <button

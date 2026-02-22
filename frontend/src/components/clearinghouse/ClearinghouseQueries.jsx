@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { clearinghouseAPI } from '../../utils/api';
 import { formatDate } from '../../utils/helpers';
 import toast from 'react-hot-toast';
 import {
-  FiPlus, FiClock, FiSearch, FiCheckCircle, FiAlertTriangle, FiList
+  FiPlus, FiClock, FiSearch, FiCheckCircle, FiAlertTriangle, FiList,
+  FiUpload, FiFile, FiDownload
 } from 'react-icons/fi';
 import LoadingSpinner from '../LoadingSpinner';
 import Modal from '../Modal';
@@ -46,6 +47,8 @@ const ClearinghouseQueries = () => {
   const [historyDriver, setHistoryDriver] = useState(null);
   const [queryHistory, setQueryHistory] = useState([]);
   const [historyLoading, setHistoryLoading] = useState(false);
+  const [uploadingQueryId, setUploadingQueryId] = useState(null);
+  const queryFileInputRef = useRef(null);
 
   useEffect(() => {
     fetchDrivers();
@@ -116,8 +119,43 @@ const ClearinghouseQueries = () => {
     }
   };
 
+  const handleQueryDocUpload = async (queryId, file) => {
+    setUploadingQueryId(queryId);
+    try {
+      const formData = new FormData();
+      formData.append('document', file);
+      formData.append('documentType', 'result');
+      await clearinghouseAPI.uploadQueryDocument(queryId, formData);
+      toast.success('Document uploaded');
+      // Refresh history
+      if (historyDriver) {
+        const res = await clearinghouseAPI.getQueries({ driverId: historyDriver._id, limit: 50 });
+        setQueryHistory(res.data.queries);
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Upload failed');
+    } finally {
+      setUploadingQueryId(null);
+      if (queryFileInputRef.current) queryFileInputRef.current.value = '';
+    }
+  };
+
   return (
     <div className="space-y-4">
+      {/* Hidden file input for query doc upload */}
+      <input
+        ref={queryFileInputRef}
+        type="file"
+        accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file && uploadingQueryId) {
+            handleQueryDocUpload(uploadingQueryId, file);
+          }
+        }}
+      />
+
       {/* Filters */}
       <div className="flex flex-wrap gap-3">
         <form onSubmit={handleSearch} className="flex-1 min-w-[200px] flex gap-2">
@@ -444,6 +482,7 @@ const ClearinghouseQueries = () => {
                   <th className="text-left px-4 py-2 text-xs font-semibold text-zinc-500">Purpose</th>
                   <th className="text-left px-4 py-2 text-xs font-semibold text-zinc-500">Result</th>
                   <th className="text-left px-4 py-2 text-xs font-semibold text-zinc-500">Confirmation #</th>
+                  <th className="text-right px-4 py-2 text-xs font-semibold text-zinc-500">Docs</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
@@ -464,6 +503,36 @@ const ClearinghouseQueries = () => {
                       </span>
                     </td>
                     <td className="px-4 py-2.5 text-sm text-zinc-500 font-mono">{q.confirmationNumber || '—'}</td>
+                    <td className="px-4 py-2.5 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        {q.resultDocumentUrl && (
+                          <a
+                            href={q.resultDocumentUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 hover:text-accent-600"
+                            title="View document"
+                          >
+                            <FiDownload className="w-3.5 h-3.5" />
+                          </a>
+                        )}
+                        <button
+                          onClick={() => {
+                            setUploadingQueryId(q._id);
+                            queryFileInputRef.current?.click();
+                          }}
+                          disabled={uploadingQueryId === q._id}
+                          className="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 hover:text-accent-600 disabled:opacity-50"
+                          title="Upload document"
+                        >
+                          {uploadingQueryId === q._id ? (
+                            <LoadingSpinner size="sm" />
+                          ) : (
+                            <FiUpload className="w-3.5 h-3.5" />
+                          )}
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
