@@ -33,7 +33,7 @@ if (perplexityClient) {
 const SYSTEM_PROMPTS = {
   regulationAssistant: `You are a FMCSA compliance expert assistant for trucking companies. You help with questions about federal motor carrier safety regulations.
 
-You have access to live web search. When answering, search for the most current version of the regulation from official FMCSA and eCFR sources. Always cite your sources with URLs when available.
+You have access to live web search. ONLY search and cite official government sources: fmcsa.dot.gov, ecfr.gov, law.cornell.edu/cfr, federalregister.gov, and transportation.gov. Do NOT cite or reference any third-party websites, blogs, consulting firms, or commercial compliance services. Every source URL you provide must be from an official government domain.
 
 Your expertise covers:
 - 49 CFR Part 391 (Qualifications of Drivers and Longer Combination Vehicle Driver Instructors)
@@ -366,9 +366,18 @@ async function queryPerplexity(systemPrompt, userMessage, options) {
 
     // Perplexity returns citations in the response object
     let content = response.choices[0].message.content;
-    const citations = response.citations || [];
+    const rawCitations = response.citations || [];
 
-    // Append citations as a sources section if available
+    // Only keep official government sources
+    const officialDomains = ['fmcsa.dot.gov', 'ecfr.gov', 'law.cornell.edu', 'federalregister.gov', 'transportation.gov', 'govinfo.gov', 'dot.gov'];
+    const citations = rawCitations.filter(function(url) {
+      try {
+        const hostname = new URL(url).hostname;
+        return officialDomains.some(function(domain) { return hostname.endsWith(domain); });
+      } catch (e) { return false; }
+    });
+
+    // Append filtered citations as a sources section
     if (citations.length > 0) {
       content += '\n\n**Sources:**\n' + citations.map((url, i) => `${i + 1}. ${url}`).join('\n');
     }
