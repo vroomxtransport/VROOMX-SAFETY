@@ -24,6 +24,11 @@ import {
   FiSend,
 } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
+import CarrierProfileHeader from '../csa-checker/CarrierProfileHeader';
+import BASICScorePanel from '../csa-checker/BASICScorePanel';
+import OOSRatesPanel from '../csa-checker/OOSRatesPanel';
+import CrashHistoryPanel from '../csa-checker/CrashHistoryPanel';
+import DataQPreviewPanel from '../csa-checker/DataQPreviewPanel';
 
 /**
  * Design 1: Split Screen with Floating Dashboard
@@ -1161,109 +1166,45 @@ export const HeroDesign5 = ({ heroTextIndex, heroTexts }) => {
                 {/* ===== PREVIEW STATE ===== */}
                 {csaStep === 'preview' && carrierData && (
                   <div className="space-y-4">
-                    {/* Carrier Header */}
-                    <div className="pb-3 border-b border-[#E2E8F0]">
-                      <div className="flex items-start justify-between gap-2 mb-1">
-                        <h3 className="text-base font-bold text-primary-500 truncate flex-1">
-                          {carrierData.carrier?.legalName || 'Unknown Carrier'}
-                        </h3>
-                        <button
-                          onClick={handleReset}
-                          className="text-xs text-zinc-500 hover:text-zinc-700 flex items-center gap-1"
-                        >
-                          <FiRefreshCw className="w-3 h-3" />
-                          New
-                        </button>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-zinc-600 font-mono">
-                        {carrierData.carrier?.mcNumber && <span>MC-{carrierData.carrier.mcNumber}</span>}
-                        {carrierData.carrier?.mcNumber && carrierData.carrier?.dotNumber && <span className="text-zinc-400">|</span>}
-                        {carrierData.carrier?.dotNumber && <span>DOT-{carrierData.carrier.dotNumber}</span>}
-                        <span className="text-zinc-400">|</span>
-                        <span className={carrierData.carrier?.operatingStatus === 'ACTIVE' ? 'text-emerald-500' : 'text-red-500'}>
-                          {carrierData.carrier?.operatingStatus || 'N/A'}
-                        </span>
-                      </div>
+                    {/* Reset button */}
+                    <div className="flex justify-end">
+                      <button
+                        onClick={handleReset}
+                        className="text-xs text-zinc-500 hover:text-zinc-700 flex items-center gap-1"
+                      >
+                        <FiRefreshCw className="w-3 h-3" />
+                        New
+                      </button>
                     </div>
 
-                    {/* Risk Level Badge */}
-                    {carrierData.riskLevel && (
-                      <div className={`px-3 py-2 rounded-lg text-center ${
-                        carrierData.riskLevel === 'HIGH' ? 'bg-red-500' :
-                        carrierData.riskLevel === 'MODERATE' ? 'bg-amber-500' : 'bg-emerald-500'
-                      }`}>
-                        <span className="text-[10px] text-white/80 uppercase tracking-wider">Risk Level</span>
-                        <p className="text-lg font-bold text-white">{carrierData.riskLevel} RISK</p>
-                      </div>
-                    )}
+                    {/* Carrier Profile Header */}
+                    <CarrierProfileHeader
+                      carrier={carrierData.carrier}
+                      riskLevel={carrierData.riskLevel}
+                      dataSource={carrierData.dataSource}
+                    />
 
-                    {/* Alert Banner */}
-                    {carrierData.alerts?.count > 0 && (
-                      <div className="px-3 py-2 rounded-lg bg-red-50 border border-red-200 flex items-center gap-2">
-                        <FiAlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" />
-                        <span className="text-xs text-red-600 font-medium">
-                          {carrierData.alerts.count} BASIC{carrierData.alerts.count > 1 ? 's' : ''} flagged
-                        </span>
-                      </div>
-                    )}
+                    <div className="border-t border-[#E2E8F0]" />
 
                     {/* BASIC Scores */}
-                    <div>
-                      <div className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider mb-2">BASIC Scores</div>
-                      <div className="space-y-1">
-                        {BASIC_CONFIG.map((basic) => {
-                          const score = carrierData.basics?.[basic.key];
-                          const status = getScoreStatus(score, basic.threshold);
-                          const Icon = basic.icon;
-                          const barColors = {
-                            green: 'bg-emerald-500',
-                            amber: 'bg-amber-500',
-                            red: 'bg-red-500',
-                            gray: 'bg-gray-400'
-                          };
-                          const textColors = {
-                            green: 'text-emerald-600',
-                            amber: 'text-amber-600',
-                            red: 'text-red-600',
-                            gray: 'text-zinc-400'
-                          };
-                          return (
-                            <div key={basic.key} className="flex items-center gap-2 py-0.5">
-                              <Icon className={`w-3 h-3 flex-shrink-0 ${textColors[status.color]} opacity-60`} />
-                              <span className="w-16 text-[10px] text-zinc-600 truncate">{basic.shortName}</span>
-                              <div className="flex-1 h-1.5 bg-[#E2E8F0] rounded-full overflow-hidden">
-                                <div
-                                  className={`h-full rounded-full ${barColors[status.color]} transition-all duration-500`}
-                                  style={{ width: `${score ?? 0}%` }}
-                                />
-                              </div>
-                              <span className={`w-8 text-right text-[10px] font-mono font-medium ${textColors[status.color]}`}>
-                                {score !== null && score !== undefined ? `${score}%` : '—'}
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
+                    <BASICScorePanel
+                      basics={carrierData.basics}
+                      alerts={carrierData.alerts}
+                    />
 
-                    {/* DataQ Challenge Teaser */}
-                    {carrierData.dataQOpportunities?.hasOpportunities && (
-                      <div className="px-3 py-3 rounded-lg bg-amber-50 border border-amber-200">
-                        <div className="flex items-center gap-2 mb-1.5">
-                          <FiLock className="w-4 h-4 text-amber-600" />
-                          <span className="text-xs font-bold text-amber-800 uppercase tracking-wide">DataQ Challenge Opportunities</span>
-                        </div>
-                        <p className="text-sm text-amber-700">
-                          <span className="font-bold text-amber-900">{carrierData.dataQOpportunities.estimatedCount}</span> potential violation{carrierData.dataQOpportunities.estimatedCount !== 1 ? 's' : ''} detected that may be eligible for DataQ challenge
-                          {carrierData.dataQOpportunities.categories?.length > 0 && (
-                            <span className="text-xs text-amber-600"> in {carrierData.dataQOpportunities.categories.map(c => c.name).join(', ')}</span>
-                          )}
-                        </p>
-                        <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
-                          <FiMail className="w-3 h-3" /> Enter your email below to see the full analysis
-                        </p>
+                    {/* OOS Rates + Crash History */}
+                    {(carrierData.oosRates || carrierData.crashDetail || carrierData.crashes) && (
+                      <div className="grid grid-cols-1 gap-4">
+                        <OOSRatesPanel oosRates={carrierData.oosRates} />
+                        <CrashHistoryPanel
+                          crashes={carrierData.crashes}
+                          crashDetail={carrierData.crashDetail}
+                        />
                       </div>
                     )}
+
+                    {/* DataQ Opportunities */}
+                    <DataQPreviewPanel dataQOpportunities={carrierData.dataQOpportunities} />
 
                     {/* Email Capture & Actions */}
                     <div className="pt-2 space-y-2">
@@ -1300,7 +1241,7 @@ export const HeroDesign5 = ({ heroTextIndex, heroTexts }) => {
                                   type="email"
                                   value={email}
                                   onChange={(e) => { setEmail(e.target.value); setEmailError(null); }}
-                                  placeholder="Enter your email"
+                                  placeholder="Enter your email for full AI report"
                                   disabled={reportStep === 'sending'}
                                   className="w-full pl-9 pr-3 py-2.5 rounded-xl border-2 border-[#E2E8F0] bg-white/80
                                              focus:border-cta-500 focus:shadow-[0_0_0_4px_rgba(249,115,22,0.15)]
