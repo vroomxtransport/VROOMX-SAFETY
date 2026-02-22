@@ -685,65 +685,6 @@ const Compliance = () => {
         </div>
       </div>
 
-      {/* Threshold Reference */}
-      <div className="card">
-        <div className="card-header">
-          <h3 className="font-semibold text-zinc-900 dark:text-white">BASIC Threshold Reference</h3>
-        </div>
-        <div className="card-body">
-          <div className="overflow-x-auto">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>BASIC Category</th>
-                  <th>Intervention Threshold</th>
-                  <th>Regulations</th>
-                  <th>Description</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className="font-medium">Unsafe Driving</td>
-                  <td>65%</td>
-                  <td>49 CFR 392</td>
-                  <td className="text-sm text-zinc-600 dark:text-zinc-300">Operation of CMVs in dangerous manner</td>
-                </tr>
-                <tr>
-                  <td className="font-medium">HOS Compliance</td>
-                  <td>65%</td>
-                  <td>49 CFR 395</td>
-                  <td className="text-sm text-zinc-600 dark:text-zinc-300">Hours of service violations</td>
-                </tr>
-                <tr>
-                  <td className="font-medium">Vehicle Maintenance</td>
-                  <td>80%</td>
-                  <td>49 CFR 393, 396</td>
-                  <td className="text-sm text-zinc-600 dark:text-zinc-300">Failure to maintain CMVs properly</td>
-                </tr>
-                <tr>
-                  <td className="font-medium">Controlled Substances</td>
-                  <td>80%</td>
-                  <td>49 CFR 382</td>
-                  <td className="text-sm text-zinc-600 dark:text-zinc-300">Impairment due to drugs/alcohol</td>
-                </tr>
-                <tr>
-                  <td className="font-medium">Driver Fitness</td>
-                  <td>80%</td>
-                  <td>49 CFR 391</td>
-                  <td className="text-sm text-zinc-600 dark:text-zinc-300">Unfit drivers operating CMVs</td>
-                </tr>
-                <tr>
-                  <td className="font-medium">Crash Indicator</td>
-                  <td>65%</td>
-                  <td>-</td>
-                  <td className="text-sm text-zinc-600 dark:text-zinc-300">History of crash involvement</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
         </>
       ) : activeTab === 'violations' ? (
         <Suspense fallback={<div className="flex justify-center py-16"><LoadingSpinner size="lg" /></div>}>
