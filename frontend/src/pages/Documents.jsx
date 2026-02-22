@@ -160,7 +160,7 @@ const Documents = () => {
           <div>
             <p className="text-sm">{formatDate(row.expiryDate)}</p>
             {days !== null && days <= 30 && (
-              <p className={`text-xs ${days < 0 ? 'text-red-600 dark:text-red-400' : 'text-yellow-600 dark:text-yellow-400'}`}>
+              <p className={`text-xs ${days < 0 ? 'text-red-600 dark:text-red-400' : days <= 7 ? 'text-red-600 dark:text-red-400' : days <= 14 ? 'text-orange-600 dark:text-orange-400' : 'text-yellow-600 dark:text-yellow-400'}`}>
                 {days < 0 ? `${Math.abs(days)} days overdue` : `${days} days left`}
               </p>
             )}

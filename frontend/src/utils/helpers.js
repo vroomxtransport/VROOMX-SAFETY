@@ -20,6 +20,8 @@ export const getExpiryStatus = (date) => {
   const days = daysUntilExpiry(date);
   if (days === null) return 'missing';
   if (days < 0) return 'expired';
+  if (days <= 7) return 'urgent';
+  if (days <= 14) return 'expiring';
   if (days <= 30) return 'due_soon';
   return 'valid';
 };
@@ -30,6 +32,8 @@ export const statusConfig = {
   compliant: { label: 'Compliant', color: 'success', bgClass: 'bg-green-100', textClass: 'text-green-800' },
   current: { label: 'Current', color: 'success', bgClass: 'bg-green-100', textClass: 'text-green-800' },
   due_soon: { label: 'Due Soon', color: 'warning', bgClass: 'bg-yellow-100', textClass: 'text-yellow-800' },
+  expiring: { label: 'Expiring', color: 'warning', bgClass: 'bg-orange-100', textClass: 'text-orange-800' },
+  urgent: { label: 'Urgent', color: 'danger', bgClass: 'bg-red-100', textClass: 'text-red-800' },
   warning: { label: 'Warning', color: 'warning', bgClass: 'bg-yellow-100', textClass: 'text-yellow-800' },
   due: { label: 'Due', color: 'warning', bgClass: 'bg-yellow-100', textClass: 'text-yellow-800' },
   expired: { label: 'Expired', color: 'danger', bgClass: 'bg-red-100', textClass: 'text-red-800' },

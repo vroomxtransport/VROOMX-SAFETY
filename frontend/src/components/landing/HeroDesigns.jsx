@@ -472,7 +472,7 @@ export const HeroDesign3 = ({ heroTextIndex, heroTexts }) => {
               <div className="p-6 space-y-4">
                 {[
                   { icon: '✅', text: 'Everything in one dashboard, always current' },
-                  { icon: '🔔', text: 'Smart alerts 30, 60, 90 days before expiry' },
+                  { icon: '🔔', text: 'Smart alerts at 30, 14, 7 days before expiry' },
                   { icon: '📁', text: 'Audit-ready files at your fingertips' },
                   { icon: '💰', text: '$16K average fines prevented per year' },
                   { icon: '🚛', text: '99.8% driver availability rate' },

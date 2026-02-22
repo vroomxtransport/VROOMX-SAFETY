@@ -163,6 +163,30 @@ const alertService = {
             daysRemaining,
             deduplicationKey: `driver-cdl-expired-${driver._id}`
           }));
+        } else if (daysRemaining <= 7) {
+          alertPromises.push(this.createAlert({
+            companyId,
+            type: 'critical',
+            category: 'driver',
+            title: 'CDL Expiring - Urgent',
+            message: `URGENT: ${driverName}'s CDL expires in ${daysRemaining} days`,
+            entityType: 'driver',
+            entityId: driver._id,
+            daysRemaining,
+            deduplicationKey: `driver-cdl-urgent-7-${driver._id}`
+          }));
+        } else if (daysRemaining <= 14) {
+          alertPromises.push(this.createAlert({
+            companyId,
+            type: 'warning',
+            category: 'driver',
+            title: 'CDL Expiring',
+            message: `${driverName}'s CDL expiring soon — ${daysRemaining} days remaining`,
+            entityType: 'driver',
+            entityId: driver._id,
+            daysRemaining,
+            deduplicationKey: `driver-cdl-expiring-14-${driver._id}`
+          }));
         } else if (daysRemaining <= 30) {
           alertPromises.push(this.createAlert({
             companyId,
@@ -173,7 +197,7 @@ const alertService = {
             entityType: 'driver',
             entityId: driver._id,
             daysRemaining,
-            deduplicationKey: `driver-cdl-expiring-${driver._id}`
+            deduplicationKey: `driver-cdl-expiring-30-${driver._id}`
           }));
         }
       }
@@ -194,6 +218,30 @@ const alertService = {
             daysRemaining,
             deduplicationKey: `driver-medical-expired-${driver._id}`
           }));
+        } else if (daysRemaining <= 7) {
+          alertPromises.push(this.createAlert({
+            companyId,
+            type: 'critical',
+            category: 'driver',
+            title: 'Medical Card Expiring - Urgent',
+            message: `URGENT: ${driverName}'s medical card expires in ${daysRemaining} days`,
+            entityType: 'driver',
+            entityId: driver._id,
+            daysRemaining,
+            deduplicationKey: `driver-medical-urgent-7-${driver._id}`
+          }));
+        } else if (daysRemaining <= 14) {
+          alertPromises.push(this.createAlert({
+            companyId,
+            type: 'warning',
+            category: 'driver',
+            title: 'Medical Card Expiring',
+            message: `${driverName}'s medical card expiring soon — ${daysRemaining} days remaining`,
+            entityType: 'driver',
+            entityId: driver._id,
+            daysRemaining,
+            deduplicationKey: `driver-medical-expiring-14-${driver._id}`
+          }));
         } else if (daysRemaining <= 30) {
           alertPromises.push(this.createAlert({
             companyId,
@@ -204,7 +252,7 @@ const alertService = {
             entityType: 'driver',
             entityId: driver._id,
             daysRemaining,
-            deduplicationKey: `driver-medical-expiring-${driver._id}`
+            deduplicationKey: `driver-medical-expiring-30-${driver._id}`
           }));
         }
       }
@@ -265,6 +313,30 @@ const alertService = {
             daysRemaining,
             deduplicationKey: `vehicle-inspection-overdue-${vehicle._id}`
           }));
+        } else if (daysRemaining <= 7) {
+          alertPromises.push(this.createAlert({
+            companyId,
+            type: 'critical',
+            category: 'vehicle',
+            title: 'Annual Inspection Due - Urgent',
+            message: `URGENT: ${vehicleName}'s annual inspection due in ${daysRemaining} days`,
+            entityType: 'vehicle',
+            entityId: vehicle._id,
+            daysRemaining,
+            deduplicationKey: `vehicle-inspection-urgent-7-${vehicle._id}`
+          }));
+        } else if (daysRemaining <= 14) {
+          alertPromises.push(this.createAlert({
+            companyId,
+            type: 'warning',
+            category: 'vehicle',
+            title: 'Annual Inspection Due',
+            message: `${vehicleName}'s annual inspection due soon — ${daysRemaining} days remaining`,
+            entityType: 'vehicle',
+            entityId: vehicle._id,
+            daysRemaining,
+            deduplicationKey: `vehicle-inspection-due-14-${vehicle._id}`
+          }));
         } else if (daysRemaining <= 30) {
           alertPromises.push(this.createAlert({
             companyId,
@@ -275,7 +347,7 @@ const alertService = {
             entityType: 'vehicle',
             entityId: vehicle._id,
             daysRemaining,
-            deduplicationKey: `vehicle-inspection-due-${vehicle._id}`
+            deduplicationKey: `vehicle-inspection-due-30-${vehicle._id}`
           }));
         }
       }
@@ -411,6 +483,30 @@ const alertService = {
           daysRemaining,
           deduplicationKey: `document-expired-${doc._id}`
         }));
+      } else if (daysRemaining <= 7) {
+        alertPromises.push(this.createAlert({
+          companyId,
+          type: 'critical',
+          category: 'document',
+          title: 'Document Expiring - Urgent',
+          message: `URGENT: ${doc.name} expires in ${daysRemaining} days`,
+          entityType: 'document',
+          entityId: doc._id,
+          daysRemaining,
+          deduplicationKey: `document-urgent-7-${doc._id}`
+        }));
+      } else if (daysRemaining <= 14) {
+        alertPromises.push(this.createAlert({
+          companyId,
+          type: 'warning',
+          category: 'document',
+          title: 'Document Expiring',
+          message: `${doc.name} expiring soon — ${daysRemaining} days remaining`,
+          entityType: 'document',
+          entityId: doc._id,
+          daysRemaining,
+          deduplicationKey: `document-expiring-14-${doc._id}`
+        }));
       } else if (daysRemaining <= 30) {
         alertPromises.push(this.createAlert({
           companyId,
@@ -421,7 +517,7 @@ const alertService = {
           entityType: 'document',
           entityId: doc._id,
           daysRemaining,
-          deduplicationKey: `document-expiring-${doc._id}`
+          deduplicationKey: `document-expiring-30-${doc._id}`
         }));
       }
     }
@@ -516,6 +612,38 @@ const alertService = {
       } else if (daysRemaining <= 7) {
         alertPromises.push(this.createAlert({
           companyId,
+          type: 'critical',
+          category: 'vehicle',
+          title: 'Maintenance Due - Urgent',
+          message: `URGENT: ${vehicleName} - ${record.recordType.replace(/_/g, ' ')} due in ${daysRemaining} days`,
+          entityType: 'maintenance',
+          entityId: record._id,
+          daysRemaining,
+          metadata: {
+            vehicleId: record.vehicleId._id,
+            recordType: record.recordType
+          },
+          deduplicationKey: `maintenance-urgent-7-${record._id}`
+        }));
+      } else if (daysRemaining <= 14) {
+        alertPromises.push(this.createAlert({
+          companyId,
+          type: 'warning',
+          category: 'vehicle',
+          title: 'Maintenance Due',
+          message: `${vehicleName} - ${record.recordType.replace(/_/g, ' ')} due soon — ${daysRemaining} days remaining`,
+          entityType: 'maintenance',
+          entityId: record._id,
+          daysRemaining,
+          metadata: {
+            vehicleId: record.vehicleId._id,
+            recordType: record.recordType
+          },
+          deduplicationKey: `maintenance-due-14-${record._id}`
+        }));
+      } else if (daysRemaining <= 30) {
+        alertPromises.push(this.createAlert({
+          companyId,
           type: 'warning',
           category: 'vehicle',
           title: 'Maintenance Due Soon',
@@ -527,7 +655,7 @@ const alertService = {
             vehicleId: record.vehicleId._id,
             recordType: record.recordType
           },
-          deduplicationKey: `maintenance-due-${record._id}`
+          deduplicationKey: `maintenance-due-30-${record._id}`
         }));
       }
     }
@@ -611,7 +739,10 @@ const alertService = {
       status: 'active',
       category: 'driver',
       entityType: 'driver',
-      title: { $in: ['CDL Expired', 'CDL Expiring Soon', 'Medical Card Expired', 'Medical Card Expiring Soon'] }
+      title: { $in: [
+        'CDL Expired', 'CDL Expiring Soon', 'CDL Expiring', 'CDL Expiring - Urgent',
+        'Medical Card Expired', 'Medical Card Expiring Soon', 'Medical Card Expiring', 'Medical Card Expiring - Urgent'
+      ] }
     });
 
     for (const alert of driverAlerts) {
@@ -630,8 +761,14 @@ const alertService = {
       if (expiryDate) {
         const daysRemaining = this._getDaysRemaining(expiryDate);
         const isExpiredAlert = alert.title.includes('Expired');
-        // Resolve if the document is now valid (>30 days out for "expiring soon", >0 for "expired")
-        if ((isExpiredAlert && daysRemaining > 0) || (!isExpiredAlert && daysRemaining > 30)) {
+        const isUrgentAlert = alert.title.includes('Urgent');
+        const isExpiringAlert = alert.title === 'CDL Expiring' || alert.title === 'Medical Card Expiring';
+        // Resolve based on tier: expired (>0 days), urgent (>7), expiring (>14), due soon (>30)
+        const shouldResolve = isExpiredAlert ? daysRemaining > 0
+          : isUrgentAlert ? daysRemaining > 7
+          : isExpiringAlert ? daysRemaining > 14
+          : daysRemaining > 30;
+        if (shouldResolve) {
           alert.status = 'resolved';
           alert.resolvedAt = new Date();
           alert.resolutionNotes = 'Auto-resolved: document renewed';
@@ -647,7 +784,7 @@ const alertService = {
       status: 'active',
       category: 'vehicle',
       entityType: 'vehicle',
-      title: { $in: ['Annual Inspection Overdue', 'Annual Inspection Due Soon'] }
+      title: { $in: ['Annual Inspection Overdue', 'Annual Inspection Due Soon', 'Annual Inspection Due', 'Annual Inspection Due - Urgent'] }
     });
 
     for (const alert of vehicleAlerts) {
@@ -679,7 +816,7 @@ const alertService = {
       status: 'active',
       category: 'document',
       entityType: 'document',
-      title: { $in: ['Document Expired', 'Document Expiring Soon'] }
+      title: { $in: ['Document Expired', 'Document Expiring Soon', 'Document Expiring', 'Document Expiring - Urgent'] }
     });
 
     for (const alert of docAlerts) {
@@ -696,7 +833,13 @@ const alertService = {
       if (doc.expiryDate) {
         const daysRemaining = this._getDaysRemaining(doc.expiryDate);
         const isExpiredAlert = alert.title === 'Document Expired';
-        if ((isExpiredAlert && daysRemaining > 0) || (!isExpiredAlert && daysRemaining > 30)) {
+        const isUrgentAlert = alert.title.includes('Urgent');
+        const isExpiringAlert = alert.title === 'Document Expiring';
+        const shouldResolve = isExpiredAlert ? daysRemaining > 0
+          : isUrgentAlert ? daysRemaining > 7
+          : isExpiringAlert ? daysRemaining > 14
+          : daysRemaining > 30;
+        if (shouldResolve) {
           alert.status = 'resolved';
           alert.resolvedAt = new Date();
           alert.resolutionNotes = 'Auto-resolved: document renewed';
@@ -771,13 +914,29 @@ const alertService = {
           entityType: 'driver', entityId: driver._id, daysRemaining,
           deduplicationKey: `driver-cdl-expired-${driver._id}`
         }));
+      } else if (daysRemaining <= 7) {
+        alertPromises.push(this.createAlert({
+          companyId, type: 'critical', category: 'driver',
+          title: 'CDL Expiring - Urgent',
+          message: `URGENT: ${driverName}'s CDL expires in ${daysRemaining} days`,
+          entityType: 'driver', entityId: driver._id, daysRemaining,
+          deduplicationKey: `driver-cdl-urgent-7-${driver._id}`
+        }));
+      } else if (daysRemaining <= 14) {
+        alertPromises.push(this.createAlert({
+          companyId, type: 'warning', category: 'driver',
+          title: 'CDL Expiring',
+          message: `${driverName}'s CDL expiring soon — ${daysRemaining} days remaining`,
+          entityType: 'driver', entityId: driver._id, daysRemaining,
+          deduplicationKey: `driver-cdl-expiring-14-${driver._id}`
+        }));
       } else if (daysRemaining <= 30) {
         alertPromises.push(this.createAlert({
           companyId, type: 'warning', category: 'driver',
           title: 'CDL Expiring Soon',
           message: `${driverName}'s CDL expires in ${daysRemaining} days`,
           entityType: 'driver', entityId: driver._id, daysRemaining,
-          deduplicationKey: `driver-cdl-expiring-${driver._id}`
+          deduplicationKey: `driver-cdl-expiring-30-${driver._id}`
         }));
       }
     }
@@ -793,13 +952,29 @@ const alertService = {
           entityType: 'driver', entityId: driver._id, daysRemaining,
           deduplicationKey: `driver-medical-expired-${driver._id}`
         }));
+      } else if (daysRemaining <= 7) {
+        alertPromises.push(this.createAlert({
+          companyId, type: 'critical', category: 'driver',
+          title: 'Medical Card Expiring - Urgent',
+          message: `URGENT: ${driverName}'s medical card expires in ${daysRemaining} days`,
+          entityType: 'driver', entityId: driver._id, daysRemaining,
+          deduplicationKey: `driver-medical-urgent-7-${driver._id}`
+        }));
+      } else if (daysRemaining <= 14) {
+        alertPromises.push(this.createAlert({
+          companyId, type: 'warning', category: 'driver',
+          title: 'Medical Card Expiring',
+          message: `${driverName}'s medical card expiring soon — ${daysRemaining} days remaining`,
+          entityType: 'driver', entityId: driver._id, daysRemaining,
+          deduplicationKey: `driver-medical-expiring-14-${driver._id}`
+        }));
       } else if (daysRemaining <= 30) {
         alertPromises.push(this.createAlert({
           companyId, type: 'warning', category: 'driver',
           title: 'Medical Card Expiring Soon',
           message: `${driverName}'s medical card expires in ${daysRemaining} days`,
           entityType: 'driver', entityId: driver._id, daysRemaining,
-          deduplicationKey: `driver-medical-expiring-${driver._id}`
+          deduplicationKey: `driver-medical-expiring-30-${driver._id}`
         }));
       }
     }
@@ -851,13 +1026,29 @@ const alertService = {
           entityType: 'vehicle', entityId: vehicle._id, daysRemaining,
           deduplicationKey: `vehicle-inspection-overdue-${vehicle._id}`
         }));
+      } else if (daysRemaining <= 7) {
+        alertPromises.push(this.createAlert({
+          companyId, type: 'critical', category: 'vehicle',
+          title: 'Annual Inspection Due - Urgent',
+          message: `URGENT: ${vehicleName}'s annual inspection due in ${daysRemaining} days`,
+          entityType: 'vehicle', entityId: vehicle._id, daysRemaining,
+          deduplicationKey: `vehicle-inspection-urgent-7-${vehicle._id}`
+        }));
+      } else if (daysRemaining <= 14) {
+        alertPromises.push(this.createAlert({
+          companyId, type: 'warning', category: 'vehicle',
+          title: 'Annual Inspection Due',
+          message: `${vehicleName}'s annual inspection due soon — ${daysRemaining} days remaining`,
+          entityType: 'vehicle', entityId: vehicle._id, daysRemaining,
+          deduplicationKey: `vehicle-inspection-due-14-${vehicle._id}`
+        }));
       } else if (daysRemaining <= 30) {
         alertPromises.push(this.createAlert({
           companyId, type: 'warning', category: 'vehicle',
           title: 'Annual Inspection Due Soon',
           message: `${vehicleName}'s annual inspection due in ${daysRemaining} days`,
           entityType: 'vehicle', entityId: vehicle._id, daysRemaining,
-          deduplicationKey: `vehicle-inspection-due-${vehicle._id}`
+          deduplicationKey: `vehicle-inspection-due-30-${vehicle._id}`
         }));
       }
     }
@@ -884,13 +1075,29 @@ const alertService = {
         entityType: 'document', entityId: doc._id, daysRemaining,
         deduplicationKey: `document-expired-${doc._id}`
       }));
+    } else if (daysRemaining <= 7) {
+      alertPromises.push(this.createAlert({
+        companyId, type: 'critical', category: 'document',
+        title: 'Document Expiring - Urgent',
+        message: `URGENT: ${doc.name} expires in ${daysRemaining} days`,
+        entityType: 'document', entityId: doc._id, daysRemaining,
+        deduplicationKey: `document-urgent-7-${doc._id}`
+      }));
+    } else if (daysRemaining <= 14) {
+      alertPromises.push(this.createAlert({
+        companyId, type: 'warning', category: 'document',
+        title: 'Document Expiring',
+        message: `${doc.name} expiring soon — ${daysRemaining} days remaining`,
+        entityType: 'document', entityId: doc._id, daysRemaining,
+        deduplicationKey: `document-expiring-14-${doc._id}`
+      }));
     } else if (daysRemaining <= 30) {
       alertPromises.push(this.createAlert({
         companyId, type: 'warning', category: 'document',
         title: 'Document Expiring Soon',
         message: `${doc.name} expires in ${daysRemaining} days`,
         entityType: 'document', entityId: doc._id, daysRemaining,
-        deduplicationKey: `document-expiring-${doc._id}`
+        deduplicationKey: `document-expiring-30-${doc._id}`
       }));
     }
 

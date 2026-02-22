@@ -317,6 +317,10 @@ const getDocumentStatus = (expiryDate) => {
 
   if (daysUntilExpiry < 0) {
     return 'expired';
+  } else if (daysUntilExpiry <= 7) {
+    return 'urgent';
+  } else if (daysUntilExpiry <= 14) {
+    return 'expiring';
   } else if (daysUntilExpiry <= 30) {
     return 'due_soon';
   } else {
