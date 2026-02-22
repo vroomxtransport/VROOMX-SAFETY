@@ -357,7 +357,7 @@ async function queryPerplexity(systemPrompt, userMessage, options) {
   try {
     console.log('[AI] Routing regulation query to Perplexity via OpenRouter');
     const response = await perplexityClient.chat.completions.create({
-      model: options.perplexityModel || 'perplexity/sonar-deep-research',
+      model: options.perplexityModel || 'perplexity/sonar-pro',
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userMessage }
