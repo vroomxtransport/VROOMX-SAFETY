@@ -1,10 +1,11 @@
+import { Link } from 'react-router-dom';
 import { FiArrowRight } from 'react-icons/fi';
 
-const FeaturedArticle = ({ article, onClick }) => {
+const FeaturedArticle = ({ article }) => {
   return (
-    <div
-      className="bg-white rounded-3xl overflow-hidden border border-[#E2E8F0] shadow-lg hover:shadow-xl hover:border-cta-500/30 group relative cursor-pointer transition-all duration-300"
-      onClick={() => onClick(article)}
+    <Link
+      to={`/blog/${article.slug}`}
+      className="block bg-white rounded-3xl overflow-hidden border border-[#E2E8F0] shadow-lg hover:shadow-xl hover:border-cta-500/30 group relative transition-all duration-300"
     >
       <div className="grid md:grid-cols-2 gap-0">
         <div className="h-64 md:h-auto min-h-[300px] relative overflow-hidden">
@@ -36,7 +37,7 @@ const FeaturedArticle = ({ article, onClick }) => {
           </span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

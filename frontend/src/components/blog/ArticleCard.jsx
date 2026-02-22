@@ -1,10 +1,11 @@
+import { Link } from 'react-router-dom';
 import { FiArrowRight } from 'react-icons/fi';
 
-const ArticleCard = ({ article, onClick }) => {
+const ArticleCard = ({ article }) => {
   return (
-    <div
-      className="bg-white rounded-2xl overflow-hidden flex flex-col border border-[#E2E8F0] shadow-md hover:shadow-lg hover:border-cta-500/30 group cursor-pointer transition-all duration-300"
-      onClick={() => onClick(article)}
+    <Link
+      to={`/blog/${article.slug}`}
+      className="bg-white rounded-2xl overflow-hidden flex flex-col border border-[#E2E8F0] shadow-md hover:shadow-lg hover:border-cta-500/30 group transition-all duration-300"
     >
       <div className="h-48 relative overflow-hidden">
         {article.image ? (
@@ -36,7 +37,7 @@ const ArticleCard = ({ article, onClick }) => {
           <FiArrowRight className="w-4 h-4" />
         </span>
       </div>
-    </div>
+    </Link>
   );
 };
 

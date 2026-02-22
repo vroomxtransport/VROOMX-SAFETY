@@ -5,6 +5,7 @@ import { useAuth } from './context/AuthContext';
 import Layout from './components/Layout';
 import Landing from './pages/Landing';
 import Blog from './pages/Blog';
+import ArticlePage from './pages/ArticlePage';
 import CSACheckerPage from './pages/CSACheckerPage';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
@@ -198,6 +199,7 @@ function App() {
 
         {/* Blog - public, accessible to everyone */}
         <Route path="/blog" element={<Blog />} />
+        <Route path="/blog/:slug" element={<ArticlePage />} />
 
         {/* CSA Checker - public lead magnet */}
         <Route path="/csa-checker" element={<CSACheckerPage />} />

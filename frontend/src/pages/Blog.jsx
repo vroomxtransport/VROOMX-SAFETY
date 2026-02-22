@@ -1,35 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import PublicHeader from '../components/PublicHeader';
-import { ArticleModal, ArticleCard, FeaturedArticle, BlogFooter } from '../components/blog';
+import { ArticleCard, FeaturedArticle, BlogFooter } from '../components/blog';
 import { categories, featuredArticle, articles } from '../data/blogPosts';
 import useForceLightMode from '../hooks/useForceLightMode';
+import SEO from '../components/SEO';
 
 const Blog = () => {
   useForceLightMode();
 
   const [activeCategory, setActiveCategory] = useState('all');
-  const [selectedArticle, setSelectedArticle] = useState(null);
-
-  // Lock body scroll when modal is open
-  useEffect(() => {
-    if (selectedArticle) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [selectedArticle]);
-
-  // Close modal on Escape key
-  useEffect(() => {
-    const handleEscape = (e) => {
-      if (e.key === 'Escape') setSelectedArticle(null);
-    };
-    window.addEventListener('keydown', handleEscape);
-    return () => window.removeEventListener('keydown', handleEscape);
-  }, []);
 
   const filteredArticles = activeCategory === 'all'
     ? articles
@@ -37,6 +16,12 @@ const Blog = () => {
 
   return (
     <div className="relative overflow-hidden w-full min-h-screen bg-[#F8FAFC] text-[#1E293B]">
+      <SEO
+        title="Compliance Insights Blog"
+        description="Expert advice on FMCSA regulations, audit preparation, fleet safety trends, and trucking compliance best practices."
+        path="/blog"
+      />
+
       {/* Background Elements */}
       <div className="fixed inset-0 z-0">
         <div className="absolute inset-0 bg-[#F8FAFC]"></div>
@@ -84,20 +69,13 @@ const Blog = () => {
 
           {/* Featured Article */}
           <div className="mb-16">
-            <FeaturedArticle
-              article={featuredArticle}
-              onClick={setSelectedArticle}
-            />
+            <FeaturedArticle article={featuredArticle} />
           </div>
 
           {/* Article Grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredArticles.map((article) => (
-              <ArticleCard
-                key={article.id}
-                article={article}
-                onClick={setSelectedArticle}
-              />
+              <ArticleCard key={article.id} article={article} />
             ))}
           </div>
         </div>
@@ -105,9 +83,6 @@ const Blog = () => {
 
       {/* Footer Sections */}
       <BlogFooter />
-
-      {/* Article Modal */}
-      <ArticleModal article={selectedArticle} onClose={() => setSelectedArticle(null)} />
     </div>
   );
 };
