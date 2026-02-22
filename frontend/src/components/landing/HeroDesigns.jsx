@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   FiArrowRight,
   FiPlay,
@@ -723,8 +723,6 @@ const getScoreStatus = (score, threshold) => {
 export const HeroDesign5 = ({ heroTextIndex, heroTexts }) => {
   const navigate = useNavigate();
   const { demoLogin } = useAuth();
-  const [searchParams] = useSearchParams();
-  const heroVariant = parseInt(searchParams.get('hero') || '1', 10);
   const [demoLoading, setDemoLoading] = useState(false);
   const [dotNumber, setDotNumber] = useState('');
   const [csaStep, setCsaStep] = useState('input'); // 'input' | 'loading' | 'preview'
@@ -820,159 +818,27 @@ export const HeroDesign5 = ({ heroTextIndex, heroTexts }) => {
 
   return (
     <section className="relative min-h-[85vh] overflow-hidden">
-      {/* === HERO BACKGROUND — use ?hero=1 through ?hero=5 to preview === */}
-
-      {/* Option 1: "Midnight Command" — Clean Solid Gradient */}
-      {heroVariant === 1 && (
-        <div className="absolute inset-0">
-          {/* Multi-stop diagonal gradient */}
-          <div className="absolute inset-0" style={{
-            background: 'linear-gradient(135deg, #050A12 0%, #0A1628 25%, #0D1F3C 50%, #0A1628 75%, #050A12 100%)',
-          }} />
-          {/* Faint orange radial glow behind CSA card area */}
-          <div className="absolute top-1/2 right-[20%] -translate-y-1/2 w-[500px] h-[500px] rounded-full opacity-[0.07]" style={{
-            background: 'radial-gradient(circle, #F97316 0%, transparent 70%)',
-          }} />
-          {/* Bottom vignette */}
-          <div className="absolute inset-0" style={{
-            background: 'linear-gradient(to top, rgba(5,10,18,0.6) 0%, transparent 40%)',
-          }} />
-        </div>
-      )}
-
-      {/* Option 2: "Grid Protocol" — Geometric Grid Pattern */}
-      {heroVariant === 2 && (
-        <div className="absolute inset-0">
-          {/* Dark navy gradient base */}
-          <div className="absolute inset-0" style={{
-            background: 'linear-gradient(160deg, #060D1A 0%, #0B1A30 40%, #0A1628 100%)',
-          }} />
-          {/* 60px grid lines */}
-          <div className="absolute inset-0 opacity-[0.06]" style={{
-            backgroundImage: `
-              linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)
-            `,
-            backgroundSize: '60px 60px',
-          }} />
-          {/* Diagonal orange accent lines — top-left */}
-          <div className="absolute inset-0 opacity-[0.08] overflow-hidden">
-            <div className="absolute -top-1/4 -left-1/4 w-3/4 h-3/4" style={{
-              background: 'repeating-linear-gradient(45deg, transparent, transparent 80px, rgba(249,115,22,0.3) 80px, rgba(249,115,22,0.3) 82px)',
-            }} />
-          </div>
-          {/* Faint scan lines for texture */}
-          <div className="absolute inset-0 opacity-[0.04]" style={{
-            backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.5) 2px, rgba(255,255,255,0.5) 4px)',
-          }} />
-        </div>
-      )}
-
-      {/* Option 3: "Northern Shield" — Mesh/Aurora Gradient */}
-      {heroVariant === 3 && (
-        <div className="absolute inset-0">
-          {/* Deep black base */}
-          <div className="absolute inset-0" style={{ background: '#050A12' }} />
-          {/* Large blurred navy blob — left */}
-          <div className="absolute top-[10%] left-[5%] w-[600px] h-[600px] rounded-full" style={{
-            background: 'radial-gradient(circle, rgba(13,31,60,0.8) 0%, transparent 70%)',
-            filter: 'blur(80px)',
-          }} />
-          {/* Teal blob — top right */}
-          <div className="absolute -top-[10%] right-[10%] w-[500px] h-[500px] rounded-full" style={{
-            background: 'radial-gradient(circle, rgba(20,80,100,0.5) 0%, transparent 70%)',
-            filter: 'blur(100px)',
-          }} />
-          {/* Subtle orange ember glow near CSA card */}
-          <div className="absolute top-[40%] right-[15%] w-[400px] h-[400px] rounded-full opacity-[0.08]" style={{
-            background: 'radial-gradient(circle, #F97316 0%, transparent 70%)',
-            filter: 'blur(60px)',
-          }} />
-          {/* SVG noise texture overlay for grain */}
-          <div className="absolute inset-0 opacity-[0.03]" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E")`,
-            backgroundSize: '128px 128px',
-          }} />
-          {/* Top-to-bottom fade for text legibility */}
-          <div className="absolute inset-0" style={{
-            background: 'linear-gradient(to bottom, rgba(5,10,18,0.3) 0%, transparent 30%, transparent 70%, rgba(5,10,18,0.5) 100%)',
-          }} />
-        </div>
-      )}
-
-      {/* Option 4: "Topo Compliance" — Topographic Contour Pattern */}
-      {heroVariant === 4 && (
-        <div className="absolute inset-0">
-          {/* Radial navy gradient base */}
-          <div className="absolute inset-0" style={{
-            background: 'radial-gradient(ellipse at 40% 50%, #0D1F3C 0%, #080F1E 50%, #050A12 100%)',
-          }} />
-          {/* SVG topographic contour circles */}
-          <div className="absolute inset-0 opacity-[0.05]">
-            <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <pattern id="topo" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse">
-                  <circle cx="100" cy="100" r="20" fill="none" stroke="white" strokeWidth="0.5" />
-                  <circle cx="100" cy="100" r="40" fill="none" stroke="white" strokeWidth="0.5" />
-                  <circle cx="100" cy="100" r="60" fill="none" stroke="white" strokeWidth="0.5" />
-                  <circle cx="100" cy="100" r="80" fill="none" stroke="white" strokeWidth="0.5" />
-                  <circle cx="100" cy="100" r="95" fill="none" stroke="white" strokeWidth="0.5" />
-                </pattern>
-              </defs>
-              <rect width="100%" height="100%" fill="url(#topo)" />
-            </svg>
-          </div>
-          {/* Dot grid overlay */}
-          <div className="absolute inset-0 opacity-[0.04]" style={{
-            backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)',
-            backgroundSize: '24px 24px',
-          }} />
-          {/* Center spotlight behind content area */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] rounded-full opacity-[0.08]" style={{
-            background: 'radial-gradient(ellipse, rgba(13,31,60,1) 0%, transparent 70%)',
-          }} />
-          {/* Thin orange accent line at bottom edge */}
-          <div className="absolute bottom-0 left-0 right-0 h-[2px] opacity-[0.35]" style={{
-            background: 'linear-gradient(to right, transparent 10%, #F97316 50%, transparent 90%)',
-          }} />
-        </div>
-      )}
-
-      {/* Option 5: "Divide & Conquer" — Bold Diagonal Split */}
-      {heroVariant === 5 && (
-        <div className="absolute inset-0">
-          {/* Left panel — lighter navy */}
-          <div className="absolute inset-0" style={{
-            background: '#0B1A30',
-            clipPath: 'polygon(0 0, 65% 0, 45% 100%, 0 100%)',
-          }} />
-          {/* Right panel — darker navy */}
-          <div className="absolute inset-0" style={{
-            background: '#050A12',
-            clipPath: 'polygon(65% 0, 100% 0, 100% 100%, 45% 100%)',
-          }} />
-          {/* Glowing orange accent stripe along the diagonal */}
-          <div className="absolute inset-0 opacity-[0.15]" style={{
-            background: 'linear-gradient(to right, transparent 43%, #F97316 45%, #F97316 46%, transparent 65%)',
-            clipPath: 'polygon(62% 0, 68% 0, 48% 100%, 42% 100%)',
-            filter: 'blur(20px)',
-          }} />
-          {/* Thin bright orange line along the diagonal edge */}
-          <div className="absolute inset-0 opacity-[0.35]">
-            <svg className="w-full h-full" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-              <line x1="65%" y1="0" x2="45%" y2="100%" stroke="#F97316" strokeWidth="1.5" />
-            </svg>
-          </div>
-          {/* Navy radial glow for text area (left) */}
-          <div className="absolute top-1/2 left-[25%] -translate-y-1/2 w-[500px] h-[500px] rounded-full opacity-[0.15]" style={{
-            background: 'radial-gradient(circle, rgba(13,31,60,1) 0%, transparent 70%)',
-          }} />
-          {/* Orange radial glow for CSA card area (right) */}
-          <div className="absolute top-1/2 right-[15%] -translate-y-1/2 w-[400px] h-[400px] rounded-full opacity-[0.08]" style={{
-            background: 'radial-gradient(circle, #F97316 0%, transparent 70%)',
-          }} />
-        </div>
-      )}
+      {/* === HERO BACKGROUND — Cinematic truck photo === */}
+      <div className="absolute inset-0">
+        {/* Background image */}
+        <img
+          src="/images/hero-bg-truck.png"
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover object-[center_40%]"
+        />
+        {/* Dark overlay for text legibility */}
+        <div className="absolute inset-0" style={{
+          background: 'linear-gradient(to right, rgba(5,10,18,0.75) 0%, rgba(5,10,18,0.5) 40%, rgba(5,10,18,0.35) 100%)',
+        }} />
+        {/* Bottom vignette */}
+        <div className="absolute inset-0" style={{
+          background: 'linear-gradient(to top, rgba(5,10,18,0.8) 0%, transparent 30%)',
+        }} />
+        {/* Top vignette */}
+        <div className="absolute inset-0" style={{
+          background: 'linear-gradient(to bottom, rgba(5,10,18,0.5) 0%, transparent 25%)',
+        }} />
+      </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 pt-24 pb-12 min-h-[85vh] flex items-center">
         <div className="grid lg:grid-cols-2 gap-10 items-center w-full">

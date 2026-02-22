@@ -30,8 +30,8 @@ const Landing = () => {
     const link = document.createElement('link');
     link.rel = 'preload';
     link.as = 'image';
-    link.href = '/images/hero-truck.webp';
-    link.type = 'image/webp';
+    link.href = '/images/hero-bg-truck.png';
+    link.type = 'image/png';
     document.head.appendChild(link);
     return () => { document.head.removeChild(link); };
   }, []);
