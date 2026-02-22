@@ -2,75 +2,13 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
   FiSearch, FiMail, FiAlertTriangle, FiCheckCircle, FiArrowRight,
-  FiShield, FiTruck, FiClock, FiAlertCircle, FiDroplet, FiUser,
-  FiZap, FiRefreshCw, FiActivity
+  FiZap, FiRefreshCw, FiActivity, FiAlertCircle
 } from 'react-icons/fi';
-
-// BASIC category configuration with short names for compact display
-const BASIC_CONFIG = [
-  { key: 'unsafeDriving', name: 'Unsafe Driving', shortName: 'Unsafe Drv', threshold: 65, icon: FiAlertTriangle },
-  { key: 'hosCompliance', name: 'HOS Compliance', shortName: 'HOS', threshold: 65, icon: FiClock },
-  { key: 'vehicleMaintenance', name: 'Vehicle Maint', shortName: 'Vehicle', threshold: 80, icon: FiTruck },
-  { key: 'crashIndicator', name: 'Crash Indicator', shortName: 'Crash', threshold: 65, icon: FiAlertCircle },
-  { key: 'controlledSubstances', name: 'Ctrl Substances', shortName: 'Drug/Alc', threshold: 80, icon: FiDroplet },
-  { key: 'hazmatCompliance', name: 'Hazmat', shortName: 'Hazmat', threshold: 80, icon: FiShield },
-  { key: 'driverFitness', name: 'Driver Fitness', shortName: 'Fitness', threshold: 80, icon: FiUser }
-];
-
-// Get color based on score and threshold
-const getScoreStatus = (score, threshold) => {
-  if (score === null || score === undefined) return { color: 'gray', label: 'N/A', status: 'none' };
-  if (score >= threshold) return { color: 'red', label: '!', status: 'danger' };
-  if (score >= threshold - 15) return { color: 'amber', label: '', status: 'warning' };
-  return { color: 'green', label: '', status: 'good' };
-};
-
-// Compact Score Row Component
-const CompactScoreRow = ({ basic, score, delay = 0 }) => {
-  const [width, setWidth] = useState(0);
-  const status = getScoreStatus(score, basic.threshold);
-  const Icon = basic.icon;
-
-  useEffect(() => {
-    if (score !== null && score !== undefined) {
-      const timer = setTimeout(() => setWidth(score), delay);
-      return () => clearTimeout(timer);
-    }
-  }, [score, delay]);
-
-  const barColors = {
-    green: 'bg-emerald-500',
-    amber: 'bg-amber-500',
-    red: 'bg-red-500',
-    gray: 'bg-gray-400'
-  };
-
-  const textColors = {
-    green: 'text-emerald-600',
-    amber: 'text-amber-600',
-    red: 'text-red-600',
-    gray: 'text-zinc-400 dark:text-zinc-400'
-  };
-
-  return (
-    <div className="flex items-center gap-2 py-1 group">
-      <Icon className={`w-3 h-3 flex-shrink-0 ${textColors[status.color]} opacity-60 group-hover:opacity-100 transition-opacity`} />
-      <span className="w-16 text-[10px] text-zinc-600 dark:text-zinc-300 truncate">{basic.shortName}</span>
-      <div className="flex-1 h-1.5 bg-[#E2E8F0] rounded-full overflow-hidden">
-        <div
-          className={`h-full rounded-full ${barColors[status.color]} transition-all duration-700 ease-out`}
-          style={{ width: `${width}%` }}
-        />
-      </div>
-      <span className={`w-8 text-right text-[10px] font-mono font-medium ${textColors[status.color]}`}>
-        {score !== null && score !== undefined ? `${score}%` : '—'}
-      </span>
-      {status.status === 'danger' && (
-        <span className="w-3 text-[9px] text-red-500 font-black">!</span>
-      )}
-    </div>
-  );
-};
+import CarrierProfileHeader from './csa-checker/CarrierProfileHeader';
+import BASICScorePanel from './csa-checker/BASICScorePanel';
+import OOSRatesPanel from './csa-checker/OOSRatesPanel';
+import CrashHistoryPanel from './csa-checker/CrashHistoryPanel';
+import DataQPreviewPanel from './csa-checker/DataQPreviewPanel';
 
 // Futuristic Loading Component
 const FuturisticLoader = ({ carrierNumber }) => {
@@ -116,7 +54,7 @@ const FuturisticLoader = ({ carrierNumber }) => {
   );
 };
 
-const CSAChecker = () => {
+const CSAChecker = ({ onExpandChange }) => {
   const [step, setStep] = useState('input');
   const [carrierNumber, setCarrierNumber] = useState('');
   const [email, setEmail] = useState('');
@@ -143,6 +81,14 @@ const CSAChecker = () => {
       inputRef.current.focus();
     }
   }, [step]);
+
+  // Notify parent of expand/collapse state changes
+  useEffect(() => {
+    if (onExpandChange) {
+      const isExpanded = step === 'preview' || step === 'full';
+      onExpandChange(isExpanded);
+    }
+  }, [step, onExpandChange]);
 
   const handleLookup = async (e) => {
     e.preventDefault();
@@ -239,8 +185,6 @@ const CSAChecker = () => {
     setError(null);
   };
 
-  const alertCount = carrierData?.alerts?.count || 0;
-
   return (
     <div className="csa-card-3d">
       <div className="relative bg-white backdrop-blur-xl rounded-xl overflow-hidden ring-1 ring-primary-500/20 border border-[#E2E8F0] shadow-xl shadow-primary-500/10">
@@ -255,7 +199,7 @@ const CSAChecker = () => {
             {(step === 'loading' || step === 'generating') && (
               <span className="text-[9px] font-mono text-cta-300 data-pulse">SCANNING...</span>
             )}
-            {step === 'preview' && (
+            {(step === 'preview' || step === 'full') && (
               <button
                 onClick={handleReset}
                 className="text-[9px] font-mono text-white/80 hover:text-white transition-colors flex items-center gap-1"
@@ -328,100 +272,69 @@ const CSAChecker = () => {
           <FuturisticLoader carrierNumber={carrierNumber} />
         )}
 
-        {/* ===== PREVIEW STATE ===== */}
+        {/* ===== PREVIEW STATE (Detailed Profile) ===== */}
         {step === 'preview' && carrierData && (
-          <div className="p-4">
-            {/* Compact Company Header */}
-            <div className="mb-3 pb-3 border-b border-[#E2E8F0]">
-              <div className="flex items-start justify-between gap-2 mb-1">
-                <h3 className="text-sm font-bold text-primary-500 truncate flex-1">
-                  {carrierData.carrier.legalName}
-                </h3>
-                {/* Data Source Badge */}
-                {carrierData.dataSource === 'FMCSA_SAFER' ? (
-                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-[8px] font-medium text-emerald-600 whitespace-nowrap">
-                    <FiCheckCircle className="w-2.5 h-2.5" />
-                    Live FMCSA
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-50 border border-amber-200 text-[8px] font-medium text-amber-600 whitespace-nowrap">
-                    Demo Data
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center gap-2 text-[10px] text-zinc-600 dark:text-zinc-300 font-mono">
-                <span>MC-{carrierData.carrier.mcNumber}</span>
-                <span className="text-[#94A3B8]">|</span>
-                <span>DOT-{carrierData.carrier.dotNumber}</span>
-                <span className="text-[#94A3B8]">|</span>
-                <span className={carrierData.carrier.operatingStatus === 'ACTIVE' ? 'text-emerald-500' : 'text-red-500'}>
-                  {carrierData.carrier.operatingStatus}
-                </span>
-              </div>
-            </div>
+          <div className="p-4 space-y-4">
+            {/* Carrier Profile Header */}
+            <CarrierProfileHeader
+              carrier={carrierData.carrier}
+              riskLevel={carrierData.riskLevel}
+              dataSource={carrierData.dataSource}
+            />
 
-            {/* Risk Level Badge */}
-            {carrierData.riskLevel && (
-              <div className={`mb-3 px-3 py-2 rounded-lg text-center ${
-                carrierData.riskLevel === 'HIGH' ? 'bg-red-500' :
-                carrierData.riskLevel === 'MODERATE' ? 'bg-amber-500' : 'bg-emerald-500'
-              }`}>
-                <span className="text-[10px] text-white/80 uppercase tracking-wider">Risk Level</span>
-                <p className="text-lg font-bold text-white">{carrierData.riskLevel} RISK</p>
+            <div className="border-t border-[#E2E8F0]" />
+
+            {/* BASIC Scores Panel */}
+            <BASICScorePanel
+              basics={carrierData.basics}
+              alerts={carrierData.alerts}
+            />
+
+            {/* OOS Rates + Crash History Grid */}
+            {(carrierData.oosRates || carrierData.crashDetail || carrierData.crashes) && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <OOSRatesPanel oosRates={carrierData.oosRates} />
+                <CrashHistoryPanel
+                  crashes={carrierData.crashes}
+                  crashDetail={carrierData.crashDetail}
+                />
               </div>
             )}
 
-            {/* Urgent Alert Banner */}
-            {alertCount > 0 && (
-              <div className="mb-3 px-3 py-2 rounded-lg bg-red-50 border border-red-200 flex items-center gap-2">
-                <FiAlertTriangle className="w-3.5 h-3.5 text-red-500 flex-shrink-0" />
-                <span className="text-[11px] text-red-600 font-medium">
-                  {alertCount} BASIC{alertCount > 1 ? 's' : ''} flagged — You're at risk of FMCSA intervention
-                </span>
-              </div>
-            )}
-
-            {/* Compact Score Grid */}
-            <div className="mb-3">
-              <div className="text-[9px] font-mono text-zinc-600 dark:text-zinc-300 uppercase tracking-wider mb-2">BASIC Scores</div>
-              <div className="space-y-0.5">
-                {BASIC_CONFIG.map((basic, index) => (
-                  <CompactScoreRow
-                    key={basic.key}
-                    basic={basic}
-                    score={carrierData.basics[basic.key]}
-                    delay={index * 80}
-                  />
-                ))}
-              </div>
-            </div>
+            {/* DataQ Preview */}
+            <DataQPreviewPanel dataQOpportunities={carrierData.dataQOpportunities} />
 
             {/* Mini Stats Row */}
-            <div className="mb-4 py-2 px-3 rounded-lg bg-[#F1F5F9] flex items-center justify-between text-center">
+            <div className="py-2 px-3 rounded-lg bg-[#F1F5F9] flex items-center justify-between text-center">
               <div>
                 <div className="text-sm font-bold text-primary-500">{carrierData.inspections?.last24Months || 0}</div>
-                <div className="text-[9px] text-zinc-600 dark:text-zinc-300">Inspections</div>
+                <div className="text-[9px] text-zinc-600 dark:text-zinc-300">Inspections (24mo)</div>
               </div>
               <div className="h-6 w-px bg-[#E2E8F0]" />
               <div>
                 <div className="text-sm font-bold text-primary-500">{carrierData.crashes?.last24Months || 0}</div>
-                <div className="text-[9px] text-zinc-600 dark:text-zinc-300">Crashes</div>
+                <div className="text-[9px] text-zinc-600 dark:text-zinc-300">Crashes (24mo)</div>
               </div>
               <div className="h-6 w-px bg-[#E2E8F0]" />
               <div>
-                <div className="text-sm font-bold text-primary-500">{carrierData.carrier.fleetSize?.powerUnits || '-'}</div>
-                <div className="text-[9px] text-zinc-600 dark:text-zinc-300">Units</div>
+                <div className="text-sm font-bold text-primary-500">{carrierData.carrier.fleetSize?.powerUnits || '—'}</div>
+                <div className="text-[9px] text-zinc-600 dark:text-zinc-300">Power Units</div>
+              </div>
+              <div className="h-6 w-px bg-[#E2E8F0]" />
+              <div>
+                <div className="text-sm font-bold text-primary-500">{carrierData.carrier.fleetSize?.drivers || '—'}</div>
+                <div className="text-[9px] text-zinc-600 dark:text-zinc-300">Drivers</div>
               </div>
             </div>
 
-            {/* Solution-Oriented Email Capture */}
+            {/* Email Capture CTA */}
             <div className="p-3 rounded-lg bg-primary-50 border border-primary-200">
               <div className="flex items-center gap-2 mb-1">
                 <FiZap className="w-3.5 h-3.5 text-cta-500" />
                 <span className="text-xs font-bold text-primary-500">Want to fix these scores?</span>
               </div>
               <p className="text-[10px] text-zinc-600 dark:text-zinc-300 mb-2">
-                Get a free action plan with DataQ challenge opportunities
+                Get a free AI-powered action plan with specific DataQ challenge recommendations
               </p>
               <form onSubmit={handleFullReport}>
                 <div className="flex gap-2 mb-2">

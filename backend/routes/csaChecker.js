@@ -71,10 +71,15 @@ router.post('/lookup', csaRateLimiter, [
     data: {
       carrier: {
         legalName: carrierData.carrier.legalName,
+        dbaName: carrierData.carrier.dbaName,
         dotNumber: carrierData.carrier.dotNumber,
         mcNumber: carrierData.carrier.mcNumber,
         operatingStatus: carrierData.carrier.operatingStatus,
-        state: carrierData.carrier.address.state,
+        address: carrierData.carrier.address,
+        phone: carrierData.carrier.phone,
+        entityType: carrierData.carrier.entityType,
+        operationType: carrierData.carrier.operationType,
+        cargoTypes: carrierData.carrier.cargoTypes,
         fleetSize: carrierData.carrier.fleetSize,
         safetyRating: carrierData.carrier.safetyRating
       },
@@ -83,6 +88,17 @@ router.post('/lookup', csaRateLimiter, [
       riskLevel,
       inspections: carrierData.inspections,
       crashes: carrierData.crashes,
+      oosRates: {
+        vehicle: {
+          rate: carrierData.vehicleOOSPercent ?? null,
+          nationalAvg: carrierData.vehicleNationalAvg ?? null
+        },
+        driver: {
+          rate: carrierData.driverOOSPercent ?? null,
+          nationalAvg: carrierData.driverNationalAvg ?? null
+        }
+      },
+      crashDetail: carrierData.crashDetail ?? null,
       dataSource: carrierData.dataSource,
       disclaimer: carrierData.disclaimer,
       dataQOpportunities

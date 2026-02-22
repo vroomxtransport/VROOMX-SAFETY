@@ -163,6 +163,7 @@ const AnimatedStat = ({ end, suffix = '', label }) => {
 const CSACheckerPage = () => {
   useForceLightMode();
   const [openFaq, setOpenFaq] = useState(null);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   return (
     <div className="relative overflow-hidden w-full min-h-screen bg-[#F8FAFC] text-[#1E293B]">
@@ -227,7 +228,7 @@ const CSACheckerPage = () => {
 
       {/* CSA Checker Widget Section */}
       <section className="relative z-10 py-12 px-6">
-        <div className="max-w-xl mx-auto">
+        <div className={`mx-auto transition-all duration-500 ease-in-out ${isExpanded ? 'max-w-5xl' : 'max-w-xl'}`}>
           {/* Decorative elements around widget */}
           <div className="relative">
             {/* Glow effect */}
@@ -255,7 +256,7 @@ const CSACheckerPage = () => {
 
             {/* The actual CSA Checker widget */}
             <div className="relative">
-              <CSAChecker />
+              <CSAChecker onExpandChange={setIsExpanded} />
             </div>
           </div>
 
