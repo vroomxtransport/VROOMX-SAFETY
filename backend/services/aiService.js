@@ -11,9 +11,29 @@ const openaiClient = process.env.OPENAI_API_KEY
   ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
   : null;
 
+// Initialize Perplexity client for regulation assistant via OpenRouter
+const perplexityClient = process.env.PERPLEXITY_API_KEY
+  ? new OpenAI({
+      apiKey: process.env.PERPLEXITY_API_KEY,
+      baseURL: 'https://openrouter.ai/api/v1',
+      defaultHeaders: {
+        'HTTP-Referer': 'https://vroomxsafety.com',
+        'X-Title': 'VroomX Compliance Hub'
+      }
+    })
+  : null;
+
+if (perplexityClient) {
+  console.log('[AI] Perplexity client initialized via OpenRouter');
+} else {
+  console.warn('[AI] WARNING: PERPLEXITY_API_KEY not set — regulation assistant will not work');
+}
+
 // System prompts for different AI features
 const SYSTEM_PROMPTS = {
   regulationAssistant: `You are a FMCSA compliance expert assistant for trucking companies. You help with questions about federal motor carrier safety regulations.
+
+You have access to live web search. When answering, search for the most current version of the regulation from official FMCSA and eCFR sources. Always cite your sources with URLs when available.
 
 Your expertise covers:
 - 49 CFR Part 391 (Qualifications of Drivers and Longer Combination Vehicle Driver Instructors)
@@ -247,6 +267,14 @@ async function query(promptType, userMessage, options = {}) {
     throw new Error(`Unknown prompt type: ${promptType}`);
   }
 
+  // Regulation assistant always uses Perplexity for live web-grounded answers
+  if (promptType === 'regulationAssistant') {
+    if (!perplexityClient) {
+      throw new Error('PERPLEXITY_API_KEY is required for the Regulation Assistant');
+    }
+    return queryPerplexity(systemPrompt, userMessage, options);
+  }
+
   // Use Anthropic if available, otherwise fall back to OpenAI
   if (client) {
     return queryAnthropic(systemPrompt, userMessage, options);
@@ -315,6 +343,50 @@ async function queryOpenAI(systemPrompt, userMessage, options) {
 
     if (error.status === 401) {
       throw new Error('Invalid OpenAI API key');
+    } else if (error.status === 429) {
+      throw new Error('Rate limit exceeded. Please try again in a moment.');
+    } else if (error.status === 500) {
+      throw new Error('AI service temporarily unavailable');
+    }
+
+    throw error;
+  }
+}
+
+async function queryPerplexity(systemPrompt, userMessage, options) {
+  try {
+    console.log('[AI] Routing regulation query to Perplexity via OpenRouter');
+    const response = await perplexityClient.chat.completions.create({
+      model: options.perplexityModel || 'perplexity/sonar-deep-research',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userMessage }
+      ]
+    });
+
+    // Perplexity returns citations in the response object
+    let content = response.choices[0].message.content;
+    const citations = response.citations || [];
+
+    // Append citations as a sources section if available
+    if (citations.length > 0) {
+      content += '\n\n**Sources:**\n' + citations.map((url, i) => `${i + 1}. ${url}`).join('\n');
+    }
+
+    return {
+      success: true,
+      content,
+      usage: {
+        inputTokens: response.usage?.prompt_tokens || 0,
+        outputTokens: response.usage?.completion_tokens || 0
+      },
+      model: response.model
+    };
+  } catch (error) {
+    console.error('Perplexity AI Error:', error.message);
+
+    if (error.status === 401) {
+      throw new Error('Invalid Perplexity API key');
     } else if (error.status === 429) {
       throw new Error('Rate limit exceeded. Please try again in a moment.');
     } else if (error.status === 500) {
