@@ -14,7 +14,7 @@ import {
   FiX, FiBell, FiLogOut, FiChevronDown, FiShield, FiTag, FiMessageCircle, FiDollarSign,
   FiStar, FiActivity, FiCopy, FiSun, FiMoon,
   FiChevronsLeft, FiChevronsRight, FiCheckSquare, FiClipboard, FiTool, FiAlertOctagon,
-  FiBookOpen, FiLink, FiTarget, FiArrowLeft, FiSend
+  FiBookOpen, FiLink, FiArrowLeft, FiSend
 } from 'react-icons/fi';
 
 const navigation = [
@@ -28,7 +28,6 @@ const navigation = [
   // Management section
   { section: 'MANAGEMENT' },
   { name: 'FMCSA Dashboard', path: '/app/compliance', icon: FiBarChart2 },
-  { name: 'DataQ Challenges', path: '/app/dataq-dashboard', icon: FiTarget, isAI: true },
   { name: 'Driver Files', path: '/app/drivers', icon: FiUsers },
   { name: 'Vehicle Files', path: '/app/vehicles', icon: FiTruck },
   { name: 'Maintenance', path: '/app/maintenance', icon: FiTool },
@@ -39,6 +38,7 @@ const navigation = [
   { name: 'Accidents', path: '/app/accidents', icon: FiAlertOctagon },
   { name: 'Damage Claims', path: '/app/damage-claims', icon: FiDollarSign },
   { name: 'Drug & Alcohol', path: '/app/drug-alcohol', icon: FiDroplet },
+  { name: 'Clearinghouse', path: '/app/clearinghouse', icon: FiShield },
 
   // Company Files section
   { section: 'COMPANY FILES' },

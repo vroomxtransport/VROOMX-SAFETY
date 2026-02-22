@@ -269,6 +269,17 @@ export const drugAlcoholAPI = {
   recordClearinghouseQuery: (data) => api.post('/drug-alcohol/clearinghouse-query', data)
 };
 
+export const clearinghouseAPI = {
+  getDashboard: () => api.get('/clearinghouse/dashboard'),
+  getDrivers: (params) => api.get('/clearinghouse/drivers', { params }),
+  getQueries: (params) => api.get('/clearinghouse/queries', { params }),
+  getQueryById: (id) => api.get(`/clearinghouse/queries/${id}`),
+  recordQuery: (data) => api.post('/clearinghouse/queries', data),
+  updateQuery: (id, data) => api.put(`/clearinghouse/queries/${id}`, data),
+  getViolationsPending: () => api.get('/clearinghouse/violations-pending'),
+  getRtdPipeline: () => api.get('/clearinghouse/rtd-pipeline')
+};
+
 export const documentsAPI = {
   getAll: (params) => api.get('/documents', { params }),
   getById: (id) => api.get(`/documents/${id}`),

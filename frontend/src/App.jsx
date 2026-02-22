@@ -32,7 +32,7 @@ import Maintenance from './pages/Maintenance';
 import Accidents from './pages/Accidents';
 import Policies from './pages/Policies';
 import Integrations from './pages/Integrations';
-import DataQDashboard from './pages/DataQDashboard';
+import Clearinghouse from './pages/Clearinghouse';
 
 import LoadingSpinner from './components/LoadingSpinner';
 import PageTransition from './components/PageTransition';
@@ -262,7 +262,8 @@ function App() {
           <Route path="accidents" element={<Accidents />} />
           <Route path="policies" element={<Policies />} />
           <Route path="integrations" element={<Integrations />} />
-          <Route path="dataq-dashboard" element={<DataQDashboard />} />
+          <Route path="clearinghouse" element={<Clearinghouse />} />
+          <Route path="dataq-dashboard" element={<Navigate to="/app/compliance?tab=dataq" replace />} />
           <Route path="clean-inspections" element={<Navigate to="/app/compliance" replace />} />
         </Route>
 

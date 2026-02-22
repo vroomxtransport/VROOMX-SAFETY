@@ -38,6 +38,7 @@ const bugReportRoutes = require('./bugReports');
 const cleanInspectionRoutes = require('./cleanInspections');
 const dataqAnalyticsRoutes = require('./dataqAnalytics');
 const violationCodeRoutes = require('./violationCodes');
+const clearinghouseRoutes = require('./clearinghouse');
 
 // Apply demo guard globally - blocks write operations for demo users.
 // NOTE: demoGuard checks req.user.isDemo, which requires the protect middleware
@@ -84,5 +85,6 @@ router.use('/bug-reports', bugReportRoutes);
 router.use('/clean-inspections', cleanInspectionRoutes);
 router.use('/dataq-analytics', dataqAnalyticsRoutes);
 router.use('/violation-codes', violationCodeRoutes);
+router.use('/clearinghouse', clearinghouseRoutes);
 
 module.exports = router;

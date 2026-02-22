@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, lazy, Suspense } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { dashboardAPI, fmcsaAPI } from '../utils/api';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, Legend, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from 'recharts';
 import toast from 'react-hot-toast';
@@ -13,9 +14,11 @@ import { formatDate } from '../utils/helpers';
 
 const Violations = lazy(() => import('./Violations'));
 const CleanInspectionPanel = lazy(() => import('../components/CleanInspectionPanel'));
+const DataQDashboard = lazy(() => import('./DataQDashboard'));
 
 const Compliance = () => {
-  const [activeTab, setActiveTab] = useState('overview');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(() => searchParams.get('tab') || 'overview');
   const [dashboard, setDashboard] = useState(null);
   const [auditReadiness, setAuditReadiness] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -45,7 +48,8 @@ const Compliance = () => {
     { key: 'clean-inspections', label: 'Clean Inspections', icon: FiCheckCircle },
     { key: 'summary', label: 'FMCSA Summary', icon: FiFileText },
     { key: 'trends', label: 'Trends', icon: FiTrendingUp },
-    { key: 'estimator', label: 'Estimator', icon: FiTarget, badge: 'BETA' }
+    { key: 'estimator', label: 'Estimator', icon: FiTrendingUp, badge: 'BETA' },
+    { key: 'dataq', label: 'DataQ Challenges', icon: FiTarget }
   ];
 
   useEffect(() => {
@@ -693,6 +697,10 @@ const Compliance = () => {
       ) : activeTab === 'clean-inspections' ? (
         <Suspense fallback={<div className="flex justify-center py-16"><LoadingSpinner size="lg" /></div>}>
           <CleanInspectionPanel />
+        </Suspense>
+      ) : activeTab === 'dataq' ? (
+        <Suspense fallback={<div className="flex justify-center py-16"><LoadingSpinner size="lg" /></div>}>
+          <DataQDashboard embedded />
         </Suspense>
       ) : (
         <CSAEstimatorContent />

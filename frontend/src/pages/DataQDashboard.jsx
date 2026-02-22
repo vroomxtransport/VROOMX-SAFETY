@@ -25,7 +25,7 @@ const CATEGORY_FILTERS = [
   { key: 'unlikely', label: 'Unlikely', color: 'bg-zinc-100 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700' }
 ];
 
-const DataQDashboard = () => {
+const DataQDashboard = ({ embedded = false }) => {
   const [activeTab, setActiveTab] = useState('challenge-manager');
   const [stats, setStats] = useState(null);
   const [opportunities, setOpportunities] = useState([]);
@@ -192,7 +192,8 @@ const DataQDashboard = () => {
 
   return (
     <div className="space-y-4 lg:space-y-6">
-      {/* Page Header */}
+      {/* Page Header - hidden when embedded in FMCSA Dashboard */}
+      {!embedded && (
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
@@ -229,6 +230,7 @@ const DataQDashboard = () => {
           </button>
         </div>
       </div>
+      )}
 
       {/* Last scan info */}
       {healthStats?.lastScanDate && (
