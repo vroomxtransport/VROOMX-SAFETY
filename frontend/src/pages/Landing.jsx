@@ -21,7 +21,6 @@ import {
   faqData,
 } from '../data/landingData';
 import useForceLightMode from '../hooks/useForceLightMode';
-import PaletteSwitcher from '../components/landing/PaletteSwitcher';
 
 const Landing = () => {
   useForceLightMode();
@@ -364,8 +363,6 @@ const Landing = () => {
       {/* Footer */}
       <FooterSection />
 
-      {/* Palette Switcher (dev preview) */}
-      <PaletteSwitcher />
     </div>
   );
 };
