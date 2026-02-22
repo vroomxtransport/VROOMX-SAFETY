@@ -14,6 +14,25 @@ const ChatMessage = ({ message, isUser }) => {
     }
   };
 
+  // Turn URLs and **bold** into React elements
+  const linkify = (text) => {
+    const parts = text.split(/(https?:\/\/[^\s),]+|\*\*[^*]+\*\*)/g);
+    return parts.map((part, i) => {
+      if (part.match(/^https?:\/\//)) {
+        return (
+          <a key={i} href={part} target="_blank" rel="noopener noreferrer"
+             className="text-accent-600 dark:text-accent-400 underline hover:text-accent-700 dark:hover:text-accent-300 break-all">
+            {part}
+          </a>
+        );
+      }
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={i} className="font-semibold text-zinc-800 dark:text-zinc-200">{part.slice(2, -2)}</strong>;
+      }
+      return part;
+    });
+  };
+
   // Format markdown-like content
   const formatContent = (content) => {
     if (!content) return null;
@@ -26,7 +45,7 @@ const ChatMessage = ({ message, isUser }) => {
       if (para.startsWith('## ')) {
         return (
           <h3 key={i} className="font-semibold text-zinc-900 dark:text-zinc-100 mt-3 mb-2">
-            {para.replace('## ', '')}
+            {linkify(para.replace('## ', ''))}
           </h3>
         );
       }
@@ -38,7 +57,7 @@ const ChatMessage = ({ message, isUser }) => {
           return (
             <div key={i} className="mt-2">
               <span className="font-semibold text-zinc-800 dark:text-zinc-200">{match[1]}:</span>
-              <span className="text-zinc-700 dark:text-zinc-300"> {match[2]}</span>
+              <span className="text-zinc-700 dark:text-zinc-300"> {linkify(match[2])}</span>
             </div>
           );
         }
@@ -50,7 +69,7 @@ const ChatMessage = ({ message, isUser }) => {
         return (
           <ul key={i} className="list-disc list-inside space-y-1 mt-2 text-zinc-700 dark:text-zinc-300">
             {items.map((item, j) => (
-              <li key={j}>{item.replace(/^- /, '')}</li>
+              <li key={j}>{linkify(item.replace(/^- /, ''))}</li>
             ))}
           </ul>
         );
@@ -62,7 +81,7 @@ const ChatMessage = ({ message, isUser }) => {
         return (
           <ol key={i} className="list-decimal list-inside space-y-1 mt-2 text-zinc-700 dark:text-zinc-300">
             {items.map((item, j) => (
-              <li key={j}>{item.replace(/^\d+\.\s/, '')}</li>
+              <li key={j}>{linkify(item.replace(/^\d+\.\s/, ''))}</li>
             ))}
           </ol>
         );
@@ -71,7 +90,7 @@ const ChatMessage = ({ message, isUser }) => {
       // Regular paragraph
       return (
         <p key={i} className="text-zinc-700 dark:text-zinc-300 mt-2 first:mt-0">
-          {para}
+          {linkify(para)}
         </p>
       );
     });
