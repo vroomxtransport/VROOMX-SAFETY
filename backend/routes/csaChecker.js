@@ -9,10 +9,94 @@ const { body, validationResult } = require('express-validator');
 const rateLimit = require('express-rate-limit');
 const Lead = require('../models/Lead');
 const fmcsaService = require('../services/fmcsaService');
+const fmcsaInspectionService = require('../services/fmcsaInspectionService');
 const aiService = require('../services/aiService');
 const emailService = require('../services/emailService');
 const pdfService = require('../services/pdfService');
+const { lookupViolationCode } = require('../config/violationCodes');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
+
+// Keywords that indicate a moving violation (fallback when code lookup doesn't match)
+const MOVING_KEYWORDS = [
+  'speeding', 'speed', 'mph over', 'reckless', 'careless', 'lane change',
+  'failure to yield', 'following too close', 'tailgating', 'traffic control',
+  'traffic signal', 'stop sign', 'red light', 'improper passing', 'improper turn',
+  'texting', 'cell phone', 'cellular phone', 'hand-held', 'mobile phone',
+  'railroad crossing', 'seat belt', 'seatbelt'
+];
+
+/**
+ * Classify raw DataHub violations using violationCodes.js isMoving flags
+ * Falls back to BASIC category + description keywords when code format doesn't match
+ */
+function classifyViolations(rawViolations) {
+  if (!rawViolations || rawViolations.length === 0) return null;
+
+  const now = new Date();
+
+  const enriched = rawViolations.map(v => {
+    const codeInfo = lookupViolationCode(v.code);
+    const inspDate = v.inspectionDate ? new Date(v.inspectionDate) : null;
+    const ageMonths = inspDate ? Math.round((now - inspDate) / (1000 * 60 * 60 * 24 * 30.44)) : null;
+
+    let timeDecayNote = null;
+    if (ageMonths !== null) {
+      if (ageMonths < 12) timeDecayNote = 'full weight';
+      else if (ageMonths < 18) timeDecayNote = 'reduced weight (past 12mo)';
+      else if (ageMonths < 24) timeDecayNote = 'minimal weight (drops off at 24mo)';
+      else timeDecayNote = 'expired (past 24mo)';
+    }
+
+    let dropOffDate = null;
+    if (inspDate) {
+      const dropOff = new Date(inspDate);
+      dropOff.setMonth(dropOff.getMonth() + 24);
+      dropOffDate = dropOff.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    }
+
+    const dateStr = inspDate
+      ? inspDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+      : 'unknown date';
+
+    // Determine if moving: code-based lookup first, then keyword fallback
+    let isMoving = codeInfo.isMoving === true;
+    if (!isMoving && codeInfo.unknown && v.basic === 'unsafe_driving') {
+      // Fallback: unsafe_driving BASIC + description keyword matching
+      const searchText = `${v.description || ''} ${v.section || ''} ${v.group || ''}`.toLowerCase();
+      isMoving = MOVING_KEYWORDS.some(kw => searchText.includes(kw));
+    }
+
+    return {
+      code: v.code,
+      description: codeInfo.unknown ? v.description : (codeInfo.description || v.description),
+      basic: v.basic,
+      severityWeight: v.severityWeight,
+      isMoving,
+      isOOS: v.oos === true,
+      dateStr,
+      ageMonths,
+      timeDecayNote,
+      dropOffDate
+    };
+  }).filter(v => v.ageMonths === null || v.ageMonths < 24); // Only violations still on record
+
+  const movingViolations = enriched.filter(v => v.isMoving);
+  const byBasic = {};
+  for (const v of enriched) {
+    if (!byBasic[v.basic]) byBasic[v.basic] = [];
+    byBasic[v.basic].push(v);
+  }
+
+  return {
+    total: enriched.length,
+    movingCount: movingViolations.length,
+    nonMovingCount: enriched.length - movingViolations.length,
+    oosCount: enriched.filter(v => v.isOOS).length,
+    movingViolations,
+    byBasic,
+    all: enriched
+  };
+}
 
 // Rate limiting for public CSA checker endpoints
 const csaRateLimiter = rateLimit({
@@ -128,11 +212,26 @@ router.post('/full-report', csaRateLimiter, [
   }
 
   const { carrierNumber, email } = req.body;
+  const dotNumber = carrierNumber.replace(/[^0-9]/g, '');
 
-  const carrierData = await fmcsaService.fetchCarrierData(carrierNumber);
+  // Fetch carrier data (SAFER scrape) and violations (DataHub API) in parallel
+  const [carrierResult, violationsResult] = await Promise.allSettled([
+    fmcsaService.fetchCarrierData(carrierNumber),
+    fmcsaInspectionService.fetchViolationsFromDataHub(dotNumber)
+  ]);
 
-  if (!carrierData.success) {
+  if (carrierResult.status === 'rejected' || !carrierResult.value?.success) {
     throw new AppError('Carrier not found', 404);
+  }
+
+  const carrierData = carrierResult.value;
+
+  // Violations are optional — graceful degradation if DataHub fails
+  let violations = null;
+  if (violationsResult.status === 'fulfilled') {
+    violations = classifyViolations(violationsResult.value);
+  } else {
+    console.warn(`[CSA Checker] DataHub fetch failed for DOT ${dotNumber}: ${violationsResult.reason?.message}`);
   }
 
   const clientIp = req.ip || req.connection.remoteAddress;
@@ -140,12 +239,44 @@ router.post('/full-report', csaRateLimiter, [
   // Check if lead already exists
   let lead = await Lead.findByEmail(email);
 
+  // Build violation context for AI prompt
+  let violationContext = '';
+  if (violations && violations.total > 0) {
+    violationContext = `\nACTUAL VIOLATION RECORDS (from FMCSA DataHub, pre-classified):
+Total violations on record: ${violations.total}
+Moving violations: ${violations.movingCount}
+Non-moving violations: ${violations.nonMovingCount}
+Out-of-service violations: ${violations.oosCount}\n`;
+
+    if (violations.movingCount > 0) {
+      violationContext += `\nMOVING VIOLATIONS:\n`;
+      violations.movingViolations.forEach(v => {
+        violationContext += `- ${v.code} "${v.description}" | Severity: ${v.severityWeight}/10 | ${v.dateStr} (${v.ageMonths}mo ago) | OOS: ${v.isOOS ? 'YES' : 'No'} | ${v.timeDecayNote} | Drops off: ${v.dropOffDate}\n`;
+      });
+    }
+
+    violationContext += `\nVIOLATIONS BY BASIC CATEGORY:\n`;
+    for (const [basic, viols] of Object.entries(violations.byBasic)) {
+      const top = viols.slice(0, 5);
+      const remaining = viols.length - top.length;
+      violationContext += `[${basic}] (${viols.length} total):\n`;
+      top.forEach(v => {
+        violationContext += `  - ${v.code} "${v.description}" | Sev: ${v.severityWeight} | ${v.isMoving ? 'MOVING' : 'non-moving'} | ${v.ageMonths}mo ago | OOS: ${v.isOOS ? 'YES' : 'No'}\n`;
+      });
+      if (remaining > 0) {
+        violationContext += `  ... and ${remaining} more\n`;
+      }
+    }
+  } else {
+    violationContext = `\nNOTE: No individual violation records were available from FMCSA DataHub for this carrier. Base your analysis only on the BASIC percentile scores above. Do not fabricate specific violations.\n`;
+  }
+
   // Generate AI analysis
   let aiAnalysis = null;
   try {
-    const aiResponse = await aiService.query('csaAnalyzer', `Analyze this carrier's CSA profile and provide a structured report.
+    const aiResponse = await aiService.query('csaAnalyzer', `Analyze this carrier's CSA profile. Write a personalized report based on their actual data.
 
-CARRIER DATA:
+CARRIER:
 - Name: ${carrierData.carrier.legalName}
 - DOT#: ${carrierData.carrier.dotNumber}
 - Fleet: ${carrierData.carrier.fleetSize.powerUnits} power units, ${carrierData.carrier.fleetSize.drivers} drivers
@@ -157,53 +288,30 @@ BASIC SCORES (threshold in parentheses):
 - Vehicle Maintenance: ${carrierData.basics.vehicleMaintenance ?? 'N/A'}% (80%)
 - Crash Indicator: ${carrierData.basics.crashIndicator ?? 'N/A'}% (65%)
 - Controlled Substances: ${carrierData.basics.controlledSubstances ?? 'N/A'}% (80%)
-- Hazmat Compliance: ${carrierData.basics.hazmatCompliance ?? 'N/A'}% (80%)
+- Hazmat: ${carrierData.basics.hazmatCompliance ?? 'N/A'}% (80%)
 - Driver Fitness: ${carrierData.basics.driverFitness ?? 'N/A'}% (80%)
 
 RECENT HISTORY:
 - Inspections (24mo): ${carrierData.inspections.last24Months}
 - Crashes (24mo): ${carrierData.crashes.last24Months}
 - BASICs Above Threshold: ${carrierData.alerts.count}
+${violationContext}
+Write your report with these exact section headers (plain text, all caps, on their own line):
 
-FORMAT YOUR RESPONSE EXACTLY LIKE THIS (use these exact headers):
+THE BOTTOM LINE
+[2-3 sentences: their risk level and the single most important thing they need to know]
 
-📊 QUICK SUMMARY
-[2-3 sentences about their overall compliance status and risk level]
+WHAT I SEE IN YOUR DATA
+[Reference their actual violations by code. What patterns stand out? Which BASICs are hurting them and why? If they have moving violations, call each one out by name and date.]
 
-⚠️ ISSUES FOUND
-[Bullet list of specific problems - BASICs above threshold, concerning trends, etc. If no issues, say "No critical issues found"]
+WHAT I WOULD DO
+[3-4 specific actions based on THEIR violations — not generic advice. Reference specific codes, dates, and time-decay windows. Example: "That 392.2S speeding from October is worth 5 severity points and drops off in Oct 2027. If the speed limit posting was unclear, a DataQ challenge could remove it now."]
 
-✅ YOUR 3-STEP ACTION PLAN
-1. [First action - be specific]
-2. [Second action - be specific]
-3. [Third action - be specific]
+MOVING VIOLATIONS
+[If they have moving violations: list each with code, description, date, severity. Explain that an FMCSA-experienced attorney can sometimes get them reclassified or dismissed. If zero moving violations, say "No moving violations on record — that is good news for your Unsafe Driving BASIC."]
 
-🔍 DATAQ CHALLENGE OPPORTUNITIES
-[For each BASIC above or near threshold:
-- Category name + score/threshold
-- 2-3 specific violation TYPES with CFR codes (e.g., "395.8 ELD issues" for HOS, "393.45 brake violations" for Vehicle Maintenance)
-- Recommended challenge approach (data_error, procedural_error, incomplete_record)
-- Use "High potential" for flagged BASICs, "Moderate potential" for near-threshold
-If no BASICs are flagged or near threshold, say "No urgent DataQ opportunities detected at this time. Continue monitoring your scores."]
-
-⚖️ MOVING VIOLATION ALERT
-[Classify mentioned violations as MOVING or NON-MOVING:
-- MOVING: speeding (392.2S), reckless driving (392.2R), improper lane change (392.2LC), failure to yield (392.2FYR), following too closely (392.2T), traffic control (392.2FTC), improper passing (392.2P), improper turns (392.2U), texting (392.80), phone use (392.82), railroad crossing (392.10), seat belt (392.16)
-- NON-MOVING: equipment (393.x, 396.x), HOS (395.x), fitness (391.x), substances (382.x)
-
-For each MOVING violation found:
-- Code + description + "⚠️ MOVING VIOLATION"
-- "This moving violation may be eligible for reclassification. An attorney experienced in FMCSA violations can potentially get it reclassified to non-moving or removed entirely, reducing your CSA score impact."
-
-If no moving violations detected, say "No moving violations detected in your profile."]
-
-RULES:
-- Keep language simple - written for truckers, not lawyers
-- Be specific about which BASICs need attention
-- If any BASIC is above threshold, mention DataQ challenge opportunities
-- Always classify violations as Moving or Non-Moving and recommend attorney for moving violations
-- Create urgency but be helpful, not scary
-- Total response under 500 words`, { maxTokens: 1500 });
+DATAQ OPPORTUNITIES
+[Which specific violations are worth challenging and what type of challenge. Be honest about which are worth the effort.]`, { maxTokens: 1800 });
 
     aiAnalysis = {
       content: aiResponse.content,
@@ -211,9 +319,8 @@ RULES:
     };
   } catch (aiError) {
     console.error('AI analysis error:', aiError.message);
-    // Continue without AI analysis if it fails
     aiAnalysis = {
-      content: generateFallbackAnalysis(carrierData),
+      content: generateFallbackAnalysis(carrierData, violations),
       generatedAt: new Date(),
       fallback: true
     };
@@ -350,60 +457,82 @@ router.get('/basic-info', (req, res) => {
 
 /**
  * Generate fallback analysis when AI is unavailable
+ * Uses new plain-text section headers matching the AI prompt format
  */
-function generateFallbackAnalysis(carrierData) {
+function generateFallbackAnalysis(carrierData, violations) {
   const alerts = carrierData.alerts;
+  let analysis = '';
 
-  let analysis = `📊 QUICK SUMMARY\n`;
-
-  // Summary
+  // THE BOTTOM LINE
+  analysis += `THE BOTTOM LINE\n`;
   if (alerts.count === 0) {
-    analysis += `Good news! Your carrier has no BASICs above FMCSA intervention thresholds. Staying proactive about compliance is key to maintaining this status.\n\n`;
+    analysis += `No BASICs above FMCSA intervention thresholds. You are in good shape, but staying proactive is what keeps it that way.\n\n`;
   } else if (alerts.count === 1) {
-    analysis += `Attention needed. Your carrier has 1 BASIC above the FMCSA intervention threshold. This could trigger an investigation or audit. Taking action now can reduce your risk.\n\n`;
+    analysis += `You have 1 BASIC above the intervention threshold. That puts you on FMCSA's radar for a potential investigation. Worth addressing now before it becomes a bigger problem.\n\n`;
   } else {
-    analysis += `Critical action required. Your carrier has ${alerts.count} BASICs above intervention thresholds. FMCSA may prioritize your company for investigation. Immediate attention is recommended.\n\n`;
+    analysis += `You have ${alerts.count} BASICs above intervention thresholds. FMCSA may prioritize your company for investigation. This needs immediate attention.\n\n`;
   }
 
-  // Issues Found
-  analysis += `⚠️ ISSUES FOUND\n`;
+  // WHAT I SEE IN YOUR DATA
+  analysis += `WHAT I SEE IN YOUR DATA\n`;
+  if (violations && violations.total > 0) {
+    analysis += `You have ${violations.total} violations on record. `;
+    if (violations.movingCount > 0) {
+      analysis += `${violations.movingCount} of those are moving violations, which hit your Unsafe Driving BASIC the hardest.\n`;
+    } else {
+      analysis += `None are classified as moving violations.\n`;
+    }
+    const topViols = violations.all
+      .sort((a, b) => b.severityWeight - a.severityWeight)
+      .slice(0, 5);
+    topViols.forEach(v => {
+      analysis += `- ${v.code} "${v.description}" (severity: ${v.severityWeight}/10, ${v.ageMonths ?? '?'}mo ago)${v.isMoving ? ' — MOVING' : ''}\n`;
+    });
+  } else if (alerts.count > 0) {
+    alerts.details.forEach(alert => {
+      const basicName = fmcsaService.getBasicInfo().find(b => b.key === alert.basic)?.name || alert.basic;
+      analysis += `- ${basicName}: ${alert.score}% (threshold: ${alert.threshold}%)\n`;
+    });
+  } else {
+    analysis += `All BASICs are below intervention thresholds.\n`;
+  }
+  analysis += `\n`;
+
+  // WHAT I WOULD DO
+  analysis += `WHAT I WOULD DO\n`;
+  analysis += `1. Review your recent inspections and identify violations that may be incorrectly recorded or eligible for a DataQ challenge.\n`;
+  analysis += `2. Set up automated monitoring to catch BASIC score changes before they become problems.\n`;
+  analysis += `3. Make sure your drivers are doing thorough pre-trip inspections — that is the cheapest way to prevent Vehicle Maintenance violations.\n`;
+  analysis += `\n`;
+
+  // MOVING VIOLATIONS
+  analysis += `MOVING VIOLATIONS\n`;
+  if (violations && violations.movingCount > 0) {
+    violations.movingViolations.forEach(v => {
+      analysis += `- ${v.code} "${v.description}" | Severity: ${v.severityWeight}/10 | ${v.dateStr} (${v.ageMonths}mo ago) | Drops off: ${v.dropOffDate}\n`;
+    });
+    analysis += `Moving violations hit the Unsafe Driving BASIC hard. An FMCSA-experienced attorney can sometimes get them reclassified to non-moving or dismissed entirely.\n`;
+  } else if (violations && violations.movingCount === 0) {
+    analysis += `No moving violations on record — that is good news for your Unsafe Driving BASIC.\n`;
+  } else {
+    const unsafeDrivingAlert = alerts.details?.find(a => a.basic === 'unsafeDriving');
+    if (unsafeDrivingAlert) {
+      analysis += `Your Unsafe Driving BASIC is at ${unsafeDrivingAlert.score}% (threshold: ${unsafeDrivingAlert.threshold}%). This category often contains moving violations like speeding and lane changes. Detailed violation records were not available — check your SMS profile on ai.fmcsa.dot.gov for specifics.\n`;
+    } else {
+      analysis += `No Unsafe Driving concerns detected.\n`;
+    }
+  }
+  analysis += `\n`;
+
+  // DATAQ OPPORTUNITIES
+  analysis += `DATAQ OPPORTUNITIES\n`;
   if (alerts.count > 0) {
     alerts.details.forEach(alert => {
       const basicName = fmcsaService.getBasicInfo().find(b => b.key === alert.basic)?.name || alert.basic;
-      analysis += `• ${basicName}: ${alert.score}% (threshold: ${alert.threshold}%) - Consider filing a DataQ challenge for any incorrect violations\n`;
+      analysis += `- ${basicName}: ${alert.score}% (threshold: ${alert.threshold}%) — review violations in this category for data errors or procedural issues that could be challenged.\n`;
     });
   } else {
-    analysis += `• No critical issues found. All BASICs are below intervention thresholds.\n`;
-  }
-  analysis += `\n`;
-
-  // Action Plan
-  analysis += `✅ YOUR 3-STEP ACTION PLAN\n`;
-  analysis += `1. Review your recent inspections and identify any violations that may be incorrectly recorded or eligible for DataQ challenge.\n`;
-  analysis += `2. Set up automated alerts with VroomX Safety to get notified when your BASIC scores change.\n`;
-  analysis += `3. Implement a preventive maintenance program and ensure all drivers complete thorough pre-trip inspections.\n`;
-  analysis += `\n`;
-
-  // DataQ Challenge Opportunities
-  analysis += `🔍 DATAQ CHALLENGE OPPORTUNITIES\n`;
-  if (alerts.count > 0) {
-    alerts.details.forEach(alert => {
-      const basicName = fmcsaService.getBasicInfo().find(b => b.key === alert.basic)?.name || alert.basic;
-      analysis += `• ${basicName}: ${alert.score}% (threshold: ${alert.threshold}%) - High potential for DataQ challenge. Review recent violations for data errors or procedural issues.\n`;
-    });
-  } else {
-    analysis += `No urgent DataQ opportunities detected at this time. Continue monitoring your scores.\n`;
-  }
-  analysis += `\n`;
-
-  // Moving Violation Alert
-  analysis += `⚖️ MOVING VIOLATION ALERT\n`;
-  const unsafeDrivingAlert = alerts.details?.find(a => a.basic === 'unsafeDriving');
-  if (unsafeDrivingAlert) {
-    analysis += `• Your Unsafe Driving BASIC is at ${unsafeDrivingAlert.score}% (threshold: ${unsafeDrivingAlert.threshold}%). This category typically contains moving violations such as speeding, improper lane changes, and reckless driving.\n`;
-    analysis += `• Moving violations may be eligible for reclassification through legal representation. An attorney experienced in FMCSA violations can potentially get moving violations reclassified to non-moving or removed entirely, significantly reducing your CSA score impact.\n`;
-  } else {
-    analysis += `No moving violations detected in your current BASIC scores profile.\n`;
+    analysis += `No urgent DataQ opportunities at this time. Keep monitoring your scores.\n`;
   }
 
   return analysis;

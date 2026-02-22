@@ -1,8 +1,14 @@
 const Anthropic = require('@anthropic-ai/sdk');
+const OpenAI = require('openai');
 
-// Initialize client only if API key is available
+// Initialize Anthropic client if API key is available
 const client = process.env.ANTHROPIC_API_KEY
   ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  : null;
+
+// Initialize OpenAI client as fallback
+const openaiClient = process.env.OPENAI_API_KEY
+  ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
   : null;
 
 // System prompts for different AI features
@@ -52,24 +58,30 @@ Analyze the provided driver documents and return:
 
 Be specific about which CFR section requires each missing document.`,
 
-  csaAnalyzer: `You are a CSA/SMS risk analyst for motor carriers. You analyze violation data and predict BASIC percentile impacts.
+  csaAnalyzer: `You are a veteran FMCSA safety manager with 20+ years helping carriers navigate CSA scores, roadside inspections, and DataQ challenges. You talk like a seasoned pro giving straight advice to a fleet owner — direct, practical, no corporate jargon or filler.
+
+You will receive:
+1. Carrier profile (name, DOT#, fleet size, safety rating)
+2. BASIC percentile scores with intervention thresholds
+3. Actual violation records from FMCSA DataHub, pre-classified as MOVING or NON-MOVING
+
+Your job: write a personalized safety analysis that references their ACTUAL violations by code and description. Never fabricate violations they do not have. If no violation records were provided (DataHub unavailable), say so honestly and base your analysis only on the BASIC percentiles — do not invent specific violation details.
+
+When discussing violations:
+- Reference specific codes (e.g., "392.2S - Speeding") and dates
+- Explain time-decay: full weight for first 12 months, reduced weight 12-24 months, drops off entirely at 24 months
+- For moving violations, note that an FMCSA-experienced attorney can sometimes get them reclassified to non-moving, which directly reduces the Unsafe Driving BASIC
+- For DataQ, be specific about WHICH violations are worth challenging and WHY (data errors, procedural issues, equipment fixed on-scene)
 
 6 BASIC Categories and Intervention Thresholds:
-1. Unsafe Driving - 65% threshold (speeding, reckless driving, improper lane change)
-2. Hours of Service (HOS) Compliance - 65% threshold (logbook violations, driving beyond hours)
-3. Vehicle Maintenance - 80% threshold (brakes, lights, tires defects)
-4. Controlled Substances/Alcohol - 80% threshold (drug/alcohol violations)
-5. Driver Fitness - 80% threshold (invalid CDL, medical certificate issues)
-6. Crash Indicator - 65% threshold (crash involvement patterns)
+1. Unsafe Driving - 65% (speeding, reckless driving, lane changes)
+2. HOS Compliance - 65% (logbook, driving hours)
+3. Vehicle Maintenance - 80% (brakes, lights, tires)
+4. Controlled Substances - 80% (drug/alcohol)
+5. Driver Fitness - 80% (CDL, medical cert)
+6. Crash Indicator - 65% (crash patterns)
 
-Severity weights range from 1-10, with time weights decreasing older violations.
-
-Provide:
-1. Overall risk level (Low/Medium/High/Critical)
-2. Which BASICs are at or approaching threshold
-3. Highest-impact violations to prioritize
-4. Predicted trend if current pattern continues
-5. Specific recommendations to reduce CSA score`,
+Tone: Like you are sitting across from a fleet owner at a truck stop. Helpful, specific, no-nonsense. Skip emoji. Use plain section headers. Keep it under 700 words.`,
 
   dataQAssistant: `You are a DataQ challenge specialist. You help carriers draft professional challenges for inaccurate roadside inspection violations.
 
@@ -235,10 +247,17 @@ async function query(promptType, userMessage, options = {}) {
     throw new Error(`Unknown prompt type: ${promptType}`);
   }
 
-  if (!client) {
-    throw new Error('ANTHROPIC_API_KEY not configured');
+  // Use Anthropic if available, otherwise fall back to OpenAI
+  if (client) {
+    return queryAnthropic(systemPrompt, userMessage, options);
+  } else if (openaiClient) {
+    return queryOpenAI(systemPrompt, userMessage, options);
+  } else {
+    throw new Error('No AI API key configured (set ANTHROPIC_API_KEY or OPENAI_API_KEY)');
   }
+}
 
+async function queryAnthropic(systemPrompt, userMessage, options) {
   try {
     const response = await client.messages.create({
       model: options.model || 'claude-sonnet-4-20250514',
@@ -257,11 +276,45 @@ async function query(promptType, userMessage, options = {}) {
       model: response.model
     };
   } catch (error) {
-    console.error('AI Service Error:', error.message);
+    console.error('Anthropic AI Error:', error.message);
 
-    // Handle specific API errors
     if (error.status === 401) {
       throw new Error('Invalid API key');
+    } else if (error.status === 429) {
+      throw new Error('Rate limit exceeded. Please try again in a moment.');
+    } else if (error.status === 500) {
+      throw new Error('AI service temporarily unavailable');
+    }
+
+    throw error;
+  }
+}
+
+async function queryOpenAI(systemPrompt, userMessage, options) {
+  try {
+    const response = await openaiClient.chat.completions.create({
+      model: options.openaiModel || 'gpt-4o-mini',
+      max_tokens: options.maxTokens || 1024,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userMessage }
+      ]
+    });
+
+    return {
+      success: true,
+      content: response.choices[0].message.content,
+      usage: {
+        inputTokens: response.usage.prompt_tokens,
+        outputTokens: response.usage.completion_tokens
+      },
+      model: response.model
+    };
+  } catch (error) {
+    console.error('OpenAI Error:', error.message);
+
+    if (error.status === 401) {
+      throw new Error('Invalid OpenAI API key');
     } else if (error.status === 429) {
       throw new Error('Rate limit exceeded. Please try again in a moment.');
     } else if (error.status === 500) {

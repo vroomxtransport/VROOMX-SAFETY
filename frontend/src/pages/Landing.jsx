@@ -21,6 +21,7 @@ import {
   faqData,
 } from '../data/landingData';
 import useForceLightMode from '../hooks/useForceLightMode';
+import PaletteSwitcher from '../components/landing/PaletteSwitcher';
 
 const Landing = () => {
   useForceLightMode();
@@ -177,7 +178,7 @@ const Landing = () => {
             <div className="grid sm:grid-cols-2 gap-4">
               {[
                 { icon: FiAlertTriangle, title: '"I thought it was valid until June"', desc: 'One expired document = $16,000 fine. One driver out-of-service = $1,000/day.', color: 'red' },
-                { icon: FiBarChart2, title: '"My CSA went up and I don\'t know why"', desc: 'Violations stay on record 24 months. Every point costs you freight.', color: 'amber' },
+                { icon: FiBarChart2, title: '"My CSA went up and I don\'t know why"', desc: 'Violations stay on record 24 months. Every point costs you increased insurance premiums at renewal.', color: 'amber' },
                 { icon: FiFileText, title: '"The auditor asked for 2024 records"', desc: 'Paper gets lost. Email gets buried. Auditors don\'t care.', color: 'primary' },
                 { icon: FiClipboard, title: '"I could challenge it but no time"', desc: 'DataQ process is confusing on purpose. Most carriers just accept bad violations.', color: 'purple' }
               ].map((item, i) => (
@@ -362,6 +363,9 @@ const Landing = () => {
 
       {/* Footer */}
       <FooterSection />
+
+      {/* Palette Switcher (dev preview) */}
+      <PaletteSwitcher />
     </div>
   );
 };

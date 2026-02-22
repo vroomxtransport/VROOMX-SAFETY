@@ -580,80 +580,77 @@ const emailService = {
     const reportDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
     // Format AI analysis as structured HTML
+    // Supports both new plain-text headers and legacy emoji headers for backward compatibility
     const formatAiAnalysisHtml = (text) => {
       if (!text) return '<p style="margin: 0; font-size: 14px; color: #78350f; line-height: 1.6;">No analysis available.</p>';
 
-      // Split into sections based on emoji headers
-      const sections = text.split(/(?=📊|⚠️|✅|🔍|⚖️)/);
+      // Section styling map — new plain-text headers + legacy emoji headers
+      const sectionDefs = [
+        { pattern: /^THE BOTTOM LINE$/m, label: 'THE BOTTOM LINE', bg: '#eff6ff', border: '#3b82f6', headerColor: '#1e40af', textColor: '#1e3a8a' },
+        { pattern: /^WHAT I SEE IN YOUR DATA$/m, label: 'WHAT I SEE IN YOUR DATA', bg: '#fffbeb', border: '#f59e0b', headerColor: '#92400e', textColor: '#92400e' },
+        { pattern: /^WHAT I WOULD DO$/m, label: 'WHAT I WOULD DO', bg: '#f0fdf4', border: '#22c55e', headerColor: '#166534', textColor: '#166534' },
+        { pattern: /^MOVING VIOLATIONS$/m, label: 'MOVING VIOLATIONS', bg: '#f5f3ff', border: '#7c3aed', headerColor: '#581c87', textColor: '#581c87' },
+        { pattern: /^DATAQ OPPORTUNITIES$/m, label: 'DATAQ OPPORTUNITIES', bg: '#fff7ed', border: '#ea580c', headerColor: '#9a3412', textColor: '#9a3412' },
+        // Legacy emoji headers for backward compatibility
+        { pattern: /^📊\s*QUICK SUMMARY$/m, label: 'QUICK SUMMARY', bg: '#eff6ff', border: '#3b82f6', headerColor: '#1e40af', textColor: '#1e3a8a' },
+        { pattern: /^⚠️\s*ISSUES FOUND$/m, label: 'ISSUES FOUND', bg: '#fffbeb', border: '#f59e0b', headerColor: '#92400e', textColor: '#92400e' },
+        { pattern: /^✅\s*YOUR 3-STEP ACTION PLAN$/m, label: 'ACTION PLAN', bg: '#f0fdf4', border: '#22c55e', headerColor: '#166534', textColor: '#166534' },
+        { pattern: /^🔍\s*DATAQ CHALLENGE OPPORTUNITIES$/m, label: 'DATAQ OPPORTUNITIES', bg: '#fff7ed', border: '#ea580c', headerColor: '#9a3412', textColor: '#9a3412' },
+        { pattern: /^⚖️\s*MOVING VIOLATION ALERT$/m, label: 'MOVING VIOLATIONS', bg: '#f5f3ff', border: '#7c3aed', headerColor: '#581c87', textColor: '#581c87' }
+      ];
+
+      // Build a combined split regex from all patterns
+      const splitRegex = new RegExp(
+        sectionDefs.map(d => `(?=${d.pattern.source})`).join('|'),
+        'm'
+      );
+
+      const sections = text.split(splitRegex).filter(s => s.trim());
       let html = '';
 
-      sections.forEach((section) => {
-        section = section.trim();
-        if (!section) return;
+      for (const section of sections) {
+        const lines = section.trim().split('\n');
+        const headerLine = lines[0].trim();
+        const content = lines.slice(1).join('\n').trim();
 
-        // Detect section type and style accordingly
-        if (section.startsWith('📊')) {
-          // Quick Summary - blue section
-          const content = section.replace(/^📊\s*QUICK SUMMARY\s*\n?/, '');
+        // Find matching section def
+        const def = sectionDefs.find(d => d.pattern.test(headerLine));
+
+        if (def && content) {
+          // Process content: bullets, numbered lists, and paragraphs
+          const processedContent = content
+            .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+            .split('\n')
+            .filter(l => l.trim())
+            .map(line => {
+              const trimmed = line.trim();
+              if (trimmed.startsWith('-') || trimmed.startsWith('•')) {
+                const clean = trimmed.replace(/^[•\-]\s*/, '').trim();
+                return `<li style="margin: 4px 0; font-size: 14px; color: ${def.textColor}; line-height: 1.6;">${clean}</li>`;
+              }
+              if (/^\d+\./.test(trimmed)) {
+                const clean = trimmed.replace(/^\d+\.\s*/, '').trim();
+                return `<li style="margin: 6px 0; font-size: 14px; color: ${def.textColor}; line-height: 1.6;">${clean}</li>`;
+              }
+              return `<p style="margin: 0 0 8px 0; font-size: 14px; color: ${def.textColor}; line-height: 1.6;">${trimmed}</p>`;
+            })
+            .join('');
+
+          const hasList = processedContent.includes('<li');
+          const wrappedContent = hasList
+            ? `<ul style="margin: 0; padding-left: 20px; font-family: Arial, sans-serif;">${processedContent}</ul>`
+            : processedContent;
+
           html += `
-            <div style="margin-bottom: 16px; padding: 12px; background: #eff6ff; border-radius: 6px; border-left: 4px solid #3b82f6;">
-              <p style="margin: 0 0 4px 0; font-size: 13px; font-weight: bold; color: #1e40af; font-family: Arial, sans-serif;">📊 QUICK SUMMARY</p>
-              <p style="margin: 0; font-size: 14px; color: #1e3a8a; line-height: 1.5; font-family: Arial, sans-serif;">${content.trim()}</p>
+            <div style="margin-bottom: 16px; padding: 14px; background: ${def.bg}; border-radius: 6px; border-left: 4px solid ${def.border};">
+              <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: bold; color: ${def.headerColor}; text-transform: uppercase; letter-spacing: 0.5px; font-family: Arial, sans-serif;">${def.label}</p>
+              <div style="font-family: Arial, sans-serif;">${wrappedContent}</div>
             </div>`;
-        } else if (section.startsWith('⚠️')) {
-          // Issues Found - amber section
-          const content = section.replace(/^⚠️\s*ISSUES FOUND\s*\n?/, '');
-          const bullets = content.trim().split('\n').filter(line => line.trim()).map(line => {
-            const cleanLine = line.replace(/^[•\-]\s*/, '').trim();
-            return `<li style="margin: 4px 0; font-size: 14px; color: #92400e;">${cleanLine}</li>`;
-          }).join('');
-          html += `
-            <div style="margin-bottom: 16px; padding: 12px; background: #fffbeb; border-radius: 6px; border-left: 4px solid #f59e0b;">
-              <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: bold; color: #92400e; font-family: Arial, sans-serif;">⚠️ ISSUES FOUND</p>
-              <ul style="margin: 0; padding-left: 20px; font-family: Arial, sans-serif;">${bullets}</ul>
-            </div>`;
-        } else if (section.startsWith('✅')) {
-          // Action Plan - green section
-          const content = section.replace(/^✅\s*YOUR 3-STEP ACTION PLAN\s*\n?/, '');
-          const steps = content.trim().split('\n').filter(line => line.trim()).map(line => {
-            const cleanLine = line.replace(/^\d+\.\s*/, '').trim();
-            return `<li style="margin: 6px 0; font-size: 14px; color: #166534;">${cleanLine}</li>`;
-          }).join('');
-          html += `
-            <div style="margin-bottom: 0; padding: 12px; background: #f0fdf4; border-radius: 6px; border-left: 4px solid #22c55e;">
-              <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: bold; color: #166534; font-family: Arial, sans-serif;">✅ YOUR 3-STEP ACTION PLAN</p>
-              <ol style="margin: 0; padding-left: 20px; font-family: Arial, sans-serif;">${steps}</ol>
-            </div>`;
-        } else if (section.startsWith('🔍')) {
-          // DataQ Challenge Opportunities - orange section
-          const content = section.replace(/^🔍\s*DATAQ CHALLENGE OPPORTUNITIES\s*\n?/, '');
-          const bullets = content.trim().split('\n').filter(line => line.trim()).map(line => {
-            const cleanLine = line.replace(/^[•\-]\s*/, '').trim();
-            return `<li style="margin: 4px 0; font-size: 14px; color: #9a3412;">${cleanLine}</li>`;
-          }).join('');
-          html += `
-            <div style="margin-bottom: 0; padding: 12px; background: #fff7ed; border-radius: 6px; border-left: 4px solid #ea580c;">
-              <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: bold; color: #9a3412; font-family: Arial, sans-serif;">🔍 DATAQ CHALLENGE OPPORTUNITIES</p>
-              <ul style="margin: 0; padding-left: 20px; font-family: Arial, sans-serif;">${bullets}</ul>
-            </div>`;
-        } else if (section.startsWith('⚖️') || section.includes('MOVING VIOLATION ALERT')) {
-          // Moving Violation Alert - purple section
-          const content = section.replace(/^⚖️\s*MOVING VIOLATION ALERT\s*\n?/, '');
-          const bullets = content.trim().split('\n').filter(line => line.trim()).map(line => {
-            const cleanLine = line.replace(/^[•\-]\s*/, '').trim()
-              .replace(/MOVING VIOLATION/g, '<strong style="color: #7c3aed;">MOVING VIOLATION</strong>');
-            return `<li style="margin: 4px 0; font-size: 14px; color: #581c87;">${cleanLine}</li>`;
-          }).join('');
-          html += `
-            <div style="margin-bottom: 16px; padding: 12px; background: #f5f3ff; border-radius: 6px; border-left: 4px solid #7c3aed;">
-              <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: bold; color: #581c87; font-family: Arial, sans-serif;">⚖️ MOVING VIOLATION ALERT</p>
-              <ul style="margin: 0; padding-left: 20px; font-family: Arial, sans-serif;">${bullets}</ul>
-            </div>`;
-        } else {
+        } else if (section.trim()) {
           // Fallback for unrecognized sections
-          html += `<p style="margin: 0 0 12px 0; font-size: 14px; color: #78350f; line-height: 1.5; font-family: Arial, sans-serif;">${section.replace(/\n/g, '<br>')}</p>`;
+          html += `<p style="margin: 0 0 12px 0; font-size: 14px; color: #78350f; line-height: 1.6; font-family: Arial, sans-serif;">${section.trim().replace(/\n/g, '<br>')}</p>`;
         }
-      });
+      }
 
       return html || '<p style="margin: 0; font-size: 14px; color: #78350f; line-height: 1.6;">No analysis available.</p>';
     };

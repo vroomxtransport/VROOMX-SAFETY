@@ -20,6 +20,9 @@ const { TIME_WEIGHT_FACTORS } = require('../config/fmcsaCompliance');
 // Cache for 6 hours
 const cache = new NodeCache({ stdTTL: 21600, checkperiod: 600 });
 
+// Separate cache for public CSA checker DataHub lookups (no company context)
+const publicViolationCache = new NodeCache({ stdTTL: 21600, checkperiod: 600 });
+
 const buildViolationKey = (inspectionNumber, violationCode, description, violationDate) => {
   const dateKey = violationDate instanceof Date
     ? violationDate.toISOString().split('T')[0]
@@ -1045,6 +1048,46 @@ const fmcsaInspectionService = {
         message: error.message
       };
     }
+  },
+
+  /**
+   * Fetch violation records from FMCSA DataHub by DOT number (public, no auth/company required)
+   * Used by CSA Checker lead magnet to provide real violation data to AI analysis
+   * @param {string} dotNumber - Raw DOT number
+   * @returns {Array} Parsed violation records with inspection metadata
+   */
+  async fetchViolationsFromDataHub(dotNumber) {
+    if (!dotNumber) return [];
+
+    const cacheKey = `pub_viols:${dotNumber}`;
+    const cached = publicViolationCache.get(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
+    const headers = { 'Accept': 'application/json' };
+    const socrataToken = process.env.SOCRATA_APP_TOKEN;
+    if (socrataToken) {
+      headers['X-App-Token'] = socrataToken;
+    }
+
+    const url = `https://datahub.transportation.gov/resource/8mt8-2mdr.json?$where=dot_number='${dotNumber}'&$limit=500&$order=insp_date DESC`;
+    const response = await fetch(url, { headers });
+
+    if (!response.ok) {
+      throw new Error(`DataHub API error: ${response.status}`);
+    }
+
+    const rawViolations = await response.json();
+
+    const parsed = rawViolations.map(v => ({
+      ...this.parseDataHubViolation(v),
+      inspectionDate: v.insp_date || null,
+      inspectionId: v.unique_id || null
+    }));
+
+    publicViolationCache.set(cacheKey, parsed);
+    return parsed;
   }
 };
 
