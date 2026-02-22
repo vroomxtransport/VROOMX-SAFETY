@@ -188,6 +188,16 @@ router.post('/', checkPermission('tasks', 'edit'), [
     if (req.body[key] !== undefined) taskData[key] = req.body[key];
   }
 
+  // Strip empty strings from ObjectId fields to prevent CastError
+  if (!taskData.assignedTo) delete taskData.assignedTo;
+  if (taskData.linkedTo) {
+    if (!taskData.linkedTo.refId) delete taskData.linkedTo.refId;
+    if (taskData.linkedTo.type === 'none') {
+      delete taskData.linkedTo.refId;
+      delete taskData.linkedTo.refName;
+    }
+  }
+
   const task = await Task.create(taskData);
 
   const populatedTask = await Task.findById(task._id)
@@ -225,6 +235,19 @@ router.put('/:id', checkPermission('tasks', 'edit'), asyncHandler(async (req, re
   const updateData = { lastUpdatedBy: req.user._id };
   for (const key of allowedUpdateFields) {
     if (req.body[key] !== undefined) updateData[key] = req.body[key];
+  }
+
+  // Strip empty strings from ObjectId fields to prevent CastError
+  if (updateData.assignedTo === '') {
+    updateData.$unset = { assignedTo: 1 };
+    delete updateData.assignedTo;
+  }
+  if (updateData.linkedTo) {
+    if (!updateData.linkedTo.refId) delete updateData.linkedTo.refId;
+    if (updateData.linkedTo.type === 'none') {
+      delete updateData.linkedTo.refId;
+      delete updateData.linkedTo.refName;
+    }
   }
 
   task = await Task.findByIdAndUpdate(
