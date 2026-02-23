@@ -1,9 +1,14 @@
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { FiShield, FiSearch, FiHome, FiArrowRight } from 'react-icons/fi';
 
 function NotFound() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 flex items-center justify-center px-4">
+      <Helmet>
+        <title>Page Not Found | VroomX Safety</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <div className="max-w-lg w-full text-center">
         {/* Shield Icon */}
         <div className="mx-auto w-20 h-20 bg-primary-50 rounded-2xl flex items-center justify-center mb-6">

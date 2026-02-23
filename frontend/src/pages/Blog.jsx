@@ -20,6 +20,10 @@ const Blog = () => {
         title="Compliance Insights Blog"
         description="Expert advice on FMCSA regulations, audit preparation, fleet safety trends, and trucking compliance best practices."
         path="/blog"
+        breadcrumbs={[
+          { name: 'Home', url: '/' },
+          { name: 'Blog', url: '/blog' },
+        ]}
       />
 
       {/* Background Elements */}

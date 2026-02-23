@@ -4,17 +4,19 @@ import toast from 'react-hot-toast';
 import { dashboardAPI, csaAPI, fmcsaInspectionsAPI, driversAPI, fmcsaAPI, complianceScoreAPI } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import {
-  FiUsers, FiTruck, FiAlertTriangle, FiClock,
+  FiUsers, FiAlertTriangle, FiClock,
   FiCheckCircle, FiAlertCircle, FiFileText, FiShield,
-  FiMessageCircle, FiArrowRight, FiRefreshCw, FiTrendingUp, FiTrendingDown, FiMinus,
-  FiGift, FiBarChart2
+  FiMessageCircle, FiArrowRight, FiRefreshCw,
+  FiGift
 } from 'react-icons/fi';
-import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid,
-  Tooltip, ResponsiveContainer, Legend
-} from 'recharts';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { InspectionDetailModal } from './InspectionHistory';
+import ImportProgressOverlay from './dashboard/ImportProgressOverlay';
+import ComplianceScoreCard from './dashboard/ComplianceScoreCard';
+import StatsCards from './dashboard/StatsCards';
+import ComplianceTrendChart from './dashboard/ComplianceTrendChart';
+import RecentInspectionsCard from './dashboard/RecentInspectionsCard';
+import TopRiskDriversCard from './dashboard/TopRiskDriversCard';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -151,25 +153,6 @@ const Dashboard = () => {
   // Get compliance score from API data (real calculation from backend)
   const hasComplianceData = complianceData !== null && complianceData?.overallScore != null;
   const complianceScore = hasComplianceData ? complianceData.overallScore : 0;
-  const scoreDiff = complianceScore - 80;
-
-  // Get score color based on value
-  const getScoreColor = (score) => {
-    if (score >= 80) return '#22c55e'; // green
-    if (score >= 60) return '#eab308'; // yellow
-    return '#ef4444'; // red
-  };
-
-  // Get score status label
-  const getScoreStatus = (score) => {
-    if (score >= 80) return { label: 'Good Standing', bgClass: 'bg-green-100 dark:bg-green-500/20', textClass: 'text-green-700 dark:text-green-400', borderClass: 'border-green-200 dark:border-green-500/30' };
-    if (score >= 60) return { label: 'Needs Attention', bgClass: 'bg-yellow-100 dark:bg-yellow-500/20', textClass: 'text-yellow-700 dark:text-yellow-400', borderClass: 'border-yellow-200 dark:border-yellow-500/30' };
-    return { label: 'At Risk', bgClass: 'bg-red-100 dark:bg-red-500/20', textClass: 'text-red-700 dark:text-red-400', borderClass: 'border-red-200 dark:border-red-500/30' };
-  };
-
-  // Calculate gauge stroke dasharray
-  const maxArc = 212; // 75% of full circle circumference
-  const scoreArc = (complianceScore / 100) * maxArc;
 
   // Get current date
   const currentDate = new Date().toLocaleDateString('en-US', {
@@ -177,61 +160,6 @@ const Dashboard = () => {
     day: 'numeric',
     year: 'numeric'
   });
-
-  // Get score factors from API data (real calculation from backend)
-  const getScoreFactors = () => {
-    if (complianceData?.components) {
-      const { documentStatus, violations, drugAlcohol, dqfCompleteness, vehicleInspection } = complianceData.components;
-      return [
-        { label: 'DQF Files', value: dqfCompleteness?.score ?? null },
-        { label: 'Documents', value: documentStatus?.score ?? null },
-        { label: 'Violations', value: violations?.score ?? null },
-        { label: 'D&A Testing', value: drugAlcohol?.score ?? null },
-        { label: 'Vehicle Insp.', value: vehicleInspection?.score ?? null }
-      ];
-    }
-    return [
-      { label: 'DQF Files', value: null },
-      { label: 'Documents', value: null },
-      { label: 'Violations', value: null },
-      { label: 'D&A Testing', value: null },
-      { label: 'Vehicle Insp.', value: null }
-    ];
-  };
-
-  // Prepare BASICs data for grid
-  const getBasicsData = () => {
-    if (!data?.smsBasics) return [];
-    return Object.entries(data.smsBasics)
-      .filter(([key]) => key !== '_meta')
-      .map(([key, value]) => ({
-        name: value.name?.replace(' Compliance', '').replace(' Indicator', '') || key,
-        percentile: value.percentile || 0,
-        rawMeasure: value.rawMeasure,
-        status: value.status || 'no_data',
-        key
-      }));
-  };
-
-  // Get trend indicator for a BASIC category
-  const getTrendIndicator = (basicKey) => {
-    if (!trendData?.basicTrends) return null;
-    // Map the key format from camelCase to match trendData format
-    const keyMap = {
-      unsafeDriving: 'unsafeDriving',
-      hoursOfService: 'hoursOfService',
-      vehicleMaintenance: 'vehicleMaintenance',
-      controlledSubstances: 'controlledSubstances',
-      driverFitness: 'driverFitness',
-      crashIndicator: 'crashIndicator'
-    };
-    const trend = trendData.basicTrends[keyMap[basicKey]];
-    if (!trend) return null;
-    return {
-      direction: trend.trend,
-      change: trend.change || 0
-    };
-  };
 
   // Format birthday date with day of week
   const formatBirthdayDate = (dateString, daysUntil) => {
@@ -265,6 +193,14 @@ const Dashboard = () => {
   const isDataStale = syncStatus?.lastSync &&
     (Date.now() - new Date(syncStatus.lastSync).getTime()) > 6 * 60 * 60 * 1000;
 
+  // Handle inspection click - fetch full details and open modal
+  const handleInspectionClick = async (insp) => {
+    try {
+      const res = await fmcsaInspectionsAPI.getById(insp._id);
+      if (res.data?.inspection) setSelectedInspection(res.data.inspection);
+    } catch (e) { /* ignore */ }
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-64">
@@ -288,69 +224,15 @@ const Dashboard = () => {
     );
   }
 
-  const scoreStatus = getScoreStatus(complianceScore);
-  const scoreFactors = getScoreFactors();
-  const basicsData = getBasicsData();
-
-  // Use real compliance history data for trend chart
-  const complianceTrendData = (() => {
-    if (complianceHistory.length > 0) {
-      // Use real historical data from API
-      return complianceHistory.map((record, index) => ({
-        day: index + 1,
-        date: new Date(record.date || record.calculatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        score: record.overallScore || record.totalScore || 0
-      }));
-    }
-    // Fallback: show current score as single point if no history
-    return [{ day: 1, date: 'Today', score: complianceScore }];
-  })();
-
-  // FMCSA import progress for new companies
-  const isNewCompany = !syncStatus?.lastSync && !syncing;
-
   return (
     <div className="space-y-3 sm:space-y-4 lg:space-y-6">
       {/* FMCSA Import Progress Overlay */}
-      {isNewCompany && (
-        <div className="card border-2 border-primary-500/30 bg-primary-50/50 dark:bg-primary-500/10 p-6">
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-xl bg-primary-500/20 flex items-center justify-center flex-shrink-0">
-              <FiRefreshCw className="w-6 h-6 text-primary-500 animate-spin" />
-            </div>
-            <div className="flex-1">
-              <h3 className="text-lg font-bold text-zinc-800 dark:text-zinc-100 mb-1">Setting up your FMCSA profile...</h3>
-              <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-4">We're importing your carrier data from FMCSA. This usually takes 30-60 seconds.</p>
-
-              <div className="space-y-3">
-                {[
-                  { label: 'Fetching CSA scores', done: importProgress?.csaScoresSynced },
-                  { label: 'Importing inspection history', done: importProgress?.violationsSynced },
-                  { label: 'Analyzing violations', done: importProgress?.inspectionsSynced },
-                  { label: 'Calculating compliance score', done: importProgress?.complianceScoreCalculated }
-                ].map((step, i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    {step.done ? (
-                      <FiCheckCircle className="w-5 h-5 text-emerald-500 flex-shrink-0" />
-                    ) : (
-                      <div className="w-5 h-5 rounded-full border-2 border-zinc-300 dark:border-zinc-600 flex-shrink-0" />
-                    )}
-                    <span className={`text-sm ${step.done ? 'text-emerald-700 dark:text-emerald-400 font-medium' : 'text-zinc-500 dark:text-zinc-400'}`}>
-                      {step.label}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              {!importProgress && (
-                <button onClick={handleSyncNow} className="btn btn-primary btn-sm mt-4">
-                  Start Import Now
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      <ImportProgressOverlay
+        importProgress={importProgress}
+        syncStatus={syncStatus}
+        syncing={syncing}
+        onSyncNow={handleSyncNow}
+      />
 
       {/* Welcome Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -404,239 +286,20 @@ const Dashboard = () => {
       {/* Main Grid - Score Section */}
       <div className="grid grid-cols-12 gap-3 sm:gap-4 lg:gap-6">
         {/* Compliance Score Card (Main Feature) */}
-        <div className="col-span-12 md:col-span-6 lg:col-span-5 bg-white dark:bg-gradient-to-br dark:from-zinc-900 dark:to-zinc-950 rounded-2xl border border-zinc-200 dark:border-white/5 overflow-hidden shadow-sm">
-          <div className="p-5">
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <h3 className="text-lg font-semibold text-zinc-900 dark:text-white">Compliance Score</h3>
-                <p className="text-sm text-zinc-600 dark:text-zinc-300">Overall fleet health</p>
-              </div>
-              <Link to="/app/compliance" className="text-sm text-accent-500 hover:text-accent-600 dark:hover:text-accent-400 font-medium">
-                View Details
-              </Link>
-            </div>
-
-            {/* Score Gauge */}
-            <div className="flex flex-col items-center py-2">
-              {hasComplianceData ? (
-                <>
-                  <div className="relative w-28 h-28 sm:w-36 sm:h-36 lg:w-40 lg:h-40">
-                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                      {/* Background arc */}
-                      <circle
-                        cx="50"
-                        cy="50"
-                        r="45"
-                        fill="none"
-                        className="stroke-zinc-200 dark:stroke-zinc-800"
-                        strokeWidth="8"
-                        strokeLinecap="round"
-                        strokeDasharray="212 71"
-                      />
-                      {/* Gradient arc (faint) */}
-                      <defs>
-                        <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                          <stop offset="0%" stopColor="#22c55e" />
-                          <stop offset="50%" stopColor="#eab308" />
-                          <stop offset="100%" stopColor="#ef4444" />
-                        </linearGradient>
-                      </defs>
-                      <circle
-                        cx="50"
-                        cy="50"
-                        r="45"
-                        fill="none"
-                        stroke="url(#scoreGradient)"
-                        strokeWidth="8"
-                        strokeLinecap="round"
-                        strokeDasharray="212 71"
-                        opacity="0.2"
-                      />
-                      {/* Score indicator */}
-                      <circle
-                        className="gauge-circle"
-                        cx="50"
-                        cy="50"
-                        r="45"
-                        fill="none"
-                        stroke={getScoreColor(complianceScore)}
-                        strokeWidth="8"
-                        strokeLinecap="round"
-                        strokeDasharray={`${scoreArc} ${283 - scoreArc}`}
-                        strokeDashoffset="0"
-                      />
-                    </svg>
-                    {/* Score number in center */}
-                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className={`text-xs font-semibold mb-1 ${scoreDiff >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                        {scoreDiff > 0 ? '+' : ''}{scoreDiff} from 80
-                      </span>
-                      <span className="text-3xl sm:text-4xl lg:text-5xl font-bold text-zinc-900 dark:text-white">{complianceScore}</span>
-                      <span className="text-sm text-zinc-600 dark:text-zinc-300 mt-1">out of 100</span>
-                    </div>
-                  </div>
-
-                  {/* Score status label */}
-                  <div className={`mt-2 px-4 py-1.5 rounded-full text-sm font-semibold border ${scoreStatus.bgClass} ${scoreStatus.textClass} ${scoreStatus.borderClass}`}>
-                    {scoreStatus.label}
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="relative w-28 h-28 sm:w-36 sm:h-36 lg:w-40 lg:h-40">
-                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                      <circle
-                        cx="50"
-                        cy="50"
-                        r="45"
-                        fill="none"
-                        className="stroke-zinc-200 dark:stroke-zinc-800"
-                        strokeWidth="8"
-                        strokeLinecap="round"
-                        strokeDasharray="212 71"
-                      />
-                    </svg>
-                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-2xl font-bold text-zinc-400 dark:text-zinc-500">--</span>
-                      <span className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">No data yet</span>
-                    </div>
-                  </div>
-                  <div className="mt-2 px-4 py-1.5 rounded-full text-sm font-semibold border bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700">
-                    Pending Calculation
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* Score factors */}
-            <div className="grid grid-cols-2 gap-2.5 mt-3 pt-3 border-t border-zinc-100 dark:border-white/5">
-              {scoreFactors.map((factor, index) => (
-                <div key={index} className={`p-2.5 rounded-xl bg-zinc-50 dark:bg-white/5 border border-zinc-100 dark:border-white/5${index === scoreFactors.length - 1 && scoreFactors.length % 2 !== 0 ? ' col-span-2' : ''}`}>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-zinc-600 dark:text-zinc-300">{factor.label}</span>
-                    <span className={`text-xs font-semibold ${
-                      factor.value === null
-                        ? 'text-zinc-400 dark:text-zinc-500'
-                        : factor.value >= 80 ? 'text-green-600 dark:text-green-400'
-                        : factor.value >= 60 ? 'text-yellow-600 dark:text-yellow-400'
-                        : 'text-red-600 dark:text-red-400'
-                    }`}>
-                      {factor.value === null ? 'N/A' : `${factor.value}%`}
-                    </span>
-                  </div>
-                  <div className="w-full h-1.5 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
-                    {factor.value === null ? (
-                      <div className="h-full w-full bg-zinc-300 dark:bg-zinc-700 opacity-30 rounded-full" />
-                    ) : (
-                      <div
-                        className={`h-full rounded-full transition-all duration-1000 ${factor.value >= 80 ? 'bg-green-500' : factor.value >= 60 ? 'bg-yellow-500' : 'bg-red-500'}`}
-                        style={{ width: `${factor.value}%` }}
-                      />
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+        <ComplianceScoreCard complianceData={complianceData} />
 
         {/* Right Side Stats */}
         <div className="col-span-12 md:col-span-6 lg:col-span-7 space-y-3 sm:space-y-4 lg:space-y-6">
           {/* Quick Stats Row */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-            {/* Drivers */}
-            <Link to="/app/drivers" className="group bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl p-3 sm:p-4 lg:p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-blue-300 dark:hover:border-blue-500/30 transition-all duration-300 cursor-pointer">
-              <div className="flex items-center justify-between mb-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <FiUsers className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                </div>
-                <span className="text-xs text-green-600 dark:text-green-400 font-semibold">All active</span>
-              </div>
-              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-zinc-900 dark:text-white">{data?.drivers?.active || 0}</p>
-              <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-1">Active Drivers</p>
-            </Link>
-
-            {/* Vehicles */}
-            <Link to="/app/vehicles" className="group bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl p-3 sm:p-4 lg:p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-purple-300 dark:hover:border-purple-500/30 transition-all duration-300 cursor-pointer">
-              <div className="flex items-center justify-between mb-3">
-                <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <FiTruck className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                </div>
-                <span className="text-xs text-zinc-600 dark:text-zinc-300">All active</span>
-              </div>
-              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-zinc-900 dark:text-white">{data?.vehicles?.active || 0}</p>
-              <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-1">Fleet Vehicles</p>
-            </Link>
-
-            {/* Expiring Docs */}
-            <Link to="/app/documents" className="group bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl p-3 sm:p-4 lg:p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-yellow-300 dark:hover:border-yellow-500/30 transition-all duration-300 cursor-pointer">
-              <div className="flex items-center justify-between mb-3">
-                <div className="w-10 h-10 rounded-xl bg-yellow-100 dark:bg-yellow-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <FiClock className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
-                </div>
-                {(data?.summary?.driversWithExpiringDocs || 0) > 0 && (
-                  <span className="text-xs text-yellow-600 dark:text-yellow-400 font-semibold">Action needed</span>
-                )}
-              </div>
-              <p className={`text-xl sm:text-2xl lg:text-3xl font-bold ${(data?.summary?.driversWithExpiringDocs || 0) > 0 ? 'text-yellow-600 dark:text-yellow-400' : 'text-zinc-900 dark:text-white'}`}>
-                {data?.summary?.driversWithExpiringDocs || 0}
-              </p>
-              <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-1">Expiring Soon</p>
-            </Link>
-
-            {/* Violations */}
-            <Link to="/app/violations" className="group bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl p-3 sm:p-4 lg:p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-red-300 dark:hover:border-red-500/30 transition-all duration-300 cursor-pointer">
-              <div className="flex items-center justify-between mb-3">
-                <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <FiAlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
-                </div>
-                {trendData?.violationTrend !== undefined && trendData.violationTrend !== 0 && (
-                  <span className={`text-xs font-semibold ${trendData.violationTrend < 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                    {trendData.violationTrend > 0 ? '+' : ''}{trendData.violationTrend} this year
-                  </span>
-                )}
-              </div>
-              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-zinc-900 dark:text-white">{data?.recentViolations?.length || 0}</p>
-              <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-1">Open Violations</p>
-            </Link>
-          </div>
+          <StatsCards data={data} trendData={trendData} />
 
           {/* Compliance Trend */}
-          <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl overflow-hidden shadow-sm">
-            <div className="bg-[#1E3A5F] px-5 py-4 flex items-center justify-between">
-              <h3 className="text-white font-semibold">
-                COMPLIANCE TREND <span className="font-normal opacity-80">(Last 30 Days)</span>
-              </h3>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={handleSyncNow}
-                  disabled={syncing}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 transition-all disabled:opacity-50"
-                >
-                  <FiRefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
-                  {syncing ? 'Syncing...' : 'Sync FMCSA'}
-                </button>
-                <Link to="/app/compliance" className="text-sm text-white/70 hover:text-white font-medium">
-                  Full Report
-                </Link>
-              </div>
-            </div>
-            <div className="p-3 sm:p-5 h-48 sm:h-56 lg:h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={complianceTrendData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:opacity-20" />
-                  <XAxis dataKey="date" tick={{ fill: '#6b7280', fontSize: 12 }} tickLine={{ stroke: '#e5e7eb' }} axisLine={{ stroke: '#e5e7eb' }} />
-                  <YAxis domain={['dataMin - 2', 'dataMax + 2']} tick={{ fill: '#6b7280', fontSize: 12 }} tickLine={{ stroke: '#e5e7eb' }} axisLine={{ stroke: '#e5e7eb' }} tickFormatter={(value) => `${value}%`} />
-                  <Tooltip
-                    contentStyle={{ backgroundColor: 'var(--color-surface, #fff)', border: '1px solid var(--color-border, #e5e7eb)', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
-                    formatter={(value) => [`${value}%`, 'Overall Score']}
-                  />
-                  <Legend verticalAlign="top" align="right" wrapperStyle={{ paddingBottom: '10px' }} />
-                  <Line type="monotone" dataKey="score" name="Overall Score" stroke="#4A90D9" strokeWidth={2} dot={{ fill: '#4A90D9', r: 4, strokeWidth: 0 }} activeDot={{ r: 6, stroke: '#4A90D9', strokeWidth: 2, fill: '#fff' }} />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
+          <ComplianceTrendChart
+            complianceHistory={complianceHistory}
+            complianceScore={complianceScore}
+            syncing={syncing}
+            onSyncNow={handleSyncNow}
+          />
         </div>
       </div>
 
@@ -925,128 +588,13 @@ const Dashboard = () => {
       </div>
 
       {/* Recent Inspections Card */}
-      {recentInspections.length > 0 && (
-        <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl overflow-hidden shadow-sm">
-          <div className="bg-[#1E3A5F] px-5 py-4 flex items-center justify-between">
-            <h3 className="text-white font-semibold">RECENT INSPECTIONS</h3>
-            <Link to="/app/compliance" className="text-white/80 hover:text-white text-sm flex items-center">
-              View All <FiArrowRight className="ml-1 w-4 h-4" />
-            </Link>
-          </div>
-          <div className="divide-y divide-zinc-200 dark:divide-zinc-700">
-            {recentInspections.map((insp) => (
-              <div key={insp._id} className="px-5 py-3 flex items-center justify-between hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors cursor-pointer"
-                onClick={async () => {
-                  try {
-                    const res = await fmcsaInspectionsAPI.getById(insp._id);
-                    if (res.data?.inspection) setSelectedInspection(res.data.inspection);
-                  } catch (e) { /* ignore */ }
-                }}>
-                <div className="flex items-center space-x-3">
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                    insp.vehicleOOS || insp.driverOOS
-                      ? 'bg-red-100 dark:bg-red-900/30'
-                      : (insp.totalViolations || 0) > 0
-                        ? 'bg-yellow-100 dark:bg-yellow-900/30'
-                        : 'bg-green-100 dark:bg-green-900/30'
-                  }`}>
-                    {insp.vehicleOOS || insp.driverOOS ? (
-                      <FiAlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
-                    ) : (insp.totalViolations || 0) > 0 ? (
-                      <FiAlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
-                    ) : (
-                      <FiCheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
-                    )}
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-zinc-800 dark:text-zinc-100">
-                      {insp.state || 'Unknown'} - Level {insp.inspectionLevel || '?'}
-                    </p>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                      {new Date(insp.inspectionDate).toLocaleDateString()} • {insp.reportNumber}
-                    </p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <span className={`text-sm font-medium ${
-                    (insp.totalViolations || 0) > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'
-                  }`}>
-                    {insp.totalViolations || 0} violation{(insp.totalViolations || 0) !== 1 ? 's' : ''}
-                  </span>
-                  {(insp.vehicleOOS || insp.driverOOS) && (
-                    <p className="text-xs text-red-500">
-                      {insp.vehicleOOS && 'Vehicle OOS'}
-                      {insp.vehicleOOS && insp.driverOOS && ' • '}
-                      {insp.driverOOS && 'Driver OOS'}
-                    </p>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      <RecentInspectionsCard
+        inspections={recentInspections}
+        onInspectionClick={handleInspectionClick}
+      />
 
       {/* Top Risk Drivers Card */}
-      {topRiskDrivers.length > 0 && (
-        <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl overflow-hidden shadow-sm">
-          <div className="bg-[#1E3A5F] px-5 py-4 flex items-center justify-between">
-            <h3 className="text-white font-semibold">TOP RISK DRIVERS</h3>
-            <Link to="/app/drivers" className="text-white/80 hover:text-white text-sm flex items-center">
-              View All <FiArrowRight className="ml-1 w-4 h-4" />
-            </Link>
-          </div>
-          <div className="divide-y divide-zinc-200 dark:divide-zinc-700">
-            {topRiskDrivers.map((driver) => (
-              <Link
-                key={driver._id}
-                to={`/app/drivers/${driver._id}`}
-                className="px-5 py-3 flex items-center justify-between hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors block"
-              >
-                <div className="flex items-center space-x-3">
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                    driver.riskLevel === 'High'
-                      ? 'bg-red-100 dark:bg-red-900/30'
-                      : driver.riskLevel === 'Medium'
-                        ? 'bg-yellow-100 dark:bg-yellow-900/30'
-                        : 'bg-green-100 dark:bg-green-900/30'
-                  }`}>
-                    <FiAlertTriangle className={`w-5 h-5 ${
-                      driver.riskLevel === 'High'
-                        ? 'text-red-600 dark:text-red-400'
-                        : driver.riskLevel === 'Medium'
-                          ? 'text-yellow-600 dark:text-yellow-400'
-                          : 'text-green-600 dark:text-green-400'
-                    }`} />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-zinc-800 dark:text-zinc-100">
-                      {driver.fullName || `${driver.firstName} ${driver.lastName}`}
-                    </p>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                      {driver.totalViolations} violation{driver.totalViolations !== 1 ? 's' : ''} • {driver.basicsAffected || 0} BASIC{(driver.basicsAffected || 0) !== 1 ? 's' : ''} affected
-                    </p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <span className={`text-sm font-semibold px-2 py-1 rounded-full ${
-                    driver.riskLevel === 'High'
-                      ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
-                      : driver.riskLevel === 'Medium'
-                        ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
-                        : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                  }`}>
-                    {Math.round(driver.totalWeightedPoints)} pts
-                  </span>
-                  {driver.oosCount > 0 && (
-                    <p className="text-xs text-red-500 mt-1">{driver.oosCount} OOS</p>
-                  )}
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
+      <TopRiskDriversCard drivers={topRiskDrivers} />
 
       {/* Floating AI Chat Button */}
       <Link

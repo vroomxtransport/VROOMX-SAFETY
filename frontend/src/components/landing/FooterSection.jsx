@@ -1,9 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  FiTwitter,
-  FiLinkedin,
-  FiFacebook,
   FiArrowUp,
 } from 'react-icons/fi';
 import VroomXLogo from '../VroomXLogo';
@@ -117,35 +114,6 @@ const FooterSection = () => {
               AI-powered FMCSA compliance made simple for owner-operators and
               small fleets.
             </p>
-            <div className="flex items-center gap-4 mt-6">
-              <a
-                href="https://twitter.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white/50 hover:text-cta-400 transition-colors"
-                aria-label="Twitter"
-              >
-                <FiTwitter className="w-5 h-5" />
-              </a>
-              <a
-                href="https://linkedin.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white/50 hover:text-cta-400 transition-colors"
-                aria-label="LinkedIn"
-              >
-                <FiLinkedin className="w-5 h-5" />
-              </a>
-              <a
-                href="https://facebook.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white/50 hover:text-cta-400 transition-colors"
-                aria-label="Facebook"
-              >
-                <FiFacebook className="w-5 h-5" />
-              </a>
-            </div>
           </div>
 
           {/* Product column */}

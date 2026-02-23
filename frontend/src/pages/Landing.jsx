@@ -5,6 +5,7 @@ import {
   FiLock, FiDatabase, FiAward, FiHeadphones
 } from 'react-icons/fi';
 import PublicHeader from '../components/PublicHeader';
+import SEO from '../components/SEO';
 // Only import components actually used (reduces bundle size)
 import {
   HeroDesign5,
@@ -17,24 +18,13 @@ import {
 } from '../components/landing';
 import {
   heroTexts,
-  blogPosts,
   faqData,
 } from '../data/landingData';
+import { featuredArticle, articles as allBlogArticles } from '../data/blogPosts';
 import useForceLightMode from '../hooks/useForceLightMode';
 
 const Landing = () => {
   useForceLightMode();
-
-  // Preload hero image only on the landing page to avoid browser warnings on other pages
-  useEffect(() => {
-    const link = document.createElement('link');
-    link.rel = 'preload';
-    link.as = 'image';
-    link.href = '/images/hero-bg-truck.jpg';
-    link.type = 'image/jpeg';
-    document.head.appendChild(link);
-    return () => { document.head.removeChild(link); };
-  }, []);
 
   // Hero typewriter cycling state
   const [heroTextIndex, setHeroTextIndex] = useState(0);
@@ -52,6 +42,14 @@ const Landing = () => {
 
   return (
     <div className="relative overflow-hidden w-full min-h-screen bg-white text-[#1E293B]">
+      <SEO
+        title="FMCSA Compliance Management & CSA Score Tracking"
+        description="Stop risking $16,000 fines. Track CSA scores, manage DQF files, catch expiring documents, and generate DataQ challenges with AI. Built for owner-operators and small fleets. 7-day free trial."
+        path="/"
+        image="/images/og-image.png"
+        faqItems={faqData}
+      />
+
       {/* Fixed Background Elements */}
       <div className="fixed inset-0 z-0">
         <div className="absolute inset-0 bg-white" />
@@ -340,8 +338,8 @@ const Landing = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-            {blogPosts.map((post, i) => (
-              <Link key={i} to="/blog" className="group block">
+            {[allBlogArticles[0], allBlogArticles[1], allBlogArticles[2]].map((post, i) => (
+              <Link key={i} to={`/blog/${post.slug}`} className="group block">
                 <div className="bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden h-full flex flex-col hover:-translate-y-2 hover:border-primary-500/30 hover:shadow-lg transition-all duration-300">
                   <div className="h-48 relative overflow-hidden">
                     <img src={post.image} alt={post.title} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e) => { e.target.onerror = null; e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300" fill="%23e4e4e7"%3E%3Crect width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" fill="%2371717a" font-size="16"%3EImage unavailable%3C/text%3E%3C/svg%3E'; }} />
@@ -352,7 +350,7 @@ const Landing = () => {
                   <div className="p-6 flex-1 flex flex-col">
                     <div className="text-xs text-zinc-500 mb-3 font-mono">{post.date}</div>
                     <h3 className="text-xl font-bold text-primary-500 mb-3 group-hover:text-cta-500 transition-colors">{post.title}</h3>
-                    <p className="text-sm text-zinc-600 mb-4 flex-1">{post.excerpt}</p>
+                    <p className="text-sm text-zinc-600 mb-4 flex-1">{post.description}</p>
                     <div className="flex items-center gap-2 text-sm text-cta-500 font-medium">
                       Read Article
                       <FiArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />

@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import { FiMail, FiLock, FiEye, FiEyeOff, FiShield, FiCheckCircle, FiArrowRight, FiTruck, FiClock } from 'react-icons/fi';
 import LoadingSpinner from '../components/LoadingSpinner';
 import VroomXLogo from '../components/VroomXLogo';
+import SEO from '../components/SEO';
 import useForceLightMode from '../hooks/useForceLightMode';
 
 const Login = () => {
@@ -72,6 +73,12 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] relative overflow-hidden">
+      <SEO
+        title="Log In to Your Account"
+        description="Access your VroomX Safety dashboard to manage FMCSA compliance, track CSA scores, and stay DOT audit-ready."
+        path="/login"
+      />
+
       {/* Background Effects */}
       <div className="fixed inset-0 z-0">
         {/* Base gradient */}

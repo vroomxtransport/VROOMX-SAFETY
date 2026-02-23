@@ -15,16 +15,21 @@ export default function SEO({ title, description, path = '/', image, type = 'web
     description: description || defaultDescription,
     image: image,
     url: `${baseUrl}${path}`,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': `${baseUrl}${path}` },
     datePublished: article.isoDate,
-    dateModified: article.isoDate,
+    dateModified: article.lastUpdatedIso || article.isoDate,
     author: {
-      '@type': 'Organization',
-      name: 'VroomX Safety',
+      '@type': 'Person',
+      name: article.author || 'VroomX Safety Team',
     },
     publisher: {
       '@type': 'Organization',
       name: 'VroomX Safety',
       url: baseUrl,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${baseUrl}/logo-icon.svg`,
+      },
     },
   } : null;
 

@@ -185,7 +185,7 @@ const CSACheckerPage = () => {
         faqItems={faqData}
         breadcrumbs={[
           { name: 'Home', url: '/' },
-          { name: 'CSA Score Checker', url: '/csa-checker' }
+          { name: 'Free CSA Score Checker', url: '/csa-checker' }
         ]}
       />
 

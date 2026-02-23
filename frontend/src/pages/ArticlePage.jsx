@@ -1,6 +1,6 @@
 import { useParams, Navigate, Link } from 'react-router-dom';
 import DOMPurify from 'dompurify';
-import { FiClock, FiArrowLeft, FiArrowRight, FiChevronRight } from 'react-icons/fi';
+import { FiClock, FiUser, FiArrowLeft, FiArrowRight, FiChevronRight } from 'react-icons/fi';
 import PublicHeader from '../components/PublicHeader';
 import { BlogFooter } from '../components/blog';
 import SEO from '../components/SEO';
@@ -79,7 +79,7 @@ const ArticlePage = () => {
         path={`/blog/${post.slug}`}
         image={post.image}
         type="article"
-        article={{ isoDate: post.isoDate, lastUpdatedIso: post.lastUpdatedIso }}
+        article={{ isoDate: post.isoDate, lastUpdatedIso: post.lastUpdatedIso, author: post.author }}
         breadcrumbs={[
           { name: 'Home', url: '/' },
           { name: 'Blog', url: '/blog' },
@@ -132,6 +132,12 @@ const ArticlePage = () => {
                 <FiClock className="w-4 h-4" />
                 {post.readTime}
               </span>
+              {post.author && (
+                <span className="flex items-center gap-1 text-zinc-500 text-sm">
+                  <FiUser className="w-4 h-4" />
+                  {post.author}
+                </span>
+              )}
             </div>
             <h1 className="text-3xl md:text-5xl font-black text-primary-500 mb-4 font-heading leading-tight">
               {post.title}

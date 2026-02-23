@@ -9,6 +9,7 @@ import {
 } from 'react-icons/fi';
 import LoadingSpinner from '../components/LoadingSpinner';
 import VroomXLogo from '../components/VroomXLogo';
+import SEO from '../components/SEO';
 import api from '../utils/api';
 import useForceLightMode from '../hooks/useForceLightMode';
 
@@ -200,6 +201,12 @@ const Register = () => {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] relative overflow-hidden">
+      <SEO
+        title="Start Your 7-Day Free Trial"
+        description="Sign up for VroomX Safety and get instant access to FMCSA compliance management, CSA score tracking, and automated document alerts. No credit card required."
+        path="/register"
+      />
+
       {/* Background Effects */}
       <div className="fixed inset-0 z-0">
         {/* Base gradient */}

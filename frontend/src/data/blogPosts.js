@@ -16,6 +16,7 @@ export const featuredArticle = {
   isoDate: '2025-10-24',
   lastUpdated: 'Feb 23, 2026',
   lastUpdatedIso: '2026-02-23',
+  author: 'VroomX Safety Team',
   title: 'Navigating the 2026 ELD Mandate Updates',
   description: 'The FMCSA has proposed new technical specifications for Electronic Logging Devices. Here is what every safety director needs to know to stay compliant.',
   tag: 'Featured',
@@ -67,7 +68,9 @@ export const featuredArticle = {
       <li>Review your data retention policies to meet new requirements</li>
     </ol>
 
-    <p class="text-[#475569]">VroomX Safety is committed to keeping you informed as these regulations develop. Our platform will automatically update to reflect any changes in compliance requirements, ensuring your fleet stays ahead of the curve.</p>
+    <p class="text-[#475569]">VroomX Safety is committed to keeping you informed as these regulations develop. Our <a href="/platform">VroomX compliance platform</a> will automatically update to reflect any changes in compliance requirements, ensuring your fleet stays ahead of the curve. Use our <a href="/csa-checker">free CSA score checker</a> to see how ELD-related violations are affecting your BASICs, and explore <a href="/pricing">plans starting at $29/mo</a> for automated compliance monitoring.</p>
+
+    <p class="text-[#475569] mt-6">For a complete compliance overview, see our <a href="/blog/fmcsa-compliance-checklist-2026">2026 FMCSA Compliance Checklist</a> — a step-by-step guide to staying DOT audit-ready.</p>
   `
 };
 
@@ -80,6 +83,7 @@ export const articles = [
     isoDate: '2025-10-12',
     lastUpdated: 'Feb 23, 2026',
     lastUpdatedIso: '2026-02-23',
+    author: 'VroomX Safety Team',
     title: 'Exemptions Explained: 100 vs 150 Air-Mile Radius',
     description: 'Clarifying the confusion around short-haul exemptions and time records.',
     tag: 'Regulation',
@@ -122,6 +126,10 @@ export const articles = [
         <li><strong class="text-[#1E3A5F]">Poor time record documentation:</strong> Time records must show start time, end time, and total hours</li>
         <li><strong class="text-[#1E3A5F]">Not returning to work location:</strong> Drivers must physically return, not just end their shift</li>
       </ol>
+
+      <p class="text-[#475569]">Stay on top of HOS exemption compliance with the <a href="/platform">VroomX compliance platform</a>, which tracks driver hours and automatically flags when short-haul exemption conditions are not met. Check your current standing with our <a href="/csa-checker">free CSA score checker</a>.</p>
+
+      <p class="text-[#475569] mt-6">For a complete compliance overview, see our <a href="/blog/fmcsa-compliance-checklist-2026">2026 FMCSA Compliance Checklist</a> — a step-by-step guide to staying DOT audit-ready.</p>
     `
   },
   {
@@ -132,6 +140,7 @@ export const articles = [
     isoDate: '2025-09-28',
     lastUpdated: 'Feb 23, 2026',
     lastUpdatedIso: '2026-02-23',
+    author: 'VroomX Safety Team',
     title: 'The Real Cost of a "Conditional" Rating',
     description: 'How your safety rating impacts insurance premiums and broker relationships.',
     tag: 'Safety',
@@ -190,6 +199,10 @@ export const articles = [
         <li>Request a safety rating upgrade through FMCSA portal</li>
         <li>Prepare for a potential follow-up compliance review</li>
       </ol>
+
+      <p class="text-[#475569]">Use our <a href="/csa-checker">free CSA score checker</a> to see exactly which BASICs are dragging your rating down, then build a corrective action plan with the <a href="/platform">VroomX compliance platform</a>. With <a href="/pricing">plans starting at $29/mo</a>, proactive compliance costs a fraction of a single premium increase.</p>
+
+      <p class="text-[#475569] mt-6">For a complete compliance overview, see our <a href="/blog/fmcsa-compliance-checklist-2026">2026 FMCSA Compliance Checklist</a> — a step-by-step guide to staying DOT audit-ready.</p>
     `
   },
   {
@@ -200,6 +213,7 @@ export const articles = [
     isoDate: '2025-09-15',
     lastUpdated: 'Feb 23, 2026',
     lastUpdatedIso: '2026-02-23',
+    author: 'VroomX Safety Team',
     title: 'Digitizing Driver Qualification Files',
     description: 'Why sticking to paper filings is costing you more than just storage space.',
     tag: 'Tech',
@@ -251,6 +265,10 @@ export const articles = [
         <li>Previous employer verification (3 years)</li>
         <li>Drug and alcohol testing records</li>
       </ul>
+
+      <p class="text-[#475569]">The <a href="/platform">VroomX compliance platform</a> digitizes your entire DQ file workflow — upload documents, track expirations automatically, and generate audit-ready driver files in one click. Get started with <a href="/pricing">plans starting at $29/mo</a>.</p>
+
+      <p class="text-[#475569] mt-6">For a complete compliance overview, see our <a href="/blog/fmcsa-compliance-checklist-2026">2026 FMCSA Compliance Checklist</a> — a step-by-step guide to staying DOT audit-ready.</p>
     `
   },
   {
@@ -261,6 +279,7 @@ export const articles = [
     isoDate: '2025-08-30',
     lastUpdated: 'Feb 23, 2026',
     lastUpdatedIso: '2026-02-23',
+    author: 'VroomX Safety Team',
     title: 'Preparing for a Remote Audit',
     description: 'Step-by-step checklist to ensure your digital records pass inspection.',
     tag: 'Audit',
@@ -317,6 +336,10 @@ export const articles = [
         <h3 class="text-lg font-bold text-[#A16207] mb-2">Pro Tip</h3>
         <p class="text-[#475569]">Conduct a mock audit with your team before the scheduled review. This helps identify gaps and ensures everyone knows how to locate requested documents quickly.</p>
       </div>
+
+      <p class="text-[#475569]">The <a href="/platform">VroomX compliance platform</a> keeps all your records organized and audit-ready — from DQ files to maintenance logs. Generate complete driver files instantly and use our <a href="/csa-checker">free CSA score checker</a> to identify compliance gaps before auditors do.</p>
+
+      <p class="text-[#475569] mt-6">For a complete compliance overview, see our <a href="/blog/fmcsa-compliance-checklist-2026">2026 FMCSA Compliance Checklist</a> — a step-by-step guide to staying DOT audit-ready.</p>
     `
   },
   {
@@ -327,6 +350,7 @@ export const articles = [
     isoDate: '2025-08-12',
     lastUpdated: 'Feb 23, 2026',
     lastUpdatedIso: '2026-02-23',
+    author: 'VroomX Safety Team',
     title: 'Retaining Top Talent in Tough Times',
     description: 'Strategies for keeping your best drivers happy and compliant.',
     tag: 'Career',
@@ -371,6 +395,8 @@ export const articles = [
       <h2 class="text-2xl font-bold text-[#1E3A5F] mt-8 mb-4 font-heading">The Compliance Connection</h2>
 
       <p class="text-[#475569] mb-4">Experienced drivers are your best compliance asset. They understand regulations, maintain better logs, and have fewer accidents. Investing in retention is investing in your safety scores.</p>
+
+      <p class="text-[#475569] mt-6">For a complete compliance overview, see our <a href="/blog/fmcsa-compliance-checklist-2026">2026 FMCSA Compliance Checklist</a> — a step-by-step guide to staying DOT audit-ready.</p>
     `
   },
   {
@@ -381,6 +407,7 @@ export const articles = [
     isoDate: '2025-07-22',
     lastUpdated: 'Feb 23, 2026',
     lastUpdatedIso: '2026-02-23',
+    author: 'VroomX Safety Team',
     title: 'AI in Fleet Management',
     description: 'How artificial intelligence is changing the way we handle compliance and routing.',
     tag: 'Tech',
@@ -435,6 +462,8 @@ export const articles = [
       </ul>
 
       <p class="text-[#475569]">VroomX Safety integrates AI throughout our platform, helping you stay ahead of compliance requirements while reducing manual workload.</p>
+
+      <p class="text-[#475569] mt-6">For a complete compliance overview, see our <a href="/blog/fmcsa-compliance-checklist-2026">2026 FMCSA Compliance Checklist</a> — a step-by-step guide to staying DOT audit-ready.</p>
     `
   },
   {
@@ -445,6 +474,7 @@ export const articles = [
     isoDate: '2025-07-10',
     lastUpdated: 'Feb 23, 2026',
     lastUpdatedIso: '2026-02-23',
+    author: 'VroomX Safety Team',
     title: 'Pre-Trip Inspection Best Practices',
     description: 'Master the art of thorough pre-trip inspections to avoid costly violations and keep your fleet safe.',
     tag: 'Safety',
@@ -484,6 +514,8 @@ export const articles = [
       </ol>
 
       <p class="text-[#475569]">Remember: A thorough 15-minute pre-trip inspection can save you hours of delays and thousands in fines. Make it a habit, not a hassle.</p>
+
+      <p class="text-[#475569] mt-6">For a complete compliance overview, see our <a href="/blog/fmcsa-compliance-checklist-2026">2026 FMCSA Compliance Checklist</a> — a step-by-step guide to staying DOT audit-ready.</p>
     `
   },
   {
@@ -494,6 +526,7 @@ export const articles = [
     isoDate: '2025-06-28',
     lastUpdated: 'Feb 23, 2026',
     lastUpdatedIso: '2026-02-23',
+    author: 'VroomX Safety Team',
     title: 'Understanding CSA Scores and BASICs',
     description: 'A complete breakdown of the CSA scoring system and how each BASIC category affects your carrier rating.',
     tag: 'CSA',
@@ -547,6 +580,8 @@ export const articles = [
       </ul>
 
       <p class="text-[#475569]">Monitor your scores monthly and address any upward trends before they trigger FMCSA intervention.</p>
+
+      <p class="text-[#475569] mt-6">For a complete compliance overview, see our <a href="/blog/fmcsa-compliance-checklist-2026">2026 FMCSA Compliance Checklist</a> — a step-by-step guide to staying DOT audit-ready.</p>
     `
   },
   {
@@ -557,6 +592,7 @@ export const articles = [
     isoDate: '2025-06-15',
     lastUpdated: 'Feb 23, 2026',
     lastUpdatedIso: '2026-02-23',
+    author: 'VroomX Safety Team',
     title: 'Drug & Alcohol Testing Compliance',
     description: 'Everything carriers need to know about DOT drug and alcohol testing requirements and the Clearinghouse.',
     tag: 'D&A Testing',
@@ -600,6 +636,8 @@ export const articles = [
         <li>Increased insurance premiums</li>
         <li>Loss of operating authority</li>
       </ul>
+
+      <p class="text-[#475569] mt-6">For a complete compliance overview, see our <a href="/blog/fmcsa-compliance-checklist-2026">2026 FMCSA Compliance Checklist</a> — a step-by-step guide to staying DOT audit-ready.</p>
     `
   },
   {
@@ -610,6 +648,7 @@ export const articles = [
     isoDate: '2025-06-01',
     lastUpdated: 'Feb 23, 2026',
     lastUpdatedIso: '2026-02-23',
+    author: 'VroomX Safety Team',
     title: 'Hours of Service Rules Simplified',
     description: 'A clear breakdown of HOS regulations for property-carrying drivers, including exceptions and the 2020 updates.',
     tag: 'HOS',
@@ -664,6 +703,7 @@ export const articles = [
     isoDate: '2025-05-20',
     lastUpdated: 'Feb 23, 2026',
     lastUpdatedIso: '2026-02-23',
+    author: 'VroomX Safety Team',
     title: 'Roadside Inspection Survival Guide',
     description: 'What to expect during a DOT roadside inspection and how to minimize your chances of an out-of-service order.',
     tag: 'Inspections',
@@ -727,6 +767,7 @@ export const articles = [
     isoDate: '2025-05-08',
     lastUpdated: 'Feb 23, 2026',
     lastUpdatedIso: '2026-02-23',
+    author: 'VroomX Safety Team',
     title: 'Medical Card Requirements for CDL Drivers',
     description: 'Complete guide to DOT physical examinations, disqualifying conditions, and keeping your medical certification current.',
     tag: 'Medical',
@@ -790,6 +831,7 @@ export const articles = [
     isoDate: '2025-04-25',
     lastUpdated: 'Feb 23, 2026',
     lastUpdatedIso: '2026-02-23',
+    author: 'VroomX Safety Team',
     title: 'Vehicle Maintenance Under 49 CFR 396',
     description: 'Understanding your regulatory obligations for systematic vehicle inspection, repair, and maintenance programs.',
     tag: 'Maintenance',
@@ -850,6 +892,7 @@ export const articles = [
     isoDate: '2025-04-10',
     lastUpdated: 'Feb 23, 2026',
     lastUpdatedIso: '2026-02-23',
+    author: 'VroomX Safety Team',
     title: 'New Entrant Safety Audit Preparation',
     description: 'A comprehensive guide to preparing for and passing your FMCSA new entrant safety audit.',
     tag: 'Audit',
@@ -909,6 +952,7 @@ export const articles = [
     isoDate: '2025-03-28',
     lastUpdated: 'Feb 23, 2026',
     lastUpdatedIso: '2026-02-23',
+    author: 'VroomX Safety Team',
     title: 'DataQs Challenges: Removing Unfair Violations',
     description: 'How to identify challengeable violations and successfully use the DataQs system to improve your safety record.',
     tag: 'DataQ',
@@ -982,6 +1026,7 @@ export const articles = [
     isoDate: '2025-03-15',
     lastUpdated: 'Feb 23, 2026',
     lastUpdatedIso: '2026-02-23',
+    author: 'VroomX Safety Team',
     title: 'Fleet Safety Technology Trends 2026',
     description: 'Emerging technologies transforming fleet safety, from AI-powered cameras to predictive maintenance systems.',
     tag: 'Technology',
@@ -1044,6 +1089,7 @@ export const articles = [
     isoDate: '2026-02-20',
     lastUpdated: 'Feb 23, 2026',
     lastUpdatedIso: '2026-02-23',
+    author: 'VroomX Safety Team',
     title: 'Complete FMCSA Compliance Checklist for 2026',
     description: 'The definitive guide to every major FMCSA compliance area — from driver qualification files and HOS to CSA scores and DataQ challenges.',
     tag: 'Guide',
@@ -1227,6 +1273,7 @@ export const articles = [
     isoDate: '2026-02-15',
     lastUpdated: 'Feb 23, 2026',
     lastUpdatedIso: '2026-02-23',
+    author: 'VroomX Safety Team',
     title: 'The True Cost of FMCSA Non-Compliance',
     description: 'Beyond the fines — how non-compliance devastates your insurance, contracts, and long-term profitability.',
     tag: 'Analysis',
@@ -1338,6 +1385,7 @@ export const articles = [
     isoDate: '2026-02-10',
     lastUpdated: 'Feb 23, 2026',
     lastUpdatedIso: '2026-02-23',
+    author: 'VroomX Safety Team',
     title: 'CSA Score Improvement Strategy: A Step-by-Step Playbook',
     description: 'Practical strategies to lower your CSA percentiles across all 7 BASICs — from identifying quick wins to building long-term compliance systems.',
     tag: 'Strategy',
@@ -1460,6 +1508,7 @@ export const articles = [
     isoDate: '2026-02-05',
     lastUpdated: 'Feb 23, 2026',
     lastUpdatedIso: '2026-02-23',
+    author: 'VroomX Safety Team',
     title: 'DataQ Challenge Success Stories: 3 Violations Overturned',
     description: 'Three realistic scenarios showing how carriers successfully used the FMCSA DataQs system to remove unfair violations and improve their CSA scores.',
     tag: 'Case Study',
