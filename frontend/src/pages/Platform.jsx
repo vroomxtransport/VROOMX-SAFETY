@@ -8,6 +8,7 @@ import {
 } from 'react-icons/fi';
 import PublicHeader from '../components/PublicHeader';
 import { FooterSection } from '../components/landing';
+import SEO from '../components/SEO';
 import useForceLightMode from '../hooks/useForceLightMode';
 
 const Platform = () => {
@@ -75,6 +76,12 @@ const Platform = () => {
         <div className="absolute inset-0 bg-[#F8FAFC]"></div>
         <div className="absolute inset-0 bg-grid-pattern opacity-[0.03]"></div>
       </div>
+
+      <SEO
+        title="FMCSA Compliance Dashboard | CSA Scores, DQF Files, Alerts"
+        description="Your compliance command center. Track CSA scores across all 7 BASICs, manage driver qualification files, get expiration alerts, and challenge violations with AI — all in one dashboard."
+        path="/platform"
+      />
 
       <PublicHeader activePage="platform" />
 
@@ -169,6 +176,26 @@ const Platform = () => {
 
       {/* Timeline Section - How It Works */}
       <TimelineSection />
+
+      {/* Related Resources - Internal Cross-Links */}
+      <section className="relative z-10 py-16 px-6 bg-white/60 backdrop-blur-sm border-t border-[#E2E8F0]">
+        <div className="max-w-5xl mx-auto">
+          <h3 className="text-xl font-bold text-primary-500 mb-6 font-heading text-center">Dive Deeper Into Compliance</h3>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { to: '/blog/understanding-csa-scores-basics', title: 'CSA Scores Explained', desc: 'How FMCSA tracks your 7 BASICs' },
+              { to: '/blog/digitizing-dq-files', title: 'Digitizing DQF Files', desc: 'Why digital DQF management matters' },
+              { to: '/blog/dataq-challenges-removing-violations', title: 'DataQ Challenges', desc: 'Removing unfair violations from your record' },
+              { to: '/blog/drug-alcohol-testing-compliance', title: 'Drug & Alcohol Testing', desc: 'Complete guide to testing compliance' },
+            ].map((link, i) => (
+              <Link key={i} to={link.to} className="group p-4 bg-white rounded-xl border border-[#E2E8F0] hover:border-cta-500/30 hover:shadow-md transition-all">
+                <span className="text-sm font-semibold text-primary-500 group-hover:text-cta-500 transition-colors">{link.title}</span>
+                <p className="text-xs text-[#64748B] mt-1">{link.desc}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* CTA Section */}
       <section className="relative z-10 py-20 px-6">

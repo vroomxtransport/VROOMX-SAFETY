@@ -6,6 +6,7 @@ import {
 } from 'react-icons/fi';
 import PublicHeader from '../components/PublicHeader';
 import { FooterSection } from '../components/landing';
+import SEO from '../components/SEO';
 import useForceLightMode from '../hooks/useForceLightMode';
 
 const pricingFAQ = [
@@ -114,6 +115,13 @@ const Pricing = () => {
         <div className="absolute inset-0 bg-[#F8FAFC]" />
         <div className="absolute inset-0 bg-grid-pattern opacity-[0.04]" />
       </div>
+
+      <SEO
+        title="Pricing Plans Starting at $29/mo | 7-Day Free Trial"
+        description="Simple, transparent pricing for trucking compliance. Owner-operators start at $29/mo. Small fleets at $79/mo. All plans include CSA tracking, DQF management, and AI assistant. Try free for 7 days."
+        path="/pricing"
+        faqItems={pricingFAQ}
+      />
 
       {/* Navigation */}
       <PublicHeader activePage="pricing" />

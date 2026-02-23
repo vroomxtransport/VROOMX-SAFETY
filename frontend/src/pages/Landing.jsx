@@ -154,6 +154,14 @@ const Landing = () => {
           <p className="mt-10 text-xl font-semibold text-zinc-700">
             We do one thing. We do it well. We charge fairly for it.
           </p>
+
+          <div className="mt-8">
+            <Link to="/csa-checker" className="inline-flex items-center gap-2 px-6 py-3 bg-cta-500/10 border border-cta-500/20 text-cta-600 font-bold rounded-xl hover:bg-cta-500/20 transition-colors">
+              <FiBarChart2 className="w-5 h-5" />
+              Check Your CSA Score Free
+              <FiArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
         </div>
       </section>
 

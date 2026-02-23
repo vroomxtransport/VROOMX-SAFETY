@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 
-export default function SEO({ title, description, path = '/', image, type = 'website', article }) {
+export default function SEO({ title, description, path = '/', image, type = 'website', article, breadcrumbs, faqItems }) {
   const baseUrl = 'https://vroomxsafety.com';
   const fullTitle = title
     ? `${title} | VroomX Safety`
@@ -8,7 +8,7 @@ export default function SEO({ title, description, path = '/', image, type = 'web
 
   const defaultDescription = 'VroomX Safety helps trucking companies manage FMCSA compliance, track CSA scores, monitor driver qualifications, and stay DOT-ready with automated alerts and reporting.';
 
-  const jsonLd = article ? {
+  const blogPostingLd = article ? {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
     headline: title,
@@ -28,6 +28,30 @@ export default function SEO({ title, description, path = '/', image, type = 'web
     },
   } : null;
 
+  const breadcrumbLd = breadcrumbs?.length ? {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: breadcrumbs.map((crumb, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: crumb.name,
+      item: `${baseUrl}${crumb.url}`,
+    })),
+  } : null;
+
+  const faqLd = faqItems?.length ? {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqItems.map(item => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.answer,
+      },
+    })),
+  } : null;
+
   return (
     <Helmet>
       <title>{fullTitle}</title>
@@ -42,9 +66,19 @@ export default function SEO({ title, description, path = '/', image, type = 'web
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description || defaultDescription} />
       {image && <meta name="twitter:image" content={image} />}
-      {jsonLd && (
+      {blogPostingLd && (
         <script type="application/ld+json">
-          {JSON.stringify(jsonLd)}
+          {JSON.stringify(blogPostingLd)}
+        </script>
+      )}
+      {breadcrumbLd && (
+        <script type="application/ld+json">
+          {JSON.stringify(breadcrumbLd)}
+        </script>
+      )}
+      {faqLd && (
+        <script type="application/ld+json">
+          {JSON.stringify(faqLd)}
         </script>
       )}
     </Helmet>

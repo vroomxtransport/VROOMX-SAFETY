@@ -21,7 +21,8 @@ const sanitizeConfig = {
     'div', 'span'
   ],
   ALLOWED_ATTR: [
-    'href', 'target', 'rel', 'src', 'alt', 'title', 'class'
+    'href', 'target', 'rel', 'src', 'alt', 'title', 'class',
+    'loading', 'width', 'height'
   ],
   ALLOW_DATA_ATTR: false,
   FORBID_TAGS: ['script', 'style', 'iframe', 'form', 'input', 'object', 'embed'],
@@ -30,11 +31,17 @@ const sanitizeConfig = {
   ADD_TAGS: [],
 };
 
-// Hook to add rel="noopener noreferrer" to all links
+// Hook to add rel="noopener noreferrer" to external links, keep internal links in-page
 DOMPurify.addHook('afterSanitizeAttributes', (node) => {
   if (node.tagName === 'A') {
-    node.setAttribute('target', '_blank');
-    node.setAttribute('rel', 'noopener noreferrer');
+    const href = node.getAttribute('href') || '';
+    if (href.startsWith('/') || href.startsWith('https://vroomxsafety.com')) {
+      node.removeAttribute('target');
+      node.removeAttribute('rel');
+    } else {
+      node.setAttribute('target', '_blank');
+      node.setAttribute('rel', 'noopener noreferrer');
+    }
   }
 });
 
@@ -73,6 +80,11 @@ const ArticlePage = () => {
         image={post.image}
         type="article"
         article={{ isoDate: post.isoDate }}
+        breadcrumbs={[
+          { name: 'Home', url: '/' },
+          { name: 'Blog', url: '/blog' },
+          { name: post.title, url: `/blog/${post.slug}` },
+        ]}
       />
 
       <article className="relative z-10 pt-40 pb-12 px-6 md:px-16">
@@ -95,6 +107,9 @@ const ArticlePage = () => {
                 src={post.image}
                 alt={post.title}
                 className="w-full h-full object-cover"
+                loading="lazy"
+                width="800"
+                height="600"
               />
             </div>
           )}
@@ -168,7 +183,7 @@ const ArticlePage = () => {
                   >
                     {r.image && (
                       <div className="h-36 overflow-hidden">
-                        <img src={r.image} alt={r.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        <img src={r.image} alt={r.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" width="400" height="300" />
                       </div>
                     )}
                     <div className="p-4">
@@ -181,10 +196,32 @@ const ArticlePage = () => {
             </section>
           )}
 
-          {/* CTA */}
+          {/* Contextual CTA based on article category */}
           <section className="bg-primary-500 rounded-2xl p-8 md:p-12 text-center">
-            <h2 className="text-2xl md:text-3xl font-bold text-white mb-4 font-heading">Stay Compliant, Stay Ahead</h2>
-            <p className="text-white/80 mb-6 max-w-xl mx-auto">Start your free trial of VroomX Safety and get proactive compliance monitoring for your fleet.</p>
+            {post.category === 'case-studies' ? (
+              <>
+                <h2 className="text-2xl md:text-3xl font-bold text-white mb-4 font-heading">Challenge Your Violations with AI</h2>
+                <p className="text-white/80 mb-6 max-w-xl mx-auto">VroomX AI analyzes your violations and generates DataQ challenge letters automatically. Start saving on fines today.</p>
+              </>
+            ) : post.category === 'safety' ? (
+              <>
+                <h2 className="text-2xl md:text-3xl font-bold text-white mb-4 font-heading">Check Your CSA Score for Free</h2>
+                <p className="text-white/80 mb-6 max-w-xl mx-auto">See all 7 BASIC scores instantly with AI-powered analysis and improvement recommendations. No signup required.</p>
+                <Link
+                  to="/csa-checker"
+                  className="inline-flex items-center gap-2 px-8 py-3 bg-white text-primary-500 font-bold rounded-lg transition-colors hover:bg-gray-100 mb-4"
+                >
+                  Free CSA Score Check
+                  <FiArrowRight className="w-4 h-4" />
+                </Link>
+                <p className="text-white/60 text-sm mb-4">or</p>
+              </>
+            ) : (
+              <>
+                <h2 className="text-2xl md:text-3xl font-bold text-white mb-4 font-heading">Stay Compliant, Stay Ahead</h2>
+                <p className="text-white/80 mb-6 max-w-xl mx-auto">Track CSA scores, manage DQF files, catch expiring documents, and get AI-powered compliance help — all in one dashboard.</p>
+              </>
+            )}
             <Link
               to="/register"
               className="inline-flex items-center gap-2 px-8 py-3 bg-cta-500 hover:bg-cta-600 text-white font-bold rounded-lg transition-colors"

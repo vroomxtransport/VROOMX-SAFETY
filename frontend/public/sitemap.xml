@@ -3,7 +3,7 @@
   <!-- Homepage -->
   <url>
     <loc>https://vroomxsafety.com/</loc>
-    <lastmod>2026-01-30</lastmod>
+    <lastmod>2026-02-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
@@ -11,14 +11,14 @@
   <!-- Core Marketing Pages -->
   <url>
     <loc>https://vroomxsafety.com/pricing</loc>
-    <lastmod>2026-01-30</lastmod>
+    <lastmod>2026-02-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
     <loc>https://vroomxsafety.com/platform</loc>
-    <lastmod>2026-01-30</lastmod>
+    <lastmod>2026-02-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -26,7 +26,7 @@
   <!-- Lead Magnet -->
   <url>
     <loc>https://vroomxsafety.com/csa-checker</loc>
-    <lastmod>2026-01-30</lastmod>
+    <lastmod>2026-02-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -34,7 +34,7 @@
   <!-- Content Pages -->
   <url>
     <loc>https://vroomxsafety.com/blog</loc>
-    <lastmod>2026-01-30</lastmod>
+    <lastmod>2026-02-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -159,17 +159,45 @@
     <priority>0.7</priority>
   </url>
 
+  <url>
+    <loc>https://vroomxsafety.com/blog/fmcsa-compliance-checklist-2026</loc>
+    <lastmod>2026-02-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://vroomxsafety.com/blog/true-cost-fmcsa-non-compliance</loc>
+    <lastmod>2026-02-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://vroomxsafety.com/blog/csa-score-improvement-strategy</loc>
+    <lastmod>2026-02-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://vroomxsafety.com/blog/dataq-challenge-success-stories</loc>
+    <lastmod>2026-02-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
   <!-- Auth Pages (low priority but indexable) -->
   <url>
     <loc>https://vroomxsafety.com/login</loc>
-    <lastmod>2026-01-30</lastmod>
+    <lastmod>2026-02-23</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
 
   <url>
     <loc>https://vroomxsafety.com/register</loc>
-    <lastmod>2026-01-30</lastmod>
+    <lastmod>2026-02-23</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -177,14 +205,14 @@
   <!-- Legal Pages -->
   <url>
     <loc>https://vroomxsafety.com/privacy</loc>
-    <lastmod>2026-01-30</lastmod>
+    <lastmod>2026-02-23</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
 
   <url>
     <loc>https://vroomxsafety.com/terms</loc>
-    <lastmod>2026-01-30</lastmod>
+    <lastmod>2026-02-23</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>

@@ -8,6 +8,7 @@ import {
 import PublicHeader from '../components/PublicHeader';
 import { FooterSection } from '../components/landing';
 import CSAChecker from '../components/CSAChecker';
+import SEO from '../components/SEO';
 import useForceLightMode from '../hooks/useForceLightMode';
 
 // FAQ Data
@@ -176,6 +177,13 @@ const CSACheckerPage = () => {
         <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-primary-300/10 blur-[100px] rounded-full animate-blob" style={{ animationDelay: '4s' }} />
       </div>
 
+      <SEO
+        title="Free CSA Score Checker | Check Your FMCSA Safety Rating"
+        description="Check your CSA score in 30 seconds — completely free, no signup required. See all 7 BASIC scores, get AI-powered analysis, and identify challengeable violations."
+        path="/csa-checker"
+        faqItems={faqData}
+      />
+
       {/* Navigation */}
       <PublicHeader activePage="csa-checker" />
 
@@ -285,10 +293,10 @@ const CSACheckerPage = () => {
       {/* Stats Bar */}
       <section className="relative z-10 py-16 px-6 border-y border-[#E2E8F0] bg-white/60 backdrop-blur-sm">
         <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
-          <AnimatedStat end={12500} suffix="+" label="Carriers Checked" />
           <AnimatedStat end={7} label="BASICs Tracked" />
           <AnimatedStat end={24} suffix="mo" label="Violation History" />
-          <AnimatedStat end={15} suffix="%" label="Avg Score Improvement" />
+          <AnimatedStat end={30} suffix="s" label="Instant Results" />
+          <AnimatedStat end={100} suffix="%" label="Free, No Signup" />
         </div>
       </section>
 
@@ -433,6 +441,29 @@ const CSACheckerPage = () => {
         </div>
       </section>
 
+      {/* Related Resources - Internal Cross-Links */}
+      <section className="relative z-10 py-12 px-6">
+        <div className="max-w-3xl mx-auto">
+          <h3 className="text-lg font-bold text-primary-500 mb-4 font-heading">Learn More About CSA Scores</h3>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <Link to="/blog/understanding-csa-scores-basics" className="group flex items-center gap-3 p-4 bg-white rounded-xl border border-[#E2E8F0] hover:border-cta-500/30 hover:shadow-md transition-all">
+              <FiBarChart2 className="w-5 h-5 text-cta-500 flex-shrink-0" />
+              <div>
+                <span className="text-sm font-semibold text-primary-500 group-hover:text-cta-500 transition-colors">Understanding CSA Scores & BASICs</span>
+                <p className="text-xs text-[#64748B] mt-0.5">Complete guide to how FMCSA measures your safety</p>
+              </div>
+            </Link>
+            <Link to="/blog/dataq-challenges-removing-violations" className="group flex items-center gap-3 p-4 bg-white rounded-xl border border-[#E2E8F0] hover:border-cta-500/30 hover:shadow-md transition-all">
+              <FiFileText className="w-5 h-5 text-cta-500 flex-shrink-0" />
+              <div>
+                <span className="text-sm font-semibold text-primary-500 group-hover:text-cta-500 transition-colors">DataQ Challenges: Removing Violations</span>
+                <p className="text-xs text-[#64748B] mt-0.5">How to challenge unfair violations on your record</p>
+              </div>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="relative z-10 py-24 px-6">
         <div className="max-w-4xl mx-auto text-center">
@@ -477,7 +508,7 @@ const CSACheckerPage = () => {
                 </div>
 
                 <p className="text-sm text-primary-200 mt-8">
-                  Join carriers who trust VroomX for their safety compliance
+                  No credit card required. Cancel anytime.
                 </p>
               </div>
             </div>
