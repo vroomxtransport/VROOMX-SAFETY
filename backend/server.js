@@ -51,7 +51,7 @@ if (missingEnvVars.length > 0) {
 if (process.env.NODE_ENV === 'production') {
   const productionEnvVars = [
     'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET',
-    'STRIPE_SOLO_PRICE_ID', 'STRIPE_FLEET_PRICE_ID', 'STRIPE_PRO_PRICE_ID',
+    'STRIPE_OWNER_OPERATOR_MONTHLY_PRICE_ID', 'STRIPE_SMALL_FLEET_MONTHLY_PRICE_ID', 'STRIPE_FLEET_PRO_MONTHLY_PRICE_ID',
     'RESEND_API_KEY', 'FRONTEND_URL'
   ];
   const missingProdVars = productionEnvVars.filter(v => !process.env[v]);
