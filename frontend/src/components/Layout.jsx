@@ -62,7 +62,7 @@ const Layout = () => {
   });
   const [expandedSections, setExpandedSections] = useState(() => {
     const saved = localStorage.getItem('sidebar-expanded-sections');
-    return saved ? JSON.parse(saved) : { MANAGEMENT: true, TRACKING: true, 'COMPANY FILES': true, TOOLS: true };
+    return saved ? JSON.parse(saved) : { MANAGEMENT: true, TRACKING: false, 'COMPANY FILES': false, TOOLS: false };
   });
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [alertCounts, setAlertCounts] = useState({ critical: 0, warning: 0, info: 0, total: 0 });

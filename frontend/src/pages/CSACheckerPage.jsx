@@ -183,6 +183,10 @@ const CSACheckerPage = () => {
         path="/csa-checker"
         image="/images/og-image.png"
         faqItems={faqData}
+        breadcrumbs={[
+          { name: 'Home', url: '/' },
+          { name: 'CSA Score Checker', url: '/csa-checker' }
+        ]}
       />
 
       {/* Navigation */}
@@ -497,7 +501,7 @@ const CSACheckerPage = () => {
                     to="/register"
                     className="px-8 py-4 bg-cta-500 hover:bg-cta-600 text-white rounded-xl font-bold transition-all duration-200 shadow-lg shadow-cta-500/30 hover:shadow-xl hover:shadow-cta-500/40 flex items-center gap-2"
                   >
-                    Start Your Free Trial
+                    Protect My Fleet
                     <FiArrowRight className="w-5 h-5" />
                   </Link>
                   <Link

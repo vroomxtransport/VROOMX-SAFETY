@@ -30,8 +30,8 @@ const Landing = () => {
     const link = document.createElement('link');
     link.rel = 'preload';
     link.as = 'image';
-    link.href = '/images/hero-bg-truck.png';
-    link.type = 'image/png';
+    link.href = '/images/hero-bg-truck.jpg';
+    link.type = 'image/jpeg';
     document.head.appendChild(link);
     return () => { document.head.removeChild(link); };
   }, []);
@@ -65,7 +65,7 @@ const Landing = () => {
           <span className="mx-1 text-white/50">|</span>
           <span>7-day free trial, no credit card required</span>
           <Link to="/register" className="bg-white/20 backdrop-blur-sm px-2.5 py-0.5 rounded-md font-mono font-black tracking-widest border border-white/30 hover:bg-white/30 transition-colors">
-            START FREE
+            Protect My Fleet
           </Link>
         </p>
       </div>
@@ -83,7 +83,7 @@ const Landing = () => {
             {[
               { Icon: FiLock, title: 'SSL Secure', subtitle: '256-bit encryption', bgClass: 'bg-green-50', textClass: 'text-green-500' },
               { Icon: FiDatabase, title: 'FMCSA Data', subtitle: 'Official SMS source', bgClass: 'bg-blue-50', textClass: 'text-blue-500' },
-              { Icon: FiAward, title: 'Bank-Level Security', subtitle: '256-bit AES encryption', bgClass: 'bg-orange-50', textClass: 'text-orange-500' },
+              { Icon: FiAward, title: 'Bank-Level Security', subtitle: '256-bit AES at rest, SSL/TLS in transit', bgClass: 'bg-orange-50', textClass: 'text-orange-500' },
               { Icon: FiHeadphones, title: 'US Support', subtitle: 'Real humans, fast', bgClass: 'bg-purple-50', textClass: 'text-purple-500' }
             ].map((badge, i) => (
               <div key={i} className="flex items-center gap-3 text-zinc-600">

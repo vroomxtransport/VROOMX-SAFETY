@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import {
   FiCheck, FiChevronDown, FiArrowRight, FiShield, FiClock,
   FiLock, FiHeadphones, FiZap, FiUsers, FiStar
@@ -122,7 +123,34 @@ const Pricing = () => {
         path="/pricing"
         image="/images/og-image.png"
         faqItems={pricingFAQ}
+        breadcrumbs={[
+          { name: 'Home', url: '/' },
+          { name: 'Pricing', url: '/pricing' }
+        ]}
       />
+
+      {/* Product structured data for Google rich snippets */}
+      <Helmet>
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Product",
+            "name": "VroomX Safety",
+            "description": "FMCSA compliance management platform for trucking companies",
+            "brand": { "@type": "Brand", "name": "VroomX Safety" },
+            "offers": plans.map(plan => ({
+              "@type": "Offer",
+              "name": plan.name,
+              "description": plan.description,
+              "price": plan.monthlyPrice,
+              "priceCurrency": "USD",
+              "url": "https://vroomxsafety.com/pricing",
+              "availability": "https://schema.org/InStock",
+              "priceValidUntil": "2026-12-31"
+            }))
+          })}
+        </script>
+      </Helmet>
 
       {/* Navigation */}
       <PublicHeader activePage="pricing" />
@@ -295,7 +323,7 @@ const Pricing = () => {
             <h2 className="text-2xl md:text-3xl font-heading font-bold text-white mb-2">
               Built for Compliance
             </h2>
-            <p className="text-white/70">Your data protected with bank-level encryption</p>
+            <p className="text-white/70">Your data protected with AES-256 encryption at rest and TLS in transit</p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -384,7 +412,7 @@ const Pricing = () => {
             to="/register"
             className="inline-flex items-center gap-3 bg-cta-500 hover:bg-cta-600 px-10 py-5 rounded-full font-bold text-white text-lg shadow-xl shadow-cta-500/30 transition-all hover:scale-105 hover:shadow-2xl"
           >
-            Get Audit-Ready Now
+            Protect My Fleet
             <FiArrowRight className="w-5 h-5" />
           </Link>
 

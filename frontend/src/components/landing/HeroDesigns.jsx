@@ -116,7 +116,7 @@ export const HeroDesign1 = ({ heroTextIndex, heroTexts }) => {
                 to="/pricing"
                 className="px-8 py-4 rounded-xl font-bold text-primary-500 bg-white hover:bg-white/90 transition-all shadow-lg hover:shadow-xl flex items-center gap-2"
               >
-                Start Free Trial
+                Protect My Fleet
                 <FiArrowRight className="w-5 h-5" />
               </Link>
               <button
@@ -506,7 +506,7 @@ export const HeroDesign3 = ({ heroTextIndex, heroTexts }) => {
               to="/pricing"
               className="btn-glow px-10 py-5 rounded-2xl font-bold text-lg flex items-center justify-center gap-3"
             >
-              Start Your Transformation
+              Protect My Fleet
               <FiArrowRight className="w-5 h-5" />
             </Link>
             <button
@@ -822,8 +822,10 @@ export const HeroDesign5 = ({ heroTextIndex, heroTexts }) => {
       <div className="absolute inset-0">
         {/* Background image */}
         <img
-          src="/images/hero-bg-truck.png"
+          src="/images/hero-bg-truck.jpg"
           alt=""
+          loading="eager"
+          fetchPriority="high"
           className="absolute inset-0 w-full h-full object-cover object-[center_40%]"
         />
         {/* Dark overlay for text legibility */}
@@ -894,7 +896,7 @@ export const HeroDesign5 = ({ heroTextIndex, heroTexts }) => {
                   <FiLock className="w-5 h-5 text-cta-400" />
                 </div>
                 <div>
-                  <div className="text-sm font-bold text-white">Bank-Level Encryption</div>
+                  <div className="text-sm font-bold text-white">AES-256 Encryption</div>
                   <div className="text-xs text-white/50">256-bit SSL secured</div>
                 </div>
               </div>
@@ -1087,7 +1089,7 @@ export const HeroDesign5 = ({ heroTextIndex, heroTexts }) => {
                               className="flex-1 py-2.5 rounded-xl font-bold text-white bg-gradient-to-r from-cta-500 to-cta-600
                                          hover:shadow-lg hover:shadow-cta-500/40 transition-all text-sm text-center"
                             >
-                              Start Free Trial
+                              Protect My Fleet
                             </Link>
                             <button
                               onClick={handleReset}

@@ -286,10 +286,11 @@ const Register = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-100 mb-2">
+                    <label htmlFor="firstName" className="block text-sm font-semibold text-zinc-800 dark:text-zinc-100 mb-2">
                       First Name
                     </label>
                     <input
+                      id="firstName"
                       type="text"
                       name="firstName"
                       className="w-full px-4 py-3.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-[#1E293B] placeholder-[#94A3B8] focus:outline-none focus:border-primary-500/50 focus:ring-2 focus:ring-primary-500/20 focus:bg-white transition-all duration-200"
@@ -300,10 +301,11 @@ const Register = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-100 mb-2">
+                    <label htmlFor="lastName" className="block text-sm font-semibold text-zinc-800 dark:text-zinc-100 mb-2">
                       Last Name
                     </label>
                     <input
+                      id="lastName"
                       type="text"
                       name="lastName"
                       className="w-full px-4 py-3.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-[#1E293B] placeholder-[#94A3B8] focus:outline-none focus:border-primary-500/50 focus:ring-2 focus:ring-primary-500/20 focus:bg-white transition-all duration-200"
@@ -316,7 +318,7 @@ const Register = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-100 mb-2">
+                  <label htmlFor="email" className="block text-sm font-semibold text-zinc-800 dark:text-zinc-100 mb-2">
                     Email Address
                   </label>
                   <div className="relative group">
@@ -324,6 +326,7 @@ const Register = () => {
                       <FiMail className="w-5 h-5" />
                     </div>
                     <input
+                      id="email"
                       type="email"
                       name="email"
                       className="w-full pl-12 pr-4 py-3.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-[#1E293B] placeholder-[#94A3B8] focus:outline-none focus:border-primary-500/50 focus:ring-2 focus:ring-primary-500/20 focus:bg-white transition-all duration-200"
@@ -337,7 +340,7 @@ const Register = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-100 mb-2">
+                    <label htmlFor="password" className="block text-sm font-semibold text-zinc-800 dark:text-zinc-100 mb-2">
                       Password
                     </label>
                     <div className="relative group">
@@ -345,6 +348,7 @@ const Register = () => {
                         <FiLock className="w-5 h-5" />
                       </div>
                       <input
+                        id="password"
                         type={showPassword ? 'text' : 'password'}
                         name="password"
                         className="w-full pl-12 pr-12 py-3.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-[#1E293B] placeholder-[#94A3B8] focus:outline-none focus:border-primary-500/50 focus:ring-2 focus:ring-primary-500/20 focus:bg-white transition-all duration-200"
@@ -364,11 +368,12 @@ const Register = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-100 mb-2">
+                    <label htmlFor="confirmPassword" className="block text-sm font-semibold text-zinc-800 dark:text-zinc-100 mb-2">
                       Confirm Password
                     </label>
                     <div className="relative">
                       <input
+                        id="confirmPassword"
                         type={showConfirmPassword ? 'text' : 'password'}
                         name="confirmPassword"
                         className="w-full px-4 pr-12 py-3.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-[#1E293B] placeholder-[#94A3B8] focus:outline-none focus:border-primary-500/50 focus:ring-2 focus:ring-primary-500/20 focus:bg-white transition-all duration-200"
@@ -406,7 +411,7 @@ const Register = () => {
                 {/* DOT Number - with FMCSA auto-lookup */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-100 mb-2">
+                    <label htmlFor="dotNumber" className="block text-sm font-semibold text-zinc-800 dark:text-zinc-100 mb-2">
                       DOT Number <span className="text-cta-500">*</span>
                       {dotLookupStatus === 'verified' && (
                         <span className="ml-2 text-xs text-green-600 font-normal">Auto-fills company info</span>
@@ -417,6 +422,7 @@ const Register = () => {
                         <FiHash className="w-5 h-5" />
                       </div>
                       <input
+                        id="dotNumber"
                         type="text"
                         name="dotNumber"
                         className={`w-full pl-12 pr-28 py-3.5 bg-[#F8FAFC] border rounded-xl text-[#1E293B] placeholder-[#94A3B8] focus:outline-none focus:ring-2 focus:bg-white transition-all duration-200 ${
@@ -440,12 +446,14 @@ const Register = () => {
                         Carrier not found in FMCSA. You can still register manually.
                       </p>
                     )}
+                    <p className="mt-1 text-xs text-zinc-400">Your USDOT number assigned by FMCSA. Find it at <a href="https://safer.fmcsa.dot.gov" target="_blank" rel="noopener noreferrer" className="text-primary-400 hover:underline">safer.fmcsa.dot.gov</a></p>
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-100 mb-2">
+                    <label htmlFor="mcNumber" className="block text-sm font-semibold text-zinc-800 dark:text-zinc-100 mb-2">
                       MC Number <span className="text-zinc-400 dark:text-zinc-400 text-xs font-normal">(optional)</span>
                     </label>
                     <input
+                      id="mcNumber"
                       type="text"
                       name="mcNumber"
                       className="w-full px-4 py-3.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-[#1E293B] placeholder-[#94A3B8] focus:outline-none focus:border-primary-500/50 focus:ring-2 focus:ring-primary-500/20 focus:bg-white transition-all duration-200"
@@ -453,12 +461,13 @@ const Register = () => {
                       value={formData.mcNumber}
                       onChange={handleChange}
                     />
+                    <p className="mt-1 text-xs text-zinc-400">Your Motor Carrier number (if applicable). Leave blank if you only have a DOT number.</p>
                   </div>
                 </div>
 
                 {/* Company Name - auto-filled from FMCSA */}
                 <div>
-                  <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-100 mb-2">
+                  <label htmlFor="companyName" className="block text-sm font-semibold text-zinc-800 dark:text-zinc-100 mb-2">
                     Company Name
                     {dotLookupStatus === 'verified' && fmcsaData?.legalName && (
                       <span className="ml-2 inline-flex items-center gap-1 text-xs text-green-600 font-normal">
@@ -472,6 +481,7 @@ const Register = () => {
                       <FiBriefcase className="w-5 h-5" />
                     </div>
                     <input
+                      id="companyName"
                       type="text"
                       name="companyName"
                       className={`w-full pl-12 pr-4 py-3.5 border rounded-xl text-[#1E293B] placeholder-[#94A3B8] focus:outline-none focus:ring-2 focus:bg-white transition-all duration-200 ${
@@ -519,7 +529,7 @@ const Register = () => {
                     <LoadingSpinner size="sm" />
                   ) : (
                     <>
-                      Start My Free Trial
+                      Start Free Trial — No Credit Card
                       <FiArrowRight className="w-5 h-5" />
                     </>
                   )}

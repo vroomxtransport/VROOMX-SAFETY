@@ -127,7 +127,6 @@ const Compliance = () => {
       if (!shouldAutoSync && syncStatus.lastSync) {
         const hoursSinceSync = (Date.now() - new Date(syncStatus.lastSync).getTime()) / (1000 * 60 * 60);
         if (hoursSinceSync > 6) {
-          console.log(`[Auto-Sync] Data is ${hoursSinceSync.toFixed(1)} hours old, triggering auto-refresh`);
           autoSyncTriggered.current = true;
           handleSyncViolations();
           return;
@@ -135,7 +134,6 @@ const Compliance = () => {
       }
 
       if (shouldAutoSync) {
-        console.log('[Auto-Sync] No data found, triggering auto-refresh');
         autoSyncTriggered.current = true;
         handleSyncViolations();
       }
@@ -155,7 +153,7 @@ const Compliance = () => {
       setInspectionSummary(summaryRes.data);
       setSyncStatus(statusRes.data);
     } catch (error) {
-      console.error('Failed to fetch inspections:', error);
+      // Inspection fetch failed silently
     } finally {
       setInspectionsLoading(false);
     }

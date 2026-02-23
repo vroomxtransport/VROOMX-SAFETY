@@ -11,7 +11,7 @@ const PublicHeader = ({ activePage = 'landing', variant = 'light', topOffset = '
     { to: '/csa-checker', label: 'Free CSA Check', icon: FiSearch, isLink: true, highlight: true },
     { href: activePage === 'landing' ? '#features' : '/#features', label: 'Features', isLink: false },
     { to: '/pricing', label: 'Pricing', isLink: true },
-    { to: '/platform', label: 'Platform', isLink: true },
+    { to: '/platform', label: 'How It Works', isLink: true },
     { to: '/blog', label: 'Blog', isLink: true },
     { to: '/login', label: 'Login', isLink: true },
   ];
@@ -47,7 +47,7 @@ const PublicHeader = ({ activePage = 'landing', variant = 'light', topOffset = '
             to="/platform"
             className={`${activePage === 'platform' ? 'text-cta-500 font-bold' : isLight ? 'text-[#475569]' : 'text-white/70'} text-sm font-medium hover:text-primary-500 transition-colors`}
           >
-            Platform
+            How It Works
           </Link>
           <Link
             to="/blog"

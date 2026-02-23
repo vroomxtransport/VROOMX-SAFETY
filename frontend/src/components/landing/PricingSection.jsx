@@ -125,7 +125,7 @@ const PricingSection = () => {
                     }`}
                   >
                     <span className="inline-flex items-center gap-2">
-                      Start Free Trial
+                      Protect My Fleet
                       <FiArrowRight className="w-4 h-4" />
                     </span>
                   </Link>

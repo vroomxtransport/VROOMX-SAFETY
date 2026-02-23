@@ -84,7 +84,7 @@ export const HeroDesign6 = ({ heroTextIndex, heroTexts }) => {
                 to="/pricing"
                 className="px-8 py-4 rounded-none font-bold text-white bg-[#EA580C] hover:bg-[#C2410C] transition-colors flex items-center justify-center gap-2"
               >
-                Start Free Trial
+                Protect My Fleet
                 <FiArrowRight className="w-5 h-5" />
               </Link>
               <button
@@ -440,7 +440,7 @@ export const HeroDesign8 = ({ heroTextIndex, heroTexts }) => {
                   to="/pricing"
                   className="px-8 py-4 rounded-none font-bold text-white bg-[#EA580C] hover:bg-[#C2410C] transition-colors flex items-center justify-center gap-2 w-fit"
                 >
-                  Start Free Trial
+                  Protect My Fleet
                   <FiArrowRight className="w-5 h-5" />
                 </Link>
                 <button
@@ -617,7 +617,7 @@ export const HeroDesign9 = ({ heroTextIndex, heroTexts }) => {
                   to="/pricing"
                   className="w-full px-8 py-4 rounded-none font-bold text-white bg-[#EA580C] hover:bg-[#C2410C] transition-colors flex items-center justify-center gap-2"
                 >
-                  Start Free Trial
+                  Protect My Fleet
                   <FiArrowRight className="w-5 h-5" />
                 </Link>
                 <button
@@ -753,7 +753,7 @@ export const HeroDesign10 = ({ heroTextIndex, heroTexts }) => {
                     to="/pricing"
                     className="px-8 py-4 rounded-none font-bold text-white bg-[#EA580C] hover:bg-[#C2410C] transition-colors flex items-center gap-2"
                   >
-                    Start Free Trial
+                    Protect My Fleet
                     <FiArrowRight className="w-5 h-5" />
                   </Link>
                   <button

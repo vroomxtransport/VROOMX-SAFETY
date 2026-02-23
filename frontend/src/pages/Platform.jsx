@@ -82,6 +82,10 @@ const Platform = () => {
         description="Your compliance command center. Track CSA scores across all 7 BASICs, manage driver qualification files, get expiration alerts, and challenge violations with AI — all in one dashboard."
         path="/platform"
         image="/images/og-image.png"
+        breadcrumbs={[
+          { name: 'Home', url: '/' },
+          { name: 'How It Works', url: '/platform' }
+        ]}
       />
 
       <PublicHeader activePage="platform" />
@@ -854,7 +858,7 @@ const TimelineSection = () => {
                   to="/register"
                   className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-cta-500 to-cta-600 text-white rounded-xl font-bold text-lg shadow-lg shadow-cta-500/30 hover:shadow-xl hover:shadow-cta-500/40 hover:-translate-y-1 transition-all"
                 >
-                  Get Audit-Ready Now
+                  Protect My Fleet
                   <FiArrowRight className="w-5 h-5" />
                 </Link>
               </div>

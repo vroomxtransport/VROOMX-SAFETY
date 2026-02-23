@@ -79,7 +79,7 @@ const ArticlePage = () => {
         path={`/blog/${post.slug}`}
         image={post.image}
         type="article"
-        article={{ isoDate: post.isoDate }}
+        article={{ isoDate: post.isoDate, lastUpdatedIso: post.lastUpdatedIso }}
         breadcrumbs={[
           { name: 'Home', url: '/' },
           { name: 'Blog', url: '/blog' },
@@ -123,6 +123,11 @@ const ArticlePage = () => {
               <time dateTime={post.isoDate} className="text-zinc-500 text-sm font-mono">
                 {post.date}
               </time>
+              {post.lastUpdated && (
+                <span className="text-zinc-400 text-sm">
+                  · Updated {post.lastUpdated}
+                </span>
+              )}
               <span className="flex items-center gap-1 text-zinc-500 text-sm">
                 <FiClock className="w-4 h-4" />
                 {post.readTime}
@@ -226,7 +231,7 @@ const ArticlePage = () => {
               to="/register"
               className="inline-flex items-center gap-2 px-8 py-3 bg-cta-500 hover:bg-cta-600 text-white font-bold rounded-lg transition-colors"
             >
-              Start Your Free Trial
+              Protect My Fleet
               <FiArrowRight className="w-4 h-4" />
             </Link>
           </section>

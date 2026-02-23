@@ -1,5 +1,5 @@
 import React from 'react'
-import { hydrateRoot, createRoot } from 'react-dom/client'
+import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { HelmetProvider } from 'react-helmet-async'
 import { Toaster } from 'react-hot-toast'
@@ -9,6 +9,7 @@ import App from './App'
 import ErrorBoundary from './components/ErrorBoundary'
 import { AuthProvider } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
+import { onCLS, onINP, onLCP, onFCP, onTTFB } from 'web-vitals'
 import './index.css'
 
 // Initialize PostHog
@@ -63,13 +64,22 @@ const AppRoot = (
   </React.StrictMode>
 )
 
-// Use hydration if prerendered content exists (for SEO/react-snap)
-if (container.hasChildNodes()) {
-  hydrateRoot(container, AppRoot)
-} else {
-  createRoot(container).render(AppRoot)
-}
+createRoot(container).render(AppRoot)
 
 // Remove splash loader after React has mounted
 removeLoader()
 sessionStorage.removeItem('chunk_reload_attempted')
+
+// Report Core Web Vitals
+function sendToAnalytics(metric) {
+  // Log to console in development, send to analytics in production
+  if (import.meta.env.DEV) {
+    console.log(metric)
+  }
+}
+
+onCLS(sendToAnalytics)
+onINP(sendToAnalytics)
+onLCP(sendToAnalytics)
+onFCP(sendToAnalytics)
+onTTFB(sendToAnalytics)

@@ -125,7 +125,7 @@ const Login = () => {
               <form onSubmit={handleSubmit} className="space-y-5">
                 {/* Email */}
                 <div>
-                  <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-100 mb-2">
+                  <label htmlFor="login-email" className="block text-sm font-semibold text-zinc-800 dark:text-zinc-100 mb-2">
                     Email Address
                   </label>
                   <div className="relative group">
@@ -133,6 +133,7 @@ const Login = () => {
                       <FiMail className="w-5 h-5" />
                     </div>
                     <input
+                      id="login-email"
                       type="email"
                       className="w-full pl-12 pr-4 py-3.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-[#1E293B] placeholder-[#94A3B8] focus:outline-none focus:border-primary-500/50 focus:ring-2 focus:ring-primary-500/20 focus:bg-white transition-all duration-200"
                       placeholder="you@company.com"
@@ -145,7 +146,7 @@ const Login = () => {
 
                 {/* Password */}
                 <div>
-                  <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-100 mb-2">
+                  <label htmlFor="login-password" className="block text-sm font-semibold text-zinc-800 dark:text-zinc-100 mb-2">
                     Password
                   </label>
                   <div className="relative group">
@@ -153,6 +154,7 @@ const Login = () => {
                       <FiLock className="w-5 h-5" />
                     </div>
                     <input
+                      id="login-password"
                       type={showPassword ? 'text' : 'password'}
                       className="w-full pl-12 pr-12 py-3.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-[#1E293B] placeholder-[#94A3B8] focus:outline-none focus:border-primary-500/50 focus:ring-2 focus:ring-primary-500/20 focus:bg-white transition-all duration-200"
                       placeholder="Enter your password"

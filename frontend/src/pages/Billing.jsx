@@ -811,7 +811,7 @@ const Billing = () => {
           <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-accent-300 dark:hover:border-accent-500/50 transition-all duration-200">
             <h4 className="font-medium text-zinc-900 dark:text-zinc-100 mb-2">Is my payment information secure?</h4>
             <p className="text-sm text-zinc-700 dark:text-zinc-300">
-              Absolutely. We use Stripe for payment processing, which is PCI-DSS compliant and uses bank-level encryption.
+              Absolutely. We use Stripe for payment processing, which is PCI-DSS compliant with 256-bit AES encryption.
             </p>
           </div>
         </div>

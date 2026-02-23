@@ -24,7 +24,7 @@ const CTASection = () => {
           to="/register"
           className="bg-cta-500 hover:bg-cta-600 px-12 py-5 rounded-full font-bold text-white text-lg inline-flex items-center gap-2 shadow-lg shadow-cta-500/30 transition-all hover:scale-105 mb-6"
         >
-          Get Audit-Ready in 5 Minutes
+          Protect My Fleet
           <FiArrowRight className="w-5 h-5" />
         </Link>
         <div className="flex flex-wrap justify-center gap-6 text-sm text-white/70">

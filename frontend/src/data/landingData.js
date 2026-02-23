@@ -28,9 +28,9 @@ export const chatQA = [
     }
   },
   {
-    question: "How long are violations on my CSA score?",
+    question: "How long are violations on my CSA (Compliance, Safety, Accountability) score?",
     answer: {
-      intro: "Roadside inspection results and violations remain in your <span class='text-white font-semibold'>SMS BASICs</span> for:",
+      intro: "Roadside inspection results and violations remain in your <span class='text-white font-semibold'>SMS BASICs (Behavior Analysis and Safety Improvement Categories)</span> for:",
       bullets: [
         "24 months from the inspection date",
         "Older violations carry less weight (time-weighting)",
@@ -117,7 +117,7 @@ export const blogPosts = [
 export const faqData = [
   {
     question: "How is VroomX different from telematics platforms?",
-    answer: "Telematics platforms do fleet tracking, ELDs, dashcams, and dozens of other things — with compliance features bolted on. We ONLY do document compliance: DQF files, expiration tracking, CSA monitoring, and audit prep. If you already have an ELD you like, you don't need to replace it. We work alongside it. If you're paying $30-50/truck/month and only using the compliance features, you're overpaying."
+    answer: "Telematics platforms do fleet tracking, ELDs, dashcams, and dozens of other things — with compliance features bolted on. We ONLY do document compliance: DQF (Driver Qualification Files) files, expiration tracking, CSA monitoring, and audit prep. If you already have an ELD you like, you don't need to replace it. We work alongside it. If you're paying $30-50/truck/month and only using the compliance features, you're overpaying."
   },
   {
     question: "Do I need to switch from my current ELD?",
@@ -129,7 +129,7 @@ export const faqData = [
   },
   {
     question: "Is my data secure?",
-    answer: "Absolutely. We use bank-level 256-bit SSL encryption for all data transfers. Your information is stored on secure servers with daily backups. We never sell or share your data with third parties."
+    answer: "Absolutely. We use 256-bit AES encryption for stored data and SSL/TLS encryption for all data transfers. Your information is stored on secure servers with daily backups. We never sell or share your data with third parties."
   },
   {
     question: "What plans do you offer?",
@@ -246,7 +246,7 @@ export const features = [
   {
     icon: 'FiTruck',
     title: 'Vehicle Compliance',
-    description: '49 CFR 396 vehicle tracking with annual inspection scheduling and maintenance logs.',
+    description: '49 CFR (Federal Motor Carrier Safety Regulations) Part 396 vehicle tracking with annual inspection scheduling and maintenance logs.',
     tags: ['Inspections', 'Maintenance']
   },
   {
@@ -285,7 +285,7 @@ export const statsBar = [
 export const trustBadges = [
   { icon: 'FiLock', title: 'SSL Secure', subtitle: '256-bit encryption', color: 'success' },
   { icon: 'FiDatabase', title: 'FMCSA Data', subtitle: 'Official SMS source', color: 'primary' },
-  { icon: 'FiAward', title: 'Bank-Level Security', subtitle: '256-bit AES encryption', color: 'cta' },
+  { icon: 'FiAward', title: 'Bank-Level Security', subtitle: 'AES-256 at rest, TLS in transit', color: 'cta' },
   { icon: 'FiHeadphones', title: 'US Support', subtitle: 'Real humans, fast', color: 'purple' }
 ];
 

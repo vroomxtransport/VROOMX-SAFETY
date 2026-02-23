@@ -89,7 +89,7 @@ const HeroSection = ({ heroTextIndex, heroTexts }) => {
               to="/register"
               className="btn-glow px-8 py-4 rounded-xl font-bold text-white text-base tracking-wide flex items-center justify-center gap-3"
             >
-              Protect My Fleet — Free Trial
+              Protect My Fleet
               <FiArrowRight className="w-5 h-5" />
             </Link>
             <button
