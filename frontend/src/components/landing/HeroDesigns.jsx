@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   FiArrowRight,
-  FiPlay,
   FiLoader,
   FiCheck,
   FiLock,
@@ -19,7 +18,6 @@ import {
   FiMail,
   FiSend,
 } from 'react-icons/fi';
-import { useAuth } from '../../context/AuthContext';
 import CarrierProfileHeader from '../csa-checker/CarrierProfileHeader';
 import BASICScorePanel from '../csa-checker/BASICScorePanel';
 import OOSRatesPanel from '../csa-checker/OOSRatesPanel';
@@ -50,8 +48,6 @@ const getScoreStatus = (score, threshold) => {
 
 export const HeroDesign5 = ({ heroTextIndex, heroTexts }) => {
   const navigate = useNavigate();
-  const { demoLogin } = useAuth();
-  const [demoLoading, setDemoLoading] = useState(false);
   const [dotNumber, setDotNumber] = useState('');
   const [csaStep, setCsaStep] = useState('input'); // 'input' | 'loading' | 'preview'
   const [carrierData, setCarrierData] = useState(null);
@@ -59,19 +55,6 @@ export const HeroDesign5 = ({ heroTextIndex, heroTexts }) => {
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState(null);
   const [reportStep, setReportStep] = useState('idle'); // 'idle' | 'sending' | 'sent'
-
-  const handleTryDemo = async () => {
-    setDemoLoading(true);
-    try {
-      await demoLogin();
-      navigate('/dashboard');
-    } catch (error) {
-      console.error('Demo login failed:', error);
-      alert('Demo is temporarily unavailable. Please try again later.');
-    } finally {
-      setDemoLoading(false);
-    }
-  };
 
   const handleCheckScore = async () => {
     if (!dotNumber.trim()) return;
@@ -314,20 +297,6 @@ export const HeroDesign5 = ({ heroTextIndex, heroTexts }) => {
                       >
                         View Pricing
                       </Link>
-                      <button
-                        onClick={handleTryDemo}
-                        disabled={demoLoading}
-                        className="flex-1 py-3 rounded-xl font-semibold text-center text-white bg-primary-500 hover:bg-primary-600 transition-colors flex items-center justify-center gap-2"
-                      >
-                        {demoLoading ? (
-                          <FiLoader className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <>
-                            <FiPlay className="w-4 h-4" />
-                            Try Demo
-                          </>
-                        )}
-                      </button>
                     </div>
 
                     {/* Enhanced trust badges */}
