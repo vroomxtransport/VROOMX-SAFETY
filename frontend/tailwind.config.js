@@ -10,22 +10,18 @@ export default {
     'bg-success-50', 'bg-success-100', 'bg-success-200', 'bg-success-500', 'bg-success-600',
     'text-success-400', 'text-success-500', 'text-success-600', 'text-success-700', 'text-success-800',
     'border-success-200', 'border-success-500',
-    'dark:bg-success-500/15', 'dark:bg-success-500/20', 'dark:text-success-400', 'dark:border-success-500/30',
     // Warning colors
     'bg-warning-50', 'bg-warning-100', 'bg-warning-200', 'bg-warning-500', 'bg-warning-600',
     'text-warning-400', 'text-warning-500', 'text-warning-600', 'text-warning-700', 'text-warning-800',
     'border-warning-200', 'border-warning-500',
-    'dark:bg-warning-500/15', 'dark:bg-warning-500/20', 'dark:text-warning-400', 'dark:border-warning-500/30',
     // Danger colors
     'bg-danger-50', 'bg-danger-100', 'bg-danger-200', 'bg-danger-500', 'bg-danger-600',
     'text-danger-400', 'text-danger-500', 'text-danger-600', 'text-danger-700', 'text-danger-800',
     'border-danger-200', 'border-danger-500',
-    'dark:bg-danger-500/15', 'dark:bg-danger-500/20', 'dark:text-danger-400', 'dark:border-danger-500/30',
     // Info colors
     'bg-info-50', 'bg-info-100', 'bg-info-200', 'bg-info-500', 'bg-info-600',
     'text-info-400', 'text-info-500', 'text-info-600', 'text-info-700', 'text-info-800',
     'border-info-200', 'border-info-500',
-    'dark:bg-info-500/15', 'dark:bg-info-500/20', 'dark:text-info-400', 'dark:border-info-500/30',
     // Accent colors
     'bg-accent-50', 'bg-accent-100', 'bg-accent-200', 'bg-accent-500', 'bg-accent-600',
     'text-accent-400', 'text-accent-500', 'text-accent-600', 'text-accent-700',

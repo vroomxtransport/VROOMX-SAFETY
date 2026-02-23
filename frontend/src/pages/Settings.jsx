@@ -1,14 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
 import { useSearchParams } from 'react-router-dom';
 import { authAPI, companiesAPI, invitationsAPI, billingAPI } from '../utils/api';
 import toast from 'react-hot-toast';
-import { FiUser, FiLock, FiUsers, FiBriefcase, FiCreditCard, FiMoon, FiBell, FiClipboard, FiDatabase } from 'react-icons/fi';
+import { FiUser, FiLock, FiUsers, FiBriefcase, FiCreditCard, FiBell, FiClipboard, FiDatabase } from 'react-icons/fi';
 import ConfirmDialog from '../components/ConfirmDialog';
 import {
   ProfileTab,
-  AppearanceTab,
   SecurityTab,
   NotificationsTab,
   BillingTab,
@@ -23,7 +21,6 @@ import {
 
 const Settings = () => {
   const { user, companies, activeCompany, subscription, canCreateCompany, refreshUser } = useAuth();
-  const { theme, setLightTheme, setDarkTheme, setSystemTheme } = useTheme();
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'profile');
   const [loading, setLoading] = useState(false);
@@ -68,7 +65,7 @@ const Settings = () => {
   // Update tab from URL params
   useEffect(() => {
     const tab = searchParams.get('tab');
-    if (tab && ['profile', 'appearance', 'security', 'notifications', 'users', 'companies', 'billing', 'audit', 'dataaudit'].includes(tab)) {
+    if (tab && ['profile', 'security', 'notifications', 'users', 'companies', 'billing', 'audit', 'dataaudit'].includes(tab)) {
       setActiveTab(tab);
     }
   }, [searchParams]);
@@ -257,7 +254,6 @@ const Settings = () => {
 
   const tabs = [
     { id: 'profile', label: 'Profile', icon: FiUser },
-    { id: 'appearance', label: 'Appearance', icon: FiMoon },
     { id: 'security', label: 'Security', icon: FiLock },
     { id: 'notifications', label: 'Notifications', icon: FiBell },
     { id: 'companies', label: 'Companies', icon: FiBriefcase },
@@ -308,15 +304,6 @@ const Settings = () => {
 
         {activeTab === 'profile' && (
           <ProfileTab user={user} activeCompany={activeCompany} getRoleBadgeColor={getRoleBadgeColor} />
-        )}
-
-        {activeTab === 'appearance' && (
-          <AppearanceTab
-            theme={theme}
-            setLightTheme={setLightTheme}
-            setDarkTheme={setDarkTheme}
-            setSystemTheme={setSystemTheme}
-          />
         )}
 
         {activeTab === 'security' && (

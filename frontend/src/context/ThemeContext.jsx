@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useLayoutEffect } from 'react';
+import { createContext, useContext, useLayoutEffect } from 'react';
 
 const ThemeContext = createContext(null);
 
@@ -10,37 +10,21 @@ export const useTheme = () => {
   return context;
 };
 
-// Dark mode is the default. index.html applies the "dark" class on <html>
-// before React mounts (via inline script). This provider reads the persisted
-// preference and keeps the DOM in sync.
+// Light-only theme. Dark mode has been removed.
 export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('vroomx-theme') || 'dark';
-  });
-
   useLayoutEffect(() => {
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    localStorage.setItem('vroomx-theme', theme);
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
-  };
+    // Ensure dark class is never present
+    document.documentElement.classList.remove('dark');
+    localStorage.removeItem('vroomx-theme');
+  }, []);
 
   const value = {
-    theme,
-    isDark: theme === 'dark',
-    toggleTheme,
-    setLightTheme: () => setTheme('light'),
-    setDarkTheme: () => setTheme('dark'),
-    setSystemTheme: () => {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setTheme(prefersDark ? 'dark' : 'light');
-    },
+    theme: 'light',
+    isDark: false,
+    toggleTheme: () => {},
+    setLightTheme: () => {},
+    setDarkTheme: () => {},
+    setSystemTheme: () => {},
   };
 
   return (

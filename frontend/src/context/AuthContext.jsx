@@ -168,9 +168,6 @@ export const AuthProvider = ({ children }) => {
     // PostHog: reset user identity on logout
     posthog.reset();
 
-    // Reset theme to light mode for public pages
-    localStorage.removeItem('vroomx-theme');
-    document.documentElement.classList.remove('dark');
   };
 
   // Switch to a different company
