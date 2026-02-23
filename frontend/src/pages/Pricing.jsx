@@ -44,6 +44,7 @@ const pricingFAQ = [
 const plans = [
   {
     name: 'Owner-Operator',
+    planId: 'owner_operator',
     monthlyPrice: 29,
     annualPrice: 261,
     description: 'Everything a single-truck operator needs to stay compliant.',
@@ -63,6 +64,7 @@ const plans = [
   },
   {
     name: 'Small Fleet',
+    planId: 'small_fleet',
     monthlyPrice: 79,
     annualPrice: 711,
     description: 'Built for growing fleets that need powerful compliance tools.',
@@ -83,6 +85,7 @@ const plans = [
   },
   {
     name: 'Fleet Pro',
+    planId: 'fleet_pro',
     monthlyPrice: 149,
     annualPrice: 1341,
     description: 'Advanced analytics and tools for established fleet operations.',
@@ -265,7 +268,7 @@ const Pricing = () => {
 
                     {/* CTA */}
                     <Link
-                      to="/register"
+                      to={`/register?plan=${plan.planId}`}
                       className={`w-full py-4 rounded-xl font-bold text-center block transition-all text-lg ${
                         plan.popular
                           ? 'bg-gradient-to-r from-cta-500 to-cta-600 hover:from-cta-600 hover:to-cta-700 text-white shadow-lg shadow-cta-500/30 hover:shadow-xl hover:scale-[1.02]'
@@ -409,7 +412,7 @@ const Pricing = () => {
           </p>
 
           <Link
-            to="/register"
+            to="/register?plan=small_fleet"
             className="inline-flex items-center gap-3 bg-cta-500 hover:bg-cta-600 px-10 py-5 rounded-full font-bold text-white text-lg shadow-xl shadow-cta-500/30 transition-all hover:scale-105 hover:shadow-2xl"
           >
             Protect My Fleet

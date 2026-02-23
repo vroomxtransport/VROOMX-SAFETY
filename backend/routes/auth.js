@@ -96,36 +96,14 @@ router.post('/register', [
   }
 
   // Determine subscription based on selected plan
-  let subscription;
-  if (selectedPlan === 'complete') {
-    // Complete plan ($249 one-time): 7-day free trial
-    subscription = {
-      plan: 'complete',
-      status: 'trialing',
-      trialEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days from now
-    };
-  } else if (selectedPlan === 'solo') {
-    // Solo plan: No trial, requires payment to activate
-    subscription = {
-      plan: 'solo',
-      status: 'pending_payment',
-      trialEndsAt: null
-    };
-  } else if (selectedPlan === 'pro') {
-    // Pro plan: 7-day free trial
-    subscription = {
-      plan: 'pro',
-      status: 'trialing',
-      trialEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days from now
-    };
-  } else {
-    // Fleet plan (default): 7-day free trial
-    subscription = {
-      plan: 'fleet',
-      status: 'trialing',
-      trialEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days from now
-    };
-  }
+  const validPlans = ['owner_operator', 'small_fleet', 'fleet_pro'];
+  const plan = validPlans.includes(selectedPlan) ? selectedPlan : 'small_fleet';
+
+  const subscription = {
+    plan,
+    status: 'trialing',
+    trialEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days from now
+  };
   // Create user first (needed for ownerId)
   const user = await User.create({
     email,

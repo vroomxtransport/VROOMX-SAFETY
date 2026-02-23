@@ -117,7 +117,7 @@ const PricingSection = () => {
 
                   {/* CTA Button */}
                   <Link
-                    to="/register"
+                    to={`/register?plan=${plan.planId}`}
                     className={`w-full py-3.5 rounded-xl font-bold text-center block transition-all text-base mb-6 ${
                       plan.popular
                         ? 'bg-gradient-to-r from-cta-500 to-cta-600 hover:from-cta-600 hover:to-cta-700 text-white shadow-lg shadow-cta-500/30 hover:shadow-xl hover:scale-[1.02]'

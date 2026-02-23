@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import {
@@ -16,7 +16,10 @@ import useForceLightMode from '../hooks/useForceLightMode';
 const Register = () => {
   useForceLightMode();
 
-  const selectedPlan = 'complete';
+  const [searchParams] = useSearchParams();
+  const validPlans = ['owner_operator', 'small_fleet', 'fleet_pro'];
+  const planParam = searchParams.get('plan');
+  const selectedPlan = validPlans.includes(planParam) ? planParam : 'small_fleet';
 
   const [formData, setFormData] = useState({
     firstName: '',

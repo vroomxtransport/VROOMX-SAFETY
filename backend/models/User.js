@@ -214,7 +214,8 @@ userSchema.virtual('limits').get(function() {
     // Legacy plan mappings
     solo: { maxCompanies: 1, maxDriversPerCompany: 1, maxVehiclesPerCompany: 1 },
     fleet: { maxCompanies: 3, maxDriversPerCompany: Infinity, maxVehiclesPerCompany: Infinity },
-    pro: { maxCompanies: 10, maxDriversPerCompany: Infinity, maxVehiclesPerCompany: Infinity }
+    pro: { maxCompanies: 10, maxDriversPerCompany: Infinity, maxVehiclesPerCompany: Infinity },
+    complete: { maxCompanies: 10, maxDriversPerCompany: Infinity, maxVehiclesPerCompany: Infinity }
   };
   return plans[this.subscription?.plan] || plans.free_trial;
 });

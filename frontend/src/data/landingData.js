@@ -148,6 +148,7 @@ export const faqData = [
 export const pricingPlans = [
   {
     name: 'Owner-Operator',
+    planId: 'owner_operator',
     price: 29,
     annualPrice: 261,
     drivers: '1 driver',
@@ -165,6 +166,7 @@ export const pricingPlans = [
   },
   {
     name: 'Small Fleet',
+    planId: 'small_fleet',
     price: 79,
     annualPrice: 711,
     drivers: '5 drivers included',
@@ -184,6 +186,7 @@ export const pricingPlans = [
   },
   {
     name: 'Fleet Pro',
+    planId: 'fleet_pro',
     price: 149,
     annualPrice: 1341,
     drivers: '15 drivers included',
