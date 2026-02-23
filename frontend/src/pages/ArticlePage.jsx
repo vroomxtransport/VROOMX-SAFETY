@@ -107,7 +107,7 @@ const ArticlePage = () => {
                 src={post.image}
                 alt={post.title}
                 className="w-full h-full object-cover"
-                loading="lazy"
+                loading="eager"
                 width="800"
                 height="600"
               />

@@ -81,6 +81,7 @@ const Platform = () => {
         title="FMCSA Compliance Dashboard | CSA Scores, DQF Files, Alerts"
         description="Your compliance command center. Track CSA scores across all 7 BASICs, manage driver qualification files, get expiration alerts, and challenge violations with AI — all in one dashboard."
         path="/platform"
+        image="/images/og-image.png"
       />
 
       <PublicHeader activePage="platform" />

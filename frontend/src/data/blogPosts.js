@@ -1012,7 +1012,7 @@ export const articles = [
     description: 'The definitive guide to every major FMCSA compliance area — from driver qualification files and HOS to CSA scores and DataQ challenges.',
     tag: 'Guide',
     readTime: '15 min read',
-    image: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&h=600&fit=crop',
+    image: 'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=800&h=600&fit=crop',
     content: `
       <p class="text-lg text-[#475569] mb-6">Staying fully compliant with FMCSA regulations is the single most important thing a motor carrier can do to protect its operating authority, its drivers, and its bottom line. Yet the regulatory landscape is vast: dozens of CFR parts, hundreds of individual requirements, and penalties that can reach tens of thousands of dollars per violation. This pillar guide walks you through every major compliance area for 2026 so you can audit your own operation, close gaps before an inspector finds them, and build a culture of proactive safety.</p>
 
@@ -1228,6 +1228,7 @@ export const articles = [
             <span class="text-[#1E3A5F] font-bold">Up to $16,864 per violation</span>
           </div>
         </div>
+        <p class="text-xs text-[#94A3B8] mt-3">Source: FMCSA Appendix B to 49 CFR Part 386. Amounts are adjusted annually for inflation — verify current figures at <a href="https://www.fmcsa.dot.gov/regulations/enforcement/civil-penalties" class="underline hover:text-[#475569]">fmcsa.dot.gov</a>.</p>
       </div>
 
       <p class="text-[#475569] mb-4">These are per-violation maximums. A single compliance review can uncover dozens of individual violations. A carrier with 20 drivers and systemic DQ file gaps could face $20,000 to $50,000 in fines from a single audit — and that is before any indirect costs kick in.</p>

@@ -120,6 +120,7 @@ const Pricing = () => {
         title="Pricing Plans Starting at $29/mo | 7-Day Free Trial"
         description="Simple, transparent pricing for trucking compliance. Owner-operators start at $29/mo. Small fleets at $79/mo. All plans include CSA tracking, DQF management, and AI assistant. Try free for 7 days."
         path="/pricing"
+        image="/images/og-image.png"
         faqItems={pricingFAQ}
       />
 

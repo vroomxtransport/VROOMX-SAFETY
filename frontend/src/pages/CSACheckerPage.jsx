@@ -181,6 +181,7 @@ const CSACheckerPage = () => {
         title="Free CSA Score Checker | Check Your FMCSA Safety Rating"
         description="Check your CSA score in 30 seconds — completely free, no signup required. See all 7 BASIC scores, get AI-powered analysis, and identify challengeable violations."
         path="/csa-checker"
+        image="/images/og-image.png"
         faqItems={faqData}
       />
 

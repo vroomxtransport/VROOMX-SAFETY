@@ -61,11 +61,11 @@ export default function SEO({ title, description, path = '/', image, type = 'web
       <meta property="og:description" content={description || defaultDescription} />
       <meta property="og:url" content={`${baseUrl}${path}`} />
       <meta property="og:type" content={type} />
-      {image && <meta property="og:image" content={image} />}
+      {image && <meta property="og:image" content={image.startsWith('http') ? image : `${baseUrl}${image}`} />}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description || defaultDescription} />
-      {image && <meta name="twitter:image" content={image} />}
+      {image && <meta name="twitter:image" content={image.startsWith('http') ? image : `${baseUrl}${image}`} />}
       {blogPostingLd && (
         <script type="application/ld+json">
           {JSON.stringify(blogPostingLd)}
