@@ -19,6 +19,7 @@ const Billing = () => {
   const [plans, setPlans] = useState([]);
   const [currentUsage, setCurrentUsage] = useState(null);
   const [upgradeModal, setUpgradeModal] = useState({ open: false, plan: null, preview: null, loading: false });
+  const [billingInterval, setBillingInterval] = useState('monthly');
 
   useEffect(() => {
     loadBillingData();
@@ -40,7 +41,7 @@ const Billing = () => {
   const handleSubscribe = async (plan) => {
     setLoading(true);
     try {
-      const response = await billingAPI.createCheckoutSession(plan);
+      const response = await billingAPI.createCheckoutSession(plan, billingInterval);
       // Redirect to Stripe Checkout
       window.location.href = response.data.url;
     } catch (error) {
@@ -440,9 +441,36 @@ const Billing = () => {
       </div>
 
       {/* Pricing Plans */}
-      <div className="mb-4">
-        <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">Available Plans</h2>
-        <p className="text-zinc-600 dark:text-zinc-300 text-sm mt-1">Choose the plan that fits your fleet size</p>
+      <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">Available Plans</h2>
+          <p className="text-zinc-600 dark:text-zinc-300 text-sm mt-1">Choose the plan that fits your fleet size</p>
+        </div>
+
+        {/* Billing Interval Toggle */}
+        <div className="flex items-center gap-3 bg-zinc-100 dark:bg-zinc-800 rounded-xl p-1">
+          <button
+            onClick={() => setBillingInterval('monthly')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              billingInterval === 'monthly'
+                ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-sm'
+                : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
+            }`}
+          >
+            Monthly
+          </button>
+          <button
+            onClick={() => setBillingInterval('annual')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-1.5 ${
+              billingInterval === 'annual'
+                ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-sm'
+                : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
+            }`}
+          >
+            Annual
+            <span className="text-xs font-semibold text-success-600 dark:text-success-400">Save 25%</span>
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
@@ -476,9 +504,16 @@ const Billing = () => {
 
             <div className="mb-6">
               <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-bold text-zinc-900 dark:text-zinc-100">$29</span>
-                <span className="text-zinc-600 dark:text-zinc-300">/month</span>
+                <span className="text-4xl font-bold text-zinc-900 dark:text-zinc-100">
+                  {billingInterval === 'annual' ? '$261' : '$29'}
+                </span>
+                <span className="text-zinc-600 dark:text-zinc-300">
+                  {billingInterval === 'annual' ? '/year' : '/month'}
+                </span>
               </div>
+              {billingInterval === 'annual' && (
+                <p className="text-sm text-success-600 dark:text-success-400 font-medium mt-1">$21.75/mo — save $87/year</p>
+              )}
               <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">1 driver &bull; 1 vehicle</p>
             </div>
 
@@ -578,9 +613,16 @@ const Billing = () => {
 
             <div className="mb-6">
               <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-bold text-zinc-900 dark:text-zinc-100">$79</span>
-                <span className="text-zinc-600 dark:text-zinc-300">/month</span>
+                <span className="text-4xl font-bold text-zinc-900 dark:text-zinc-100">
+                  {billingInterval === 'annual' ? '$711' : '$79'}
+                </span>
+                <span className="text-zinc-600 dark:text-zinc-300">
+                  {billingInterval === 'annual' ? '/year' : '/month'}
+                </span>
               </div>
+              {billingInterval === 'annual' && (
+                <p className="text-sm text-success-600 dark:text-success-400 font-medium mt-1">$59.25/mo — save $237/year</p>
+              )}
               <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">5 drivers included &bull; +$8/driver after</p>
             </div>
 
@@ -698,9 +740,16 @@ const Billing = () => {
 
             <div className="mb-6">
               <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-bold text-zinc-900 dark:text-zinc-100">$149</span>
-                <span className="text-zinc-600 dark:text-zinc-300">/month</span>
+                <span className="text-4xl font-bold text-zinc-900 dark:text-zinc-100">
+                  {billingInterval === 'annual' ? '$1,341' : '$149'}
+                </span>
+                <span className="text-zinc-600 dark:text-zinc-300">
+                  {billingInterval === 'annual' ? '/year' : '/month'}
+                </span>
               </div>
+              {billingInterval === 'annual' && (
+                <p className="text-sm text-success-600 dark:text-success-400 font-medium mt-1">$111.75/mo — save $447/year</p>
+              )}
               <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">15 drivers included &bull; +$6/driver after</p>
             </div>
 

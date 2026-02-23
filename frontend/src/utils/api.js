@@ -492,7 +492,7 @@ export const companiesAPI = {
 export const billingAPI = {
   getPlans: () => api.get('/billing/plans'),
   getSubscription: () => api.get('/billing/subscription'),
-  createCheckoutSession: (plan) => api.post('/billing/create-checkout-session', { plan }),
+  createCheckoutSession: (plan, billingInterval = 'monthly') => api.post('/billing/create-checkout-session', { plan, billingInterval }),
   createPortalSession: (returnUrl) => api.post('/billing/create-portal-session', { returnUrl }),
   cancelSubscription: () => api.post('/billing/cancel'),
   reactivateSubscription: () => api.post('/billing/reactivate'),
