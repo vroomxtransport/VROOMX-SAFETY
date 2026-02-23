@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   LuBot, LuBarChart3, LuFolderOpen, LuFileText, LuBellRing,
   LuSparkles, LuTrendingUp, LuCheck, LuArrowRight, LuUser,
@@ -12,6 +12,18 @@ const FeaturesSection = () => {
   const [headerRef, headerInView] = useInView({ threshold: 0.2 });
   const [tabsRef, tabsInView] = useInView({ threshold: 0.2 });
   const [cardRef, cardInView] = useInView({ threshold: 0.1 });
+
+  // Auto-cycle tabs every 6 seconds, reset timer on manual click
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveTab(prev => (prev + 1) % 5);
+    }, 6000);
+    return () => clearInterval(interval);
+  }, [activeTab]);
+
+  const handleTabClick = useCallback((i) => {
+    setActiveTab(i);
+  }, []);
 
   const features = [
     {
@@ -167,7 +179,7 @@ const FeaturesSection = () => {
 
   const DataQMockup = () => (
     <div className="text-center py-5">
-      <div className="w-20 h-20 mx-auto mb-5 bg-gradient-to-br from-purple-400 to-purple-300 rounded-3xl flex items-center justify-center text-white shadow-xl shadow-purple-400/35 animate-[bounce_3s_ease-in-out_infinite]">
+      <div className="w-20 h-20 mx-auto mb-5 bg-gradient-to-br from-purple-400 to-purple-300 rounded-3xl flex items-center justify-center text-white shadow-xl shadow-purple-400/35">
         <LuFileCheck2 className="w-9 h-9" />
       </div>
       <div className="text-xl font-semibold text-gray-800 mb-1.5">DataQ Letter Ready</div>
@@ -238,7 +250,7 @@ const FeaturesSection = () => {
             {features.map((feature, i) => (
               <button
                 key={feature.id}
-                onClick={() => setActiveTab(i)}
+                onClick={() => handleTabClick(i)}
                 aria-label={feature.title}
                 aria-pressed={activeTab === i}
                 className={`relative flex items-center gap-2.5 px-5 py-3.5 rounded-xl font-medium text-sm transition-all duration-300 ${
@@ -363,11 +375,6 @@ const FeaturesSection = () => {
           from { transform: scaleX(0); }
           to { transform: scaleX(1); }
         }
-        @keyframes bounce {
-          0%, 100% { transform: translateY(0) scale(1); }
-          50% { transform: translateY(-8px) scale(1.05); }
-        }
-
         /* Respect user's reduced motion preference */
         @media (prefers-reduced-motion: reduce) {
           *, *::before, *::after {
