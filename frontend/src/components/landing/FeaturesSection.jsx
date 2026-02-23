@@ -285,7 +285,7 @@ const FeaturesSection = () => {
           <div className="grid md:grid-cols-2">
             {/* Visual Panel */}
             <div className={`relative p-12 flex items-center justify-center before:absolute before:inset-5 before:rounded-3xl before:opacity-60 ${visualBg[activeFeature.accent]}`}>
-              <div className="relative z-10 w-full max-w-[380px] bg-white rounded-[20px] shadow-[0_20px_40px_rgba(0,0,0,0.08),0_8px_16px_rgba(0,0,0,0.04)] overflow-hidden animate-[mockupFloat_5s_ease-in-out_infinite]">
+              <div className="relative z-10 w-full max-w-[380px] bg-white rounded-[20px] shadow-[0_20px_40px_rgba(0,0,0,0.08),0_8px_16px_rgba(0,0,0,0.04)] overflow-hidden ">
                 <div className="flex items-center gap-2 px-4 py-3.5 bg-gradient-to-r from-gray-800 to-gray-900">
                   <span className="w-2.5 h-2.5 rounded-full bg-red-400" />
                   <span className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
@@ -350,10 +350,6 @@ const FeaturesSection = () => {
         @keyframes cardSlideIn {
           from { opacity: 0; transform: translateX(-30px); }
           to { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes mockupFloat {
-          0%, 100% { transform: translateY(0) rotate(0deg); }
-          50% { transform: translateY(-10px) rotate(1deg); }
         }
         @keyframes contentReveal {
           from { opacity: 0; transform: translateY(12px); }
