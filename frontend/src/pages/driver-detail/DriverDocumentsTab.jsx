@@ -1,7 +1,8 @@
 import {
   FiFolder, FiCheck, FiAlertCircle, FiFileText, FiUpload, FiShield
 } from 'react-icons/fi';
-import { formatDate, getFileViewUrl } from '../../utils/helpers';
+import { formatDate } from '../../utils/helpers';
+import { viewFile } from '../../utils/api';
 import StatusBadge from '../../components/StatusBadge';
 
 const DriverDocumentsTab = ({ driver, documentChecklist, completedDocs, totalDocs, onUpload }) => {
@@ -48,14 +49,12 @@ const DriverDocumentsTab = ({ driver, documentChecklist, completedDocs, totalDoc
                 </div>
                 <div className="flex items-center gap-2">
                   {doc.url && (
-                    <a
-                      href={getFileViewUrl(doc.url)}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={() => viewFile(doc.url)}
                       className="btn btn-sm btn-secondary"
                     >
                       <FiFileText className="w-4 h-4" />
-                    </a>
+                    </button>
                   )}
                   <button
                     onClick={() => onUpload(doc.key)}

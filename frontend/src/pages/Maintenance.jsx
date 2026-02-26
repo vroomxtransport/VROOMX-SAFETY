@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { maintenanceAPI, vehiclesAPI } from '../utils/api';
-import { formatDate, formatCurrency, getFileViewUrl } from '../utils/helpers';
+import { formatDate, formatCurrency } from '../utils/helpers';
+import { viewFile } from '../utils/api';
 import toast from 'react-hot-toast';
 import {
   FiPlus, FiSearch, FiTool, FiTruck, FiCalendar, FiDollarSign,
@@ -1093,15 +1094,13 @@ const Maintenance = () => {
                         </div>
                       </div>
                       <div className="flex items-center gap-1">
-                        <a
-                          href={getFileViewUrl(doc.url)}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <button
+                          onClick={() => viewFile(doc.url)}
                           className="p-1.5 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200 dark:hover:bg-zinc-600 rounded transition-colors"
                           title="Download"
                         >
                           <FiDownload className="w-4 h-4" />
-                        </a>
+                        </button>
                         <button
                           onClick={() => handleDocumentDelete(selectedRecord._id, doc._id)}
                           className="p-1.5 text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-500/10 rounded transition-colors"

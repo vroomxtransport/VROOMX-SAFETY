@@ -845,3 +845,24 @@ export const violationCodesAPI = {
   search: (q) => api.get('/violation-codes/search', { params: { q } }),
   seed: () => api.post('/violation-codes/seed'),
 };
+
+// Fetch a file via Axios (which sends auth headers) and open as blob URL.
+// Solves 401s when opening uploaded documents in a new tab via <a target="_blank">,
+// since plain browser navigation doesn't carry the Authorization header through the proxy.
+export const viewFile = async (url) => {
+  if (!url) return;
+  if (url.startsWith('http')) {
+    window.open(url, '_blank');
+    return;
+  }
+  const fileUrl = url.startsWith('/api/') ? url : `/files${url}`;
+  try {
+    const response = await api.get(fileUrl, { responseType: 'blob' });
+    const blob = new Blob([response.data], { type: response.headers['content-type'] });
+    const objectUrl = URL.createObjectURL(blob);
+    window.open(objectUrl, '_blank');
+    setTimeout(() => URL.revokeObjectURL(objectUrl), 60000);
+  } catch {
+    window.open(url, '_blank');
+  }
+};

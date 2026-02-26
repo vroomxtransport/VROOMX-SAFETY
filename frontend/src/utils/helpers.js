@@ -136,13 +136,6 @@ export const getInitials = (name) => {
     .substring(0, 2);
 };
 
-// Convert raw /uploads/... URLs to authenticated /api/files/uploads/... URLs
-export const getFileViewUrl = (url) => {
-  if (!url) return null;
-  if (url.startsWith('/api/') || url.startsWith('http')) return url;
-  return `/api/files${url}`;
-};
-
 // Severity colors for violations
 export const getSeverityColor = (severity) => {
   if (severity >= 8) return 'bg-red-500';

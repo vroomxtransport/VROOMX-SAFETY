@@ -4,7 +4,7 @@ import {
   FiUpload, FiFile, FiImage, FiTrash2, FiDownload, FiX, FiPaperclip
 } from 'react-icons/fi';
 import LoadingSpinner from './LoadingSpinner';
-import { getFileViewUrl } from '../utils/helpers';
+import { viewFile } from '../utils/api';
 
 const ACCEPT_DEFAULT = '.pdf,.jpg,.jpeg,.png,.doc,.docx';
 
@@ -222,15 +222,13 @@ const DocumentUploadSection = ({
                 </div>
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   {url && (
-                    <a
-                      href={getFileViewUrl(url)}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={() => viewFile(url)}
                       className="p-1 rounded hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-500 hover:text-accent-600"
                       title="Download"
                     >
                       <FiDownload className="w-3.5 h-3.5" />
-                    </a>
+                    </button>
                   )}
                   {onDelete && (
                     <button

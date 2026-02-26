@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { clearinghouseAPI } from '../../utils/api';
-import { formatDate, getFileViewUrl } from '../../utils/helpers';
+import { formatDate } from '../../utils/helpers';
+import { viewFile } from '../../utils/api';
 import toast from 'react-hot-toast';
 import {
   FiPlus, FiClock, FiSearch, FiCheckCircle, FiAlertTriangle, FiList,
@@ -506,15 +507,13 @@ const ClearinghouseQueries = () => {
                     <td className="px-4 py-2.5 text-right">
                       <div className="flex items-center justify-end gap-1">
                         {q.resultDocumentUrl && (
-                          <a
-                            href={getFileViewUrl(q.resultDocumentUrl)}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                          <button
+                            onClick={() => viewFile(q.resultDocumentUrl)}
                             className="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 hover:text-accent-600"
                             title="View document"
                           >
                             <FiDownload className="w-3.5 h-3.5" />
-                          </a>
+                          </button>
                         )}
                         <button
                           onClick={() => {
