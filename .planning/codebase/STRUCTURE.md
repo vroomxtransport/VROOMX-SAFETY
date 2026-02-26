@@ -1,445 +1,282 @@
 # Codebase Structure
 
-**Analysis Date:** 2026-02-03
+**Analysis Date:** 2026-02-25
 
 ## Directory Layout
 
 ```
-trucking-compliance-hub/
-├── backend/                          # Express.js API server
-│   ├── server.js                    # Entry point, middleware chain, cron jobs
-│   ├── package.json                 # Dependencies, npm scripts
-│   ├── .env.example                 # Required environment variables template
-│   ├── config/                      # Configuration modules
-│   │   ├── database.js              # MongoDB connection
-│   │   ├── fmcsaCompliance.js       # FMCSA compliance rules and DQF requirements
-│   │   └── ...                      # Other config files
-│   ├── middleware/                  # Express middleware
-│   │   ├── auth.js                  # JWT verification, company isolation, permissions
-│   │   ├── errorHandler.js          # Global error handler, asyncHandler wrapper, AppError class
-│   │   ├── upload.js                # Multer configuration (10MB, UUID filenames, validation)
-│   │   ├── subscriptionLimits.js    # Plan limit enforcement before resource creation
-│   │   ├── maintenance.js           # Maintenance mode check
-│   │   ├── demoGuard.js             # Block write operations for demo users
-│   │   └── ...                      # Other middleware
-│   ├── models/                      # Mongoose schemas (~25 models)
-│   │   ├── User.js                  # Multi-company support, subscription, permissions
-│   │   ├── Company.js               # Company profile, settings, feature flags
-│   │   ├── Driver.js                # Personal info, CDL, medical card, FMCSA docs
-│   │   ├── Vehicle.js               # Vehicle details, DVIRs, maintenance records
-│   │   ├── Violation.js             # FMCSA violations, DataQ status, AI analysis
-│   │   ├── Ticket.js                # Safety tickets
-│   │   ├── Accident.js              # Accident records
-│   │   ├── DamageClaim.js           # Damage claim records
-│   │   ├── FMCSAInspection.js        # FMCSA inspection records
-│   │   ├── Inspection.js            # Vehicle inspection records
-│   │   ├── MaintenanceRecord.js      # Vehicle maintenance history
-│   │   ├── Document.js              # Uploaded documents (with encryption)
-│   │   ├── AuditLog.js              # Immutable audit trail, 2-year TTL
-│   │   ├── AlertLog.js              # Driver compliance alerts
-│   │   ├── EmailLog.js              # Email delivery tracking
-│   │   ├── FeatureFlag.js           # A/B testing and feature toggles
-│   │   ├── Task.js                  # Work tasks/assignments
-│   │   ├── ChecklistTemplate.js      # Compliance checklist templates
-│   │   ├── ChecklistAssignment.js    # User checklist assignments
-│   │   ├── CSAScoreHistory.js        # Historical CSA score tracking
-│   │   ├── SamsaraRecord.js          # External Samsara sync records
-│   │   ├── SystemConfig.js           # Platform-wide configuration
-│   │   ├── ScheduledReport.js        # Report generation schedules
-│   │   ├── AIQueryUsage.js           # AI API usage tracking for billing
-│   │   └── index.js                 # Centralized model exports
-│   ├── services/                    # Business logic modules (~20 services)
-│   │   ├── auditService.js          # Fire-and-forget audit logging with diffs
-│   │   ├── emailService.js          # Nodemailer + Resend integration
-│   │   ├── openaiVisionService.js    # Document extraction (PDFs, images)
-│   │   ├── aiService.js             # Claude integration for Q&A
-│   │   ├── complianceScoreService.js # CSA score calculation
-│   │   ├── csaAlertService.js       # Alert generation
-│   │   ├── csaCalculatorService.js   # CSA component calculations
-│   │   ├── driverCSAService.js       # Driver-specific CSA logic
-│   │   ├── stripeService.js          # Stripe subscription lifecycle
-│   │   ├── fmcsaService.js           # FMCSA API integration
-│   │   ├── fmcsaViolationService.js  # FMCSA violation processing
-│   │   ├── fmcsaInspectionService.js # FMCSA inspection data
-│   │   ├── samsaraService.js         # Samsara API integration
-│   │   ├── pdfService.js             # PDF generation (compliance reports)
-│   │   ├── alertService.js           # Alert orchestration
-│   │   ├── dataAuditService.js       # Data quality validation
-│   │   ├── dataQAnalysisService.js   # DataQ opportunity analysis
-│   │   ├── documentIntelligenceService.js  # Document parsing/classification
-│   │   ├── aiUsageService.js         # AI quota tracking and enforcement
-│   │   ├── scheduledReportService.js # Report scheduling and generation
-│   │   ├── templateGeneratorService.js # Template creation
-│   │   └── index.js                 # Service exports (if centralized)
-│   ├── routes/                      # API endpoints (31 route modules)
-│   │   ├── index.js                 # Central router mounting all sub-routers
-│   │   ├── auth.js                  # /api/auth/* (login, register, logout, password reset)
-│   │   ├── drivers.js               # /api/drivers/* (CRUD, alerts, stats, documents)
-│   │   ├── vehicles.js              # /api/vehicles/* (CRUD, maintenance, inspections)
-│   │   ├── violations.js            # /api/violations/* (CRUD, DataQ, AI analysis)
-│   │   ├── tickets.js               # /api/tickets/*
-│   │   ├── drugAlcohol.js           # /api/drug-alcohol/* (drug/alcohol test records)
-│   │   ├── documents.js             # /api/documents/* (upload, download, encryption)
-│   │   ├── dashboard.js             # /api/dashboard/* (overview, metrics, refresh)
-│   │   ├── accidents.js             # /api/accidents/*
-│   │   ├── reports.js               # /api/reports/* (compliance reports)
-│   │   ├── scheduledReports.js       # /api/scheduled-reports/*
-│   │   ├── inspections.js           # /api/inspections/* (vehicle inspections)
-│   │   ├── ai.js                    # /api/ai/* (AI endpoints: analyze, extract, generate)
-│   │   ├── damageClaims.js          # /api/damage-claims/*
-│   │   ├── companies.js             # /api/companies/* (multi-company management)
-│   │   ├── billing.js               # /api/billing/* (subscription, Stripe webhook)
-│   │   ├── invitations.js           # /api/invitations/* (user invites)
-│   │   ├── csaChecker.js            # /api/csa-checker/* (CSA impact tools)
-│   │   ├── csa.js                   # /api/csa/* (CSA management endpoints)
-│   │   ├── fmcsaLookup.js           # /api/fmcsa/* (FMCSA data lookup)
-│   │   ├── admin.js                 # /api/admin/* (super-admin endpoints)
-│   │   ├── tasks.js                 # /api/tasks/*
-│   │   ├── checklists.js            # /api/checklists/*
-│   │   ├── maintenance.js           # /api/maintenance/*
-│   │   ├── audit.js                 # /api/audit/* (audit log viewing)
-│   │   ├── announcements.js         # /api/announcements/*
-│   │   ├── features.js              # /api/features/* (feature flag endpoints)
-│   │   ├── seed.js                  # /api/seed/* (data seeding for demo/testing)
-│   │   ├── templates.js             # /api/templates/*
-│   │   └── integrations.js          # /api/integrations/* (third-party integrations)
-│   ├── controllers/                 # Empty (business logic lives in routes/services)
-│   ├── utils/                       # Utility functions
-│   │   ├── searchUtils.js           # Regex escaping, query building
-│   │   ├── pdfUtils.js              # PDF generation helpers
-│   │   ├── errorUtils.js            # Error utility functions
-│   │   └── ...                      # Other utility modules
-│   ├── scripts/                     # One-off scripts
-│   │   ├── seed.js                  # Database seeding script
-│   │   └── ...                      # Other scripts
-│   ├── templates/                   # Email and PDF templates (EJS)
-│   │   ├── emailTemplates/          # Email HTML templates
-│   │   └── pdfTemplates/            # PDF generation templates
-│   ├── reports/                     # Report generation modules
-│   ├── uploads/                     # File upload storage (generated at runtime)
-│   │   └── {category}/              # Organized by document type
-│   └── node_modules/                # Installed dependencies
-├── frontend/                         # React 18 + Vite SPA
-│   ├── index.html                  # HTML entry point
-│   ├── vite.config.js               # Vite configuration, API proxy
-│   ├── tailwind.config.js           # Tailwind CSS configuration
-│   ├── package.json                 # Dependencies, npm scripts
-│   ├── src/
-│   │   ├── main.jsx                 # React mount point, app provider wrapping
-│   │   ├── App.jsx                  # Route definitions, ProtectedRoute wrappers
-│   │   ├── index.css                # Global CSS (Tailwind imports)
-│   │   ├── pages/                   # Page components (one per route)
-│   │   │   ├── Landing.jsx          # Public landing page
-│   │   │   ├── Login.jsx            # Auth page
-│   │   │   ├── Register.jsx         # Auth page
-│   │   │   ├── Dashboard.jsx        # Main dashboard (lazy-loaded)
-│   │   │   ├── Compliance.jsx       # Compliance overview (lazy-loaded)
-│   │   │   ├── Drivers.jsx          # Driver list page
-│   │   │   ├── DriverDetail.jsx     # Driver detail page
-│   │   │   ├── Vehicles.jsx         # Vehicle list page
-│   │   │   ├── VehicleDetail.jsx    # Vehicle detail page
-│   │   │   ├── Violations.jsx       # Violations list
-│   │   │   ├── Tickets.jsx          # Safety tickets
-│   │   │   ├── DamageClaims.jsx     # Damage claims
-│   │   │   ├── DrugAlcohol.jsx      # Drug/alcohol records
-│   │   │   ├── Documents.jsx        # Document library
-│   │   │   ├── Reports.jsx          # Compliance reports
-│   │   │   ├── ScheduledReports.jsx # Scheduled report management
-│   │   │   ├── InspectionHistory.jsx # Inspection records
-│   │   │   ├── Settings.jsx         # User/company settings
-│   │   │   ├── Billing.jsx          # Subscription/billing
-│   │   │   ├── RegulationAssistant.jsx # AI Q&A page
-│   │   │   ├── AlertsDashboard.jsx  # Alert management
-│   │   │   ├── Tasks.jsx            # Task management
-│   │   │   ├── Checklists.jsx       # Checklist management
-│   │   │   ├── Maintenance.jsx      # Maintenance records
-│   │   │   ├── Accidents.jsx        # Accident records
-│   │   │   ├── Policies.jsx         # Policy pages
-│   │   │   ├── Integrations.jsx     # Integration settings
-│   │   │   ├── DataQDashboard.jsx   # DataQ opportunities
-│   │   │   ├── CSACheckerPage.jsx   # CSA impact calculator
-│   │   │   ├── NotFound.jsx         # 404 page
-│   │   │   ├── admin/               # Admin pages (super_admin only)
-│   │   │   │   ├── AdminLayout.jsx  # Admin page wrapper
-│   │   │   │   ├── AdminDashboard.jsx
-│   │   │   │   ├── AdminUsers.jsx   # User management
-│   │   │   │   ├── AdminCompanies.jsx # Company management
-│   │   │   │   ├── AdminAuditLogs.jsx # Audit log viewer
-│   │   │   │   ├── AdminEmails.jsx  # Email log viewer
-│   │   │   │   ├── AdminAnnouncements.jsx
-│   │   │   │   ├── AdminFeatureFlags.jsx # Feature flag management
-│   │   │   │   ├── AdminDataIntegrity.jsx # Data audit tools
-│   │   │   │   ├── AdminRevenue.jsx # Revenue/usage tracking
-│   │   │   │   ├── AdminAlerts.jsx
-│   │   │   │   └── AdminTickets.jsx
-│   │   │   └── designs/             # Design demos
-│   │   │       ├── EnterpriseDemo.jsx
-│   │   │       ├── MinimalistDemo.jsx
-│   │   │       └── ...              # Other design variants
-│   │   ├── components/              # Reusable components
-│   │   │   ├── Layout.jsx           # Main app layout (nav, sidebar)
-│   │   │   ├── LoadingSpinner.jsx   # Loading indicator
-│   │   │   ├── Modal.jsx            # Generic modal wrapper
-│   │   │   ├── DataTable.jsx        # Sortable, paginated table
-│   │   │   ├── StatusBadge.jsx      # Status display component
-│   │   │   ├── ErrorBoundary.jsx    # Error boundary for render errors
-│   │   │   ├── PageTransition.jsx   # Page animation wrapper
-│   │   │   ├── CompanySwitcher.jsx  # Multi-company selector
-│   │   │   ├── DemoBanner.jsx       # Demo mode indicator
-│   │   │   ├── ChatWidget.jsx       # AI chat widget
-│   │   │   ├── VroomXLogo.jsx       # Brand logo
-│   │   │   ├── settings/            # Settings tab components
-│   │   │   │   ├── ProfileTab.jsx
-│   │   │   │   ├── SecurityTab.jsx
-│   │   │   │   ├── BillingTab.jsx
-│   │   │   │   ├── CompaniesTab.jsx
-│   │   │   │   ├── UsersTab.jsx
-│   │   │   │   ├── AuditLogTab.jsx
-│   │   │   │   ├── AppearanceTab.jsx
-│   │   │   │   ├── NotificationsTab.jsx
-│   │   │   │   ├── DataAuditTab.jsx
-│   │   │   │   ├── AddUserModal.jsx
-│   │   │   │   ├── InviteMemberModal.jsx
-│   │   │   │   └── AddCompanyModal.jsx
-│   │   │   ├── landing/             # Landing page sections
-│   │   │   │   ├── HeroSection.jsx
-│   │   │   │   ├── FeaturesSection.jsx
-│   │   │   │   ├── PricingSection.jsx
-│   │   │   │   ├── TestimonialsSection.jsx
-│   │   │   │   ├── FAQSection.jsx
-│   │   │   │   ├── CTASection.jsx
-│   │   │   │   └── FooterSection.jsx
-│   │   │   ├── drivers/             # Driver-specific components
-│   │   │   ├── vehicles/            # Vehicle-specific components
-│   │   │   ├── violations/          # Violation components
-│   │   │   │   └── DataQOpportunities.jsx
-│   │   │   ├── tickets/             # Ticket components
-│   │   │   ├── reports/             # Report components
-│   │   │   ├── fmcsa/               # FMCSA-related components
-│   │   │   │   └── InspectionsTabContent.jsx
-│   │   │   ├── AIChat/              # AI chat components
-│   │   │   │   └── ChatWidget.jsx
-│   │   │   ├── CSAEstimatorContent.jsx
-│   │   │   ├── DataQLetterModal.jsx
-│   │   │   ├── SamsaraMatchingModal.jsx
-│   │   │   ├── InspectionUploadContent.jsx
-│   │   │   └── ...                  # Other components
-│   │   ├── context/                 # React context providers
-│   │   │   ├── AuthContext.jsx      # User/companies/subscription state
-│   │   │   ├── ThemeContext.jsx     # Dark mode toggle
-│   │   │   └── FeatureFlagContext.jsx # Feature flag consumer
-│   │   ├── utils/                   # Utility functions and API client
-│   │   │   ├── api.js               # Axios instance with auth interceptors, 45+ API service objects
-│   │   │   ├── formatters.js        # Date, currency, text formatting
-│   │   │   ├── validators.js        # Input validation rules
-│   │   │   ├── dateUtils.js         # Date calculations
-│   │   │   ├── constants.js         # App-wide constants
-│   │   │   └── ...                  # Other utils
-│   │   ├── hooks/                   # Custom React hooks
-│   │   │   ├── useInView.js         # Intersection observer hook
-│   │   │   └── ...                  # Other hooks
-│   │   ├── services/                # Frontend services (if any)
-│   │   ├── data/                    # Static data files
-│   │   │   ├── complianceData.js    # FMCSA compliance rules
-│   │   │   ├── alertTypes.js        # Alert type definitions
-│   │   │   └── ...                  # Other static data
-│   │   └── assets/                  # Images, icons, fonts
-│   │       ├── images/
-│   │       ├── icons/
-│   │       └── fonts/
-│   ├── public/                      # Static assets (served directly)
-│   ├── dist/                        # Production build output
-│   └── node_modules/                # Installed dependencies
-├── .planning/                        # GSD planning documents
-│   └── codebase/                    # Architecture/structure/testing/concerns docs
-├── .git/                            # Git repository
-├── .gitignore                       # Git ignore patterns
-├── CLAUDE.md                        # Developer instructions (this file)
-├── PROJECT.md                       # Project overview and changelog
-├── README.md                        # Public project README
-└── DOCS/                            # Additional documentation
+project-root/
+├── backend/                    # Express.js API server
+│   ├── config/                 # Database connection
+│   ├── middleware/             # Auth, upload, error, rate-limit, maintenance
+│   ├── models/                 # Mongoose schemas (40 models)
+│   ├── routes/                 # Express routers with inline handlers (38 modules)
+│   ├── services/               # Business logic + external integrations (39 services)
+│   ├── utils/                  # Logger, regex escape helper
+│   ├── templates/              # Email HTML templates
+│   ├── uploads/                # File storage (category subdirs, gitignored)
+│   ├── scripts/                # One-off admin scripts
+│   ├── reports/                # Generated report output directory
+│   └── server.js               # Entry point, middleware chain, cron jobs
+├── frontend/                   # React 18 + Vite SPA
+│   └── src/
+│       ├── assets/             # Static assets, global CSS
+│       ├── components/         # Reusable UI components
+│       │   ├── layout/         # App shell: Layout, Sidebar, AppHeader, navConfig
+│       │   ├── landing/        # Public marketing sections
+│       │   ├── AIChat/         # Floating chat widget
+│       │   ├── settings/       # Settings tab components
+│       │   ├── reports/        # Report builder components
+│       │   ├── filters/        # Filter sidebar/panel components
+│       │   ├── fmcsa/          # FMCSA-specific display components
+│       │   ├── csa-checker/    # Public CSA checker tool components
+│       │   ├── clearinghouse/  # Clearinghouse workflow components
+│       │   ├── claims/         # Damage claim components
+│       │   ├── tickets/        # Support ticket components
+│       │   ├── blog/           # Blog listing/article components
+│       │   ├── admin/          # Super admin UI components
+│       │   └── ui/             # Generic primitives
+│       ├── context/            # React contexts (AuthContext, ThemeContext)
+│       ├── data/               # Static data files (blog posts, landing copy, form options)
+│       ├── hooks/              # Custom React hooks
+│       ├── pages/              # Page-level components (one per route)
+│       │   ├── admin/          # Super admin pages
+│       │   ├── dashboard/      # Dashboard sub-components
+│       │   ├── driver-detail/  # Driver detail sub-components
+│       │   ├── vehicle-detail/ # Vehicle detail sub-components
+│       │   └── designs/        # Dev-only design demos (never shown in prod)
+│       ├── services/           # Frontend-side service utilities
+│       ├── utils/              # api.js (Axios + all API service objects), helpers, analytics
+│       ├── App.jsx             # Route definitions + route guards
+│       └── main.jsx            # Vite entry point
+├── DOCS/                       # Project documentation
+├── .planning/                  # GSD planning docs
+│   └── codebase/               # Codebase analysis (this directory)
+└── CLAUDE.md                   # AI assistant instructions
 ```
 
 ## Directory Purposes
 
-**Backend Entry:**
-- `backend/server.js`: Main server file; defines middleware stack, connects DB, starts cron jobs
+**`backend/config/`:**
+- Purpose: Database connection setup
+- Key files: `backend/config/database.js` (Mongoose connect with error handling)
 
-**Backend Configuration:**
-- `backend/config/`: Environment-specific setup, database connection, FMCSA rules
-- Files: `database.js` (Mongoose connection), `fmcsaCompliance.js` (rules + DQF requirements), `.env.example`
-
-**Backend Middleware:**
-- `backend/middleware/`: HTTP middleware functions
+**`backend/middleware/`:**
+- Purpose: Express middleware for auth, authorization, file upload, error handling, maintenance mode
 - Key files:
-  - `auth.js`: JWT verification, company isolation, permission checks
-  - `errorHandler.js`: Global error handler, AppError class, asyncHandler wrapper
-  - `upload.js`: Multer configuration (10MB, UUID names, MIME validation)
-  - `subscriptionLimits.js`: Plan limit enforcement before resource creation
+  - `backend/middleware/auth.js` — `protect`, `restrictToCompany`, `authorize`, `checkPermission`, `requireSuperAdmin`
+  - `backend/middleware/subscriptionLimits.js` — plan enforcement for driver/vehicle/company/AI query limits
+  - `backend/middleware/errorHandler.js` — `asyncHandler`, `AppError`, global error handler
+  - `backend/middleware/upload.js` — Multer configuration (UUID filenames, MIME validation, path traversal protection)
+  - `backend/middleware/maintenance.js` — maintenance mode toggle
+  - `backend/middleware/demoGuard.js` — blocks writes for demo users
 
-**Backend Models:**
-- `backend/models/`: Mongoose schemas (all company-scoped)
-- 25 models covering drivers, vehicles, violations, documents, audits, etc.
-- All have `companyId` indexed for tenant isolation
+**`backend/models/`:**
+- Purpose: Mongoose schema definitions; every model is company-scoped with `companyId` field
+- Key models:
+  - `backend/models/User.js` — multi-company membership via embedded `companies[]` array
+  - `backend/models/Company.js` — DOT/MC numbers, SMS BASICs, FMCSA sync status, compliance score
+  - `backend/models/Driver.js` — driver records with DQF fields
+  - `backend/models/Vehicle.js` — vehicle records with inspection status
+  - `backend/models/Violation.js` — FMCSA violations populated by `fmcsaInspectionService`
+  - `backend/models/AuditLog.js` — 2-year TTL audit trail
+  - `backend/models/Integration.js` — Samsara API integration config per company
+  - `backend/models/index.js` — barrel export for all models
 
-**Backend Services:**
-- `backend/services/`: Business logic (AI, email, compliance, external APIs)
-- 20 services: auditService, emailService, openaiVisionService, aiService, stripeService, samsaraService, etc.
-- Pattern: Object literals with async methods; fire-and-forget for non-blocking operations
+**`backend/routes/`:**
+- Purpose: API route definitions with inline handler logic (no separate controllers)
+- Entry: `backend/routes/index.js` — mounts all 38 modules under `/api`
+- Notable routes:
+  - `backend/routes/auth.js` — login, register, refresh, logout, password reset, demo login
+  - `backend/routes/drivers.js` — CRUD + CSA impact, document upload
+  - `backend/routes/violations.js` — violations CRUD + DataQ workflow
+  - `backend/routes/billing.js` — Stripe subscription management + webhook (raw body)
+  - `backend/routes/dashboard.js` — dashboard aggregation, FMCSA sync trigger
+  - `backend/routes/admin.js` — super admin platform management (~73KB, largest route file)
+  - `backend/routes/reports.js` — report generation (~100KB, comprehensive report system)
+  - `backend/routes/csaChecker.js` — public DOT lookup for CSA checker lead magnet
 
-**Backend Routes:**
-- `backend/routes/`: API endpoint definitions (31 modules)
-- Central router at `index.js` mounts all sub-routers under `/api`
-- Named routes before parameterized routes (Express evaluation order)
+**`backend/services/`:**
+- Purpose: All business logic; plain object literal exports with async methods
+- FMCSA pipeline services:
+  - `backend/services/fmcsaSyncOrchestrator.js` — coordinates 6-step sync pipeline
+  - `backend/services/fmcsaSyncService.js` — CSA BASIC scores from SAFER
+  - `backend/services/fmcsaInspectionService.js` — violations from FMCSA DataHub
+  - `backend/services/fmcsaViolationService.js` — inspection stats from SaferWebAPI
+  - `backend/services/entityLinkingService.js` — links violations to Driver/Vehicle records
+  - `backend/services/dataQAnalysisService.js` — DataQ challenge eligibility scoring
+  - `backend/services/violationScannerService.js` — health check violation scanner
+  - `backend/services/complianceScoreService.js` — 5-component weighted compliance score (0-100)
+- AI services:
+  - `backend/services/openaiVisionService.js` — document extraction (PDFs via Responses API, images via Chat Completions)
+  - `backend/services/aiService.js` — Claude integration for compliance Q&A
+- Infrastructure services:
+  - `backend/services/emailService.js` — Resend API, fire-and-forget, logs to `EmailLog`
+  - `backend/services/stripeService.js` — Stripe subscription lifecycle
+  - `backend/services/auditService.js` — fire-and-forget audit logging with field-level diff
+  - `backend/services/alertService.js` — alert generation + escalation for all companies
+  - `backend/services/samsaraService.js` — Samsara telematics API sync
+  - `backend/services/pdfService.js` — PDF report generation
+  - `backend/services/scheduledReportService.js` — cron-driven report delivery
 
-**Frontend Pages:**
-- `frontend/src/pages/`: One component per route
-- ~57 page files covering auth, dashboard, resources (drivers/vehicles/violations), settings, admin
+**`backend/utils/`:**
+- Purpose: Shared utility functions
+- Key files:
+  - `backend/utils/logger.js` — production-safe logger with sensitive field sanitization
 
-**Frontend Components:**
-- `frontend/src/components/`: Reusable UI components
-- Organized by feature/domain (settings/, landing/, drivers/, violations/, etc.)
-- Core components: Layout, Modal, DataTable, LoadingSpinner, ErrorBoundary
+**`backend/uploads/`:**
+- Purpose: File storage for user-uploaded documents; never served statically
+- Subdirectories: `documents/`, `drivers/`, `vehicles/`, `violations/`, `drug-alcohol/`, `accidents/`, `maintenance/`, `logos/`, `temp/`
+- Files served through `GET /api/documents/:id/download` with auth checks
 
-**Frontend Context:**
-- `frontend/src/context/`: Global state management
-- AuthContext: user, companies, activeCompany, subscription
-- ThemeContext: dark mode toggle
-- FeatureFlagContext: feature flag consumer
+**`frontend/src/App.jsx`:**
+- Purpose: Complete route map for the application
+- Contains: `<ProtectedRoute>`, `<PublicRoute>`, `<SuperAdminRoute>` guards; all route definitions; lazy loading with `lazyWithRetry`
 
-**Frontend Utils:**
-- `frontend/src/utils/`: Utility functions and API client
-- `api.js`: Axios instance with interceptors, 45+ API service objects (driversAPI, vehiclesAPI, etc.)
-- Other utils: formatters, validators, date helpers, constants
+**`frontend/src/context/`:**
+- Purpose: Cross-cutting React state
+- `AuthContext.jsx` — user, companies, activeCompany, subscription; login/logout/register/switchCompany/hasPermission
+- `ThemeContext.jsx` — dark/light mode toggle
+
+**`frontend/src/utils/api.js`:**
+- Purpose: Single Axios instance + all ~45 API service objects
+- Token management: access token in memory, refresh token in sessionStorage
+- Interceptors: auto token refresh on 401, maintenance mode detection on 503
+- All API calls go through named service objects (e.g., `driversAPI.getAll()`, `billingAPI.subscribe()`)
+
+**`frontend/src/pages/`:**
+- Purpose: One page component per route
+- Heavy pages are lazy-loaded: `Dashboard`, `Compliance`, `ComplianceReport`, `DriverDetail`, `VehicleDetail`, `Billing`, `Settings`, `Reports`
+- All admin pages under `frontend/src/pages/admin/` are lazy-loaded and `SuperAdminRoute`-protected
+
+**`frontend/src/components/layout/`:**
+- Purpose: App shell components
+- `Layout.jsx` — outer shell with sidebar + header + `<Outlet>` for page content
+- `Sidebar.jsx` — collapsible navigation with grouped sections
+- `AppHeader.jsx` — top bar with user menu, alerts bell, company switcher
+- `navConfig.js` — navigation item definitions (path, icon, label, section grouping)
+
+**`frontend/src/components/landing/`:**
+- Purpose: Public marketing page sections
+- Key sections: `HeroSection.jsx`, `FeaturesSection.jsx`, `PricingSection.jsx`, `TestimonialsSection.jsx` (ROI calculator), `CTASection.jsx`, `FAQSection.jsx`, `FooterSection.jsx`
+- Data: `frontend/src/data/landingData.js`
+
+**`frontend/src/data/`:**
+- Purpose: Static data for frontend (not fetched from API)
+- `blogPosts.js` — blog article data (id, slug, date, isoDate, content)
+- `landingData.js` — marketing copy, pricing tiers, feature lists, value props
+- `claimOptions.js`, `ticketOptions.js`, `rdrTypes.js` — form select options
 
 ## Key File Locations
 
 **Entry Points:**
-- `backend/server.js`: Backend entry point; middleware + cron job definitions
-- `frontend/src/main.jsx`: React DOM mount point
-- `frontend/src/App.jsx`: Route definitions and layout
-- `frontend/vite.config.js`: Vite build and dev server config
+- `backend/server.js` — backend HTTP server entry
+- `frontend/src/main.jsx` — frontend Vite/React entry
+- `frontend/src/App.jsx` — all frontend routes
 
 **Configuration:**
-- `backend/.env.example`: Required env vars template
-- `backend/config/database.js`: MongoDB connection setup
-- `backend/config/fmcsaCompliance.js`: FMCSA compliance rules
-- `frontend/vite.config.js`: Vite configuration (API proxy, build output)
-- `frontend/tailwind.config.js`: Tailwind CSS theme configuration
+- `backend/routes/index.js` — API route registry (all 38 modules)
+- `backend/middleware/auth.js` — auth + tenant isolation exports
+- `backend/middleware/subscriptionLimits.js` — plan enforcement middleware
 
 **Core Logic:**
-- `backend/middleware/auth.js`: JWT, company isolation, permissions
-- `backend/services/auditService.js`: Fire-and-forget audit logging
-- `backend/services/emailService.js`: Email sending (Nodemailer + Resend)
-- `backend/services/openaiVisionService.js`: Document extraction (PDFs, images)
-- `backend/services/stripeService.js`: Subscription lifecycle
-- `frontend/context/AuthContext.jsx`: User/company state
-- `frontend/utils/api.js`: All API service methods
+- `backend/services/fmcsaSyncOrchestrator.js` — FMCSA data pipeline
+- `backend/services/complianceScoreService.js` — compliance scoring algorithm
+- `backend/services/alertService.js` — alert generation for all companies
+- `frontend/src/utils/api.js` — all frontend API calls
+
+**Models:**
+- `backend/models/User.js` — user + multi-company membership schema
+- `backend/models/Company.js` — company + FMCSA data + compliance score
+- `backend/models/Violation.js` — FMCSA violation records
+- `backend/models/Driver.js` — driver + DQF fields
+- `backend/models/index.js` — model barrel exports
 
 **Testing:**
-- Backend: No dedicated test files in codebase (Jest configured but empty)
-- Frontend: No dedicated test files (Vitest could be configured)
+- No test files found in active source paths (tests referenced in `backend/package.json` scripts only)
 
 ## Naming Conventions
 
-**Files:**
-- Backend routes: `drivers.js`, `vehicles.js` (plural, kebab-case if multi-word)
-- Backend services: `auditService.js`, `emailService.js` (camelCase + Service suffix)
-- Backend models: `Driver.js`, `Vehicle.js` (PascalCase, singular)
-- Frontend pages: `Drivers.jsx`, `DriverDetail.jsx` (PascalCase)
-- Frontend components: `Layout.jsx`, `DataTable.jsx` (PascalCase)
-- Frontend utils: `api.js`, `formatters.js` (camelCase, lowercase)
-- Context files: `AuthContext.jsx`, `ThemeContext.jsx` (PascalCase + Context suffix)
+**Backend Files:**
+- Route files: lowercase, camelCase (e.g., `drugAlcohol.js`, `csaChecker.js`, `cleanInspections.js`)
+- Service files: camelCase with `Service` suffix (e.g., `alertService.js`, `complianceScoreService.js`)
+- Model files: PascalCase matching model name (e.g., `Driver.js`, `CSAScoreHistory.js`, `FMCSAInspection.js`)
+- Middleware files: lowercase, descriptive (e.g., `auth.js`, `errorHandler.js`, `subscriptionLimits.js`)
 
-**Directories:**
-- Feature folders: lowercase plural (e.g., `settings/`, `landing/`, `drivers/`)
-- Utility folders: lowercase (e.g., `utils/`, `services/`, `models/`)
-- Page folders: match page name pattern
+**Frontend Files:**
+- Page components: PascalCase (e.g., `Dashboard.jsx`, `DriverDetail.jsx`, `CSACheckerPage.jsx`)
+- Shared components: PascalCase (e.g., `DataTable.jsx`, `StatusBadge.jsx`, `LoadingSpinner.jsx`)
+- Utility files: camelCase (e.g., `api.js`, `helpers.js`, `analytics.js`)
+- Context files: PascalCase with `Context` suffix (e.g., `AuthContext.jsx`, `ThemeContext.jsx`)
 
-**Functions:**
-- Async handlers in routes: `asyncHandler(async (req, res) => {})`
-- Middleware: `protect`, `restrictToCompany`, `checkPermission`, `authorize`
-- Service methods: `log()`, `diff()`, `sendEmail()` (camelCase)
-- React hooks: `useAuth()`, `useFeatureFlag()` (use prefix)
+**API Routes:**
+- All mounted under `/api/` prefix
+- Kebab-case path segments matching route files (e.g., `/api/drug-alcohol`, `/api/csa-checker`, `/api/damage-claims`)
+- Named routes must come before parameterized `/:id` routes within each file (Express top-to-bottom evaluation)
 
-**Variables:**
-- Database queries: `const drivers = await Driver.find(...)`
-- Axios requests: `const response = await api.get('/drivers')`
-- React state: `const [drivers, setDrivers] = useState([])`
-- Company context: `req.companyFilter = { companyId }`
-
-**Types:**
-- Models: `Driver`, `Vehicle`, `Violation` (PascalCase)
-- Errors: `AppError` (PascalCase)
-- Context: `AuthContext`, `ThemeContext` (PascalCase)
+**Database:**
+- Model names: PascalCase singular (e.g., `Driver`, `Company`, `FMCSAInspection`)
+- Collection names: Mongoose auto-pluralizes (e.g., `drivers`, `companies`, `fmcsainspections`)
+- All schemas include `companyId` for tenant isolation; all include Mongoose `timestamps: true`
 
 ## Where to Add New Code
 
-**New Feature (e.g., add "Incidents" module):**
-1. **Backend:**
-   - Create model: `backend/models/Incident.js` with `companyId` field
-   - Create service: `backend/services/incidentService.js` (if business logic needed)
-   - Create route: `backend/routes/incidents.js` with CRUD endpoints
-   - Mount route: Add `const incidentRoutes = require('./incidents')` and `router.use('/incidents', incidentRoutes)` to `backend/routes/index.js`
-   - Update auth: Add permission checks via `checkPermission('incidents', 'view')`
-2. **Frontend:**
-   - Create page: `frontend/src/pages/Incidents.jsx` (list view)
-   - Create detail page: `frontend/src/pages/IncidentDetail.jsx` (detail view)
-   - Create component folder: `frontend/src/components/incidents/` (modal, form, etc.)
-   - Add routes: Add to `frontend/src/App.jsx` within ProtectedRoute wrapper
-   - Add API service: Add `incidentsAPI` object to `frontend/src/utils/api.js`
-3. **Update database:** Run migration script to add `companyId` index to Incident collection
+**New API Resource (e.g., "permits"):**
+- Route handler: Create `backend/routes/permits.js` with Express Router
+- Register: Add to `backend/routes/index.js` with `router.use('/permits', permitRoutes)`
+- Model: Create `backend/models/Permit.js` with `companyId` field
+- Service (if needed): Create `backend/services/permitService.js` as plain object literal
+- Frontend API: Add `permitsAPI` export to `frontend/src/utils/api.js`
+- Page: Create `frontend/src/pages/Permits.jsx`
+- Route: Add to `frontend/src/App.jsx` under `<ProtectedRoute>`
+- Nav: Add entry to `frontend/src/components/layout/navConfig.js`
 
-**New Component/Module (e.g., add "Compliance Calendar"):**
-- Frontend component: `frontend/src/components/ComplianceCalendar.jsx`
-- Use: Import and render in relevant pages
-- Styling: Use Tailwind classes; follow existing component patterns
+**New Background Job:**
+- Add cron schedule in `backend/server.js` with overlap guard boolean flag
+- Use `logger.cron()` for logging
+
+**New Landing Section:**
+- Add section component to `frontend/src/components/landing/`
+- Export from `frontend/src/components/landing/index.js`
+- Data constants belong in `frontend/src/data/landingData.js`
+
+**New Admin Panel Page:**
+- Create page in `frontend/src/pages/admin/`
+- Register as lazy-loaded route in `frontend/src/App.jsx` under `/admin` with `<SuperAdminRoute>`
+- Backend: Add to `backend/routes/admin.js` with `requireSuperAdmin` middleware
+
+**New Service:**
+- Create `backend/services/{name}Service.js` as plain object literal: `const myService = { async doThing(companyId) { ... } }; module.exports = myService;`
+
+**New Email Template:**
+- HTML template: `backend/templates/`
+- Send via `emailService.js` (fire-and-forget pattern; never await in request handlers)
 
 **Utilities:**
-- Shared helpers: `frontend/src/utils/newHelper.js`
-- Backend utilities: `backend/utils/newUtil.js`
-- Always use services for business logic; utils for pure functions
+- Backend helpers: `backend/utils/`
+- Frontend helpers: `frontend/src/utils/helpers.js`
 
 ## Special Directories
 
 **`backend/uploads/`:**
-- Purpose: File storage for uploaded documents
-- Generated: Yes, created at runtime
-- Committed: No (added to .gitignore)
-- Structure: Organized by category: `uploads/drivers/`, `uploads/vehicles/`, etc.
-- Security: No direct static serving; files accessed through authenticated endpoint `/api/documents/:id/download`
+- Purpose: User-uploaded files organized by category
+- Generated: At runtime by `upload.js` middleware
+- Committed: No (gitignored); directory structure created automatically
 
-**`backend/templates/`:**
-- Purpose: Email and PDF template files (EJS format)
+**`backend/reports/`:**
+- Purpose: Generated PDF report output
+- Generated: Yes, at runtime
+- Committed: No
+
+**`frontend/src/pages/designs/`:**
+- Purpose: Design demos for development previews only
 - Generated: No
-- Committed: Yes
-- Usage: Referenced by `emailService.js` and `pdfService.js`
-- Pattern: `templates/emails/welcome.ejs`, `templates/pdfs/report.ejs`
+- Committed: Yes, but routes only render when `import.meta.env.DEV` is true
 
-**`backend/scripts/`:**
-- Purpose: One-off utility scripts (database seeding, migrations)
-- Generated: No
+**`.planning/`:**
+- Purpose: GSD project planning documents, phase tracking, codebase analysis
 - Committed: Yes
-- Run: `node scripts/seed.js --fresh` (demo data seeding)
-
-**`frontend/public/`:**
-- Purpose: Static assets served directly (images, SVGs, manifests)
-- Generated: No
-- Committed: Yes
-- Usage: Reference from HTML/CSS as `/filename`
-
-**`frontend/dist/`:**
-- Purpose: Production build output
-- Generated: Yes (`npm run build`)
-- Committed: No (added to .gitignore)
-- Output: HTML, minified JS/CSS, assets
-
-**`.planning/codebase/`:**
-- Purpose: GSD planning documents (ARCHITECTURE.md, STRUCTURE.md, etc.)
-- Generated: Yes, created by `/gsd:map-codebase`
-- Committed: Yes
-- Contents: Reference docs for code generation
 
 ---
 
-*Structure analysis: 2026-02-03*
+*Structure analysis: 2026-02-25*

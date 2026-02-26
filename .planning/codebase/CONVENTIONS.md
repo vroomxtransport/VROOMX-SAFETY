@@ -1,266 +1,258 @@
 # Coding Conventions
 
-**Analysis Date:** 2026-02-03
+**Analysis Date:** 2026-02-25
 
 ## Naming Patterns
 
 **Files:**
-- Backend routes: `kebab-case.js` (e.g., `drivers.js`, `audit.js`)
-- Backend models: `PascalCase.js` (e.g., `Driver.js`, `Vehicle.js`, `Company.js`)
-- Backend services: `camelCase.js` (e.g., `auditService.js`, `emailService.js`)
-- Backend middleware: `kebab-case.js` (e.g., `errorHandler.js`, `auth.js`)
-- Frontend pages: `PascalCase.jsx` (e.g., `Drivers.jsx`, `DriverDetail.jsx`)
-- Frontend components: `PascalCase.jsx` (e.g., `Modal.jsx`, `StatusBadge.jsx`)
-- Frontend utilities: `camelCase.js` (e.g., `api.js`, `helpers.js`)
-- Frontend contexts: `PascalCase.jsx` (e.g., `AuthContext.jsx`, `FeatureFlagContext.jsx`)
+- Backend routes/services/models: `camelCase.js` (e.g., `alertService.js`, `fmcsaSyncService.js`)
+- Frontend pages: `PascalCase.jsx` (e.g., `Drivers.jsx`, `Dashboard.jsx`)
+- Frontend components: `PascalCase.jsx` (e.g., `Modal.jsx`, `DataTable.jsx`, `LoadingSpinner.jsx`)
+- Frontend hooks: `camelCase.js` prefixed with `use` (e.g., `useInView.js`, `useForceLightMode.js`)
+- Frontend utilities: `camelCase.js` (e.g., `api.js`, `helpers.js`, `lazyWithRetry.js`)
+- Backend models: `PascalCase.js` (e.g., `Driver.js`, `ComplianceScore.js`, `FMCSAInspection.js`)
 
 **Functions:**
-- Backend: camelCase (e.g., `findOrCreateAlert()`, `dismissAlert()`, `renderTemplate()`)
-- Frontend React hooks: camelCase (e.g., `useAuth()`, `useState()`)
-- Express route handlers: Named descriptors with `async` (e.g., `async (req, res) => {}`)
-- Service methods: camelCase on exported object literals (e.g., `auditService.log()`)
+- Backend: camelCase for both service methods and route handlers (`fetchCarrierData`, `generateToken`, `setTokenCookie`)
+- Frontend: camelCase for event handlers with `handle` prefix (`handleRestore`, `handleNestedChange`, `handleSubmit`)
+- Frontend fetchers: camelCase with `fetch` prefix (`fetchDrivers`, `fetchArchivedDrivers`, `fetchDashboard`)
+- Custom hooks: camelCase with `use` prefix (`useInView`, `useAuth`, `useTheme`)
 
 **Variables:**
-- Local: camelCase (e.g., `userId`, `templateCache`, `activeCompany`)
-- Constants: SCREAMING_SNAKE_CASE (e.g., `RESEND_ENABLED`, `JWT_EXPIRES_IN`, `FROM_EMAIL`)
-- React state: camelCase (e.g., `const [drivers, setDrivers] = useState([])`)
-- Destructured objects: camelCase with preservation of API response names
+- camelCase throughout both frontend and backend
+- Boolean flags use `is`/`has` prefix: `isAnimating`, `isRefreshing`, `hasTriggered`, `hasError`
+- Status constants use `SCREAMING_SNAKE_CASE`: `RESEND_ENABLED`, `PLAN_CONFIG`, `AI_QUERY_QUOTAS`
+- Config objects use `SCREAMING_SNAKE_CASE`: `COMPONENT_WEIGHTS`, `TIME_WEIGHTS`, `BASIC_INFO`
 
-**Types/Enums:**
-- Database enums: lowercase strings (e.g., `status: 'active'`, `role: 'owner'`)
-- Status values: lowercase with underscores (e.g., `'non_compliant'`, `'due_soon'`, `'out_of_service'`)
-- Role values: lowercase with underscores (e.g., `'safety_manager'`, `'dispatcher'`)
+**Types/Classes:**
+- Custom error class: `AppError` (PascalCase) in `backend/middleware/errorHandler.js`
+- Mongoose schemas: `camelCase` variable name ending in `Schema` (e.g., `userSchema`, `permissionSchema`, `companyMembershipSchema`)
 
 ## Code Style
 
 **Formatting:**
-- No dedicated Prettier config file; code follows implicit conventions
-- Indentation: 2 spaces (ES6 modules use default)
-- Line length: No strict limit enforced
-- Trailing commas: Used in multiline objects/arrays
+- No project-level Prettier config detected; code uses consistent 2-space indentation
+- Template literals used for string interpolation
+- Arrow functions for callbacks and event handlers; standard `function` keyword for named utility functions
 
 **Linting:**
-- Frontend has ESLint configured: `"lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0"`
-- Eslint file: Not tracked in repo (uses defaults)
-- Backend: No linter configured (no eslint dependency)
-- Max warnings on frontend: **Zero** - strict enforcement
+- Frontend: ESLint with `eslint-plugin-react` and `eslint-plugin-react-hooks` (configured in `frontend/package.json`)
+- Lint command: `eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0`
+- Backend: No ESLint configured; relies on code review discipline
+- Frontend uses ES modules (`"type": "module"` in `frontend/package.json`)
+- Backend uses CommonJS (`require` / `module.exports`)
 
 ## Import Organization
 
-**Order (both Backend & Frontend):**
-1. Node.js core modules (`path`, `fs`, `crypto`)
-2. Third-party packages (`express`, `mongoose`, `axios`, `react`)
-3. Custom modules (models, services, middleware, utils)
-4. Type definitions / JSDoc comments
-
-**Path Aliases:**
-- Frontend uses standard relative imports (no @ alias configured)
-- Backend uses relative imports with traversal (e.g., `require('../models')`, `require('./services/auditService')`)
-- Index file imports: `const { Driver } = require('../models')` (barrel export from `backend/models/index.js`)
-
-**Example (Backend):**
+**Backend (CommonJS):**
 ```javascript
+// 1. Node built-ins / npm packages
 const express = require('express');
 const mongoose = require('mongoose');
+const { body, validationResult } = require('express-validator');
+
+// 2. Internal models
 const { Driver } = require('../models');
-const { protect, checkPermission } = require('../middleware/auth');
+
+// 3. Internal middleware
+const { protect, checkPermission, restrictToCompany } = require('../middleware/auth');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
+
+// 4. Internal services
 const auditService = require('../services/auditService');
+
+// 5. Internal utilities
+const { escapeRegex } = require('../utils/helpers');
 ```
 
-**Example (Frontend):**
+**Frontend (ESM):**
 ```javascript
-import { useState, useEffect } from 'react';
+// 1. React and hooks
+import { useState, useEffect, useCallback, useMemo } from 'react';
+
+// 2. Router
 import { useNavigate } from 'react-router-dom';
+
+// 3. API utilities
 import api, { driversAPI } from '../utils/api';
+
+// 4. Internal utilities/helpers
 import { formatDate, daysUntilExpiry } from '../utils/helpers';
+
+// 5. Third-party UI/notification libs
 import toast from 'react-hot-toast';
+import debounce from 'lodash.debounce';
+
+// 6. Icons
+import { FiPlus, FiSearch } from 'react-icons/fi';
+
+// 7. Internal components
 import DataTable from '../components/DataTable';
+import Modal from '../components/Modal';
 ```
+
+**Path Aliases:**
+- None configured; relative paths used throughout (`'../utils/api'`, `'../middleware/auth'`)
 
 ## Error Handling
 
-**Backend Pattern:**
-- Custom `AppError` class in `middleware/errorHandler.js` with `statusCode` and `status` properties
-- All route handlers wrapped with `asyncHandler()` to catch Promise rejections automatically
-- Global error handler (`errorHandler` middleware) sanitizes messages in production
-- Database errors transformed: CastError → 404, validation errors → 400, JWT errors → 401
-- Sensitive fields excluded from error messages in production
+**Backend — Route Layer:**
+- All route handlers wrapped with `asyncHandler()` from `backend/middleware/errorHandler.js`
+- `asyncHandler` eliminates try/catch in routes; errors bubble to global error handler
+- Throw `AppError(message, statusCode)` for known errors: `throw new AppError('Document not found', 404)`
+- Manual `res.status().json({ success: false, message })` for inline validation errors
+- `express-validator` used for input validation: `body('email').isEmail()`, checked with `validationResult(req)`
+- Global error handler in `backend/middleware/errorHandler.js` handles Mongoose cast errors, duplicates, validation, and JWT errors
 
-**Frontend Pattern:**
-- Axios response interceptor catches 401 (redirects to login) and 503 (maintenance mode)
-- `react-hot-toast` for error notifications (called as `toast.error()`)
-- No global error boundary catch-all; `ErrorBoundary.jsx` component exists for React error catching
-- API calls wrapped in try-catch in page components
-
-**Example (Backend):**
 ```javascript
-const asyncHandler = (fn) => (req, res, next) => {
-  Promise.resolve(fn(req, res, next)).catch(next);
+// Standard route handler pattern
+router.get('/:id', checkPermission('drivers', 'view'), asyncHandler(async (req, res) => {
+  const driver = await Driver.findOne({ _id: req.params.id, ...req.companyFilter });
+  if (!driver) throw new AppError('Driver not found', 404);
+  res.json({ success: true, driver });
+}));
+```
+
+**Backend — Service Layer:**
+- Services throw plain `Error` objects; routes catch via `asyncHandler`
+- Fire-and-forget services (audit, email) never throw — catch internally and `console.error`
+- Background/cron operations logged with prefixed tags: `[AuditService]`, `[FMCSA]`, `[EmailService]`
+
+**Frontend — Page/Component Layer:**
+- Async operations use `try/catch/finally` pattern
+- `toast.error('message')` for user-facing errors; generic fallback: `error.response?.data?.message || 'Failed to ...'`
+- `toast.success('message')` for successful mutations
+- `setLoading(true)` before fetch, `setLoading(false)` in `finally` block
+
+```javascript
+// Standard frontend async pattern
+const fetchDrivers = async () => {
+  setLoading(true);
+  try {
+    const response = await driversAPI.getAll(params);
+    setDrivers(response.data.drivers);
+  } catch (error) {
+    toast.error('Failed to fetch drivers');
+  } finally {
+    setLoading(false);
+  }
 };
 ```
 
-**Example (Frontend):**
+## API Response Shape
+
+**All backend responses follow this envelope:**
 ```javascript
-try {
-  const response = await driversAPI.getAll(params);
-  setDrivers(response.data.drivers);
-} catch (error) {
-  toast.error(error.response?.data?.message || 'Failed to load drivers');
-}
+// Success
+res.json({ success: true, data: ..., count: ..., total: ..., page: ..., pages: ... });
+res.status(201).json({ success: true, driver: newDriver });
+
+// Error
+res.status(400).json({ success: false, message: 'Reason', code: 'OPTIONAL_CODE', errors: [] });
 ```
+
+- `success: true` always present on 2xx responses
+- `success: false` always present on error responses
+- Machine-readable `code` field added for actionable errors: `'COMPANY_LIMIT_REACHED'`, `'SUBSCRIPTION_UNPAID'`, `'ACCOUNT_SUSPENDED'`
 
 ## Logging
 
-**Backend:**
-- `console.error()` for errors and warnings (prefixed with service name in brackets, e.g., `[AuditService]`)
-- `console.warn()` for non-critical issues (e.g., missing environment variables)
-- Morgan middleware for HTTP request logging in development only
-- No centralized logging service; errors logged to stdout
+**Framework:** `console.error` / `console.warn` (no structured logger)
 
-**Frontend:**
-- No console logging enforced; dev server logs from Vite
-- Network errors logged via toast notifications instead of console
-- No client-side error reporting service configured
-
-**Audit Logging (Special):**
-- Fire-and-forget pattern via `auditService.log(req, action, resource, resourceId, details)`
-- Never throws; catches and logs failures silently with `console.error()`
-- Company-scoped with 2-year TTL
-- Supports field-level diffs via `auditService.diff(before, after)`
+**Patterns:**
+- Services prefix logs with service name in brackets: `console.error('[AuditService] Failed...')`, `console.error('[FMCSA] ...')`
+- Missing optional config emits `console.warn` on startup (Resend, PostHog, Perplexity)
+- `morgan` used for HTTP request logging in development (`backend/server.js`)
+- Stack traces suppressed in production (global error handler checks `NODE_ENV`)
 
 ## Comments
 
 **When to Comment:**
-- JSDoc comments on service methods and utility functions (required)
-- Inline comments for regex patterns, security considerations, or non-obvious logic
-- Comments on import groups to separate concerns
-- Comments on configuration objects explaining enum values
+- JSDoc blocks on all service methods and exported utility functions: `@param`, `@returns`
+- Route comments follow Express convention: `// @route`, `// @desc`, `// @access`
+- Inline comments explain non-obvious logic (security decisions, regex patterns)
 
-**JSDoc/TSDoc:**
-- Service methods use JSDoc format:
-  ```javascript
-  /**
-   * Log an action. Fire-and-forget — never throws.
-   * @param {object} req - Express request
-   * @param {string} action - create|update|delete|...
-   */
-  log(req, action, resource, resourceId, details) { ... }
-  ```
-- No TypeScript, so JSDoc provides documentation for consumers
-- JSDoc used extensively in `auditService.js`, `emailService.js`, `alertService.js`
+**Backend Route Comment Pattern:**
+```javascript
+// @route   GET /api/drivers
+// @desc    Get all drivers with filtering and pagination
+// @access  Private
+```
+
+**JSDoc Pattern (services and utils):**
+```javascript
+/**
+ * Load an HTML template from disk, caching in memory.
+ * @param {string} name - Template filename without path (e.g. 'welcome')
+ * @returns {string} Raw HTML string
+ */
+function loadTemplate(name) { ... }
+```
+
+**Security comments:** Inline notes explain security decisions (e.g., token storage in memory, `select: false` on SSN field)
 
 ## Function Design
 
-**Size:**
-- Route handlers: 20-50 lines typical (wrapped in try-catch via asyncHandler)
-- Service methods: 10-30 lines (business logic stays in services, not models)
-- Middleware: 5-15 lines (protect, checkPermission, restrictToCompany patterns)
+**Size:** Services contain many methods; individual methods are focused on a single concern. Large files are common (700–1200 lines) since all methods for a service domain live in one object literal.
 
-**Parameters:**
-- Express routes: `(req, res, next)` always; error handler gets `(err, req, res, next)`
-- Service methods: Accept single object for options (e.g., `getAlerts(companyId, options = {})`)
-- React components: Props object destructured in function signature
-
-**Return Values:**
-- Backend route handlers: Return `res.json({ success, ...data })` or `res.status(code).json(error)`
-- Service methods: Return objects or arrays directly; throw errors for failure
-- Frontend API calls: Return response data (Axios unwraps `.data` automatically)
-
-**Example (Backend Service):**
+**Parameters:** Destructuring used for options objects with defaults:
 ```javascript
-async dismissAlert(alertId, userId, reason) {
-  const alert = await Alert.findById(alertId);
-  if (!alert) {
-    throw new Error('Alert not found');
-  }
-  return alert.dismiss(userId, reason);
+async getAlerts(companyId, options = {}) {
+  const { type, category, status = 'active', page = 1, limit = 20 } = options;
 }
 ```
 
+**Return Values:** Services return plain objects or Mongoose documents. Routes always send via `res.json()`.
+
 ## Module Design
 
-**Exports:**
-- Services export object literals with async methods (not classes):
+**Backend Exports:** Object literals with async methods (not classes):
+```javascript
+const myService = {
+  async doThing(arg) { ... },
+  async doOther(arg) { ... },
+};
+module.exports = myService;
+```
+
+**Frontend Exports:**
+- Pages and components: `export default ComponentName`
+- Contexts: named export for hook + provider, default export for context object
   ```javascript
-  const auditService = {
-    log(req, action, resource, ...) { ... },
-    logAuth(req, action, details) { ... },
-    diff(before, after) { ... }
-  };
-  module.exports = auditService;
+  export const useAuth = () => { ... };
+  export const AuthProvider = ({ children }) => { ... };
+  export default AuthContext;
   ```
-- Routes export Express Router: `module.exports = router;`
-- Models export Mongoose schemas: `module.exports = mongoose.model('Driver', driverSchema);`
+- Utilities: named exports only (`export const formatDate = ...`)
 
 **Barrel Files:**
-- Backend `models/index.js` exports all models for convenient importing:
-  ```javascript
-  const { Driver, Vehicle, Company } = require('../models');
-  ```
-- Frontend components rarely use barrel exports; imports are direct per-component
+- `backend/models/index.js` — aggregates all Mongoose model exports
+- `backend/routes/index.js` — registers all route modules under `/api`
+- No barrel files on the frontend; components are imported directly by path
 
-**Middleware Pattern:**
-- Middleware functions chained in `server.js` middleware stack
-- Auth stack order: `protect` → `restrictToCompany` → optional `checkPermission()`
-- Subscription limits checked via `checkDriverLimit` middleware before creation routes
+## React Component Patterns
 
-## Company Isolation & Multi-Tenancy
+**Component Style:**
+- All components and pages are functional components (arrow function assigned to `const`)
+- Class components used only for `ErrorBoundary` in `frontend/src/components/ErrorBoundary.jsx`
+- No PropTypes; no TypeScript — no runtime type checking on props
 
-**Pattern:**
-- All models include `companyId` field indexed for fast filtering
-- `restrictToCompany` middleware sets `req.companyFilter = { companyId }` on every authenticated request
-- **All** database queries use `req.companyFilter` spread into query: `Driver.find({ ...req.companyFilter, ... })`
-- Super admins bypass company checks via `req.user?.isSuperAdmin` flag
+**State Management:**
+- Local `useState` for all component state; no global state library
+- `useContext` via `AuthContext` and `ThemeContext` for cross-cutting state
+- `useCallback` for stable handler references passed to child components
+- `useMemo` for derived values that are expensive or cause re-renders (e.g., debounced search)
 
-**Example:**
-```javascript
-const queryObj = { ...req.companyFilter }; // Always start with this
-if (status) queryObj.status = status;
-const drivers = await Driver.find(queryObj).sort(sort).skip(skip).limit(limit);
-```
+**Lazy Loading:**
+- Heavy pages lazy-loaded via `lazyWithRetry()` wrapper (`frontend/src/utils/lazyWithRetry.js`)
+- Provides 3-retry exponential backoff (1s, 2s, 4s) for chunk load failures
 
-## Security Patterns
-
-**Input Validation:**
-- `express-validator` for route validation (body, query, param validators)
-- Regex escaping for NoSQL injection prevention: `escapeRegex(userSearchString)`
-- Mongoose schema validation with error messages
-- File upload validation: MIME types + extensions + path traversal prevention
-
-**Sensitive Data:**
-- SSN fields: `select: false` on schema (explicitly fetch only when needed)
-- Password: Never selected by default; excluded from audit diffs
-- JWT: Stored in httpOnly cookie (production) + localStorage fallback (frontend)
-- API Key validation: Check RESEND_API_KEY, STRIPE_SECRET_KEY at startup
-
-**Example (Regex Escape):**
-```javascript
-const escapeRegex = (str) => {
-  if (typeof str !== 'string') return '';
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-};
-const safeSearch = escapeRegex(search);
-queryObj.$or = [{ firstName: { $regex: safeSearch, $options: 'i' } }];
-```
-
-## Async/Await Convention
-
-- All async functions use `async/await` (not `.then().catch()`)
-- Promise chaining rare; `Promise.all()` used for parallel operations
-- Error propagation: Errors bubble to `asyncHandler()` which forwards to global error handler
-- No explicit error handling in routes; let middleware catch
-
-## Status/Enum Values
-
-**Driver Status:** `'active'`, `'inactive'`, `'terminated'`
-**Compliance Status:** `'compliant'`, `'non_compliant'`
-**Alert Status:** `'active'`, `'resolved'`, `'dismissed'`
-**Subscription Status:** `'trialing'`, `'active'`, `'pending_payment'`, `'unpaid'`, `'past_due'`, `'canceled'`
-**User Role:** `'owner'`, `'admin'`, `'safety_manager'`, `'dispatcher'`, `'driver'`, `'viewer'`
-
-All status values use lowercase with underscores throughout the codebase (both backend and frontend).
+**Tailwind CSS:**
+- All styling via Tailwind utility classes directly in JSX
+- Custom design tokens defined in `frontend/tailwind.config.js` (primary, cta, accent, success, warning, danger, info)
+- Dark mode via `class` strategy (`darkMode: 'class'`)
+- Custom `safelist` in tailwind config for dynamically constructed class strings
 
 ---
 
-*Convention analysis: 2026-02-03*
+*Convention analysis: 2026-02-25*

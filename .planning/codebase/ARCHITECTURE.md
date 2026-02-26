@@ -1,281 +1,195 @@
 # Architecture
 
-**Analysis Date:** 2026-02-03
+**Analysis Date:** 2026-02-25
 
 ## Pattern Overview
 
-**Overall:** Multi-layered monolith with clear separation between backend API (Express + MongoDB) and frontend SPA (React 18 + Vite). Multi-tenancy via company isolation on every API endpoint. Fire-and-forget patterns for non-blocking operations (email, audit logging).
+**Overall:** Multi-tenant SaaS with layered monolith backend and SPA frontend
 
 **Key Characteristics:**
-- Request-scoped company context: Every authenticated request sets `req.companyFilter` for tenant isolation
-- Multi-company users: Users can belong to multiple companies with per-company roles and permissions
-- Middleware-driven security: Auth → Company isolation → Permission checks form the stack
-- Service-layer processing: Business logic (AI, compliance calculations, email) lives in `services/`
-- Fire-and-forget operations: Audit logging, email sending, and cron jobs never block API responses
-- Route-level data handling: No controllers; route handlers build queries, call services, return responses
+- Company-scoped multi-tenancy: every DB query filtered by `companyId` set in middleware
+- User-level billing with company-level resource enforcement
+- FMCSA external data pipeline with 6-step orchestrator running on cron schedule
+- Fire-and-forget patterns for non-critical paths (email, audit logging)
+- Route-inline handlers (no separate controllers directory — all logic lives in route files)
 
 ## Layers
 
-**Frontend Layer:**
-- Purpose: React 18 SPA with Vite build tooling; handles UI rendering, routing, and user interactions
+**HTTP Entry (Backend):**
+- Purpose: Security hardening, rate limiting, body parsing, maintenance gate
+- Location: `backend/server.js`
+- Contains: Helmet CSP, CORS, Redis-backed rate limiter, raw-body bypass for Stripe webhook, Morgan logging
+- Depends on: Nothing (top of stack)
+- Used by: All API requests
+
+**Routes Layer:**
+- Purpose: Route definition, auth middleware composition, request handling, response formatting
+- Location: `backend/routes/` (38 route files + `backend/routes/index.js` as registry)
+- Contains: Express Router instances with inline handler logic (no separate controllers)
+- Depends on: Middleware layer, Services layer, Models layer
+- Used by: `server.js` via `app.use('/api', routes)`
+
+**Middleware Layer:**
+- Purpose: Authentication, authorization, multi-tenant isolation, subscription enforcement, file upload
+- Location: `backend/middleware/`
+- Files:
+  - `backend/middleware/auth.js` — `protect`, `authorize`, `checkPermission`, `restrictToCompany`, `requireCompanyAdmin`, `requireCompanyOwner`, `requireSuperAdmin`
+  - `backend/middleware/subscriptionLimits.js` — driver/vehicle/company count enforcement, AI query quotas
+  - `backend/middleware/errorHandler.js` — `asyncHandler`, `AppError`, global error handler, 404 handler
+  - `backend/middleware/upload.js` — Multer with UUID filenames, MIME+extension validation, path traversal protection
+  - `backend/middleware/maintenance.js` — maintenance mode gate
+  - `backend/middleware/demoGuard.js` — blocks write operations for demo users
+- Depends on: Models (User), Services (stripe)
+- Used by: Routes
+
+**Services Layer:**
+- Purpose: Business logic, external API integration, document processing, notifications
+- Location: `backend/services/`
+- All services export plain object literals with async methods (not classes)
+- Depends on: Models layer, external APIs
+- Used by: Routes, Cron jobs in server.js
+
+**Models Layer:**
+- Purpose: MongoDB schema definitions and data access
+- Location: `backend/models/`
+- All models have `companyId` field for tenant isolation
+- Single index file: `backend/models/index.js`
+- Depends on: Mongoose, nothing else
+- Used by: Services, Routes, Middleware
+
+**Frontend Application Layer:**
+- Purpose: React SPA with route-based code splitting, auth-gated navigation
 - Location: `frontend/src/`
-- Contains: Pages, components (modal/table/form), context providers, API client utilities
-- Depends on: `utils/api.js` (Axios instance with auth interceptors), `context/AuthContext` (user state)
-- Used by: Browser clients (desktop, mobile web)
-
-**API Layer (Express Middleware Stack):**
-- Purpose: HTTP request processing with security, rate limiting, body parsing, logging
-- Location: `backend/server.js` (middleware chain definition)
-- Contains: Helmet (security headers), CORS, rate limiting, body parsing, maintenance mode checks
-- Order: Helmet → CORS → Rate Limit (global 100/30s + auth 15/30s) → Body Parsing → Morgan (dev) → Maintenance → Routes → 404 → Error Handler
-- Special: Stripe webhook (`/api/billing/webhook`) bypasses JSON parsing to preserve raw body for signature verification
-
-**Route Layer:**
-- Purpose: HTTP endpoint definitions and request validation
-- Location: `backend/routes/` (31 route modules)
-- Contains: GET/POST/PUT/PATCH/DELETE handlers with `asyncHandler` wrapper, request validation via `express-validator`
-- Pattern: Named routes before parameterized `/:id` routes (Express evaluates top-to-bottom)
-- Key files:
-  - `backend/routes/index.js`: Central router mounting all 31 sub-routers
-  - `backend/routes/drivers.js`: Driver CRUD, alerts, stats, document upload
-  - `backend/routes/vehicles.js`: Vehicle CRUD, maintenance records, inspections
-  - `backend/routes/violations.js`: Violation CRUD, DataQ submission, AI analysis
-  - `backend/routes/billing.js`: Subscription management, Stripe webhook
-  - `backend/routes/admin.js`: Super-admin endpoints (users, companies, feature flags)
-  - `backend/routes/ai.js`: AI-powered endpoints (DataQ analysis, document extraction)
-
-**Authentication & Authorization Layer:**
-- Purpose: JWT validation, company context setup, permission enforcement
-- Location: `backend/middleware/auth.js`
-- Flow: `protect` (verify JWT) → `restrictToCompany` (set context) → `checkPermission` (per-resource) or `authorize` (per-role)
-- Token storage: httpOnly cookie (primary), Authorization header fallback
-- Request augmentation: Sets `req.user`, `req.companyFilter`, `req.userRole`, `req.userPermissions`
-- Roles: owner, admin, safety_manager, dispatcher, driver, viewer
-- Permissions: Per-company per-resource (e.g., drivers.view, vehicles.edit)
-
-**Service Layer:**
-- Purpose: Encapsulate domain logic (AI integration, compliance calculations, email, document processing)
-- Location: `backend/services/` (~20 modules)
-- Pattern: Object literals exporting async methods (not ES6 classes)
-- Key services:
-  - `openaiVisionService.js`: Document extraction (PDFs use Responses API, images use Chat Completions)
-  - `aiService.js`: Claude integration for compliance Q&A
-  - `emailService.js`: Nodemailer + Resend integration; fire-and-forget with error swallowing
-  - `auditService.js`: Async audit logging with field-level diffs; never throws
-  - `complianceScoreService.js`: CSA score and DataQ opportunity calculations
-  - `csaAlertService.js`: Alert generation for driver compliance
-  - `stripeService.js`: Subscription lifecycle (create, update, cancel, webhook processing)
-  - `samsaraService.js`: External Samsara API integration (DVIRs, vehicle data)
-
-**Data Access Layer:**
-- Purpose: Mongoose models defining schema, validation, and database operations
-- Location: `backend/models/` (~25 models)
-- Pattern: All models include `companyId` indexed for tenant isolation
-- Key models:
-  - `User.js`: Multi-company support via `companies[]` array, `activeCompanyId`, legacy `companyId`
-  - `Driver.js`: Personal info, CDL, medical card, Samsara integration, FMCSA documents
-  - `Vehicle.js`: Vehicle details, DVIRs, maintenance records, inspections
-  - `Violation.js`: FMCSA violations, DataQ status tracking, AI analysis results
-  - `Company.js`: Company profile, subscription info, feature flags
-  - `AuditLog.js`: Immutable audit records with 2-year TTL, company-scoped
-  - Integration models: `FMCSAInspection.js`, `Accident.js`, `DamageClaim.js`, `SamsaraRecord.js`
-
-**Scheduled Jobs Layer:**
-- Purpose: Background tasks on cron schedules
-- Location: `backend/server.js` (cron job definitions at startup)
-- Jobs:
-  - 6 AM: Alert generation + email digest send
-  - Every 6 hours: Alert escalation check
-  - 9 AM: Trial ending notifications (3 days out)
+- Depends on: Backend API via `frontend/src/utils/api.js`
+- Used by: End users via browser
 
 ## Data Flow
 
+**Standard Authenticated API Request:**
+
+1. Client sends request with httpOnly cookie or `Authorization: Bearer <token>` header
+2. `globalLimiter` checks rate limit (100/30s per IP via Redis or in-memory)
+3. `express.json()` parses body (bypassed for `/api/billing/webhook`)
+4. Route's `protect` middleware verifies JWT, loads user with populated company data
+5. `restrictToCompany` sets `req.companyFilter = { companyId }`, `req.userRole`, `req.userPermissions`
+6. Optional `authorize()` or `checkPermission()` checks role/permission
+7. `asyncHandler`-wrapped route handler executes business logic against models using `req.companyFilter`
+8. `auditService.log()` called fire-and-forget for write operations
+9. Response returned as `{ success: true, data: ... }` or error bubbles to global handler
+
+**FMCSA Sync Pipeline (6-Step Orchestrator):**
+
+1. Triggered by cron (every 6h) or manual API call
+2. `fmcsaSyncService.syncCompanyData()` — fetches CSA BASIC scores from SAFER API
+3. `fmcsaInspectionService.syncViolationsFromDataHub()` — pulls violation details from FMCSA DataHub
+4. `fmcsaViolationService.syncViolationHistory()` — imports inspection stats from SaferWebAPI
+5. `entityLinkingService.linkViolationsForCompany()` — links violations to Driver/Vehicle records
+6. `dataQAnalysisService.runBulkAnalysis()` — scores violations for DataQ challenge eligibility
+7. `violationScannerService.scanCompanyViolations()` — flags health check issues
+8. `complianceScoreService.calculateScore()` — recalculates weighted compliance score (docs 25%, violations 30%, D&A 15%, DQF 20%, vehicle 10%)
+9. Updates `Company.fmcsaData.syncStatus` with timestamps and error log
+
 **Authentication Flow:**
 
-1. Frontend sends login request (`email`, `password`) to `/api/auth/login`
-2. Backend verifies credentials, creates JWT token
-3. Frontend stores token in memory and localStorage as fallback
-4. Frontend axios interceptor attaches token to all subsequent requests
-5. Backend `protect` middleware verifies JWT; 401 on failure triggers frontend redirect to `/login`
+1. POST `/api/auth/login` → validates credentials → issues JWT (httpOnly cookie) + refresh token (returned in body)
+2. Frontend stores access token in memory (`authToken` variable in `frontend/src/utils/api.js`), refresh token in sessionStorage
+3. On 401: Axios interceptor attempts `/auth/refresh` with sessionStorage token, queues concurrent requests
+4. `AuthContext.jsx` calls `/auth/me` on mount to restore session; retries once with refresh if 401
 
-**Multi-Company Data Request Flow:**
+**Frontend Route Guard Flow:**
 
-1. Authenticated request arrives at route handler (e.g., `GET /api/drivers`)
-2. `restrictToCompany` middleware:
-   - Extracts `req.user.activeCompanyId` (currently selected company)
-   - Finds user's membership in that company
-   - Sets `req.companyFilter = { companyId: activeCompanyId }`
-   - Sets `req.userRole` and `req.userPermissions` from membership
-3. Permission middleware (e.g., `checkPermission('drivers', 'view')`) checks `req.userPermissions`
-4. Route handler builds Mongoose query: `Driver.find({ ...req.companyFilter, ...filters })`
-5. Response includes only data for active company
+1. `AuthContext` fetches `/auth/me` → sets `isAuthenticated`, `user`, `subscription`
+2. `<ProtectedRoute>` redirects to `/login` if not authenticated; redirects to `/app/billing` if `subscription.status === 'pending_payment'`
+3. `<PublicRoute>` redirects to `/app/dashboard` if already authenticated
+4. `<SuperAdminRoute>` checks `user.isSuperAdmin`
 
-**Audit Logging Flow:**
+**State Management:**
 
-1. Route handler completes CRUD operation (e.g., `driver.save()`)
-2. Handler calls `auditService.log(req, 'create', 'driver', driver._id, { summary })`
-3. Service fires async `AuditLog.create()` but does NOT await
-4. If logging fails, error is logged to console; request continues
-5. Audit logs appear in admin panel, searchable by company/user/resource
-
-**Email Delivery Flow:**
-
-1. Service needs to send email (e.g., `emailService.sendTrialEnding(user)`)
-2. Function fires async email creation but does NOT await or block
-3. Returns promise that's not awaited by caller
-4. If Resend API call fails, error logged to console; user sees no impact
-5. Email delivery tracked in `EmailLog` model for debugging
-
-**State Management (Frontend):**
-
-- `AuthContext.jsx`: Manages `user`, `companies`, `activeCompany`, `subscription`
-- On mount, calls `/api/auth/me` to restore session from httpOnly cookie
-- On login, stores token and user data
-- On logout, clears token and redirects to `/login`
-- Company switcher updates `user.activeCompanyId`; subsequent requests use new company context
+- Server state: Direct API calls from components via service objects in `frontend/src/utils/api.js`
+- Auth/session state: React Context (`frontend/src/context/AuthContext.jsx`)
+- Theme state: React Context (`frontend/src/context/ThemeContext.jsx`)
+- No global state library (Redux, Zustand, etc.) — component-level state with Context for cross-cutting concerns
 
 ## Key Abstractions
 
-**Company Filter:**
-- Purpose: Enforce tenant isolation on every database query
-- Pattern: Every route handler receives `req.companyFilter = { companyId }` from `restrictToCompany`
-- Usage: `Driver.find({ ...req.companyFilter, status: 'active' })`
-- Effect: Guarantees no data leakage between companies
+**Multi-Tenant Company Filter:**
+- Purpose: Enforces data isolation so users only see their company's records
+- Implementation: `restrictToCompany` middleware sets `req.companyFilter = { companyId }` which all DB queries use as a filter
+- File: `backend/middleware/auth.js` lines 137–191
+- Super admins bypass this filter
 
-**AsyncHandler Wrapper:**
-- Purpose: Eliminate try-catch boilerplate in route handlers
-- Pattern: Wrap async route handlers: `asyncHandler(async (req, res) => { ... })`
-- Implementation: `const asyncHandler = fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next)`
-- Effect: Any thrown error automatically passed to global error handler
+**asyncHandler Wrapper:**
+- Purpose: Eliminates try/catch boilerplate in route handlers
+- Pattern: `router.get('/path', protect, asyncHandler(async (req, res) => { ... }))`
+- File: `backend/middleware/errorHandler.js` line 65
 
-**Service Object Pattern:**
-- Purpose: Organize business logic without ES6 class boilerplate
-- Pattern:
-  ```javascript
-  const auditService = {
-    log(req, action, resource, resourceId, details) { ... },
-    diff(before, after) { ... }
-  };
-  module.exports = auditService;
-  ```
-- Effect: Simple function calls with no `this` context confusion
+**Audit Service (Fire-and-Forget):**
+- Purpose: Non-blocking audit trail for all CRUD operations
+- Pattern: `auditService.log(req, 'create', 'driver', driver._id, { name: driver.name })`
+- File: `backend/services/auditService.js`
+- Never throws; logs to `AuditLog` model with 2-year TTL
 
-**Permission Matrix:**
-- Purpose: Fine-grained access control per company per resource
-- Structure: `membership.permissions = { drivers: { view: true, create: true, edit: false }, ... }`
-- Middleware: `checkPermission('drivers', 'view')` checks `req.userPermissions.drivers.view`
-- Pattern: Owners and admins bypass permission checks (always allowed)
+**API Service Objects (Frontend):**
+- Purpose: Typed API methods organized by domain, eliminating ad-hoc `api.get()` calls in components
+- Pattern: Named exports like `driversAPI`, `vehiclesAPI`, `billingAPI` (~45 total)
+- File: `frontend/src/utils/api.js`
 
-**Regex Escaping for Search:**
-- Purpose: Prevent NoSQL injection in user-provided search strings
-- Pattern: All search queries use `escapeRegex()` before building regex: `{ firstName: { $regex: escapeRegex(search) } }`
-- Implementation: Escapes special characters: `.^$*+?{}[]\|`
+**FMCSA Sync Orchestrator:**
+- Purpose: Coordinates multi-source external data pipeline, reports partial success per step
+- File: `backend/services/fmcsaSyncOrchestrator.js`
+- Two modes: `syncCompany()` (full, sequential) and `syncCompanyFast()` (parallel steps 2+3, for manual trigger)
+
+**Compliance Score Service:**
+- Purpose: Aggregates 5 data domains into single 0-100 score for a company
+- Weights: documentStatus 25%, violations 30%, drugAlcohol 15%, dqfCompleteness 20%, vehicleInspection 10%
+- File: `backend/services/complianceScoreService.js`
+- Cached daily; must call `calculateScore()` explicitly after data changes to get fresh value
 
 ## Entry Points
 
-**Backend Server Entry:**
+**Backend Server:**
 - Location: `backend/server.js`
-- Triggers: `npm run dev` (nodemon) or `npm start` (production)
-- Responsibilities:
-  1. Validate environment variables at startup (JWT_SECRET, MONGODB_URI, Stripe keys in prod)
-  2. Connect to MongoDB
-  3. Configure Helmet, CORS, rate limiting, body parsing
-  4. Mount all route modules under `/api`
-  5. Start cron jobs for alerts and notifications
-  6. Listen on PORT (default 5000)
+- Triggers: `node backend/server.js` or `npm run dev` in backend directory
+- Responsibilities: Middleware chain setup, route mounting, DB connection, cron scheduling, graceful shutdown
+
+**Route Registry:**
+- Location: `backend/routes/index.js`
+- Triggers: Required by `server.js`
+- Responsibilities: Mounts all 38 route modules under `/api`, applies `demoGuard` globally
 
 **Frontend Entry:**
-- Location: `frontend/src/main.jsx`
-- Triggers: `npm run dev` (Vite dev server on 5173) or `npm run build` (production build)
-- Responsibilities:
-  1. Mount React app to `#root` DOM element
-  2. Wrap app with `AuthProvider` (session restoration)
-  3. Wrap app with `FeatureFlagProvider` (feature toggles)
-  4. Define routes with `ProtectedRoute`, `PublicRoute`, `SuperAdminRoute` wrappers
+- Location: `frontend/src/main.jsx` (Vite entry point)
+- Triggers: Browser load or `npm run dev`
+- Responsibilities: Renders `<App>` wrapped in `AuthProvider`, `ThemeContext`, React Router `BrowserRouter`
 
-**Frontend Routes (App.jsx):**
+**Frontend App Router:**
 - Location: `frontend/src/App.jsx`
-- Public routes: `/`, `/login`, `/register`, `/pricing`, `/csa-checker`, `/blog`
-- Protected routes: `/app/drivers`, `/app/vehicles`, `/app/violations`, `/app/dashboard`, `/app/settings`
-- Admin routes: `/admin/*` (super_admin only)
-- Route structure: Lazy-loaded pages (Dashboard, Compliance) to reduce bundle
-
-**API Route Registration:**
-- Location: `backend/routes/index.js`
-- Pattern: Central router imports 31 sub-modules and mounts each under its prefix
-- Example: `router.use('/drivers', driverRoutes)` → all driver endpoints are `/api/drivers/*`
+- Triggers: React render
+- Responsibilities: Route definitions for all ~35 pages, code-split lazy loading for heavy pages, route guard composition
 
 ## Error Handling
 
-**Strategy:** Centralized global error handler with AppError custom class and asyncHandler wrapper
+**Strategy:** Centralized error handler with `asyncHandler` wrapper to propagate errors automatically
 
 **Patterns:**
-
-**Route Handler Pattern:**
-```javascript
-router.get('/', asyncHandler(async (req, res) => {
-  // Any throw or Promise.reject bubbles to global errorHandler
-  const drivers = await Driver.find(req.companyFilter);
-  res.json({ success: true, drivers });
-}));
-```
-
-**Custom Error Class:**
-```javascript
-throw new AppError('Driver not found', 404);
-// Caught by errorHandler, responds with:
-// { success: false, message: 'Driver not found' }
-```
-
-**Special Mongoose Errors Handled:**
-- `CastError`: Invalid ObjectId → 404 "Resource not found"
-- `ValidationError`: Schema validation fails → 400 with field messages (or generic in production)
-- Duplicate key (11000): → 400 "A record with this value already exists"
-
-**JWT Errors:**
-- `JsonWebTokenError`: Malformed token → 401 "Invalid token. Please log in again"
-- `TokenExpiredError`: Expired JWT → 401 "Your token has expired. Please log in again"
-
-**Frontend Error Handling:**
-- Axios interceptor catches 401 → redirects to `/login` (except on `/auth/me` calls)
-- Axios interceptor catches 503 with `code: 'MAINTENANCE_MODE'` → displays maintenance banner
-- React ErrorBoundary catches component render errors → displays error UI
+- All route handlers wrap with `asyncHandler()` — no manual try/catch needed
+- Custom `AppError` class carries `statusCode` and `isOperational` flag
+- Global handler (`backend/middleware/errorHandler.js`) normalizes Mongoose errors (CastError → 404, ValidationError → 400, duplicate key → 400), JWT errors → 401
+- Stack traces included only when `NODE_ENV=development`
+- Uncaught exceptions and unhandled rejections cause process exit in production (process manager restarts)
 
 ## Cross-Cutting Concerns
 
-**Logging:**
-- Backend: Morgan in development (method, URL, status, response time, user ID)
-- Frontend: Console logging for debugging; no production error logging setup
-- Audit logging: Fire-and-forget via `auditService.log()` after CRUD operations
+**Logging:** `backend/utils/logger.js` — sanitizes sensitive fields (password, token, apiKey, cookie, ssn), suppresses info/debug in production, always logs warn/error, prefixed cron logging
 
-**Validation:**
-- Backend: `express-validator` for request body/query validation at route level
-- Example: `body('email').isEmail().normalizeEmail()`
-- Errors collected and returned as 400 with field messages
-- Frontend: React form components with onBlur/onChange validation (no centralized validator)
+**Validation:** Mongoose schema-level validation (enum, match, required); route-level manual validation for business rules; `escapeRegex()` utility for all user-supplied search strings
 
-**Authentication:**
-- Backend: JWT (HS256) in httpOnly cookie + Authorization header
-- Frontend: Token in memory (cleared on page close); localStorage as fallback
-- Refresh: No refresh token; session expires with JWT expiration
-- Multi-company: User selects active company; subsequent requests scoped to that company
+**Authentication:** httpOnly cookie as primary token transport; in-memory `authToken` as fallback; refresh tokens in sessionStorage; token rotation on refresh
 
-**Company Isolation:**
-- Every model has `companyId` field indexed for query performance
-- Every authenticated route receives `req.companyFilter = { companyId }`
-- Super admins bypass company checks (role === 'super_admin')
-- Violations of isolation cause 403 "No access to this company"
+**File Upload:** Multer with UUID-renamed files stored in `backend/uploads/{category}/`; MIME type + file extension double-validation; path traversal protection; served only through authenticated download endpoints (no static file serving)
 
-**Rate Limiting:**
-- Global: 100 requests per 30 seconds per IP
-- Auth endpoints: 15 requests per 30 seconds per IP+email (prevents brute force)
-- Stripe webhook: No rate limit (requires signature verification)
-
-**Subscription Enforcement:**
-- Middleware `subscriptionLimits.js` checks plan limits before resource creation
-- Plans: solo (1 driver), fleet (3 included + $6/extra), pro (10 included + $5/extra)
-- Blocked operations: Creating drivers when limit reached returns 403 "Plan limit exceeded"
+**Subscription Enforcement:** `subscriptionLimits.js` middleware applied before resource creation routes; checks both driver/vehicle count limits and AI query quotas by plan
 
 ---
 
-*Architecture analysis: 2026-02-03*
+*Architecture analysis: 2026-02-25*

@@ -1,492 +1,171 @@
 # Testing Patterns
 
-**Analysis Date:** 2026-02-03
+**Analysis Date:** 2026-02-25
 
 ## Test Framework
 
 **Runner:**
-- Backend: Jest (configured via `"test": "jest"` in package.json, but no jest.config.js file)
-- Frontend: No test framework configured
-- Coverage: Not enforced
+- Backend: Jest `^30.2.0` (configured in `backend/package.json`)
+- Config: No `jest.config.js` found at project level; Jest uses defaults
+- Frontend: No test framework configured (no vitest, jest, or testing-library in `frontend/package.json`)
 
 **Assertion Library:**
-- None detected; Jest's built-in `expect()` would be used if tests existed
+- Backend: Jest built-in (`expect`)
 
 **Run Commands:**
 ```bash
-npm test              # Backend only; runs jest (from backend directory)
-```
+# Backend only
+cd backend && npm test          # Run all Jest tests
 
-**Status:**
-- Jest dependency missing from `backend/package.json` (`devDependencies` only lists `nodemon`)
-- Frontend has no test setup (no vitest, jest, or testing-library)
-- No test files found in source code (only in node_modules from dependencies)
+# Frontend - no test runner configured
+# (no test script in frontend/package.json)
+```
 
 ## Test File Organization
 
-**Current Status: No Tests Exist**
+**Location:**
+- No test files (`*.test.*` or `*.spec.*`) found in `backend/` or `frontend/src/`
+- One informal script exists at `backend/test-fmcsa.js` — not a Jest test, just a manual runner
 
-Proposed structure if tests are added:
+**Naming:**
+- No established naming convention (no test files exist)
 
-**Backend Test Location:**
-- Should be co-located with source files: `backend/services/__tests__/auditService.test.js`
-- Or separate: `backend/__tests__/services/auditService.test.js`
+**Structure:**
+- No test directory structure established
 
-**Frontend Test Location:**
-- Should be co-located: `frontend/src/components/__tests__/Modal.test.jsx`
-- Or separate: `frontend/src/__tests__/components/Modal.test.jsx`
+## Current State Assessment
 
-**Naming Convention:**
-- Pattern: `*.test.js` or `*.spec.js` (Jest auto-discovers both)
-- Recommended: Use `.test.js` for consistency
+The codebase has **minimal automated testing**:
 
-## Test Structure
-
-**Backend Service Pattern (Proposed):**
-
-```javascript
-describe('AuditService', () => {
-  describe('log()', () => {
-    it('should create an audit log with company isolation', async () => {
-      const req = {
-        user: { _id: userId, email: 'user@test.com' },
-        companyFilter: { companyId: companyId1 },
-        ip: '127.0.0.1',
-        headers: { 'user-agent': 'test' }
-      };
-
-      await auditService.log(req, 'create', 'driver', driverId, {});
-
-      const log = await AuditLog.findOne({ resourceId: driverId });
-      expect(log.companyId.toString()).toBe(companyId1.toString());
-      expect(log.action).toBe('create');
-    });
-
-    it('should never throw even if database fails', async () => {
-      // Mock AuditLog.create to reject
-      const spy = jest.spyOn(AuditLog, 'create').mockRejectedValueOnce(new Error('DB error'));
-
-      expect(() => auditService.log(req, 'test', 'driver', id, {})).not.toThrow();
-
-      spy.mockRestore();
-    });
-  });
-
-  describe('diff()', () => {
-    it('should skip internal fields', () => {
-      const before = { name: 'John', password: 'secret', _id: 123 };
-      const after = { name: 'Jane', password: 'newsecret', _id: 123 };
-
-      const changes = auditService.diff(before, after);
-
-      expect(changes).toEqual([{ field: 'name', from: 'John', to: 'Jane' }]);
-      expect(changes.some(c => c.field === 'password')).toBe(false);
-    });
-  });
-});
-```
-
-**Route Handler Pattern (Proposed):**
-
-```javascript
-describe('GET /api/drivers', () => {
-  beforeEach(async () => {
-    // Setup test database with company-scoped data
-    await Company.create({ _id: companyId, name: 'Test Co', dotNumber: '1234567' });
-    await User.create({
-      _id: userId,
-      email: 'user@test.com',
-      companies: [{ companyId, role: 'owner' }],
-      activeCompanyId: companyId
-    });
-    await Driver.create({
-      _id: driverId1,
-      companyId,
-      firstName: 'John',
-      lastName: 'Doe'
-    });
-    await Driver.create({
-      _id: driverId2,
-      companyId: otherCompanyId,
-      firstName: 'Jane',
-      lastName: 'Smith'
-    });
-  });
-
-  it('should return only drivers from user\'s company', async () => {
-    const req = {
-      user: { _id: userId, companies: [{ companyId, role: 'owner' }] },
-      companyFilter: { companyId },
-      query: {},
-      headers: {}
-    };
-
-    const drivers = await Driver.find(req.companyFilter);
-
-    expect(drivers).toHaveLength(1);
-    expect(drivers[0]._id.toString()).toBe(driverId1.toString());
-  });
-
-  it('should apply search filter with regex escaping', async () => {
-    const safeSearch = escapeRegex('John');
-    const queryObj = {
-      ...req.companyFilter,
-      $or: [{ firstName: { $regex: safeSearch, $options: 'i' } }]
-    };
-
-    const drivers = await Driver.find(queryObj);
-
-    expect(drivers).toHaveLength(1);
-  });
-
-  it('should not leak SSN field', async () => {
-    const drivers = await Driver.find(req.companyFilter).select('-ssn');
-
-    expect(drivers[0].ssn).toBeUndefined();
-  });
-});
-```
-
-**Frontend Component Pattern (Proposed):**
-
-```javascript
-import { render, screen, fireEvent } from '@testing-library/react';
-import Modal from '../Modal';
-
-describe('Modal', () => {
-  it('should render when isOpen is true', () => {
-    render(
-      <Modal isOpen={true} onClose={() => {}} title="Test Modal">
-        <p>Content</p>
-      </Modal>
-    );
-
-    expect(screen.getByText('Test Modal')).toBeInTheDocument();
-    expect(screen.getByText('Content')).toBeInTheDocument();
-  });
-
-  it('should not render when isOpen is false', () => {
-    const { container } = render(
-      <Modal isOpen={false} onClose={() => {}} title="Test">
-        <p>Hidden</p>
-      </Modal>
-    );
-
-    expect(container.firstChild).toBeNull();
-  });
-
-  it('should close on escape key', () => {
-    const onClose = jest.fn();
-    render(
-      <Modal isOpen={true} onClose={onClose} title="Test">
-        <p>Content</p>
-      </Modal>
-    );
-
-    fireEvent.keyDown(document, { key: 'Escape' });
-
-    expect(onClose).toHaveBeenCalled();
-  });
-
-  it('should prevent body scroll when open', () => {
-    const { rerender } = render(
-      <Modal isOpen={true} onClose={() => {}} title="Test">
-        <p>Content</p>
-      </Modal>
-    );
-
-    expect(document.body.style.overflow).toBe('hidden');
-
-    rerender(
-      <Modal isOpen={false} onClose={() => {}} title="Test">
-        <p>Content</p>
-      </Modal>
-    );
-
-    expect(document.body.style.overflow).toBe('unset');
-  });
-});
-```
+- Jest is installed as a devDependency in the backend (`backend/package.json` line 48)
+- `npm test` script is defined (`"test": "jest"`)
+- **Zero actual test files exist** in either `backend/` or `frontend/`
+- The only test artifact is `backend/test-fmcsa.js`, an informal manual test script:
+  ```javascript
+  // backend/test-fmcsa.js (NOT a Jest test — run with node directly)
+  const fmcsaService = require('./services/fmcsaService');
+  async function test() {
+    const result = await fmcsaService.fetchCarrierData('80806');
+    console.log('Success:', JSON.stringify(result, null, 2));
+  }
+  test();
+  ```
 
 ## Mocking
 
-**Framework:** Jest (not currently used; would use `jest.fn()`, `jest.spyOn()`, `jest.mock()`)
+**Framework:** Jest (available but unused)
 
-**Patterns (Recommended):**
-
-**Mocking Database Models:**
-```javascript
-jest.mock('../models/Driver');
-
-const mockFind = jest.fn().mockResolvedValue([{ _id: '1', firstName: 'John' }]);
-Driver.find = mockFind;
-```
-
-**Mocking Express Request/Response:**
-```javascript
-const mockReq = {
-  user: { _id: userId, email: 'user@test.com' },
-  companyFilter: { companyId },
-  query: { page: 1, limit: 20 },
-  headers: { 'user-agent': 'test' },
-  ip: '127.0.0.1'
-};
-
-const mockRes = {
-  json: jest.fn().mockReturnThis(),
-  status: jest.fn().mockReturnThis(),
-  cookie: jest.fn().mockReturnThis()
-};
-```
-
-**Mocking API Calls (Frontend):**
-```javascript
-jest.mock('../utils/api');
-import { driversAPI } from '../utils/api';
-
-driversAPI.getAll.mockResolvedValue({
-  data: {
-    drivers: [{ _id: '1', firstName: 'John' }],
-    total: 1,
-    pages: 1
-  }
-});
-```
-
-**Mocking Async Handlers:**
-```javascript
-// For routes wrapped in asyncHandler, test the handler directly
-const mockNext = jest.fn();
-await asyncHandler(async (req, res) => {
-  const drivers = await Driver.find(req.companyFilter);
-  res.json({ success: true, drivers });
-})(mockReq, mockRes, mockNext);
-
-expect(mockRes.json).toHaveBeenCalledWith(
-  expect.objectContaining({ success: true })
-);
-```
-
-## What to Mock
-
-**Backend:**
-- Database models (Driver, Vehicle, User, Company, etc.)
-- External services (emailService, Stripe API, FMCSA API)
-- `req` and `res` objects (create mock objects with relevant properties)
-- Date functions if time-sensitive (use `jest.useFakeTimers()`)
-
-**Frontend:**
-- API calls via `axios` mock (entire `api` module)
-- React Router (`useNavigate`, `useParams`)
-- Context providers (AuthContext, FeatureFlagContext)
-- External libraries for animations (react-hot-toast can be mocked)
-
-## What NOT to Mock
-
-**Backend:**
-- Core Express functions (`res.json()`, `res.status()`) unless testing error flows
-- Mongoose schema validation (test with real validation rules)
-- Error handler middleware (test error transformation logic)
-
-**Frontend:**
-- React hooks like `useState`, `useEffect` (test component behavior instead)
-- DOM APIs if possible (test component renders, not DOM manipulation)
-- User events if component is simple (test outcome, not interaction details)
+**What Would Need Mocking (if tests were written):**
+- MongoDB: Mongoose models would need mocking or an in-memory MongoDB (e.g., `mongodb-memory-server`)
+- External HTTP: FMCSA API calls, Stripe, Resend, OpenAI, Anthropic would need `jest.mock()` or `nock`
+- `req`/`res` objects for middleware and route handler unit tests
+- `process.env` for testing environment-conditional logic
 
 ## Fixtures and Factories
 
-**Test Data (Recommended Pattern):**
-
-```javascript
-// backend/__tests__/fixtures/user.fixture.js
-export const createMockUser = (overrides = {}) => ({
-  _id: new mongoose.Types.ObjectId(),
-  email: 'user@test.com',
-  firstName: 'John',
-  lastName: 'Doe',
-  companies: [{
-    companyId: new mongoose.Types.ObjectId(),
-    role: 'owner'
-  }],
-  subscription: {
-    plan: 'fleet',
-    status: 'active'
-  },
-  ...overrides
-});
-
-export const createMockDriver = (overrides = {}) => ({
-  _id: new mongoose.Types.ObjectId(),
-  companyId: new mongoose.Types.ObjectId(),
-  firstName: 'John',
-  lastName: 'Doe',
-  dateOfBirth: new Date('1990-01-01'),
-  cdl: {
-    number: 'A123456',
-    state: 'CA',
-    expiryDate: new Date('2026-12-31')
-  },
-  ...overrides
-});
-```
+**Test Data:**
+- No test fixtures or factories exist
+- The `backend/scripts/seed.js` script exists for database seeding in development, but is not a test fixture
 
 **Location:**
-- Backend: `backend/__tests__/fixtures/` directory
-- Frontend: `frontend/src/__tests__/fixtures/` directory
-
-**Usage in Tests:**
-```javascript
-import { createMockDriver } from '../fixtures/driver.fixture';
-
-const driver = createMockDriver({ firstName: 'Jane' });
-```
+- `backend/scripts/seed.js` — dev data seeder only
 
 ## Coverage
 
-**Requirements:** None enforced (not configured)
+**Requirements:** None enforced (no coverage thresholds configured)
 
-**Recommended:**
-- Minimum 70% for business logic (services, models)
-- Minimum 50% for routes (harder to test without full integration setup)
-- Minimum 60% for components
-
-**View Coverage (Would Be):**
+**View Coverage:**
 ```bash
-npm test -- --coverage
-```
-
-**Config (If Added to jest.config.js):**
-```javascript
-module.exports = {
-  collectCoverageFrom: [
-    'services/**/*.js',
-    'routes/**/*.js',
-    'models/**/*.js',
-    '!**/node_modules/**'
-  ],
-  coverageThreshold: {
-    global: {
-      branches: 70,
-      functions: 70,
-      lines: 70
-    }
-  }
-};
+cd backend && npx jest --coverage   # Would generate coverage report if tests existed
 ```
 
 ## Test Types
 
-**Backend Unit Tests:**
-- **Scope:** Service methods, utility functions, model methods
-- **Approach:** Mock database calls, test business logic in isolation
-- **Example:** `auditService.log()` fire-and-forget behavior, `auditService.diff()` field-skipping
-- **Setup:** Jest with MongoDB in-memory database (optional: use `mongodb-memory-server`)
+**Unit Tests:**
+- Not implemented
 
-**Backend Integration Tests:**
-- **Scope:** Route handlers with real or in-memory database
-- **Approach:** Create test database, run asyncHandler through middleware chain, verify database state
-- **Example:** `GET /api/drivers` returns only company-scoped drivers; search filter works
-- **Setup:** Test database connection; seed data per test; cleanup after
-
-**Frontend Component Tests:**
-- **Scope:** React components, hooks, integration
-- **Approach:** Render component, simulate user interactions, assert rendered output
-- **Example:** Modal closes on escape; form validation shows errors; data displays on load
-- **Setup:** React Testing Library or Vitest; mock API calls; wrap in context providers if needed
+**Integration Tests:**
+- Not implemented
 
 **E2E Tests:**
-- **Framework:** None (not configured)
-- **Status:** Not used in this codebase
+- Not implemented
 
-## Common Patterns
+## Manual Testing Patterns
 
-**Async Testing (Backend):**
+While no automated tests exist, the codebase demonstrates manual validation patterns:
 
+**Input Validation (backend):**
+- `express-validator` used on all write endpoints (`body()`, `query()`, `param()` chains)
+- Checked with `validationResult(req)` at route handler start
+- Files: `backend/routes/auth.js`, `backend/routes/drivers.js`, `backend/routes/documents.js`
+
+**Error Handling Verification:**
+- `AppError` class with `isOperational` flag used to distinguish operational vs programming errors
+- Global error handler in `backend/middleware/errorHandler.js` tested manually via API calls
+
+**Ad-hoc Scripts:**
+- `backend/test-fmcsa.js` — manual FMCSA service test (run with `node test-fmcsa.js`)
+- `backend/scripts/seed.js` — database seeder for dev environment verification
+
+## If Adding Tests (Recommended Approach)
+
+Given the existing tech stack, new tests should follow this pattern:
+
+**Backend Unit Test (Jest):**
 ```javascript
-it('should create an alert and return it', async () => {
-  const alertData = { companyId, type: 'critical', ... };
+// backend/services/__tests__/complianceScoreService.test.js
+const { calculateScore } = require('../complianceScoreService');
 
-  const { alert, created } = await alertService.createAlert(alertData);
-
-  expect(created).toBe(true);
-  expect(alert._id).toBeDefined();
-});
-```
-
-**Error Testing (Backend):**
-
-```javascript
-it('should throw if alert not found', async () => {
-  await expect(
-    alertService.dismissAlert(new mongoose.Types.ObjectId(), userId, 'test')
-  ).rejects.toThrow('Alert not found');
-});
-```
-
-**Async Testing (Frontend):**
-
-```javascript
-it('should load drivers on mount', async () => {
-  driversAPI.getAll.mockResolvedValueOnce({
-    data: { drivers: [{ _id: '1', firstName: 'John' }], pages: 1 }
+describe('complianceScoreService', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
-  render(<Drivers />);
-
-  await waitFor(() => {
-    expect(screen.getByText('John')).toBeInTheDocument();
+  it('returns null overall score when no applicable components', async () => {
+    // Mock Mongoose models
+    jest.mock('../../models/Driver', () => ({ find: jest.fn().mockResolvedValue([]) }));
+    // ...
   });
 });
 ```
 
-**Company Isolation Testing (Backend):**
-
+**Backend Route Test (supertest + jest):**
 ```javascript
-it('should not return drivers from other companies', async () => {
-  const req = { companyFilter: { companyId: company1Id } };
+// backend/routes/__tests__/drivers.test.js
+const request = require('supertest');
+const app = require('../../server');
 
-  const drivers = await Driver.find(req.companyFilter);
-
-  drivers.forEach(d => {
-    expect(d.companyId.toString()).toBe(company1Id.toString());
+describe('GET /api/drivers', () => {
+  it('returns 401 without auth token', async () => {
+    const res = await request(app).get('/api/drivers');
+    expect(res.status).toBe(401);
+    expect(res.body.success).toBe(false);
   });
 });
 ```
 
-**Form Validation Testing (Frontend):**
+**What to Mock:**
+- `mongoose` model methods (`find`, `findOne`, `findById`, `save`, `create`, `countDocuments`)
+- External services: `emailService`, `stripeService`, `openaiVisionService`
+- `req.user`, `req.companyFilter` for middleware tests
 
-```javascript
-it('should show validation error for invalid email', async () => {
-  const { container } = render(<AddDriver />);
+**What NOT to Mock:**
+- `asyncHandler` wrapper (test with it in place)
+- `AppError` class (test real error propagation)
+- Business logic inside services (test those directly)
 
-  const emailInput = container.querySelector('input[name="email"]');
-  fireEvent.change(emailInput, { target: { value: 'not-an-email' } });
-  fireEvent.submit(container.querySelector('form'));
+## Key Files for Test Setup
 
-  expect(screen.getByText(/invalid email/i)).toBeInTheDocument();
-});
-```
-
-## Implementation Gaps
-
-**Missing:**
-1. No Jest configuration file (`jest.config.js`)
-2. No test runner configured for frontend
-3. No test utilities library installed (`@testing-library/react`)
-4. No fixture/factory pattern established
-5. No test database setup (e.g., mongodb-memory-server)
-6. No test environment variables (e.g., `.env.test`)
-7. No code coverage tracking
-
-**To Implement Tests:**
-1. Add Jest to backend devDependencies: `npm install --save-dev jest`
-2. Create `backend/jest.config.js` with MongoDB in-memory setup
-3. Choose frontend test runner (Vitest recommended for Vite) and install dependencies
-4. Create fixture directory structure
-5. Start with service tests (easier to unit test)
-6. Add integration tests for critical routes (auth, CRUD operations)
-7. Add component tests for Modal, StatusBadge, DataTable (high reuse)
+| File | Purpose |
+|------|---------|
+| `backend/middleware/errorHandler.js` | `AppError`, `asyncHandler` — critical to test |
+| `backend/middleware/auth.js` | JWT verify logic — needs mocked `User.findById` |
+| `backend/middleware/subscriptionLimits.js` | Plan limit enforcement — needs mocked `req.user.limits` |
+| `backend/services/complianceScoreService.js` | Core business logic — highest priority for unit tests |
+| `backend/services/auditService.js` | Fire-and-forget — verify it never throws |
+| `backend/utils/helpers.js` | Pure functions — easiest to test (`escapeRegex`) |
+| `frontend/src/utils/helpers.js` | Pure functions — easiest to test (`formatDate`, `daysUntilExpiry`, `getExpiryStatus`) |
 
 ---
 
-*Testing analysis: 2026-02-03*
+*Testing analysis: 2026-02-25*

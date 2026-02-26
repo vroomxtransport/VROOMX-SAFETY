@@ -1,191 +1,131 @@
 # Technology Stack
 
-**Analysis Date:** 2026-02-03
+**Analysis Date:** 2026-02-25
 
 ## Languages
 
 **Primary:**
-- JavaScript (Node.js) - Backend API, services, scripts
-- JavaScript (React 18) - Frontend UI
-- JSON - Configuration and data
+- JavaScript (ES2022+) - All backend and frontend code
+- CommonJS modules (backend) - `require()` / `module.exports` throughout `backend/`
+- ES Modules (frontend) - `import`/`export` throughout `frontend/src/`
 
 **Secondary:**
-- HTML/CSS - Email templates and styling
-- Bash - DevOps scripts
+- HTML - Email templates in `backend/templates/`, index at `frontend/index.html`
+- CSS - Tailwind utility classes generated at build time; no separate `.css` files in `src/`
 
 ## Runtime
 
 **Environment:**
-- Node.js >= 18.0.0 (required)
+- Node.js >= 18.0.0 (required; specified in `backend/package.json` `engines` field)
 
-**Package Managers:**
-- npm (Node Package Manager)
-- Lock files: `backend/package-lock.json`, `frontend/package-lock.json` (Git-tracked)
+**Package Manager:**
+- npm (both `backend/` and `frontend/`)
+- Lockfiles: `backend/package-lock.json` and `frontend/package-lock.json` both present
 
-## Frameworks & Core Libraries
+## Frameworks
 
-**Backend:**
-- Express.js 4.18.2 - HTTP server and routing
-- Mongoose 8.0.3 - MongoDB ODM and schema validation
-- Node-cron 3.0.3 - Scheduled jobs (alerts, escalations, trial notifications)
+**Backend Core:**
+- Express 4.18.2 - HTTP server, REST API (`backend/server.js`)
+- Mongoose 8.0.3 - MongoDB ODM, all models in `backend/models/`
 
-**Frontend:**
-- React 18.2.0 - UI component framework
-- React Router DOM 6.21.0 - Client-side routing
-- Vite 5.0.8 - Build tool and dev server (proxies `/api` to localhost:5001)
+**Frontend Core:**
+- React 18.2.0 - UI component framework (`frontend/src/`)
+- React Router DOM 6.21.0 - Client-side routing (`frontend/src/App.jsx`)
+- Vite 5.0.8 - Dev server + build tool (`frontend/vite.config.js`)
 
-## Build & Development Tools
+**Styling:**
+- Tailwind CSS 3.3.6 - Utility-first CSS (`frontend/tailwind.config.js`)
+- PostCSS 8.4.32 - CSS processing (`frontend/postcss.config.js`)
+- Custom design tokens: Navy blue primary (`#1E3A5F`), CTA orange (`#EA580C`), semantic success/warning/danger/info scales
 
-**Frontend:**
-- Vite 5.0.8 - Fast dev server with HMR, production bundling
-- Tailwind CSS 3.3.6 - Utility-first CSS framework
-- PostCSS 8.4.32 - CSS transformations
-- Autoprefixer 10.4.16 - Cross-browser CSS prefixes
-- ESLint - Code quality (configured in `frontend/package.json`)
+**Testing:**
+- Jest 30.2.0 - Backend unit test runner (`backend/`)
+- No frontend test framework detected
 
-**Backend:**
-- Nodemon 3.0.2 - Auto-reload on file changes (dev only)
+**Build/Dev:**
+- Vite `@vitejs/plugin-react` 4.2.1 - React fast refresh + JSX transform
+- Nodemon 3.0.2 - Backend auto-reload in development
+- ESLint 9.39.2 - Frontend linting (`eslint-plugin-react`, `eslint-plugin-react-hooks`)
 
 ## Key Dependencies
 
-**Security & Auth:**
-- bcryptjs 2.4.3 - Password hashing and verification
-- jsonwebtoken 9.0.2 - JWT token generation and validation (2-hour expiry, 7-day refresh)
-- helmet 7.1.0 - HTTP security headers
-- cookie-parser 1.4.7 - Cookie parsing for httpOnly JWT cookies
+**Critical Backend:**
+- `stripe` ^20.2.0 - Subscription billing, webhook handling (`backend/services/stripeService.js`)
+- `@anthropic-ai/sdk` ^0.71.2 - Claude AI for compliance Q&A (`backend/services/aiService.js`)
+- `openai` ^6.16.0 - Document extraction via GPT-4 Vision + Perplexity via OpenRouter (`backend/services/openaiVisionService.js`, `backend/services/aiService.js`)
+- `mongoose` ^8.0.3 - Database access; 38 models in `backend/models/`
+- `jsonwebtoken` ^9.0.2 - Auth tokens; httpOnly cookies with `cookie-parser`
+- `bcryptjs` ^2.4.3 - Password hashing
+- `multer` ^1.4.5-lts.1 - File uploads (10MB limit, MIME validation) to `backend/uploads/{category}/`
+- `resend` ^6.9.1 - Transactional email (`backend/services/emailService.js`)
+- `posthog-node` ^5.24.10 - Backend analytics tracking (`backend/services/posthogService.js`)
 
-**API & Data:**
-- axios 1.6.2 - HTTP client with credentials support (frontend)
-- express-validator 7.0.1 - Input validation and sanitization
-- express-rate-limit 8.2.1 - Rate limiting (200/15min global, 15/15min auth per IP+email)
-- dotenv 16.3.1 - Environment variable management
+**FMCSA Data Pipeline:**
+- `puppeteer-core` ^24.35.0 - Headless Chromium for FMCSA SAFER scraping (`backend/services/fmcsaService.js`)
+- `@sparticuz/chromium` ^143.0.4 - Serverless-compatible Chromium binary
+- `cheerio` ^1.1.2 - HTML parsing of scraped FMCSA pages
+- `fuzzball` ^2.2.3 - Fuzzy name matching for entity linking (`backend/services/entityLinkingService.js`)
 
-**File Handling:**
-- multer 1.4.5-lts.1 - Multipart form data / file uploads (10MB limit)
-- uuid 9.0.1 - Unique filename generation
-- fs (built-in) - File system operations
+**Rate Limiting & Caching:**
+- `express-rate-limit` ^8.2.1 - 100 req/30s global, 15 req/30s auth endpoints
+- `ioredis` ^5.9.2 - Redis client for distributed rate limiting when `REDIS_URL` set
+- `rate-limit-redis` ^4.3.1 - Redis store for rate limiter
+- `node-cache` ^5.1.2 - In-process cache for FMCSA data (6h TTL)
 
-**PDF Generation:**
-- pdfkit 0.17.2 - PDF document creation
-- jspdf 2.5.1 - Frontend PDF generation and export
-- jspdf-autotable 3.8.1 - Table rendering in PDFs
+**Report Generation:**
+- `pdfkit` ^0.17.2 - Programmatic PDF generation
+- `puppeteer-core` - Also used for HTML-to-PDF rendering (`backend/services/pdfService.js`)
+- `exceljs` ^4.4.0 - Excel export
+- `@fast-csv/format` ^5.0.5 - CSV export
 
-**AI & Document Processing:**
-- @anthropic-ai/sdk 0.71.2 - Claude API for compliance Q&A and DataQ analysis
-- openai 6.16.0 - OpenAI GPT-4o for document extraction (images and PDFs via Responses API)
-- puppeteer-core 24.35.0 - Headless browser for web scraping
-- @sparticuz/chromium 143.0.4 - Chromium binary for serverless environments
+**Frontend Critical:**
+- `axios` ^1.6.2 - HTTP client with `withCredentials: true` (`frontend/src/utils/api.js`)
+- `recharts` ^2.10.3 - Charts and data visualization
+- `react-helmet-async` ^2.0.5 - SEO meta tags + JSON-LD schemas
+- `dompurify` ^3.3.1 - XSS sanitization for blog content rendering
+- `jspdf` ^2.5.1 + `jspdf-autotable` ^3.8.1 - Client-side PDF generation
+- `posthog-js` ^1.342.0 - Frontend analytics (`frontend/src/utils/analytics.js`)
+- `motion` ^12.34.2 - Framer Motion animations
+- `react-hot-toast` ^2.4.1 - Toast notifications
 
-**Email & Notifications:**
-- resend 6.9.1 - Email delivery API (sends to SMTP)
-- nodemailer 6.9.7 - SMTP client (optional alternative)
+**Scheduling:**
+- `node-cron` ^3.0.3 - 7 cron jobs registered in `backend/server.js` at startup
 
-**Payment:**
-- stripe 20.2.0 - Payment processing and subscription management (webhook integration at `/api/billing/webhook`)
+**Security:**
+- `helmet` ^7.1.0 - HTTP security headers; full CSP in production
+- `cors` ^2.8.5 - Origin whitelist; credentials mode on
+- `express-validator` ^7.0.1 - Request input validation
+- `uuid` ^9.0.1 - UUID filenames for uploaded files
 
-**Data Processing:**
-- cheerio 1.1.2 - HTML parsing for web scraping
-- node-cache 5.1.2 - In-memory caching (6-hour TTL for FMCSA data)
-- lodash 4.17.23 - Utility functions
-- date-fns 3.0.6 - Date manipulation and formatting
-
-**Logging & Debugging:**
-- morgan 1.10.0 - HTTP request logging (dev only)
-
-**UI Components & Visualization:**
-- react-hot-toast 2.4.1 - Toast notifications
-- react-icons 4.12.0 - Icon library
-- react-datepicker 4.25.0 - Date picker component
-- recharts 2.10.3 - Chart and graph visualizations
-- dompurify 3.3.1 - XSS sanitization for HTML rendering
-
-**Database:**
-- MongoDB (external service) - NoSQL document database with company-scoped indices
+**Utilities:**
+- `date-fns` ^4.1.0 (backend) / ^3.0.6 (frontend) - Date manipulation
+- `nodemailer` ^6.9.7 - Present in dependencies but Resend is the active email provider
 
 ## Configuration
 
-**Environment Variables (Critical):**
+**Environment:**
+- Backend: `.env` file loaded via `dotenv`; `.env.example` at `backend/.env.example`
+- Frontend: Vite env vars prefixed `VITE_`; `.env.example` at `frontend/.env.example`
+- Required at all times: `MONGODB_URI`, `JWT_SECRET` (min 32 chars)
+- Required in production: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, all 3 Stripe price IDs, `RESEND_API_KEY`, `FRONTEND_URL`
+- Optional (features degrade gracefully without): `REDIS_URL`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `PERPLEXITY_API_KEY`, `POSTHOG_API_KEY`, `SAFERWEB_API_KEY`, `SOCRATA_APP_TOKEN`, `FMCSA_API_KEY`
 
-**Server:**
-- `PORT` - Backend port (default: 5001)
-- `NODE_ENV` - "development" or "production"
-- `MONGODB_URI` - MongoDB connection string (required)
-- `JWT_SECRET` - Signing key for tokens (minimum 32 characters, **must be generated securely**)
-- `JWT_EXPIRES_IN` - Token lifetime (default: 2h)
-- `JWT_REFRESH_EXPIRES_IN` - Refresh token lifetime (default: 7d)
-
-**Frontend:**
-- `VITE_API_URL` - Backend API URL (used in production; dev uses Vite proxy)
-
-**File Uploads:**
-- `MAX_FILE_SIZE` - Maximum upload size in bytes (default: 10485760 = 10MB)
-- `UPLOAD_PATH` - Directory for file storage (default: `./uploads`)
-
-**Payment (Stripe):**
-- `STRIPE_SECRET_KEY` - Stripe API secret key
-- `STRIPE_WEBHOOK_SECRET` - Webhook signature verification key
-- `STRIPE_SOLO_PRICE_ID` - Price ID for solo plan
-- `STRIPE_FLEET_PRICE_ID` - Price ID for fleet plan (3 included drivers, $6/extra)
-- `STRIPE_PRO_PRICE_ID` - Price ID for pro plan (10 included drivers, $5/extra)
-- `STRIPE_FLEET_EXTRA_DRIVER_PRICE_ID` - Metered billing price ID for fleet overage
-- `STRIPE_PRO_EXTRA_DRIVER_PRICE_ID` - Metered billing price ID for pro overage
-
-**AI & Document Processing:**
-- `ANTHROPIC_API_KEY` - Claude API key (optional, enables AI compliance Q&A)
-- `OPENAI_API_KEY` - OpenAI API key (optional, enables document extraction)
-
-**Email:**
-- `RESEND_API_KEY` - Resend email service API key (optional, enables transactional emails)
-- `EMAIL_FROM` - Sender email address (default: `VroomX Safety <noreply@vroomxsafety.com>`)
-- `EMAIL_REPLY_TO` - Reply-to email address (default: `support@vroomxsafety.com`)
-
-**CORS & Frontend:**
-- `FRONTEND_URL` - Comma-separated list of allowed origins (required in production)
-
-**External APIs (Optional):**
-- `FMCSA_API_KEY` - FMCSA SAFER API key (optional, for carrier data)
-- `FMCSA_API_BASE_URL` - FMCSA API endpoint (default: `https://mobile.fmcsa.dot.gov/qc/services`)
-- `SAFERWEB_API_KEY` - SaferWeb API key for inspection data sync
-
-**Configuration Files:**
-
-- `.env` - Local development overrides
-- `.env.example` - Template with all required variables at `backend/.env.example`
-- Tailwind config: `frontend/tailwind.config.js`
-- Vite config: `frontend/vite.config.js`
-- ESLint: `frontend/.eslintrc.cjs`
+**Build:**
+- Backend: No build step; runs directly with `node server.js`
+- Frontend: `vite build` → outputs to `frontend/dist/`; manual chunk splitting for react, charts, pdf, utils
+- Vite dev proxy: `/api/*` → `http://localhost:5001`
 
 ## Platform Requirements
 
 **Development:**
-- Node.js >= 18.0.0
-- MongoDB instance (local or remote)
-- npm or yarn
-- Modern browser (Chrome/Edge/Firefox/Safari)
+- Node >= 18, npm, local MongoDB instance
+- Optional: Redis for distributed rate limiting
 
 **Production:**
-- Node.js runtime (Heroku, Render, AWS Lambda, etc.)
-- MongoDB Atlas or self-hosted instance
-- Stripe account with webhook configured
-- Resend account for email delivery
-- OpenAI account (optional, for document extraction)
-- Anthropic account (optional, for compliance Q&A)
-
-**Deployment:**
-- Backend: Node.js on HTTP port 5001
-- Frontend: Static hosting or Node.js serving (Vite build produces `dist/` folder)
-- File uploads: Local filesystem (`./uploads/`) or cloud storage (S3, etc.) with env var override
-- Database: MongoDB with SSL/TLS connection
-- Webhook: Public HTTPS endpoint for Stripe webhook at `/api/billing/webhook` (no JSON parsing)
-
-## Database Schema & Indices
-
-**MongoDB:**
-- Database: `trucking_compliance_hub` (from `MONGODB_URI`)
-- Collections: Users, Companies, Drivers, Vehicles, Violations, Documents, MaintenanceRecords, Alerts, AuditLogs, CSAScoreHistory, FMCSAInspections, SamsaraRecords, EmailLogs, etc.
-- Indices: All models include `companyId` indexed for tenant isolation
-- User sessions: Stored in httpOnly cookies (auto-validated on mount)
+- Backend: Render.com (configured in `render.yaml`; Oregon region; `cd backend && npm start`)
+- Frontend: Netlify (configured in `frontend/netlify.toml`; proxies `/api/*` to `https://vroomx-safety.onrender.com/api/:splat`)
+- Database: MongoDB Atlas (external; connection via `MONGODB_URI`)
 
 ---
 
-*Stack analysis: 2026-02-03*
+*Stack analysis: 2026-02-25*
