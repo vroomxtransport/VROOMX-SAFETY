@@ -485,7 +485,12 @@ export const companiesAPI = {
   getMembers: (id) => api.get(`/companies/${id}/members`),
   invite: (id, data) => api.post(`/companies/${id}/invite`, data),
   removeMember: (companyId, userId) => api.delete(`/companies/${companyId}/members/${userId}`),
-  getStats: (id) => api.get(`/companies/${id}/stats`)
+  getStats: (id) => api.get(`/companies/${id}/stats`),
+  // Custom DQF items
+  getCustomDqfItems: (id) => api.get(`/companies/${id}/custom-dqf-items`),
+  addCustomDqfItem: (id, data) => api.post(`/companies/${id}/custom-dqf-items`, data),
+  updateCustomDqfItem: (id, itemId, data) => api.put(`/companies/${id}/custom-dqf-items/${itemId}`, data),
+  deleteCustomDqfItem: (id, itemId) => api.delete(`/companies/${id}/custom-dqf-items/${itemId}`)
 };
 
 // Billing API - Subscription management

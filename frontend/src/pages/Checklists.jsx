@@ -16,6 +16,8 @@ import TabNav from '../components/TabNav';
 const FMCSA_AUDIT_ITEMS = [
   'Driver qualification files complete for all active drivers',
   'Current CDL and medical cards on file',
+  'MVR (Pre-Employment) on file for all drivers',
+  'MVR (Annual) reviews current',
   'Annual MVR reviews completed',
   'Clearinghouse queries current (within 12 months)',
   'Employment verification for past 10 years',

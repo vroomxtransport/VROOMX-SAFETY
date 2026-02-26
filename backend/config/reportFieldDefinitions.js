@@ -23,7 +23,9 @@ const REPORT_FIELD_DEFINITIONS = {
       { key: 'mvrApproved', label: 'MVR Approved', default: false, type: 'boolean' },
       { key: 'employmentVerificationStatus', label: 'Employment Verification Status', default: true, type: 'string' },
       { key: 'roadTestDate', label: 'Road Test Date', default: false, type: 'date' },
-      { key: 'roadTestResult', label: 'Road Test Result', default: false, type: 'string' }
+      { key: 'roadTestResult', label: 'Road Test Result', default: false, type: 'string' },
+      { key: 'mvrPreEmployment', label: 'MVR (Pre-Employment)', default: false, type: 'string' },
+      { key: 'mvrAnnual', label: 'MVR (Annual)', default: false, type: 'string' }
     ]
   },
 

@@ -213,7 +213,18 @@ router.get('/dqf/preview', checkPermission('reports', 'view'), asyncHandler(asyn
     .limit(PREVIEW_LIMIT)
     .lean();
 
-  const allRows = drivers.map(d => buildDqfRow(d));
+  const company = await Company.findById(companyId);
+  const customItems = (company?.customDqfItems || []).filter(item => item.isActive);
+  const allRows = drivers.map(d => {
+    const row = buildDqfRow(d);
+    customItems.forEach(item => {
+      const hasDoc = (d.documents?.other || []).some(
+        doc => doc.customDqfItemId && doc.customDqfItemId.toString() === item._id.toString() && doc.documentUrl
+      );
+      row[`custom_${item._id}`] = hasDoc ? 'On File' : 'Missing';
+    });
+    return row;
+  });
   const rows = selectedFields ? allRows.map(row => filterRowToFields(row, selectedFields)) : allRows;
 
   return res.json(buildPreviewResponse(rows, selectedFields, 'dqf', totalCount));
@@ -600,7 +611,9 @@ const buildDqfRow = (d) => ({
   mvrApproved: d.documents?.mvrReviews?.[0]?.approved != null ? (d.documents.mvrReviews[0].approved ? 'Yes' : 'No') : '-',
   employmentVerificationStatus: getEmploymentVerificationStatus(d.documents?.employmentVerification),
   roadTestDate: formatReportDate(d.documents?.roadTest?.date),
-  roadTestResult: d.documents?.roadTest?.result || (d.documents?.roadTest?.waived ? 'Waived' : '-')
+  roadTestResult: d.documents?.roadTest?.result || (d.documents?.roadTest?.waived ? 'Waived' : '-'),
+  mvrPreEmployment: d.documents?.mvrPreEmployment?.documentUrl ? 'On File' : 'Missing',
+  mvrAnnual: d.documents?.mvrAnnual?.documentUrl ? 'On File' : 'Missing'
 });
 
 // @route   GET /api/reports/dqf
@@ -640,13 +653,28 @@ router.get('/dqf', checkPermission('reports', 'view'), asyncHandler(async (req, 
   const drivers = await Driver.find(query).select('-ssn').sort({ lastName: 1, firstName: 1 });
   const company = await Company.findById(companyId);
 
-  // Build rows and filter to selected fields
-  const allRows = drivers.map(buildDqfRow);
+  // Build rows with custom DQF item columns
+  const customItems = (company?.customDqfItems || []).filter(item => item.isActive);
+  const allRows = drivers.map(d => {
+    const row = buildDqfRow(d);
+    // Append custom DQF item statuses
+    customItems.forEach(item => {
+      const hasDoc = (d.documents?.other || []).some(
+        doc => doc.customDqfItemId && doc.customDqfItemId.toString() === item._id.toString() && doc.documentUrl
+      );
+      row[`custom_${item._id}`] = hasDoc ? 'On File' : 'Missing';
+    });
+    return row;
+  });
   const rows = selectedFields ? allRows.map(row => filterRowToFields(row, selectedFields)) : allRows;
 
   // CSV export with history tracking
   if (format === 'csv') {
     const { headers } = buildExportConfig('dqf', selectedFields);
+    // Append custom DQF item headers dynamically
+    customItems.forEach(item => {
+      headers[`custom_${item._id}`] = item.name;
+    });
     const fileBuffer = await createCSVBuffer(headers, rows);
     await trackReportExport(req, res, {
       fileBuffer,
@@ -665,6 +693,10 @@ router.get('/dqf', checkPermission('reports', 'view'), asyncHandler(async (req, 
   // Excel export with history tracking
   if (format === 'xlsx') {
     const { columns } = buildExportConfig('dqf', selectedFields);
+    // Append custom DQF item columns dynamically
+    customItems.forEach(item => {
+      columns.push({ header: item.name, key: `custom_${item._id}`, width: 15 });
+    });
     const fileBuffer = await createExcelBuffer('Driver Qualification Files', columns, rows);
     await trackReportExport(req, res, {
       fileBuffer,

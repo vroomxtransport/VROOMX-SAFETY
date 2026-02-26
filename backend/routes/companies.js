@@ -647,4 +647,162 @@ router.delete('/:id/logo', asyncHandler(async (req, res) => {
   });
 }));
 
+// =============================================
+// Custom DQF Items CRUD
+// =============================================
+
+// Helper: verify user has access to the specified company and return membership
+const verifyCompanyAccess = (user, companyId) => {
+  const membership = user.companies.find(
+    c => (c.companyId._id || c.companyId).toString() === companyId
+  );
+  if (!membership || !membership.isActive) {
+    throw new AppError('Company not found or access denied', 404);
+  }
+  return membership;
+};
+
+// @route   GET /api/companies/:id/custom-dqf-items
+// @desc    Get active custom DQF items for a company
+// @access  Private
+router.get('/:id/custom-dqf-items', asyncHandler(async (req, res) => {
+  const companyId = req.params.id;
+  verifyCompanyAccess(req.user, companyId);
+
+  const company = await Company.findById(companyId).select('customDqfItems');
+  if (!company) {
+    throw new AppError('Company not found', 404);
+  }
+
+  const activeItems = (company.customDqfItems || []).filter(item => item.isActive);
+
+  res.json({
+    success: true,
+    customDqfItems: activeItems
+  });
+}));
+
+// @route   POST /api/companies/:id/custom-dqf-items
+// @desc    Add a custom DQF item
+// @access  Private (Admin/Owner only)
+router.post('/:id/custom-dqf-items', [
+  body('name').trim().notEmpty().withMessage('Name is required').isLength({ max: 100 }).withMessage('Name must be 100 characters or less'),
+  body('description').optional().trim().isLength({ max: 300 }).withMessage('Description must be 300 characters or less'),
+  body('required').optional().isBoolean()
+], asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ success: false, errors: errors.array() });
+  }
+
+  const companyId = req.params.id;
+  const membership = verifyCompanyAccess(req.user, companyId);
+  if (!['owner', 'admin'].includes(membership.role)) {
+    throw new AppError('Only company owners and admins can perform this action', 403);
+  }
+
+  const company = await Company.findById(companyId);
+  if (!company) {
+    throw new AppError('Company not found', 404);
+  }
+
+  // Enforce max 50 active custom items
+  const activeCount = (company.customDqfItems || []).filter(item => item.isActive).length;
+  if (activeCount >= 50) {
+    throw new AppError('Maximum of 50 custom DQF items allowed', 400);
+  }
+
+  const { name, description, required } = req.body;
+  company.customDqfItems.push({
+    name,
+    description: description || '',
+    required: required || false
+  });
+
+  await company.save();
+
+  const newItem = company.customDqfItems[company.customDqfItems.length - 1];
+  auditService.log(req, 'create', 'customDqfItem', newItem._id, { name, summary: 'Custom DQF item added' });
+
+  res.status(201).json({
+    success: true,
+    customDqfItem: newItem
+  });
+}));
+
+// @route   PUT /api/companies/:id/custom-dqf-items/:itemId
+// @desc    Update a custom DQF item
+// @access  Private (Admin/Owner only)
+router.put('/:id/custom-dqf-items/:itemId', [
+  body('name').optional().trim().isLength({ min: 1, max: 100 }).withMessage('Name must be 1-100 characters'),
+  body('description').optional().trim().isLength({ max: 300 }).withMessage('Description must be 300 characters or less'),
+  body('required').optional().isBoolean()
+], asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ success: false, errors: errors.array() });
+  }
+
+  const { id: companyId, itemId } = req.params;
+  const membership = verifyCompanyAccess(req.user, companyId);
+  if (!['owner', 'admin'].includes(membership.role)) {
+    throw new AppError('Only company owners and admins can perform this action', 403);
+  }
+
+  const company = await Company.findById(companyId);
+  if (!company) {
+    throw new AppError('Company not found', 404);
+  }
+
+  const item = company.customDqfItems.id(itemId);
+  if (!item || !item.isActive) {
+    throw new AppError('Custom DQF item not found', 404);
+  }
+
+  const { name, description, required } = req.body;
+  if (name !== undefined) item.name = name;
+  if (description !== undefined) item.description = description;
+  if (required !== undefined) item.required = required;
+
+  await company.save();
+
+  auditService.log(req, 'update', 'customDqfItem', itemId, { name: item.name, summary: 'Custom DQF item updated' });
+
+  res.json({
+    success: true,
+    customDqfItem: item
+  });
+}));
+
+// @route   DELETE /api/companies/:id/custom-dqf-items/:itemId
+// @desc    Soft-delete a custom DQF item
+// @access  Private (Admin/Owner only)
+router.delete('/:id/custom-dqf-items/:itemId', asyncHandler(async (req, res) => {
+  const { id: companyId, itemId } = req.params;
+  const membership = verifyCompanyAccess(req.user, companyId);
+  if (!['owner', 'admin'].includes(membership.role)) {
+    throw new AppError('Only company owners and admins can perform this action', 403);
+  }
+
+  const company = await Company.findById(companyId);
+  if (!company) {
+    throw new AppError('Company not found', 404);
+  }
+
+  const item = company.customDqfItems.id(itemId);
+  if (!item) {
+    throw new AppError('Custom DQF item not found', 404);
+  }
+
+  item.isActive = false;
+  await company.save();
+
+  auditService.log(req, 'delete', 'customDqfItem', itemId, { name: item.name, summary: 'Custom DQF item deactivated' });
+
+  res.json({
+    success: true,
+    message: 'Custom DQF item removed'
+  });
+}));
+
 module.exports = router;

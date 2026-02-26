@@ -94,6 +94,16 @@ const companySchema = new mongoose.Schema({
     randomAlcoholTestRate: { type: Number, default: 10 }
   },
 
+  // Custom DQF checklist items (company-specific document requirements)
+  customDqfItems: [{
+    _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
+    name: { type: String, required: true, trim: true, maxlength: 100 },
+    description: { type: String, trim: true, maxlength: 300 },
+    required: { type: Boolean, default: false },
+    isActive: { type: Boolean, default: true },
+    createdAt: { type: Date, default: Date.now }
+  }],
+
   // FMCSA data from SaferWebAPI
   fmcsaData: {
     // Inspection summary from SaferWebAPI

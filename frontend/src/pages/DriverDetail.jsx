@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { driversAPI, violationsAPI, damageClaimsAPI } from '../utils/api';
+import { driversAPI, violationsAPI, damageClaimsAPI, companiesAPI } from '../utils/api';
+import { useAuth } from '../context/AuthContext';
 import { daysUntilExpiry } from '../utils/helpers';
 import toast from 'react-hot-toast';
 import {
@@ -23,6 +24,7 @@ import EditDriverModal from './driver-detail/EditDriverModal';
 const DriverDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { activeCompany } = useAuth();
   const [driver, setDriver] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
@@ -37,12 +39,17 @@ const DriverDetail = () => {
   const [driverClaims, setDriverClaims] = useState([]);
   const [claimsLoading, setClaimsLoading] = useState(false);
   const [selectedClaim, setSelectedClaim] = useState(null);
+  const [customDqfItems, setCustomDqfItems] = useState([]);
 
   useEffect(() => {
     fetchDriver();
     fetchCSAData();
     fetchDriverClaims();
   }, [id]);
+
+  useEffect(() => {
+    fetchCustomDqfItems();
+  }, [activeCompany?._id, activeCompany?.id]);
 
   const fetchDriver = async () => {
     try {
@@ -81,6 +88,17 @@ const DriverDetail = () => {
     }
   };
 
+  const fetchCustomDqfItems = async () => {
+    const companyId = activeCompany?._id || activeCompany?.id;
+    if (!companyId) return;
+    try {
+      const response = await companiesAPI.getCustomDqfItems(companyId);
+      setCustomDqfItems(response.data.customDqfItems || []);
+    } catch (error) {
+      console.error('Failed to fetch custom DQF items:', error);
+    }
+  };
+
   const handleUnlinkViolation = async (violationId) => {
     if (!confirm('Unlink this violation from the driver?')) return;
     try {
@@ -116,7 +134,18 @@ const DriverDetail = () => {
   const handleFileUpload = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-    formData.append('documentType', uploadModal.type);
+    const docType = uploadModal.type;
+
+    // Handle custom DQF item uploads
+    if (docType.startsWith('custom_')) {
+      const customItemId = docType.replace('custom_', '');
+      const customItem = customDqfItems.find(i => i._id === customItemId);
+      formData.append('documentType', 'custom');
+      formData.append('customDqfItemId', customItemId);
+      formData.append('name', customItem?.name || 'Custom Document');
+    } else {
+      formData.append('documentType', docType);
+    }
 
     setUploading(true);
     try {
@@ -218,11 +247,30 @@ const DriverDetail = () => {
     { key: 'goodFaithAttempt3', label: 'Good Faith Attempt 3', status: driver.documents?.goodFaithAttempt3?.documentUrl ? 'complete' : 'missing', url: driver.documents?.goodFaithAttempt3?.documentUrl },
     { key: 'safetyPerformanceHistory', label: 'Safety Performance History (SPH)', status: driver.documents?.safetyPerformanceHistory?.documentUrl ? 'complete' : 'missing', url: driver.documents?.safetyPerformanceHistory?.documentUrl },
     { key: 'clearinghouse', label: 'Clearinghouse Query', status: driver.clearinghouse?.status === 'clear' ? 'complete' : driver.clearinghouse?.lastQueryDate ? 'warning' : 'missing' },
-    { key: 'clearinghouseVerification', label: 'Clearinghouse Query Verification', status: driver.documents?.clearinghouseVerification?.verified ? 'complete' : 'missing', url: driver.documents?.clearinghouseVerification?.documentUrl }
+    { key: 'clearinghouseVerification', label: 'Clearinghouse Query Verification', status: driver.documents?.clearinghouseVerification?.verified ? 'complete' : 'missing', url: driver.documents?.clearinghouseVerification?.documentUrl },
+    { key: 'mvrPreEmployment', label: 'MVR (Pre-Employment)', status: driver.documents?.mvrPreEmployment?.documentUrl ? 'complete' : 'missing', url: driver.documents?.mvrPreEmployment?.documentUrl },
+    { key: 'mvrAnnual', label: 'MVR (Annual)', status: driver.documents?.mvrAnnual?.documentUrl ? 'complete' : 'missing', url: driver.documents?.mvrAnnual?.documentUrl }
   ];
 
-  const completedDocs = documentChecklist.filter(d => d.status === 'complete').length;
-  const totalDocs = documentChecklist.length;
+  // Build custom DQF checklist items from company config
+  const customChecklistItems = customDqfItems.map(item => {
+    const matchingDoc = driver.documents?.other?.find(
+      doc => doc.customDqfItemId && doc.customDqfItemId.toString() === item._id.toString()
+    );
+    return {
+      key: 'custom_' + item._id,
+      label: item.name,
+      status: matchingDoc?.documentUrl ? 'complete' : 'missing',
+      url: matchingDoc?.documentUrl,
+      isCustom: true,
+      customDqfItemId: item._id
+    };
+  });
+
+  const fullDocumentChecklist = [...documentChecklist, ...customChecklistItems];
+
+  const completedDocs = fullDocumentChecklist.filter(d => d.status === 'complete').length;
+  const totalDocs = fullDocumentChecklist.length;
 
   // Calculate overall health
   const getOverallHealth = () => {
@@ -405,10 +453,13 @@ const DriverDetail = () => {
       {activeTab === 'documents' && (
         <DriverDocumentsTab
           driver={driver}
-          documentChecklist={documentChecklist}
+          documentChecklist={fullDocumentChecklist}
           completedDocs={completedDocs}
           totalDocs={totalDocs}
           onUpload={(type) => setUploadModal({ open: true, type })}
+          customDqfItems={customDqfItems}
+          onCustomDqfItemsChange={fetchCustomDqfItems}
+          activeCompany={activeCompany}
         />
       )}
 
@@ -437,7 +488,7 @@ const DriverDetail = () => {
       <Modal
         isOpen={uploadModal.open}
         onClose={() => setUploadModal({ open: false, type: '' })}
-        title={`Upload ${documentChecklist.find(d => d.key === uploadModal.type)?.label || 'Document'}`}
+        title={`Upload ${fullDocumentChecklist.find(d => d.key === uploadModal.type)?.label || 'Document'}`}
       >
         <form onSubmit={handleFileUpload} className="space-y-4">
           <div>

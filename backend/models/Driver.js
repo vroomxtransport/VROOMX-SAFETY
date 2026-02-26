@@ -232,6 +232,10 @@ const driverSchema = new mongoose.Schema({
     goodFaithAttempt3: { documentUrl: String, uploadDate: Date },
     // Safety Performance History (49 CFR 391.23(e))
     safetyPerformanceHistory: { documentUrl: String, uploadDate: Date },
+    // MVR (Pre-Employment) (49 CFR 391.23(a)(2))
+    mvrPreEmployment: { documentUrl: String, uploadDate: Date },
+    // MVR (Annual) (49 CFR 391.25)
+    mvrAnnual: { documentUrl: String, uploadDate: Date },
     // Clearinghouse Query Verification
     clearinghouseVerification: {
       verified: { type: Boolean, default: false },
@@ -243,7 +247,8 @@ const driverSchema = new mongoose.Schema({
       name: String,
       description: String,
       uploadDate: Date,
-      documentUrl: String
+      documentUrl: String,
+      customDqfItemId: { type: mongoose.Schema.Types.ObjectId, default: null }
     }]
   },
 

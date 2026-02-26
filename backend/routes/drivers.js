@@ -424,6 +424,16 @@ router.post('/:id/documents',
         driver.documents.safetyPerformanceHistory.documentUrl = fileUrl;
         driver.documents.safetyPerformanceHistory.uploadDate = new Date();
         break;
+      case 'mvrPreEmployment':
+        if (!driver.documents.mvrPreEmployment) driver.documents.mvrPreEmployment = {};
+        driver.documents.mvrPreEmployment.documentUrl = fileUrl;
+        driver.documents.mvrPreEmployment.uploadDate = new Date();
+        break;
+      case 'mvrAnnual':
+        if (!driver.documents.mvrAnnual) driver.documents.mvrAnnual = {};
+        driver.documents.mvrAnnual.documentUrl = fileUrl;
+        driver.documents.mvrAnnual.uploadDate = new Date();
+        break;
       case 'clearinghouse':
         driver.clearinghouse.lastQueryDate = new Date();
         driver.clearinghouse.status = 'clear';
@@ -434,14 +444,26 @@ router.post('/:id/documents',
         driver.documents.clearinghouseVerification.verified = true;
         driver.documents.clearinghouseVerification.verificationDate = new Date();
         break;
-      default:
-        // Add to other documents
-        driver.documents.other.push({
+      default: {
+        // Add to other documents (supports custom DQF items via customDqfItemId)
+        const entry = {
           name: req.body.name || documentType,
           description: req.body.description,
           uploadDate: new Date(),
-          documentUrl: fileUrl
-        });
+          documentUrl: fileUrl,
+          customDqfItemId: req.body.customDqfItemId || null
+        };
+        // Replace existing doc for same customDqfItemId to prevent duplicates
+        const existingIdx = req.body.customDqfItemId
+          ? driver.documents.other.findIndex(d => d.customDqfItemId?.toString() === req.body.customDqfItemId)
+          : -1;
+        if (existingIdx !== -1) {
+          driver.documents.other[existingIdx] = entry;
+        } else {
+          driver.documents.other.push(entry);
+        }
+        break;
+      }
     }
 
     await driver.save();
