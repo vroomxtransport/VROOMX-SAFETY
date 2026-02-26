@@ -286,6 +286,88 @@ const alertService = {
           }));
         }
       }
+
+      // MVR Annual Review (49 CFR 391.25)
+      const latestMvr = (driver.documents?.mvrReviews || []).sort((a, b) =>
+        new Date(b.reviewDate) - new Date(a.reviewDate)
+      )[0];
+      if (latestMvr) {
+        const daysSinceReview = this._getDaysSince(latestMvr.reviewDate);
+        if (daysSinceReview > 365) {
+          alertPromises.push(this.createAlert({
+            companyId,
+            type: 'critical',
+            category: 'driver',
+            title: 'MVR Annual Review Overdue',
+            message: `${driverName}'s annual MVR review is ${daysSinceReview - 365} days overdue`,
+            entityType: 'driver',
+            entityId: driver._id,
+            daysRemaining: -(daysSinceReview - 365),
+            deduplicationKey: `driver-mvr-overdue-${driver._id}`
+          }));
+        } else if (daysSinceReview > 335) {
+          alertPromises.push(this.createAlert({
+            companyId,
+            type: 'warning',
+            category: 'driver',
+            title: 'MVR Annual Review Due Soon',
+            message: `${driverName}'s annual MVR review due in ${365 - daysSinceReview} days`,
+            entityType: 'driver',
+            entityId: driver._id,
+            daysRemaining: 365 - daysSinceReview,
+            deduplicationKey: `driver-mvr-due-${driver._id}`
+          }));
+        }
+      } else if (driver.hireDate) {
+        const daysSinceHire = this._getDaysSince(driver.hireDate);
+        if (daysSinceHire > 365) {
+          alertPromises.push(this.createAlert({
+            companyId,
+            type: 'critical',
+            category: 'driver',
+            title: 'MVR Annual Review Missing',
+            message: `${driverName} has no MVR review on file (hired ${daysSinceHire} days ago)`,
+            entityType: 'driver',
+            entityId: driver._id,
+            daysRemaining: -(daysSinceHire - 365),
+            deduplicationKey: `driver-mvr-missing-${driver._id}`
+          }));
+        }
+      }
+
+      // Certification of Violations (49 CFR 391.27)
+      {
+        const cronNow = new Date();
+        const cronCurrentYear = cronNow.getFullYear();
+        const cronCurrentMonth = cronNow.getMonth();
+        const certs = driver.documents?.certificationOfViolations || [];
+        const currentYearCert = certs.find(c => c.year === cronCurrentYear);
+        const prevYearCert = certs.find(c => c.year === cronCurrentYear - 1);
+
+        if (cronCurrentMonth >= 10 && !currentYearCert) {
+          alertPromises.push(this.createAlert({
+            companyId,
+            type: 'warning',
+            category: 'driver',
+            title: 'Certification of Violations Due',
+            message: `${driverName}'s ${cronCurrentYear} Certification of Violations is due`,
+            entityType: 'driver',
+            entityId: driver._id,
+            deduplicationKey: `driver-cert-violations-due-${cronCurrentYear}-${driver._id}`
+          }));
+        } else if (cronCurrentMonth <= 1 && !prevYearCert) {
+          alertPromises.push(this.createAlert({
+            companyId,
+            type: 'critical',
+            category: 'driver',
+            title: 'Certification of Violations Overdue',
+            message: `${driverName}'s ${cronCurrentYear - 1} Certification of Violations is overdue`,
+            entityType: 'driver',
+            entityId: driver._id,
+            deduplicationKey: `driver-cert-violations-due-${cronCurrentYear - 1}-${driver._id}`
+          }));
+        }
+      }
     }
 
     // 2. Vehicle inspection alerts
@@ -778,6 +860,62 @@ const alertService = {
       }
     }
 
+    // Auto-resolve MVR review alerts where review is now current
+    const mvrAlerts = await Alert.find({
+      companyId,
+      status: 'active',
+      category: 'driver',
+      entityType: 'driver',
+      title: { $in: ['MVR Annual Review Overdue', 'MVR Annual Review Due Soon', 'MVR Annual Review Missing'] }
+    });
+
+    for (const alert of mvrAlerts) {
+      const driver = await Driver.findById(alert.entityId);
+      if (!driver || driver.status !== 'active') {
+        alert.status = 'resolved';
+        alert.resolvedAt = new Date();
+        alert.resolutionNotes = 'Auto-resolved: driver no longer active';
+        await alert.save();
+        resolvedCount++;
+        continue;
+      }
+      if (driver.complianceStatus?.mvrStatus === 'current') {
+        alert.status = 'resolved';
+        alert.resolvedAt = new Date();
+        alert.resolutionNotes = 'Auto-resolved: MVR review completed';
+        await alert.save();
+        resolvedCount++;
+      }
+    }
+
+    // Auto-resolve certification of violations alerts
+    const certAlerts = await Alert.find({
+      companyId,
+      status: 'active',
+      category: 'driver',
+      entityType: 'driver',
+      title: { $in: ['Certification of Violations Due', 'Certification of Violations Overdue'] }
+    });
+
+    for (const alert of certAlerts) {
+      const driver = await Driver.findById(alert.entityId);
+      if (!driver || driver.status !== 'active') {
+        alert.status = 'resolved';
+        alert.resolvedAt = new Date();
+        alert.resolutionNotes = 'Auto-resolved: driver no longer active';
+        await alert.save();
+        resolvedCount++;
+        continue;
+      }
+      if (driver.complianceStatus?.certificationStatus === 'current') {
+        alert.status = 'resolved';
+        alert.resolvedAt = new Date();
+        alert.resolutionNotes = 'Auto-resolved: certification recorded';
+        await alert.save();
+        resolvedCount++;
+      }
+    }
+
     // Auto-resolve vehicle inspection alerts where inspection is now current
     const vehicleAlerts = await Alert.find({
       companyId,
@@ -999,6 +1137,70 @@ const alertService = {
           deduplicationKey: `driver-clearinghouse-due-${driver._id}`
         }));
       }
+    }
+
+    // MVR Annual Review (49 CFR 391.25)
+    const latestMvr = (driver.documents?.mvrReviews || []).sort((a, b) =>
+      new Date(b.reviewDate) - new Date(a.reviewDate)
+    )[0];
+    if (latestMvr) {
+      const daysSinceReview = this._getDaysSince(latestMvr.reviewDate);
+      if (daysSinceReview > 365) {
+        alertPromises.push(this.createAlert({
+          companyId, type: 'critical', category: 'driver',
+          title: 'MVR Annual Review Overdue',
+          message: `${driverName}'s annual MVR review is ${daysSinceReview - 365} days overdue`,
+          entityType: 'driver', entityId: driver._id, daysRemaining: -(daysSinceReview - 365),
+          deduplicationKey: `driver-mvr-overdue-${driver._id}`
+        }));
+      } else if (daysSinceReview > 335) {
+        alertPromises.push(this.createAlert({
+          companyId, type: 'warning', category: 'driver',
+          title: 'MVR Annual Review Due Soon',
+          message: `${driverName}'s annual MVR review due in ${365 - daysSinceReview} days`,
+          entityType: 'driver', entityId: driver._id, daysRemaining: 365 - daysSinceReview,
+          deduplicationKey: `driver-mvr-due-${driver._id}`
+        }));
+      }
+    } else if (driver.hireDate) {
+      const daysSinceHire = this._getDaysSince(driver.hireDate);
+      if (daysSinceHire > 365) {
+        alertPromises.push(this.createAlert({
+          companyId, type: 'critical', category: 'driver',
+          title: 'MVR Annual Review Missing',
+          message: `${driverName} has no MVR review on file (hired ${daysSinceHire} days ago)`,
+          entityType: 'driver', entityId: driver._id, daysRemaining: -(daysSinceHire - 365),
+          deduplicationKey: `driver-mvr-missing-${driver._id}`
+        }));
+      }
+    }
+
+    // Certification of Violations (49 CFR 391.27)
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth(); // 0-indexed
+    const certs = driver.documents?.certificationOfViolations || [];
+    const currentYearCert = certs.find(c => c.year === currentYear);
+    const prevYearCert = certs.find(c => c.year === currentYear - 1);
+
+    if (currentMonth >= 10 && !currentYearCert) {
+      // Nov/Dec: current year cert not yet filed
+      alertPromises.push(this.createAlert({
+        companyId, type: 'warning', category: 'driver',
+        title: 'Certification of Violations Due',
+        message: `${driverName}'s ${currentYear} Certification of Violations is due`,
+        entityType: 'driver', entityId: driver._id,
+        deduplicationKey: `driver-cert-violations-due-${currentYear}-${driver._id}`
+      }));
+    } else if (currentMonth <= 1 && !prevYearCert) {
+      // Jan/Feb: previous year cert overdue
+      alertPromises.push(this.createAlert({
+        companyId, type: 'critical', category: 'driver',
+        title: 'Certification of Violations Overdue',
+        message: `${driverName}'s ${currentYear - 1} Certification of Violations is overdue`,
+        entityType: 'driver', entityId: driver._id,
+        deduplicationKey: `driver-cert-violations-due-${currentYear - 1}-${driver._id}`
+      }));
     }
 
     const results = await Promise.all(alertPromises);

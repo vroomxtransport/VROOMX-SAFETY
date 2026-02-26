@@ -288,6 +288,11 @@ const driverSchema = new mongoose.Schema({
       type: String,
       enum: ['current', 'due', 'overdue', 'missing'],
       default: 'current'
+    },
+    certificationStatus: {
+      type: String,
+      enum: ['current', 'due', 'overdue', 'missing'],
+      default: 'current'
     }
   },
 
@@ -296,7 +301,7 @@ const driverSchema = new mongoose.Schema({
     type: {
       type: String,
       enum: ['cdl_expiring', 'cdl_expired', 'medical_expiring', 'medical_expired',
-             'mvr_due', 'clearinghouse_due', 'document_missing', 'violation_added']
+             'mvr_due', 'clearinghouse_due', 'certification_due', 'document_missing', 'violation_added']
     },
     message: String,
     severity: { type: String, enum: ['info', 'warning', 'critical'] },
@@ -385,6 +390,28 @@ driverSchema.pre('save', function(next) {
     this.complianceStatus.mvrStatus = 'missing';
   }
 
+  // Update Certification of Violations status (49 CFR 391.27)
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth(); // 0-indexed
+  const certs = this.documents?.certificationOfViolations || [];
+  const currentYearCert = certs.find(c => c.year === currentYear);
+  const prevYearCert = certs.find(c => c.year === currentYear - 1);
+
+  if (currentYearCert) {
+    this.complianceStatus.certificationStatus = 'current';
+  } else if (currentMonth >= 10) {
+    // Nov/Dec: current year cert not yet filed
+    this.complianceStatus.certificationStatus = 'due';
+  } else if (currentMonth <= 1) {
+    // Jan/Feb: previous year cert missing
+    this.complianceStatus.certificationStatus = prevYearCert ? 'current' : 'overdue';
+  } else if (certs.length === 0) {
+    this.complianceStatus.certificationStatus = 'missing';
+  } else {
+    this.complianceStatus.certificationStatus = 'current';
+  }
+
   // Update Clearinghouse status
   if (this.clearinghouse?.lastQueryDate) {
     const daysSinceQuery = Math.floor((new Date() - new Date(this.clearinghouse.lastQueryDate)) / (1000 * 60 * 60 * 24));
@@ -404,7 +431,8 @@ driverSchema.pre('save', function(next) {
     this.complianceStatus.cdlStatus,
     this.complianceStatus.medicalStatus,
     this.complianceStatus.mvrStatus,
-    this.complianceStatus.clearinghouseStatus
+    this.complianceStatus.clearinghouseStatus,
+    this.complianceStatus.certificationStatus
   ];
 
   if (statuses.includes('expired') || statuses.includes('overdue') || statuses.includes('missing')) {

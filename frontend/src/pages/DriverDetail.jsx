@@ -249,7 +249,25 @@ const DriverDetail = () => {
     { key: 'clearinghouse', label: 'Clearinghouse Query', status: driver.clearinghouse?.status === 'clear' ? 'complete' : driver.clearinghouse?.lastQueryDate ? 'warning' : 'missing' },
     { key: 'clearinghouseVerification', label: 'Clearinghouse Query Verification', status: driver.documents?.clearinghouseVerification?.verified ? 'complete' : 'missing', url: driver.documents?.clearinghouseVerification?.documentUrl },
     { key: 'mvrPreEmployment', label: 'MVR (Pre-Employment)', status: driver.documents?.mvrPreEmployment?.documentUrl ? 'complete' : 'missing', url: driver.documents?.mvrPreEmployment?.documentUrl },
-    { key: 'mvrAnnual', label: 'MVR (Annual)', status: driver.documents?.mvrAnnual?.documentUrl ? 'complete' : 'missing', url: driver.documents?.mvrAnnual?.documentUrl }
+    { key: 'mvrAnnual', label: 'MVR (Annual)', status: driver.documents?.mvrAnnual?.documentUrl ? 'complete' : 'missing', url: driver.documents?.mvrAnnual?.documentUrl },
+    {
+      key: 'certificationOfViolations',
+      label: 'Certification of Violations (Annual)',
+      status: (() => {
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth();
+        const certs = driver.documents?.certificationOfViolations || [];
+        const currentYearCert = certs.find(c => c.year === currentYear);
+        if (currentYearCert) return 'complete';
+        if (currentMonth >= 10) return 'warning';
+        const prevYearCert = certs.find(c => c.year === currentYear - 1);
+        if (currentMonth <= 1 && !prevYearCert) return 'missing';
+        if (certs.length > 0) return 'complete';
+        return 'missing';
+      })(),
+      url: [...(driver.documents?.certificationOfViolations || [])].sort((a, b) => b.year - a.year)[0]?.documentUrl
+    }
   ];
 
   // Build custom DQF checklist items from company config
@@ -393,6 +411,7 @@ const DriverDetail = () => {
             <HealthBadge label="CDL Expires" days={cdlDays} />
             <HealthBadge label="Medical Card" days={medicalDays} />
             <HealthBadge label="Clearinghouse" status={driver.clearinghouse?.status} />
+            <HealthBadge label="Certification" status={driver.complianceStatus?.certificationStatus} />
 
             {/* DQF Progress */}
             <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-zinc-100 dark:bg-zinc-800">
@@ -459,6 +478,7 @@ const DriverDetail = () => {
           completedDocs={completedDocs}
           totalDocs={totalDocs}
           onUpload={(type) => setUploadModal({ open: true, type })}
+          onRefresh={fetchDriver}
           onDeleteDocument={async () => {
             const res = await driversAPI.getById(id);
             setDriver(res.data.driver);

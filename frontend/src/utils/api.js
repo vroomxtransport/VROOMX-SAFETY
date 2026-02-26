@@ -172,7 +172,13 @@ export const driversAPI = {
   uploadDocument: (id, formData) => api.post(`/drivers/${id}/documents`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),
-  addMvr: (id, data) => api.post(`/drivers/${id}/mvr`, data),
+  addMvr: (id, formData) => api.post(`/drivers/${id}/mvr`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+  addCertificationOfViolations: (id, formData) => api.post(
+    `/drivers/${id}/certification-of-violations`, formData,
+    { headers: { 'Content-Type': 'multipart/form-data' } }
+  ),
   // CSA impact methods
   getRiskRanking: (limit = 5) => api.get('/drivers/risk-ranking', { params: { limit } }),
   getCSAImpact: (id) => api.get(`/drivers/${id}/csa`),

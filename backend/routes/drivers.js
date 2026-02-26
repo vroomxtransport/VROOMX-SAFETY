@@ -561,12 +561,17 @@ router.delete('/:id/documents/:docKey', checkPermission('drivers', 'edit'), asyn
 }));
 
 // @route   POST /api/drivers/:id/mvr
-// @desc    Add MVR review
+// @desc    Add MVR review with optional file upload
 // @access  Private
-router.post('/:id/mvr', checkPermission('drivers', 'edit'), [
+router.post('/:id/mvr', checkPermission('drivers', 'edit'), uploadSingle('document'), [
   body('reviewDate').isISO8601(),
   body('reviewerName').trim().notEmpty()
 ], asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ success: false, errors: errors.array() });
+  }
+
   const driver = await Driver.findOne({
     _id: req.params.id,
     ...req.companyFilter
@@ -576,16 +581,130 @@ router.post('/:id/mvr', checkPermission('drivers', 'edit'), [
     throw new AppError('Driver not found', 404);
   }
 
+  const fileUrl = req.file ? getFileUrl(req.file.path) : undefined;
+
+  // Parse violations from JSON string if sent via FormData
+  let violations = req.body.violations;
+  if (typeof violations === 'string') {
+    try { violations = JSON.parse(violations); } catch { violations = []; }
+  }
+
   driver.documents.mvrReviews.push({
-    ...req.body,
-    approved: req.body.approved !== false
+    reviewDate: req.body.reviewDate,
+    reviewerName: req.body.reviewerName,
+    violations: violations || [],
+    approved: req.body.approved !== 'false' && req.body.approved !== false,
+    documentUrl: fileUrl
   });
 
+  // Sync to mvrAnnual document slot (links review to DQF checklist)
+  if (fileUrl) {
+    if (!driver.documents.mvrAnnual) driver.documents.mvrAnnual = {};
+    driver.documents.mvrAnnual.documentUrl = fileUrl;
+    driver.documents.mvrAnnual.uploadDate = new Date();
+  }
+
   await driver.save();
+
+  // Sync to central Documents (fire-and-forget)
+  if (req.file) {
+    documentSyncService.trackUpload({
+      companyId: req.companyFilter.companyId,
+      category: 'driver',
+      sourceModel: 'Driver',
+      sourceId: driver._id,
+      sourceDocKey: 'mvrAnnual',
+      name: req.file.originalname,
+      documentType: 'mvrAnnual',
+      fileUrl,
+      filePath: req.file.path,
+      fileSize: req.file.size,
+      fileType: req.file.mimetype,
+      uploadedBy: req.user._id
+    });
+  }
+
+  auditService.log(req, 'create', 'mvr_review', driver._id, { reviewDate: req.body.reviewDate, reviewerName: req.body.reviewerName });
 
   res.json({
     success: true,
     message: 'MVR review added successfully',
+    driver
+  });
+}));
+
+// @route   POST /api/drivers/:id/certification-of-violations
+// @desc    Record annual Certification of Violations (49 CFR 391.27)
+// @access  Private
+router.post('/:id/certification-of-violations', checkPermission('drivers', 'edit'), uploadSingle('document'), [
+  body('year').isInt({ min: 2000, max: 2100 }).withMessage('Valid year is required'),
+  body('signatureDate').isISO8601().withMessage('Valid signature date is required'),
+  body('certified').notEmpty().withMessage('Certification status is required')
+], asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ success: false, errors: errors.array() });
+  }
+
+  const driver = await Driver.findOne({
+    _id: req.params.id,
+    ...req.companyFilter
+  });
+
+  if (!driver) {
+    throw new AppError('Driver not found', 404);
+  }
+
+  const fileUrl = req.file ? getFileUrl(req.file.path) : undefined;
+  const year = parseInt(req.body.year);
+
+  // Parse violations from JSON string if sent via FormData
+  let violations = req.body.violations;
+  if (typeof violations === 'string') {
+    try { violations = JSON.parse(violations); } catch { violations = []; }
+  }
+
+  const certData = {
+    year,
+    certified: req.body.certified === 'true' || req.body.certified === true,
+    violations: violations || [],
+    signatureDate: req.body.signatureDate,
+    documentUrl: fileUrl
+  };
+
+  // Upsert: replace existing cert for same year, otherwise push
+  const existingIdx = driver.documents.certificationOfViolations.findIndex(c => c.year === year);
+  if (existingIdx !== -1) {
+    driver.documents.certificationOfViolations[existingIdx] = certData;
+  } else {
+    driver.documents.certificationOfViolations.push(certData);
+  }
+
+  await driver.save();
+
+  // Sync to central Documents (fire-and-forget)
+  if (req.file) {
+    documentSyncService.trackUpload({
+      companyId: req.companyFilter.companyId,
+      category: 'driver',
+      sourceModel: 'Driver',
+      sourceId: driver._id,
+      sourceDocKey: 'certificationOfViolations',
+      name: req.file.originalname,
+      documentType: 'certificationOfViolations',
+      fileUrl,
+      filePath: req.file.path,
+      fileSize: req.file.size,
+      fileType: req.file.mimetype,
+      uploadedBy: req.user._id
+    });
+  }
+
+  auditService.log(req, 'create', 'certification_of_violations', driver._id, { year, certified: certData.certified });
+
+  res.json({
+    success: true,
+    message: 'Certification of Violations recorded successfully',
     driver
   });
 }));
