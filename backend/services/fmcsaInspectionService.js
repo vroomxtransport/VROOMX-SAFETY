@@ -743,6 +743,7 @@ const fmcsaInspectionService = {
       // Process inspections - update existing or create new ones
       let matchedCount = 0;
       let createdCount = 0;
+      const newInspections = [];
       const inspectionIds = Object.keys(violationsByInspection);
 
       for (const inspId of inspectionIds) {
@@ -807,6 +808,7 @@ const fmcsaInspectionService = {
 
           await inspection.save();
           createdCount++;
+          newInspections.push(inspection.toObject());
         }
       }
 
@@ -839,7 +841,8 @@ const fmcsaInspectionService = {
         matched: matchedCount,
         total: inspectionIds.length,
         violationCount: violations.length,
-        dataqCreated
+        dataqCreated,
+        newInspections
       };
 
     } catch (error) {

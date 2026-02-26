@@ -18,6 +18,9 @@ const fmcsaViolationService = require('./fmcsaViolationService');
 const entityLinkingService = require('./entityLinkingService');
 const dataQAnalysisService = require('./dataQAnalysisService');
 const complianceScoreService = require('./complianceScoreService');
+const alertService = require('./alertService');
+const emailService = require('./emailService');
+const User = require('../models/User');
 
 const fmcsaSyncOrchestrator = {
   /**
@@ -91,11 +94,13 @@ const fmcsaSyncOrchestrator = {
     }
 
     // 2. Violation details from DataHub (via fmcsaInspectionService)
+    let newInspections = [];
     try {
       console.log(`[FMCSA Orchestrator] Syncing violations from DataHub for company ${companyId}`);
       const violationResult = await fmcsaInspectionService.syncViolationsFromDataHub(companyId);
       if (violationResult.success) {
         timestamps.violationsLastSync = new Date();
+        newInspections = violationResult.newInspections || [];
         console.log(`[FMCSA Orchestrator] Violations synced: ${violationResult.matched || 0} matched, ${violationResult.total || 0} total`);
       } else {
         errors.push({ source: 'violations', error: violationResult.message || 'Sync failed', timestamp: new Date() });
@@ -166,6 +171,11 @@ const fmcsaSyncOrchestrator = {
       errors.push({ source: 'compliance_score', error: err.message, timestamp: new Date() });
     }
 
+    // 7. Notify users about new inspections (fire-and-forget)
+    if (newInspections.length > 0) {
+      this._notifyNewInspections(companyId, newInspections);
+    }
+
     // Update Company sync status
     const success = errors.length === 0;
     await Company.updateOne(
@@ -226,8 +236,10 @@ const fmcsaSyncOrchestrator = {
     ]);
 
     // Process DataHub result
+    let newInspections = [];
     if (violationResult.status === 'fulfilled' && violationResult.value?.success) {
       timestamps.violationsLastSync = new Date();
+      newInspections = violationResult.value.newInspections || [];
       console.log(`[FMCSA Orchestrator] [Fast] Violations synced: ${violationResult.value.matched || 0} matched, ${violationResult.value.total || 0} total`);
     } else {
       const err = violationResult.status === 'rejected' ? violationResult.reason?.message : (violationResult.value?.message || 'Sync failed');
@@ -293,6 +305,11 @@ const fmcsaSyncOrchestrator = {
       errors.push({ source: 'compliance_score', error: err.message, timestamp: new Date() });
     }
 
+    // 7. Notify users about new inspections (fire-and-forget)
+    if (newInspections.length > 0) {
+      this._notifyNewInspections(companyId, newInspections);
+    }
+
     // Update Company sync status
     const success = errors.length === 0;
     await Company.updateOne(
@@ -314,6 +331,46 @@ const fmcsaSyncOrchestrator = {
 
     console.log(`[FMCSA Orchestrator] [Fast] Sync complete for company ${companyId} — ${errors.length} errors`);
     return { success, errors, mode: 'fast' };
+  },
+
+  /**
+   * Fire-and-forget: generate in-app alerts and send email notifications for new inspections.
+   * Never throws — logs errors silently per orchestrator convention.
+   */
+  _notifyNewInspections(companyId, newInspections) {
+    (async () => {
+      try {
+        const alerts = await alertService.generateNewInspectionAlerts(companyId, newInspections);
+        console.log(`[FMCSA Orchestrator] Generated ${alerts?.length || 0} new inspection alerts for company ${companyId}`);
+      } catch (err) {
+        console.error(`[FMCSA Orchestrator] Alert generation failed for company ${companyId}:`, err.message);
+      }
+
+      try {
+        const company = await Company.findById(companyId).select('name').lean();
+        const users = await User.find({
+          'companies.companyId': companyId,
+          'companies.role': { $in: ['owner', 'admin', 'safety_manager'] },
+          'companies.isActive': true,
+          isActive: { $ne: false }
+        }).lean();
+
+        for (const user of users) {
+          if (emailService.shouldSend(user, 'compliance')) {
+            await emailService.sendNewInspectionNotification({
+              to: user.email,
+              firstName: user.firstName,
+              companyName: company?.name || 'Your Company',
+              companyId,
+              inspections: newInspections
+            });
+          }
+        }
+        console.log(`[FMCSA Orchestrator] Sent inspection email notifications to ${users.length} users for company ${companyId}`);
+      } catch (err) {
+        console.error(`[FMCSA Orchestrator] Email notification failed for company ${companyId}:`, err.message);
+      }
+    })();
   }
 };
 
