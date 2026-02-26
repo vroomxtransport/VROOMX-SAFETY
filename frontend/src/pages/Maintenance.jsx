@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { maintenanceAPI, vehiclesAPI } from '../utils/api';
-import { formatDate, formatCurrency } from '../utils/helpers';
+import { formatDate, formatCurrency, getFileViewUrl } from '../utils/helpers';
 import toast from 'react-hot-toast';
 import {
   FiPlus, FiSearch, FiTool, FiTruck, FiCalendar, FiDollarSign,
@@ -1094,7 +1094,7 @@ const Maintenance = () => {
                       </div>
                       <div className="flex items-center gap-1">
                         <a
-                          href={doc.url}
+                          href={getFileViewUrl(doc.url)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="p-1.5 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200 dark:hover:bg-zinc-600 rounded transition-colors"

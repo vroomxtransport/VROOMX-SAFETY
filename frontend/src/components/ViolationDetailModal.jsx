@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { FiX, FiAlertTriangle, FiUser, FiTruck, FiTarget, FiZap, FiTrendingDown, FiFileText, FiMapPin, FiShield, FiDollarSign, FiClock, FiCheckCircle, FiClipboard, FiExternalLink, FiCopy } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import { violationsAPI } from '../utils/api';
-import { formatDate, basicCategories } from '../utils/helpers';
+import { formatDate, basicCategories, getFileViewUrl } from '../utils/helpers';
 import StatusBadge from './StatusBadge';
 import CourtOutcomeModal from './CourtOutcomeModal';
 
@@ -498,7 +498,7 @@ const ViolationDetailModal = ({ violation, onClose }) => {
                         <td className="px-4 py-3 text-zinc-600 dark:text-zinc-400">{doc.uploadDate ? formatDate(doc.uploadDate) : '-'}</td>
                         <td className="px-4 py-3">
                           {doc.documentUrl && (
-                            <a href={doc.documentUrl} target="_blank" rel="noopener noreferrer" className="text-accent-600 hover:text-accent-700">
+                            <a href={getFileViewUrl(doc.documentUrl)} target="_blank" rel="noopener noreferrer" className="text-accent-600 hover:text-accent-700">
                               <FiExternalLink className="w-4 h-4" />
                             </a>
                           )}
