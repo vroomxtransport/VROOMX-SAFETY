@@ -4,7 +4,7 @@ import {
   FiPlus, FiTrash2
 } from 'react-icons/fi';
 import { formatDate } from '../../utils/helpers';
-import { companiesAPI, viewFile } from '../../utils/api';
+import { companiesAPI, driversAPI, viewFile } from '../../utils/api';
 import StatusBadge from '../../components/StatusBadge';
 import toast from 'react-hot-toast';
 
@@ -14,6 +14,7 @@ const DriverDocumentsTab = ({
   completedDocs,
   totalDocs,
   onUpload,
+  onDeleteDocument,
   customDqfItems = [],
   onCustomDqfItemsChange,
   activeCompany
@@ -87,6 +88,28 @@ const DriverDocumentsTab = ({
             className="btn btn-sm btn-secondary"
           >
             <FiFileText className="w-4 h-4" />
+          </button>
+        )}
+        {doc.url && (
+          <button
+            onClick={async () => {
+              if (!confirm(`Delete ${doc.label} document?`)) return;
+              try {
+                if (doc.isOther) {
+                  await driversAPI.deleteOtherDocument(driver._id, doc.otherDocId);
+                } else {
+                  await driversAPI.deleteDocument(driver._id, doc.key);
+                }
+                toast.success('Document deleted');
+                if (onDeleteDocument) onDeleteDocument();
+              } catch (err) {
+                toast.error('Failed to delete document');
+              }
+            }}
+            className="p-1.5 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-400/10 rounded"
+            title="Delete document"
+          >
+            <FiTrash2 className="w-4 h-4" />
           </button>
         )}
         <button

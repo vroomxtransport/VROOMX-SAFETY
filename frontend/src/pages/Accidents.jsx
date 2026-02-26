@@ -958,6 +958,7 @@ const Accidents = () => {
             <DocumentUploadSection
               documents={selectedAccident.documents || []}
               onUpload={(formData) => accidentsAPI.uploadDocuments(selectedAccident._id, formData)}
+              onDelete={(docId) => accidentsAPI.deleteDocument(selectedAccident._id, docId)}
               onRefresh={async () => {
                 const res = await accidentsAPI.getById(selectedAccident._id);
                 setSelectedAccident(res.data.accident);

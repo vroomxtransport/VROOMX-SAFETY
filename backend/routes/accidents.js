@@ -3,9 +3,10 @@ const router = express.Router();
 const { body, validationResult } = require('express-validator');
 const { Accident, Driver, Vehicle } = require('../models');
 const { protect, checkPermission, restrictToCompany } = require('../middleware/auth');
-const { uploadMultiple, getFileUrl } = require('../middleware/upload');
+const { uploadMultiple, getFileUrl, deleteFile } = require('../middleware/upload');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const auditService = require('../services/auditService');
+const documentSyncService = require('../services/documentSyncService');
 
 router.use(protect);
 router.use(restrictToCompany);
@@ -200,6 +201,24 @@ router.post('/:id/documents', checkPermission('accidents', 'edit'),
     accident.documents.push(...newDocs);
     await accident.save();
 
+    // Sync to central Documents (fire-and-forget)
+    newDocs.forEach((doc, i) => {
+      documentSyncService.trackUpload({
+        companyId: req.companyFilter.companyId,
+        category: 'accident',
+        sourceModel: 'Accident',
+        sourceId: accident._id,
+        sourceDocId: accident.documents[accident.documents.length - newDocs.length + i]._id,
+        name: req.files[i].originalname,
+        documentType: req.body.documentType || 'other',
+        fileUrl: doc.documentUrl,
+        filePath: req.files[i].path,
+        fileSize: req.files[i].size,
+        fileType: req.files[i].mimetype,
+        uploadedBy: req.user._id
+      });
+    });
+
     auditService.log(req, 'upload', 'accident', req.params.id, { count: req.files?.length });
 
     res.json({
@@ -208,6 +227,30 @@ router.post('/:id/documents', checkPermission('accidents', 'edit'),
     });
   })
 );
+
+// @route   DELETE /api/accidents/:id/documents/:docId
+// @desc    Delete a document from an accident
+// @access  Private
+router.delete('/:id/documents/:docId', checkPermission('accidents', 'edit'), asyncHandler(async (req, res) => {
+  const accident = await Accident.findOne({ _id: req.params.id, ...req.companyFilter });
+  if (!accident) throw new AppError('Accident not found', 404);
+  const docIndex = accident.documents.findIndex(d => d._id.toString() === req.params.docId);
+  if (docIndex === -1) throw new AppError('Document not found', 404);
+  const doc = accident.documents[docIndex];
+  if (doc.documentUrl) { try { await deleteFile(doc.documentUrl); } catch (err) { console.error('Error deleting file:', err); } }
+  accident.documents.splice(docIndex, 1);
+  await accident.save();
+
+  // Sync delete to central Documents (fire-and-forget)
+  documentSyncService.trackDelete({
+    sourceModel: 'Accident',
+    sourceId: req.params.id,
+    sourceDocId: req.params.docId
+  });
+
+  auditService.log(req, 'delete', 'accident_document', req.params.docId, { accidentId: req.params.id });
+  res.json({ success: true, message: 'Document deleted successfully' });
+}));
 
 // @route   POST /api/accidents/:id/investigation
 // @desc    Record investigation findings

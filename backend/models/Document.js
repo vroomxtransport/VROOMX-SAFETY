@@ -22,6 +22,9 @@ const documentSchema = new mongoose.Schema({
       'violation', // Citations, DataQ
       'accident', // Accident reports
       'training', // Training certificates
+      'clearinghouse', // Clearinghouse queries
+      'damage_claims', // Damage claims
+      'maintenance', // Maintenance records
       'other'
     ],
     required: true
@@ -106,6 +109,16 @@ const documentSchema = new mongoose.Schema({
   tags: [String],
   customFields: mongoose.Schema.Types.Mixed,
 
+  // Source Tracking (dual-write sync)
+  sourceModel: {
+    type: String,
+    enum: ['DrugAlcoholTest', 'Accident', 'DamageClaim', 'Violation', 'ClearinghouseQuery', 'Driver', 'Vehicle', 'MaintenanceRecord'],
+    default: null
+  },
+  sourceId: { type: mongoose.Schema.Types.ObjectId, default: null },
+  sourceDocId: { type: mongoose.Schema.Types.ObjectId, default: null },
+  sourceDocKey: { type: String, default: null },
+
   // Upload Info
   uploadedBy: {
     type: mongoose.Schema.Types.ObjectId,
@@ -151,6 +164,8 @@ documentSchema.index({ expiryDate: 1 });
 documentSchema.index({ status: 1 });
 documentSchema.index({ tags: 1 });
 documentSchema.index({ isDeleted: 1 });
+documentSchema.index({ sourceModel: 1, sourceId: 1 });
+documentSchema.index({ sourceModel: 1, sourceId: 1, sourceDocId: 1 });
 
 // Post-save hook for real-time alert generation
 documentSchema.post('save', async function(doc) {

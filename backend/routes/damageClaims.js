@@ -4,9 +4,10 @@ const { body, validationResult } = require('express-validator');
 const DamageClaim = require('../models/DamageClaim');
 const { Driver, Vehicle } = require('../models');
 const { protect, checkPermission, restrictToCompany } = require('../middleware/auth');
-const { uploadMultiple, getFileUrl } = require('../middleware/upload');
+const { uploadMultiple, getFileUrl, deleteFile } = require('../middleware/upload');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const auditService = require('../services/auditService');
+const documentSyncService = require('../services/documentSyncService');
 
 router.use(protect);
 router.use(restrictToCompany);
@@ -376,6 +377,24 @@ router.post('/:id/documents',
 
     await claim.save();
 
+    // Sync to central Documents (fire-and-forget)
+    newDocs.forEach((doc, i) => {
+      documentSyncService.trackUpload({
+        companyId: req.companyFilter.companyId,
+        category: 'damage_claims',
+        sourceModel: 'DamageClaim',
+        sourceId: claim._id,
+        sourceDocId: claim.documents[claim.documents.length - newDocs.length + i]._id,
+        name: req.files[i].originalname,
+        documentType: 'claim_document',
+        fileUrl: doc.path,
+        filePath: req.files[i].path,
+        fileSize: req.files[i].size,
+        fileType: req.files[i].mimetype,
+        uploadedBy: req.user._id
+      });
+    });
+
     res.json({
       success: true,
       message: 'Documents uploaded successfully',
@@ -383,6 +402,31 @@ router.post('/:id/documents',
     });
   })
 );
+
+// @route   DELETE /api/damage-claims/:id/documents/:docId
+// @desc    Delete a document from a damage claim
+// @access  Private
+router.delete('/:id/documents/:docId', asyncHandler(async (req, res) => {
+  const claim = await DamageClaim.findOne({ _id: req.params.id, ...req.companyFilter });
+  if (!claim) throw new AppError('Claim not found', 404);
+  const docIndex = claim.documents.findIndex(d => d._id.toString() === req.params.docId);
+  if (docIndex === -1) throw new AppError('Document not found', 404);
+  const doc = claim.documents[docIndex];
+  if (doc.path) { try { await deleteFile(doc.path); } catch (err) { console.error('Error deleting file:', err); } }
+  claim.documents.splice(docIndex, 1);
+  claim.history.push({ action: 'document_deleted', changedBy: req.user._id, changedAt: new Date(), details: `Document "${doc.originalName || 'unknown'}" deleted` });
+  await claim.save();
+
+  // Sync delete to central Documents (fire-and-forget)
+  documentSyncService.trackDelete({
+    sourceModel: 'DamageClaim',
+    sourceId: req.params.id,
+    sourceDocId: req.params.docId
+  });
+
+  auditService.log(req, 'delete', 'damage_claim_document', req.params.docId, { claimId: req.params.id });
+  res.json({ success: true, message: 'Document deleted successfully' });
+}));
 
 // @route   POST /api/damage-claims/:id/notes
 // @desc    Add note to claim

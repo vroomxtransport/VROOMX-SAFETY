@@ -3,7 +3,7 @@ const router = express.Router();
 const { body, validationResult } = require('express-validator');
 const { Violation, Driver, Vehicle } = require('../models');
 const { protect, checkPermission, restrictToCompany } = require('../middleware/auth');
-const { uploadMultiple, getFileUrl } = require('../middleware/upload');
+const { uploadMultiple, getFileUrl, deleteFile } = require('../middleware/upload');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const { VIOLATION_SEVERITY_WEIGHTS, calculateSeverityPoints } = require('../config/fmcsaCompliance');
 const { getMovingViolations } = require('../config/violationCodes');
@@ -13,6 +13,7 @@ const dataQAnalysisService = require('../services/dataQAnalysisService');
 const csaAlertService = require('../services/csaAlertService');
 const violationScannerService = require('../services/violationScannerService');
 const { toLegacyChallengeType } = require('../config/rdrTypes');
+const documentSyncService = require('../services/documentSyncService');
 
 router.use(protect);
 router.use(restrictToCompany);
@@ -985,6 +986,24 @@ router.post('/:id/documents', checkPermission('violations', 'edit'),
     violation.documents.push(...newDocs);
     await violation.save();
 
+    // Sync to central Documents (fire-and-forget)
+    newDocs.forEach((doc, i) => {
+      documentSyncService.trackUpload({
+        companyId: req.companyFilter.companyId,
+        category: 'violation',
+        sourceModel: 'Violation',
+        sourceId: violation._id,
+        sourceDocId: violation.documents[violation.documents.length - newDocs.length + i]._id,
+        name: req.files[i].originalname,
+        documentType: req.body.documentType || 'other',
+        fileUrl: doc.documentUrl,
+        filePath: req.files[i].path,
+        fileSize: req.files[i].size,
+        fileType: req.files[i].mimetype,
+        uploadedBy: req.user._id
+      });
+    });
+
     auditService.log(req, 'upload', 'violation', req.params.id, { count: req.files?.length });
 
     res.json({
@@ -994,6 +1013,44 @@ router.post('/:id/documents', checkPermission('violations', 'edit'),
     });
   })
 );
+
+// @route   DELETE /api/violations/:id/documents/:docId
+// @desc    Delete a document from a violation
+// @access  Private
+router.delete('/:id/documents/:docId', checkPermission('violations', 'edit'), asyncHandler(async (req, res) => {
+  const violation = await Violation.findOne({ _id: req.params.id, ...req.companyFilter });
+  if (!violation) throw new AppError('Violation not found', 404);
+
+  // Check main documents array
+  let docIndex = violation.documents.findIndex(d => d._id.toString() === req.params.docId);
+  let source = 'documents';
+  if (docIndex === -1 && violation.dataQChallenge?.supportingDocuments) {
+    docIndex = violation.dataQChallenge.supportingDocuments.findIndex(d => d._id.toString() === req.params.docId);
+    source = 'supportingDocuments';
+  }
+  if (docIndex === -1) throw new AppError('Document not found', 404);
+
+  const doc = source === 'documents' ? violation.documents[docIndex] : violation.dataQChallenge.supportingDocuments[docIndex];
+  if (doc.documentUrl) { try { await deleteFile(doc.documentUrl); } catch (err) { console.error('Error deleting file:', err); } }
+
+  if (source === 'documents') {
+    violation.documents.splice(docIndex, 1);
+  } else {
+    violation.dataQChallenge.supportingDocuments.splice(docIndex, 1);
+  }
+  violation.history.push({ action: 'document_deleted', date: new Date(), userId: req.user._id, notes: `Document deleted from ${source}` });
+  await violation.save();
+
+  // Sync delete to central Documents (fire-and-forget)
+  documentSyncService.trackDelete({
+    sourceModel: 'Violation',
+    sourceId: req.params.id,
+    sourceDocId: req.params.docId
+  });
+
+  auditService.log(req, 'delete', 'violation_document', req.params.docId, { violationId: req.params.id, source });
+  res.json({ success: true, message: 'Document deleted successfully' });
+}));
 
 // @route   PUT /api/violations/:id/link-driver
 // @desc    Link a driver to a violation

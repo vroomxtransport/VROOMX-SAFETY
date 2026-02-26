@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FiX, FiAlertTriangle, FiUser, FiTruck, FiTarget, FiZap, FiTrendingDown, FiFileText, FiMapPin, FiShield, FiDollarSign, FiClock, FiCheckCircle, FiClipboard, FiExternalLink, FiCopy } from 'react-icons/fi';
+import { FiX, FiAlertTriangle, FiUser, FiTruck, FiTarget, FiZap, FiTrendingDown, FiFileText, FiMapPin, FiShield, FiDollarSign, FiClock, FiCheckCircle, FiClipboard, FiExternalLink, FiCopy, FiTrash2 } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import { violationsAPI } from '../utils/api';
 import { formatDate, basicCategories } from '../utils/helpers';
@@ -33,7 +33,7 @@ const InfoField = ({ label, value, mono }) => {
   );
 };
 
-const ViolationDetailModal = ({ violation, onClose }) => {
+const ViolationDetailModal = ({ violation, onClose, onRefresh }) => {
   const [showCourtOutcome, setShowCourtOutcome] = useState(false);
   const [duplicateViolations, setDuplicateViolations] = useState([]);
 
@@ -498,11 +498,30 @@ const ViolationDetailModal = ({ violation, onClose }) => {
                         <td className="px-4 py-3 text-zinc-600 dark:text-zinc-400 capitalize">{doc.type?.replace(/_/g, ' ') || '-'}</td>
                         <td className="px-4 py-3 text-zinc-600 dark:text-zinc-400">{doc.uploadDate ? formatDate(doc.uploadDate) : '-'}</td>
                         <td className="px-4 py-3">
-                          {doc.documentUrl && (
-                            <button onClick={() => viewFile(doc.documentUrl)} className="text-accent-600 hover:text-accent-700">
-                              <FiExternalLink className="w-4 h-4" />
-                            </button>
-                          )}
+                          <div className="flex items-center gap-1">
+                            {doc.documentUrl && (
+                              <button onClick={() => viewFile(doc.documentUrl)} className="text-accent-600 hover:text-accent-700">
+                                <FiExternalLink className="w-4 h-4" />
+                              </button>
+                            )}
+                            {doc.documentUrl && (
+                              <button
+                                onClick={async () => {
+                                  if (!confirm('Delete this document?')) return;
+                                  try {
+                                    await violationsAPI.deleteDocument(violation._id, doc._id);
+                                    if (onRefresh) onRefresh();
+                                  } catch (err) {
+                                    console.error('Failed to delete document:', err);
+                                  }
+                                }}
+                                className="text-red-500 hover:text-red-700"
+                                title="Delete document"
+                              >
+                                <FiTrash2 className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))}

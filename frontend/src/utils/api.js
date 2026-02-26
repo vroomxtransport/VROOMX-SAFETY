@@ -178,7 +178,9 @@ export const driversAPI = {
   getCSAImpact: (id) => api.get(`/drivers/${id}/csa`),
   getViolations: (id, params) => api.get(`/drivers/${id}/violations`, { params }),
   // Archive/restore methods
-  restore: (id) => api.patch(`/drivers/${id}/restore`)
+  restore: (id) => api.patch(`/drivers/${id}/restore`),
+  deleteDocument: (id, docKey) => api.delete(`/drivers/${id}/documents/${docKey}`),
+  deleteOtherDocument: (id, docId) => api.delete(`/drivers/${id}/documents/other/${docId}`)
 };
 
 export const vehiclesAPI = {
@@ -196,7 +198,8 @@ export const vehiclesAPI = {
   addDvir: (id, data) => api.post(`/vehicles/${id}/dvir`, data),
   // Safety/OOS methods
   getOOSStats: (id) => api.get(`/vehicles/${id}/oos-stats`),
-  getViolations: (id, params) => api.get(`/vehicles/${id}/violations`, { params })
+  getViolations: (id, params) => api.get(`/vehicles/${id}/violations`, { params }),
+  deleteDocument: (id, docKey) => api.delete(`/vehicles/${id}/documents/${docKey}`)
 };
 
 export const violationsAPI = {
@@ -251,6 +254,7 @@ export const violationsAPI = {
   initiateNewRound: (id, data) => api.post(`/violations/${id}/dataq/new-round`, data),
   // State profiles for DataQ intelligence
   getStateProfiles: () => api.get('/violations/state-profiles'),
+  deleteDocument: (id, docId) => api.delete(`/violations/${id}/documents/${docId}`)
 };
 
 export const drugAlcoholAPI = {
@@ -266,7 +270,8 @@ export const drugAlcoholAPI = {
   uploadDocument: (id, formData) => api.post(`/drug-alcohol/${id}/documents`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),
-  recordClearinghouseQuery: (data) => api.post('/drug-alcohol/clearinghouse-query', data)
+  recordClearinghouseQuery: (data) => api.post('/drug-alcohol/clearinghouse-query', data),
+  deleteDocument: (testId, docId) => api.delete(`/drug-alcohol/${testId}/documents/${docId}`)
 };
 
 export const clearinghouseAPI = {
@@ -283,7 +288,8 @@ export const clearinghouseAPI = {
   }),
   uploadQueryDocument: (queryId, formData) => api.post(`/clearinghouse/queries/${queryId}/upload`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
-  })
+  }),
+  deleteQueryDocument: (queryId, type) => api.delete(`/clearinghouse/queries/${queryId}/document`, { params: { type } })
 };
 
 export const documentsAPI = {
@@ -316,7 +322,8 @@ export const accidentsAPI = {
   uploadDocuments: (id, formData) => api.post(`/accidents/${id}/documents`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),
-  recordInvestigation: (id, data) => api.post(`/accidents/${id}/investigation`, data)
+  recordInvestigation: (id, data) => api.post(`/accidents/${id}/investigation`, data),
+  deleteDocument: (id, docId) => api.delete(`/accidents/${id}/documents/${docId}`)
 };
 
 export const reportsAPI = {
@@ -471,7 +478,8 @@ export const damageClaimsAPI = {
   uploadDocuments: (id, formData) => api.post(`/damage-claims/${id}/documents`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),
-  addNote: (id, data) => api.post(`/damage-claims/${id}/notes`, data)
+  addNote: (id, data) => api.post(`/damage-claims/${id}/notes`, data),
+  deleteDocument: (id, docId) => api.delete(`/damage-claims/${id}/documents/${docId}`)
 };
 
 // Companies API - Multi-company management

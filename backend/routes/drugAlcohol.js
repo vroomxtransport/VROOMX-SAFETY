@@ -3,10 +3,11 @@ const router = express.Router();
 const { body, validationResult } = require('express-validator');
 const { DrugAlcoholTest, Driver } = require('../models');
 const { protect, checkPermission, restrictToCompany } = require('../middleware/auth');
-const { uploadSingle, getFileUrl } = require('../middleware/upload');
+const { uploadSingle, getFileUrl, deleteFile } = require('../middleware/upload');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const { DRUG_ALCOHOL_REQUIREMENTS } = require('../config/fmcsaCompliance');
 const auditService = require('../services/auditService');
+const documentSyncService = require('../services/documentSyncService');
 
 router.use(protect);
 router.use(restrictToCompany);
@@ -286,6 +287,22 @@ router.post('/:id/documents', checkPermission('drugAlcohol', 'edit'),
 
     await test.save();
 
+    // Sync to central Documents (fire-and-forget)
+    documentSyncService.trackUpload({
+      companyId: req.companyFilter.companyId,
+      category: 'drug_alcohol',
+      sourceModel: 'DrugAlcoholTest',
+      sourceId: test._id,
+      sourceDocId: test.documents[test.documents.length - 1]._id,
+      name: req.body.name || req.file.originalname,
+      documentType: req.body.documentType || 'other',
+      fileUrl: getFileUrl(req.file.path),
+      filePath: req.file.path,
+      fileSize: req.file.size,
+      fileType: req.file.mimetype,
+      uploadedBy: req.user._id
+    });
+
     auditService.log(req, 'upload', 'drug_alcohol_test', req.params.id, { documentName: req.body.name });
 
     res.json({
@@ -295,6 +312,30 @@ router.post('/:id/documents', checkPermission('drugAlcohol', 'edit'),
     });
   })
 );
+
+// @route   DELETE /api/drug-alcohol/:id/documents/:docId
+// @desc    Delete a document from a test record
+// @access  Private
+router.delete('/:id/documents/:docId', checkPermission('drugAlcohol', 'edit'), asyncHandler(async (req, res) => {
+  const test = await DrugAlcoholTest.findOne({ _id: req.params.id, ...req.companyFilter });
+  if (!test) throw new AppError('Test record not found', 404);
+  const docIndex = test.documents.findIndex(d => d._id.toString() === req.params.docId);
+  if (docIndex === -1) throw new AppError('Document not found', 404);
+  const doc = test.documents[docIndex];
+  if (doc.documentUrl) { try { await deleteFile(doc.documentUrl); } catch (err) { console.error('Error deleting file:', err); } }
+  test.documents.splice(docIndex, 1);
+  await test.save();
+
+  // Sync delete to central Documents (fire-and-forget)
+  documentSyncService.trackDelete({
+    sourceModel: 'DrugAlcoholTest',
+    sourceId: req.params.id,
+    sourceDocId: req.params.docId
+  });
+
+  auditService.log(req, 'delete', 'drug_alcohol_document', req.params.docId, { testId: req.params.id });
+  res.json({ success: true, message: 'Document deleted successfully' });
+}));
 
 // @route   DELETE /api/drug-alcohol/:id
 // @desc    Soft delete test record (compliance retention)

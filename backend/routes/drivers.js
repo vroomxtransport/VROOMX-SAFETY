@@ -4,11 +4,12 @@ const mongoose = require('mongoose');
 const { body, validationResult, query } = require('express-validator');
 const { Driver } = require('../models');
 const { protect, checkPermission, restrictToCompany } = require('../middleware/auth');
-const { uploadSingle, getFileUrl } = require('../middleware/upload');
+const { uploadSingle, getFileUrl, deleteFile } = require('../middleware/upload');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const { checkDriverLimit } = require('../middleware/subscriptionLimits');
 const auditService = require('../services/auditService');
 const driverCSAService = require('../services/driverCSAService');
+const documentSyncService = require('../services/documentSyncService');
 
 const { escapeRegex } = require('../utils/helpers');
 
@@ -468,6 +469,25 @@ router.post('/:id/documents',
 
     await driver.save();
 
+    // Sync to central Documents (fire-and-forget)
+    const isOther = !['cdl', 'cdlFront', 'cdlBack', 'medicalCard', 'medicalExaminerRegistry', 'roadTest', 'employmentApplication', 'previousEmploymentVerification', 'goodFaithAttempt1', 'goodFaithAttempt2', 'goodFaithAttempt3', 'safetyPerformanceHistory', 'mvrPreEmployment', 'mvrAnnual', 'clearinghouseVerification', 'clearinghouse', 'eldt'].includes(documentType);
+    documentSyncService.trackUpload({
+      companyId: req.companyFilter.companyId,
+      category: 'driver',
+      sourceModel: 'Driver',
+      sourceId: driver._id,
+      ...(isOther
+        ? { sourceDocId: driver.documents.other[driver.documents.other.length - 1]?._id }
+        : { sourceDocKey: documentType }),
+      name: req.body.name || req.file.originalname,
+      documentType: documentType || 'other',
+      fileUrl,
+      filePath: req.file.path,
+      fileSize: req.file.size,
+      fileType: req.file.mimetype,
+      uploadedBy: req.user._id
+    });
+
     auditService.log(req, 'upload', 'driver', req.params.id, { documentType: req.body.documentType });
 
     res.json({
@@ -477,6 +497,68 @@ router.post('/:id/documents',
     });
   })
 );
+
+// @route   DELETE /api/drivers/:id/documents/other/:docId
+// @desc    Delete an other document from a driver
+// @access  Private
+router.delete('/:id/documents/other/:docId', checkPermission('drivers', 'edit'), asyncHandler(async (req, res) => {
+  const driver = await Driver.findOne({ _id: req.params.id, ...req.companyFilter });
+  if (!driver) throw new AppError('Driver not found', 404);
+  const docIndex = driver.documents.other.findIndex(d => d._id.toString() === req.params.docId);
+  if (docIndex === -1) throw new AppError('Document not found', 404);
+  const doc = driver.documents.other[docIndex];
+  if (doc.documentUrl) { try { await deleteFile(doc.documentUrl); } catch (err) { console.error('Error deleting file:', err); } }
+  driver.documents.other.splice(docIndex, 1);
+  await driver.save();
+
+  // Sync delete to central Documents (fire-and-forget)
+  documentSyncService.trackDelete({
+    sourceModel: 'Driver',
+    sourceId: req.params.id,
+    sourceDocId: req.params.docId
+  });
+
+  auditService.log(req, 'delete', 'driver_document', req.params.docId, { driverId: req.params.id, type: 'other' });
+  res.json({ success: true, message: 'Document deleted successfully' });
+}));
+
+// @route   DELETE /api/drivers/:id/documents/:docKey
+// @desc    Delete a named document from a driver
+// @access  Private
+router.delete('/:id/documents/:docKey', checkPermission('drivers', 'edit'), asyncHandler(async (req, res) => {
+  const driver = await Driver.findOne({ _id: req.params.id, ...req.companyFilter });
+  if (!driver) throw new AppError('Driver not found', 404);
+
+  const { docKey } = req.params;
+  const validKeys = ['cdl', 'cdlFront', 'cdlBack', 'medicalCard', 'medicalExaminerRegistry', 'roadTest', 'employmentApplication', 'previousEmploymentVerification', 'goodFaithAttempt1', 'goodFaithAttempt2', 'goodFaithAttempt3', 'safetyPerformanceHistory', 'mvrPreEmployment', 'mvrAnnual', 'clearinghouseVerification', 'eldt'];
+  if (!validKeys.includes(docKey)) throw new AppError('Invalid document key', 400);
+
+  let fileUrl;
+  if (docKey === 'cdl') {
+    fileUrl = driver.cdl?.documentUrl;
+    if (fileUrl) driver.cdl.documentUrl = null;
+  } else if (docKey === 'medicalCard') {
+    fileUrl = driver.medicalCard?.documentUrl;
+    if (fileUrl) driver.medicalCard.documentUrl = null;
+  } else {
+    fileUrl = driver.documents?.[docKey]?.documentUrl;
+    if (fileUrl && driver.documents[docKey]) driver.documents[docKey].documentUrl = null;
+  }
+
+  if (!fileUrl) throw new AppError('No document to delete', 404);
+  try { await deleteFile(fileUrl); } catch (err) { console.error('Error deleting file:', err); }
+  await driver.save();
+
+  // Sync delete to central Documents (fire-and-forget)
+  documentSyncService.trackDelete({
+    sourceModel: 'Driver',
+    sourceId: req.params.id,
+    sourceDocKey: req.params.docKey
+  });
+
+  auditService.log(req, 'delete', 'driver_document', req.params.id, { docKey });
+  res.json({ success: true, message: 'Document deleted successfully' });
+}));
 
 // @route   POST /api/drivers/:id/mvr
 // @desc    Add MVR review

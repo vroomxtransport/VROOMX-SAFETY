@@ -8,6 +8,7 @@ const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const documentIntelligenceService = require('../services/documentIntelligenceService');
 const openaiVisionService = require('../services/openaiVisionService');
 const auditService = require('../services/auditService');
+const documentSyncService = require('../services/documentSyncService');
 
 const { escapeRegex } = require('../utils/helpers');
 
@@ -639,6 +640,15 @@ router.delete('/:id', checkPermission('documents', 'delete'), asyncHandler(async
   document.isDeleted = true;
   document.deletedAt = new Date();
   document.deletedBy = req.user._id;
+
+  // Hard-delete physical file
+  if (document.filePath) {
+    try { await deleteFile(document.filePath); } catch (err) { console.error('Error deleting file:', err); }
+  }
+
+  // Cascade delete to source module (fire-and-forget)
+  documentSyncService.deleteFromSource(document);
+
   await document.save();
 
   auditService.log(req, 'delete', 'document', req.params.id, { name: document.name });

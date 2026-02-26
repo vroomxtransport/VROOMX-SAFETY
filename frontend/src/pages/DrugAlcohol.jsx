@@ -607,6 +607,7 @@ const DrugAlcohol = () => {
             <DocumentUploadSection
               documents={detailTest.documents || []}
               onUpload={(formData) => drugAlcoholAPI.uploadDocument(detailTest._id, formData)}
+              onDelete={(docId) => drugAlcoholAPI.deleteDocument(detailTest._id, docId)}
               onRefresh={async () => {
                 const res = await drugAlcoholAPI.getById(detailTest._id);
                 setDetailTest(res.data.test);

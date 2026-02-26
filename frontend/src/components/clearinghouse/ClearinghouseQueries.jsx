@@ -5,7 +5,7 @@ import { viewFile } from '../../utils/api';
 import toast from 'react-hot-toast';
 import {
   FiPlus, FiClock, FiSearch, FiCheckCircle, FiAlertTriangle, FiList,
-  FiUpload, FiFile, FiDownload
+  FiUpload, FiFile, FiDownload, FiTrash2
 } from 'react-icons/fi';
 import LoadingSpinner from '../LoadingSpinner';
 import Modal from '../Modal';
@@ -513,6 +513,27 @@ const ClearinghouseQueries = () => {
                             title="View document"
                           >
                             <FiDownload className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                        {q.resultDocumentUrl && (
+                          <button
+                            onClick={async () => {
+                              if (!confirm('Delete this document?')) return;
+                              try {
+                                await clearinghouseAPI.deleteQueryDocument(q._id, 'result');
+                                // Refresh history
+                                if (historyDriver) {
+                                  const res = await clearinghouseAPI.getQueries({ driverId: historyDriver._id, limit: 50 });
+                                  setQueryHistory(res.data.queries);
+                                }
+                              } catch (err) {
+                                console.error('Failed to delete document:', err);
+                              }
+                            }}
+                            className="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-700 text-red-500 hover:text-red-700"
+                            title="Delete document"
+                          >
+                            <FiTrash2 className="w-3.5 h-3.5" />
                           </button>
                         )}
                         <button

@@ -8,6 +8,7 @@ const { asyncHandler } = require('../middleware/errorHandler');
 const { uploadSingle, getFileUrl, deleteFile } = require('../middleware/upload');
 const openaiVisionService = require('../services/openaiVisionService');
 const auditService = require('../services/auditService');
+const documentSyncService = require('../services/documentSyncService');
 
 const { escapeRegex } = require('../utils/helpers');
 
@@ -659,6 +660,22 @@ router.post('/:id/documents', checkPermission('maintenance', 'edit'), uploadSing
 
   await record.save();
 
+  // Sync to central Documents (fire-and-forget)
+  documentSyncService.trackUpload({
+    companyId: req.companyFilter.companyId,
+    category: 'maintenance',
+    sourceModel: 'MaintenanceRecord',
+    sourceId: record._id,
+    sourceDocId: record.documents[record.documents.length - 1]._id,
+    name: req.body.name || req.file.originalname,
+    documentType: req.body.documentType || 'maintenance_record',
+    fileUrl: record.documents[record.documents.length - 1].url,
+    filePath: req.file.path,
+    fileSize: req.file.size,
+    fileType: req.file.mimetype,
+    uploadedBy: req.user._id
+  });
+
   res.json({
     success: true,
     message: 'Document uploaded successfully',
@@ -696,6 +713,13 @@ router.delete('/:id/documents/:docId', checkPermission('maintenance', 'edit'), a
 
   record.documents.splice(docIndex, 1);
   await record.save();
+
+  // Sync delete to central Documents (fire-and-forget)
+  documentSyncService.trackDelete({
+    sourceModel: 'MaintenanceRecord',
+    sourceId: req.params.id,
+    sourceDocId: req.params.docId
+  });
 
   res.json({
     success: true,

@@ -4,11 +4,12 @@ const mongoose = require('mongoose');
 const { body, validationResult } = require('express-validator');
 const { Vehicle } = require('../models');
 const { protect, checkPermission, restrictToCompany } = require('../middleware/auth');
-const { uploadSingle, getFileUrl } = require('../middleware/upload');
+const { uploadSingle, getFileUrl, deleteFile } = require('../middleware/upload');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const { checkVehicleLimit } = require('../middleware/subscriptionLimits');
 const auditService = require('../services/auditService');
 const vehicleOOSService = require('../services/vehicleOOSService');
+const documentSyncService = require('../services/documentSyncService');
 
 const { escapeRegex } = require('../utils/helpers');
 
@@ -385,6 +386,24 @@ router.post('/:id/inspection', checkPermission('vehicles', 'edit'),
 
     await vehicle.save();
 
+    // Sync to central Documents (fire-and-forget)
+    if (req.file) {
+      documentSyncService.trackUpload({
+        companyId: req.companyFilter.companyId,
+        category: 'vehicle',
+        sourceModel: 'Vehicle',
+        sourceId: vehicle._id,
+        sourceDocKey: 'annualInspection',
+        name: req.file.originalname,
+        documentType: 'annual_inspection',
+        fileUrl: getFileUrl(req.file.path),
+        filePath: req.file.path,
+        fileSize: req.file.size,
+        fileType: req.file.mimetype,
+        uploadedBy: req.user._id
+      });
+    }
+
     auditService.log(req, 'create', 'vehicle', req.params.id, { summary: 'Inspection recorded' });
 
     res.json({
@@ -419,6 +438,41 @@ router.post('/:id/dvir', checkPermission('vehicles', 'edit'), [
     success: true,
     message: 'DVIR recorded successfully'
   });
+}));
+
+// @route   DELETE /api/vehicles/:id/documents/:docKey
+// @desc    Delete a document from a vehicle
+// @access  Private
+router.delete('/:id/documents/:docKey', checkPermission('vehicles', 'edit'), asyncHandler(async (req, res) => {
+  const vehicle = await Vehicle.findOne({ _id: req.params.id, ...req.companyFilter });
+  if (!vehicle) throw new AppError('Vehicle not found', 404);
+
+  const { docKey } = req.params;
+  const validKeys = ['registration', 'insurance', 'annualInspection'];
+  if (!validKeys.includes(docKey)) throw new AppError('Invalid document key', 400);
+
+  let fileUrl;
+  if (docKey === 'annualInspection') {
+    fileUrl = vehicle.annualInspection?.documentUrl;
+    if (fileUrl) vehicle.annualInspection.documentUrl = null;
+  } else {
+    fileUrl = vehicle[docKey]?.documentUrl;
+    if (fileUrl) vehicle[docKey].documentUrl = null;
+  }
+
+  if (!fileUrl) throw new AppError('No document to delete', 404);
+  try { await deleteFile(fileUrl); } catch (err) { console.error('Error deleting file:', err); }
+  await vehicle.save();
+
+  // Sync delete to central Documents (fire-and-forget)
+  documentSyncService.trackDelete({
+    sourceModel: 'Vehicle',
+    sourceId: req.params.id,
+    sourceDocKey: req.params.docKey
+  });
+
+  auditService.log(req, 'delete', 'vehicle_document', req.params.id, { docKey });
+  res.json({ success: true, message: 'Document deleted successfully' });
 }));
 
 // @route   DELETE /api/vehicles/:id

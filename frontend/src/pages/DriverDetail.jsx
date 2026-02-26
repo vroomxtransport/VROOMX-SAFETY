@@ -263,6 +263,8 @@ const DriverDetail = () => {
       status: matchingDoc?.documentUrl ? 'complete' : 'missing',
       url: matchingDoc?.documentUrl,
       isCustom: true,
+      isOther: true,
+      otherDocId: matchingDoc?._id,
       customDqfItemId: item._id
     };
   });
@@ -457,6 +459,10 @@ const DriverDetail = () => {
           completedDocs={completedDocs}
           totalDocs={totalDocs}
           onUpload={(type) => setUploadModal({ open: true, type })}
+          onDeleteDocument={async () => {
+            const res = await driversAPI.getById(id);
+            setDriver(res.data.driver);
+          }}
           customDqfItems={customDqfItems}
           onCustomDqfItemsChange={fetchCustomDqfItems}
           activeCompany={activeCompany}

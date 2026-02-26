@@ -126,6 +126,7 @@ const ClaimDetailModal = ({
         <DocumentUploadSection
           documents={claim.documents || []}
           onUpload={(formData) => damageClaimsAPI.uploadDocuments(claim._id, formData)}
+          onDelete={(docId) => damageClaimsAPI.deleteDocument(claim._id, docId)}
           onRefresh={onRefresh}
           fieldName="documents"
         />

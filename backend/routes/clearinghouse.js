@@ -4,8 +4,9 @@ const { body, validationResult } = require('express-validator');
 const { Driver, DrugAlcoholTest, ClearinghouseQuery, Document } = require('../models');
 const { protect, checkPermission, restrictToCompany } = require('../middleware/auth');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
-const { uploadSingle, getFileUrl } = require('../middleware/upload');
+const { uploadSingle, getFileUrl, deleteFile } = require('../middleware/upload');
 const auditService = require('../services/auditService');
+const documentSyncService = require('../services/documentSyncService');
 
 router.use(protect);
 router.use(restrictToCompany);
@@ -455,6 +456,22 @@ router.post('/queries/:id/upload', checkPermission('drugAlcohol', 'edit'), uploa
 
   await query.save();
 
+  // Sync to central Documents (fire-and-forget)
+  documentSyncService.trackUpload({
+    companyId: req.companyFilter.companyId,
+    category: 'clearinghouse',
+    sourceModel: 'ClearinghouseQuery',
+    sourceId: query._id,
+    sourceDocKey: documentType === 'consent' ? 'consent' : 'result',
+    name: req.file.originalname,
+    documentType: documentType || 'result',
+    fileUrl: fileUrl,
+    filePath: req.file.path,
+    fileSize: req.file.size,
+    fileType: req.file.mimetype,
+    uploadedBy: req.user._id
+  });
+
   auditService.log(req, 'update', 'clearinghouse_query', query._id, {
     action: 'document_uploaded',
     documentType: documentType || 'result'
@@ -465,6 +482,39 @@ router.post('/queries/:id/upload', checkPermission('drugAlcohol', 'edit'), uploa
     .lean();
 
   res.json({ success: true, query: populated });
+}));
+
+// @route   DELETE /api/clearinghouse/queries/:id/document
+// @desc    Delete a document from a clearinghouse query
+// @access  Private
+router.delete('/queries/:id/document', checkPermission('drugAlcohol', 'edit'), asyncHandler(async (req, res) => {
+  const query = await ClearinghouseQuery.findOne({ _id: req.params.id, ...req.companyFilter });
+  if (!query) throw new AppError('Query not found', 404);
+
+  const { type } = req.query; // 'result' or 'consent'
+  let fileUrl;
+  if (type === 'consent' && query.consent?.documentUrl) {
+    fileUrl = query.consent.documentUrl;
+    query.consent.documentUrl = null;
+  } else if (query.resultDocumentUrl) {
+    fileUrl = query.resultDocumentUrl;
+    query.resultDocumentUrl = null;
+  } else {
+    throw new AppError('No document to delete', 404);
+  }
+
+  if (fileUrl) { try { await deleteFile(fileUrl); } catch (err) { console.error('Error deleting file:', err); } }
+  await query.save();
+
+  // Sync delete to central Documents (fire-and-forget)
+  documentSyncService.trackDelete({
+    sourceModel: 'ClearinghouseQuery',
+    sourceId: req.params.id,
+    sourceDocKey: type || 'result'
+  });
+
+  auditService.log(req, 'delete', 'clearinghouse_document', req.params.id, { documentType: type || 'result' });
+  res.json({ success: true, message: 'Document deleted successfully' });
 }));
 
 module.exports = router;
