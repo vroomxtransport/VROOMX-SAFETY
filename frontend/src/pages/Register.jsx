@@ -17,9 +17,10 @@ const Register = () => {
   useForceLightMode();
 
   const [searchParams] = useSearchParams();
-  const validPlans = ['owner_operator', 'small_fleet', 'fleet_pro'];
+  const validPlans = ['free', 'small_fleet', 'fleet_pro'];
   const planParam = searchParams.get('plan');
-  const selectedPlan = validPlans.includes(planParam) ? planParam : 'small_fleet';
+  const selectedPlan = validPlans.includes(planParam) ? planParam : 'free';
+  const isFreePlan = selectedPlan === 'free';
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -205,7 +206,7 @@ const Register = () => {
   return (
     <div className="min-h-screen bg-[#F8FAFC] relative overflow-hidden">
       <SEO
-        title="Start Your 7-Day Free Trial"
+        title={isFreePlan ? "Create Your Free Account" : "Start Your 7-Day Free Trial"}
         description="Sign up for VroomX Safety and get instant access to FMCSA compliance management, CSA score tracking, and automated document alerts. No credit card required."
         path="/register"
       />
@@ -237,10 +238,12 @@ const Register = () => {
         {/* Hero Text */}
         <div className="text-center mb-6 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
           <h1 className="text-3xl md:text-4xl font-bold text-primary-500 mb-3 font-heading tracking-tight">
-            Start Your 7-Day Free Trial
+            {isFreePlan ? 'Create Your Free Account' : 'Start Your 7-Day Free Trial'}
           </h1>
           <p className="text-zinc-600 text-lg max-w-lg mx-auto">
-            Join carriers managing their FMCSA compliance with VroomX Safety
+            {isFreePlan
+              ? 'Free forever — no credit card required'
+              : 'Join carriers managing their FMCSA compliance with VroomX Safety'}
           </p>
         </div>
 
@@ -249,7 +252,7 @@ const Register = () => {
           {[
             { icon: FiCheckCircle, text: 'No credit card required' },
             { icon: FiClock, text: 'Setup in 5 minutes' },
-            { icon: FiAward, text: '7-day free trial' },
+            { icon: FiAward, text: isFreePlan ? 'Free forever' : '7-day free trial' },
           ].map((item, i) => (
             <div
               key={i}
@@ -264,8 +267,12 @@ const Register = () => {
         {/* One-time pricing hint */}
         <div className="w-full max-w-2xl mx-auto mb-4 animate-fade-in-up" style={{ animationDelay: '0.18s' }}>
           <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-5 py-3 flex items-center justify-center gap-2 flex-wrap text-sm">
-            <span className="text-emerald-700 font-semibold">🚀</span>
-            <span className="text-zinc-700">7-day free trial — no credit card required. Plans start at $29/month.</span>
+            <span className="text-emerald-700 font-semibold">&#x1f680;</span>
+            <span className="text-zinc-700">
+              {isFreePlan
+                ? 'Free forever for owner-operators — no credit card, no time limit.'
+                : '7-day free trial — no credit card required. Fleet plans from $79/month.'}
+            </span>
           </div>
         </div>
 
@@ -539,7 +546,7 @@ const Register = () => {
                     <LoadingSpinner size="sm" />
                   ) : (
                     <>
-                      Start Free Trial — No Credit Card
+                      {isFreePlan ? 'Create Free Account' : 'Start Free Trial'} — No Credit Card
                       <FiArrowRight className="w-5 h-5" />
                     </>
                   )}

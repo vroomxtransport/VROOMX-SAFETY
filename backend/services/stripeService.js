@@ -397,10 +397,10 @@ const stripeService = {
       return;
     }
 
-    // Reset to free trial (canceled)
+    // Downgrade to free plan (active, no Stripe references)
     user.subscription = {
-      plan: 'free_trial',
-      status: 'canceled',
+      plan: 'free',
+      status: 'active',
       stripeSubscriptionId: null,
       stripePriceId: null,
       currentPeriodStart: null,
@@ -533,7 +533,7 @@ const stripeService = {
     if (priceId === process.env.STRIPE_SOLO_PRICE_ID) return 'owner_operator';
     if (priceId === process.env.STRIPE_FLEET_PRICE_ID) return 'small_fleet';
     if (priceId === process.env.STRIPE_PRO_PRICE_ID) return 'fleet_pro';
-    return 'free_trial';
+    return 'free';
   },
 
   /**

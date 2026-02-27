@@ -1,16 +1,31 @@
 import { useNavigate } from 'react-router-dom';
-import { FiZap, FiStar, FiArrowRight, FiBriefcase, FiUsers, FiTruck, FiCreditCard, FiExternalLink } from 'react-icons/fi';
+import { FiZap, FiStar, FiArrowRight, FiBriefcase, FiUsers, FiTruck, FiCreditCard, FiExternalLink, FiArrowUp } from 'react-icons/fi';
 import LoadingSpinner from '../LoadingSpinner';
+import { useAuth } from '../../context/AuthContext';
+
+const getPlanDisplayName = (plan) => {
+  const names = {
+    free: 'Free',
+    owner_operator: 'Free',
+    solo: 'Free',
+    small_fleet: 'Fleet',
+    fleet: 'Fleet',
+    fleet_pro: 'Pro',
+    pro: 'Pro',
+  };
+  return names[plan] || plan?.replace('_', ' ') || 'Free';
+};
 
 const BillingTab = ({ subscription, companies, currentUsage, handleManageBilling, loading }) => {
   const navigate = useNavigate();
+  const { isFreePlan } = useAuth();
 
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-500 to-accent-600 flex items-center justify-center">
-            {subscription?.plan === 'professional' ? (
+            {['fleet_pro', 'pro'].includes(subscription?.plan) ? (
               <FiZap className="w-6 h-6 text-white" />
             ) : (
               <FiStar className="w-6 h-6 text-white" />
@@ -18,8 +33,11 @@ const BillingTab = ({ subscription, companies, currentUsage, handleManageBilling
           </div>
           <div>
             <h3 className="font-semibold text-zinc-900 dark:text-white">Current Plan</h3>
-            <p className="text-zinc-600 dark:text-zinc-400 capitalize">
-              {subscription?.plan?.replace('_', ' ') || 'Free Trial'}
+            <p className="text-zinc-600 dark:text-zinc-400">
+              {getPlanDisplayName(subscription?.plan)}
+              {isFreePlan && (
+                <span className="ml-2 text-success-600 dark:text-success-400">Active</span>
+              )}
               {subscription?.status === 'trialing' && (
                 <span className="ml-2 text-accent-600 dark:text-accent-400">
                   ({subscription.trialDaysRemaining} days left)
@@ -28,13 +46,23 @@ const BillingTab = ({ subscription, companies, currentUsage, handleManageBilling
             </p>
           </div>
         </div>
-        <button
-          onClick={() => navigate('/app/billing')}
-          className="btn btn-primary"
-        >
-          Manage Subscription
-          <FiArrowRight className="w-4 h-4" />
-        </button>
+        {isFreePlan ? (
+          <button
+            onClick={() => navigate('/app/billing')}
+            className="btn btn-primary"
+          >
+            <FiArrowUp className="w-4 h-4" />
+            Upgrade Plan
+          </button>
+        ) : (
+          <button
+            onClick={() => navigate('/app/billing')}
+            className="btn btn-primary"
+          >
+            Manage Subscription
+            <FiArrowRight className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
       {/* Usage Overview */}

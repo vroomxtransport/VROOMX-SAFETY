@@ -21,10 +21,10 @@ const PricingSection = () => {
             Simple, <span className="text-cta-500">Transparent Pricing</span>
           </h2>
           <p className="text-lg text-gray-600 mb-4">
-            Enterprise telematics platforms charge $30-50/truck/month for features you'll never use.
+            Free forever for owner-operators. Upgrade when you're ready to grow.
           </p>
           <p className="text-base text-gray-500">
-            Pick the plan that fits your fleet. Every plan includes all compliance features.
+            From single-truck operators to growing fleets — pick the plan that fits.
           </p>
         </div>
 
@@ -60,9 +60,9 @@ const PricingSection = () => {
           className={`grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto transition-all duration-700 ${contentInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         >
           {pricingPlans.map((plan, index) => {
-            const displayPrice = isAnnual ? plan.annualPrice : plan.price;
-            const period = isAnnual ? '/year' : '/month';
-            const monthlyEquivalent = isAnnual ? Math.round(plan.annualPrice / 12) : null;
+            const displayPrice = plan.isFree ? 0 : (isAnnual ? plan.annualPrice : plan.price);
+            const period = plan.isFree ? '/forever' : (isAnnual ? '/year' : '/month');
+            const monthlyEquivalent = !plan.isFree && isAnnual ? Math.round(plan.annualPrice / 12) : null;
 
             return (
               <div key={index} className="relative">
@@ -100,19 +100,26 @@ const PricingSection = () => {
                       </span>
                       <span className="text-gray-500 font-medium ml-1">{period}</span>
                     </div>
-                    {isAnnual && monthlyEquivalent && (
+                    {monthlyEquivalent && (
                       <p className="text-sm text-emerald-600 font-medium mt-1">
                         ${monthlyEquivalent}/mo billed annually
                       </p>
                     )}
                   </div>
 
-                  {/* Trial pill */}
+                  {/* Trial pill / Free pill */}
                   <div className="flex mb-6">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-full">
-                      <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                      <span className="text-sm font-bold text-emerald-700">7-Day Free Trial</span>
-                    </div>
+                    {plan.isFree ? (
+                      <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-full">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                        <span className="text-sm font-bold text-blue-700">Free Forever</span>
+                      </div>
+                    ) : (
+                      <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-full">
+                        <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                        <span className="text-sm font-bold text-emerald-700">7-Day Free Trial</span>
+                      </div>
+                    )}
                   </div>
 
                   {/* CTA Button */}
@@ -125,7 +132,7 @@ const PricingSection = () => {
                     }`}
                   >
                     <span className="inline-flex items-center gap-2">
-                      Protect My Fleet
+                      {plan.isFree ? 'Get Started Free' : 'Start 7-Day Free Trial'}
                       <FiArrowRight className="w-4 h-4" />
                     </span>
                   </Link>
@@ -150,10 +157,10 @@ const PricingSection = () => {
         {/* Trust Badges Row */}
         <div className={`mt-12 flex flex-wrap justify-center gap-4 md:gap-8 transition-all duration-700 delay-300 ${contentInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
           {[
-            { icon: FiUsers, iconClass: 'text-primary-500', text: 'Per-driver pricing', bgClass: 'bg-primary-50' },
+            { icon: FiUsers, iconClass: 'text-primary-500', text: 'Free forever for 1 driver', bgClass: 'bg-primary-50' },
             { icon: FiShield, iconClass: 'text-emerald-500', text: 'Cancel anytime', bgClass: 'bg-emerald-50' },
-            { icon: FiZap, iconClass: 'text-cta-500', text: '7-day free trial', bgClass: 'bg-cta-50' },
-            { icon: FiCheck, iconClass: 'text-purple-500', text: 'No credit card required', bgClass: 'bg-purple-50' },
+            { icon: FiZap, iconClass: 'text-cta-500', text: 'No credit card required', bgClass: 'bg-cta-50' },
+            { icon: FiCheck, iconClass: 'text-purple-500', text: 'Upgrade when ready', bgClass: 'bg-purple-50' },
           ].map((badge, i) => (
             <div key={i} className="flex items-center gap-2.5 px-4 py-2.5 bg-white border border-gray-200 rounded-full shadow-sm">
               <div className={`w-7 h-7 ${badge.bgClass} rounded-full flex items-center justify-center`}>

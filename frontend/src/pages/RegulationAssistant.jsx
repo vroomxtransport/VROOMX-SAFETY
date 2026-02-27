@@ -5,6 +5,8 @@ import {
 } from 'react-icons/fi';
 import ChatMessage from '../components/AIChat/ChatMessage';
 import api from '../utils/api';
+import { useAuth } from '../context/AuthContext';
+import UpgradePrompt from '../components/common/UpgradePrompt';
 
 const TOPIC_CARDS = [
   {
@@ -70,6 +72,7 @@ const TOPIC_CARDS = [
 ];
 
 const RegulationAssistant = () => {
+  const { isFreePlan } = useAuth();
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [inputValue, setInputValue] = useState('');
@@ -130,6 +133,10 @@ const RegulationAssistant = () => {
       handleSend();
     }
   };
+
+  if (isFreePlan) {
+    return <UpgradePrompt feature="AI Compliance Assistant" description="Get instant answers to FMCSA regulation questions with our AI-powered compliance assistant. Available on Fleet and Pro plans." />;
+  }
 
   return (
     <div className="max-w-6xl mx-auto">

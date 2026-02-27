@@ -4,6 +4,7 @@ const AIQueryUsage = require('../models/AIQueryUsage');
 
 // AI Query quotas by plan (per month)
 const AI_QUERY_QUOTAS = {
+  free: 0,
   free_trial: 20,
   owner_operator: 150,
   small_fleet: 500,
@@ -19,6 +20,7 @@ const AI_QUERY_QUOTAS = {
 
 // Plan configurations for per-driver billing
 const PLAN_CONFIG = {
+  free: { includedDrivers: 1, extraDriverPrice: null },
   owner_operator: { includedDrivers: 1, extraDriverPrice: null },
   small_fleet: { includedDrivers: 5, extraDriverPrice: 8 },
   fleet_pro: { includedDrivers: 15, extraDriverPrice: 6 },
@@ -68,7 +70,7 @@ const checkCompanyLimit = async (req, res, next) => {
 const checkDriverLimit = async (req, res, next) => {
   try {
     const user = req.user;
-    const plan = user.subscription?.plan || 'free_trial';
+    const plan = user.subscription?.plan || 'free';
     const activeCompanyId = req.companyFilter?.companyId;
 
     if (!activeCompanyId) {
@@ -86,11 +88,13 @@ const checkDriverLimit = async (req, res, next) => {
 
     const planConfig = PLAN_CONFIG[plan];
 
-    // Owner-Operator (and legacy Solo) plan has hard limit of 1 driver
-    if ((plan === 'owner_operator' || plan === 'solo') && driverCount >= 1) {
+    // Free, Owner-Operator (and legacy Solo) plan has hard limit of 1 driver
+    if ((plan === 'free' || plan === 'owner_operator' || plan === 'solo') && driverCount >= 1) {
       return res.status(403).json({
         success: false,
-        message: 'Owner-Operator plan is limited to 1 driver. Upgrade to Small Fleet for more drivers.',
+        message: plan === 'free'
+          ? 'Free plan is limited to 1 driver. Upgrade to Fleet to add more drivers.'
+          : 'Owner-Operator plan is limited to 1 driver. Upgrade to Small Fleet for more drivers.',
         code: 'DRIVER_LIMIT_REACHED',
         limit: 1,
         current: driverCount,
@@ -165,7 +169,7 @@ const reportDriverUsage = async (req, res, next) => {
 const checkVehicleLimit = async (req, res, next) => {
   try {
     const user = req.user;
-    const plan = user.subscription?.plan || 'free_trial';
+    const plan = user.subscription?.plan || 'free';
     const activeCompanyId = req.companyFilter?.companyId;
 
     if (!activeCompanyId) {
@@ -181,11 +185,13 @@ const checkVehicleLimit = async (req, res, next) => {
       status: { $nin: ['sold', 'totaled'] }
     });
 
-    // Owner-Operator (and legacy Solo) plan has hard limit of 1 vehicle
-    if ((plan === 'owner_operator' || plan === 'solo') && vehicleCount >= 1) {
+    // Free, Owner-Operator (and legacy Solo) plan has hard limit of 1 vehicle
+    if ((plan === 'free' || plan === 'owner_operator' || plan === 'solo') && vehicleCount >= 1) {
       return res.status(403).json({
         success: false,
-        message: 'Owner-Operator plan is limited to 1 vehicle. Upgrade to Small Fleet for more vehicles.',
+        message: plan === 'free'
+          ? 'Free plan is limited to 1 vehicle. Upgrade to Fleet to add more vehicles.'
+          : 'Owner-Operator plan is limited to 1 vehicle. Upgrade to Small Fleet for more vehicles.',
         code: 'VEHICLE_LIMIT_REACHED',
         limit: 1,
         current: vehicleCount,
@@ -218,8 +224,8 @@ const checkVehicleLimit = async (req, res, next) => {
 // Get current usage stats for the user with per-driver billing info
 const getUsageStats = async (user) => {
   const limits = user.limits;
-  const plan = user.subscription?.plan || 'free_trial';
-  const planConfig = PLAN_CONFIG[plan] || PLAN_CONFIG.owner_operator;
+  const plan = user.subscription?.plan || 'free';
+  const planConfig = PLAN_CONFIG[plan] || PLAN_CONFIG.free;
 
   // Get company counts
   const ownedCompanyCount = user.getOwnedCompanyCount();
@@ -260,11 +266,11 @@ const getUsageStats = async (user) => {
       extra: extraDrivers,
       extraPrice: planConfig.extraDriverPrice,
       extraCost: extraDriverCost,
-      limit: (plan === 'owner_operator' || plan === 'solo' || plan === 'free_trial') ? 1 : 'unlimited'
+      limit: (plan === 'free' || plan === 'owner_operator' || plan === 'solo' || plan === 'free_trial') ? 1 : 'unlimited'
     },
     vehicles: {
       current: vehicleCount,
-      limit: (plan === 'owner_operator' || plan === 'solo' || plan === 'free_trial') ? 1 : 'unlimited'
+      limit: (plan === 'free' || plan === 'owner_operator' || plan === 'solo' || plan === 'free_trial') ? 1 : 'unlimited'
     }
   };
 };
@@ -275,8 +281,16 @@ const getUsageStats = async (user) => {
 const checkAIQueryQuota = async (req, res, next) => {
   try {
     const user = req.user;
-    const plan = user.subscription?.plan || 'free_trial';
+    const plan = user.subscription?.plan || 'free';
+    const status = user.subscription?.status;
     const quota = AI_QUERY_QUOTAS[plan];
+
+    // Trialing users get trial-level access regardless of plan
+    if (status === 'trialing') {
+      const trialQuota = AI_QUERY_QUOTAS['free_trial'] || 20;
+      req.aiQuota = { quota: trialQuota, current: 0, remaining: trialQuota };
+      return next();
+    }
 
     // Pro plan has unlimited
     if (quota === -1) {
@@ -311,6 +325,30 @@ const checkAIQueryQuota = async (req, res, next) => {
   }
 };
 
+/**
+ * Middleware to restrict free plan users from premium features.
+ * Trialing users are allowed through (they're evaluating paid plans).
+ */
+const requirePaidPlan = (featureName = 'This feature') => {
+  return (req, res, next) => {
+    const plan = req.user.subscription?.plan || 'free';
+    const status = req.user.subscription?.status;
+
+    // Allow trialing users to access all features
+    if (status === 'trialing') return next();
+
+    // Allow any paid plan through
+    if (plan !== 'free' && plan !== 'owner_operator') return next();
+
+    return res.status(403).json({
+      success: false,
+      message: `${featureName} requires a paid plan. Upgrade to Fleet to unlock.`,
+      code: 'FREE_PLAN_RESTRICTED',
+      upgradeUrl: '/app/billing'
+    });
+  };
+};
+
 module.exports = {
   checkCompanyLimit,
   checkDriverLimit,
@@ -318,6 +356,7 @@ module.exports = {
   getUsageStats,
   reportDriverUsage,
   checkAIQueryQuota,
+  requirePaidPlan,
   PLAN_CONFIG,
   AI_QUERY_QUOTAS
 };

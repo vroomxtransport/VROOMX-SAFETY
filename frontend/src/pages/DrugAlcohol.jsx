@@ -8,8 +8,11 @@ import StatusBadge from '../components/StatusBadge';
 import Modal from '../components/Modal';
 import LoadingSpinner from '../components/LoadingSpinner';
 import DocumentUploadSection from '../components/DocumentUploadSection';
+import { useAuth } from '../context/AuthContext';
+import UpgradePrompt from '../components/common/UpgradePrompt';
 
 const DrugAlcohol = () => {
+  const { isFreePlan } = useAuth();
   const [tests, setTests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -37,10 +40,11 @@ const DrugAlcohol = () => {
   const [detailTest, setDetailTest] = useState(null);
 
   useEffect(() => {
+    if (isFreePlan) return;
     fetchTests();
     fetchStats();
     fetchDrivers();
-  }, [page, typeFilter, resultFilter]);
+  }, [page, typeFilter, resultFilter, isFreePlan]);
 
   const fetchTests = async () => {
     setLoading(true);
@@ -230,6 +234,10 @@ const DrugAlcohol = () => {
       )
     }
   ];
+
+  if (isFreePlan) {
+    return <UpgradePrompt feature="Drug & Alcohol Management" description="Manage your 49 CFR 382 drug and alcohol testing program, random pool, and Clearinghouse compliance. Available on Fleet and Pro plans." />;
+  }
 
   return (
     <div className="space-y-4 lg:space-y-6">

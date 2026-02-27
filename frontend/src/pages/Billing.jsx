@@ -12,7 +12,7 @@ import Modal from '../components/Modal';
 import ConfirmDialog from '../components/ConfirmDialog';
 
 const Billing = () => {
-  const { subscription, refreshUser } = useAuth();
+  const { subscription, refreshUser, isFreePlan } = useAuth();
   const [loading, setLoading] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
@@ -87,19 +87,19 @@ const Billing = () => {
     }
   };
 
-  const PLAN_ORDER = { owner_operator: 1, small_fleet: 2, fleet_pro: 3, solo: 1, fleet: 2, pro: 3 };
+  const PLAN_ORDER = { free: 0, owner_operator: 0, small_fleet: 1, fleet_pro: 2, solo: 0, fleet: 1, pro: 2 };
 
   const canUpgradeTo = (targetPlan) => {
     if (subscription?.status !== 'active' || subscription?.cancelAtPeriodEnd) return false;
     const current = PLAN_ORDER[subscription?.plan];
     const target = PLAN_ORDER[targetPlan];
-    return current && target && target > current;
+    return current !== undefined && target !== undefined && target > current;
   };
 
   const isCurrentPlan = (plan) => {
     if (subscription?.status === 'trialing') return false;
     const planAliases = {
-      owner_operator: ['owner_operator', 'solo'],
+      free: ['free', 'owner_operator', 'solo'],
       small_fleet: ['small_fleet', 'fleet'],
       fleet_pro: ['fleet_pro', 'pro'],
     };
@@ -147,12 +147,26 @@ const Billing = () => {
       case 'small_fleet':
       case 'fleet':
         return FiTruck;
+      case 'free':
       case 'owner_operator':
       case 'solo':
         return FiUser;
       default:
         return FiShield;
     }
+  };
+
+  const getPlanDisplayName = (plan) => {
+    const names = {
+      free: 'Free',
+      owner_operator: 'Free',
+      solo: 'Free',
+      small_fleet: 'Fleet',
+      fleet: 'Fleet',
+      fleet_pro: 'Pro',
+      pro: 'Pro',
+    };
+    return names[plan] || plan?.replace('_', ' ') || 'Free';
   };
 
   const getStatusColor = (status) => {
@@ -172,7 +186,7 @@ const Billing = () => {
 
   const PlanIcon = getPlanIcon(subscription?.plan);
 
-  // Special view for pending_payment users (Solo tier who need to pay)
+  // Special view for pending_payment users (need to choose a plan)
   if (subscription?.status === 'pending_payment') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary-50 to-white dark:from-zinc-900 dark:to-zinc-950 flex items-center justify-center p-4">
@@ -188,60 +202,60 @@ const Billing = () => {
               <div className="w-16 h-16 rounded-full bg-warning-100 flex items-center justify-center mx-auto mb-4">
                 <FiAlertCircle className="w-8 h-8 text-warning-600" />
               </div>
-              <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">Complete Your Subscription</h1>
+              <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">Choose a Plan</h1>
               <p className="text-zinc-600 dark:text-zinc-300">
-                Activate your Owner-Operator plan to start managing your compliance
+                Select a plan to start managing your compliance
               </p>
             </div>
 
-            {/* Owner-Operator Plan Details */}
+            {/* Fleet Plan Details */}
             <div className="bg-primary-50 dark:bg-zinc-800 rounded-xl p-6 mb-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center">
-                  <FiUser className="w-6 h-6 text-white" />
+                  <FiTruck className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">Owner-Operator Plan</h3>
-                  <p className="text-sm text-zinc-600 dark:text-zinc-300">1 driver &bull; 1 vehicle</p>
+                  <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">Fleet Plan</h3>
+                  <p className="text-sm text-zinc-600 dark:text-zinc-300">5 drivers &bull; Unlimited vehicles</p>
                 </div>
               </div>
 
               <div className="flex items-baseline gap-1 mb-4">
-                <span className="text-4xl font-bold text-zinc-900 dark:text-zinc-100">$29</span>
+                <span className="text-4xl font-bold text-zinc-900 dark:text-zinc-100">$79</span>
                 <span className="text-zinc-600 dark:text-zinc-300">/month</span>
               </div>
 
               <ul className="space-y-2">
                 <li className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
                   <FiCheck className="w-4 h-4 text-success-500" />
-                  1 Driver
+                  Up to 5 Drivers & Unlimited Vehicles
                 </li>
                 <li className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
                   <FiCheck className="w-4 h-4 text-success-500" />
-                  Full DQF Management
+                  AI Compliance Assistant (500 queries/mo)
                 </li>
                 <li className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
                   <FiCheck className="w-4 h-4 text-success-500" />
-                  AI Compliance Assistant
+                  CSA Score Monitoring
                 </li>
                 <li className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
                   <FiCheck className="w-4 h-4 text-success-500" />
-                  CSA Score Tracking
+                  DataQ Challenge Analytics
                 </li>
                 <li className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
                   <FiCheck className="w-4 h-4 text-success-500" />
-                  Document Expiry Alerts
+                  Drug & Alcohol Management
                 </li>
                 <li className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
                   <FiCheck className="w-4 h-4 text-success-500" />
-                  150 AI queries/month
+                  Multi-User Access & Roles
                 </li>
               </ul>
             </div>
 
             {/* Payment Button */}
             <button
-              onClick={() => handleSubscribe('owner_operator')}
+              onClick={() => handleSubscribe('small_fleet')}
               disabled={loading}
               className="w-full py-4 px-6 rounded-xl font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary-500/25"
             >
@@ -250,7 +264,7 @@ const Billing = () => {
               ) : (
                 <>
                   <FiCreditCard className="w-5 h-5" />
-                  Subscribe Now - $29/month
+                  Subscribe to Fleet — $79/month
                   <FiArrowRight className="w-5 h-5" />
                 </>
               )}
@@ -264,9 +278,9 @@ const Billing = () => {
           {/* Need more capacity? */}
           <div className="text-center mt-6">
             <p className="text-sm text-zinc-600 dark:text-zinc-300">
-              Need more drivers or vehicles?{' '}
-              <a href="/register" className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium">
-                Check our Fleet plans
+              Need more drivers?{' '}
+              <a href="/pricing" className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium">
+                Check our Pro plan
               </a>
             </p>
           </div>
@@ -299,16 +313,16 @@ const Billing = () => {
               <div>
                 <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Current Plan</h2>
                 <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-zinc-700 dark:text-zinc-300 font-medium capitalize">
-                    {subscription?.plan?.replace('_', ' ') || 'Free Trial'}
+                  <span className="text-zinc-700 dark:text-zinc-300 font-medium">
+                    {getPlanDisplayName(subscription?.plan)}
                   </span>
-                  <span className={`px-2 py-0.5 text-xs font-medium rounded-full border ${getStatusColor(subscription?.status)}`}>
-                    {subscription?.status?.replace('_', ' ')}
+                  <span className={`px-2 py-0.5 text-xs font-medium rounded-full border ${isFreePlan ? 'bg-success-100 dark:bg-success-900/30 text-success-700 dark:text-success-400 border-success-200 dark:border-success-700' : getStatusColor(subscription?.status)}`}>
+                    {isFreePlan ? 'Active' : subscription?.status?.replace('_', ' ')}
                   </span>
                 </div>
               </div>
             </div>
-            {subscription?.status !== 'canceled' && subscription?.stripeSubscriptionId && (
+            {!isFreePlan && subscription?.status !== 'canceled' && subscription?.stripeSubscriptionId && (
               <button
                 onClick={handleManageBilling}
                 disabled={portalLoading}
@@ -415,7 +429,9 @@ const Billing = () => {
                 Subscription Actions
               </p>
               <div className="space-y-2">
-                {subscription?.cancelAtPeriodEnd ? (
+                {isFreePlan ? (
+                  <p className="text-sm text-zinc-600 dark:text-zinc-300">Upgrade below to unlock AI, CSA monitoring, and more</p>
+                ) : subscription?.cancelAtPeriodEnd ? (
                   <button
                     onClick={handleReactivate}
                     disabled={loading}
@@ -474,16 +490,16 @@ const Billing = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-        {/* Owner-Operator Plan */}
+        {/* Free Plan */}
         <div
           className={`relative bg-white dark:bg-zinc-900 rounded-2xl border-2 overflow-hidden transition-all duration-300 cursor-pointer hover:shadow-xl hover:-translate-y-1 ${
-            isCurrentPlan('owner_operator')
+            isCurrentPlan('free')
               ? 'border-primary-300 dark:border-primary-600 ring-2 ring-primary-100 dark:ring-primary-900'
               : 'border-zinc-200 dark:border-zinc-700 hover:border-primary-300 dark:hover:border-primary-600'
           }`}
           style={{ boxShadow: '0 4px 20px -5px rgba(0, 0, 0, 0.08)' }}
         >
-          {isCurrentPlan('owner_operator') && (
+          {isCurrentPlan('free') && (
             <div className="absolute top-4 right-4">
               <span className="px-2.5 py-1 bg-primary-100 dark:bg-primary-900/30 text-zinc-700 dark:text-zinc-200 text-xs font-semibold rounded-full">
                 Current Plan
@@ -497,24 +513,17 @@ const Billing = () => {
                 <FiUser className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">Owner-Operator</h3>
-                <p className="text-sm text-zinc-600 dark:text-zinc-300">1 driver &bull; 1 vehicle</p>
+                <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">Free</h3>
+                <p className="text-sm text-zinc-600 dark:text-zinc-300">1 driver &bull; 1 vehicle &bull; 1 company</p>
               </div>
             </div>
 
             <div className="mb-6">
               <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-bold text-zinc-900 dark:text-zinc-100">
-                  {billingInterval === 'annual' ? '$261' : '$29'}
-                </span>
-                <span className="text-zinc-600 dark:text-zinc-300">
-                  {billingInterval === 'annual' ? '/year' : '/month'}
-                </span>
+                <span className="text-4xl font-bold text-zinc-900 dark:text-zinc-100">$0</span>
+                <span className="text-zinc-600 dark:text-zinc-300">/forever</span>
               </div>
-              {billingInterval === 'annual' && (
-                <p className="text-sm text-success-600 dark:text-success-400 font-medium mt-1">$21.75/mo — save $87/year</p>
-              )}
-              <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">1 driver &bull; 1 vehicle</p>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Free forever &mdash; no credit card</p>
             </div>
 
             <ul className="space-y-3 mb-6">
@@ -522,63 +531,49 @@ const Billing = () => {
                 <div className="w-5 h-5 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-success-600 dark:text-success-400" />
                 </div>
-                <span><strong>1</strong> driver</span>
+                <span><strong>1</strong> Driver, <strong>1</strong> Vehicle, <strong>1</strong> Company</span>
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
                 <div className="w-5 h-5 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-success-600 dark:text-success-400" />
                 </div>
-                Full DQF Management
+                Document Management & Storage
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
                 <div className="w-5 h-5 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-success-600 dark:text-success-400" />
                 </div>
-                AI Compliance Assistant
+                Document Expiration Alerts
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
                 <div className="w-5 h-5 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-success-600 dark:text-success-400" />
                 </div>
-                CSA Score Tracking
+                FMCSA Data Sync
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
                 <div className="w-5 h-5 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-success-600 dark:text-success-400" />
                 </div>
-                Document Expiry Alerts
+                DQF Compliance Checklist
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
                 <div className="w-5 h-5 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-success-600 dark:text-success-400" />
                 </div>
-                <span><strong>150</strong> AI queries/month</span>
+                Basic Violation Tracking
               </li>
             </ul>
 
             <button
-              onClick={() => !isCurrentPlan('owner_operator') && !PLAN_ORDER[subscription?.plan] && handleSubscribe('owner_operator')}
-              disabled={loading || isCurrentPlan('owner_operator') || (PLAN_ORDER[subscription?.plan] > PLAN_ORDER.owner_operator)}
+              disabled={true}
               className={`w-full py-3 px-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${
-                isCurrentPlan('owner_operator')
+                isCurrentPlan('free')
                   ? 'bg-primary-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 cursor-not-allowed'
-                  : PLAN_ORDER[subscription?.plan] > PLAN_ORDER.owner_operator
-                  ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 cursor-not-allowed'
-                  : 'bg-zinc-800 dark:bg-zinc-700 text-white hover:bg-zinc-900 dark:hover:bg-zinc-600'
+                  : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 cursor-not-allowed'
               }`}
             >
-              {loading ? (
-                <LoadingSpinner size="sm" />
-              ) : isCurrentPlan('owner_operator') ? (
-                'Current Plan'
-              ) : PLAN_ORDER[subscription?.plan] > PLAN_ORDER.owner_operator ? (
-                'Included in your plan'
-              ) : (
-                <>
-                  Subscribe
-                  <FiArrowRight className="w-4 h-4" />
-                </>
-              )}
+              {isCurrentPlan('free') ? 'Current Plan' : 'Included in your plan'}
             </button>
           </div>
         </div>
@@ -606,8 +601,8 @@ const Billing = () => {
                 <FiTruck className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">Small Fleet</h3>
-                <p className="text-sm text-zinc-600 dark:text-zinc-300">5 drivers included &bull; +$8/driver after</p>
+                <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">Fleet</h3>
+                <p className="text-sm text-zinc-600 dark:text-zinc-300">5 drivers &bull; Unlimited vehicles</p>
               </div>
             </div>
 
@@ -623,7 +618,7 @@ const Billing = () => {
               {billingInterval === 'annual' && (
                 <p className="text-sm text-success-600 dark:text-success-400 font-medium mt-1">$59.25/mo — save $237/year</p>
               )}
-              <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">5 drivers included &bull; +$8/driver after</p>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">5 drivers &bull; Unlimited vehicles</p>
             </div>
 
             <ul className="space-y-3 mb-6">
@@ -631,43 +626,43 @@ const Billing = () => {
                 <div className="w-5 h-5 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-success-600 dark:text-success-400" />
                 </div>
-                <span><strong>5</strong> drivers included</span>
+                <span>Everything in Free, plus:</span>
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
                 <div className="w-5 h-5 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-success-600 dark:text-success-400" />
                 </div>
-                <span>Everything in Owner-Operator</span>
+                <span>Up to <strong>5</strong> Drivers & Unlimited Vehicles</span>
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
                 <div className="w-5 h-5 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-success-600 dark:text-success-400" />
                 </div>
-                AI Violation Analyzer
+                AI Compliance Assistant (500 queries/mo)
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
                 <div className="w-5 h-5 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-success-600 dark:text-success-400" />
                 </div>
-                DataQ Challenge Letters
+                CSA Score Monitoring
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
                 <div className="w-5 h-5 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-success-600 dark:text-success-400" />
                 </div>
-                Multi-user Access
+                DataQ Challenge Analytics
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
                 <div className="w-5 h-5 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-success-600 dark:text-success-400" />
                 </div>
-                <span><strong>Up to 3</strong> Companies</span>
+                Drug & Alcohol Management
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
                 <div className="w-5 h-5 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-success-600 dark:text-success-400" />
                 </div>
-                <span><strong>500</strong> AI queries/month</span>
+                Multi-User Access & Roles
               </li>
             </ul>
 
@@ -693,7 +688,7 @@ const Billing = () => {
               ) : canUpgradeTo('small_fleet') ? (
                 <>
                   <FiArrowUp className="w-4 h-4" />
-                  Upgrade to Small Fleet
+                  Upgrade to Fleet — $79/mo
                 </>
               ) : (
                 <>
@@ -705,36 +700,31 @@ const Billing = () => {
           </div>
         </div>
 
-        {/* Fleet Pro Plan */}
+        {/* Pro Plan */}
         <div
           className={`relative bg-white dark:bg-zinc-900 rounded-2xl border-2 overflow-hidden transition-all duration-300 cursor-pointer hover:shadow-xl hover:-translate-y-1 ${
             isCurrentPlan('fleet_pro')
               ? 'border-accent-300 dark:border-accent-600 ring-2 ring-accent-100 dark:ring-accent-900'
-              : 'border-accent-200 dark:border-accent-700 hover:border-accent-300 dark:hover:border-accent-600'
+              : 'border-zinc-200 dark:border-zinc-700 hover:border-accent-300 dark:hover:border-accent-600'
           }`}
-          style={{ boxShadow: '0 4px 25px -5px rgba(251, 146, 60, 0.15)' }}
+          style={{ boxShadow: '0 4px 20px -5px rgba(0, 0, 0, 0.08)' }}
         >
-          {/* Popular Badge */}
-          <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-accent-500 to-accent-600 text-white text-center py-1.5 text-xs font-semibold">
-            MOST POPULAR
-          </div>
-
           {isCurrentPlan('fleet_pro') && (
-            <div className="absolute top-10 right-4">
+            <div className="absolute top-4 right-4">
               <span className="px-2.5 py-1 bg-accent-100 dark:bg-accent-900/30 text-zinc-800 dark:text-zinc-200 text-xs font-semibold rounded-full">
                 Current Plan
               </span>
             </div>
           )}
 
-          <div className="p-6 pt-10">
+          <div className="p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-500 to-accent-600 flex items-center justify-center">
                 <FiZap className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">Fleet Pro</h3>
-                <p className="text-sm text-zinc-600 dark:text-zinc-300">15 drivers included &bull; +$6/driver after</p>
+                <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">Pro</h3>
+                <p className="text-sm text-zinc-600 dark:text-zinc-300">15 drivers &bull; Unlimited vehicles</p>
               </div>
             </div>
 
@@ -750,7 +740,7 @@ const Billing = () => {
               {billingInterval === 'annual' && (
                 <p className="text-sm text-success-600 dark:text-success-400 font-medium mt-1">$111.75/mo — save $447/year</p>
               )}
-              <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">15 drivers included &bull; +$6/driver after</p>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">15 drivers &bull; Unlimited vehicles</p>
             </div>
 
             <ul className="space-y-3 mb-6">
@@ -758,49 +748,49 @@ const Billing = () => {
                 <div className="w-5 h-5 rounded-full bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-accent-600 dark:text-accent-400" />
                 </div>
-                <span><strong>15</strong> drivers included</span>
+                <span>Everything in Fleet, plus:</span>
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
                 <div className="w-5 h-5 rounded-full bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-accent-600 dark:text-accent-400" />
                 </div>
-                <span>Everything in Small Fleet</span>
+                <span>Up to <strong>15</strong> Drivers & Unlimited Vehicles</span>
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
                 <div className="w-5 h-5 rounded-full bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-accent-600 dark:text-accent-400" />
                 </div>
-                <span><strong>Up to 10</strong> Companies</span>
+                <span>Up to <strong>10</strong> Companies</span>
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
                 <div className="w-5 h-5 rounded-full bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-accent-600 dark:text-accent-400" />
                 </div>
-                Advanced CSA Analytics
+                <span><strong>Unlimited</strong> AI Queries</span>
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
                 <div className="w-5 h-5 rounded-full bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-accent-600 dark:text-accent-400" />
                 </div>
-                Custom Reports
+                Advanced Compliance Analytics
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
                 <div className="w-5 h-5 rounded-full bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-accent-600 dark:text-accent-400" />
                 </div>
-                Audit Readiness Tools
+                Custom Report Builder
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
                 <div className="w-5 h-5 rounded-full bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-accent-600 dark:text-accent-400" />
                 </div>
-                <span><strong>Unlimited</strong> AI queries</span>
+                Audit Preparation Tools
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
                 <div className="w-5 h-5 rounded-full bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center flex-shrink-0">
                   <FiCheck className="w-3 h-3 text-accent-600 dark:text-accent-400" />
                 </div>
-                Priority Support
+                Phone & Priority Support
               </li>
             </ul>
 
@@ -822,7 +812,7 @@ const Billing = () => {
               ) : canUpgradeTo('fleet_pro') ? (
                 <>
                   <FiArrowUp className="w-4 h-4" />
-                  Upgrade to Fleet Pro
+                  Upgrade to Pro — $149/mo
                 </>
               ) : (
                 <>
@@ -848,7 +838,7 @@ const Billing = () => {
           <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-accent-300 dark:hover:border-accent-500/50 transition-all duration-200">
             <h4 className="font-medium text-zinc-900 dark:text-zinc-100 mb-2">What happens when I cancel?</h4>
             <p className="text-sm text-zinc-700 dark:text-zinc-300">
-              You'll retain access until the end of your billing period. After that, your account will be limited to view-only mode.
+              You'll retain access until the end of your billing period. After that, your account reverts to the Free plan with core compliance features.
             </p>
           </div>
           <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-accent-300 dark:hover:border-accent-500/50 transition-all duration-200">
@@ -870,7 +860,7 @@ const Billing = () => {
       <Modal
         isOpen={upgradeModal.open}
         onClose={() => !upgradeModal.loading && setUpgradeModal({ open: false, plan: null, preview: null, loading: false })}
-        title={`Upgrade to ${upgradeModal.plan?.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') || ''}`}
+        title={`Upgrade to ${getPlanDisplayName(upgradeModal.plan)}`}
         icon={FiArrowUp}
         size="sm"
       >

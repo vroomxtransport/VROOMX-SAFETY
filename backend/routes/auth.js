@@ -96,14 +96,22 @@ router.post('/register', [
   }
 
   // Determine subscription based on selected plan
-  const validPlans = ['owner_operator', 'small_fleet', 'fleet_pro'];
-  const plan = validPlans.includes(selectedPlan) ? selectedPlan : 'small_fleet';
+  const validPlans = ['free', 'small_fleet', 'fleet_pro'];
+  const plan = validPlans.includes(selectedPlan) ? selectedPlan : 'free';
 
-  const subscription = {
-    plan,
-    status: 'trialing',
-    trialEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days from now
-  };
+  let subscription;
+  if (plan === 'free') {
+    subscription = {
+      plan: 'free',
+      status: 'active'
+    };
+  } else {
+    subscription = {
+      plan,
+      status: 'trialing',
+      trialEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days from now
+    };
+  }
   // Create user first (needed for ownerId)
   const user = await User.create({
     email,
@@ -792,9 +800,8 @@ router.post('/users', protect, restrictToCompany, [
     firstName,
     lastName,
     subscription: {
-      plan: 'free_trial',
-      status: 'trialing',
-      trialEndsAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
+      plan: 'free',
+      status: 'active'
     },
     companies: [{
       companyId: req.companyFilter.companyId,

@@ -12,16 +12,20 @@ import useForceLightMode from '../hooks/useForceLightMode';
 
 const pricingFAQ = [
   {
-    question: "How does the free trial work?",
-    answer: "Start with a 7-day free trial — no credit card required. You get full access to every feature in your chosen plan. When your trial ends, simply pick the plan that fits your operation and enter your payment details to continue."
+    question: "What's included in the free plan?",
+    answer: "The Free plan is free forever — no credit card, no time limit. You get 1 driver, 1 vehicle, 1 company, full document management, expiration alerts, FMCSA data sync, DQF compliance checklist, and basic violation tracking. Perfect for owner-operators who want to stay compliant without spending a dime."
+  },
+  {
+    question: "Can I upgrade later?",
+    answer: "Absolutely. Start free and upgrade to Fleet ($79/mo) or Pro ($149/mo) anytime from your account settings. You'll get instant access to AI compliance tools, CSA monitoring, DataQ analytics, and more. Paid plans come with a 7-day free trial."
   },
   {
     question: "Can I change plans anytime?",
-    answer: "Absolutely. Upgrade or downgrade your plan at any time from your account settings. When you switch, we prorate the difference so you only pay for what you use."
+    answer: "Yes. Upgrade or downgrade your plan at any time from your account settings. When you switch, we prorate the difference so you only pay for what you use."
   },
   {
     question: "How many drivers can I add?",
-    answer: "It depends on your plan. Owner-Operator includes 1 driver. Small Fleet starts with 5 drivers and you can add more at $8/driver/month. Fleet Pro starts with 15 drivers and additional drivers are just $6/driver/month."
+    answer: "It depends on your plan. Free includes 1 driver. Fleet starts with 5 drivers. Pro starts with 15 drivers. Need more? Upgrade to the next tier at any time."
   },
   {
     question: "What payment methods do you accept?",
@@ -29,7 +33,7 @@ const pricingFAQ = [
   },
   {
     question: "Do you offer annual billing?",
-    answer: "Yes! Switch to annual billing and save 25% on every plan. That's $261/year for Owner-Operator, $711/year for Small Fleet, and $1,341/year for Fleet Pro."
+    answer: "Yes! Switch to annual billing and save 25% on paid plans. That's $711/year for Fleet and $1,341/year for Pro."
   },
   {
     question: "Do you offer refunds?",
@@ -37,71 +41,69 @@ const pricingFAQ = [
   },
   {
     question: "Is there a contract?",
-    answer: "No contracts and no commitments. All plans are cancel-anytime. You can pause or cancel your subscription from your account settings whenever you like."
+    answer: "No contracts and no commitments. The Free plan is free forever. Paid plans are cancel-anytime. You can pause or cancel your subscription from your account settings whenever you like."
   }
 ];
 
 const plans = [
   {
-    name: 'Owner-Operator',
-    planId: 'owner_operator',
-    monthlyPrice: 29,
-    annualPrice: 261,
-    description: 'Everything a single-truck operator needs to stay compliant.',
-    cta: 'Protect My Fleet',
+    name: 'Free',
+    planId: 'free',
+    monthlyPrice: 0,
+    annualPrice: 0,
+    description: 'Everything an owner-operator needs to stay compliant.',
+    cta: 'Get Started Free',
+    isFree: true,
     popular: false,
     features: [
-      '1 driver, 1 vehicle, 1 company',
-      'Full DQF Management',
-      'CSA Score Monitoring (all 7 BASICs)',
+      '1 Driver, 1 Vehicle, 1 Company',
+      'Document Management & Storage',
       'Document Expiration Alerts',
-      'AI Compliance Assistant',
       'FMCSA Data Sync',
-      'Violation Tracking',
-      '150 AI queries/month',
+      'DQF Compliance Checklist',
+      'Basic Violation Tracking',
+      'Compliance Reminders',
       'Email Support',
     ],
   },
   {
-    name: 'Small Fleet',
+    name: 'Fleet',
     planId: 'small_fleet',
     monthlyPrice: 79,
     annualPrice: 711,
     description: 'Built for growing fleets that need powerful compliance tools.',
-    cta: 'Protect My Fleet',
+    cta: 'Start 7-Day Free Trial',
     popular: true,
     features: [
-      '5 drivers included, unlimited vehicles',
-      '+$8/driver after 5',
-      'Everything in Owner-Operator',
-      'AI Violation Analyzer',
-      'DataQ Challenge Letters',
-      'Drug & Alcohol Program Management',
-      'Multi-user Access',
-      'Up to 3 companies',
-      '500 AI queries/month',
-      'Priority Email Support',
+      'Everything in Free, plus:',
+      'Up to 5 Drivers & Unlimited Vehicles',
+      'Up to 3 Companies',
+      'AI Compliance Assistant (500 queries/mo)',
+      'CSA Score Monitoring',
+      'DataQ Challenge Analytics',
+      'Drug & Alcohol Management',
+      'Multi-User Access & Roles',
+      'Priority Support',
     ],
   },
   {
-    name: 'Fleet Pro',
+    name: 'Pro',
     planId: 'fleet_pro',
     monthlyPrice: 149,
     annualPrice: 1341,
     description: 'Advanced analytics and tools for established fleet operations.',
-    cta: 'Protect My Fleet',
+    cta: 'Start 7-Day Free Trial',
     popular: false,
     features: [
-      '15 drivers included, unlimited vehicles',
-      '+$6/driver after 15',
-      'Everything in Small Fleet',
-      'Advanced CSA Analytics',
+      'Everything in Fleet, plus:',
+      'Up to 15 Drivers & Unlimited Vehicles',
+      'Up to 10 Companies',
+      'Unlimited AI Queries',
+      'Advanced Compliance Analytics',
       'Custom Report Builder',
-      'Compliance Score Trend Analysis',
-      'Audit Readiness Tools',
-      'Up to 10 companies',
-      'Unlimited AI queries',
-      'Priority Support',
+      'Audit Preparation Tools',
+      'Dedicated Account Manager',
+      'Phone & Priority Support',
     ],
   },
 ];
@@ -121,8 +123,8 @@ const Pricing = () => {
       </div>
 
       <SEO
-        title="Pricing Plans Starting at $29/mo | 7-Day Free Trial"
-        description="Simple, transparent pricing for trucking compliance. Owner-operators start at $29/mo. Small fleets at $79/mo. All plans include CSA tracking, DQF management, and AI assistant. Try free for 7 days."
+        title="Free Trucking Compliance Plan | Fleet Plans from $79/mo"
+        description="Start free forever for owner-operators. Fleet plans from $79/mo include AI compliance assistant, CSA monitoring, and DataQ analytics. No credit card required."
         path="/pricing"
         image="/images/og-image.png"
         faqItems={pricingFAQ}
@@ -145,11 +147,11 @@ const Pricing = () => {
               "@type": "Offer",
               "name": plan.name,
               "description": plan.description,
-              "price": plan.monthlyPrice,
+              "price": plan.monthlyPrice.toString(),
               "priceCurrency": "USD",
               "url": "https://vroomxsafety.com/pricing",
               "availability": "https://schema.org/InStock",
-              "priceValidUntil": "2026-12-31"
+              "priceValidUntil": "2027-12-31"
             }))
           })}
         </script>
@@ -171,7 +173,7 @@ const Pricing = () => {
             Plans That Scale <span className="text-transparent bg-clip-text bg-gradient-to-r from-cta-500 to-cta-600">With Your Fleet</span>
           </h1>
           <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto mb-10">
-            From single-truck operators to growing fleets — pick the plan that fits and start your 7-day free trial today.
+            Free forever for owner-operators. Upgrade to Fleet or Pro when you're ready to grow.
           </p>
 
           {/* Billing Toggle */}
@@ -209,8 +211,8 @@ const Pricing = () => {
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
             {plans.map((plan) => {
-              const displayPrice = isAnnual ? plan.annualPrice : plan.monthlyPrice;
-              const period = isAnnual ? '/yr' : '/mo';
+              const displayPrice = plan.isFree ? 0 : (isAnnual ? plan.annualPrice : plan.monthlyPrice);
+              const period = plan.isFree ? '/forever' : (isAnnual ? '/yr' : '/mo');
 
               return (
                 <div key={plan.name} className="relative">
@@ -251,19 +253,26 @@ const Pricing = () => {
                         </span>
                         <span className="text-gray-400 font-medium ml-1">{period}</span>
                       </div>
-                      {isAnnual && (
+                      {!plan.isFree && isAnnual && (
                         <p className="text-sm text-emerald-600 font-medium mt-1">
                           ${plan.monthlyPrice}/mo billed monthly
                         </p>
                       )}
                     </div>
 
-                    {/* Trial pill */}
+                    {/* Trial pill / Free pill */}
                     <div className="flex mb-6">
-                      <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-full">
-                        <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                        <span className="text-sm font-bold text-emerald-700">7-Day Free Trial</span>
-                      </div>
+                      {plan.isFree ? (
+                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-full">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                          <span className="text-sm font-bold text-blue-700">Free Forever</span>
+                        </div>
+                      ) : (
+                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-full">
+                          <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                          <span className="text-sm font-bold text-emerald-700">7-Day Free Trial</span>
+                        </div>
+                      )}
                     </div>
 
                     {/* CTA */}
@@ -412,25 +421,25 @@ const Pricing = () => {
           </p>
 
           <Link
-            to="/register?plan=small_fleet"
+            to="/register?plan=free"
             className="inline-flex items-center gap-3 bg-cta-500 hover:bg-cta-600 px-10 py-5 rounded-full font-bold text-white text-lg shadow-xl shadow-cta-500/30 transition-all hover:scale-105 hover:shadow-2xl"
           >
-            Protect My Fleet
+            Get Started Free
             <FiArrowRight className="w-5 h-5" />
           </Link>
 
           <div className="flex flex-wrap justify-center gap-6 mt-8 text-sm text-white/70">
             <span className="flex items-center gap-2">
               <FiCheck className="w-4 h-4 text-cta-400" />
+              Free forever for 1 driver
+            </span>
+            <span className="flex items-center gap-2">
+              <FiCheck className="w-4 h-4 text-cta-400" />
               No credit card required
             </span>
             <span className="flex items-center gap-2">
               <FiCheck className="w-4 h-4 text-cta-400" />
-              7-day free trial
-            </span>
-            <span className="flex items-center gap-2">
-              <FiCheck className="w-4 h-4 text-cta-400" />
-              Cancel anytime
+              Upgrade anytime
             </span>
           </div>
         </div>

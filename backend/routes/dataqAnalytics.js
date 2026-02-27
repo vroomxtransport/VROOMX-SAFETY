@@ -1,11 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const { protect, restrictToCompany, checkPermission } = require('../middleware/auth');
+const { requirePaidPlan } = require('../middleware/subscriptionLimits');
 const { asyncHandler } = require('../middleware/errorHandler');
 const dataqOutcomeService = require('../services/dataqOutcomeService');
 
 router.use(protect);
 router.use(restrictToCompany);
+router.use(requirePaidPlan('DataQ Analytics'));
 
 // GET /api/dataq-analytics/carrier - Carrier-level analytics
 router.get('/carrier', checkPermission('violations', 'view'), asyncHandler(async (req, res) => {

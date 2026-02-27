@@ -81,9 +81,9 @@ export const valueProps = [
     source: 'Industry Average'
   },
   {
-    stat: '$29/mo',
-    label: 'Starting price for full compliance protection',
-    source: 'Owner-Operator Plan'
+    stat: 'Free',
+    label: 'Compliance protection for owner-operators',
+    source: 'Free Plan'
   }
 ];
 
@@ -124,8 +124,12 @@ export const faqData = [
     answer: "Nope. We're not an ELD. We're not trying to replace your telematics. Think of us as your compliance filing cabinet in the cloud. Your ELD tracks hours. We track documents. They work great together."
   },
   {
-    question: "How does the free trial work?",
-    answer: "Start your 7-day free trial with no credit card required. You get full access to every feature in VroomX. Pick the plan that fits your fleet — Owner-Operator at $29/mo, Small Fleet at $79/mo, or Fleet Pro at $149/mo. If you love it, your subscription starts automatically. If not, your account pauses — no charges, no hassle."
+    question: "What's included in the free plan?",
+    answer: "The Free plan is free forever for owner-operators. You get 1 driver, 1 vehicle, 1 company, full document management, expiration alerts, FMCSA data sync, DQF compliance checklist, and basic violation tracking. No credit card required, no time limit."
+  },
+  {
+    question: "Can I upgrade later?",
+    answer: "Absolutely. Start free and upgrade to Fleet ($79/mo) or Pro ($149/mo) anytime from your account settings. You'll get instant access to AI compliance tools, CSA monitoring, DataQ analytics, and more. Paid plans come with a 7-day free trial."
   },
   {
     question: "Is my data secure?",
@@ -133,11 +137,11 @@ export const faqData = [
   },
   {
     question: "What plans do you offer?",
-    answer: "We have three plans to fit any fleet size. Owner-Operator ($29/mo) covers 1 driver — perfect for independent operators. Small Fleet ($79/mo) includes 5 drivers for growing operations. Fleet Pro ($149/mo) includes 15 drivers for larger fleets. All plans include every feature. Save even more with annual billing."
+    answer: "We have three plans. Free ($0 forever) covers 1 driver for owner-operators with core compliance features. Fleet ($79/mo) includes 5 drivers with AI, CSA monitoring, and multi-user access. Pro ($149/mo) includes 15 drivers with advanced analytics and unlimited AI. Save 25% with annual billing on paid plans."
   },
   {
     question: "What happens if I add more drivers?",
-    answer: "Each plan includes a set number of drivers — 1 for Owner-Operator, 5 for Small Fleet, and 15 for Fleet Pro. If you need more drivers, you can upgrade to the next tier at any time. All plans include every compliance feature."
+    answer: "Each plan includes a set number of drivers — 1 for Free, 5 for Fleet, and 15 for Pro. If you need more drivers, you can upgrade to the next tier at any time."
   },
   {
     question: "How accurate is the CSA score checker?",
@@ -147,62 +151,58 @@ export const faqData = [
 
 export const pricingPlans = [
   {
-    name: 'Owner-Operator',
-    planId: 'owner_operator',
-    price: 29,
-    annualPrice: 261,
+    name: 'Free',
+    planId: 'free',
+    price: 0,
+    annualPrice: 0,
     drivers: '1 driver',
-    popular: false,
+    isFree: true,
     features: [
-      'Full DQF Management',
-      'AI Regulation Assistant',
-      'CSA Score Tracking',
-      'Document Expiry Alerts',
-      'DataQ AI Analysis',
-      'DataQ Draft Generator',
-      'Custom Reports',
+      '1 Driver, 1 Vehicle, 1 Company',
+      'Document Management & Storage',
+      'Document Expiration Alerts',
+      'FMCSA Data Sync',
+      'DQF Compliance Checklist',
+      'Basic Violation Tracking',
+      'Compliance Reminders',
       'Email Support'
     ]
   },
   {
-    name: 'Small Fleet',
+    name: 'Fleet',
     planId: 'small_fleet',
     price: 79,
     annualPrice: 711,
     drivers: '5 drivers included',
     popular: true,
     features: [
-      'Full DQF Management',
-      'AI Regulation Assistant',
-      'CSA Score Tracking',
-      'Document Expiry Alerts',
-      'DataQ AI Analysis',
-      'DataQ Draft Generator',
-      'Multi-user Access',
-      'Advanced CSA Analytics',
-      'Custom Reports',
-      'Priority Email Support'
+      'Everything in Free, plus:',
+      'Up to 5 Drivers & Unlimited Vehicles',
+      'Up to 3 Companies',
+      'AI Compliance Assistant (500 queries/mo)',
+      'CSA Score Monitoring',
+      'DataQ Challenge Analytics',
+      'Drug & Alcohol Management',
+      'Multi-User Access & Roles',
+      'Priority Support'
     ]
   },
   {
-    name: 'Fleet Pro',
+    name: 'Pro',
     planId: 'fleet_pro',
     price: 149,
     annualPrice: 1341,
     drivers: '15 drivers included',
-    popular: false,
     features: [
-      'Full DQF Management',
-      'AI Regulation Assistant',
-      'CSA Score Tracking',
-      'Document Expiry Alerts',
-      'DataQ AI Analysis',
-      'DataQ Draft Generator',
-      'Multi-user Access',
-      'Advanced CSA Analytics',
-      'Custom Reports',
-      'Priority Email Support',
-      'Dedicated Account Manager'
+      'Everything in Fleet, plus:',
+      'Up to 15 Drivers & Unlimited Vehicles',
+      'Up to 10 Companies',
+      'Unlimited AI Queries',
+      'Advanced Compliance Analytics',
+      'Custom Report Builder',
+      'Audit Preparation Tools',
+      'Dedicated Account Manager',
+      'Phone & Priority Support'
     ]
   }
 ];
@@ -210,21 +210,18 @@ export const pricingPlans = [
 // Legacy export for backward compatibility (used by Pricing.jsx)
 export const pricingPlan = {
   name: 'VroomX Complete',
-  price: 29,
+  price: 0,
   trialDays: 7,
   anchorPrice: 468,
   features: [
-    '1 Driver (Owner-Operator)',
-    'Full DQF Management',
-    'AI Regulation Assistant',
-    'CSA Score Tracking',
-    'Document Expiry Alerts',
-    'DataQ AI Analysis',
-    'DataQ Draft Generator',
-    'Multi-user Access',
-    'Advanced CSA Analytics',
-    'Custom Reports',
-    'Priority Email Support'
+    'Free forever for 1 driver',
+    'Document Management & Storage',
+    'Document Expiration Alerts',
+    'FMCSA Data Sync',
+    'DQF Compliance Checklist',
+    'Basic Violation Tracking',
+    'Compliance Reminders',
+    'Email Support'
   ]
 };
 
@@ -236,7 +233,7 @@ export const comparisonFeatures = [
   { feature: 'Mobile Access', vroomx: true, spreadsheets: 'limited', other: true },
   { feature: 'FMCSA Data Integration', vroomx: true, spreadsheets: false, other: 'limited' },
   { feature: 'Setup Time', vroomx: '10 min', spreadsheets: 'Hours', other: '1-2 days' },
-  { feature: 'Starting Price', vroomx: 'From $29/mo', spreadsheets: 'Free*', other: '$50+/mo' },
+  { feature: 'Starting Price', vroomx: 'Free', spreadsheets: 'Free*', other: '$50+/mo' },
 ];
 
 export const features = [

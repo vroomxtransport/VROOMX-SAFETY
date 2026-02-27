@@ -9,24 +9,23 @@ const aiUsageService = require('../services/aiUsageService');
 
 // Price configuration for display
 const PRICING = {
-  owner_operator: {
-    name: 'Owner-Operator',
+  free: {
+    name: 'Free',
     description: 'For Owner-Operators',
-    monthlyPrice: 29,
-    annualPrice: 261,
-    priceId: process.env.STRIPE_OWNER_OPERATOR_MONTHLY_PRICE_ID,
-    annualPriceId: process.env.STRIPE_OWNER_OPERATOR_ANNUAL_PRICE_ID,
+    monthlyPrice: 0,
+    annualPrice: 0,
+    priceId: null,
+    annualPriceId: null,
     includedDrivers: 1,
     extraDriverPrice: null,
     features: [
       '1 driver, 1 vehicle, 1 company',
-      'Full DQF Management (14+ documents)',
-      'CSA Score Monitoring (all 7 BASICs)',
+      'Document Management & Storage',
       'Document Expiration Alerts',
-      'AI Compliance Assistant',
       'FMCSA Data Sync',
-      'Violation Tracking',
-      '150 AI queries/month',
+      'DQF Checklist',
+      'Basic Violation Tracking',
+      'Compliance Reminders',
       'Email Support'
     ],
     limits: {
@@ -36,7 +35,7 @@ const PRICING = {
     }
   },
   small_fleet: {
-    name: 'Small Fleet',
+    name: 'Fleet',
     description: 'For Small Fleets (2-20 drivers)',
     monthlyPrice: 79,
     annualPrice: 711,
@@ -48,13 +47,14 @@ const PRICING = {
     features: [
       '5 drivers included, unlimited vehicles',
       '+$8/driver after 5',
-      'Everything in Owner-Operator',
+      'Everything in Free +',
+      'AI Compliance Assistant (500 queries/mo)',
+      'CSA Score Monitoring (all 7 BASICs)',
       'AI Violation Analyzer',
       'DataQ Challenge Letters',
       'Drug & Alcohol Program Management',
       'Multi-user Access',
       'Up to 3 companies',
-      '500 AI queries/month',
       'Priority Email Support'
     ],
     limits: {
@@ -64,7 +64,7 @@ const PRICING = {
     }
   },
   fleet_pro: {
-    name: 'Fleet Pro',
+    name: 'Pro',
     description: 'For Growing Fleets (15-50+ drivers)',
     monthlyPrice: 149,
     annualPrice: 1341,
@@ -76,7 +76,7 @@ const PRICING = {
     features: [
       '15 drivers included, unlimited vehicles',
       '+$6/driver after 15',
-      'Everything in Small Fleet',
+      'Everything in Fleet +',
       'Advanced CSA Analytics',
       'Custom Report Builder',
       'Compliance Score Trend Analysis',
@@ -159,14 +159,14 @@ router.get('/subscription', protect, asyncHandler(async (req, res) => {
 // @access  Private
 router.post('/create-checkout-session', protect, asyncHandler(async (req, res) => {
   const { plan, billingInterval } = req.body;
-  const validPlans = ['owner_operator', 'small_fleet', 'fleet_pro', 'solo', 'fleet', 'pro'];
+  const validPlans = ['small_fleet', 'fleet_pro', 'fleet', 'pro'];
 
   if (!validPlans.includes(plan)) {
     throw new AppError('Invalid plan selected', 400);
   }
 
-  // Check if user already has an active subscription
-  if (req.user.subscription?.status === 'active' && !req.user.subscription?.cancelAtPeriodEnd) {
+  // Check if user already has an active subscription (skip for free users who have no Stripe sub)
+  if (req.user.subscription?.status === 'active' && !req.user.subscription?.cancelAtPeriodEnd && req.user.subscription?.stripeSubscriptionId) {
     throw new AppError('You already have an active subscription. Use the billing portal to change plans.', 400);
   }
 
@@ -245,8 +245,8 @@ router.post('/reactivate', protect, asyncHandler(async (req, res) => {
 // @access  Private
 router.post('/preview-upgrade', protect, asyncHandler(async (req, res) => {
   const { plan } = req.body;
-  const PLAN_ORDER = { owner_operator: 1, small_fleet: 2, fleet_pro: 3, solo: 1, fleet: 2, pro: 3 };
-  const validPlans = ['owner_operator', 'small_fleet', 'fleet_pro', 'solo', 'fleet', 'pro'];
+  const PLAN_ORDER = { free: 0, owner_operator: 0, small_fleet: 1, fleet_pro: 2, solo: 0, fleet: 1, pro: 2 };
+  const validPlans = ['small_fleet', 'fleet_pro', 'fleet', 'pro'];
 
   if (!validPlans.includes(plan)) {
     throw new AppError('Invalid plan selected', 400);
@@ -257,7 +257,7 @@ router.post('/preview-upgrade', protect, asyncHandler(async (req, res) => {
   }
 
   const currentPlan = req.user.subscription?.plan;
-  if (!PLAN_ORDER[currentPlan] || PLAN_ORDER[plan] <= PLAN_ORDER[currentPlan]) {
+  if (PLAN_ORDER[currentPlan] === undefined || PLAN_ORDER[plan] <= PLAN_ORDER[currentPlan]) {
     throw new AppError('You can only upgrade to a higher plan', 400);
   }
 
@@ -274,8 +274,8 @@ router.post('/preview-upgrade', protect, asyncHandler(async (req, res) => {
 // @access  Private
 router.post('/upgrade', protect, asyncHandler(async (req, res) => {
   const { plan } = req.body;
-  const PLAN_ORDER = { owner_operator: 1, small_fleet: 2, fleet_pro: 3, solo: 1, fleet: 2, pro: 3 };
-  const validPlans = ['owner_operator', 'small_fleet', 'fleet_pro', 'solo', 'fleet', 'pro'];
+  const PLAN_ORDER = { free: 0, owner_operator: 0, small_fleet: 1, fleet_pro: 2, solo: 0, fleet: 1, pro: 2 };
+  const validPlans = ['small_fleet', 'fleet_pro', 'fleet', 'pro'];
 
   if (!validPlans.includes(plan)) {
     throw new AppError('Invalid plan selected', 400);
@@ -286,7 +286,7 @@ router.post('/upgrade', protect, asyncHandler(async (req, res) => {
   }
 
   const currentPlan = req.user.subscription?.plan;
-  if (!PLAN_ORDER[currentPlan] || PLAN_ORDER[plan] <= PLAN_ORDER[currentPlan]) {
+  if (PLAN_ORDER[currentPlan] === undefined || PLAN_ORDER[plan] <= PLAN_ORDER[currentPlan]) {
     throw new AppError('You can only upgrade to a higher plan', 400);
   }
 

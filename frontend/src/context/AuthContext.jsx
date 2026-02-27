@@ -220,6 +220,9 @@ export const AuthProvider = ({ children }) => {
     return maxVehicles === Infinity || currentCount < maxVehicles;
   }, [subscription]);
 
+  // Check if user is on the free plan (includes legacy owner_operator and solo)
+  const isFreePlan = ['free', 'owner_operator', 'solo'].includes(subscription?.plan) && subscription?.status !== 'trialing';
+
   // Check if subscription is active
   const isSubscriptionActive = useCallback(() => {
     const activeStatuses = ['trialing', 'active'];
@@ -239,6 +242,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     isAuthenticated: !!user,
     isDemo: user?.isDemo || false,
+    isFreePlan,
     login,
     demoLogin,
     register,

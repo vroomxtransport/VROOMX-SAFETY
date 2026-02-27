@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { protect, restrictToCompany, checkPermission } = require('../middleware/auth');
-const { checkAIQueryQuota } = require('../middleware/subscriptionLimits');
+const { checkAIQueryQuota, requirePaidPlan } = require('../middleware/subscriptionLimits');
 const aiService = require('../services/aiService');
 const aiUsageService = require('../services/aiUsageService');
 const dataQAnalysisService = require('../services/dataQAnalysisService');
@@ -42,7 +42,7 @@ setInterval(() => {
 // @route   POST /api/ai/regulation-query
 // @desc    Ask a compliance regulation question
 // @access  Private
-router.post('/regulation-query', protect, checkAIQueryQuota, async (req, res) => {
+router.post('/regulation-query', protect, requirePaidPlan('AI Compliance Assistant'), checkAIQueryQuota, async (req, res) => {
   try {
     const { question, context } = req.body;
 
@@ -98,7 +98,7 @@ router.post('/regulation-query', protect, checkAIQueryQuota, async (req, res) =>
 // @route   POST /api/ai/analyze-dqf
 // @desc    Analyze driver qualification file for compliance
 // @access  Private
-router.post('/analyze-dqf', protect, checkAIQueryQuota, async (req, res) => {
+router.post('/analyze-dqf', protect, requirePaidPlan('AI Compliance Assistant'), checkAIQueryQuota, async (req, res) => {
   try {
     const { driverId, driverName, documents, expirationDates } = req.body;
 
@@ -147,7 +147,7 @@ router.post('/analyze-dqf', protect, checkAIQueryQuota, async (req, res) => {
 // @route   POST /api/ai/analyze-csa-risk
 // @desc    Analyze CSA/SMS risk profile
 // @access  Private
-router.post('/analyze-csa-risk', protect, checkAIQueryQuota, async (req, res) => {
+router.post('/analyze-csa-risk', protect, requirePaidPlan('AI Compliance Assistant'), checkAIQueryQuota, async (req, res) => {
   try {
     const { violations, currentBASICs, fleetSize } = req.body;
 
@@ -195,7 +195,7 @@ router.post('/analyze-csa-risk', protect, checkAIQueryQuota, async (req, res) =>
 // @route   POST /api/ai/generate-dataq
 // @desc    Generate DataQ challenge letter
 // @access  Private
-router.post('/generate-dataq', protect, checkAIQueryQuota, async (req, res) => {
+router.post('/generate-dataq', protect, requirePaidPlan('AI Compliance Assistant'), checkAIQueryQuota, async (req, res) => {
   try {
     const { violation, evidence, reason } = req.body;
 
@@ -298,7 +298,7 @@ router.get('/suggested-questions', protect, (req, res) => {
 // @route   POST /api/ai/analyze-dataq-opportunities
 // @desc    Bulk analyze violations for DataQ challenge opportunities
 // @access  Private
-router.post('/analyze-dataq-opportunities', protect, checkAIQueryQuota, restrictToCompany, checkPermission('violations', 'view'), async (req, res) => {
+router.post('/analyze-dataq-opportunities', protect, requirePaidPlan('AI Compliance Assistant'), checkAIQueryQuota, restrictToCompany, checkPermission('violations', 'view'), async (req, res) => {
   try {
     const { minScore = 40, limit = 20, basic } = req.body;
 
@@ -335,7 +335,7 @@ router.post('/analyze-dataq-opportunities', protect, checkAIQueryQuota, restrict
 // @route   POST /api/ai/analyze-violation/:id
 // @desc    Deep AI analysis of a single violation for DataQ challenge
 // @access  Private
-router.post('/analyze-violation/:id', protect, checkAIQueryQuota, restrictToCompany, checkPermission('violations', 'view'), async (req, res) => {
+router.post('/analyze-violation/:id', protect, requirePaidPlan('AI Compliance Assistant'), checkAIQueryQuota, restrictToCompany, checkPermission('violations', 'view'), async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -426,7 +426,7 @@ router.post('/analyze-violation/:id', protect, checkAIQueryQuota, restrictToComp
 // @route   POST /api/ai/generate-dataq-letter/:id
 // @desc    Generate a professional DataQ challenge letter for a violation
 // @access  Private
-router.post('/generate-dataq-letter/:id', protect, checkAIQueryQuota, restrictToCompany, checkPermission('violations', 'edit'), async (req, res) => {
+router.post('/generate-dataq-letter/:id', protect, requirePaidPlan('AI Compliance Assistant'), checkAIQueryQuota, restrictToCompany, checkPermission('violations', 'edit'), async (req, res) => {
   try {
     const { id } = req.params;
     const { challengeType, rdrType, reason, evidenceList } = req.body;
@@ -516,7 +516,7 @@ const complianceReportService = require('../services/complianceReportService');
 // @route   POST /api/ai/compliance-report
 // @desc    Generate AI compliance analysis report
 // @access  Private
-router.post('/compliance-report', protect, restrictToCompany, checkAIQueryQuota, async (req, res) => {
+router.post('/compliance-report', protect, requirePaidPlan('AI Compliance Assistant'), restrictToCompany, checkAIQueryQuota, async (req, res) => {
   try {
     const companyId = req.companyFilter?.companyId;
 

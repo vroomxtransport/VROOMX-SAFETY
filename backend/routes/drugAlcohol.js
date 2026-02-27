@@ -3,6 +3,7 @@ const router = express.Router();
 const { body, validationResult } = require('express-validator');
 const { DrugAlcoholTest, Driver } = require('../models');
 const { protect, checkPermission, restrictToCompany } = require('../middleware/auth');
+const { requirePaidPlan } = require('../middleware/subscriptionLimits');
 const { uploadSingle, getFileUrl, deleteFile } = require('../middleware/upload');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const { DRUG_ALCOHOL_REQUIREMENTS } = require('../config/fmcsaCompliance');
@@ -161,7 +162,7 @@ router.get('/:id', checkPermission('drugAlcohol', 'view'), asyncHandler(async (r
 // @route   POST /api/drug-alcohol
 // @desc    Create new test record
 // @access  Private
-router.post('/', checkPermission('drugAlcohol', 'edit'), [
+router.post('/', requirePaidPlan('Drug & Alcohol Management'), checkPermission('drugAlcohol', 'edit'), [
   body('driverId').isMongoId().withMessage('Valid driver ID is required'),
   body('testType').isIn(['pre_employment', 'random', 'post_accident', 'reasonable_suspicion', 'return_to_duty', 'follow_up']),
   body('testDate').isISO8601().withMessage('Valid test date is required'),
@@ -199,7 +200,7 @@ router.post('/', checkPermission('drugAlcohol', 'edit'), [
 // @route   PUT /api/drug-alcohol/:id
 // @desc    Update test record
 // @access  Private
-router.put('/:id', checkPermission('drugAlcohol', 'edit'), asyncHandler(async (req, res) => {
+router.put('/:id', requirePaidPlan('Drug & Alcohol Management'), checkPermission('drugAlcohol', 'edit'), asyncHandler(async (req, res) => {
   let test = await DrugAlcoholTest.findOne({
     _id: req.params.id,
     ...req.companyFilter
@@ -228,7 +229,7 @@ router.put('/:id', checkPermission('drugAlcohol', 'edit'), asyncHandler(async (r
 // @route   POST /api/drug-alcohol/:id/clearinghouse
 // @desc    Report test to Clearinghouse
 // @access  Private
-router.post('/:id/clearinghouse', checkPermission('drugAlcohol', 'edit'), [
+router.post('/:id/clearinghouse', requirePaidPlan('Drug & Alcohol Management'), checkPermission('drugAlcohol', 'edit'), [
   body('reportType').isIn(['positive', 'refusal', 'rtu_negative']),
   body('confirmationNumber').optional().trim()
 ], asyncHandler(async (req, res) => {
@@ -262,7 +263,7 @@ router.post('/:id/clearinghouse', checkPermission('drugAlcohol', 'edit'), [
 // @route   POST /api/drug-alcohol/:id/documents
 // @desc    Upload test documents
 // @access  Private
-router.post('/:id/documents', checkPermission('drugAlcohol', 'edit'),
+router.post('/:id/documents', requirePaidPlan('Drug & Alcohol Management'), checkPermission('drugAlcohol', 'edit'),
   uploadSingle('document'),
   asyncHandler(async (req, res) => {
     const test = await DrugAlcoholTest.findOne({
@@ -316,7 +317,7 @@ router.post('/:id/documents', checkPermission('drugAlcohol', 'edit'),
 // @route   DELETE /api/drug-alcohol/:id/documents/:docId
 // @desc    Delete a document from a test record
 // @access  Private
-router.delete('/:id/documents/:docId', checkPermission('drugAlcohol', 'edit'), asyncHandler(async (req, res) => {
+router.delete('/:id/documents/:docId', requirePaidPlan('Drug & Alcohol Management'), checkPermission('drugAlcohol', 'edit'), asyncHandler(async (req, res) => {
   const test = await DrugAlcoholTest.findOne({ _id: req.params.id, ...req.companyFilter });
   if (!test) throw new AppError('Test record not found', 404);
   const docIndex = test.documents.findIndex(d => d._id.toString() === req.params.docId);
@@ -340,7 +341,7 @@ router.delete('/:id/documents/:docId', checkPermission('drugAlcohol', 'edit'), a
 // @route   DELETE /api/drug-alcohol/:id
 // @desc    Soft delete test record (compliance retention)
 // @access  Private
-router.delete('/:id', checkPermission('drugAlcohol', 'delete'), asyncHandler(async (req, res) => {
+router.delete('/:id', requirePaidPlan('Drug & Alcohol Management'), checkPermission('drugAlcohol', 'delete'), asyncHandler(async (req, res) => {
   const test = await DrugAlcoholTest.findOne({
     _id: req.params.id,
     ...req.companyFilter
@@ -366,7 +367,7 @@ router.delete('/:id', checkPermission('drugAlcohol', 'delete'), asyncHandler(asy
 // @route   POST /api/drug-alcohol/clearinghouse-query
 // @desc    Record clearinghouse query for driver
 // @access  Private
-router.post('/clearinghouse-query', checkPermission('drugAlcohol', 'edit'), [
+router.post('/clearinghouse-query', requirePaidPlan('Drug & Alcohol Management'), checkPermission('drugAlcohol', 'edit'), [
   body('driverId').isMongoId(),
   body('queryType').isIn(['full', 'limited']),
   body('queryDate').isISO8601(),

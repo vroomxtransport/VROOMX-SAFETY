@@ -13,6 +13,8 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import DataQOpportunities from '../components/DataQOpportunities';
 import DataQLetterModal from '../components/DataQLetterModal';
 import ViolationDetailModal from '../components/ViolationDetailModal';
+import { useAuth } from '../context/AuthContext';
+import UpgradePrompt from '../components/common/UpgradePrompt';
 
 const ActiveChallengesPanel = lazy(() => import('../components/ActiveChallengesPanel'));
 const DataQAnalyticsPanel = lazy(() => import('../components/DataQAnalyticsPanel'));
@@ -26,6 +28,7 @@ const CATEGORY_FILTERS = [
 ];
 
 const DataQDashboard = ({ embedded = false }) => {
+  const { isFreePlan } = useAuth();
   const [activeTab, setActiveTab] = useState('challenge-manager');
   const [stats, setStats] = useState(null);
   const [opportunities, setOpportunities] = useState([]);
@@ -46,8 +49,9 @@ const DataQDashboard = ({ embedded = false }) => {
   const [scanning, setScanning] = useState(false);
 
   useEffect(() => {
+    if (isFreePlan) return;
     fetchData();
-  }, [minScore, selectedBasic, selectedCategory]);
+  }, [minScore, selectedBasic, selectedCategory, isFreePlan]);
 
   const fetchData = async () => {
     try {
@@ -189,6 +193,10 @@ const DataQDashboard = ({ embedded = false }) => {
   }
 
   const openChallenges = (stats?.challengeStats?.pending || 0) + (stats?.challengeStats?.underReview || 0);
+
+  if (isFreePlan && !embedded) {
+    return <UpgradePrompt feature="DataQ Challenge Analytics" description="Analyze violations for DataQ challenge opportunities, generate challenge letters, and track success rates. Available on Fleet and Pro plans." />;
+  }
 
   return (
     <div className="space-y-4 lg:space-y-6">
