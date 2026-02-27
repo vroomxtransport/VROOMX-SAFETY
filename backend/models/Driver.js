@@ -97,6 +97,11 @@ const driverSchema = new mongoose.Schema({
     enum: ['active', 'inactive', 'terminated', 'suspended'],
     default: 'active'
   },
+  lifecycleState: {
+    type: String,
+    enum: ['application', 'onboarding', 'active', 'probation', 'inactive', 'terminated'],
+    default: 'active'
+  },
   driverType: {
     type: String,
     enum: ['company_driver', 'owner_operator'],
@@ -271,12 +276,12 @@ const driverSchema = new mongoose.Schema({
     },
     cdlStatus: {
       type: String,
-      enum: ['valid', 'due_soon', 'expired', 'missing'],
+      enum: ['valid', 'due_soon', 'urgent', 'expiring', 'expired', 'missing'],
       default: 'valid'
     },
     medicalStatus: {
       type: String,
-      enum: ['valid', 'due_soon', 'expired', 'missing'],
+      enum: ['valid', 'due_soon', 'urgent', 'expiring', 'expired', 'missing'],
       default: 'valid'
     },
     mvrStatus: {
@@ -317,6 +322,12 @@ const driverSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now }
   }],
 
+  // Earliest expiring compliance date (auto-calculated on save)
+  compliantUntil: {
+    type: Date,
+    index: true
+  },
+
   // Archive fields
   isArchived: {
     type: Boolean,
@@ -351,16 +362,37 @@ driverSchema.virtual('daysUntilMedicalExpiry').get(function() {
   return Math.ceil((expiry - now) / (1000 * 60 * 60 * 24));
 });
 
-// Handle archiving when status changes to terminated
+// Sync lifecycleState with status changes
 driverSchema.pre('save', function(next) {
-  if (this.isModified('status') && this.status === 'terminated') {
-    this.isArchived = true;
-    this.archivedAt = new Date();
-    if (!this.terminationDate) {
-      this.terminationDate = new Date();
+  if (this.isModified('status')) {
+    if (this.status === 'terminated') {
+      this.lifecycleState = 'terminated';
+      this.isArchived = true;
+      this.archivedAt = new Date();
+      if (!this.terminationDate) {
+        this.terminationDate = new Date();
+      }
+      const termDate = new Date(this.terminationDate);
+      this.retentionExpiresAt = new Date(termDate.getTime() + 3 * 365.25 * 24 * 60 * 60 * 1000);
+    } else if (this.status === 'inactive') {
+      this.lifecycleState = 'inactive';
+    } else if (this.status === 'suspended') {
+      this.lifecycleState = 'probation';
     }
-    const termDate = new Date(this.terminationDate);
-    this.retentionExpiresAt = new Date(termDate.getTime() + 3 * 365.25 * 24 * 60 * 60 * 1000);
+  }
+  // Sync lifecycleState → status for consistency
+  if (this.isModified('lifecycleState') && !this.isModified('status')) {
+    const stateToStatus = {
+      application: 'inactive',
+      onboarding: 'inactive',
+      active: 'active',
+      probation: 'suspended',
+      inactive: 'inactive',
+      terminated: 'terminated'
+    };
+    if (stateToStatus[this.lifecycleState]) {
+      this.status = stateToStatus[this.lifecycleState];
+    }
   }
   next();
 });
@@ -437,11 +469,20 @@ driverSchema.pre('save', function(next) {
 
   if (statuses.includes('expired') || statuses.includes('overdue') || statuses.includes('missing')) {
     this.complianceStatus.overall = 'non_compliant';
-  } else if (statuses.includes('due_soon') || statuses.includes('due')) {
+  } else if (statuses.includes('urgent') || statuses.includes('expiring') || statuses.includes('due_soon') || statuses.includes('due')) {
     this.complianceStatus.overall = 'warning';
   } else {
     this.complianceStatus.overall = 'compliant';
   }
+
+  // Calculate compliantUntil — earliest expiring compliance date
+  const expiryDates = [
+    this.cdl?.expiryDate,
+    this.medicalCard?.expiryDate,
+    this.clearinghouse?.expiryDate,
+    this.mvrExpiryDate
+  ].filter(d => d != null).map(d => new Date(d));
+  this.compliantUntil = expiryDates.length > 0 ? new Date(Math.min(...expiryDates)) : null;
 
   next();
 });
@@ -452,6 +493,8 @@ driverSchema.index({ 'cdl.expiryDate': 1 });
 driverSchema.index({ 'medicalCard.expiryDate': 1 });
 driverSchema.index({ 'complianceStatus.overall': 1 });
 driverSchema.index({ companyId: 1, isArchived: 1 });
+driverSchema.index({ companyId: 1, compliantUntil: 1 });
+driverSchema.index({ companyId: 1, lifecycleState: 1 });
 
 // Post-save hook for real-time alert generation
 driverSchema.post('save', async function(doc) {

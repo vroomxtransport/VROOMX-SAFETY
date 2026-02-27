@@ -7,6 +7,7 @@ import DataTable from '../components/DataTable';
 import StatusBadge from '../components/StatusBadge';
 import Modal from '../components/Modal';
 import LoadingSpinner from '../components/LoadingSpinner';
+import DocumentReviewQueue from '../components/DocumentReviewQueue';
 
 const Documents = () => {
   const [documents, setDocuments] = useState([]);
@@ -269,6 +270,11 @@ const Documents = () => {
             <p className="text-xs text-zinc-600 dark:text-zinc-300">Missing</p>
           </div>
         </div>
+      </div>
+
+      {/* Document Review Queue */}
+      <div className="card overflow-hidden">
+        <DocumentReviewQueue />
       </div>
 
       {/* Filters */}

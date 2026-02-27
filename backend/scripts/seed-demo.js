@@ -7,8 +7,6 @@
 
 require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
-
 // Import models
 const User = require('../models/User');
 const Company = require('../models/Company');
@@ -60,10 +58,10 @@ async function seedDemo() {
 
     // 1. Create Demo User first (company requires ownerId)
     console.log('\nCreating demo user...');
-    const hashedPassword = await bcrypt.hash(DEMO_PASSWORD, 12);
+    // Pass plain text — User model pre-save hook handles hashing
     const user = await User.create({
       email: DEMO_EMAIL,
-      password: hashedPassword,
+      password: DEMO_PASSWORD,
       firstName: 'Demo',
       lastName: 'User',
       isDemo: true, // Special flag for demo accounts
@@ -151,9 +149,9 @@ async function seedDemo() {
     await user.save();
     console.log(`Linked user to company: ${company.name}`);
 
-    // 3. Create Demo Drivers
+    // 3. Create Demo Drivers (use .save() so pre-save hooks run for compliantUntil)
     console.log('\nCreating demo drivers...');
-    const drivers = await Driver.insertMany([
+    const driverData = [
       {
         companyId: company._id,
         firstName: 'Mike',
@@ -322,12 +320,13 @@ async function seedDemo() {
           status: 'clear'
         }
       }
-    ]);
+    ];
+    const drivers = await Promise.all(driverData.map(d => new Driver(d).save()));
     console.log(`Created ${drivers.length} drivers`);
 
-    // 4. Create Demo Vehicles
+    // 4. Create Demo Vehicles (use .save() so pre-save hooks run for compliantUntil)
     console.log('\nCreating demo vehicles...');
-    const vehicles = await Vehicle.insertMany([
+    const vehicleData = [
       {
         companyId: company._id,
         unitNumber: 'T-101',
@@ -446,7 +445,8 @@ async function seedDemo() {
           inspector: 'ABC Truck Service'
         }
       }
-    ]);
+    ];
+    const vehicles = await Promise.all(vehicleData.map(v => new Vehicle(v).save()));
     console.log(`Created ${vehicles.length} vehicles`);
 
     // 5. Create Demo Violations
