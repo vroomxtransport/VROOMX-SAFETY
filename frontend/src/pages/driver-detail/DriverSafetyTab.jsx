@@ -1,12 +1,25 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { formatDate, basicCategories } from '../../utils/helpers';
 import {
   FiShield, FiLink, FiClipboard, FiTruck, FiCheck, FiAlertCircle,
-  FiChevronDown, FiChevronUp
+  FiChevronDown, FiChevronUp, FiList, FiInbox
 } from 'react-icons/fi';
+import { driversAPI } from '../../utils/api';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
 const DriverSafetyTab = ({ driver, driverId, csaData, csaLoading, expandedDvir, setExpandedDvir, onUnlinkViolation, getRiskColor }) => {
+  const [driverViolations, setDriverViolations] = useState([]);
+  const [loadingViolations, setLoadingViolations] = useState(true);
+
+  useEffect(() => {
+    if (driverId) {
+      driversAPI.getViolations(driverId)
+        .then(res => setDriverViolations(res.data?.violations || []))
+        .catch(() => setDriverViolations([]))
+        .finally(() => setLoadingViolations(false));
+    }
+  }, [driverId]);
   return (
     <div className="space-y-6">
       {/* CSA Impact */}
@@ -111,6 +124,72 @@ const DriverSafetyTab = ({ driver, driverId, csaData, csaLoading, expandedDvir, 
               </div>
               <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-100 mb-2">Clean Record</h3>
               <p className="text-zinc-500 dark:text-zinc-400">No violations linked to this driver</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* DOT Inspection History - Cross-Entity */}
+      <div className="card">
+        <div className="card-header flex items-center justify-between">
+          <h3 className="font-semibold flex items-center gap-2">
+            <FiList className="w-4 h-4 text-primary-500" />
+            DOT Inspection History
+            {driverViolations.length > 0 && (
+              <span className="text-xs bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded-full font-normal">
+                {driverViolations.length}
+              </span>
+            )}
+          </h3>
+          <Link
+            to={`/app/violations?driverId=${driverId}`}
+            className="text-xs font-medium text-accent-600 dark:text-accent-400 hover:text-accent-700"
+          >
+            View All
+          </Link>
+        </div>
+        <div className="card-body p-0">
+          {loadingViolations ? (
+            <div className="p-8 text-center text-zinc-500">Loading...</div>
+          ) : driverViolations.length === 0 ? (
+            <div className="p-8 flex flex-col items-center text-center">
+              <FiInbox className="w-8 h-8 text-zinc-300 mb-2" />
+              <p className="text-zinc-500 dark:text-zinc-400">No inspections linked to this driver</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full">
+                <thead>
+                  <tr className="border-b border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50">
+                    <th className="px-4 py-2.5 text-left text-xs font-semibold text-zinc-500 uppercase">Date</th>
+                    <th className="px-4 py-2.5 text-left text-xs font-semibold text-zinc-500 uppercase">Location</th>
+                    <th className="px-4 py-2.5 text-left text-xs font-semibold text-zinc-500 uppercase">BASIC</th>
+                    <th className="px-4 py-2.5 text-left text-xs font-semibold text-zinc-500 uppercase">Description</th>
+                    <th className="px-4 py-2.5 text-left text-xs font-semibold text-zinc-500 uppercase">OOS</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+                  {driverViolations.slice(0, 15).map((v) => (
+                    <tr key={v._id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/30">
+                      <td className="px-4 py-2.5 text-sm font-mono text-zinc-700 dark:text-zinc-300 whitespace-nowrap">{formatDate(v.inspectionDate || v.date)}</td>
+                      <td className="px-4 py-2.5 text-sm text-zinc-600 dark:text-zinc-400">{v.state || v.location?.state || '-'}</td>
+                      <td className="px-4 py-2.5">
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-primary-100 dark:bg-primary-500/10 text-primary-700 dark:text-primary-400 font-medium">
+                          {basicCategories?.[v.basicCategory || v.basic]?.label || v.basicCategory || v.basic || '-'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 max-w-xs truncate">{v.description || v.violationDescription || '-'}</td>
+                      <td className="px-4 py-2.5">
+                        {v.outOfService ? (
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400 font-medium">OOS</span>
+                        ) : (
+                          <span className="text-xs text-zinc-400">-</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>

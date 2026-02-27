@@ -128,6 +128,46 @@ router.get('/stats', checkPermission('violations', 'view'), asyncHandler(async (
   });
 }));
 
+// @route   GET /api/violations/by-state
+// @desc    Get violations aggregated by state for geographic analytics
+// @access  Private
+router.get('/by-state', checkPermission('violations', 'view'), asyncHandler(async (req, res) => {
+  const twoYearsAgo = new Date();
+  twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+
+  const byState = await Violation.aggregate([
+    {
+      $match: {
+        ...req.companyFilter,
+        violationDate: { $gte: twoYearsAgo },
+        'location.state': { $exists: true, $ne: null, $ne: '' }
+      }
+    },
+    {
+      $group: {
+        _id: '$location.state',
+        inspections: { $addToSet: '$inspectionNumber' },
+        violations: { $sum: 1 },
+        oosCount: { $sum: { $cond: ['$outOfService', 1, 0] } },
+        totalSeverity: { $sum: '$severityWeight' }
+      }
+    },
+    {
+      $project: {
+        state: '$_id',
+        inspectionCount: { $size: '$inspections' },
+        violationCount: '$violations',
+        oosCount: 1,
+        totalSeverity: 1,
+        _id: 0
+      }
+    },
+    { $sort: { violationCount: -1 } }
+  ]);
+
+  res.json({ success: true, byState });
+}));
+
 // @route   GET /api/violations/severity-weights
 // @desc    Get violation severity weight reference
 // @access  Private

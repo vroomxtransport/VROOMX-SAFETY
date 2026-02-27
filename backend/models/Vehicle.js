@@ -261,6 +261,12 @@ const vehicleSchema = new mongoose.Schema({
     documentUrl: String
   },
 
+  // Earliest expiring compliance date (auto-calculated on save)
+  compliantUntil: {
+    type: Date,
+    index: true
+  },
+
   // Compliance Status (calculated)
   complianceStatus: {
     overall: {
@@ -367,6 +373,17 @@ vehicleSchema.pre('save', function(next) {
   // Update registration status
   this.complianceStatus.registrationStatus = getDocumentStatus(this.registration?.expiryDate);
 
+  // Calculate compliantUntil — earliest expiring compliance date
+  const expiryDates = [
+    this.annualInspection?.nextDueDate,
+    this.registration?.expiryDate,
+    this.insurance?.expiryDate,
+    this.cabCardExpiry,
+    this.licensePlate?.expiryDate,
+    this.annualExpiry
+  ].filter(d => d != null).map(d => new Date(d));
+  this.compliantUntil = expiryDates.length > 0 ? new Date(Math.min(...expiryDates)) : null;
+
   // Calculate overall status
   if (this.status === 'out_of_service') {
     this.complianceStatus.overall = 'out_of_service';
@@ -396,6 +413,7 @@ vehicleSchema.index({ unitNumber: 1 });
 vehicleSchema.index({ vin: 1 });
 vehicleSchema.index({ 'annualInspection.nextDueDate': 1 });
 vehicleSchema.index({ 'complianceStatus.overall': 1 });
+vehicleSchema.index({ companyId: 1, compliantUntil: 1 });
 
 // Post-save hook for real-time alert generation
 vehicleSchema.post('save', async function(doc) {

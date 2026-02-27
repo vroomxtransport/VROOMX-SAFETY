@@ -60,6 +60,17 @@ const taskSchema = new mongoose.Schema({
       type: String
     }
   },
+  // Auto-generation tracking
+  source: {
+    type: String,
+    enum: ['manual', 'auto_compliance'],
+    default: 'manual'
+  },
+  category: {
+    type: String,
+    enum: ['general', 'expiring_doc', 'missing_dqf', 'violation', 'maintenance', 'onboarding'],
+    default: 'general'
+  },
   // Recurring task support
   recurring: {
     enabled: {
@@ -101,8 +112,7 @@ const taskSchema = new mongoose.Schema({
   // Audit fields
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+    ref: 'User'
   },
   lastUpdatedBy: {
     type: mongoose.Schema.Types.ObjectId,

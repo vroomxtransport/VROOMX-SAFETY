@@ -57,7 +57,9 @@ const Drivers = () => {
     status: 'active'
   };
 
-  const [activeTab, setActiveTab] = useState('active');
+  const [activeTab, setActiveTab] = useState('all');
+  const [lifecycleFilter, setLifecycleFilter] = useState('');
+  const [lifecycleStats, setLifecycleStats] = useState({});
   const [archivedDrivers, setArchivedDrivers] = useState([]);
   const [archivedCount, setArchivedCount] = useState(0);
   const [pagination, setPagination] = useState(null);
@@ -66,7 +68,7 @@ const Drivers = () => {
 
   useEffect(() => {
     fetchDrivers();
-  }, [page, statusFilter, complianceFilter, search]);
+  }, [page, statusFilter, complianceFilter, lifecycleFilter, search]);
 
   const fetchDrivers = async () => {
     setLoading(true);
@@ -76,12 +78,14 @@ const Drivers = () => {
         limit: 15,
         ...(statusFilter && { status: statusFilter }),
         ...(complianceFilter && { complianceStatus: complianceFilter }),
+        ...(lifecycleFilter && { lifecycleState: lifecycleFilter }),
         ...(search && { search })
       };
       const response = await driversAPI.getAll(params);
       setDrivers(response.data.drivers);
       setTotalPages(response.data.pages);
       setPagination(response.data.pagination || null);
+      if (response.data.lifecycleStats) setLifecycleStats(response.data.lifecycleStats);
       // Also get archived count
       driversAPI.getAll({ archived: 'true', limit: 1 }).then(res => {
         setArchivedCount(res.data.pagination?.total || 0);
@@ -334,6 +338,31 @@ const Drivers = () => {
       )
     },
     {
+      header: 'Compliant Until',
+      key: 'compliantUntil',
+      sortable: true,
+      render: (row) => {
+        if (!row.compliantUntil) return <span className="text-xs text-zinc-400">N/A</span>;
+        const days = daysUntilExpiry(row.compliantUntil);
+        const color = days === null ? 'text-zinc-400'
+          : days > 60 ? 'text-success-600 dark:text-success-400'
+          : days > 30 ? 'text-warning-600 dark:text-warning-400'
+          : days > 0 ? 'text-orange-600 dark:text-orange-400'
+          : 'text-danger-600 dark:text-danger-400';
+        const bgColor = days === null ? ''
+          : days > 60 ? 'bg-success-50 dark:bg-success-500/10'
+          : days > 30 ? 'bg-warning-50 dark:bg-warning-500/10'
+          : days > 0 ? 'bg-orange-50 dark:bg-orange-500/10'
+          : 'bg-danger-50 dark:bg-danger-500/10';
+        return (
+          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${color} ${bgColor}`}>
+            {formatDate(row.compliantUntil)}
+            {days !== null && <span>({days}d)</span>}
+          </span>
+        );
+      }
+    },
+    {
       header: 'Status',
       render: (row) => <StatusBadge status={row.complianceStatus?.overall} size="sm" />
     },
@@ -396,19 +425,56 @@ const Drivers = () => {
         </button>
       </div>
 
-      {/* Tab Bar */}
+      {/* Lifecycle Tab Bar */}
       <div className="flex overflow-x-auto gap-1 mb-4 bg-zinc-100 dark:bg-zinc-800 rounded-lg p-1 w-fit">
-        <button onClick={() => setActiveTab('active')}
-          className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${activeTab === 'active' ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'}`}>
-          Active Drivers {drivers.length > 0 && <span className="ml-1.5 text-xs bg-zinc-200 dark:bg-zinc-600 px-1.5 py-0.5 rounded-full">{pagination?.total || drivers.length}</span>}
-        </button>
-        <button onClick={() => { setActiveTab('archived'); fetchArchivedDrivers(); }}
-          className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${activeTab === 'archived' ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'}`}>
-          Archived {archivedCount > 0 && <span className="ml-1.5 text-xs bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300 px-1.5 py-0.5 rounded-full">{archivedCount}</span>}
-        </button>
+        {[
+          { key: 'all', label: 'All', filter: '' },
+          { key: 'application', label: 'Application', filter: 'application' },
+          { key: 'onboarding', label: 'Onboarding', filter: 'onboarding' },
+          { key: 'active', label: 'Active', filter: 'active' },
+          { key: 'inactive', label: 'Inactive', filter: 'inactive' },
+          { key: 'archived', label: 'Archived', filter: '__archived__' },
+        ].map(tab => {
+          const count = tab.key === 'all'
+            ? (pagination?.total || drivers.length)
+            : tab.key === 'archived'
+              ? archivedCount
+              : (lifecycleStats[tab.key] || 0);
+          return (
+            <button
+              key={tab.key}
+              onClick={() => {
+                setActiveTab(tab.key);
+                if (tab.key === 'archived') {
+                  fetchArchivedDrivers();
+                  setLifecycleFilter('');
+                } else {
+                  setLifecycleFilter(tab.filter);
+                }
+                setPage(1);
+              }}
+              className={`px-3 py-2 text-sm font-medium rounded-md transition-colors whitespace-nowrap ${
+                activeTab === tab.key
+                  ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+              }`}
+            >
+              {tab.label}
+              {count > 0 && (
+                <span className={`ml-1.5 text-xs px-1.5 py-0.5 rounded-full ${
+                  tab.key === 'archived'
+                    ? 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300'
+                    : 'bg-zinc-200 dark:bg-zinc-600'
+                }`}>
+                  {count}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
-      {activeTab === 'active' && (<>
+      {activeTab !== 'archived' && (<>
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <div className="group bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-4 hover:shadow-lg hover:-translate-y-1 hover:border-primary-300 dark:hover:border-primary-500/30 transition-all duration-300 cursor-pointer">

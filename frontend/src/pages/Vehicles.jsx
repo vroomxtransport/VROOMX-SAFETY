@@ -265,6 +265,31 @@ const Vehicles = () => {
       }
     },
     {
+      header: 'Compliant Until',
+      key: 'compliantUntil',
+      sortable: true,
+      render: (row) => {
+        if (!row.compliantUntil) return <span className="text-xs text-zinc-400">N/A</span>;
+        const days = daysUntilExpiry(row.compliantUntil);
+        const color = days === null ? 'text-zinc-400'
+          : days > 60 ? 'text-success-600 dark:text-success-400'
+          : days > 30 ? 'text-warning-600 dark:text-warning-400'
+          : days > 0 ? 'text-orange-600 dark:text-orange-400'
+          : 'text-danger-600 dark:text-danger-400';
+        const bgColor = days === null ? ''
+          : days > 60 ? 'bg-success-50 dark:bg-success-500/10'
+          : days > 30 ? 'bg-warning-50 dark:bg-warning-500/10'
+          : days > 0 ? 'bg-orange-50 dark:bg-orange-500/10'
+          : 'bg-danger-50 dark:bg-danger-500/10';
+        return (
+          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${color} ${bgColor}`}>
+            {formatDate(row.compliantUntil)}
+            {days !== null && <span>({days}d)</span>}
+          </span>
+        );
+      }
+    },
+    {
       header: 'Status',
       render: (row) => <StatusBadge status={row.complianceStatus?.overall || row.status} size="sm" />
     },

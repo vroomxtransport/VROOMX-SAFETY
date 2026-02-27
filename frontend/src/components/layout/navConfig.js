@@ -24,6 +24,7 @@ const navigation = [
   { section: 'TRACKING' },
   { name: 'Tickets', path: '/app/tickets', icon: FiTag },
   { name: 'Accidents', path: '/app/accidents', icon: FiAlertOctagon },
+  { name: 'DVIRs', path: '/app/dvir', icon: FiClipboard },
   { name: 'Damage Claims', path: '/app/damage-claims', icon: FiDollarSign },
   { name: 'Drug & Alcohol', path: '/app/drug-alcohol', icon: FiDroplet },
   { name: 'Clearinghouse', path: '/app/clearinghouse', icon: FiShield },

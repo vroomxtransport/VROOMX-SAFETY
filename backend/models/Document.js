@@ -134,7 +134,17 @@ const documentSchema = new mongoose.Schema({
   // AI Document Intelligence
   aiProcessed: { type: Boolean, default: false },
   aiConfidence: { type: Number, min: 0, max: 1 },
-  extractedData: mongoose.Schema.Types.Mixed
+  extractedData: mongoose.Schema.Types.Mixed,
+
+  // Document Review Workflow
+  reviewStatus: {
+    type: String,
+    enum: ['pending_review', 'approved', 'rejected', 'auto_approved'],
+    default: 'auto_approved'
+  },
+  reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  reviewedAt: Date,
+  reviewNotes: String
 }, {
   timestamps: true
 });
@@ -165,6 +175,7 @@ documentSchema.index({ status: 1 });
 documentSchema.index({ tags: 1 });
 documentSchema.index({ isDeleted: 1 });
 documentSchema.index({ sourceModel: 1, sourceId: 1 });
+documentSchema.index({ companyId: 1, reviewStatus: 1 });
 documentSchema.index({ sourceModel: 1, sourceId: 1, sourceDocId: 1 });
 
 // Post-save hook for real-time alert generation

@@ -164,6 +164,56 @@ router.get('/ai-status', checkPermission('documents', 'view'), (req, res) => {
   });
 });
 
+// @route   GET /api/documents/pending-review
+// @desc    Get documents needing review
+// @access  Private
+router.get('/pending-review', checkPermission('documents', 'view'), asyncHandler(async (req, res) => {
+  const docs = await Document.find({
+    ...req.companyFilter,
+    isDeleted: false,
+    reviewStatus: 'pending_review'
+  })
+    .sort('-createdAt')
+    .limit(50)
+    .populate('uploadedBy', 'name email')
+    .populate('driverId', 'firstName lastName')
+    .populate('vehicleId', 'unitNumber vehicleType');
+
+  res.json({ success: true, documents: docs, count: docs.length });
+}));
+
+// @route   PUT /api/documents/:id/review
+// @desc    Approve or reject a document
+// @access  Private
+router.put('/:id/review', checkPermission('documents', 'upload'), asyncHandler(async (req, res) => {
+  const { action, notes } = req.body;
+  if (!['approve', 'reject'].includes(action)) {
+    throw new AppError('Action must be "approve" or "reject"', 400);
+  }
+
+  const doc = await Document.findOne({
+    _id: req.params.id,
+    ...req.companyFilter,
+    isDeleted: false
+  });
+
+  if (!doc) throw new AppError('Document not found', 404);
+
+  doc.reviewStatus = action === 'approve' ? 'approved' : 'rejected';
+  doc.reviewedBy = req.user._id;
+  doc.reviewedAt = new Date();
+  doc.reviewNotes = notes || '';
+  await doc.save();
+
+  const auditService = require('../services/auditService');
+  auditService.log(req, `document_${action}`, 'document', req.params.id, {
+    reviewStatus: doc.reviewStatus,
+    notes
+  });
+
+  res.json({ success: true, document: doc });
+}));
+
 // @route   GET /api/documents/:id/download
 // @desc    Download document file (authenticated)
 // @access  Private

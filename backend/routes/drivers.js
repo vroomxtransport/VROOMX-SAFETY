@@ -21,8 +21,8 @@ router.use(restrictToCompany);
 // @desc    Get all drivers with filtering and pagination
 // @access  Private
 router.get('/', checkPermission('drivers', 'view'), asyncHandler(async (req, res) => {
-  const { status, complianceStatus, search, page = 1, limit = 20, sort: rawSort = '-createdAt', archived } = req.query;
-  const allowedSorts = ['createdAt', '-createdAt', 'firstName', '-firstName', 'lastName', '-lastName', 'status', '-status', 'hireDate', '-hireDate'];
+  const { status, complianceStatus, lifecycleState, search, page = 1, limit = 20, sort: rawSort = '-createdAt', archived } = req.query;
+  const allowedSorts = ['createdAt', '-createdAt', 'firstName', '-firstName', 'lastName', '-lastName', 'status', '-status', 'hireDate', '-hireDate', 'compliantUntil', '-compliantUntil'];
   const sort = allowedSorts.includes(rawSort) ? rawSort : '-createdAt';
 
   // Build query
@@ -36,6 +36,7 @@ router.get('/', checkPermission('drivers', 'view'), asyncHandler(async (req, res
   }
 
   if (status) queryObj.status = status;
+  if (lifecycleState) queryObj.lifecycleState = lifecycleState;
   if (complianceStatus) queryObj['complianceStatus.overall'] = complianceStatus;
   if (search) {
     const safeSearch = escapeRegex(search);
@@ -58,12 +59,22 @@ router.get('/', checkPermission('drivers', 'view'), asyncHandler(async (req, res
 
   const total = await Driver.countDocuments(queryObj);
 
+  // Get lifecycle state counts for tab badges
+  const lifecycleCounts = await Driver.aggregate([
+    { $match: { ...req.companyFilter, isArchived: { $ne: true } } },
+    { $group: { _id: '$lifecycleState', count: { $sum: 1 } } }
+  ]);
+  const lifecycleStats = {};
+  lifecycleCounts.forEach(({ _id, count }) => { lifecycleStats[_id || 'active'] = count; });
+
   res.json({
     success: true,
     count: drivers.length,
     total,
     page: parseInt(page),
     pages: Math.ceil(total / parseInt(limit)),
+    pagination: { total, page: parseInt(page), pages: Math.ceil(total / parseInt(limit)) },
+    lifecycleStats,
     drivers
   });
 }));
@@ -324,7 +335,7 @@ router.put('/:id', checkPermission('drivers', 'edit'), asyncHandler(async (req, 
     'hireDate', 'terminationDate', 'status', 'employeeId', 'notes',
     'cdl', 'medicalCard', 'mvrReview', 'clearinghouse',
     'emergencyContact', 'employmentHistory', 'complianceStatus',
-    'mvrExpiryDate', 'driverType'
+    'mvrExpiryDate', 'driverType', 'lifecycleState'
   ];
   const updateData = {};
   for (const key of allowedFields) {
@@ -345,6 +356,55 @@ router.put('/:id', checkPermission('drivers', 'edit'), asyncHandler(async (req, 
     success: true,
     driver
   });
+}));
+
+// @route   PUT /api/drivers/:id/lifecycle
+// @desc    Transition driver lifecycle state
+// @access  Private
+router.put('/:id/lifecycle', checkPermission('drivers', 'edit'), [
+  body('state').isIn(['application', 'onboarding', 'active', 'probation', 'inactive', 'terminated'])
+    .withMessage('Invalid lifecycle state')
+], asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    throw new AppError(errors.array()[0].msg, 400);
+  }
+
+  const driver = await Driver.findOne({ _id: req.params.id, ...req.companyFilter });
+  if (!driver) {
+    throw new AppError('Driver not found', 404);
+  }
+
+  // Validate allowed transitions
+  const allowedTransitions = {
+    application: ['onboarding', 'inactive', 'terminated'],
+    onboarding: ['active', 'inactive', 'terminated'],
+    active: ['probation', 'inactive', 'terminated'],
+    probation: ['active', 'inactive', 'terminated'],
+    inactive: ['application', 'onboarding', 'active', 'terminated'],
+    terminated: [] // terminal state - no transitions out
+  };
+
+  const currentState = driver.lifecycleState || 'active';
+  const newState = req.body.state;
+  const allowed = allowedTransitions[currentState] || [];
+
+  if (!allowed.includes(newState)) {
+    throw new AppError(`Cannot transition from "${currentState}" to "${newState}"`, 400);
+  }
+
+  const before = { lifecycleState: currentState, status: driver.status };
+  driver.lifecycleState = newState;
+  await driver.save();
+  const after = { lifecycleState: driver.lifecycleState, status: driver.status };
+
+  auditService.log(req, 'lifecycle_transition', 'driver', req.params.id, {
+    from: before.lifecycleState,
+    to: after.lifecycleState,
+    diff: auditService.diff(before, after)
+  });
+
+  res.json({ success: true, driver });
 }));
 
 // @route   POST /api/drivers/:id/documents

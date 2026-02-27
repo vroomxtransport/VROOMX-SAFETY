@@ -1,6 +1,7 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import VroomXLogo from '../VroomXLogo';
 import CompanySwitcher from '../CompanySwitcher';
+import { useAuth } from '../../context/AuthContext';
 import {
   FiX, FiChevronDown, FiStar,
   FiChevronsLeft, FiChevronsRight, FiArrowLeft
@@ -20,6 +21,7 @@ const Sidebar = ({
   logout,
 }) => {
   const location = useLocation();
+  const { activeCompany } = useAuth();
 
   return (
     <aside
@@ -31,12 +33,20 @@ const Sidebar = ({
     >
       {/* Logo Header */}
       <div className={`relative flex items-center justify-center py-5 border-b border-zinc-200 dark:border-white/10 ${sidebarCollapsed ? 'px-3' : 'px-5'}`}>
-        <VroomXLogo
-          size="sm"
-          showText={!sidebarCollapsed}
-          linkToHome={true}
-          animate={true}
-        />
+        {activeCompany?.logo ? (
+          <img
+            src={activeCompany.logo}
+            alt={activeCompany.name || 'Company Logo'}
+            className={`object-contain ${sidebarCollapsed ? 'w-10 h-10' : 'max-h-10 max-w-[180px]'}`}
+          />
+        ) : (
+          <VroomXLogo
+            size="sm"
+            showText={!sidebarCollapsed}
+            linkToHome={true}
+            animate={true}
+          />
+        )}
         <button
           className="lg:hidden absolute right-3 p-2 text-zinc-600 dark:text-white/70 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/10 rounded-lg transition-colors"
           onClick={() => setSidebarOpen(false)}

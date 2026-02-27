@@ -10,6 +10,7 @@ import TabNav from '../components/TabNav';
 import CSAEstimatorContent from '../components/CSAEstimatorContent';
 import CSATrends from '../components/CSATrends';
 import InspectionsTabContent from '../components/fmcsa/InspectionsTabContent';
+import ViolationHeatMap from '../components/charts/ViolationHeatMap';
 import { formatDate } from '../utils/helpers';
 
 const Violations = lazy(() => import('./Violations'));
@@ -686,6 +687,9 @@ const Compliance = () => {
           </div>
         </div>
       </div>
+
+      {/* Geographic Distribution */}
+      <ViolationHeatMap />
 
         </>
       ) : activeTab === 'violations' ? (

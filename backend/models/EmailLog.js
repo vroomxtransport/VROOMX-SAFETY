@@ -19,7 +19,7 @@ const emailLogSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    enum: ['transactional', 'billing', 'compliance', 'report'],
+    enum: ['transactional', 'billing', 'compliance', 'report', 'marketing'],
     required: true
   },
   resendId: {

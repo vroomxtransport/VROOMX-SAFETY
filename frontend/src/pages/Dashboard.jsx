@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { dashboardAPI, csaAPI, fmcsaInspectionsAPI, driversAPI, fmcsaAPI, complianceScoreAPI } from '../utils/api';
+import { dashboardAPI, csaAPI, fmcsaInspectionsAPI, driversAPI, fmcsaAPI, complianceScoreAPI, tasksAPI, accidentsAPI } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import {
   FiUsers, FiAlertTriangle, FiClock,
@@ -32,6 +32,9 @@ const Dashboard = () => {
   const [syncing, setSyncing] = useState(false);
   const [selectedInspection, setSelectedInspection] = useState(null);
   const [importProgress, setImportProgress] = useState(null);
+  const [complianceTasks, setComplianceTasks] = useState([]);
+  const [taskTab, setTaskTab] = useState('all');
+  const [accidentStats, setAccidentStats] = useState(null);
 
   useEffect(() => {
     fetchDashboard();
@@ -84,14 +87,16 @@ const Dashboard = () => {
 
   const fetchDashboard = async () => {
     try {
-      const [dashboardRes, trendRes, complianceRes, historyRes, inspectionsRes, riskDriversRes, syncStatusRes] = await Promise.all([
+      const [dashboardRes, trendRes, complianceRes, historyRes, inspectionsRes, riskDriversRes, syncStatusRes, tasksRes, accidentStatsRes] = await Promise.all([
         dashboardAPI.get(),
         csaAPI.getTrendSummary(30).catch(() => null),
         complianceScoreAPI.get().catch(() => null),
         complianceScoreAPI.getHistory(30).catch(() => null),
         fmcsaInspectionsAPI.getRecent(5).catch(() => null),
         driversAPI.getRiskRanking(5).catch(() => null),
-        fmcsaAPI.getSyncStatus().catch(() => null)
+        fmcsaAPI.getSyncStatus().catch(() => null),
+        tasksAPI.getAll({ limit: 10, sort: 'dueDate', status: 'not_started,in_progress,overdue' }).catch(() => null),
+        accidentsAPI.getStats().catch(() => null)
       ]);
       setData(dashboardRes.data.dashboard);
       if (trendRes?.data) {
@@ -111,6 +116,12 @@ const Dashboard = () => {
       }
       if (syncStatusRes?.data) {
         setSyncStatus(syncStatusRes.data);
+      }
+      if (tasksRes?.data?.tasks) {
+        setComplianceTasks(tasksRes.data.tasks);
+      }
+      if (accidentStatsRes?.data?.stats) {
+        setAccidentStats(accidentStatsRes.data.stats);
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to load dashboard');
@@ -303,6 +314,106 @@ const Dashboard = () => {
         </div>
       </div>
 
+      {/* Compliance Tasks */}
+      {complianceTasks.length > 0 && (
+        <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl overflow-hidden shadow-sm">
+          <div className="p-5 border-b border-zinc-100 dark:border-white/5 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-accent-100 dark:bg-accent-500/10 flex items-center justify-center">
+                <FiCheckCircle className="w-5 h-5 text-accent-600 dark:text-accent-400" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-zinc-900 dark:text-white">Compliance Tasks</h3>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">{complianceTasks.filter(t => t.status !== 'completed').length} open tasks</p>
+              </div>
+            </div>
+            <Link to="/app/tasks" className="text-xs font-medium text-accent-600 dark:text-accent-400 hover:text-accent-700 flex items-center gap-1">
+              View All <FiArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+          <div className="flex gap-1 px-5 pt-3 border-b border-zinc-100 dark:border-white/5">
+            {[
+              { key: 'all', label: 'All Tasks' },
+              { key: 'urgent', label: 'Urgent' },
+              { key: 'expiring_doc', label: 'Expiring Docs' },
+              { key: 'maintenance', label: 'Maintenance' },
+            ].map(tab => (
+              <button
+                key={tab.key}
+                onClick={() => setTaskTab(tab.key)}
+                className={`px-3 py-2 text-xs font-medium border-b-2 transition-colors ${
+                  taskTab === tab.key
+                    ? 'border-accent-500 text-accent-600 dark:text-accent-400'
+                    : 'border-transparent text-zinc-500 dark:text-zinc-400 hover:text-zinc-700'
+                }`}
+              >
+                {tab.label}
+                <span className="ml-1 text-[10px] bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded-full">
+                  {tab.key === 'all'
+                    ? complianceTasks.length
+                    : tab.key === 'urgent'
+                      ? complianceTasks.filter(t => t.priority === 'high' || t.status === 'overdue').length
+                      : complianceTasks.filter(t => t.category === tab.key).length
+                  }
+                </span>
+              </button>
+            ))}
+          </div>
+          <div className="divide-y divide-zinc-100 dark:divide-white/5 max-h-80 overflow-y-auto">
+            {complianceTasks
+              .filter(t => {
+                if (taskTab === 'all') return true;
+                if (taskTab === 'urgent') return t.priority === 'high' || t.status === 'overdue';
+                return t.category === taskTab;
+              })
+              .slice(0, 8)
+              .map(task => {
+                const daysUntilDue = task.dueDate
+                  ? Math.ceil((new Date(task.dueDate) - new Date()) / (1000 * 60 * 60 * 24))
+                  : null;
+                const isOverdue = daysUntilDue !== null && daysUntilDue < 0;
+                return (
+                  <div key={task._id} className="px-5 py-3 flex items-center gap-3 hover:bg-zinc-50 dark:hover:bg-white/5 transition-colors">
+                    <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                      isOverdue || task.status === 'overdue' ? 'bg-red-500'
+                      : task.priority === 'high' ? 'bg-orange-500'
+                      : task.priority === 'medium' ? 'bg-yellow-500'
+                      : 'bg-green-500'
+                    }`} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200 truncate">{task.title}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        {task.linkedTo?.refName && (
+                          <span className="text-xs text-zinc-500 dark:text-zinc-400">{task.linkedTo.refName}</span>
+                        )}
+                        {task.linkedTo?.type && (
+                          <span className="text-[10px] px-1.5 py-0.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-500 rounded capitalize">{task.linkedTo.type}</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <p className={`text-xs font-medium ${
+                        isOverdue ? 'text-red-600 dark:text-red-400'
+                        : daysUntilDue !== null && daysUntilDue <= 7 ? 'text-orange-600 dark:text-orange-400'
+                        : 'text-zinc-500'
+                      }`}>
+                        {isOverdue ? `${Math.abs(daysUntilDue)}d overdue` : daysUntilDue !== null ? `${daysUntilDue}d left` : ''}
+                      </p>
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                        task.priority === 'high' ? 'bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400'
+                        : task.priority === 'medium' ? 'bg-yellow-100 dark:bg-yellow-500/10 text-yellow-700 dark:text-yellow-400'
+                        : 'bg-green-100 dark:bg-green-500/10 text-green-700 dark:text-green-400'
+                      }`}>
+                        {task.priority}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+          </div>
+        </div>
+      )}
+
       {/* Bottom Row */}
       <div className="grid grid-cols-12 gap-3 sm:gap-4 lg:gap-6">
         {/* Recent Alerts */}
@@ -427,6 +538,45 @@ const Dashboard = () => {
             </div>
           )}
         </div>
+
+        {/* Accident Summary */}
+        {accidentStats && accidentStats.total > 0 && (
+          <div className="col-span-12 md:col-span-6 lg:col-span-3 bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl overflow-hidden shadow-sm">
+            <div className="p-5 border-b border-zinc-100 dark:border-white/5 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-orange-100 dark:bg-orange-500/10 flex items-center justify-center">
+                  <FiAlertTriangle className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                </div>
+                <h3 className="font-semibold text-zinc-900 dark:text-white">Accidents</h3>
+              </div>
+              <Link to="/app/accidents" className="text-xs font-medium text-accent-600 dark:text-accent-400 hover:text-accent-700 flex items-center gap-1">
+                View <FiArrowRight className="w-3 h-3" />
+              </Link>
+            </div>
+            <div className="p-5 grid grid-cols-2 gap-4">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-zinc-900 dark:text-white">{accidentStats.total}</p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">Total (3yr)</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-red-600 dark:text-red-400">{accidentStats.dotRecordable || 0}</p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">DOT Recordable</p>
+              </div>
+              {accidentStats.preventable > 0 && (
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{accidentStats.preventable}</p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">Preventable</p>
+                </div>
+              )}
+              {(accidentStats.injuries > 0 || accidentStats.fatalities > 0) && (
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-red-700 dark:text-red-300">{(accidentStats.injuries || 0) + (accidentStats.fatalities || 0)}</p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">Casualties</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Driver & Vehicle Status */}
         <div className="col-span-12 lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
