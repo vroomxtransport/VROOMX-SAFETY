@@ -463,7 +463,7 @@ async function seedDemo() {
         driverId: drivers[0]._id,
         outOfService: false,
         status: 'open',
-        location: 'Dallas, TX'
+        location: { city: 'Dallas', state: 'TX' }
       },
       {
         companyId: company._id,
@@ -476,7 +476,7 @@ async function seedDemo() {
         vehicleId: vehicles[0]._id,
         outOfService: false,
         status: 'resolved',
-        location: 'Houston, TX'
+        location: { city: 'Houston', state: 'TX' }
       },
       {
         companyId: company._id,
@@ -489,7 +489,7 @@ async function seedDemo() {
         driverId: drivers[2]._id,
         outOfService: false,
         status: 'open',
-        location: 'Austin, TX'
+        location: { city: 'Austin', state: 'TX' }
       },
       {
         companyId: company._id,
@@ -502,7 +502,7 @@ async function seedDemo() {
         vehicleId: vehicles[1]._id,
         outOfService: true,
         status: 'upheld',
-        location: 'San Antonio, TX'
+        location: { city: 'San Antonio', state: 'TX' }
       },
       {
         companyId: company._id,
@@ -515,7 +515,7 @@ async function seedDemo() {
         driverId: drivers[1]._id,
         outOfService: true,
         status: 'open',
-        location: 'El Paso, TX'
+        location: { city: 'Albuquerque', state: 'NM' }
       },
       {
         companyId: company._id,
@@ -528,7 +528,7 @@ async function seedDemo() {
         driverId: drivers[0]._id,
         outOfService: false,
         status: 'resolved',
-        location: 'Fort Worth, TX'
+        location: { city: 'Oklahoma City', state: 'OK' }
       }
     ]);
     console.log(`Created ${violations.length} violations`);

@@ -140,7 +140,7 @@ router.get('/by-state', checkPermission('violations', 'view'), asyncHandler(asyn
       $match: {
         ...req.companyFilter,
         violationDate: { $gte: twoYearsAgo },
-        'location.state': { $exists: true, $ne: null, $ne: '' }
+        'location.state': { $exists: true, $nin: [null, ''] }
       }
     },
     {
@@ -149,6 +149,7 @@ router.get('/by-state', checkPermission('violations', 'view'), asyncHandler(asyn
         inspections: { $addToSet: '$inspectionNumber' },
         violations: { $sum: 1 },
         oosCount: { $sum: { $cond: ['$outOfService', 1, 0] } },
+        nonOosCount: { $sum: { $cond: ['$outOfService', 0, 1] } },
         totalSeverity: { $sum: '$severityWeight' }
       }
     },
@@ -158,6 +159,7 @@ router.get('/by-state', checkPermission('violations', 'view'), asyncHandler(asyn
         inspectionCount: { $size: '$inspections' },
         violationCount: '$violations',
         oosCount: 1,
+        nonOosCount: 1,
         totalSeverity: 1,
         _id: 0
       }
@@ -571,6 +573,54 @@ router.get('/dataq/batch-dashboard', checkPermission('violations', 'view'), asyn
   const persistenceEngineService = require('../services/persistenceEngineService');
   const dashboard = await persistenceEngineService.getBatchDashboard(req.companyFilter.companyId);
   res.json({ success: true, dashboard });
+}));
+
+// @route   GET /api/violations/top-vehicles
+// @desc    Get top 10 vehicles by violation count for geographic report
+// @access  Private
+router.get('/top-vehicles', checkPermission('violations', 'view'), asyncHandler(async (req, res) => {
+  const twoYearsAgo = new Date();
+  twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+
+  const topVehicles = await Violation.aggregate([
+    {
+      $match: {
+        ...req.companyFilter,
+        violationDate: { $gte: twoYearsAgo },
+        vehicleId: { $exists: true, $ne: null }
+      }
+    },
+    {
+      $group: {
+        _id: '$vehicleId',
+        count: { $sum: 1 },
+        oosCount: { $sum: { $cond: ['$outOfService', 1, 0] } }
+      }
+    },
+    { $sort: { count: -1 } },
+    { $limit: 10 },
+    {
+      $lookup: {
+        from: 'vehicles',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'vehicle'
+      }
+    },
+    { $unwind: { path: '$vehicle', preserveNullAndEmptyArrays: true } },
+    {
+      $project: {
+        _id: 0,
+        vehicleId: '$_id',
+        unitNumber: { $ifNull: ['$vehicle.unitNumber', 'Unknown'] },
+        vin: '$vehicle.vin',
+        count: 1,
+        oosCount: 1
+      }
+    }
+  ]);
+
+  res.json({ success: true, topVehicles });
 }));
 
 // @route   GET /api/violations/:id

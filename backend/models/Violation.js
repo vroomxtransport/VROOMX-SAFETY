@@ -406,6 +406,7 @@ violationSchema.pre('save', function(next) {
 
 // Indexes
 violationSchema.index({ companyId: 1, violationDate: -1 });
+violationSchema.index({ companyId: 1, 'location.state': 1 });
 violationSchema.index({ driverId: 1, violationDate: -1 });
 violationSchema.index({ vehicleId: 1, violationDate: -1 });
 violationSchema.index({ basic: 1 });

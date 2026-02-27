@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { violationsAPI } from '../../utils/api';
-import { FiMapPin, FiInbox } from 'react-icons/fi';
+import { FiMapPin, FiInbox, FiTruck } from 'react-icons/fi';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, Legend } from 'recharts';
+import USStateMap from './USStateMap';
 import LoadingSpinner from '../LoadingSpinner';
 
-// US State abbreviation to full name mapping
 const STATE_NAMES = {
   AL:'Alabama',AK:'Alaska',AZ:'Arizona',AR:'Arkansas',CA:'California',CO:'Colorado',
   CT:'Connecticut',DE:'Delaware',FL:'Florida',GA:'Georgia',HI:'Hawaii',ID:'Idaho',
@@ -17,21 +18,53 @@ const STATE_NAMES = {
 };
 
 const ViolationHeatMap = () => {
-  const [data, setData] = useState([]);
+  const [stateData, setStateData] = useState([]);
+  const [topVehicles, setTopVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [hoveredState, setHoveredState] = useState(null);
-  const [viewMode, setViewMode] = useState('violations'); // violations | inspections | oos
 
   useEffect(() => {
-    violationsAPI.getByState()
-      .then(res => setData(res.data?.byState || []))
-      .catch(() => setData([]))
-      .finally(() => setLoading(false));
+    Promise.all([
+      violationsAPI.getByState().then(r => r.data?.byState || []).catch(() => []),
+      violationsAPI.getTopVehicles().then(r => r.data?.topVehicles || []).catch(() => [])
+    ]).then(([states, vehicles]) => {
+      setStateData(states);
+      setTopVehicles(vehicles);
+    }).finally(() => setLoading(false));
   }, []);
+
+  // Build lookup: { TX: { inspectionCount, violationCount, oosCount, ... } }
+  const dataByState = useMemo(() => {
+    const map = {};
+    stateData.forEach(s => { map[s.state] = s; });
+    return map;
+  }, [stateData]);
+
+  // OOS by state data (top 10 for bar chart)
+  const oosBarData = useMemo(() => {
+    return [...stateData]
+      .sort((a, b) => b.oosCount - a.oosCount)
+      .slice(0, 10)
+      .map(s => ({
+        state: s.state,
+        name: STATE_NAMES[s.state] || s.state,
+        oos: s.oosCount,
+        nonOos: (s.nonOosCount !== undefined ? s.nonOosCount : s.violationCount - s.oosCount)
+      }));
+  }, [stateData]);
+
+  // Violations with/without OOS (aggregated)
+  const oosBreakdown = useMemo(() => {
+    const totalOos = stateData.reduce((sum, s) => sum + s.oosCount, 0);
+    const totalNonOos = stateData.reduce((sum, s) => sum + (s.nonOosCount !== undefined ? s.nonOosCount : s.violationCount - s.oosCount), 0);
+    return [
+      { name: 'With OOS', value: totalOos, fill: '#ef4444' },
+      { name: 'Without OOS', value: totalNonOos, fill: '#3b82f6' }
+    ];
+  }, [stateData]);
 
   if (loading) return <div className="p-8 flex justify-center"><LoadingSpinner /></div>;
 
-  if (data.length === 0) {
+  if (stateData.length === 0) {
     return (
       <div className="p-8 flex flex-col items-center text-center">
         <FiInbox className="w-10 h-10 text-zinc-300 dark:text-zinc-600 mb-3" />
@@ -41,102 +74,155 @@ const ViolationHeatMap = () => {
     );
   }
 
-  // Sort by selected metric
-  const sorted = [...data].sort((a, b) => {
-    if (viewMode === 'inspections') return b.inspectionCount - a.inspectionCount;
-    if (viewMode === 'oos') return b.oosCount - a.oosCount;
-    return b.violationCount - a.violationCount;
-  });
-
-  const maxValue = sorted[0]?.[viewMode === 'inspections' ? 'inspectionCount' : viewMode === 'oos' ? 'oosCount' : 'violationCount'] || 1;
-
-  const getBarColor = (value) => {
-    const ratio = value / maxValue;
-    if (ratio >= 0.75) return 'bg-red-500 dark:bg-red-500';
-    if (ratio >= 0.5) return 'bg-orange-500 dark:bg-orange-500';
-    if (ratio >= 0.25) return 'bg-yellow-500 dark:bg-yellow-500';
-    return 'bg-green-500 dark:bg-green-500';
-  };
-
-  const getValue = (item) => {
-    if (viewMode === 'inspections') return item.inspectionCount;
-    if (viewMode === 'oos') return item.oosCount;
-    return item.violationCount;
-  };
-
   return (
     <div className="card">
-      <div className="card-header flex items-center justify-between flex-wrap gap-2">
+      <div className="card-header">
         <h3 className="font-semibold flex items-center gap-2">
           <FiMapPin className="w-4 h-4 text-primary-500" />
-          Geographic Distribution
+          Geographic Violation Report
         </h3>
-        <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg p-0.5">
-          {[
-            { key: 'violations', label: 'Violations' },
-            { key: 'inspections', label: 'Inspections' },
-            { key: 'oos', label: 'OOS' },
-          ].map(tab => (
-            <button
-              key={tab.key}
-              onClick={() => setViewMode(tab.key)}
-              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
-                viewMode === tab.key
-                  ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm'
-                  : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+          {stateData.length} state{stateData.length !== 1 ? 's' : ''} with activity (last 24 months)
+        </p>
       </div>
-      <div className="card-body p-0">
-        {/* State bar chart - compact horizontal bars */}
-        <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
-          {sorted.slice(0, 15).map((item) => {
-            const value = getValue(item);
-            const ratio = (value / maxValue) * 100;
-            const isHovered = hoveredState === item.state;
-            return (
-              <div
-                key={item.state}
-                className={`px-5 py-2.5 flex items-center gap-3 transition-colors ${
-                  isHovered ? 'bg-zinc-50 dark:bg-zinc-800/50' : ''
-                }`}
-                onMouseEnter={() => setHoveredState(item.state)}
-                onMouseLeave={() => setHoveredState(null)}
-              >
-                <span className="w-8 text-xs font-bold text-zinc-600 dark:text-zinc-300 font-mono">{item.state}</span>
-                <div className="flex-1 relative h-5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
-                  <div
-                    className={`absolute inset-y-0 left-0 rounded-full transition-all duration-300 ${getBarColor(value)}`}
-                    style={{ width: `${Math.max(ratio, 3)}%` }}
-                  />
-                </div>
-                <div className="flex items-center gap-3 text-xs font-mono min-w-[140px] justify-end">
-                  <span className="text-zinc-700 dark:text-zinc-300 font-semibold">{value}</span>
-                  {isHovered && (
-                    <span className="text-zinc-400 dark:text-zinc-500 whitespace-nowrap">
-                      {item.inspectionCount}i / {item.violationCount}v / {item.oosCount}oos
-                    </span>
-                  )}
-                </div>
+
+      <div className="card-body space-y-6">
+        {/* Row 1: Maps + Top Vehicles */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          {/* Inspections Map (blue) */}
+          <div className="bg-zinc-50 dark:bg-zinc-800/50 rounded-lg p-3">
+            <USStateMap
+              data={dataByState}
+              metric="inspectionCount"
+              colorScheme="blue"
+              title="Inspections"
+            />
+          </div>
+
+          {/* Violations Map (red) */}
+          <div className="bg-zinc-50 dark:bg-zinc-800/50 rounded-lg p-3">
+            <USStateMap
+              data={dataByState}
+              metric="violationCount"
+              colorScheme="red"
+              title="Violations"
+            />
+          </div>
+
+          {/* Top 10 Vehicles Table */}
+          <div className="bg-zinc-50 dark:bg-zinc-800/50 rounded-lg p-3">
+            <h4 className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-2 text-center uppercase tracking-wider">
+              Top Vehicles by Violations
+            </h4>
+            {topVehicles.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="text-zinc-500 dark:text-zinc-400 border-b border-zinc-200 dark:border-zinc-700">
+                      <th className="text-left py-1.5 font-medium">Unit</th>
+                      <th className="text-right py-1.5 font-medium">Violations</th>
+                      <th className="text-right py-1.5 font-medium">OOS</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-100 dark:divide-zinc-700/50">
+                    {topVehicles.map((v, i) => (
+                      <tr key={v.vehicleId || i} className="hover:bg-zinc-100 dark:hover:bg-zinc-700/30">
+                        <td className="py-1.5">
+                          <div className="flex items-center gap-1.5">
+                            <FiTruck className="w-3 h-3 text-zinc-400" />
+                            <span className="font-mono font-medium text-zinc-700 dark:text-zinc-300">
+                              {v.unitNumber}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="text-right font-mono text-zinc-700 dark:text-zinc-300 py-1.5">{v.count}</td>
+                        <td className="text-right py-1.5">
+                          {v.oosCount > 0 ? (
+                            <span className="font-mono text-red-600 dark:text-red-400 font-medium">{v.oosCount}</span>
+                          ) : (
+                            <span className="font-mono text-zinc-400">0</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            );
-          })}
+            ) : (
+              <p className="text-center text-zinc-400 dark:text-zinc-500 text-xs py-4">
+                No vehicle data
+              </p>
+            )}
+          </div>
         </div>
 
-        {/* Summary footer */}
-        <div className="px-5 py-3 border-t border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-900/50 flex items-center justify-between">
-          <span className="text-xs text-zinc-500 dark:text-zinc-400">
-            {data.length} states | Top: {STATE_NAMES[sorted[0]?.state] || sorted[0]?.state}
-          </span>
-          <div className="flex items-center gap-3 text-[10px]">
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-500" /> Low</span>
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-yellow-500" /> Med</span>
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-orange-500" /> High</span>
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500" /> Critical</span>
+        {/* Row 2: OOS Charts */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* OOS by State - Horizontal stacked bar */}
+          {oosBarData.length > 0 && (
+            <div className="bg-zinc-50 dark:bg-zinc-800/50 rounded-lg p-3">
+              <h4 className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-2 text-center uppercase tracking-wider">
+                OOS Breakdown by State
+              </h4>
+              <ResponsiveContainer width="100%" height={Math.max(oosBarData.length * 28, 120)}>
+                <BarChart data={oosBarData} layout="vertical" margin={{ left: 4, right: 12, top: 4, bottom: 4 }}>
+                  <XAxis type="number" tick={{ fontSize: 10 }} />
+                  <YAxis type="category" dataKey="state" tick={{ fontSize: 10, fontFamily: 'monospace' }} width={28} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'rgba(24,24,27,0.95)',
+                      border: '1px solid #3f3f46',
+                      borderRadius: '8px',
+                      fontSize: '11px',
+                      color: '#fff'
+                    }}
+                    formatter={(value, name) => [value, name === 'oos' ? 'OOS' : 'Non-OOS']}
+                    labelFormatter={(label) => STATE_NAMES[label] || label}
+                  />
+                  <Legend
+                    wrapperStyle={{ fontSize: '10px' }}
+                    formatter={(value) => value === 'oos' ? 'OOS' : 'Non-OOS'}
+                  />
+                  <Bar dataKey="oos" stackId="a" fill="#ef4444" radius={[0, 0, 0, 0]} />
+                  <Bar dataKey="nonOos" stackId="a" fill="#3b82f6" radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+
+          {/* Violations With/Without OOS */}
+          <div className="bg-zinc-50 dark:bg-zinc-800/50 rounded-lg p-3">
+            <h4 className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-2 text-center uppercase tracking-wider">
+              Violations: OOS vs Non-OOS
+            </h4>
+            <ResponsiveContainer width="100%" height={160}>
+              <BarChart data={oosBreakdown} margin={{ left: 8, right: 8, top: 8, bottom: 4 }}>
+                <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'rgba(24,24,27,0.95)',
+                    border: '1px solid #3f3f46',
+                    borderRadius: '8px',
+                    fontSize: '11px',
+                    color: '#fff'
+                  }}
+                />
+                <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                  {oosBreakdown.map((entry, i) => (
+                    <Cell key={i} fill={entry.fill} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+            <div className="flex items-center justify-center gap-4 mt-1">
+              {oosBreakdown.map(b => (
+                <div key={b.name} className="flex items-center gap-1.5 text-[10px] text-zinc-500 dark:text-zinc-400">
+                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: b.fill }} />
+                  {b.name}: <span className="font-mono font-semibold text-zinc-700 dark:text-zinc-300">{b.value}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

@@ -216,6 +216,7 @@ export const violationsAPI = {
   delete: (id) => api.delete(`/violations/${id}`),
   getStats: () => api.get('/violations/stats'),
   getByState: () => api.get('/violations/by-state'),
+  getTopVehicles: () => api.get('/violations/top-vehicles'),
   getSeverityWeights: () => api.get('/violations/severity-weights'),
   submitDataQ: (id, formData) => api.post(`/violations/${id}/dataq`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
