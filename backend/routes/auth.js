@@ -177,6 +177,20 @@ router.post('/register', [
 
   auditService.logAuth(req, 'create', { email, userId: user._id, companyId: company._id, summary: 'User registered' });
 
+  // Link lead → trial conversion (fire-and-forget)
+  try {
+    const Lead = require('../models/Lead');
+    const lead = await Lead.findOne({ email: email.toLowerCase() });
+    if (lead && !lead.convertedToTrial) {
+      lead.convertedToTrial = true;
+      lead.emailSequenceStatus = 'completed'; // Stop nurture emails
+      await lead.save();
+    }
+  } catch (leadErr) {
+    // Never block registration for lead tracking
+    console.warn('[Registration] Lead conversion tracking failed:', leadErr.message);
+  }
+
   // Note: token included in response body for clients that cannot use httpOnly cookies (e.g. mobile apps).
   // Can be disabled by setting INCLUDE_TOKEN_IN_BODY=false in environment.
   res.status(201).json({

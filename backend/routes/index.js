@@ -23,6 +23,7 @@ const csaRoutes = require('./csa');
 const templateRoutes = require('./templates');
 const csaCheckerRoutes = require('./csaChecker');
 const fmcsaLookupRoutes = require('./fmcsaLookup');
+const adminLeadRoutes = require('./adminLeads');
 const adminRoutes = require('./admin');
 const taskRoutes = require('./tasks');
 const checklistRoutes = require('./checklists');
@@ -40,6 +41,7 @@ const dataqAnalyticsRoutes = require('./dataqAnalytics');
 const violationCodeRoutes = require('./violationCodes');
 const clearinghouseRoutes = require('./clearinghouse');
 const fileRoutes = require('./files');
+const dvirRoutes = require('./dvir');
 
 // Apply demo guard globally - blocks write operations for demo users.
 // NOTE: demoGuard checks req.user.isDemo, which requires the protect middleware
@@ -71,6 +73,7 @@ router.use('/csa', csaRoutes);
 router.use('/templates', templateRoutes);
 router.use('/csa-checker', csaCheckerRoutes);
 router.use('/fmcsa', fmcsaLookupRoutes);
+router.use('/admin/leads', adminLeadRoutes);
 router.use('/admin', adminRoutes);
 router.use('/tasks', taskRoutes);
 router.use('/checklists', checklistRoutes);
@@ -88,5 +91,6 @@ router.use('/dataq-analytics', dataqAnalyticsRoutes);
 router.use('/violation-codes', violationCodeRoutes);
 router.use('/clearinghouse', clearinghouseRoutes);
 router.use('/files', fileRoutes);
+router.use('/dvir', dvirRoutes);
 
 module.exports = router;

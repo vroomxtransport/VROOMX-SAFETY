@@ -215,6 +215,7 @@ export const violationsAPI = {
   update: (id, data) => api.put(`/violations/${id}`, data),
   delete: (id) => api.delete(`/violations/${id}`),
   getStats: () => api.get('/violations/stats'),
+  getByState: () => api.get('/violations/by-state'),
   getSeverityWeights: () => api.get('/violations/severity-weights'),
   submitDataQ: (id, formData) => api.post(`/violations/${id}/dataq`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
@@ -315,7 +316,9 @@ export const documentsAPI = {
   verify: (id) => api.post(`/documents/${id}/verify`),
   replace: (id, formData) => api.post(`/documents/${id}/replace`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
-  })
+  }),
+  getPendingReview: () => api.get('/documents/pending-review'),
+  review: (id, action, notes) => api.put(`/documents/${id}/review`, { action, notes })
 };
 
 export const accidentsAPI = {
@@ -504,7 +507,10 @@ export const companiesAPI = {
   getCustomDqfItems: (id) => api.get(`/companies/${id}/custom-dqf-items`),
   addCustomDqfItem: (id, data) => api.post(`/companies/${id}/custom-dqf-items`, data),
   updateCustomDqfItem: (id, itemId, data) => api.put(`/companies/${id}/custom-dqf-items/${itemId}`, data),
-  deleteCustomDqfItem: (id, itemId) => api.delete(`/companies/${id}/custom-dqf-items/${itemId}`)
+  deleteCustomDqfItem: (id, itemId) => api.delete(`/companies/${id}/custom-dqf-items/${itemId}`),
+  // Logo
+  uploadLogo: (id, formData) => api.post(`/companies/${id}/logo`, formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  deleteLogo: (id) => api.delete(`/companies/${id}/logo`)
 };
 
 // Billing API - Subscription management
@@ -786,6 +792,13 @@ export const adminAPI = {
   updateBugReport: (id, data) => api.patch(`/admin/bug-reports/${id}`, data),
 };
 
+// Admin Leads API - CSA Checker lead tracking (super admin only)
+export const adminLeadsAPI = {
+  getAll: (params) => api.get('/admin/leads', { params }).then(res => res.data),
+  getStats: () => api.get('/admin/leads/stats').then(res => res.data),
+  getById: (id) => api.get(`/admin/leads/${id}`).then(res => res.data),
+};
+
 // Bug Reports API - User-facing bug report submission
 export const bugReportsAPI = {
   submit: (data) => api.post('/bug-reports', data),
@@ -868,6 +881,18 @@ export const violationCodesAPI = {
 // Fetch a file via Axios (which sends auth headers) and open as blob URL.
 // Solves 401s when opening uploaded documents in a new tab via <a target="_blank">,
 // since plain browser navigation doesn't carry the Authorization header through the proxy.
+// DVIR API - Daily Vehicle Inspection Reports
+export const dvirAPI = {
+  getAll: (params) => api.get('/dvir', { params }),
+  getById: (id) => api.get(`/dvir/${id}`),
+  create: (data) => api.post('/dvir', data),
+  update: (id, data) => api.put(`/dvir/${id}`, data),
+  delete: (id) => api.delete(`/dvir/${id}`),
+  getStats: () => api.get('/dvir/stats'),
+  getOverdue: () => api.get('/dvir/overdue'),
+  getItems: () => api.get('/dvir/items')
+};
+
 export const viewFile = async (url) => {
   if (!url) return;
   if (url.startsWith('http')) {

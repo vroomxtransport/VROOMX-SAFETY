@@ -287,6 +287,7 @@ const server = app.listen(PORT, () => {
   let isSamsaraSyncRunning = false;
   let isFmcsaSyncRunning = false;
   let isHealthCheckScanRunning = false;
+  let isLeadNurtureRunning = false;
 
   // Schedule daily alert generation at 6:00 AM
   cron.schedule('0 6 * * *', async () => {
@@ -308,6 +309,18 @@ const server = app.listen(PORT, () => {
       logger.error('[Cron] Error in daily alert generation', error);
     } finally {
       isAlertGenRunning = false;
+    }
+  });
+
+  // Schedule compliance task generation at 6:15 AM daily
+  cron.schedule('15 6 * * *', async () => {
+    try {
+      logger.cron('Running compliance task generation...');
+      const { generateComplianceTasks } = require('./services/complianceTaskGenerator');
+      const count = await generateComplianceTasks();
+      logger.cron(`Compliance task generation complete: ${count} tasks created`);
+    } catch (error) {
+      logger.error('[Cron] Error in compliance task generation', error);
     }
   });
 
@@ -471,7 +484,23 @@ const server = app.listen(PORT, () => {
     }
   });
 
-  logger.info('[Cron] Scheduled: Daily alerts at 6 AM, Alert digest emails, Escalation check every 6 hours, Trial ending check at 9 AM, Scheduled reports every hour, Samsara sync every hour, FMCSA data sync every 6 hours, Health Check scan at 7 AM');
+  // Lead nurture email sequence at 10:00 AM ET daily
+  cron.schedule('0 10 * * *', async () => {
+    if (isLeadNurtureRunning) { logger.cron('Lead nurture already running, skipping'); return; }
+    isLeadNurtureRunning = true;
+    try {
+      logger.cron('Running lead nurture sequence...');
+      const leadNurtureService = require('./services/leadNurtureService');
+      const result = await leadNurtureService.processSequence();
+      logger.cron(`Lead nurture complete: ${result.processed} processed, ${result.sent} sent, ${result.completed} completed, ${result.errors} errors`);
+    } catch (error) {
+      logger.error('[Cron] Lead nurture job failed', { error: error.message });
+    } finally {
+      isLeadNurtureRunning = false;
+    }
+  });
+
+  logger.info('[Cron] Scheduled: Daily alerts at 6 AM, Alert digest emails, Escalation check every 6 hours, Trial ending check at 9 AM, Scheduled reports every hour, Samsara sync every hour, FMCSA data sync every 6 hours, Health Check scan at 7 AM, Lead nurture at 10 AM');
 });
 
 // Graceful shutdown handler

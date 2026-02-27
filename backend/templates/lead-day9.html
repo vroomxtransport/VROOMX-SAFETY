@@ -1,0 +1,98 @@
+<!-- Lead Nurture Day 9: "Your CSA scores may have changed since {{checkedDate}}" -->
+<h2 style="margin: 0 0 16px 0; font-size: 22px; color: #1f2937; font-family: Arial, Helvetica, sans-serif;">Your CSA Scores May Have Changed</h2>
+<p style="margin: 0 0 20px 0; font-size: 15px; color: #374151; line-height: 1.6; font-family: Arial, Helvetica, sans-serif;">Hi {{companyName}} team,</p>
+<p style="margin: 0 0 16px 0; font-size: 15px; color: #374151; line-height: 1.6; font-family: Arial, Helvetica, sans-serif;">
+  On {{checkedDate}}, you ran a CSA check for DOT# {{dotNumber}} and your risk level was
+  <strong style="color: {{riskColor}};">{{riskLevel}}</strong>.
+  That was <strong>days ago</strong> -- and a lot can change.
+</p>
+
+<!-- Risk Badge -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 24px 0;">
+  <tr>
+    <td align="center" style="padding: 16px; background-color: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+      <span style="display: inline-block; padding: 6px 16px; border-radius: 4px; font-size: 14px; font-weight: bold; color: #ffffff; background-color: {{riskColor}}; font-family: Arial, Helvetica, sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">{{riskLevel}} RISK</span>
+      <p style="margin: 8px 0 0 0; font-size: 12px; color: #6b7280; font-family: Arial, Helvetica, sans-serif;">as of {{checkedDate}}</p>
+    </td>
+  </tr>
+</table>
+
+<!-- Why Scores Change -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 24px 0; background-color: #f0f9ff; border-radius: 8px; border: 1px solid #bae6fd;">
+  <tr>
+    <td style="padding: 20px;">
+      <p style="margin: 0 0 12px 0; font-size: 15px; font-weight: bold; color: #0c4a6e; font-family: Arial, Helvetica, sans-serif;">Why do CSA scores change so often?</p>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td style="padding: 6px 0; font-size: 14px; color: #0e7490; line-height: 1.5; font-family: Arial, Helvetica, sans-serif;">
+            &#8226;&nbsp; <strong>New inspections</strong> are uploaded to FMCSA databases weekly. A single bad roadside inspection can spike a BASIC by 10+ points overnight.
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 6px 0; font-size: 14px; color: #0e7490; line-height: 1.5; font-family: Arial, Helvetica, sans-serif;">
+            &#8226;&nbsp; <strong>Older violations age out</strong> on a rolling 24-month window. Violations from 2+ years ago drop off, which can help -- or hurt if they were clean inspections.
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 6px 0; font-size: 14px; color: #0e7490; line-height: 1.5; font-family: Arial, Helvetica, sans-serif;">
+            &#8226;&nbsp; <strong>Peer group changes</strong> shift your relative percentile. Even with no new inspections, your ranking can move as other carriers in your peer group add or remove violations.
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 6px 0; font-size: 14px; color: #0e7490; line-height: 1.5; font-family: Arial, Helvetica, sans-serif;">
+            &#8226;&nbsp; <strong>DataQ challenges</strong> by other carriers can shift the curve. If a competitor successfully removes violations, your relative position changes.
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<!-- Your Scores at Last Check -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 24px 0; background-color: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+  <tr>
+    <td style="padding: 16px;">
+      <p style="margin: 0 0 12px 0; font-size: 14px; font-weight: bold; color: #1a2744; text-transform: uppercase; letter-spacing: 0.5px; font-family: Arial, Helvetica, sans-serif;">Your Scores on {{checkedDate}}</p>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td style="padding: 4px 0; font-size: 14px; color: #475569; font-family: Arial, Helvetica, sans-serif;">Unsafe Driving: <strong>{{unsafeDriving}}%</strong></td>
+          <td style="padding: 4px 0; font-size: 14px; color: #475569; font-family: Arial, Helvetica, sans-serif;">HOS Compliance: <strong>{{hosCompliance}}%</strong></td>
+        </tr>
+        <tr>
+          <td style="padding: 4px 0; font-size: 14px; color: #475569; font-family: Arial, Helvetica, sans-serif;">Vehicle Maintenance: <strong>{{vehicleMaintenance}}%</strong></td>
+          <td style="padding: 4px 0; font-size: 14px; color: #475569; font-family: Arial, Helvetica, sans-serif;">Crash Indicator: <strong>{{crashIndicator}}%</strong></td>
+        </tr>
+        <tr>
+          <td style="padding: 4px 0; font-size: 14px; color: #475569; font-family: Arial, Helvetica, sans-serif;">Controlled Substances: <strong>{{controlledSubstances}}%</strong></td>
+          <td style="padding: 4px 0; font-size: 14px; color: #475569; font-family: Arial, Helvetica, sans-serif;">Driver Fitness: <strong>{{driverFitness}}%</strong></td>
+        </tr>
+        <tr>
+          <td style="padding: 4px 0; font-size: 14px; color: #475569; font-family: Arial, Helvetica, sans-serif;">Hazmat Compliance: <strong>{{hazmatCompliance}}%</strong></td>
+          <td></td>
+        </tr>
+      </table>
+      <p style="margin: 12px 0 0 0; font-size: 13px; color: #6b7280; font-style: italic; font-family: Arial, Helvetica, sans-serif;">These scores may no longer be accurate. New inspections are uploaded weekly.</p>
+    </td>
+  </tr>
+</table>
+
+<p style="margin: 0 0 16px 0; font-size: 15px; color: #374151; line-height: 1.6; font-family: Arial, Helvetica, sans-serif;">
+  Checking your scores once is a good start. But a one-time snapshot cannot protect you from what happens next week. Carriers who monitor their BASICs continuously catch problems when they are small -- before they trigger an FMCSA intervention.
+</p>
+<p style="margin: 0 0 24px 0; font-size: 15px; color: #374151; line-height: 1.6; font-family: Arial, Helvetica, sans-serif;">
+  VroomX Safety syncs with FMCSA data automatically and sends you an alert the moment a new inspection, violation, or score change hits your record. No more manual checking. No more surprises.
+</p>
+
+<!-- CTA Button -->
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;">
+  <tr>
+    <td align="center" style="border-radius: 6px; background-color: #16a34a;">
+      <a href="{{frontendUrl}}/register" target="_blank" style="display: inline-block; padding: 14px 32px; font-size: 16px; font-weight: bold; color: #ffffff; text-decoration: none; font-family: Arial, Helvetica, sans-serif;">Get Real-Time Alerts</a>
+    </td>
+  </tr>
+</table>
+
+<p style="margin: 24px 0 0 0; font-size: 12px; color: #9ca3af; text-align: center; line-height: 1.5; font-family: Arial, Helvetica, sans-serif;">
+  You're receiving this because you checked your CSA scores on VroomX Safety.
+  <a href="{{unsubscribeUrl}}" style="color: #6b7280; text-decoration: underline;">Unsubscribe</a>
+</p>

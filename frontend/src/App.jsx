@@ -31,6 +31,7 @@ import Tasks from './pages/Tasks';
 import Checklists from './pages/Checklists';
 import Maintenance from './pages/Maintenance';
 import Accidents from './pages/Accidents';
+import DVIRList from './pages/DVIRList';
 import Policies from './pages/Policies';
 import Integrations from './pages/Integrations';
 import Clearinghouse from './pages/Clearinghouse';
@@ -65,6 +66,7 @@ const AdminRevenue = lazyWithRetry(() => import('./pages/admin/AdminRevenue'));
 const AdminAlerts = lazyWithRetry(() => import('./pages/admin/AdminAlerts'));
 const AdminTickets = lazyWithRetry(() => import('./pages/admin/AdminTickets'));
 const AdminBugReports = lazyWithRetry(() => import('./pages/admin/AdminBugReports'));
+const AdminLeads = lazyWithRetry(() => import('./pages/admin/AdminLeads'));
 
 // Design Demos - lazy loaded, dev only
 const EnterpriseDemo = lazyWithRetry(() => import('./pages/designs/EnterpriseDemo'));
@@ -262,6 +264,7 @@ function App() {
           <Route path="checklists" element={<Checklists />} />
           <Route path="maintenance" element={<Maintenance />} />
           <Route path="accidents" element={<Accidents />} />
+          <Route path="dvir" element={<DVIRList />} />
           <Route path="policies" element={<Policies />} />
           <Route path="integrations" element={<Integrations />} />
           <Route path="clearinghouse" element={<Clearinghouse />} />
@@ -307,6 +310,7 @@ function App() {
           <Route path="features" element={<Suspense fallback={<LoadingSpinner size="lg" />}><AdminFeatureFlags /></Suspense>} />
           <Route path="data-integrity" element={<Suspense fallback={<LoadingSpinner size="lg" />}><AdminDataIntegrity /></Suspense>} />
           <Route path="audit-logs" element={<Suspense fallback={<LoadingSpinner size="lg" />}><AdminAuditLogs /></Suspense>} />
+          <Route path="leads" element={<Suspense fallback={<LoadingSpinner size="lg" />}><AdminLeads /></Suspense>} />
         </Route>
 
         {/* 404 */}

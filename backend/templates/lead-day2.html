@@ -1,0 +1,91 @@
+<!-- Lead Nurture Day 2: "3 ways to lower your {{riskLevel}} CSA score" -->
+<h2 style="margin: 0 0 16px 0; font-size: 22px; color: #1f2937; font-family: Arial, Helvetica, sans-serif;">3 Ways to Lower Your CSA Scores</h2>
+<p style="margin: 0 0 20px 0; font-size: 15px; color: #374151; line-height: 1.6; font-family: Arial, Helvetica, sans-serif;">Hi {{companyName}} team,</p>
+<p style="margin: 0 0 16px 0; font-size: 15px; color: #374151; line-height: 1.6; font-family: Arial, Helvetica, sans-serif;">
+  When you checked your CSA scores on {{checkedDate}}, your DOT# {{dotNumber}} came back as
+  <strong style="color: {{riskColor}};">{{riskLevel}} RISK</strong> with
+  <strong>{{alertCount}} BASIC(s) above the intervention threshold</strong>.
+</p>
+
+<!-- Risk Badge -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 24px 0;">
+  <tr>
+    <td align="center" style="padding: 16px; background-color: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+      <span style="display: inline-block; padding: 6px 16px; border-radius: 4px; font-size: 14px; font-weight: bold; color: #ffffff; background-color: {{riskColor}}; font-family: Arial, Helvetica, sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">{{riskLevel}} RISK</span>
+    </td>
+  </tr>
+</table>
+
+<p style="margin: 0 0 16px 0; font-size: 15px; color: #374151; line-height: 1.6; font-family: Arial, Helvetica, sans-serif;">
+  The good news: CSA scores are not permanent. They are based on a rolling 24-month window, and every clean inspection pushes older violations out. Here are three concrete steps you can take right now:
+</p>
+
+<!-- Action Items -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 24px 0;">
+  <tr>
+    <td style="padding: 14px 12px; font-size: 15px; color: #374151; line-height: 1.6; font-family: Arial, Helvetica, sans-serif; border-bottom: 1px solid #f3f4f6;">
+      <strong style="color: #dc2626; font-size: 18px;">1.</strong>&nbsp;
+      <strong>Challenge questionable violations with DataQ.</strong>
+      Not every violation on your record is accurate. FMCSA's DataQs process lets you request a review of inspection data. A single successful challenge can drop a BASIC percentile by 5-15 points. Look for violations where driver or vehicle info was recorded incorrectly, or where the violation code does not match the narrative.
+    </td>
+  </tr>
+  <tr>
+    <td style="padding: 14px 12px; font-size: 15px; color: #374151; line-height: 1.6; font-family: Arial, Helvetica, sans-serif; border-bottom: 1px solid #f3f4f6;">
+      <strong style="color: #dc2626; font-size: 18px;">2.</strong>&nbsp;
+      <strong>Increase your clean inspection count.</strong>
+      Each inspection without a violation dilutes your percentile. Encourage drivers to use PrePass and weigh station bypass programs, but also run regular internal pre-trip inspections. A clean Level 1 roadside inspection is one of the fastest ways to improve your Vehicle Maintenance and Unsafe Driving BASICs.
+    </td>
+  </tr>
+  <tr>
+    <td style="padding: 14px 12px; font-size: 15px; color: #374151; line-height: 1.6; font-family: Arial, Helvetica, sans-serif;">
+      <strong style="color: #dc2626; font-size: 18px;">3.</strong>&nbsp;
+      <strong>Fix recurring violations at the source.</strong>
+      Your top BASICs tell you exactly where to focus. If Unsafe Driving ({{unsafeDriving}}%) is elevated, invest in driver training on speeding and following distance. If HOS Compliance ({{hosCompliance}}%) is high, audit your ELD processes. If Vehicle Maintenance ({{vehicleMaintenance}}%) is the problem, tighten your PM schedule and DVIR review process.
+    </td>
+  </tr>
+</table>
+
+<!-- BASIC Snapshot -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 24px 0; background-color: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+  <tr>
+    <td style="padding: 16px;">
+      <p style="margin: 0 0 12px 0; font-size: 14px; font-weight: bold; color: #1a2744; text-transform: uppercase; letter-spacing: 0.5px; font-family: Arial, Helvetica, sans-serif;">Your BASIC Snapshot (DOT# {{dotNumber}})</p>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td style="padding: 4px 0; font-size: 14px; color: #475569; font-family: Arial, Helvetica, sans-serif;">Unsafe Driving: <strong>{{unsafeDriving}}%</strong></td>
+          <td style="padding: 4px 0; font-size: 14px; color: #475569; font-family: Arial, Helvetica, sans-serif;">HOS Compliance: <strong>{{hosCompliance}}%</strong></td>
+        </tr>
+        <tr>
+          <td style="padding: 4px 0; font-size: 14px; color: #475569; font-family: Arial, Helvetica, sans-serif;">Vehicle Maintenance: <strong>{{vehicleMaintenance}}%</strong></td>
+          <td style="padding: 4px 0; font-size: 14px; color: #475569; font-family: Arial, Helvetica, sans-serif;">Crash Indicator: <strong>{{crashIndicator}}%</strong></td>
+        </tr>
+        <tr>
+          <td style="padding: 4px 0; font-size: 14px; color: #475569; font-family: Arial, Helvetica, sans-serif;">Controlled Substances: <strong>{{controlledSubstances}}%</strong></td>
+          <td style="padding: 4px 0; font-size: 14px; color: #475569; font-family: Arial, Helvetica, sans-serif;">Driver Fitness: <strong>{{driverFitness}}%</strong></td>
+        </tr>
+        <tr>
+          <td style="padding: 4px 0; font-size: 14px; color: #475569; font-family: Arial, Helvetica, sans-serif;">Hazmat Compliance: <strong>{{hazmatCompliance}}%</strong></td>
+          <td></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<p style="margin: 0 0 24px 0; font-size: 15px; color: #374151; line-height: 1.6; font-family: Arial, Helvetica, sans-serif;">
+  VroomX Safety monitors all 7 BASICs in real time, flags DataQ challenge opportunities automatically, and alerts you the moment a new inspection hits your record. Stop reacting to compliance problems -- start preventing them.
+</p>
+
+<!-- CTA Button -->
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;">
+  <tr>
+    <td align="center" style="border-radius: 6px; background-color: #16a34a;">
+      <a href="{{frontendUrl}}/register" target="_blank" style="display: inline-block; padding: 14px 32px; font-size: 16px; font-weight: bold; color: #ffffff; text-decoration: none; font-family: Arial, Helvetica, sans-serif;">Start Your Free Trial</a>
+    </td>
+  </tr>
+</table>
+
+<p style="margin: 24px 0 0 0; font-size: 12px; color: #9ca3af; text-align: center; line-height: 1.5; font-family: Arial, Helvetica, sans-serif;">
+  You're receiving this because you checked your CSA scores on VroomX Safety.
+  <a href="{{unsubscribeUrl}}" style="color: #6b7280; text-decoration: underline;">Unsubscribe</a>
+</p>

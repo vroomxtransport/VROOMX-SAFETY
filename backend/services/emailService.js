@@ -727,6 +727,127 @@ const emailService = {
     return this.send(emailPayload);
   },
 
+  // ---------------------------------------------------------------------------
+  // Lead nurture sequence emails
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Generate an unsubscribe URL for a lead using a JWT token.
+   * @param {string} email - Lead email address
+   * @returns {string} Full unsubscribe URL
+   */
+  _generateLeadUnsubscribeUrl(email) {
+    const jwt = require('jsonwebtoken');
+    const token = jwt.sign(
+      { email, purpose: 'unsubscribe' },
+      process.env.JWT_SECRET,
+      { expiresIn: '90d' }
+    );
+    // In production, API is served at the same domain as frontend (behind proxy)
+    const apiBaseUrl = process.env.API_BASE_URL || FRONTEND_URL;
+    return `${apiBaseUrl.replace(/\/$/, '')}/api/csa-checker/unsubscribe?token=${token}`;
+  },
+
+  /**
+   * Build common template variables from a lead document.
+   * @param {object} lead - Lead document from MongoDB
+   * @returns {object} Template variables
+   */
+  _getLeadTemplateVars(lead) {
+    const snapshot = lead.csaSnapshot || {};
+    const checkedDate = snapshot.fetchedAt
+      ? new Date(snapshot.fetchedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+      : 'recently';
+
+    const riskLevel = snapshot.riskLevel || 'UNKNOWN';
+    const riskColorMap = { HIGH: '#dc2626', MODERATE: '#f97316', LOW: '#16a34a' };
+
+    return {
+      companyName: lead.companyName || 'Your Company',
+      dotNumber: lead.dotNumber || 'N/A',
+      riskLevel,
+      riskColor: riskColorMap[riskLevel] || '#6b7280',
+      alertCount: String(snapshot.alertCount || 0),
+      checkedDate,
+      unsafeDriving: snapshot.unsafeDriving != null ? String(snapshot.unsafeDriving) : 'N/A',
+      hosCompliance: snapshot.hosCompliance != null ? String(snapshot.hosCompliance) : 'N/A',
+      vehicleMaintenance: snapshot.vehicleMaintenance != null ? String(snapshot.vehicleMaintenance) : 'N/A',
+      crashIndicator: snapshot.crashIndicator != null ? String(snapshot.crashIndicator) : 'N/A',
+      controlledSubstances: snapshot.controlledSubstances != null ? String(snapshot.controlledSubstances) : 'N/A',
+      hazmatCompliance: snapshot.hazmatCompliance != null ? String(snapshot.hazmatCompliance) : 'N/A',
+      driverFitness: snapshot.driverFitness != null ? String(snapshot.driverFitness) : 'N/A',
+      unsubscribeUrl: this._generateLeadUnsubscribeUrl(lead.email),
+    };
+  },
+
+  /**
+   * Day 2 nurture email: actionable tips to lower CSA score.
+   * @param {object} lead - Lead document
+   * @returns {Promise<object|null>}
+   */
+  async sendLeadDay2(lead) {
+    const vars = this._getLeadTemplateVars(lead);
+    return this.send({
+      to: lead.email,
+      subject: `3 ways to lower your ${vars.riskLevel} CSA score`,
+      templateName: 'lead-day2',
+      variables: vars,
+      category: 'marketing',
+      metadata: { leadId: lead._id?.toString(), sequenceStep: 'day2' },
+    });
+  },
+
+  /**
+   * Day 5 nurture email: cost-of-inaction angle.
+   * @param {object} lead - Lead document
+   * @returns {Promise<object|null>}
+   */
+  async sendLeadDay5(lead) {
+    const vars = this._getLeadTemplateVars(lead);
+    return this.send({
+      to: lead.email,
+      subject: 'This $16,000 fine was 100% preventable',
+      templateName: 'lead-day5',
+      variables: vars,
+      category: 'marketing',
+      metadata: { leadId: lead._id?.toString(), sequenceStep: 'day5' },
+    });
+  },
+
+  /**
+   * Day 9 nurture email: re-engagement — scores may have changed.
+   * @param {object} lead - Lead document
+   * @returns {Promise<object|null>}
+   */
+  async sendLeadDay9(lead) {
+    const vars = this._getLeadTemplateVars(lead);
+    return this.send({
+      to: lead.email,
+      subject: `Your CSA scores may have changed since ${vars.checkedDate}`,
+      templateName: 'lead-day9',
+      variables: vars,
+      category: 'marketing',
+      metadata: { leadId: lead._id?.toString(), sequenceStep: 'day9' },
+    });
+  },
+
+  /**
+   * Day 14 nurture email: final urgency / last chance.
+   * @param {object} lead - Lead document
+   * @returns {Promise<object|null>}
+   */
+  async sendLeadDay14(lead) {
+    const vars = this._getLeadTemplateVars(lead);
+    return this.send({
+      to: lead.email,
+      subject: 'Last chance: your free compliance checkup expires',
+      templateName: 'lead-day14',
+      variables: vars,
+      category: 'marketing',
+      metadata: { leadId: lead._id?.toString(), sequenceStep: 'day14' },
+    });
+  },
+
   /**
    * Send a report with a PDF attachment.
    */

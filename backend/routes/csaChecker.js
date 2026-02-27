@@ -14,6 +14,7 @@ const aiService = require('../services/aiService');
 const emailService = require('../services/emailService');
 const pdfService = require('../services/pdfService');
 const { lookupViolationCode } = require('../config/violationCodes');
+const jwt = require('jsonwebtoken');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
 
 // Keywords that indicate a moving violation (fallback when code lookup doesn't match)
@@ -396,6 +397,13 @@ DATAQ OPPORTUNITIES
       dataQOpportunities
     );
     emailSent = emailResult !== null && !emailResult?.error;
+
+    // Start nurture sequence if email was sent successfully
+    if (emailSent && lead) {
+      lead.emailSequenceStatus = 'sent_welcome';
+      lead.lastEmailSentAt = new Date();
+      await lead.save();
+    }
   } catch (emailError) {
     console.error('CSA Report email error:', emailError.message);
   }
@@ -536,6 +544,63 @@ function generateFallbackAnalysis(carrierData, violations) {
   }
 
   return analysis;
+}
+
+/**
+ * @route   GET /api/csa-checker/unsubscribe
+ * @desc    Unsubscribe a lead from the email nurture sequence (CAN-SPAM)
+ * @access  Public
+ */
+router.get('/unsubscribe', asyncHandler(async (req, res) => {
+  const { token } = req.query;
+
+  if (!token) {
+    return res.status(400).send(renderUnsubscribePage('Invalid unsubscribe link.', false));
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (decoded.purpose !== 'unsubscribe' || !decoded.email) {
+      return res.status(400).send(renderUnsubscribePage('Invalid unsubscribe link.', false));
+    }
+
+    const lead = await Lead.findByEmail(decoded.email);
+    if (!lead) {
+      // Even if lead not found, show success (don't leak info)
+      return res.send(renderUnsubscribePage("You've been unsubscribed.", true));
+    }
+
+    if (lead.emailSequenceStatus !== 'unsubscribed') {
+      lead.emailSequenceStatus = 'unsubscribed';
+      await lead.save();
+    }
+
+    return res.send(renderUnsubscribePage("You've been unsubscribed. You won't receive further emails from VroomX.", true));
+  } catch (err) {
+    if (err.name === 'TokenExpiredError') {
+      return res.status(400).send(renderUnsubscribePage('This unsubscribe link has expired. Please contact support@vroomxsafety.com.', false));
+    }
+    return res.status(400).send(renderUnsubscribePage('Invalid unsubscribe link.', false));
+  }
+}));
+
+/**
+ * Render a simple HTML unsubscribe confirmation page.
+ */
+function renderUnsubscribePage(message, success) {
+  const color = success ? '#16a34a' : '#dc2626';
+  const icon = success ? '&#10003;' : '&#10007;';
+  return `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Unsubscribe - VroomX Safety</title></head>
+<body style="margin:0;padding:0;background:#f3f4f6;font-family:Arial,Helvetica,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;">
+  <div style="background:#fff;border-radius:8px;padding:48px 32px;max-width:440px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+    <div style="width:64px;height:64px;border-radius:50%;background:${color};color:#fff;font-size:32px;line-height:64px;margin:0 auto 24px;">${icon}</div>
+    <h1 style="margin:0 0 12px;font-size:24px;color:#1a2744;">VroomX Safety</h1>
+    <p style="margin:0;font-size:16px;color:#4b5563;">${message}</p>
+  </div>
+</body>
+</html>`;
 }
 
 module.exports = router;

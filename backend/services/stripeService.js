@@ -334,6 +334,18 @@ const stripeService = {
 
     await user.save({ validateBeforeSave: false });
 
+    // Link lead → paid conversion (fire-and-forget)
+    try {
+      const Lead = require('../models/Lead');
+      const lead = await Lead.findOne({ email: user.email.toLowerCase() });
+      if (lead && !lead.convertedToPaid) {
+        lead.convertedToPaid = true;
+        await lead.save();
+      }
+    } catch (leadErr) {
+      console.warn('[Stripe] Lead paid conversion tracking failed:', leadErr.message);
+    }
+
     // Track subscription creation in PostHog
     posthogService.capture(userId, 'subscription_created', {
       plan,

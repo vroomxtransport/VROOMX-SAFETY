@@ -59,7 +59,7 @@ const leadSchema = new mongoose.Schema({
   },
   emailSequenceStatus: {
     type: String,
-    enum: ['pending', 'sent_welcome', 'sent_day2', 'sent_day5', 'sent_day7', 'completed', 'unsubscribed'],
+    enum: ['pending', 'sent_welcome', 'sent_day2', 'sent_day5', 'sent_day9', 'sent_day14', 'completed', 'unsubscribed'],
     default: 'pending'
   },
   lastEmailSentAt: Date,
