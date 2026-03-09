@@ -7,6 +7,8 @@ import Landing from './pages/Landing';
 import Blog from './pages/Blog';
 import ArticlePage from './pages/ArticlePage';
 import CSACheckerPage from './pages/CSACheckerPage';
+import ViolationCostCalculator from './pages/ViolationCostCalculator';
+import DataQIntelligence from './pages/DataQIntelligence';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import Platform from './pages/Platform';
@@ -25,16 +27,17 @@ import DrugAlcohol from './pages/DrugAlcohol';
 import Documents from './pages/Documents';
 import ScheduledReports from './pages/ScheduledReports';
 import RegulationAssistant from './pages/RegulationAssistant';
-import AlertsDashboard from './pages/AlertsDashboard';
 import TemplateGenerator from './pages/TemplateGenerator';
 import Tasks from './pages/Tasks';
 import Checklists from './pages/Checklists';
 import Maintenance from './pages/Maintenance';
 import Accidents from './pages/Accidents';
 import DVIRList from './pages/DVIRList';
+import FleetPulse from './pages/FleetPulse';
 import Policies from './pages/Policies';
 import Integrations from './pages/Integrations';
 import Clearinghouse from './pages/Clearinghouse';
+import CarrierDocuments from './pages/CarrierDocuments';
 
 import LoadingSpinner from './components/LoadingSpinner';
 import PageTransition from './components/PageTransition';
@@ -206,6 +209,12 @@ function App() {
         {/* CSA Checker - public lead magnet */}
         <Route path="/csa-checker" element={<CSACheckerPage />} />
 
+        {/* Violation Cost Calculator - public lead magnet */}
+        <Route path="/violation-calculator" element={<ViolationCostCalculator />} />
+
+        {/* DataQ Intelligence - public SEO page */}
+        <Route path="/dataq" element={<DataQIntelligence />} />
+
         {/* Legal Pages - public */}
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
@@ -239,6 +248,7 @@ function App() {
         >
           <Route index element={<Navigate to="/app/dashboard" replace />} />
           <Route path="dashboard" element={<Suspense fallback={<LoadingSpinner size="lg" />}><Dashboard /></Suspense>} />
+          <Route path="fleet-pulse" element={<FleetPulse />} />
           <Route path="drivers" element={<Drivers />} />
           <Route path="drivers/:id" element={<Suspense fallback={<LoadingSpinner size="lg" />}><DriverDetail /></Suspense>} />
           <Route path="vehicles" element={<Vehicles />} />
@@ -256,7 +266,7 @@ function App() {
           <Route path="inspection-history" element={<Navigate to="/app/compliance" replace />} />
           <Route path="settings" element={<Suspense fallback={<LoadingSpinner size="lg" />}><Settings /></Suspense>} />
           <Route path="ai-assistant" element={<RegulationAssistant />} />
-          <Route path="alerts" element={<AlertsDashboard />} />
+          <Route path="alerts" element={<Navigate to="/app/fleet-pulse?view=alerts" replace />} />
           <Route path="csa-estimator" element={<Navigate to="/app/compliance" replace />} />
           <Route path="inspection-upload" element={<Navigate to="/app/compliance" replace />} />
           <Route path="templates" element={<TemplateGenerator />} />
@@ -268,6 +278,7 @@ function App() {
           <Route path="policies" element={<Policies />} />
           <Route path="integrations" element={<Integrations />} />
           <Route path="clearinghouse" element={<Clearinghouse />} />
+          <Route path="carrier-documents" element={<CarrierDocuments />} />
           <Route path="dataq-dashboard" element={<Navigate to="/app/compliance?tab=dataq" replace />} />
           <Route path="clean-inspections" element={<Navigate to="/app/compliance" replace />} />
         </Route>

@@ -17,6 +17,9 @@ import StatsCards from './dashboard/StatsCards';
 import ComplianceTrendChart from './dashboard/ComplianceTrendChart';
 import RecentInspectionsCard from './dashboard/RecentInspectionsCard';
 import TopRiskDriversCard from './dashboard/TopRiskDriversCard';
+import AuditShieldCard from './dashboard/AuditShieldCard';
+import ExpirationTimeline from './dashboard/ExpirationTimeline';
+import ComplianceCopilot from '../components/shared/ComplianceCopilot';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -294,6 +297,16 @@ const Dashboard = () => {
         </div>
       </div>
 
+      {/* Compliance Copilot */}
+      <ComplianceCopilot
+        context="dashboard"
+        data={{
+          complianceScore: complianceScore,
+          alertCount: data?.alerts?.length || 0,
+          expiredDocs: data?.drivers?.nonCompliant || 0
+        }}
+      />
+
       {/* Main Grid - Score Section */}
       <div className="grid grid-cols-12 gap-3 sm:gap-4 lg:gap-6">
         {/* Compliance Score Card (Main Feature) */}
@@ -414,6 +427,9 @@ const Dashboard = () => {
         </div>
       )}
 
+      {/* Expiration Timeline */}
+      <ExpirationTimeline />
+
       {/* Bottom Row */}
       <div className="grid grid-cols-12 gap-3 sm:gap-4 lg:gap-6">
         {/* Recent Alerts */}
@@ -465,7 +481,7 @@ const Dashboard = () => {
           {(data?.alerts?.length || 0) > 0 && (
             <div className="p-4 border-t border-zinc-100 dark:border-white/5">
               <Link
-                to="/app/alerts"
+                to="/app/fleet-pulse?view=alerts"
                 className="w-full py-2.5 text-sm font-medium text-accent-500 hover:text-accent-600 dark:hover:text-accent-400 hover:bg-accent-50 dark:hover:bg-accent-500/10 rounded-xl transition-colors flex items-center justify-center gap-1"
               >
                 View All Alerts
@@ -634,106 +650,8 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Audit Readiness */}
-          <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-2xl overflow-hidden shadow-sm">
-            <div className="p-5 border-b border-zinc-100 dark:border-white/5 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-green-100 dark:bg-green-500/10 flex items-center justify-center">
-                  <FiShield className="w-5 h-5 text-green-600 dark:text-green-400" />
-                </div>
-                <h3 className="font-semibold text-zinc-900 dark:text-white">Audit Ready</h3>
-              </div>
-              <Link to="/app/reports" className="text-sm text-accent-500 hover:text-accent-600 dark:hover:text-accent-400 font-medium">
-                Run Audit
-              </Link>
-            </div>
-            <div className="p-5 space-y-3">
-              {/* DQF Files */}
-              <div className={`group flex items-center gap-3 p-3 rounded-xl border hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer ${
-                (data?.drivers?.nonCompliant || 0) === 0
-                  ? 'bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/20 hover:border-green-300 dark:hover:border-green-500/40'
-                  : 'bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20 hover:border-red-300 dark:hover:border-red-500/40'
-              }`}>
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200 ${
-                  (data?.drivers?.nonCompliant || 0) === 0
-                    ? 'bg-green-100 dark:bg-green-500/20'
-                    : 'bg-red-100 dark:bg-red-500/20'
-                }`}>
-                  {(data?.drivers?.nonCompliant || 0) === 0 ? (
-                    <FiCheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
-                  ) : (
-                    <FiAlertCircle className="w-4 h-4 text-red-600 dark:text-red-400" />
-                  )}
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-zinc-900 dark:text-white">DQF Files</p>
-                  <p className={`text-xs ${
-                    (data?.drivers?.nonCompliant || 0) === 0
-                      ? 'text-green-600 dark:text-green-400'
-                      : 'text-red-600 dark:text-red-400'
-                  }`}>
-                    {(data?.drivers?.nonCompliant || 0) === 0 ? 'All compliant' : `${data?.drivers?.nonCompliant} need attention`}
-                  </p>
-                </div>
-              </div>
-              {/* Vehicle Records */}
-              <div className={`group flex items-center gap-3 p-3 rounded-xl border hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer ${
-                (data?.vehicles?.outOfService || 0) === 0
-                  ? 'bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/20 hover:border-green-300 dark:hover:border-green-500/40'
-                  : 'bg-yellow-50 dark:bg-yellow-500/10 border-yellow-200 dark:border-yellow-500/20 hover:border-yellow-300 dark:hover:border-yellow-500/40'
-              }`}>
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200 ${
-                  (data?.vehicles?.outOfService || 0) === 0
-                    ? 'bg-green-100 dark:bg-green-500/20'
-                    : 'bg-yellow-100 dark:bg-yellow-500/20'
-                }`}>
-                  {(data?.vehicles?.outOfService || 0) === 0 ? (
-                    <FiCheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
-                  ) : (
-                    <FiAlertCircle className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
-                  )}
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-zinc-900 dark:text-white">Vehicle Records</p>
-                  <p className={`text-xs ${
-                    (data?.vehicles?.outOfService || 0) === 0
-                      ? 'text-green-600 dark:text-green-400'
-                      : 'text-yellow-600 dark:text-yellow-400'
-                  }`}>
-                    {(data?.vehicles?.outOfService || 0) === 0 ? 'Up to date' : `${data?.vehicles?.outOfService} out of service`}
-                  </p>
-                </div>
-              </div>
-              {/* Drug & Alcohol */}
-              <div className={`group flex items-center gap-3 p-3 rounded-xl border hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer ${
-                complianceData?.components?.drugAlcohol?.score > 0
-                  ? 'bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/20 hover:border-green-300 dark:hover:border-green-500/40'
-                  : 'bg-zinc-50 dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600'
-              }`}>
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200 ${
-                  complianceData?.components?.drugAlcohol?.score > 0
-                    ? 'bg-green-100 dark:bg-green-500/20'
-                    : 'bg-zinc-100 dark:bg-zinc-700'
-                }`}>
-                  {complianceData?.components?.drugAlcohol?.score > 0 ? (
-                    <FiCheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
-                  ) : (
-                    <FiAlertCircle className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
-                  )}
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-zinc-900 dark:text-white">Drug & Alcohol</p>
-                  <p className={`text-xs ${
-                    complianceData?.components?.drugAlcohol?.score > 0
-                      ? 'text-green-600 dark:text-green-400'
-                      : 'text-zinc-500 dark:text-zinc-400'
-                  }`}>
-                    {complianceData?.components?.drugAlcohol?.score > 0 ? 'Program compliant' : 'No data - Setup required'}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+          {/* Audit Shield */}
+          <AuditShieldCard />
         </div>
       </div>
 

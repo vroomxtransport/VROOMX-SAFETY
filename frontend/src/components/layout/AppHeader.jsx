@@ -377,7 +377,7 @@ const AppHeader = ({
 
                 {/* Footer */}
                 <NavLink
-                  to="/app/alerts"
+                  to="/app/fleet-pulse?view=alerts"
                   onClick={() => setNotificationsOpen(false)}
                   className="block px-4 py-3 text-center text-sm font-medium text-accent-600 dark:text-accent-400 hover:bg-zinc-50 dark:hover:bg-white/5 border-t border-zinc-100 dark:border-white/5"
                 >

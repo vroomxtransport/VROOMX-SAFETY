@@ -2,15 +2,15 @@ import {
   FiHome, FiUsers, FiTruck, FiDroplet,
   FiFolder, FiBarChart2, FiFileText, FiTag, FiMessageCircle, FiDollarSign,
   FiActivity, FiCheckSquare, FiClipboard, FiTool, FiAlertOctagon,
-  FiBookOpen, FiLink, FiShield
+  FiBookOpen, FiLink, FiShield, FiArchive, FiBell
 } from 'react-icons/fi';
 
 const navigation = [
   // Main section (no header)
   { name: 'Dashboard', path: '/app/dashboard', icon: FiHome },
+  { name: 'Fleet Pulse', path: '/app/fleet-pulse', icon: FiActivity, hasAlerts: true },
   { name: 'Regulation Assistant', path: '/app/ai-assistant', icon: FiMessageCircle, isAI: true },
   { name: 'AI Compliance Report', path: '/app/compliance-report', icon: FiShield, isAI: true },
-  { name: 'Alerts', path: '/app/alerts', icon: FiActivity, hasAlerts: true },
   { name: 'Tasks', path: '/app/tasks', icon: FiCheckSquare },
 
   // Management section
@@ -34,6 +34,7 @@ const navigation = [
   { name: 'Policies', path: '/app/policies', icon: FiBookOpen },
   { name: 'Templates', path: '/app/templates', icon: FiFileText },
   { name: 'Checklists', path: '/app/checklists', icon: FiClipboard },
+  { name: 'Carrier Docs', path: '/app/carrier-documents', icon: FiArchive },
   { name: 'Documents', path: '/app/documents', icon: FiFolder },
 
   // Tools section
