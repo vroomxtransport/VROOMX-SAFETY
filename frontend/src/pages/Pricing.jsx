@@ -17,7 +17,7 @@ const pricingFAQ = [
   },
   {
     question: "Can I upgrade later?",
-    answer: "Absolutely. Start free and upgrade to Fleet ($79/mo) or Pro ($149/mo) anytime from your account settings. You'll get instant access to AI compliance tools, CSA monitoring, DataQ analytics, and more. Paid plans come with a 7-day free trial."
+    answer: "Absolutely. Start free and upgrade to Fleet ($79/mo) or Pro ($149/mo) anytime from your account settings. You'll get instant access to AI compliance tools, CSA monitoring, DataQ analytics, and more. Paid plans come with a 14-day free trial."
   },
   {
     question: "Can I change plans anytime?",
@@ -72,7 +72,7 @@ const plans = [
     monthlyPrice: 79,
     annualPrice: 711,
     description: 'Built for growing fleets that need powerful compliance tools.',
-    cta: 'Start 7-Day Free Trial',
+    cta: 'Start 14-Day Free Trial',
     popular: true,
     features: [
       'Everything in Free, plus:',
@@ -92,7 +92,7 @@ const plans = [
     monthlyPrice: 149,
     annualPrice: 1341,
     description: 'Advanced analytics and tools for established fleet operations.',
-    cta: 'Start 7-Day Free Trial',
+    cta: 'Start 14-Day Free Trial',
     popular: false,
     features: [
       'Everything in Fleet, plus:',
@@ -270,7 +270,7 @@ const Pricing = () => {
                       ) : (
                         <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-full">
                           <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                          <span className="text-sm font-bold text-emerald-700">7-Day Free Trial</span>
+                          <span className="text-sm font-bold text-emerald-700">14-Day Free Trial</span>
                         </div>
                       )}
                     </div>
@@ -312,7 +312,7 @@ const Pricing = () => {
           {/* Trust badges row */}
           <div className="mt-12 flex flex-wrap justify-center gap-4 md:gap-8">
             {[
-              { icon: FiShield, iconClass: 'text-emerald-500', text: '7-day free trial', bgClass: 'bg-emerald-50' },
+              { icon: FiShield, iconClass: 'text-emerald-500', text: '14-day free trial', bgClass: 'bg-emerald-50' },
               { icon: FiUsers, iconClass: 'text-primary-500', text: 'No contracts', bgClass: 'bg-primary-50' },
               { icon: FiZap, iconClass: 'text-cta-500', text: 'Cancel anytime', bgClass: 'bg-cta-50' },
               { icon: FiLock, iconClass: 'text-blue-500', text: '30-day money-back guarantee', bgClass: 'bg-blue-50' },

@@ -109,7 +109,7 @@ router.post('/register', [
     subscription = {
       plan,
       status: 'trialing',
-      trialEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days from now
+      trialEndsAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) // 14 days from now
     };
   }
   // Create user first (needed for ownerId)

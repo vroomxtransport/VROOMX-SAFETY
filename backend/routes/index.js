@@ -42,6 +42,8 @@ const violationCodeRoutes = require('./violationCodes');
 const clearinghouseRoutes = require('./clearinghouse');
 const fileRoutes = require('./files');
 const dvirRoutes = require('./dvir');
+const carrierDocumentRoutes = require('./carrierDocuments');
+const correctiveActionRoutes = require('./correctiveActions');
 
 // Apply demo guard globally - blocks write operations for demo users.
 // NOTE: demoGuard checks req.user.isDemo, which requires the protect middleware
@@ -92,5 +94,7 @@ router.use('/violation-codes', violationCodeRoutes);
 router.use('/clearinghouse', clearinghouseRoutes);
 router.use('/files', fileRoutes);
 router.use('/dvir', dvirRoutes);
+router.use('/carrier-documents', carrierDocumentRoutes);
+router.use('/corrective-actions', correctiveActionRoutes);
 
 module.exports = router;

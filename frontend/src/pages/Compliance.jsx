@@ -16,6 +16,7 @@ import { formatDate } from '../utils/helpers';
 const Violations = lazy(() => import('./Violations'));
 const CleanInspectionPanel = lazy(() => import('../components/CleanInspectionPanel'));
 const DataQDashboard = lazy(() => import('./DataQDashboard'));
+const DataQIntelligencePanel = lazy(() => import('../components/compliance/DataQIntelligencePanel'));
 
 const Compliance = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -701,9 +702,14 @@ const Compliance = () => {
           <CleanInspectionPanel />
         </Suspense>
       ) : activeTab === 'dataq' ? (
-        <Suspense fallback={<div className="flex justify-center py-16"><LoadingSpinner size="lg" /></div>}>
-          <DataQDashboard embedded />
-        </Suspense>
+        <div className="space-y-6">
+          <Suspense fallback={<div className="flex justify-center py-16"><LoadingSpinner size="lg" /></div>}>
+            <DataQIntelligencePanel />
+          </Suspense>
+          <Suspense fallback={<div className="flex justify-center py-16"><LoadingSpinner size="lg" /></div>}>
+            <DataQDashboard embedded />
+          </Suspense>
+        </div>
       ) : (
         <CSAEstimatorContent />
       )}

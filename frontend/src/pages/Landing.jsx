@@ -44,7 +44,7 @@ const Landing = () => {
     <div className="relative overflow-hidden w-full min-h-screen bg-white text-[#1E293B]">
       <SEO
         title="FMCSA Compliance Management & CSA Score Tracking"
-        description="Stop risking $16,000 fines. Track CSA scores, manage DQF files, catch expiring documents, and generate DataQ challenges with AI. Built for owner-operators and small fleets. 7-day free trial."
+        description="Stop risking $16,000 fines. Track CSA scores, manage DQF files, catch expiring documents, and generate DataQ challenges with AI. Built for owner-operators and small fleets. 14-day free trial."
         path="/"
         image="/images/og-image.png"
         faqItems={faqData}
@@ -59,9 +59,9 @@ const Landing = () => {
       {/* Promo Banner */}
       <div className="relative z-[60] bg-gradient-to-r from-cta-600 via-cta-500 to-cta-600 text-white text-center py-2.5 px-4">
         <p className="text-sm font-semibold tracking-wide flex items-center justify-center gap-2 flex-wrap">
-          <span>Plans start at $29/mo</span>
+          <span>Free forever for owner-operators</span>
           <span className="mx-1 text-white/50">|</span>
-          <span>7-day free trial, no credit card required</span>
+          <span>14-day free trial on paid plans, no credit card required</span>
           <Link to="/register" className="bg-white/20 backdrop-blur-sm px-2.5 py-0.5 rounded-md font-mono font-black tracking-widest border border-white/30 hover:bg-white/30 transition-colors">
             Protect My Fleet
           </Link>

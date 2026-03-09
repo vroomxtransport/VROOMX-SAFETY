@@ -9,6 +9,7 @@ const { SMS_BASICS_THRESHOLDS, getComplianceStatus } = require('../config/fmcsaC
 const alertService = require('../services/alertService');
 const complianceScoreService = require('../services/complianceScoreService');
 const fmcsaSyncService = require('../services/fmcsaSyncService');
+const auditReadinessService = require('../services/auditReadinessService');
 
 router.use(protect);
 router.use(restrictToCompany);
@@ -414,6 +415,19 @@ router.get('/fmcsa-status', asyncHandler(async (req, res) => {
     isStale,
     smsBasics: company?.smsBasics,
     fmcsaData: company?.fmcsaData
+  });
+}));
+
+// @route   GET /api/dashboard/audit-shield
+// @desc    Get Audit Shield score (proactive DOT audit readiness)
+// @access  Private
+router.get('/audit-shield', asyncHandler(async (req, res) => {
+  const companyId = req.companyFilter.companyId;
+  const result = await auditReadinessService.calculateScore(companyId);
+
+  res.json({
+    success: true,
+    auditShield: result
   });
 }));
 

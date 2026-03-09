@@ -151,6 +151,7 @@ export default api;
 export const dashboardAPI = {
   get: () => api.get('/dashboard'),
   getAuditReadiness: () => api.get('/dashboard/audit-readiness'),
+  getAuditShield: () => api.get('/dashboard/audit-shield'),
   updateBasics: (data) => api.put('/dashboard/basics', data),
   refreshFMCSA: () => api.post('/dashboard/refresh-fmcsa'),
   getFMCSAStatus: () => api.get('/dashboard/fmcsa-status'),
@@ -892,6 +893,22 @@ export const dvirAPI = {
   getStats: () => api.get('/dvir/stats'),
   getOverdue: () => api.get('/dvir/overdue'),
   getItems: () => api.get('/dvir/items')
+};
+
+// Corrective Actions API - Inspection corrective action logging
+export const correctiveActionsAPI = {
+  getAll: (params) => api.get('/corrective-actions', { params }),
+  create: (data) => api.post('/corrective-actions', data),
+  update: (id, data) => api.put(`/corrective-actions/${id}`, data),
+  delete: (id) => api.delete(`/corrective-actions/${id}`)
+};
+
+// Carrier Documents API - Carrier-level compliance document tracking
+export const carrierDocumentsAPI = {
+  getAll: () => api.get('/carrier-documents'),
+  create: (data) => api.post('/carrier-documents', data),
+  update: (id, data) => api.put(`/carrier-documents/${id}`, data),
+  delete: (id) => api.delete(`/carrier-documents/${id}`)
 };
 
 export const viewFile = async (url) => {

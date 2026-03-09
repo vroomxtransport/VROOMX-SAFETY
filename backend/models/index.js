@@ -33,6 +33,8 @@ const KnownInspection = require('./KnownInspection');
 const DataQAnalytics = require('./DataQAnalytics');
 const DataQMonthlyReport = require('./DataQMonthlyReport');
 const ClearinghouseQuery = require('./ClearinghouseQuery');
+const CarrierDocument = require('./CarrierDocument');
+const CorrectiveAction = require('./CorrectiveAction');
 
 module.exports = {
   User,
@@ -69,5 +71,7 @@ module.exports = {
   KnownInspection,
   DataQAnalytics,
   DataQMonthlyReport,
-  ClearinghouseQuery
+  ClearinghouseQuery,
+  CarrierDocument,
+  CorrectiveAction
 };

@@ -20,6 +20,8 @@ import DriverDocumentsTab from './driver-detail/DriverDocumentsTab';
 import DriverSafetyTab from './driver-detail/DriverSafetyTab';
 import DriverClaimsTab from './driver-detail/DriverClaimsTab';
 import EditDriverModal from './driver-detail/EditDriverModal';
+import DQFProgress from '../components/drivers/DQFProgress';
+import ComplianceCopilot from '../components/shared/ComplianceCopilot';
 
 const DriverDetail = () => {
   const { id } = useParams();
@@ -414,18 +416,26 @@ const DriverDetail = () => {
             <HealthBadge label="Certification" status={driver.complianceStatus?.certificationStatus} />
 
             {/* DQF Progress */}
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-zinc-100 dark:bg-zinc-800">
-              <FiFolder className="w-4 h-4 text-zinc-500" />
-              <div>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">DQF Complete</p>
-                <p className={`text-sm font-semibold ${completedDocs === totalDocs ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400'}`}>
-                  {completedDocs}/{totalDocs}
-                </p>
-              </div>
-            </div>
+            <DQFProgress
+              completed={completedDocs}
+              total={totalDocs}
+              missingDocs={fullDocumentChecklist.filter(d => d.status === 'missing').map(d => d.label)}
+            />
           </div>
         </div>
       </div>
+
+      {/* Compliance Copilot */}
+      <ComplianceCopilot
+        context="driver"
+        data={{
+          cdlDays,
+          medicalDays,
+          completedDocs,
+          totalDocs,
+          clearinghouseStatus: driver.clearinghouse?.status
+        }}
+      />
 
       {/* Tab Navigation */}
       <div className="flex items-center gap-2 p-1 bg-zinc-100 dark:bg-zinc-800/50 rounded-xl w-fit">

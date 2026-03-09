@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FiSearch, FiMenu, FiX } from 'react-icons/fi';
+import { FiSearch, FiMenu, FiX, FiDollarSign } from 'react-icons/fi';
 import VroomXLogo from './VroomXLogo';
 
 const PublicHeader = ({ activePage = 'landing', variant = 'light', topOffset = 'top-6' }) => {
@@ -9,6 +9,7 @@ const PublicHeader = ({ activePage = 'landing', variant = 'light', topOffset = '
 
   const navLinks = [
     { to: '/csa-checker', label: 'Free CSA Check', icon: FiSearch, isLink: true, highlight: true },
+    { to: '/violation-calculator', label: 'Cost Calculator', icon: FiDollarSign, isLink: true, highlight: true },
     { href: activePage === 'landing' ? '#features' : '/#features', label: 'Features', isLink: false },
     { to: '/pricing', label: 'Pricing', isLink: true },
     { to: '/platform', label: 'How It Works', isLink: true },
@@ -30,6 +31,13 @@ const PublicHeader = ({ activePage = 'landing', variant = 'light', topOffset = '
           >
             <FiSearch className="w-3.5 h-3.5" />
             Free CSA Check
+          </Link>
+          <Link
+            to="/violation-calculator"
+            className={`${activePage === 'violation-calculator' ? 'text-cta-600 font-bold' : 'text-cta-500'} text-sm font-medium hover:text-cta-600 transition-colors flex items-center gap-1.5 cursor-pointer`}
+          >
+            <FiDollarSign className="w-3.5 h-3.5" />
+            Cost Calculator
           </Link>
           <a
             href={activePage === 'landing' ? '#features' : '/#features'}
