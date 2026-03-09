@@ -187,14 +187,21 @@ const fmcsaViolationService = {
     console.log(`[getSyncStatus] Fetching for companyId: ${companyId}`);
 
     const company = await Company.findById(companyId)
-      .select('fmcsaData.lastViolationSync fmcsaData.inspections dotNumber');
+      .select('fmcsaData.syncStatus fmcsaData.lastViolationSync fmcsaData.inspections dotNumber');
+
+    // Use orchestrator's authoritative timestamp, fall back to legacy field
+    const lastSync = company?.fmcsaData?.syncStatus?.lastRun
+      || company?.fmcsaData?.lastViolationSync
+      || null;
 
     console.log(`[getSyncStatus] Company found: ${!!company}, DOT: ${company?.dotNumber}`);
     console.log(`[getSyncStatus] Has inspections: ${!!company?.fmcsaData?.inspections}`);
+    console.log(`[getSyncStatus] syncStatus.lastRun: ${company?.fmcsaData?.syncStatus?.lastRun}`);
     console.log(`[getSyncStatus] lastViolationSync: ${company?.fmcsaData?.lastViolationSync}`);
+    console.log(`[getSyncStatus] Using lastSync: ${lastSync}`);
 
     return {
-      lastSync: company?.fmcsaData?.lastViolationSync || null,
+      lastSync,
       hasData: !!company?.fmcsaData?.inspections,
       inspectionCount: company?.fmcsaData?.inspections?.totalInspections || 0,
       canSync: true
